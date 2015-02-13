@@ -10,54 +10,7 @@ from lxml import etree
 from django.views.generic import View
 from django.http import HttpResponse
 
-def check_action_rigth(action):
-    return isinstance(action, XferAction)  # add check right
-
-class XferAction(object):
-
-    title = ""
-    icon = ""
-    extension = ""
-    action = ""
-    close = ""
-    modal = ""
-    select = ""
-    _tag = ""
-
-    def __init__(self, title, icon="", extension="", action="", modal="", close="", select=""):
-        self.title = title
-        self.icon = icon
-
-        # if( is_file($rootPath."extensions/$extension/images/$icon"))
-        #    self.icon = $rootPath."extensions/$extension/images/$icon";
-        # else if( is_file($rootPath."images/$icon"))
-        #    self.icon = $rootPath."images/$icon";
-        # else if( is_file($rootPath."$icon"))
-        #    self.icon = $rootPath.$icon;
-        self.extension = extension
-        self.action = action
-        self.close = close
-        self.modal = modal
-        self.select = select
-        self._tag = "ACTION"
-
-    def get_xml(self):
-        actionxml = etree.Element('self._tag')
-        if self.icon != "":
-            actionxml.attrib['icon'] = self.icon
-            # actionxml.attrib['sizeicon']=filesize(self.icon)
-        if self.extension != "":
-            actionxml.attrib['extension'] = self.extension
-        if self.action != "":
-            actionxml.attrib['action='] = self.action
-        if isinstance(self.close, int):
-            actionxml.attrib['close'] = self.close
-        if isinstance(self.modal, int):
-            actionxml.attrib['modal'] = self.modal
-        if isinstance(self.select, int):
-            actionxml.attrib['unique'] = self.select
-        actionxml.text = self.title
-        return actionxml
+from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml
 
 class XferContainerAbstract(View):
 
@@ -66,6 +19,7 @@ class XferContainerAbstract(View):
     action = ""
     caption = ""
     closeaction = None
+    icon = ""
 
     def __init__(self, **kwargs):
         View.__init__(self, **kwargs)
@@ -80,6 +34,7 @@ class XferContainerAbstract(View):
             return None
 
     def _initialize(self, request, *_, **kwargs):
+        _, self.extension, self.action = request.path.split('/')
         self.request = request
         for key in kwargs.keys():
             self.params[key] = kwargs[key]
@@ -88,9 +43,9 @@ class XferContainerAbstract(View):
         for key in request.POST.keys():
             self.params[key] = request.POST[key]
 
-    def set_close_action(self, action):
-        if check_action_rigth(action):
-            self.closeaction = action
+    def set_close_action(self, action, **option):
+        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
+            self.closeaction = (action, option)
 
     def fillresponse(self):
         pass
@@ -105,10 +60,11 @@ class XferContainerAbstract(View):
             new_param = etree.SubElement(context, 'PARAM')
             new_param.text = value
             new_param.attrib['name'] = key
-        if (self.closeaction != None) and isinstance(self.closeaction, XferAction):
-            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(self.closeaction.get_xml())
+        if self.closeaction != None:
+            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], **self.closeaction[1]))
 
     def get(self, request, *args, **kwargs):
+        raise_bad_permission(self, request)
         self._initialize(request, *args, **kwargs)
         self.fillresponse()
         self._finalize()
@@ -148,7 +104,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             return False
 
     def redirect_action(self, action):
-        if check_action_rigth(action):
+        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
             self.redirect_act = action
 
     def fillresponse(self):
@@ -157,4 +113,53 @@ class XferContainerAcknowledge(XferContainerAbstract):
     def _finalize(self):
         XferContainerAbstract._finalize(self)
         if self.redirect_act != None:
-            self.responsexml.append(self.redirect_act.get_xml())
+            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.redirect_act))
+
+class XferContainerAuth(XferContainerAbstract):
+    observer_name = 'CORE.Auth'
+
+    def fillresponse(self):
+        from django.contrib.auth import authenticate, login, logout
+        username = self.getparam('login')
+        password = self.getparam('pass')
+        if (login is not None) and (password is not None):
+            if self.request.user.is_authenticated():
+                logout(self.request)
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(self.request, user)
+                self.get_connection_info()
+            else:
+                self.must_autentificate('BADAUTH')
+        elif self.getparam('info') is not None:
+            self.get_connection_info()
+        else:
+            if self.request.user.is_authenticated():
+                self.get_connection_info()
+            else:
+                self.must_autentificate('NEEDAUTH')
+
+    def get_connection_info(self):
+        pass
+
+    def must_autentificate(self, mess):
+        self.responsexml.text = mess
+
+class XferContainerMenu(XferContainerAbstract):
+
+    observer_name = 'CORE.Menu'
+
+    def fill_menu(self, parentref, parentxml):
+        from lucterios.framework.tools import MENU_LIST
+        if MENU_LIST.has_key(parentref):
+            sub_menus = MENU_LIST[parentref]
+            for sub_menu_item in sub_menus:
+                print sub_menu_item
+                if check_permission(sub_menu_item[0], self.request):
+                    new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1][1], "MENU")
+                    parentxml.append(new_xml)
+                    self.fill_menu(sub_menu_item[0].url_text, new_xml)
+
+    def fillresponse(self):
+        self.fill_menu("", self.responsexml)
+

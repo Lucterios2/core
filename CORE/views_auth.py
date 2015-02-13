@@ -5,34 +5,12 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from lucterios.framework.decorators import url_view
-from lucterios.framework.xferview import XferContainerAbstract
-from lucterios.framework.xferview import XferContainerAcknowledge
+from lucterios.framework.tools import describ_action
+from lucterios.framework.xferbasic import XferContainerAuth
+from lucterios.framework.xferbasic import XferContainerAcknowledge
 
-@url_view('')
-class Authentification(XferContainerAbstract):
-    observer_name = 'CORE.Auth'
-
-    def fillresponse(self):
-        from django.contrib.auth import authenticate, login, logout
-        username = self.getparam('login')
-        password = self.getparam('pass')
-        if (login is not None) and (password is not None):
-            if self.request.user.is_authenticated():
-                logout(self.request)
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(self.request, user)
-                self.get_connection_info()
-            else:
-                self.must_autentificate('BADAUTH')
-        elif self.getparam('info') is not None:
-            self.get_connection_info()
-        else:
-            if self.request.user.is_authenticated():
-                self.get_connection_info()
-            else:
-                self.must_autentificate('NEEDAUTH')
+@describ_action('')
+class Authentification(XferContainerAuth):
 
     def get_connection_info(self):
         from lxml import etree
@@ -53,10 +31,7 @@ class Authentification(XferContainerAbstract):
             etree.SubElement(connextion, 'REALNAME').text = ''
         self.responsexml.text = "OK"
 
-    def must_autentificate(self, mess):
-        self.responsexml.text = mess
-
-@url_view('')
+@describ_action('')
 class ExitConnection(XferContainerAcknowledge):
 
     def fillresponse(self):
