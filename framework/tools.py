@@ -5,6 +5,8 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from django.utils.translation import ugettext as tt
+
 from lxml import etree
 
 CLOSE_NO = 0
@@ -33,7 +35,7 @@ def add_sub_menu(ref, parentref, icon, caption, desc):
         MENU_LIST[parentref] = []
     MENU_LIST[parentref].append((_SubMenu(caption, icon, ref), desc))
 
-def describ_action(right, icon='', modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
+def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
     def wrapper(item):
         item.is_view_right = right
         module_items = item.__module__.split('.')
@@ -42,10 +44,9 @@ def describ_action(right, icon='', modal=FORMTYPE_NOMODAL, menu_parent=None, men
         if module_items[-1][:5] == 'views':
             module_items = module_items[:-1]
         item.extension = ".".join(module_items)
-        item.icon = icon
         item.modal = modal
         item.action = item.__name__[0].lower() + item.__name__[1:]
-        item.url_text = r'^%s/%s$' % (item.extension, item.action)
+        item.url_text = r'%s/%s' % (item.extension, item.action)
         if menu_parent != None:
             if not MENU_LIST.has_key(menu_parent):
                 MENU_LIST[menu_parent] = []
@@ -64,13 +65,14 @@ def check_permission(item, request):
 def raise_bad_permission(item, request):
     if not check_permission(item, request):
         from lucterios.framework.error import LucteriosException
-        raise LucteriosException(LucteriosException.IMPORTANT, "Bad permission for '%s'" % request.user.username)
+        raise LucteriosException(LucteriosException.IMPORTANT, tt("Bad permission for '%s'") % request.user.username)
 
 def get_action_xml(item, desc='', tag='ACTION', **option):
     actionxml = etree.Element(tag)
     actionxml.text = item.caption
+    actionxml.attrib['id'] = item.url_text
     if item.icon != "":
-        actionxml.attrib['icon'] = item.icon
+        actionxml.attrib['icon'] = "images/"+item.icon
         # actionxml.attrib['sizeicon']=filesize(item.icon)
     if item.extension != "":
         actionxml.attrib['extension'] = item.extension

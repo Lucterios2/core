@@ -25,7 +25,8 @@ class XferContainerAbstract(View):
         View.__init__(self, **kwargs)
         self.request = None
         self.params = {}
-        self.responsexml = etree.Element('REPONSE')
+        self.responsesxml = etree.Element('REPONSES')
+        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
 
     def getparam(self, key):
         if self.params.has_key(key):
@@ -51,15 +52,17 @@ class XferContainerAbstract(View):
         pass
 
     def _finalize(self):
-        etree.SubElement(self.responsexml, "TITLE").text = self.caption
+        if self.caption != '':
+            etree.SubElement(self.responsexml, "TITLE").text = self.caption
         self.responsexml.attrib['observer'] = self.observer_name
         self.responsexml.attrib['source_extension'] = self.extension
         self.responsexml.attrib['source_action'] = self.action
-        context = etree.SubElement(self.responsexml, "CONTEXT")
-        for key, value in self.params.items():
-            new_param = etree.SubElement(context, 'PARAM')
-            new_param.text = value
-            new_param.attrib['name'] = key
+        if len(self.params) > 0:
+            context = etree.SubElement(self.responsexml, "CONTEXT")
+            for key, value in self.params.items():
+                new_param = etree.SubElement(context, 'PARAM')
+                new_param.text = value
+                new_param.attrib['name'] = key
         if self.closeaction != None:
             etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], **self.closeaction[1]))
 
@@ -68,7 +71,7 @@ class XferContainerAbstract(View):
         self._initialize(request, *args, **kwargs)
         self.fillresponse()
         self._finalize()
-        return HttpResponse(etree.tostring(self.responsexml, pretty_print=True), mimetype='application/xml')
+        return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'), mimetype='application/xml')
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
@@ -128,6 +131,7 @@ class XferContainerAuth(XferContainerAbstract):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(self.request, user)
+                self.params["ses"] = user.username 
                 self.get_connection_info()
             else:
                 self.must_autentificate('BADAUTH')
@@ -156,10 +160,11 @@ class XferContainerMenu(XferContainerAbstract):
             for sub_menu_item in sub_menus:
                 print sub_menu_item
                 if check_permission(sub_menu_item[0], self.request):
-                    new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1][1], "MENU")
+                    new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1], "MENU")
                     parentxml.append(new_xml)
                     self.fill_menu(sub_menu_item[0].url_text, new_xml)
 
     def fillresponse(self):
-        self.fill_menu("", self.responsexml)
+        main_menu = etree.SubElement(self.responsexml, "MENUS")
+        self.fill_menu("", main_menu)
 

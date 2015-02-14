@@ -5,6 +5,8 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from django.utils.translation import ugettext as tt
+
 from lucterios.framework.tools import describ_action
 from lucterios.framework.xferbasic import XferContainerAuth
 from lucterios.framework.xferbasic import XferContainerAcknowledge
@@ -36,6 +38,6 @@ class ExitConnection(XferContainerAcknowledge):
 
     def fillresponse(self):
         from django.contrib.auth import logout
-        self.caption = u"Déconnexion"
+        self.caption = tt("Déconnexion")
         logout(self.request)
 
