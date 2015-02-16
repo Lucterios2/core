@@ -10,8 +10,8 @@ from django.utils.translation import ugettext as tt
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAcknowledge
 
-add_sub_menu('core.general', '', 'general.png', tt('General'), tt('Generalite'))
-add_sub_menu('core.admin', '', 'admin.png', tt('Administration'), tt('Adminitration des configurations et des reglages.'))
+add_sub_menu('core.general', '', 'images/general.png', tt('General'), tt('Generalite'))
+add_sub_menu('core.admin', '', 'images/admin.png', tt('Administration'), tt('Adminitration des configurations et des reglages.'))
 
 @describ_action('')
 class Menu(XferContainerMenu):
@@ -34,7 +34,7 @@ class Configuration(XferContainerAcknowledge):
     caption = tt("Configuration _generale")
     icon = "config.png"
 
-add_sub_menu("core.archivage", 'core.admin', "backup.png", tt("Archivage"), tt("Outils de sauvegarde et de restoration des donnees."))
+add_sub_menu("core.archivage", 'core.admin', "images/backup.png", tt("Archivage"), tt("Outils de sauvegarde et de restoration des donnees."))
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.archivage' , tt("Sauvegarde manuelle des donnees du logiciel."))
 class SelectNewArchive(XferContainerAcknowledge):
@@ -51,9 +51,9 @@ class ToolBackup(XferContainerAcknowledge):
     caption = tt("_Gestion des archives")
     icon = "backup_tool.png"
 
-add_sub_menu("core.extensions", 'core.admin', "config_ext.png", tt("_Extensions (conf.)"), tt("Gestion des configurations des differentes modules."))
+add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", tt("_Extensions (conf.)"), tt("Gestion des configurations des differentes modules."))
 
-add_sub_menu("core.print", 'core.admin', "PrintReport.png", tt("_Rapport et Impression"), tt("Gestion de vos rapports et des outils d'impression."))
+add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", tt("_Rapport et Impression"), tt("Gestion de vos rapports et des outils d'impression."))
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.print' , tt("Gestion des differents modeles d'impression."))
 class PrintmodelList(XferContainerAcknowledge):
@@ -70,7 +70,7 @@ class EtiquettesListe(XferContainerAcknowledge):
     caption = tt("_Etiquettes")
     icon = "PrintReportLabel.png"
 
-add_sub_menu("core.right" , 'core.admin', "gestionDroits.png", tt("_Gestion des Droits"), 
+add_sub_menu("core.right" , 'core.admin', "images/gestionDroits.png", tt("_Gestion des Droits"), 
              tt("Gestion des utilisateurs et de leurs droits selon les modules."))
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.right' , tt("Gestion d'un groupe de droits d'acces."))

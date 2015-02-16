@@ -161,8 +161,9 @@ class XferContainerMenu(XferContainerAbstract):
                 print sub_menu_item
                 if check_permission(sub_menu_item[0], self.request):
                     new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1], "MENU")
-                    parentxml.append(new_xml)
-                    self.fill_menu(sub_menu_item[0].url_text, new_xml)
+                    if new_xml != None:
+                        parentxml.append(new_xml)
+                        self.fill_menu(sub_menu_item[0].url_text, new_xml)
 
     def fillresponse(self):
         main_menu = etree.SubElement(self.responsexml, "MENUS")

@@ -68,22 +68,29 @@ def raise_bad_permission(item, request):
         raise LucteriosException(LucteriosException.IMPORTANT, tt("Bad permission for '%s'") % request.user.username)
 
 def get_action_xml(item, desc='', tag='ACTION', **option):
-    actionxml = etree.Element(tag)
-    actionxml.text = item.caption
-    actionxml.attrib['id'] = item.url_text
-    if item.icon != "":
-        actionxml.attrib['icon'] = "images/"+item.icon
-        # actionxml.attrib['sizeicon']=filesize(item.icon)
-    if item.extension != "":
-        actionxml.attrib['extension'] = item.extension
-    if item.action != "":
-        actionxml.attrib['action'] = item.action
-    if desc != "":
-        etree.SubElement(actionxml, "HELP").text = desc
-    if isinstance(item.modal, int):
-        actionxml.attrib['modal'] = str(item.modal)
-    for key in option.keys():
-        if isinstance(option[key], int):
-            actionxml.attrib[key] = str(option[key])
-    return actionxml
-
+    try:
+        actionxml = etree.Element(tag)
+        actionxml.text = item.caption
+        actionxml.attrib['id'] = item.url_text
+        if hasattr(item, 'icon') and item.icon != "":
+            if item.extension == '':
+                actionxml.attrib['icon'] = item.icon
+            elif item.extension == 'CORE':
+                actionxml.attrib['icon'] = "images/"+item.icon
+            else:
+                actionxml.attrib['icon'] = "%s/images/%s" % (item.extension, item.icon)
+            # actionxml.attrib['sizeicon']=filesize(item.icon)
+        if item.extension != "":
+            actionxml.attrib['extension'] = item.extension
+        if item.action != "":
+            actionxml.attrib['action'] = item.action
+        if desc != "":
+            etree.SubElement(actionxml, "HELP").text = desc
+        if isinstance(item.modal, int):
+            actionxml.attrib['modal'] = str(item.modal)
+        for key in option.keys():
+            if isinstance(option[key], int):
+                actionxml.attrib[key] = str(option[key])
+        return actionxml
+    except AttributeError:
+        return None
