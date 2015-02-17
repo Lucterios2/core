@@ -9,13 +9,13 @@ from django.conf.urls import patterns, url, include
 from django.conf import settings
 from django.utils.module_loading import import_module
 
-import os
+from os.path import join, dirname, isdir, isfile
 import logging
 import inspect
 import pkgutil
 
 def defaultblank(_):
-    from django.http import HttpResponse    
+    from django.http import HttpResponse
     return HttpResponse('')
 
 def defaultview(_):
@@ -27,12 +27,11 @@ def _init_url_patterns():
     from django.contrib import admin
     admin.autodiscover()
     res = patterns('')
-    web_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web')
-    if os.path.isdir(web_path) and os.path.isfile(os.path.join(web_path, 'index.html')):
+    web_path = join(dirname(dirname(__file__)), 'web')
+    if isdir(web_path) and isfile(join(web_path, 'index.html')):
         res.append(url(r'^$', defaultview))
         res.append(url(r'^web/$', defaultview))
-        res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', 
-                       {'document_root':os.path.join(os.path.dirname(os.path.dirname(__file__)), 'web')}))
+        res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', {'document_root':join(dirname(dirname(__file__)), 'web')}))
     else:
         res.append(url(r'^$', defaultblank))
         res.append(url(r'^web/.*', defaultblank))
@@ -58,14 +57,12 @@ def get_url_patterns():
                         except AttributeError:
                             pass
             if lucterios_ext is not None:
-                extpath = os.path.join(os.path.dirname(appmodule.__file__),'images')
-                if os.path.isdir(extpath):
+                extpath = join(dirname(appmodule.__file__), 'images')
+                if isdir(extpath):
                     if lucterios_ext == 'CORE':
-                        res.append(url(r'^images/(?P<path>.*)$', 'django.views.static.serve', 
-                                       {'document_root' : extpath}))
+                        res.append(url(r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : extpath}))
                     else:
-                        res.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', 
-                                       {'document_root' : extpath}))
+                        res.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root' : extpath}))
     logging.getLogger(__name__).debug("Urls:" + str(res))
     return res
 

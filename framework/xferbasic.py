@@ -131,7 +131,7 @@ class XferContainerAuth(XferContainerAbstract):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(self.request, user)
-                self.params["ses"] = user.username 
+                self.params["ses"] = user.username
                 self.get_connection_info()
             else:
                 self.must_autentificate('BADAUTH')
