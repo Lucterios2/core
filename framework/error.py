@@ -5,9 +5,6 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.utils.translation import ugettext as tt
-
-
 from lucterios.framework.xferbasic import XferContainerAbstract
 
 import logging
@@ -26,11 +23,10 @@ class LucteriosException(Exception):
 
 def get_error_trace():
     import sys, traceback
-    _, _, exc_tb = sys.exc_info()
-    trace = traceback.extract_tb(exc_tb)[3:]
+    trace = traceback.extract_tb(sys.exc_info()[2])[3:]
     res = ''
     for item in trace:
-        res += tt("%s in line %d in %s : %s\n") % item
+        res += u"%s in line %d in %s : %s\n" % item
     return res
 
 class LucteriosErrorMiddleware(XferContainerAbstract):

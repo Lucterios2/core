@@ -58,6 +58,6 @@ class ExitConnection(XferContainerAcknowledge):
 
     def fillresponse(self):
         from django.contrib.auth import logout
-        self.caption = tt("Déconnexion")
+        self.caption = tt("Deconnexion")
         logout(self.request)
 
