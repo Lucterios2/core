@@ -1,0 +1,155 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Lucterios <support@lucterios.org>, 2015.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-02-18 16:52+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Lucterios <support@lucterios.org>\n"
+"Language-Team: Lucterios <support@lucterios.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: __init__.py:11
+msgid "Lucterios core"
+msgstr "Coeur Lucterios"
+
+#: views.py:13
+msgid "General"
+msgstr "Général"
+
+#: views.py:13
+msgid "Generality"
+msgstr "Généralité"
+
+#: views.py:14
+msgid "Management"
+msgstr "Administration"
+
+#: views.py:14
+msgid "Manage settings and configurations."
+msgstr "Gestion des réglages et des configurations"
+
+#: views.py:27
+msgid "To Change your password."
+msgstr "Pour changer de mot de passe."
+
+#: views.py:29
+msgid "_Password"
+msgstr "Mot de _passe"
+
+#: views.py:32
+msgid "To view and to modify main parameters."
+msgstr "Pour voir et modifier les paramètres principaux."
+
+#: views.py:34
+msgid "Main configuration"
+msgstr "Configuration générale"
+
+#: views.py:37
+msgid "Backup"
+msgstr "Sauvegarde"
+
+#: views.py:37
+msgid "Tools to backup and restore data"
+msgstr "Outils pour savegarder et restaurer les données."
+
+#: views.py:39
+msgid "To backup software data."
+msgstr "Pour sauvegarder les données du logiciel."
+
+#: views.py:41
+msgid "_Backup"
+msgstr "_Sauvegarde"
+
+#: views.py:44
+msgid "To restore archive."
+msgstr "Pour restaurer une archive."
+
+#: views.py:46
+msgid "_Restore"
+msgstr "_Restauration"
+
+#: views.py:49
+msgid "To upload or to download saved archives."
+msgstr "Pour télécharger des archives sauvegardées."
+
+#: views.py:51
+msgid "_Archives manager"
+msgstr "Gestion des _archives"
+
+#: views.py:54
+msgid "_Extensions (conf.)"
+msgstr "Modules (conf.)"
+
+#: views.py:54
+msgid "To manage of modules configurations."
+msgstr "Pour gérer les configurations des modules"
+
+#: views.py:56
+msgid "_Report and print"
+msgstr "_Rapport et impression"
+
+#: views.py:56
+msgid "To manage reports and tools of printing."
+msgstr "Pour gérer les rapports et les outils d'impression."
+
+#: views.py:58
+msgid "To Manage printing models."
+msgstr "Pour gérer les modèles d'impression."
+
+#: views.py:60
+msgid "_Report models"
+msgstr "Modèles de _rapport"
+
+#: views.py:63
+msgid "To print old saved report."
+msgstr ""
+
+#: views.py:65
+msgid "_Saved reports"
+msgstr "Rapports _sauvegardés"
+
+#: views.py:68
+msgid "To manage boards of labels"
+msgstr "Pour gérer les planches d'étiquettes."
+
+#: views.py:70
+msgid "_Labels"
+msgstr "_Etiquettes"
+
+#: views.py:73
+msgid "_Rights manage"
+msgstr "Gestion des droits"
+
+#: views.py:73
+msgid "To manage users, groups and permissions."
+msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
+
+#: views.py:75
+msgid "To manage permissions groupes."
+msgstr "Pour gérer les groupes."
+
+#: views.py:77
+msgid "_Groups"
+msgstr "_Groupes"
+
+#: views.py:80
+msgid "To manage users."
+msgstr "Pour gérer les utilisateurs."
+
+#: views.py:82
+msgid "_Users"
+msgstr "_Utilisateurs"
+
+#: views_auth.py:61
+msgid "Disconnect"
+msgstr "Déconnection"

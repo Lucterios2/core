@@ -5,7 +5,7 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.utils.translation import ugettext as tt
+from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
 
@@ -65,12 +65,12 @@ def check_permission(item, request):
 def raise_bad_permission(item, request):
     if not check_permission(item, request):
         from lucterios.framework.error import LucteriosException
-        raise LucteriosException(LucteriosException.IMPORTANT, tt("Bad permission for '%s'") % request.user.username)
+        raise LucteriosException(LucteriosException.IMPORTANT, _("Bad permission for '%s'") % request.user.username)
 
 def get_action_xml(item, desc='', tag='ACTION', **option):
     try:
         actionxml = etree.Element(tag)
-        actionxml.text = item.caption
+        actionxml.text = unicode(item.caption)
         actionxml.attrib['id'] = item.url_text
         if hasattr(item, 'icon') and item.icon != "":
             if item.extension == '':
@@ -85,7 +85,7 @@ def get_action_xml(item, desc='', tag='ACTION', **option):
         if item.action != "":
             actionxml.attrib['action'] = item.action
         if desc != "":
-            etree.SubElement(actionxml, "HELP").text = desc
+            etree.SubElement(actionxml, "HELP").text = unicode(desc)
         if isinstance(item.modal, int):
             actionxml.attrib['modal'] = str(item.modal)
         for key in option.keys():

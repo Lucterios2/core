@@ -9,6 +9,7 @@ from lxml import etree
 
 from django.views.generic import View
 from django.http import HttpResponse
+from django.utils import translation
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml
 
@@ -43,6 +44,8 @@ class XferContainerAbstract(View):
             self.params[key] = request.GET[key]
         for key in request.POST.keys():
             self.params[key] = request.POST[key]
+        language = translation.get_language_from_request(request)
+        translation.activate(language)
 
     def set_close_action(self, action, **option):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
@@ -53,7 +56,7 @@ class XferContainerAbstract(View):
 
     def _finalize(self):
         if self.caption != '':
-            etree.SubElement(self.responsexml, "TITLE").text = self.caption
+            etree.SubElement(self.responsexml, "TITLE").text = unicode(self.caption)
         self.responsexml.attrib['observer'] = self.observer_name
         self.responsexml.attrib['source_extension'] = self.extension
         self.responsexml.attrib['source_action'] = self.action
@@ -158,7 +161,6 @@ class XferContainerMenu(XferContainerAbstract):
         if MENU_LIST.has_key(parentref):
             sub_menus = MENU_LIST[parentref]
             for sub_menu_item in sub_menus:
-                print sub_menu_item
                 if check_permission(sub_menu_item[0], self.request):
                     new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1], "MENU")
                     if new_xml != None:

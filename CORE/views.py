@@ -5,13 +5,13 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.utils.translation import ugettext as tt
+from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAcknowledge
 
-add_sub_menu('core.general', '', 'images/general.png', tt('General'), tt('Generalite'))
-add_sub_menu('core.admin', '', 'images/admin.png', tt('Administration'), tt('Adminitration des configurations et des reglages.'))
+add_sub_menu('core.general', '', 'images/general.png', _('General'), _('Generality'))
+add_sub_menu('core.admin', '', 'images/admin.png', _('Management'), _('Manage settings and configurations.'))
 
 @describ_action('')
 class Menu(XferContainerMenu):
@@ -24,65 +24,60 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.general', tt("Changement de votre mot de passe."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
 class Changerpassword(XferContainerAcknowledge):
-    caption = tt("_Mot de passe")
+    caption = _("_Password")
     icon = "passwd.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.admin', tt("Visualisation et modification des parametres generaux."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerAcknowledge):
-    caption = tt("Configuration _generale")
+    caption = _("Main configuration")
     icon = "config.png"
 
-add_sub_menu("core.archivage", 'core.admin', "images/backup.png", tt("Archivage"), tt("Outils de sauvegarde et de restoration des donnees."))
+add_sub_menu("core.archivage", 'core.admin', "images/backup.png", _("Backup"), _("Tools to backup and restore data"))
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', tt("Sauvegarde manuelle des donnees du logiciel."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', _("To backup software data."))
 class SelectNewArchive(XferContainerAcknowledge):
-    caption = tt("_Sauvegarder")
+    caption = _("_Backup")
     icon = "backup_save.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', tt("Restauration d'une archive."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', _("To restore archive."))
 class SelectRestor(XferContainerAcknowledge):
-    caption = tt("_Restauration")
+    caption = _("_Restore")
     icon = "backup_restor.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', tt("Importer ou telecharger des archives de sauvegarde."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.archivage', _("To upload or to download saved archives."))
 class ToolBackup(XferContainerAcknowledge):
-    caption = tt("_Gestion des archives")
+    caption = _("_Archives manager")
     icon = "backup_tool.png"
 
-add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", tt("_Extensions (conf.)"), tt("Gestion des configurations des differentes modules."))
+add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."))
 
-add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", tt("_Rapport et Impression"), tt("Gestion de vos rapports et des outils d'impression."))
+add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."))
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.print', tt("Gestion des differents modeles d'impression."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
 class PrintmodelList(XferContainerAcknowledge):
-    caption = tt("_Modeles des rapports")
+    caption = _("_Report models")
     icon = "PrintReportModel.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.print', tt("Reedition des anciennes impressions sauvegardees"))
+@describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To print old saved report."))
 class FinalreportList(XferContainerAcknowledge):
-    caption = tt("_Ra_pports sauvegardes")
+    caption = _("_Saved reports")
     icon = "PrintReportSave.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.print', tt("Gestion des planches d'etiquettes"))
+@describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
 class EtiquettesListe(XferContainerAcknowledge):
-    caption = tt("_Etiquettes")
+    caption = _("_Labels")
     icon = "PrintReportLabel.png"
 
-add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", tt("_Gestion des Droits"), tt("Gestion des utilisateurs et de leurs droits selon les modules."))
+add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."))
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', tt("Gestion d'un groupe de droits d'acces."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupListe(XferContainerAcknowledge):
-    caption = tt("_Groupes")
+    caption = _("_Groups")
     icon = "group.png"
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', tt("Gestion des utilisateurs autorises a se connecter."))
+@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerAcknowledge):
-    caption = tt("_Utilisateurs")
+    caption = _("_Users")
     icon = "user.png"
-
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', tt("Gestion des modules et association des droits."))
-class ExtensionList(XferContainerAcknowledge):
-    caption = tt("_Extensions")
-    icon = "extensions.png"

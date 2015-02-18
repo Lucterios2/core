@@ -5,7 +5,7 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.utils.translation import ugettext as tt
+from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action
 from lucterios.framework.xferbasic import XferContainerAuth
@@ -18,7 +18,7 @@ def get_info_server():
     for appname in settings.INSTALLED_APPS:
         if not "django" in appname:
             appmodule = import_module(appname)
-            res.append("%s=%s" % (appmodule.__title__, appmodule.__version__))
+            res.append("%s=%s" % (unicode(appmodule.__title__), appmodule.__version__))
     from platform import python_version, uname
     res.append("{[i]}Python %s - %s %s %s{[/i]}" % (python_version(), uname()[0], uname()[4], uname()[2]))
     return u"{[newline]}".join(res)
@@ -41,7 +41,7 @@ class Authentification(XferContainerAuth):
             etree.SubElement(connextion, 'SUBTITLE').text = ""
         etree.SubElement(connextion, 'VERSION').text = settings.APPLIS_VERSION
         etree.SubElement(connextion, 'SERVERVERSION').text = lucterios.framework.__version__
-        etree.SubElement(connextion, 'COPYRIGHT').text = settings.APPLIS_COPYRIGHT
+        etree.SubElement(connextion, 'COPYRIGHT').text = unicode(settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = settings.APPLI_EMAIL
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
@@ -58,6 +58,6 @@ class ExitConnection(XferContainerAcknowledge):
 
     def fillresponse(self):
         from django.contrib.auth import logout
-        self.caption = tt("Deconnexion")
+        self.caption = _("Disconnect")
         logout(self.request)
 
