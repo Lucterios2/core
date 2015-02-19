@@ -12,7 +12,7 @@ import lucterios.standard
 def get_subtitle():
     return "other subtitle"
 
-APPLIS_NAME = lucterios.standard.__title__
+APPLIS_NAME = lucterios.standard.__title__()
 APPLIS_VERSION = lucterios.standard.__version__
 APPLI_EMAIL = "support@sd-libre.fr"
 APPLIS_LOGO_NAME = join(dirname(__file__), "logo.gif")

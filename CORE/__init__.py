@@ -5,7 +5,9 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.utils.translation import ugettext_lazy as _
+from __future__ import unicode_literals
 
 __version__ = "0.1"
-__title__ = _("Lucterios core")
+def __title__():
+    from django.utils.translation import ugettext_lazy as _
+    return _("Lucterios core")

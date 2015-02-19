@@ -5,13 +5,14 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAcknowledge
 
-add_sub_menu('core.general', '', 'images/general.png', _('General'), _('Generality'))
-add_sub_menu('core.admin', '', 'images/admin.png', _('Management'), _('Manage settings and configurations.'))
+add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
+add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
 
 @describ_action('')
 class Menu(XferContainerMenu):
@@ -34,7 +35,7 @@ class Configuration(XferContainerAcknowledge):
     caption = _("Main configuration")
     icon = "config.png"
 
-add_sub_menu("core.archivage", 'core.admin', "images/backup.png", _("Backup"), _("Tools to backup and restore data"))
+add_sub_menu("core.archivage", 'core.admin', "images/backup.png", _("Backup"), _("Tools to backup and restore data"), 10)
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.archivage', _("To backup software data."))
 class SelectNewArchive(XferContainerAcknowledge):
@@ -51,9 +52,9 @@ class ToolBackup(XferContainerAcknowledge):
     caption = _("_Archives manager")
     icon = "backup_tool.png"
 
-add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."))
+add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
-add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."))
+add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."), 30)
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
 class PrintmodelList(XferContainerAcknowledge):
@@ -70,7 +71,7 @@ class EtiquettesListe(XferContainerAcknowledge):
     caption = _("_Labels")
     icon = "PrintReportLabel.png"
 
-add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."))
+add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupListe(XferContainerAcknowledge):

@@ -5,7 +5,10 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
 from inspect import stack, getmodule
+import logging
+from django.utils import six
 from django.utils.module_loading import import_module
 from os.path import dirname
 
@@ -41,13 +44,17 @@ DEFAULT_SETTINGS = {
 
 def extract_icon(file_path):
     import base64
+    if six.PY2:
+        img_prefix = six.binary_type('data:image/*;base64,')
+    else:
+        img_prefix = six.binary_type('data:image/*;base64,', 'ascii')
     with open(file_path, "rb") as image_file:
-        return 'data:image/*;base64,' + base64.b64encode(image_file.read())
+        return img_prefix + base64.b64encode(image_file.read())
 
 def fill_appli_settings(appli_name, addon_modules=None):
     last_frm = stack()[1]
     last_mod = getmodule(last_frm[0])
-    print u"Add settings from appli '%s' to %s " % (appli_name, last_mod.__name__)
+    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s " % (appli_name, last_mod.__name__))
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(last_mod, key_name, setting_value)
     setattr(last_mod, "BASE_DIR", dirname(dirname(last_mod.__file__)))

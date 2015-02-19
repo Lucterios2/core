@@ -5,6 +5,7 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
 from django.conf.urls import patterns, url, include
 from django.conf import settings
 from django.utils.module_loading import import_module

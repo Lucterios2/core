@@ -5,6 +5,8 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
+from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
@@ -20,7 +22,13 @@ SELECT_MULTI = 2
 
 MENU_LIST = {}
 
-def add_sub_menu(ref, parentref, icon, caption, desc):
+def menu_key_to_comp(menu_item):
+    try:
+        return menu_item[0].pos
+    except AttributeError:
+        return 0
+
+def add_sub_menu(ref, parentref, icon, caption, desc, pos=0):
     class _SubMenu(object):
         # pylint: disable=    too-few-public-methods
         def __init__(self, caption, icon, ref):
@@ -31,7 +39,8 @@ def add_sub_menu(ref, parentref, icon, caption, desc):
             self.extension = ''
             self.action = ''
             self.url_text = ref
-    if not MENU_LIST.has_key(parentref):
+            self.pos = pos
+    if parentref not in MENU_LIST.keys():
         MENU_LIST[parentref] = []
     MENU_LIST[parentref].append((_SubMenu(caption, icon, ref), desc))
 
@@ -48,7 +57,7 @@ def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=No
         item.action = item.__name__[0].lower() + item.__name__[1:]
         item.url_text = r'%s/%s' % (item.extension, item.action)
         if menu_parent != None:
-            if not MENU_LIST.has_key(menu_parent):
+            if menu_parent not in MENU_LIST.keys():
                 MENU_LIST[menu_parent] = []
             MENU_LIST[menu_parent].append((item, menu_desc))
         return item
@@ -70,10 +79,10 @@ def raise_bad_permission(item, request):
 def get_action_xml(item, desc='', tag='ACTION', **option):
     try:
         actionxml = etree.Element(tag)
-        actionxml.text = unicode(item.caption)
+        actionxml.text = six.text_type(item.caption)
         actionxml.attrib['id'] = item.url_text
         if hasattr(item, 'icon') and item.icon != "":
-            if item.extension == '':
+            if (item.extension == '') or ('images/' in item.icon):
                 actionxml.attrib['icon'] = item.icon
             elif item.extension == 'CORE':
                 actionxml.attrib['icon'] = "images/"+item.icon
@@ -85,12 +94,12 @@ def get_action_xml(item, desc='', tag='ACTION', **option):
         if item.action != "":
             actionxml.attrib['action'] = item.action
         if desc != "":
-            etree.SubElement(actionxml, "HELP").text = unicode(desc)
+            etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
         if isinstance(item.modal, int):
-            actionxml.attrib['modal'] = str(item.modal)
+            actionxml.attrib['modal'] = six.text_type(item.modal)
         for key in option.keys():
-            if isinstance(option[key], int):
-                actionxml.attrib[key] = str(option[key])
+            if isinstance(option[key], six.integer_types):
+                actionxml.attrib[key] = six.text_type(option[key])
         return actionxml
     except AttributeError:
         return None

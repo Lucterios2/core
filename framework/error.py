@@ -5,6 +5,9 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
+from django.utils import six
+
 from lucterios.framework.xferbasic import XferContainerAbstract
 
 import logging
@@ -24,9 +27,9 @@ class LucteriosException(Exception):
 def get_error_trace():
     import sys, traceback
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
-    res = ''
+    res = six.text_type('')
     for item in trace:
-        res += u"%s in line %d in %s : %s\n" % item
+        res += six.text_type("%s in line %d in %s : %s\n") % item
     return res
 
 class LucteriosErrorMiddleware(XferContainerAbstract):
@@ -35,21 +38,23 @@ class LucteriosErrorMiddleware(XferContainerAbstract):
     exception = None
 
     def process_exception(self, request, exception):
-        from lxml import etree
-        self.params = {}
-        self.responsexml = etree.Element('REPONSE')
         if not isinstance(exception, Exception):
             return None
         logging.getLogger(__name__).exception(exception)
         self.exception = exception
-        return self.get(request)
+        self._initialize(request)
+        self.fillresponse()
+        return self._finalize()
 
     def fillresponse(self):
         from lxml import etree
         expt = etree.SubElement(self.responsexml, "EXCEPTION")
-        etree.SubElement(expt, 'MESSAGE').text = self.exception.message
+        if isinstance(self.exception, TypeError):
+            etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
+        else:
+            etree.SubElement(expt, 'MESSAGE').text = self.exception.message
         if isinstance(self.exception, LucteriosException):
-            etree.SubElement(expt, 'CODE').text = str(self.exception.code)
+            etree.SubElement(expt, 'CODE').text = six.text_type(self.exception.code)
         else:
             etree.SubElement(expt, 'CODE').text = '0'
         etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-18 16:52+0000\n"
+"POT-Creation-Date: 2015-02-19 17:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -18,138 +18,138 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: __init__.py:11
+#: __init__.py:13
 msgid "Lucterios core"
 msgstr "Coeur Lucterios"
 
-#: views.py:13
+#: views.py:14
 msgid "General"
 msgstr "Général"
 
-#: views.py:13
+#: views.py:14
 msgid "Generality"
 msgstr "Généralité"
 
-#: views.py:14
+#: views.py:15
 msgid "Management"
 msgstr "Administration"
 
-#: views.py:14
+#: views.py:15
 msgid "Manage settings and configurations."
 msgstr "Gestion des réglages et des configurations"
 
-#: views.py:27
+#: views.py:28
 msgid "To Change your password."
 msgstr "Pour changer de mot de passe."
 
-#: views.py:29
+#: views.py:30
 msgid "_Password"
 msgstr "Mot de _passe"
 
-#: views.py:32
+#: views.py:33
 msgid "To view and to modify main parameters."
 msgstr "Pour voir et modifier les paramètres principaux."
 
-#: views.py:34
+#: views.py:35
 msgid "Main configuration"
 msgstr "Configuration générale"
 
-#: views.py:37
+#: views.py:38
 msgid "Backup"
 msgstr "Sauvegarde"
 
-#: views.py:37
+#: views.py:38
 msgid "Tools to backup and restore data"
 msgstr "Outils pour savegarder et restaurer les données."
 
-#: views.py:39
+#: views.py:40
 msgid "To backup software data."
 msgstr "Pour sauvegarder les données du logiciel."
 
-#: views.py:41
+#: views.py:42
 msgid "_Backup"
 msgstr "_Sauvegarde"
 
-#: views.py:44
+#: views.py:45
 msgid "To restore archive."
 msgstr "Pour restaurer une archive."
 
-#: views.py:46
+#: views.py:47
 msgid "_Restore"
 msgstr "_Restauration"
 
-#: views.py:49
+#: views.py:50
 msgid "To upload or to download saved archives."
 msgstr "Pour télécharger des archives sauvegardées."
 
-#: views.py:51
+#: views.py:52
 msgid "_Archives manager"
 msgstr "Gestion des _archives"
 
-#: views.py:54
+#: views.py:55
 msgid "_Extensions (conf.)"
 msgstr "Modules (conf.)"
 
-#: views.py:54
+#: views.py:55
 msgid "To manage of modules configurations."
 msgstr "Pour gérer les configurations des modules"
 
-#: views.py:56
+#: views.py:57
 msgid "_Report and print"
 msgstr "_Rapport et impression"
 
-#: views.py:56
+#: views.py:57
 msgid "To manage reports and tools of printing."
 msgstr "Pour gérer les rapports et les outils d'impression."
 
-#: views.py:58
+#: views.py:59
 msgid "To Manage printing models."
 msgstr "Pour gérer les modèles d'impression."
 
-#: views.py:60
+#: views.py:61
 msgid "_Report models"
 msgstr "Modèles de _rapport"
 
-#: views.py:63
+#: views.py:64
 msgid "To print old saved report."
 msgstr ""
 
-#: views.py:65
+#: views.py:66
 msgid "_Saved reports"
 msgstr "Rapports _sauvegardés"
 
-#: views.py:68
+#: views.py:69
 msgid "To manage boards of labels"
 msgstr "Pour gérer les planches d'étiquettes."
 
-#: views.py:70
+#: views.py:71
 msgid "_Labels"
 msgstr "_Etiquettes"
 
-#: views.py:73
+#: views.py:74
 msgid "_Rights manage"
 msgstr "Gestion des droits"
 
-#: views.py:73
+#: views.py:74
 msgid "To manage users, groups and permissions."
 msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
 
-#: views.py:75
+#: views.py:76
 msgid "To manage permissions groupes."
 msgstr "Pour gérer les groupes."
 
-#: views.py:77
+#: views.py:78
 msgid "_Groups"
 msgstr "_Groupes"
 
-#: views.py:80
+#: views.py:81
 msgid "To manage users."
 msgstr "Pour gérer les utilisateurs."
 
-#: views.py:82
+#: views.py:83
 msgid "_Users"
 msgstr "_Utilisateurs"
 
-#: views_auth.py:61
+#: views_auth.py:63
 msgid "Disconnect"
 msgstr "Déconnection"
