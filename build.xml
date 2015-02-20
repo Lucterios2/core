@@ -104,6 +104,8 @@
 	<target name="tests">
 		<antcall target="test" ><param name="testversion" value="coverage2"/></antcall>
 		<antcall target="test" ><param name="testversion" value="coverage3"/></antcall>
+		<replace file="../junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
+		<replace file="../junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
 	</target>
 	
 	<target name="package">
