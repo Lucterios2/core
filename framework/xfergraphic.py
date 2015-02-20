@@ -123,7 +123,7 @@ class XferContainerDialogBox(XferContainerAbstract):
         if len(self.actions) > 0:
             act_dlg = etree.SubElement(self.responsexml, "ACTIONS")
             for (action, options) in self.actions:
-                new_xml = get_action_xml(action, **options)
+                new_xml = get_action_xml(action, **options) # pylint: disable=star-args
                 if new_xml != None:
                     act_dlg.append(new_xml)
         return XferContainerAbstract._finalize(self)

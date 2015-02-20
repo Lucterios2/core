@@ -53,7 +53,7 @@ class XmlRequestFactory(RequestFactory):
 
     def call(self, path, data):
         if self.xfer is not None:
-            request = self.get(path, data)
+            request = self.post(path, data)
             request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
             request.user = AnonymousUser()
             return self.xfer.get(request)

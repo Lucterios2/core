@@ -15,6 +15,12 @@ class DummyTest(LucteriosTest):
     def test_bidule(self):
         self.call('/dummy/bidule', {})
         self.assert_attrib_equal('', 'observer', 'CORE.Exception')
+        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_action', 'bidule')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', 'Error of bidule')
+        self.assert_xml_equal('EXCEPTION/CODE', '2')
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 23 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-115, -11))
+        self.assert_xml_equal('EXCEPTION/TYPE', 'LucteriosException')
 
     def test_truc(self):
         self.call('/dummy/truc', {})

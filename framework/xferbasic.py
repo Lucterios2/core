@@ -69,7 +69,7 @@ class XferContainerAbstract(View):
 
     def _finalize(self):
         if self.caption != '':
-            etree.SubElement(self.responsexml, "TITLE").text = str(self.caption.replace('_', ''))
+            etree.SubElement(self.responsexml, "TITLE").text = self.caption.replace('_', '')
         self.responsexml.attrib['observer'] = self.observer_name
         self.responsexml.attrib['source_extension'] = self.extension
         self.responsexml.attrib['source_action'] = self.action

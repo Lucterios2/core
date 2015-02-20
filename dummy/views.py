@@ -17,10 +17,10 @@ add_sub_menu('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu
 class Bidule(XferContainerAcknowledge):
     caption = _("_Bidule")
     icon = "1.png"
-    
+
     def fillresponse(self):
-        from lucterios.framework.error import LucteriosException, GRAVE 
-        raise LucteriosException(GRAVE, "Error of bidule")   
+        from lucterios.framework.error import LucteriosException, GRAVE
+        raise LucteriosException(GRAVE, "Error of bidule")
 
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
 class Truc(XferContainerAcknowledge):
