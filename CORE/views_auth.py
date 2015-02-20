@@ -11,7 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action
 from lucterios.framework.xferbasic import XferContainerAuth
-from lucterios.framework.xferbasic import XferContainerAcknowledge
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 def get_info_server():
     res = []

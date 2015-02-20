@@ -9,10 +9,11 @@ from shutil import rmtree
 from os import mkdir, remove
 from os.path import join, isdir, isfile
 from optparse import OptionParser
+from django.utils import six
 
 INSTANCE_PATH = '.'
 
-def write_setting(name, appli_name, database):
+def write_setting(name, appli_name, database, modules):
     setting_path = join(INSTANCE_PATH, name, 'settings.py')
     import random
     secret_key = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
@@ -38,7 +39,7 @@ def write_setting(name, appli_name, database):
         file_py.write('\n')
         file_py.write('# configuration\n')
         file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
-        file_py.write('fill_appli_settings("%s", ()) \n' % appli_name)
+        file_py.write('fill_appli_settings("%s", %s) \n' % (appli_name, six.text_type(modules)))
         file_py.write('\n')
 
 def del_lucterios_instance(name):
@@ -50,7 +51,7 @@ def del_lucterios_instance(name):
         remove(instance_conf)
     print ("Instance '%s' deleted." % name) # pylint: disable=superfluous-parens
 
-def add_lucterios_instance(name, appli_name, database):
+def add_lucterios_instance(name, appli_name, database, module):
     instance_dir = join(INSTANCE_PATH, name)
     instance_conf = join(INSTANCE_PATH, "manage_%s.py" % name)
     if isdir(instance_dir) or isfile(instance_conf):
@@ -66,7 +67,7 @@ def add_lucterios_instance(name, appli_name, database):
     mkdir(instance_dir)
     with open(join(instance_dir, '__init__.py'), "w") as file_py:
         file_py.write('\n')
-    write_setting(name, appli_name, database)
+    write_setting(name, appli_name, database, tuple(module.split(',')))
     print ("Instance '%s' created." % name) # pylint: disable=superfluous-parens
 
 def main():
@@ -86,11 +87,15 @@ def main():
                       choices=['sqlite', 'MySQL', 'ProstGreSQL', ],
                       default='sqlite',
                       help="Database configuration")
+    parser.add_option("-m", "--module",
+                      dest="module",
+                      default="",
+                      help="Modules to add (comma separator)",)
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("Only one arg")
     if args[0] == 'add':
-        add_lucterios_instance(options.name, options.appli, options.database)
+        add_lucterios_instance(options.name, options.appli, options.database, options.module)
         return
     if args[0] == 'del':
         del_lucterios_instance(options.name)

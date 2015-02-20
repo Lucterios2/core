@@ -7,7 +7,7 @@ Created on 11 fevr. 2015
 
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user
-from lucterios.framework.xferbasic import XferContainerAcknowledge, XFER_DBOX_WARNING
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING
 from django.utils import six
 
 class AuthentificationTest(LucteriosTest):

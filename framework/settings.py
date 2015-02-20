@@ -19,7 +19,7 @@ DEFAULT_SETTINGS = {
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'lucterios.framework.error.LucteriosErrorMiddleware',
+        'lucterios.framework.middleware.LucteriosErrorMiddleware',
     ),
     'INSTALLED_APPS' : (
         'django.contrib.admin',
@@ -56,7 +56,7 @@ def extract_icon(file_path):
 def fill_appli_settings(appli_name, addon_modules=None):
     last_frm = stack()[1]
     last_mod = getmodule(last_frm[0])
-    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s " % (appli_name, last_mod.__name__))
+    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, last_mod.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(last_mod, key_name, setting_value)
     setattr(last_mod, "BASE_DIR", dirname(dirname(last_mod.__file__)))

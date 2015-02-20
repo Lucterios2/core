@@ -1,6 +1,8 @@
 <project name="Lucterios2" default="all" basedir=".">
 	
 	<property name="test_instance" value="test"/>
+	<available file="/usr/local/bin/coverage2" property="python2.present"/>
+	<available file="/usr/local/bin/coverage3" property="python3.present"/>
 	
 	<target name="all">
 		<antcall target="clear" />
@@ -16,7 +18,7 @@
 	<target name="clear">
 		<delete dir="../bin"/>
 		<delete dir="../${test_instance}"/>		
-		<delete dir="../manage_${test_instance}.py"/>
+		<delete file="../manage_${test_instance}.py"/>
 		<delete file="../coverage2.xml"/>
 		<delete file="../coverage3.xml"/>
 		<delete file="../junit_py2.xml"/>
@@ -67,8 +69,8 @@
 		<exec executable="python" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="add"/>
-			<arg value="-n"/>
-			<arg value="${test_instance}"/>
+			<arg value="--name=${test_instance}"/>
+			<arg value="--module=lucterios.dummy"/>			
 		</exec>	
 	</target>	
 
@@ -76,8 +78,7 @@
 		<exec executable="python" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="del"/>
-			<arg value="-n"/>
-			<arg value="${test_instance}"/>
+			<arg value="--name=${test_instance}"/>
 		</exec>	
 	</target>	
 	
@@ -93,6 +94,7 @@
 			<arg value="./manage_${test_instance}.py"/>
 			<arg value="test"/>
 			<arg value="CORE"/>
+			<arg value="dummy"/>
 		</exec>	
 		<exec executable="${testversion}" dir="..">
 			<arg value="report"/>
@@ -102,11 +104,20 @@
 		</exec>
 		<move file="../coverage.xml" tofile="../${testversion}.xml"/>
 	</target>
-	<target name="tests">
-		<antcall target="test" ><param name="testversion" value="coverage2"/></antcall>
-		<antcall target="test" ><param name="testversion" value="coverage3"/></antcall>
+	
+	<target name="test_py2" if="python2.present">
+		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
 		<replace file="../junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
+	</target>
+
+	<target name="test_py3" if="python3.present">
+		<antcall target="test"><param name="testversion" value="coverage3"/></antcall>
 		<replace file="../junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
+	</target>
+
+	<target name="tests">
+		<antcall target="test_py2"/>
+		<antcall target="test_py3"/>
 	</target>
 	
 	<target name="package">

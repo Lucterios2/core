@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
-from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAcknowledge
+from lucterios.framework.xferbasic import XferContainerMenu
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)

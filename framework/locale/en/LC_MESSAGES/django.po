@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-20 15:42+0000\n"
+"POT-Creation-Date: 2015-02-20 20:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -22,14 +22,14 @@ msgstr ""
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: xferbasic.py:156
+#: xfergraphic.py:71
 msgid "Yes"
 msgstr "Yes"
 
-#: xferbasic.py:157
+#: xfergraphic.py:72
 msgid "No"
 msgstr "No"
 
-#: xferbasic.py:164
+#: xfergraphic.py:79
 msgid "Ok"
 msgstr "Ok"

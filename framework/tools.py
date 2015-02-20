@@ -73,8 +73,8 @@ def check_permission(item, request):
 
 def raise_bad_permission(item, request):
     if not check_permission(item, request):
-        from lucterios.framework.error import LucteriosException
-        raise LucteriosException(LucteriosException.IMPORTANT, _("Bad permission for '%s'") % request.user.username)
+        from lucterios.framework.error import LucteriosException, IMPORTANT
+        raise LucteriosException(IMPORTANT, _("Bad permission for '%s'") % request.user.username)
 
 def get_action_xml(item, desc='', tag='ACTION', **option):
     try:
