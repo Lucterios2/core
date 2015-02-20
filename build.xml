@@ -6,8 +6,8 @@
 		<antcall target="clear" />
 		<antcall target="init" />
 		<antcall target="pylint" />
-		<antcall target="i18n" />
 		<antcall target="add_instance"/>
+		<antcall target="i18n" />
 		<antcall target="tests" />
 		<antcall target="del_instance"/>
 		<antcall target="package" />
@@ -42,7 +42,7 @@
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
-			<arg value="../../manage.py"/>
+			<arg value="../../manage_${test_instance}.py"/>
 			<arg value="makemessages"/>
 		    <arg value="-l"/>
 		    <arg value="fr"/>
@@ -52,7 +52,7 @@
 
 		<echo message="-- compile ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
-			<arg value="../../manage.py"/>
+			<arg value="../../manage_${test_instance}.py"/>
 			<arg value="compilemessages"/>
 		</exec>	
 	</target>
