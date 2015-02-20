@@ -59,6 +59,7 @@ def add_lucterios_instance(name, appli_name, database):
         file_py.write('#!/usr/bin/env python\n')
         file_py.write('import os, sys\n')
         file_py.write('if __name__ == "__main__":\n')
+        file_py.write('    sys.path.append(os.path.dirname(__file__))\n')
         file_py.write('    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings")\n' % name)
         file_py.write('    from django.core.management import execute_from_command_line\n')
         file_py.write('    execute_from_command_line(sys.argv)\n')
