@@ -29,7 +29,7 @@ def get_error_trace():
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
     res = six.text_type('')
     for item in trace:
-        res += six.text_type("%s in line %d in %s : %s\n") % item
+        res += six.text_type("%s in line %d in %s : %s{[newline]}") % item
     return res
 
 class LucteriosErrorMiddleware(XferContainerAbstract):
@@ -49,10 +49,7 @@ class LucteriosErrorMiddleware(XferContainerAbstract):
     def fillresponse(self):
         from lxml import etree
         expt = etree.SubElement(self.responsexml, "EXCEPTION")
-        if isinstance(self.exception, TypeError):
-            etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
-        else:
-            etree.SubElement(expt, 'MESSAGE').text = self.exception.message
+        etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
         if isinstance(self.exception, LucteriosException):
             etree.SubElement(expt, 'CODE').text = six.text_type(self.exception.code)
         else:

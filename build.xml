@@ -1,0 +1,112 @@
+<project name="Lucterios2" default="all" basedir=".">
+	
+	<property name="test_instance" value="test"/>
+	
+	<target name="all">
+		<antcall target="clear" />
+		<antcall target="init" />
+		<antcall target="pylint" />
+		<antcall target="i18n" />
+		<antcall target="add_instance"/>
+		<antcall target="tests" />
+		<antcall target="del_instance"/>
+		<antcall target="package" />
+	</target>
+
+	<target name="clear">
+		<delete dir="../bin"/>
+		<delete dir="../${test_instance}"/>		
+		<delete dir="../manage_${test_instance}.py"/>
+		<delete file="../coverage2.xml"/>
+		<delete file="../coverage3.xml"/>
+		<delete file="../junit_py2.xml"/>
+		<delete file="../junit_py3.xml"/>
+		<delete file="../pylint.txt"/>
+	</target>
+
+	<target name="init">
+		<mkdir dir="../bin" />
+	</target>
+
+	<target name="pylint">
+		<exec executable="pylint">
+			<arg line="--rcfile=./rcfile lucterios"/>
+			<redirector output="../pylint.txt"/>
+		</exec>
+		<exec executable="grep">
+			<arg line="'Your code has been rated'" />
+			<arg line="../pylint.txt" />
+		</exec>
+	</target>	
+
+	<target name="i18n_comp">
+		<echo message="-- extract ${sub_path} --"/>
+		<exec executable="python" dir="./${sub_path}">
+			<arg value="../../manage.py"/>
+			<arg value="makemessages"/>
+		    <arg value="-l"/>
+		    <arg value="fr"/>
+		    <arg value="-l"/>
+		    <arg value="en"/>
+		</exec>	
+
+		<echo message="-- compile ${sub_path} --"/>
+		<exec executable="python" dir="./${sub_path}">
+			<arg value="../../manage.py"/>
+			<arg value="compilemessages"/>
+		</exec>	
+	</target>
+	
+	<target name="i18n">
+		<antcall target="i18n_comp"><param name="sub_path" value="CORE"/></antcall>			
+		<antcall target="i18n_comp"><param name="sub_path" value="framework"/></antcall>			
+		<antcall target="i18n_comp"><param name="sub_path" value="standard"/></antcall>			
+	</target>	
+
+	<target name="add_instance">
+		<exec executable="python" dir="..">
+			<arg value="lucterios/install/cmd.py"/>
+			<arg value="add"/>
+			<arg value="-n"/>
+			<arg value="${test_instance}"/>
+		</exec>	
+	</target>	
+
+	<target name="del_instance">
+		<exec executable="python" dir="..">
+			<arg value="lucterios/install/cmd.py"/>
+			<arg value="del"/>
+			<arg value="-n"/>
+			<arg value="${test_instance}"/>
+		</exec>	
+	</target>	
+	
+	<target name="test">
+		<echo message="-- test with ${testversion} --"/>
+		<delete file=".converage"/>
+		<delete file="converage.xml"/>
+		<delete file="${testversion}.xml"/>
+		<exec executable="${testversion}" dir="..">
+			<arg value="run"/>
+			<arg value="--source=lucterios"/>
+			<arg value="./manage_${test_instance}.py"/>
+			<arg value="test"/>
+		</exec>	
+		<exec executable="${testversion}" dir="..">
+			<arg value="report"/>
+		</exec>	
+		<exec executable="${testversion}" dir="..">
+			<arg value="xml"/>
+		</exec>
+		<move file="../coverage.xml" tofile="../${testversion}.xml"/>
+	</target>
+	<target name="tests">
+		<antcall target="test" ><param name="testversion" value="coverage2"/></antcall>
+		<antcall target="test" ><param name="testversion" value="coverage3"/></antcall>
+	</target>
+	
+	<target name="package">
+		
+	</target>
+	
+</project>	

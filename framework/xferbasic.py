@@ -171,7 +171,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         if self.redirect_act != None:
             act_xml = get_action_xml(self.redirect_act)
             if act_xml is not None:
-                etree.SubElement(self.responsexml, "CLOSE_ACTION").append(act_xml)
+                self.responsexml.append(act_xml)
         return XferContainerAbstract._finalize(self)
 
 class XferContainerAuth(XferContainerAbstract):

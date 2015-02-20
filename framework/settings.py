@@ -7,7 +7,7 @@ Created on 11 fevr. 2015
 
 from __future__ import unicode_literals
 from inspect import stack, getmodule
-import logging
+import logging, sys
 from django.utils import six
 from django.utils.module_loading import import_module
 from os.path import dirname
@@ -39,7 +39,9 @@ DEFAULT_SETTINGS = {
     'TEMPLATE_DEBUG': False,
     'ALLOWED_HOSTS': [],
     'WSGI_APPLICATION' : 'lucterios.framework.wsgi.application',
-    'STATIC_URL':'/static/'
+    'STATIC_URL':'/static/',
+    'TEST_RUNNER':'juxd.JUXDTestSuiteRunner',
+    'JUXD_FILENAME':'./junit_py%d.xml' % sys.version_info[0],
 }
 
 def extract_icon(file_path):

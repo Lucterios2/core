@@ -5,168 +5,159 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
-from django.test import TestCase
-
-from lucterios.framework.test import XmlClient, XmlRequestFactory, add_admin_user, add_empty_user
+from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user
 from lucterios.framework.xferbasic import XferContainerAcknowledge, XFER_DBOX_WARNING
 
-class AuthentificationTest(TestCase):
+class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
+
     def setUp(self):
-        self.client = XmlClient()
+        LucteriosTest.setUp(self)
         add_admin_user()
         add_empty_user()
 
     def test_menu_noconnect(self):
-        res_xml = self.client.call('/CORE/menu', {})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.get('source_extension'), 'CORE')
-        self.assertEqual(res_xml.get('source_action'), 'menu')
-        self.assertEqual(res_xml.text, 'NEEDAUTH')
+        self.call('/CORE/menu', {})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_attrib_equal('', 'source_extension', 'CORE')
+        self.assert_attrib_equal('', 'source_action', 'menu')
+        self.assert_xml_equal('', 'NEEDAUTH')
 
     def test_badconnect(self):
-        res_xml = self.client.call('/CORE/authentification', {})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.get('source_extension'), 'CORE')
-        self.assertEqual(res_xml.get('source_action'), 'authentification')
-        self.assertEqual(res_xml.text, 'NEEDAUTH')
+        self.call('/CORE/authentification', {})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_attrib_equal('', 'source_extension', 'CORE')
+        self.assert_attrib_equal('', 'source_action', 'authentification')
+        self.assert_xml_equal('', 'NEEDAUTH')
 
-        res_xml = self.client.call('/CORE/authentification', {'login':'', 'pass':''})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.text, 'BADAUTH')
+        self.call('/CORE/authentification', {'login':'', 'pass':''})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_xml_equal('', 'BADAUTH')
 
-        res_xml = self.client.call('/CORE/authentification', {'login':'aaa', 'pass':'bbb'})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.text, 'BADAUTH')
+        self.call('/CORE/authentification', {'login':'aaa', 'pass':'bbb'})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_xml_equal('', 'BADAUTH')
 
     def test_connect(self):
-        res_xml = self.client.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.text, 'OK')
-        connect_xml = res_xml.xpath('CONNECTION')[0]
-        self.assertEqual(connect_xml.xpath('TITLE')[0].text, 'Lucterios standard')
-        self.assertEqual(connect_xml.xpath('SUBTITLE')[0].text, 'other subtitle')
-        self.assertEqual(connect_xml.xpath('VERSION')[0].text, '1.999')
-        self.assertEqual(connect_xml.xpath('SERVERVERSION')[0].text, '1.9')
-        self.assertEqual(connect_xml.xpath('COPYRIGHT')[0].text[:4], '(c) ')
-        self.assertEqual(connect_xml.xpath('LOGONAME')[0].text[:20], 'data:image/*;base64,')
-        self.assertEqual(connect_xml.xpath('SUPPORT_EMAIL')[0].text[:8], 'support@')
-        # self.assertEqual(connect_xml.xpath('INFO_SERVER')[0].text, '')
-        self.assertEqual(connect_xml.xpath('LOGIN')[0].text, 'admin')
-        self.assertEqual(connect_xml.xpath('REALNAME')[0].text, 'administrator ADMIN')
+        self.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_xml_equal('', 'OK')
+        self.assert_xml_equal('CONNECTION/TITLE', 'Lucterios standard')
+        self.assert_xml_equal('CONNECTION/SUBTITLE', 'other subtitle')
+        self.assert_xml_equal('CONNECTION/VERSION', '1.999')
+        self.assert_xml_equal('CONNECTION/SERVERVERSION', '1.9')
+        self.assert_xml_equal('CONNECTION/COPYRIGHT', '(c) ', (0, 4))
+        self.assert_xml_equal('CONNECTION/LOGONAME', 'data:image/*;base64,', (0, 20))
+        self.assert_xml_equal('CONNECTION/SUPPORT_EMAIL', 'support@', (0, 8))
+        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
+        self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
+        self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
 
-        res_xml = self.client.call('/CORE/exitConnection', {})
-        self.assertEqual(res_xml.get('observer'), 'Core.Acknowledge')
-        self.assertEqual(res_xml.get('source_extension'), 'CORE')
-        self.assertEqual(res_xml.get('source_action'), 'exitConnection')
+        self.call('/CORE/exitConnection', {})
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'source_extension', 'CORE')
+        self.assert_attrib_equal('', 'source_action', 'exitConnection')
 
     def test_menu_connected(self):
-        res_xml = self.client.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
-        self.assertEqual(res_xml.text, 'OK')
+        self.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
+        self.assert_xml_equal('', 'OK')
 
-        res_xml = self.client.call('/CORE/menu', {})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Menu')
-        self.assertEqual(res_xml.get('source_extension'), 'CORE')
-        self.assertEqual(res_xml.get('source_action'), 'menu')
-        menus_xml = res_xml.xpath('MENUS')[0]
-        # import logging
-        # logging.getLogger(__name__).debug(etree.tostring(menus_xml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
-        self.assertEqual(menus_xml.xpath("MENU[@id='core.general']")[0].text, u'Général')
-        self.assertEqual(menus_xml.xpath("MENU[@id='core.general']/MENU[@id='CORE/changerpassword']")[0].text, 'Mot de _passe')
-        self.assertEqual(menus_xml.xpath("MENU[@id='core.admin']")[0].text, 'Administration')
+        self.call('/CORE/menu', {})
+        self.assert_attrib_equal('', 'observer', 'CORE.Menu')
+        self.assert_attrib_equal('', 'source_extension', 'CORE')
+        self.assert_attrib_equal('', 'source_action', 'menu')
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']", u'Général')
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changerpassword']", 'Mot de _passe')
+        self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
 
-        res_xml = self.client.call('/CORE/exitConnection', {})
-        self.assertEqual(res_xml.get('observer'), 'Core.Acknowledge')
+        self.call('/CORE/exitConnection', {})
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
-        res_xml = self.client.call('/CORE/menu', {})
-        self.assertEqual(res_xml.get('observer'), 'CORE.Auth')
-        self.assertEqual(res_xml.text, 'NEEDAUTH')
+        self.call('/CORE/menu', {})
+        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_xml_equal('', 'NEEDAUTH')
 
 
-class ContainerAcknowledgeTest(TestCase):
+class ContainerAcknowledgeTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
-    
-    ack = None
+
+    xfer_class = XferContainerAcknowledge
 
     def setUp(self):
-        self.ack = XferContainerAcknowledge()
-        self.factory = XmlRequestFactory(self.ack)
+        LucteriosTest.setUp(self)
         self.value = False
 
     def test_simple(self):
-        res_xml = self.factory.call('/customer/details', {'id':12, 'value':'abc'})
-        self.assertEqual(res_xml.get('observer'), 'Core.Acknowledge')
-        self.assertEqual(res_xml.get('source_extension'), 'customer')
-        self.assertEqual(res_xml.get('source_action'), 'details')
-        self.assertEqual(len(res_xml.xpath('CONTEXT')), 1)
-        self.assertEqual(len(res_xml.xpath('CONTEXT/PARAM')), 2)
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[0].get('name'), 'id')
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[0].text, '12')
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[1].get('name'), 'value')
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[1].text, 'abc')
-        self.assertEqual(len(res_xml.xpath('CLOSE_ACTION')), 0)
+        self.call('/customer/details', {'id':12, 'value':'abc'}, False)
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 1)
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="id"]', '12')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="value"]', 'abc')
+        self.assert_count_equal('CLOSE_ACTION', 0)
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.ack.redirect_action(XferContainerAcknowledge().get_changed("redirect", "", "customer", "list"))
-        self.ack.fillresponse = fillresponse_redirect
-        res_xml = self.factory.call('/customer/details', {})
-        self.assertEqual(res_xml.get('observer'), 'Core.Acknowledge')
-        self.assertEqual(res_xml.get('source_extension'), 'customer')
-        self.assertEqual(res_xml.get('source_action'), 'details')
-        self.assertEqual(len(res_xml.xpath('CONTEXT')), 0)
-        self.assertEqual(len(res_xml.xpath('CLOSE_ACTION')), 1)
-        self.assertEqual(len(res_xml.xpath('CLOSE_ACTION/ACTION')), 1)
-        self.assertEqual(res_xml.xpath('CLOSE_ACTION/ACTION')[0].text, "redirect")
-        self.assertEqual(res_xml.xpath('CLOSE_ACTION/ACTION')[0].get('extension'), "customer")
-        self.assertEqual(res_xml.xpath('CLOSE_ACTION/ACTION')[0].get('action'), "list")
+            self.factory.xfer.redirect_action(XferContainerAcknowledge().get_changed("redirect", "", "customer", "list"))
+        self.factory.xfer.fillresponse = fillresponse_redirect
+        self.call('/customer/details', {}, False)
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTION', 1)
+        self.assert_xml_equal('ACTION', "redirect")
+        self.assert_attrib_equal('ACTION', 'extension', "customer")
+        self.assert_attrib_equal('ACTION', 'action', "list")
 
     def test_confirme(self):
         self.value = False
         def fillresponse_confirme():
-            if self.ack.confirme("Do you want?"):
+            if self.factory.xfer.confirme("Do you want?"):
                 self.value = True
-        self.ack.fillresponse = fillresponse_confirme
-        res_xml = self.factory.call('/customer/details', {})
+        self.factory.xfer.fillresponse = fillresponse_confirme
+        self.call('/customer/details', {}, False)
         self.assertEqual(self.value, False)
-        self.assertEqual(res_xml.get('observer'), 'Core.DialogBox')
-        self.assertEqual(res_xml.get('source_extension'), 'customer')
-        self.assertEqual(res_xml.get('source_action'), 'details')
-        self.assertEqual(len(res_xml.xpath('CONTEXT')), 1)
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[0].get('name'), 'CONFIRME')
-        self.assertEqual(res_xml.xpath('CONTEXT/PARAM')[0].text, 'YES')
-        self.assertEqual(res_xml.xpath('TEXT')[0].get('type'), '2')
-        self.assertEqual(res_xml.xpath('TEXT')[0].text, 'Do you want?')
-        self.assertEqual(len(res_xml.xpath('ACTIONS')), 1)
-        self.assertEqual(len(res_xml.xpath('ACTIONS/ACTION')), 2)
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].text, 'Yes')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('icon'), 'images/ok.png')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('extension'), 'customer')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('action'), 'details')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[1].text, 'No')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[1].get('icon'), 'images/cancel.png')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[1].get('extension'), None)
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[1].get('action'), None)
+        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 1)
+        self.assert_attrib_equal('CONTEXT/PARAM', 'name', 'CONFIRME')
+        self.assert_xml_equal('CONTEXT/PARAM', 'YES')
+        self.assert_attrib_equal('TEXT', 'type', '2')
+        self.assert_xml_equal('TEXT', 'Do you want?')
+        self.assert_count_equal('ACTIONS', 1)
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_xml_equal('ACTIONS/ACTION[1]', 'Oui')
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'icon', 'images/ok.png')
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'extension', 'customer')
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'action', 'details')
+        self.assert_xml_equal('ACTIONS/ACTION[2]', 'Non')
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', 'icon', 'images/cancel.png')
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', 'extension', None)
+        self.assert_attrib_equal('ACTIONS/ACTION[2]', 'action', None)
 
-        res_xml = self.factory.call('/customer/details', {'CONFIRME':'YES'})
+        self.call('/customer/details', {'CONFIRME':'YES'}, False)
         self.assertEqual(self.value, True)
-        self.assertEqual(res_xml.get('observer'), 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
     def test_message(self):
         self.value = False
         def fillresponse_message():
-            self.ack.message("Finished!", XFER_DBOX_WARNING)
-        self.ack.fillresponse = fillresponse_message
-        res_xml = self.factory.call('/customer/details', {})
-        self.assertEqual(res_xml.get('observer'), 'Core.DialogBox')
-        self.assertEqual(res_xml.get('source_extension'), 'customer')
-        self.assertEqual(res_xml.get('source_action'), 'details')
-        self.assertEqual(len(res_xml.xpath('CONTEXT')), 0)
-        self.assertEqual(res_xml.xpath('TEXT')[0].get('type'), '3')
-        self.assertEqual(res_xml.xpath('TEXT')[0].text, 'Finished!')
-        self.assertEqual(len(res_xml.xpath('ACTIONS')), 1)
-        self.assertEqual(len(res_xml.xpath('ACTIONS/ACTION')), 1)
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].text, 'Ok')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('icon'), 'images/ok.png')
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('extension'), None)
-        self.assertEqual(res_xml.xpath('ACTIONS/ACTION')[0].get('action'), None)
+            self.factory.xfer.message("Finished!", XFER_DBOX_WARNING)
+        self.factory.xfer.fillresponse = fillresponse_message
+        self.call('/customer/details', {}, False)
+        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_attrib_equal('TEXT', 'type', '3')
+        self.assert_xml_equal('TEXT', 'Finished!')
+        self.assert_count_equal('ACTIONS', 1)
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+        self.assert_xml_equal('ACTIONS/ACTION', 'Ok')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'icon', 'images/ok.png')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'extension', None)
+        self.assert_attrib_equal('ACTIONS/ACTION', 'action', None)
