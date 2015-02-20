@@ -91,6 +91,7 @@
 			<arg value="--source=lucterios"/>
 			<arg value="./manage_${test_instance}.py"/>
 			<arg value="test"/>
+			<arg value="CORE"/>
 		</exec>	
 		<exec executable="${testversion}" dir="..">
 			<arg value="report"/>

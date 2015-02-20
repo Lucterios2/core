@@ -5,8 +5,10 @@ Created on 11 fevr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user
 from lucterios.framework.xferbasic import XferContainerAcknowledge, XFER_DBOX_WARNING
+from django.utils import six
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -66,7 +68,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'CORE.Menu')
         self.assert_attrib_equal('', 'source_extension', 'CORE')
         self.assert_attrib_equal('', 'source_action', 'menu')
-        self.assert_xml_equal("MENUS/MENU[@id='core.general']", u'Général')
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changerpassword']", 'Mot de _passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
 
