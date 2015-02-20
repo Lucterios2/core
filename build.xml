@@ -89,6 +89,7 @@
 		<exec executable="${testversion}" dir="..">
 			<arg value="run"/>
 			<arg value="--source=lucterios"/>
+			<arg value="--omit=lucterios/install/*"/>
 			<arg value="./manage_${test_instance}.py"/>
 			<arg value="test"/>
 			<arg value="CORE"/>
