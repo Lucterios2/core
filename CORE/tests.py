@@ -192,7 +192,6 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
     def test_message(self):
-        self.value = False
         def fillresponse_message():
             self.factory.xfer.message("Finished!", XFER_DBOX_WARNING)
         self.factory.xfer.fillresponse = fillresponse_message
@@ -207,5 +206,49 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_xml_equal('ACTIONS/ACTION', 'Ok')
         self.assert_attrib_equal('ACTIONS/ACTION', 'icon', 'images/ok.png')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'extension', None)
+        self.assert_attrib_equal('ACTIONS/ACTION', 'action', None)
+
+    def test_traitment(self):
+        self.value = False
+        def fillresponse_traitment():
+            if self.factory.xfer.traitment("customer/images/foo.png", "Traitment{[newline]}Wait...", "Done"):
+                self.value = True
+        self.factory.xfer.fillresponse = fillresponse_traitment
+        self.call('/customer/details', {}, False)
+        self.assertEqual(self.value, False)
+        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 1)
+        self.assert_attrib_equal('CONTEXT/PARAM', 'name', 'RELOAD')
+        self.assert_xml_equal('CONTEXT/PARAM', 'YES')
+        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Traitment{[newline]}Wait...{[/center]}')
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
+        self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', 'Traitment...')
+        self.assert_attrib_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', 'extension', 'customer')
+        self.assert_attrib_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', 'action', 'details')
+        self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/JavaScript', 'parent.refresh()')
+        self.assert_count_equal('ACTIONS', 1)
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+        self.assert_xml_equal('ACTIONS/ACTION', 'Cancel')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'icon', 'images/cancel.png')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'extension', None)
+        self.assert_attrib_equal('ACTIONS/ACTION', 'action', None)
+
+        self.call('/customer/details', {'RELOAD':'YES'}, False)
+        self.assertEqual(self.value, True)
+        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 1)
+        self.assert_attrib_equal('CONTEXT/PARAM', 'name', 'RELOAD')
+        self.assert_xml_equal('CONTEXT/PARAM', 'YES')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Done{[/center]}')
+        self.assert_xml_equal('ACTIONS/ACTION', 'Close')
+        self.assert_attrib_equal('ACTIONS/ACTION', 'icon', 'images/close.png')
         self.assert_attrib_equal('ACTIONS/ACTION', 'extension', None)
         self.assert_attrib_equal('ACTIONS/ACTION', 'action', None)
