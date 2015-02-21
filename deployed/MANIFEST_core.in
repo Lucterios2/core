@@ -1,0 +1,12 @@
+recursive-include lucterios/CORE *
+recursive-include lucterios/framework *
+recursive-include lucterios/install *
+recursive-include lucterios/web index.html
+recursive-include lucterios/web/css *
+recursive-include lucterios/web/images *
+recursive-include lucterios/web/lib *
+recursive-include lucterios/web/conf *
+recursive-include lucterios/web/js *
+recursive-exclude lucterios/CORE/__pycache__ *
+recursive-exclude lucterios/framework/__pycache__ *
+recursive-exclude lucterios/install/__pycache__ *

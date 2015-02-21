@@ -42,7 +42,7 @@ class Authentification(XferContainerAuth):
         else:
             etree.SubElement(connextion, 'SUBTITLE').text = ""
         etree.SubElement(connextion, 'VERSION').text = six.text_type(settings.APPLIS_VERSION)
-        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.framework.__version__)
+        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.CORE.__version__)
         etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)

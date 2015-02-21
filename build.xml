@@ -1,6 +1,7 @@
 <project name="Lucterios2" default="all" basedir=".">
+	<property name="test.instance" value="test"/>
+	<property name="web.version" value="0.9.7"/>
 	
-	<property name="test_instance" value="test"/>
 	<available file="/usr/local/bin/coverage2" property="python2.present"/>
 	<available file="/usr/local/bin/coverage3" property="python3.present"/>
 	
@@ -12,22 +13,34 @@
 		<antcall target="i18n" />
 		<antcall target="tests" />
 		<antcall target="del_instance"/>
-		<antcall target="package" />
+		<antcall target="packages" />
 	</target>
 
 	<target name="clear">
-		<delete dir="../bin"/>
-		<delete dir="../${test_instance}"/>		
-		<delete file="../manage_${test_instance}.py"/>
+		<delete dir="../dist"/>
+		<delete dir="../${test.instance}"/>		
+		<delete file="../manage_${test.instance}.py"/>
 		<delete file="../coverage2.xml"/>
 		<delete file="../coverage3.xml"/>
 		<delete file="../junit_py2.xml"/>
 		<delete file="../junit_py3.xml"/>
 		<delete file="../pylint.txt"/>
+		<delete file="../MANIFEST"/>
+		<delete file="../MANIFEST.in"/>
+		<delete file="../setup.py"/>
+		<delete>
+		    <fileset dir="." includes="**/*.pyc"/>
+		</delete>		
+		<delete dir="CORE/__pycache__"/>
+		<delete dir="framework/__pycache__"/>
+		<delete dir="install/__pycache__"/>
+		<delete dir="standard/__pycache__"/>
 	</target>
 
 	<target name="init">
-		<mkdir dir="../bin" />
+		<copy file="web/deployed/conf_template.js" tofile="web/conf/conf.js"/>
+		<replace file="web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}';"/>
+		<replace file="web/conf/conf.js" token="var G_New_Server = false;" value="var G_New_Server = true;"/>
 	</target>
 
 	<target name="pylint">
@@ -48,7 +61,7 @@
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
-			<arg value="../../manage_${test_instance}.py"/>
+			<arg value="../../manage_${test.instance}.py"/>
 			<arg value="makemessages"/>
 		    <arg value="-l"/>
 		    <arg value="fr"/>
@@ -58,7 +71,7 @@
 
 		<echo message="-- compile ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
-			<arg value="../../manage_${test_instance}.py"/>
+			<arg value="../../manage_${test.instance}.py"/>
 			<arg value="compilemessages"/>
 		</exec>	
 	</target>
@@ -73,7 +86,7 @@
 		<exec executable="python" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="add"/>
-			<arg value="--name=${test_instance}"/>
+			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
 		</exec>	
 	</target>	
@@ -82,7 +95,7 @@
 		<exec executable="python" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="del"/>
-			<arg value="--name=${test_instance}"/>
+			<arg value="--name=${test.instance}"/>
 		</exec>	
 	</target>	
 	
@@ -95,7 +108,7 @@
 			<arg value="run"/>
 			<arg value="--source=lucterios"/>
 			<arg value="--omit=lucterios/install/*"/>
-			<arg value="./manage_${test_instance}.py"/>
+			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>
 			<arg value="CORE"/>
 			<arg value="dummy"/>
@@ -125,7 +138,19 @@
 	</target>
 	
 	<target name="package">
-		
+		<delete file="../MANIFEST"/>
+		<delete file="../MANIFEST.in"/>
+		<delete file="../setup.py"/>
+		<copy file='deployed/setup_${modname}.py' tofile='../setup.py'/>
+		<copy file='deployed/MANIFEST_${modname}.in' tofile='../MANIFEST.in'/>
+		<exec executable="python3" dir="..">
+			<arg value="setup.py"/>
+			<arg value="sdist"/>
+		</exec>	
 	</target>
-	
+
+	<target name="packages">
+		<antcall target="package"><param name="modname" value="core"/></antcall>
+		<antcall target="package"><param name="modname" value="standard"/></antcall>
+	</target>
 </project>	

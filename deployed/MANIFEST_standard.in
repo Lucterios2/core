@@ -1,0 +1,2 @@
+recursive-include lucterios/standard *
+recursive-exclude lucterios/standard/__pycache__ *
