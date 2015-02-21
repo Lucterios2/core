@@ -10,10 +10,6 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, Client, RequestFactory
 from lxml import etree
 
-def check(condition, msg):
-    if not condition:
-        raise AssertionError(msg)
-
 def add_admin_user():
     from django.contrib.auth.models import User
     user = User.objects.create_user(username='admin', password='admin')
@@ -52,13 +48,10 @@ class XmlRequestFactory(RequestFactory):
             self.xfer = None
 
     def call(self, path, data):
-        if self.xfer is not None:
-            request = self.post(path, data)
-            request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
-            request.user = AnonymousUser()
-            return self.xfer.get(request)
-        else:
-            return None
+        request = self.post(path, data)
+        request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
+        request.user = AnonymousUser()
+        return self.xfer.get(request)
 
 class LucteriosTest(TestCase):
     # pylint: disable=too-many-public-methods

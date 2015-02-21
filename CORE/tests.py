@@ -18,12 +18,17 @@ class AuthentificationTest(LucteriosTest):
         add_admin_user()
         add_empty_user()
 
+    def test_blank(self):
+        response = self.client.call('/', {})
+        self.assertEqual(response.content, '')
+
     def test_menu_noconnect(self):
         self.call('/CORE/menu', {})
         self.assert_attrib_equal('', 'observer', 'CORE.Auth')
         self.assert_attrib_equal('', 'source_extension', 'CORE')
         self.assert_attrib_equal('', 'source_action', 'menu')
         self.assert_xml_equal('', 'NEEDAUTH')
+        self.assert_count_equal('CONNECTION', 0)
 
     def test_badconnect(self):
         self.call('/CORE/authentification', {})
@@ -31,14 +36,17 @@ class AuthentificationTest(LucteriosTest):
         self.assert_attrib_equal('', 'source_extension', 'CORE')
         self.assert_attrib_equal('', 'source_action', 'authentification')
         self.assert_xml_equal('', 'NEEDAUTH')
+        self.assert_count_equal('CONNECTION', 0)
 
         self.call('/CORE/authentification', {'login':'', 'pass':''})
         self.assert_attrib_equal('', 'observer', 'CORE.Auth')
         self.assert_xml_equal('', 'BADAUTH')
+        self.assert_count_equal('CONNECTION', 0)
 
         self.call('/CORE/authentification', {'login':'aaa', 'pass':'bbb'})
         self.assert_attrib_equal('', 'observer', 'CORE.Auth')
         self.assert_xml_equal('', 'BADAUTH')
+        self.assert_count_equal('CONNECTION', 0)
 
     def test_connect(self):
         self.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
@@ -79,6 +87,25 @@ class AuthentificationTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'CORE.Auth')
         self.assert_xml_equal('', 'NEEDAUTH')
 
+    def test_menu_reconnected(self):
+        self.call('/CORE/authentification', {'login':'admin', 'pass':'admin'})
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/authentification', {})
+        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
+        self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
+        self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
+
+        self.call('/CORE/authentification', {'login':'empty', 'pass':'empty'})
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/authentification', {'info':'true'})
+        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
+        self.assert_xml_equal('CONNECTION/LOGIN', 'empty')
+        self.assert_xml_equal('CONNECTION/REALNAME', 'empty NOFULL')
+
+        self.call('/CORE/exitConnection', {})
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
 class ContainerAcknowledgeTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -99,6 +126,22 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="id"]', '12')
         self.assert_xml_equal('CONTEXT/PARAM[@name="value"]', 'abc')
         self.assert_count_equal('CLOSE_ACTION', 0)
+
+    def test_close(self):
+        def fillresponse_close():
+            self.factory.xfer.set_close_action(XferContainerAcknowledge().get_changed("close", "", "customer", "list"))
+        self.factory.xfer.fillresponse = fillresponse_close
+        self.call('/customer/details', {}, False)
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'source_extension', 'customer')
+        self.assert_attrib_equal('', 'source_action', 'details')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTION', 0)
+        self.assert_count_equal('CLOSE_ACTION', 1)
+        self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
+        self.assert_xml_equal('CLOSE_ACTION/ACTION', "close")
+        self.assert_attrib_equal('CLOSE_ACTION/ACTION', 'extension', "customer")
+        self.assert_attrib_equal('CLOSE_ACTION/ACTION', 'action', "list")
 
     def test_redirect(self):
         def fillresponse_redirect():

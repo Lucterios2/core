@@ -35,6 +35,10 @@
 			<arg line="--rcfile=./rcfile lucterios"/>
 			<redirector output="../pylint.txt"/>
 		</exec>
+		<exec executable="sed">
+			<arg line="/Report/,$d"/>
+			<arg line="../pylint.txt" />
+		</exec>
 		<exec executable="grep">
 			<arg line="'Your code has been rated'" />
 			<arg line="../pylint.txt" />
