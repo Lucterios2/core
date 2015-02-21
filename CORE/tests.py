@@ -20,7 +20,10 @@ class AuthentificationTest(LucteriosTest):
 
     def test_blank(self):
         response = self.client.call('/', {})
-        self.assertEqual(response.content, '')
+        if six.PY2:
+            self.assertEqual(response.content, six.binary_type(''))
+        else:
+            self.assertEqual(response.content, six.binary_type('', 'ascii'))
 
     def test_menu_noconnect(self):
         self.call('/CORE/menu', {})
