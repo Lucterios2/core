@@ -11,7 +11,6 @@ from lxml import etree
 from django.views.generic import View
 from django.http import HttpResponse
 from django.utils import translation
-from django.utils import six
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
 
@@ -100,12 +99,12 @@ class XferContainerAbstract(View):
                 if params[arg_name] is None:
                     params[arg_name] = default_val
                 else:
-                    if isinstance(default_val, six.integer_types):
+                    if isinstance(default_val, bool):
+                        params[arg_name] = (params[arg_name] != 'False') and (params[arg_name] != '0') and (params[arg_name] != '') and (params[arg_name] != 'n')
+                    elif isinstance(default_val, int):
                         params[arg_name] = int(params[arg_name])
                     elif isinstance(default_val, float):
                         params[arg_name] = float(params[arg_name])
-                    elif isinstance(default_val, bool):
-                        params[arg_name] = (params[arg_name] != 'False') and (params[arg_name] != '0') and (params[arg_name] != '') and (params[arg_name] != 'n')
                     elif isinstance(default_val, tuple):
                         params[arg_name] = tuple(params[arg_name].split(';'))
                     elif isinstance(default_val, list):

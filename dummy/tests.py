@@ -125,3 +125,27 @@ class DummyTest(LucteriosTest):
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'close', '0')
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'modal', '2')
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'unique', '1')
+
+    def test_testcomposants_again(self):
+        # pylint: disable=too-many-statements
+        self.call('/dummy/testComposants', {'edt1':'bbb', 'flt1':'7.896666', 'mm1':'qwerty', 'dt1':'2015-02-22', 'tm1':'21:05:00', \
+                     'ck1':'o', 'slct1':'2', 'flt2':'27', 'cl1':'2;4', 'stm1':'2015-03-30 10:00:00'})
+        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_action', 'testComposants')
+        self.assert_count_equal('COMPONENTS/*', 22)
+
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="edt1"]', 'bbb')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="flt1"]', '7.90')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]', 'qwerty')
+        self.assert_xml_equal('COMPONENTS/DATE[@name="dt1"]', '2015-02-22')
+        self.assert_xml_equal('COMPONENTS/TIME[@name="tm1"]', '21:05:00')
+        self.assert_xml_equal('COMPONENTS/DATETIME[@name="stm1"]', '2015-03-30 10:00:00')
+        self.assert_xml_equal('COMPONENTS/CHECK[@name="ck1"]', '1')
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="slct1"]', '2')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="flt2"]', '27')
+        self.assert_count_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE', 4)
+        self.assert_attrib_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE[@id="1"]', 'checked', '0')
+        self.assert_attrib_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE[@id="2"]', 'checked', '1')
+        self.assert_attrib_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE[@id="3"]', 'checked', '0')
+        self.assert_attrib_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE[@id="4"]', 'checked', '1')

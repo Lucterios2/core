@@ -125,7 +125,7 @@ class TestComposants(XferContainerCustom):
         lbl.set_location(0, 7)
         self.add_component(lbl)
         check = XferCompCheck('ck1')
-        check.set_value(ck1 == 'o')
+        check.set_value(ck1)
         check.set_action(self.request, act_modif[0], **act_modif[1])
         check.set_location(1, 7)
         self.add_component(check)
@@ -155,7 +155,6 @@ class TestComposants(XferContainerCustom):
         flt.set_action(self.request, act_modif[0], **act_modif[1])
         flt.set_location(1, 9)
         self.add_component(flt)
-
 
         lbl = XferCompLabelForm('Lbl11')
         lbl.set_value('CheckList=' + six.text_type(cl1))
