@@ -76,7 +76,7 @@ def raise_bad_permission(item, request):
         from lucterios.framework.error import LucteriosException, IMPORTANT
         raise LucteriosException(IMPORTANT, _("Bad permission for '%s'") % request.user.username)
 
-def get_action_xml(item, desc='', tag='ACTION', **option):
+def get_action_xml(item, option, desc='', tag='ACTION'):
     try:
         actionxml = etree.Element(tag)
         actionxml.text = six.text_type(item.caption)
@@ -97,7 +97,7 @@ def get_action_xml(item, desc='', tag='ACTION', **option):
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
         if isinstance(item.modal, int):
             actionxml.attrib['modal'] = six.text_type(item.modal)
-        for key in option.keys():
+        for key in option.keys(): # modal, close, unique
             if isinstance(option[key], six.integer_types):
                 actionxml.attrib[key] = six.text_type(option[key])
         return actionxml

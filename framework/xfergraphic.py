@@ -62,7 +62,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
-        self.fillresponse()
+        self.fillresponse(**self._get_params())
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
             kwargs["CONFIRME"] = "YES"
             dlg = XferContainerDialogBox()
@@ -113,7 +113,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _finalize(self):
         if self.redirect_act != None:
-            act_xml = get_action_xml(self.redirect_act)
+            act_xml = get_action_xml(self.redirect_act, {})
             if act_xml is not None:
                 self.responsexml.append(act_xml)
         return XferContainerAbstract._finalize(self)
@@ -152,7 +152,7 @@ class XferContainerDialogBox(XferContainerAbstract):
         if len(self.actions) > 0:
             act_dlg = etree.SubElement(self.responsexml, "ACTIONS")
             for (action, options) in self.actions:
-                new_xml = get_action_xml(action, **options)  # pylint: disable=star-args
+                new_xml = get_action_xml(action, options)
                 if new_xml != None:
                     act_dlg.append(new_xml)
         return XferContainerAbstract._finalize(self)
@@ -160,7 +160,7 @@ class XferContainerDialogBox(XferContainerAbstract):
 
 class XferContainerCustom(XferContainerAbstract):
 
-    observer_name = "Core.DialogBox"
+    observer_name = "Core.Custom"
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
@@ -274,7 +274,7 @@ class XferContainerCustom(XferContainerAbstract):
         if len(self.actions) != 0:
             xml_acts = etree.SubElement(self.responsexml, "ACTIONS")
             for (action, options) in self.actions:
-                new_xml = get_action_xml(action, **options)  # pylint: disable=star-args
+                new_xml = get_action_xml(action, options)
                 if new_xml != None:
                     xml_acts.append(new_xml)
         return XferContainerAbstract._finalize(self)

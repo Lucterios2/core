@@ -11,6 +11,7 @@ from lxml import etree
 from django.views.generic import View
 from django.http import HttpResponse
 from django.utils import translation
+from django.utils import six
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
 
@@ -68,24 +69,52 @@ class XferContainerAbstract(View):
         pass
 
     def _finalize(self):
-        if self.caption != '':
-            etree.SubElement(self.responsexml, "TITLE").text = self.caption.replace('_', '')
         self.responsexml.attrib['observer'] = self.observer_name
         self.responsexml.attrib['source_extension'] = self.extension
         self.responsexml.attrib['source_action'] = self.action
+        titlexml = etree.Element("TITLE")
+        titlexml.text = self.caption.replace('_', '')
+        self.responsexml.insert(0, titlexml)
         if len(self.params) > 0:
-            context = etree.SubElement(self.responsexml, "CONTEXT")
+            context = etree.Element("CONTEXT")
             for key, value in self.params.items():
                 new_param = etree.SubElement(context, 'PARAM')
                 new_param.text = value
                 new_param.attrib['name'] = key
+            self.responsexml.insert(1, context)
         if self.closeaction != None:
-            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], **self.closeaction[1]))
+            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], self.closeaction[1]))
         return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+
+    def _get_params(self):
+        params = {}
+        import inspect
+        spec = inspect.getargspec(self.fillresponse)
+        for arg_name in spec.args[1:]:
+            params[arg_name] = self.getparam(arg_name)
+        if isinstance(spec.args, list) and isinstance(spec.defaults, tuple):
+            diff = len(spec.args) - len(spec.defaults)
+            for arg_id in range(diff, len(spec.args)):
+                arg_name = spec.args[arg_id]
+                default_val = spec.defaults[arg_id - diff]
+                if params[arg_name] is None:
+                    params[arg_name] = default_val
+                else:
+                    if isinstance(default_val, six.integer_types):
+                        params[arg_name] = int(params[arg_name])
+                    elif isinstance(default_val, float):
+                        params[arg_name] = float(params[arg_name])
+                    elif isinstance(default_val, bool):
+                        params[arg_name] = (params[arg_name] != 'False') and (params[arg_name] != '0') and (params[arg_name] != '') and (params[arg_name] != 'n')
+                    elif isinstance(default_val, tuple):
+                        params[arg_name] = tuple(params[arg_name].split(';'))
+                    elif isinstance(default_val, list):
+                        params[arg_name] = params[arg_name].split(';')
+        return params
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
-        self.fillresponse()
+        self.fillresponse(**self._get_params())
         return self._finalize()
 
     def post(self, request, *args, **kwargs):
@@ -102,7 +131,7 @@ class XferContainerMenu(XferContainerAbstract):
             sub_menus.sort(key=menu_key_to_comp)  # menu_comp)
             for sub_menu_item in sub_menus:
                 if check_permission(sub_menu_item[0], self.request):
-                    new_xml = get_action_xml(sub_menu_item[0], sub_menu_item[1], "MENU")
+                    new_xml = get_action_xml(sub_menu_item[0], {}, sub_menu_item[1], "MENU")
                     if new_xml != None:
                         parentxml.append(new_xml)
                         self.fill_menu(sub_menu_item[0].url_text, new_xml)

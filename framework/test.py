@@ -96,4 +96,4 @@ class LucteriosTest(TestCase):
 
     def assert_attrib_equal(self, xpath, name, value):
         xml_value = self._get_first_xpath(xpath)
-        self.assertEqual(xml_value.get(name), value, xpath)
+        self.assertEqual(xml_value.get(name), value, xpath + '/@' + name)

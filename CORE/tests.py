@@ -217,7 +217,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.factory.xfer.fillresponse = fillresponse_traitment
         self.call('/customer/details', {}, False)
         self.assertEqual(self.value, False)
-        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'observer', 'Core.Custom')
         self.assert_attrib_equal('', 'source_extension', 'customer')
         self.assert_attrib_equal('', 'source_action', 'details')
         self.assert_count_equal('CONTEXT', 1)
@@ -239,7 +239,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
 
         self.call('/customer/details', {'RELOAD':'YES'}, False)
         self.assertEqual(self.value, True)
-        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'observer', 'Core.Custom')
         self.assert_attrib_equal('', 'source_extension', 'customer')
         self.assert_attrib_equal('', 'source_action', 'details')
         self.assert_count_equal('CONTEXT', 1)
