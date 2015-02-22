@@ -76,6 +76,14 @@ def raise_bad_permission(item, request):
         from lucterios.framework.error import LucteriosException, IMPORTANT
         raise LucteriosException(IMPORTANT, _("Bad permission for '%s'") % request.user.username)
 
+def get_actions_xml(actions):
+    actionsxml = etree.Element("ACTIONS")
+    for (action, options) in actions:
+        new_xml = get_action_xml(action, options)
+        if new_xml != None:
+            actionsxml.append(new_xml)
+    return actionsxml
+
 def get_action_xml(item, option, desc='', tag='ACTION'):
     try:
         actionxml = etree.Element(tag)
@@ -85,7 +93,7 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
             if (item.extension == '') or ('images/' in item.icon):
                 actionxml.attrib['icon'] = item.icon
             elif item.extension == 'CORE':
-                actionxml.attrib['icon'] = "images/"+item.icon
+                actionxml.attrib['icon'] = "images/" + item.icon
             else:
                 actionxml.attrib['icon'] = "%s/images/%s" % (item.extension, item.icon)
             # actionxml.attrib['sizeicon']=filesize(item.icon)
@@ -97,7 +105,7 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
         if isinstance(item.modal, int):
             actionxml.attrib['modal'] = six.text_type(item.modal)
-        for key in option.keys(): # modal, close, unique
+        for key in option.keys():  # modal, close, unique
             if isinstance(option[key], six.integer_types):
                 actionxml.attrib[key] = six.text_type(option[key])
         return actionxml

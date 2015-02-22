@@ -11,7 +11,7 @@ from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 
-from lucterios.framework.tools import check_permission, get_action_xml
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes
@@ -301,4 +301,97 @@ class XferCompCheckList(XferCompButton):
             else:
                 xml_case.attrib['checked'] = '0'
             xml_case.text = six.text_type(val)
+        return compxml
+
+MAX_GRID_RECORD = 25
+GRID_PAGE = 'GRID_PAGE%'
+
+from collections import namedtuple
+XferCompHeader = namedtuple('XferCompHeader', 'name descript type')
+
+class XferCompGrid(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "GRID"
+        self.headers = []
+        self.records = {}
+        self.actions = []
+#         self.page_max = 0
+#         self.page_num = 0
+#         self.nb_lines = 0
+
+    def add_header(self, name, descript, htype=""):
+        self.headers.append(XferCompHeader(name, descript, htype))
+
+    def add_action(self, request, action, pos_act=-1, **option):
+        if isinstance(action, XferContainerAbstract) and check_permission(action, request):
+            if pos_act != -1:
+                self.actions.insert(pos_act, (action, option))
+            else:
+                self.actions.append((action, option))
+
+#     def define_page(self, xfer_custom):
+#         page_num = xfer_custom.getParam(GRID_PAGE + self.name)
+#         if page_num is not None:
+#             page_num = int(page_num)
+#             self.page_max = int(self.nb_lines / MAX_GRID_RECORD)
+#             if self.page_max < page_num:
+#                 page_num = 0
+#             self.page_num = page_num
+#             record_min = self.page_num * MAX_GRID_RECORD
+#             record_max = (self.page_num + 1) * MAX_GRID_RECORD
+#         else:
+#             record_min = 0
+#             record_max = self.nb_lines
+#             self.page_max = None
+#             self.page_num = 0
+#         return (record_min, record_max)
+
+    def _new_record(self, compid):
+        if not compid in self.records.keys():
+            new_record = {}
+            for header in self.headers:
+                if header.type == 'int':
+                    new_record[header.name] = 0
+                elif header.type == 'float':
+                    new_record[header.name] = 0.0
+                elif header.type == 'bool':
+                    new_record[header.name] = False
+                else:
+                    new_record[header.name] = ""
+            self.records[compid] = new_record
+
+    def set_value(self, compid, name, value):
+        self._new_record(compid)
+        self.records[compid][name] = value
+
+#     def _get_attribut(self, compxml):
+#         XferComponent._get_attribut(self, compxml)
+#         if isinstance(self.page_max, six.integer_types) and (self.page_max > 1):
+#             compxml.attrib['PageMax'] = six.text_type(self.page_max)
+#             compxml.attrib['PageNum'] = six.text_type(self.page_num)
+
+    def get_reponse_xml(self):
+        compxml = XferComponent.get_reponse_xml(self)
+        for header in self.headers:
+            xml_header = etree.SubElement(compxml, "HEADER")
+            xml_header.attrib['name'] = six.text_type(header.name)
+            if header.type != "":
+                xml_header.attrib['type'] = six.text_type(header.type)
+            xml_header.text = six.text_type(header.descript)
+        for (key, record) in self.records.items():
+            xml_record = etree.SubElement(compxml, "RECORD")
+            xml_record.attrib['id'] = six.text_type(key)
+            for header in self.headers:
+                xml_value = etree.SubElement(xml_record, "VALUE")
+                xml_value.attrib['name'] = six.text_type(header.name)
+                xml_value.text = six.text_type(record[header.name])
+        if len(self.actions) != 0:
+            compxml.append(get_actions_xml(self.actions))
+            xml_acts = etree.SubElement(compxml, "ACTIONS")
+            for (action, options) in self.actions:
+                new_xml = get_action_xml(action, options)
+                if new_xml != None:
+                    xml_acts.append(new_xml)
         return compxml

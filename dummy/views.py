@@ -12,7 +12,7 @@ from django.utils import six
 from lucterios.framework.tools import describ_action, add_sub_menu
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 
 
@@ -179,3 +179,32 @@ class TestComposants(XferContainerCustom):
         self.add_action(XferContainerAcknowledge().get_changed('Fin', 'images/close.png'), **{'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
+
+@describ_action('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
+class SimpleGrid(XferContainerCustom):
+
+    caption = _("_Test of grid")
+    icon = "5.png"
+
+    def fillresponse(self):
+
+        grid = XferCompGrid('grid')
+        grid.set_location(0, 0)
+
+        grid.add_header('col1', "Integer", 'int')
+        grid.add_header('col2', "Float", 'float')
+        grid.add_header('col3', "Boolean", 'bool')
+        grid.add_header('col4', "String", 'str')
+
+        grid.set_value(1, "col1", 25)
+        grid.set_value(1, "col2", 7.54)
+        grid.set_value(1, "col3", True)
+        grid.set_value(1, "col4", "foo")
+
+        grid.set_value(5, "col1", 0)
+        grid.set_value(5, "col2", 789.644)
+        grid.set_value(5, "col3", False)
+        grid.set_value(5, "col4", "string")
+
+        #grid.add_action(self.get_changed('Reopen', ''),-1, **{'modal':FORMTYPE_REFRESH})
+        self.add_component(grid)

@@ -12,7 +12,7 @@ from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton
-from lucterios.framework.tools import check_permission, get_action_xml
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 
 class XferContainerAcknowledge(XferContainerAbstract):
@@ -149,12 +149,8 @@ class XferContainerDialogBox(XferContainerAbstract):
         text_dlg = etree.SubElement(self.responsexml, "TEXT")
         text_dlg.attrib['type'] = str(self.msgtype)
         text_dlg.text = str(self.msgtext)
-        if len(self.actions) > 0:
-            act_dlg = etree.SubElement(self.responsexml, "ACTIONS")
-            for (action, options) in self.actions:
-                new_xml = get_action_xml(action, options)
-                if new_xml != None:
-                    act_dlg.append(new_xml)
+        if len(self.actions) != 0:
+            self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
 
 
@@ -272,9 +268,5 @@ class XferContainerCustom(XferContainerAbstract):
                 xml_comp = comp.get_reponse_xml()
                 xml_comps.append(xml_comp)
         if len(self.actions) != 0:
-            xml_acts = etree.SubElement(self.responsexml, "ACTIONS")
-            for (action, options) in self.actions:
-                new_xml = get_action_xml(action, options)
-                if new_xml != None:
-                    xml_acts.append(new_xml)
+            self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
