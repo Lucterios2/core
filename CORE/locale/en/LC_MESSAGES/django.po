@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-21 18:25+0000\n"
+"POT-Creation-Date: 2015-02-23 17:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -125,30 +125,88 @@ msgstr "To manage boards of labels"
 msgid "_Labels"
 msgstr ""
 
-#: views.py:75
-msgid "_Rights manage"
-msgstr "_Rights manage"
-
-#: views.py:75
-msgid "To manage users, groups and permissions."
-msgstr "To manage users, groups and permissions."
-
-#: views.py:77
-msgid "To manage permissions groupes."
-msgstr "To manage permissions groupes."
-
-#: views.py:79
-msgid "_Groups"
-msgstr "_Groups"
-
-#: views.py:82
-msgid "To manage users."
-msgstr "To manage users."
-
-#: views.py:84
-msgid "_Users"
-msgstr "_Users"
-
 #: views_auth.py:63
 msgid "Disconnect"
 msgstr "Disconnect"
+
+#: views_usergroup.py:17
+msgid "_Rights manage"
+msgstr "_Rights manage"
+
+#: views_usergroup.py:17
+msgid "To manage users, groups and permissions."
+msgstr "To manage users, groups and permissions."
+
+#: views_usergroup.py:19
+msgid "To manage permissions groupes."
+msgstr "To manage permissions groupes."
+
+#: views_usergroup.py:21
+msgid "_Groups"
+msgstr "_Groups"
+
+#: views_usergroup.py:24
+msgid "To manage users."
+msgstr "To manage users."
+
+#: views_usergroup.py:26
+msgid "_Users"
+msgstr "_Users"
+
+#: views_usergroup.py:36
+msgid "Users of the software"
+msgstr "Users of the software"
+
+#: views_usergroup.py:41
+msgid "List of active users"
+msgstr "List of active users"
+
+#: views_usergroup.py:49
+msgid "Modify"
+msgstr "Modify"
+
+#: views_usergroup.py:50
+msgid "Disabled"
+msgstr "Disabled"
+
+#: views_usergroup.py:51 views_usergroup.py:70
+msgid "Delete"
+msgstr "Delete"
+
+#: views_usergroup.py:52
+msgid "Add"
+msgstr "Add"
+
+#: views_usergroup.py:61
+msgid "List of inactive users"
+msgstr "List of inactive users"
+
+#: views_usergroup.py:69
+#, fuzzy
+#| msgid "Disabled"
+msgid "Enabled"
+msgstr "Disabled"
+
+#: views_usergroup.py:73
+msgid "Close"
+msgstr "Close"
+
+#: views_usergroup.py:77
+msgid "Modify an user"
+msgstr "Modify an user"
+
+#: views_usergroup.py:82
+msgid "Disabled an user"
+msgstr "Disabled an user"
+
+#: views_usergroup.py:87
+msgid "Delete users"
+msgstr "Delete users"
+
+#: views_usergroup.py:92
+msgid "Add an users"
+msgstr "Add an users"
+
+#: views_usergroup.py:97
+msgid "Enabled an user"
+msgstr "Enabled an user"

@@ -105,6 +105,10 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
         if isinstance(item.modal, int):
             actionxml.attrib['modal'] = six.text_type(item.modal)
+        actionxml.attrib['modal'] = six.text_type(CLOSE_NO)
+
+        actionxml.attrib['close'] = six.text_type(FORMTYPE_NOMODAL)
+        actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
         for key in option.keys():  # modal, close, unique
             if isinstance(option[key], six.integer_types):
                 actionxml.attrib[key] = six.text_type(option[key])

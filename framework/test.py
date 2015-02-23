@@ -8,6 +8,7 @@ Created on feb. 2015
 from __future__ import unicode_literals
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, Client, RequestFactory
+from django.utils import six
 from lxml import etree
 
 def add_admin_user():
@@ -55,9 +56,12 @@ class XmlRequestFactory(RequestFactory):
 
 class LucteriosTest(TestCase):
     # pylint: disable=too-many-public-methods
-
-    xfer_class = None
+    
     language = 'fr'
+    
+    def __init__(self, methodName):
+        TestCase.__init__(self, methodName)
+        self.xfer_class = None
 
     def setUp(self):
         self.factory = XmlRequestFactory(self.xfer_class, self.language)
@@ -74,7 +78,6 @@ class LucteriosTest(TestCase):
         self.assertEqual(contentxml.getchildren()[0].tag, 'REPONSE', "NOT REPONSE")
         self.response_xml = contentxml.getchildren()[0]
 
-
     def _get_first_xpath(self, xpath):
         if xpath == '':
             return self.response_xml
@@ -82,6 +85,11 @@ class LucteriosTest(TestCase):
             xml_values = self.response_xml.xpath(xpath)
             self.assertEqual(len(xml_values), 1, "%s not unique" % xpath)
             return xml_values[0]
+
+    def print_xml(self, xpath):
+        from logging import getLogger
+        xml_values = self.response_xml.xpath(xpath)
+        getLogger(__name__).info(etree.tostring(xml_values[0], xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
@@ -97,3 +105,19 @@ class LucteriosTest(TestCase):
     def assert_attrib_equal(self, xpath, name, value):
         xml_value = self._get_first_xpath(xpath)
         self.assertEqual(xml_value.get(name), value, xpath + '/@' + name)
+
+    def assert_coordcomp_equal(self, xpath, coord):
+        self.assert_attrib_equal(xpath, "x", coord[0])
+        self.assert_attrib_equal(xpath, "y", coord[1])
+        self.assert_attrib_equal(xpath, "colspan", coord[2])
+        self.assert_attrib_equal(xpath, "rowspan", coord[3])
+
+    def assert_action_equal(self, xpath, act_desc):
+
+        self.assert_xml_equal(xpath, act_desc[0])
+        self.assert_attrib_equal(xpath, "icon", act_desc[1])
+        self.assert_attrib_equal(xpath, "extension", act_desc[2])
+        self.assert_attrib_equal(xpath, "action", act_desc[3])
+        self.assert_attrib_equal(xpath, "close", six.text_type(act_desc[4]))
+        self.assert_attrib_equal(xpath, "modal", six.text_type(act_desc[5]))
+        self.assert_attrib_equal(xpath, "unique", six.text_type(act_desc[6]))

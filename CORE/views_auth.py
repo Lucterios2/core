@@ -32,7 +32,7 @@ class Authentification(XferContainerAuth):
         from lxml import etree
         from inspect import isfunction
         from django.conf import settings
-        import lucterios.framework
+        import lucterios.CORE
         connextion = etree.SubElement(self.responsexml, "CONNECTION")
         etree.SubElement(connextion, 'TITLE').text = six.text_type(settings.APPLIS_NAME)
         if isinstance(settings.APPLIS_SUBTITLE, str):

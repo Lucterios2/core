@@ -71,15 +71,3 @@ class FinalreportList(XferContainerAcknowledge):
 class EtiquettesListe(XferContainerAcknowledge):
     caption = _("_Labels")
     icon = "PrintReportLabel.png"
-
-add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
-
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
-class GroupListe(XferContainerAcknowledge):
-    caption = _("_Groups")
-    icon = "group.png"
-
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
-class UsersList(XferContainerAcknowledge):
-    caption = _("_Users")
-    icon = "user.png"

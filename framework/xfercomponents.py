@@ -10,7 +10,6 @@ from django.utils import six
 from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
-
 from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml
 
 class XferComponent(object):
@@ -151,7 +150,7 @@ class XferCompButton(XferComponent):
         else:
             self.is_mini = False
 
-    def set_action(self, request, action, **option):
+    def set_action(self, request, action, option):
         if isinstance(action, XferContainerAbstract) and check_permission(action, request):
             self.action = (action, option)
 
@@ -324,7 +323,7 @@ class XferCompGrid(XferComponent):
     def add_header(self, name, descript, htype=""):
         self.headers.append(XferCompHeader(name, descript, htype))
 
-    def add_action(self, request, action, pos_act=-1, **option):
+    def add_action(self, request, action, option, pos_act=-1):
         if isinstance(action, XferContainerAbstract) and check_permission(action, request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
@@ -389,9 +388,21 @@ class XferCompGrid(XferComponent):
                 xml_value.text = six.text_type(record[header.name])
         if len(self.actions) != 0:
             compxml.append(get_actions_xml(self.actions))
-            xml_acts = etree.SubElement(compxml, "ACTIONS")
-            for (action, options) in self.actions:
-                new_xml = get_action_xml(action, options)
-                if new_xml != None:
-                    xml_acts.append(new_xml)
         return compxml
+
+    def set_model(self, query_set, fieldnames):
+        from django.db.models.fields import IntegerField, FloatField, BooleanField
+        for fieldname in fieldnames:
+            dep_field = query_set.model._meta.get_field_by_name(fieldname) # pylint: disable=protected-access
+            if isinstance(dep_field[0], IntegerField):
+                hfield = 'int'
+            elif isinstance(dep_field[0], FloatField):
+                hfield = 'float'
+            elif isinstance(dep_field[0], BooleanField):
+                hfield = 'bool'
+            else:
+                hfield = 'str'
+            self.add_header(fieldname, dep_field[0].verbose_name, hfield)
+        for value in query_set:
+            for fieldname in fieldnames:
+                self.set_value(value.id, fieldname, getattr(value, fieldname))

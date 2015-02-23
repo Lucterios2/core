@@ -20,9 +20,8 @@ class LucteriosErrorMiddleware(XferContainerAbstract):
     exception = None
 
     def process_exception(self, request, exception):
-        if not isinstance(exception, Exception):
-            return None
-        getLogger(__name__).exception(exception)
+        if not isinstance(exception, LucteriosException):
+            getLogger(__name__).exception(exception)
         self.exception = exception
         self._initialize(request)
         self.fillresponse()

@@ -15,7 +15,6 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 
-
 add_sub_menu('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
@@ -23,9 +22,12 @@ class Bidule(XferContainerAcknowledge):
     caption = _("_Bidule")
     icon = "1.png"
 
-    def fillresponse(self):
+    def fillresponse(self, error):
         from lucterios.framework.error import LucteriosException, GRAVE
-        raise LucteriosException(GRAVE, "Error of bidule")
+        if error is None:
+            raise LucteriosException(GRAVE, "Error of bidule")
+        else:
+            raise AttributeError("Other error:" + error)
 
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
 class Truc(XferContainerAcknowledge):
@@ -65,7 +67,7 @@ class TestComposants(XferContainerCustom):
         edt = XferCompEdit('edt1')
         edt.set_value(edt1)
 
-        edt.set_action(self.request, act_modif[0], **act_modif[1])
+        edt.set_action(self.request, act_modif[0], act_modif[1])
         edt.set_location(1, 1)
 
         self.add_component(edt)
@@ -76,7 +78,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         flt = XferCompFloat('flt1')
         flt.set_value(flt1)
-        flt.set_action(self.request, act_modif[0], **act_modif[1])
+        flt.set_action(self.request, act_modif[0], act_modif[1])
         flt.set_location(1, 2)
         self.add_component(flt)
 
@@ -86,7 +88,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         cmm = XferCompMemo('mm1')
         cmm.set_value(mm1)
-        cmm.set_action(self.request, act_modif[0], **act_modif[1])
+        cmm.set_action(self.request, act_modif[0], act_modif[1])
         cmm.set_location(1, 3)
         self.add_component(cmm)
 
@@ -96,7 +98,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         date = XferCompDate('dt1')
         date.set_value(dt1)
-        date.set_action(self.request, act_modif[0], **act_modif[1])
+        date.set_action(self.request, act_modif[0], act_modif[1])
         date.set_location(1, 4)
         self.add_component(date)
 
@@ -106,7 +108,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         time = XferCompTime('tm1')
         time.set_value(tm1)
-        time.set_action(self.request, act_modif[0], **act_modif[1])
+        time.set_action(self.request, act_modif[0], act_modif[1])
         time.set_location(1, 5)
         self.add_component(time)
 
@@ -116,7 +118,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         datetime = XferCompDateTime('stm1')
         datetime.set_value(stm1)
-        datetime.set_action(self.request, act_modif[0], **act_modif[1])
+        datetime.set_action(self.request, act_modif[0], act_modif[1])
         datetime.set_location(1, 6)
         self.add_component(datetime)
 
@@ -126,7 +128,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         check = XferCompCheck('ck1')
         check.set_value(ck1)
-        check.set_action(self.request, act_modif[0], **act_modif[1])
+        check.set_action(self.request, act_modif[0], act_modif[1])
         check.set_location(1, 7)
         self.add_component(check)
 
@@ -142,7 +144,7 @@ class TestComposants(XferContainerCustom):
         else:
             slct.set_select({'1':'abc', '2':'def', '3':'ghij', '4':'klmn'})
         slct.set_value(slct1)
-        slct.set_action(self.request, act_modif[0], **act_modif[1])
+        slct.set_action(self.request, act_modif[0], act_modif[1])
         slct.set_location(1, 8)
         self.add_component(slct)
 
@@ -152,7 +154,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         flt = XferCompFloat('flt2', 0, 100, 0)
         flt.set_value(flt2)
-        flt.set_action(self.request, act_modif[0], **act_modif[1])
+        flt.set_action(self.request, act_modif[0], act_modif[1])
         flt.set_location(1, 9)
         self.add_component(flt)
 
@@ -163,7 +165,7 @@ class TestComposants(XferContainerCustom):
         checklist = XferCompCheckList('cl1')
         checklist.set_select({'1':'abc', '2':'def', '3':'ghij', '4':'klmn'})
         checklist.set_value(cl1)
-        checklist.set_action(self.request, act_modif[0], **act_modif[1])
+        checklist.set_action(self.request, act_modif[0], act_modif[1])
         checklist.set_location(1, 10)
         self.add_component(checklist)
 
@@ -172,11 +174,11 @@ class TestComposants(XferContainerCustom):
         lbl.set_location(0, 20)
         self.add_component(lbl)
         btn = XferCompButton('btn1')
-        btn.set_action(self.request, act_modif[0], **act_modif[1])
+        btn.set_action(self.request, act_modif[0], act_modif[1])
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(XferContainerAcknowledge().get_changed('Fin', 'images/close.png'), **{'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
+        self.add_action(XferContainerAcknowledge().get_changed('Fin', 'images/close.png'), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
@@ -206,5 +208,5 @@ class SimpleGrid(XferContainerCustom):
         grid.set_value(5, "col3", False)
         grid.set_value(5, "col4", "string")
 
-        #grid.add_action(self.get_changed('Reopen', ''),-1, **{'modal':FORMTYPE_REFRESH})
+        # grid.add_action(self.get_changed('Reopen', ''),-1, {'modal':FORMTYPE_REFRESH})
         self.add_component(grid)

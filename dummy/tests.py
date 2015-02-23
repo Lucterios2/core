@@ -13,7 +13,7 @@ from django.utils import six
 class DummyTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
 
-    def test_bidule(self):
+    def test_bidule1(self):
         self.call('/dummy/bidule', {})
         self.assert_attrib_equal('', 'observer', 'CORE.Exception')
         self.assert_attrib_equal('', 'source_extension', 'dummy')
@@ -22,6 +22,16 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/CODE', '2')
         self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 28 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-115, -11))
         self.assert_xml_equal('EXCEPTION/TYPE', 'LucteriosException')
+
+    def test_bidule2(self):
+        self.call('/dummy/bidule', {'error':'big'})
+        self.assert_attrib_equal('', 'observer', 'CORE.Exception')
+        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_action', 'bidule')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', 'Other error:big')
+        self.assert_xml_equal('EXCEPTION/CODE', '0')
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 30 in fillresponse : raise AttributeError("Other error:" + error)', (-109, -11))
+        self.assert_xml_equal('EXCEPTION/TYPE', 'AttributeError')
 
     def test_truc(self):
         self.call('/dummy/truc', {})

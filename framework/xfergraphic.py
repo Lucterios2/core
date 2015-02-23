@@ -70,15 +70,15 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.extension = self.extension
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-            dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
-            dlg.add_action(XferContainerAbstract().get_changed(_("No"), "images/cancel.png"))
+            dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
+            dlg.add_action(XferContainerAbstract().get_changed(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.msg != "":
             dlg = XferContainerDialogBox()
             dlg.caption = self.caption
             dlg.set_dialog(self.msg, self.typemsg)
-            dlg.add_action(XferContainerAbstract().get_changed(_("Ok"), "images/ok.png"))
+            dlg.add_action(XferContainerAbstract().get_changed(_("Ok"), "images/ok.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.traitment_data != None:
@@ -96,17 +96,17 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.add_component(lbl)
             if self.getparam("RELOAD") is not None:
                 lbl.set_value("{[newline]}{[center]}" + self.traitment_data[2] + "{[/center]}")
-                dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"))
+                dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
             else:
                 lbl.set_value("{[newline]}{[center]}" + self.traitment_data[1] + "{[/center]}")
                 kwargs["RELOAD"] = "YES"
                 btn = XferCompButton("Next")
                 btn.set_location(1, 1)
                 btn.set_size(50, 300)
-                btn.set_action(self.request, self.get_changed(_('Traitment...'), ""))
+                btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {})
                 btn.java_script = "parent.refresh()"
                 dlg.add_component(btn)
-                dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"))
+                dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"), {})
             return dlg.get(request, *args, **kwargs)
         else:
             return self._finalize()
@@ -141,7 +141,7 @@ class XferContainerDialogBox(XferContainerAbstract):
         self.msgtype = msgtype
         self.msgtext = msgtext
 
-    def add_action(self, action, **options):
+    def add_action(self, action, options):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
             self.actions.append((action, options))
 
@@ -246,7 +246,7 @@ class XferContainerCustom(XferContainerAbstract):
             if comp_id != '':
                 del self.components[comp_id]
 
-    def add_action(self, action, pos_act=-1, **option):
+    def add_action(self, action, option, pos_act=-1):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))

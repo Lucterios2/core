@@ -142,11 +142,9 @@ class XferContainerMenu(XferContainerAbstract):
 class XferContainerAuth(XferContainerAbstract):
     observer_name = 'CORE.Auth'
 
-    def fillresponse(self):
+    def fillresponse(self, username, password, info):
         from django.contrib.auth import authenticate, login, logout
-        username = self.getparam('login')
-        password = self.getparam('pass')
-        if (login is not None) and (password is not None):
+        if (username is not None) and (password is not None):
             if self.request.user.is_authenticated():
                 logout(self.request)
             user = authenticate(username=username, password=password)
@@ -156,7 +154,7 @@ class XferContainerAuth(XferContainerAbstract):
                 self.get_connection_info()
             else:
                 self.must_autentificate('BADAUTH')
-        elif self.getparam('info') is not None:
+        elif info is not None:
             self.get_connection_info()
         else:
             if self.request.user.is_authenticated():
