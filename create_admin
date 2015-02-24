@@ -1,0 +1,6 @@
+from django.contrib.auth.models import User
+user = User.objects.create_user('admin', '', 'admin')
+user.is_staff = True
+user.is_superuser = True
+user.save()
+print("admin created...")

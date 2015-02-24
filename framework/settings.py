@@ -37,7 +37,7 @@ DEFAULT_SETTINGS = {
     'USE_L10N': True,
     'USE_TZ': True,
     'TEMPLATE_DEBUG': False,
-    'ALLOWED_HOSTS': [],
+    'ALLOWED_HOSTS': ['localhost', '127.0.0.1'],
     'WSGI_APPLICATION' : 'lucterios.framework.wsgi.application',
     'STATIC_URL':'/static/',
     'TEST_RUNNER':'juxd.JUXDTestSuiteRunner',

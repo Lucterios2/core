@@ -12,6 +12,7 @@
 		<antcall target="add_instance"/>
 		<antcall target="i18n" />
 		<antcall target="tests" />
+		<antcall target="tests_web" />
 		<antcall target="del_instance"/>
 		<antcall target="packages" />
 	</target>
@@ -96,6 +97,15 @@
 			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
 		</exec>	
+		<exec executable="python" dir="..">
+			<arg value="./manage_${test.instance}.py"/>
+			<arg value="syncdb"/>
+			<arg value="--noinput"/>			
+		</exec>	
+		<exec executable="python" dir=".." input='create_admin'>
+			<arg value="./manage_${test.instance}.py"/>
+			<arg value="shell"/>
+		</exec>	
 	</target>	
 
 	<target name="del_instance">
@@ -139,9 +149,23 @@
 		<replace file="../junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
 	</target>
 
+	<target name="runserver">
+		<exec executable="sh" dir="..">
+			<arg value="lucterios/runner.sh"/>
+			<arg value="./manage_${test.instance}.py"/>
+			<arg value="${run.mode}"/>
+		</exec>	
+	</target>
+
 	<target name="tests">
 		<antcall target="test_py2"/>
 		<antcall target="test_py3"/>
+	</target>
+
+	<target name="tests_web">
+		<antcall target="runserver"><param name="run.mode" value="START"/></antcall>
+		<ant dir="web" target="django" />
+		<antcall target="runserver"><param name="run.mode" value=""/></antcall>
 	</target>
 	
 	<target name="package">

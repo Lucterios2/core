@@ -23,6 +23,13 @@ def defaultview(_):
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect('/web/index.html')
 
+def testview(_):
+    from django.http import HttpResponse
+    from subprocess import Popen, PIPE
+    web_path = join(dirname(dirname(__file__)), 'web')
+    proc = Popen("phantomjs %s/test/run-qunit.js http://127.0.0.1/web/tests.html %s/junit-xml" % (web_path, web_path), shell=True, stdout=PIPE)
+    result = proc.stdout.read()
+    return HttpResponse(result)
 
 def _init_url_patterns():
     from django.contrib import admin
@@ -31,6 +38,7 @@ def _init_url_patterns():
     web_path = join(dirname(dirname(__file__)), 'web')
     if isdir(web_path) and isfile(join(web_path, 'index.html')):
         res.append(url(r'^$', defaultview))
+        res.append(url(r'^tests$', testview))
         res.append(url(r'^web/$', defaultview))
         res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', {'document_root':join(dirname(dirname(__file__)), 'web')}))
     else:
