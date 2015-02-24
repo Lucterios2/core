@@ -49,7 +49,10 @@
 
 	<target name="pylint">
 		<exec executable="pylint">
-			<arg line="--rcfile=./rcfile lucterios"/>
+			<arg line="--rcfile=./rcfile"/>
+			<arg line="--output-format=parseable"/>
+			<arg line="--reports=y"/>
+			<arg line="lucterios"/>
 			<redirector output="../pylint.txt"/>
 		</exec>
 		<exec executable="sed">
