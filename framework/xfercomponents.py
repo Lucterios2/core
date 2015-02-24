@@ -10,7 +10,7 @@ from django.utils import six
 from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes
@@ -324,6 +324,9 @@ class XferCompGrid(XferComponent):
         self.headers.append(XferCompHeader(name, descript, htype))
 
     def add_action(self, request, action, option, pos_act=-1):
+        if 'close' not in option.keys():
+
+            option['close'] = CLOSE_NO
         if isinstance(action, XferContainerAbstract) and check_permission(action, request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
@@ -385,7 +388,7 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 xml_value = etree.SubElement(xml_record, "VALUE")
                 xml_value.attrib['name'] = six.text_type(header.name)
-                xml_value.text = six.text_type(record[header.name])
+                xml_value.text = get_value_converted(record[header.name])
         if len(self.actions) != 0:
             compxml.append(get_actions_xml(self.actions))
         return compxml
@@ -393,7 +396,7 @@ class XferCompGrid(XferComponent):
     def set_model(self, query_set, fieldnames):
         from django.db.models.fields import IntegerField, FloatField, BooleanField
         for fieldname in fieldnames:
-            dep_field = query_set.model._meta.get_field_by_name(fieldname) # pylint: disable=protected-access
+            dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
             if isinstance(dep_field[0], IntegerField):
                 hfield = 'int'
             elif isinstance(dep_field[0], FloatField):

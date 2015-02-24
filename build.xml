@@ -38,6 +38,10 @@
 	</target>
 
 	<target name="init">
+		<buildnumber />
+		<property name="projet.version.build" value="${build.number}"/>
+		<echo message="${projet.version.build}" file="CORE/build" append="false" />
+		<echo message="${projet.version.build}" file="standard/build" append="false" />
 		<copy file="web/deployed/conf_template.js" tofile="web/conf/conf.js"/>
 		<replace file="web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}';"/>
 		<replace file="web/conf/conf.js" token="var G_New_Server = false;" value="var G_New_Server = true;"/>

@@ -20,7 +20,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Error of bidule')
         self.assert_xml_equal('EXCEPTION/CODE', '2')
-        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 28 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-115, -11))
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 29 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-115, -11))
         self.assert_xml_equal('EXCEPTION/TYPE', 'LucteriosException')
 
     def test_bidule2(self):
@@ -30,7 +30,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Other error:big')
         self.assert_xml_equal('EXCEPTION/CODE', '0')
-        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 30 in fillresponse : raise AttributeError("Other error:" + error)', (-109, -11))
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 31 in fillresponse : raise AttributeError("Other error:" + error)', (-109, -11))
         self.assert_xml_equal('EXCEPTION/TYPE', 'AttributeError')
 
     def test_truc(self):
@@ -182,10 +182,10 @@ class DummyTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE', 4)
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE[@name="col1"]', '25')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE[@name="col2"]', '7.54')
-        self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE[@name="col3"]', 'True')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE[@name="col3"]', '1')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="1"]/VALUE[@name="col4"]', 'foo')
         self.assert_count_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE', 4)
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col1"]', '0')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col2"]', '789.644')
-        self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col3"]', 'False')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col3"]', '0')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col4"]', 'string')

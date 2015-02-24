@@ -15,6 +15,7 @@ from django.utils import translation
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
 
 class XferContainerAbstract(View):
+    # pylint: disable=too-many-instance-attributes
 
     observer_name = ''
     extension = ""
@@ -25,12 +26,19 @@ class XferContainerAbstract(View):
     url_text = ""
     modal = None
 
+    model = None
+    field_id = ''
+
     def __init__(self, **kwargs):
         View.__init__(self, **kwargs)
+        self.language = ''
         self.request = None
         self.params = {}
         self.responsesxml = etree.Element('REPONSES')
         self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
+        self.items = None
+        self.item = None
+        self.is_new = False
 
     def get_changed(self, caption, icon, extension=None, action=None):
         self.caption = caption
@@ -47,6 +55,19 @@ class XferContainerAbstract(View):
         else:
             return None
 
+    def _search_model(self):
+        if self.model is not None:
+            ids = self.getparam(self.field_id)
+            if ids is not None:
+                ids = ids.split(';')
+                if len(ids) == 1:
+                    self.item = self.model.objects.get(id=ids[0])
+                else:
+                    self.items = self.model.objects.filter(id__in=ids)
+            else:
+                self.item = self.model() # pylint: disable=not-callable
+                self.is_new = True
+
     def _initialize(self, request, *_, **kwargs):
         raise_bad_permission(self, request)
         _, self.extension, self.action = request.path.split('/')
@@ -57,8 +78,10 @@ class XferContainerAbstract(View):
             self.params[key] = request.GET[key]
         for key in request.POST.keys():
             self.params[key] = request.POST[key]
-        language = translation.get_language_from_request(request)
-        translation.activate(language)
+        self.language = translation.get_language_from_request(request)
+        translation.activate(self.language)
+
+        self._search_model()
 
     def set_close_action(self, action, **option):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
@@ -158,6 +181,7 @@ class XferContainerAuth(XferContainerAbstract):
             self.get_connection_info()
         else:
             if self.request.user.is_authenticated():
+
                 self.get_connection_info()
             else:
                 self.must_autentificate('NEEDAUTH')

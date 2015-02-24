@@ -20,13 +20,19 @@ def add_admin_user():
     user.is_active = True
     user.save()
 
-def add_empty_user():
+def add_user(username):
     from django.contrib.auth.models import User
-    user = User.objects.create_user(username='empty', password='empty')
-    user.first_name = 'empty'
-    user.last_name = 'NOFULL'
+    user = User.objects.create_user(username=username, password=username)
+    user.first_name = username
+    user.last_name = username.upper()
     user.is_staff = False
     user.is_active = True
+    user.save()
+    return user
+
+def add_empty_user():
+    user = add_user('empty')
+    user.last_name = 'NOFULL'
     user.save()
 
 class XmlClient(Client):
@@ -56,9 +62,9 @@ class XmlRequestFactory(RequestFactory):
 
 class LucteriosTest(TestCase):
     # pylint: disable=too-many-public-methods
-    
+
     language = 'fr'
-    
+
     def __init__(self, methodName):
         TestCase.__init__(self, methodName)
         self.xfer_class = None
@@ -100,24 +106,41 @@ class LucteriosTest(TestCase):
         txt_value = xml_value.text
         if isinstance(txtrange, tuple):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
+        if isinstance(txtrange, bool):
+            txt_value = txt_value[0:len(value)]
         self.assertEqual(txt_value, value, "%s: %s => %s" % (xpath, txt_value, value))
 
     def assert_attrib_equal(self, xpath, name, value):
         xml_value = self._get_first_xpath(xpath)
         self.assertEqual(xml_value.get(name), value, xpath + '/@' + name)
 
+    def assert_observer(self, obsname, extension, action):
+        self.assert_attrib_equal('', 'observer', obsname)
+        self.assert_attrib_equal('', 'source_extension', extension)
+        self.assert_attrib_equal('', 'source_action', action)
+
+    def assert_comp_equal(self, xpath, text, coord):
+        self.assert_xml_equal(xpath, text)
+        self.assert_coordcomp_equal(xpath, coord)
+
     def assert_coordcomp_equal(self, xpath, coord):
-        self.assert_attrib_equal(xpath, "x", coord[0])
-        self.assert_attrib_equal(xpath, "y", coord[1])
-        self.assert_attrib_equal(xpath, "colspan", coord[2])
-        self.assert_attrib_equal(xpath, "rowspan", coord[3])
+        self.assert_attrib_equal(xpath, "x", six.text_type(coord[0]))
+        self.assert_attrib_equal(xpath, "y", six.text_type(coord[1]))
+        self.assert_attrib_equal(xpath, "colspan", six.text_type(coord[2]))
+        self.assert_attrib_equal(xpath, "rowspan", six.text_type(coord[3]))
 
     def assert_action_equal(self, xpath, act_desc):
-
         self.assert_xml_equal(xpath, act_desc[0])
         self.assert_attrib_equal(xpath, "icon", act_desc[1])
-        self.assert_attrib_equal(xpath, "extension", act_desc[2])
-        self.assert_attrib_equal(xpath, "action", act_desc[3])
-        self.assert_attrib_equal(xpath, "close", six.text_type(act_desc[4]))
-        self.assert_attrib_equal(xpath, "modal", six.text_type(act_desc[5]))
-        self.assert_attrib_equal(xpath, "unique", six.text_type(act_desc[6]))
+        if len(act_desc) > 2:
+            self.assert_attrib_equal(xpath, "extension", act_desc[2])
+            self.assert_attrib_equal(xpath, "action", act_desc[3])
+            self.assert_attrib_equal(xpath, "close", six.text_type(act_desc[4]))
+            self.assert_attrib_equal(xpath, "modal", six.text_type(act_desc[5]))
+            self.assert_attrib_equal(xpath, "unique", six.text_type(act_desc[6]))
+        else:
+            self.assert_attrib_equal(xpath, "extension", None)
+            self.assert_attrib_equal(xpath, "action", None)
+            self.assert_attrib_equal(xpath, "close", six.text_type(1))
+            self.assert_attrib_equal(xpath, "modal", six.text_type(1))
+            self.assert_attrib_equal(xpath, "unique", six.text_type(1))

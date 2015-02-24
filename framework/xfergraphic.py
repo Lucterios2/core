@@ -6,14 +6,16 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.utils import six
 from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
-from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml
+from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
+    XferCompEdit, XferCompFloat, XferCompCheck
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, ifplural, get_value_converted
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
+from lucterios.framework.error import LucteriosException, GRAVE
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -153,8 +155,8 @@ class XferContainerDialogBox(XferContainerAbstract):
             self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
 
-
 class XferContainerCustom(XferContainerAbstract):
+    # pylint: disable=too-many-public-methods
 
     observer_name = "Core.Custom"
 
@@ -246,6 +248,46 @@ class XferContainerCustom(XferContainerAbstract):
             if comp_id != '':
                 del self.components[comp_id]
 
+    def get_writing_comp(self, field_name):
+        # pylint: disable=protected-access
+        from django.db.models.fields import IntegerField, FloatField, BooleanField
+        dep_field = self.item._meta.get_field_by_name(field_name)
+        if isinstance(dep_field[0], IntegerField):
+            comp = XferCompFloat(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], FloatField):
+            comp = XferCompFloat(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], BooleanField):
+            comp = XferCompCheck(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        else:
+            comp = XferCompEdit(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        return comp
+
+    def fill_from_model(self, col, row, readonly=True, field_names=None):
+
+        # pylint: disable=protected-access
+        if field_names is None:
+            field_names = self.item._meta.get_all_field_names()
+        for field_name in field_names:
+            dep_field = self.item._meta.get_field_by_name(field_name)
+            if dep_field[2]:  # field real in model
+                lbl = XferCompLabelForm('lbl_' + field_name)
+                lbl.set_location(col, row, 1, 1)
+                lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % six.text_type(dep_field[0].verbose_name))
+                self.add_component(lbl)
+                if not dep_field[3]:  # field not many-to-many
+                    if readonly:
+                        comp = XferCompLabelForm(field_name)
+                        comp.set_value(get_value_converted(getattr(self.item, field_name), True))
+                    else:
+                        comp = self.get_writing_comp(field_name)
+                    comp.set_location(col + 1, row, 1, 1)
+                    self.add_component(comp)
+                row += 1
+
     def add_action(self, action, option, pos_act=-1):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
             if pos_act != -1:
@@ -270,3 +312,48 @@ class XferContainerCustom(XferContainerAbstract):
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
+
+class XferDelete(XferContainerAcknowledge):
+
+    def _search_model(self):
+        if self.model is None:
+            raise LucteriosException(GRAVE, _("No model"))
+        if isinstance(self.field_id, tuple):
+            for field_id in self.field_id:
+                ids = self.getparam(field_id)
+                if ids is not None:
+                    self.field_id = field_id
+
+                    break
+        else:
+            ids = self.getparam(self.field_id)
+        if ids is None:
+            raise LucteriosException(GRAVE, _("No selection"))
+        ids = ids.split(';')
+        self.items = self.model.objects.filter(id__in=ids)
+
+    def fillresponse(self):
+        # pylint: disable=protected-access
+        if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name':self.model._meta.verbose_name}, \
+                                    _("Do you want delete those %(nb)s %(name)s ?") % {'nb':len(self.items), 'name':self.model._meta.verbose_name_plural})):
+            for item in self.items:
+                item.delete()
+
+class XferSave(XferContainerAcknowledge):
+
+    def fillresponse(self):
+        # pylint: disable=protected-access
+        field_names = self.item._meta.get_all_field_names()
+        changed = False
+        for field_name in field_names:
+            dep_field = self.item._meta.get_field_by_name(field_name)
+            if dep_field[2] and not dep_field[3]:
+                new_value = self.getparam(field_name)
+                if new_value is not None:
+                    from django.db.models.fields import BooleanField
+                    if isinstance(dep_field[0], BooleanField):
+                        new_value = (new_value == '1')
+                    setattr(self.item, field_name, new_value)
+                    changed = True
+        if changed:
+            self.item.save()

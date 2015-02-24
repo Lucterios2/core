@@ -19,6 +19,7 @@ add_sub_menu('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu
 
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
+
     caption = _("_Bidule")
     icon = "1.png"
 
@@ -37,7 +38,6 @@ class Truc(XferContainerAcknowledge):
     def fillresponse(self, val1, val2=4):
         self.message("Hello world (%s,%s)!" % (str(val1), str(val2)), XFER_DBOX_INFORMATION)
 
-
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
 class Multi(XferContainerAcknowledge):
     caption = _("_Multi")
@@ -51,7 +51,7 @@ class Multi(XferContainerAcknowledge):
 
 @describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
 class TestComposants(XferContainerCustom):
-    # pylint: disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value
+    # pylint: disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value,too-many-public-methods
 
     caption = _("_Test of composants")
     icon = "4.png"
@@ -184,6 +184,7 @@ class TestComposants(XferContainerCustom):
 
 @describ_action('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
 class SimpleGrid(XferContainerCustom):
+    # pylint: disable=too-many-public-methods
 
     caption = _("_Test of grid")
     icon = "5.png"

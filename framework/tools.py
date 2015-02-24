@@ -6,7 +6,7 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
+from django.utils import six, formats
 from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
@@ -105,9 +105,8 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
         if isinstance(item.modal, int):
             actionxml.attrib['modal'] = six.text_type(item.modal)
-        actionxml.attrib['modal'] = six.text_type(CLOSE_NO)
-
-        actionxml.attrib['close'] = six.text_type(FORMTYPE_NOMODAL)
+        actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
+        actionxml.attrib['close'] = six.text_type(CLOSE_YES)
         actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
         for key in option.keys():  # modal, close, unique
             if isinstance(option[key], six.integer_types):
@@ -115,3 +114,32 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
         return actionxml
     except AttributeError:
         return None
+
+def ifplural(count, test_singular, test_plural):
+    if count == 1:
+        return test_singular
+    else:
+        return test_plural
+
+def get_value_converted(value, bool_textual=False):
+    # pylint: disable=too-many-return-statements
+    import datetime
+    if isinstance(value, datetime.datetime):
+        return formats.date_format(value, "SHORT_DATETIME_FORMAT")
+    elif isinstance(value, datetime.date):
+        return formats.date_format(value, "SHORT_DATE_FORMAT")
+    elif isinstance(value, datetime.time):
+        return formats.date_format(value, "SHORT_TIME_FORMAT")
+    elif isinstance(value, bool):
+        if bool_textual:
+            if value:
+                return _("Yes")
+            else:
+                return _("No")
+        else:
+            if value:
+                return six.text_type("1")
+            else:
+                return six.text_type("0")
+    else:
+        return six.text_type(value)
