@@ -10,10 +10,10 @@ from datetime import date
 
 from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user, add_user
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, \
-    UsersModify
+from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify
+from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
-class UserGroupTest(LucteriosTest):
+class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
     def setUp(self):
@@ -311,3 +311,50 @@ class UserGroupTest(LucteriosTest):
         self.call('/CORE/usersList', {}, False)
         self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD', 2)
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/RECORD', 0)
+
+class GroupTest(LucteriosTest):
+    # pylint: disable=too-many-public-methods,too-many-statements
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        LucteriosTest.setUp(self)
+        add_admin_user()
+        add_empty_user()
+
+    def test_grouplist(self):
+        self.factory.xfer = GroupsList()
+        self.call('/CORE/groupsList', {}, False)
+        self.assert_observer('Core.Custom', 'CORE', 'groupsList')
+        self.assert_xml_equal('TITLE', 'Groupes')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+        self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png', ('0', '0', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Groupes éxistants{[/bold]}{[/underline]}{[/center]}', \
+                               ('1', '0', '1', '1'))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
+        self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 4)
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Cloner', 'images/add.png', 'CORE', 'groupsClone', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=4]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
+        self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
+        self.assert_count_equal('COMPONENTS/GRID[@name="group"]/RECORD', 0)
+
+    def test_groupadd(self):
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {}, False)
+        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_xml_equal('TITLE', 'Ajouter un groupe')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'groupsModify', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
+
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png')
+        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '6'))
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (2, 0, 1, 1))

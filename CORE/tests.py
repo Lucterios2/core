@@ -111,5 +111,6 @@ def suite():
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(AuthentificationTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_framework.ContainerAcknowledgeTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserGroupTest))
+    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
+    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))
     return suite

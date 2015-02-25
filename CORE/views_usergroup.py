@@ -12,15 +12,82 @@ from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOM
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge, XferDelete, XferSave
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
-class GroupList(XferContainerCustom):
+class GroupsList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("_Groups")
     icon = "group.png"
+
+    def fillresponse(self):
+        img = XferCompImage('img')
+        img.set_value('images/group.png')
+        img.set_location(0, 0)
+        self.add_component(img)
+
+        lbl = XferCompLabelForm('title')
+        lbl.set_value('{[center]}{[underline]}{[bold]}%s{[/bold]}{[/underline]}{[/center]}' % _('Existing groups'))
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+
+        group = Group.objects.filter() # pylint: disable=no-member
+        grid = XferCompGrid('group')
+        grid.set_location(0, 1, 2)
+        grid.set_model(group, ['name'])
+        grid.add_action(self.request, GroupsEdit().get_changed(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
+        grid.add_action(self.request, GroupsDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
+        grid.add_action(self.request, GroupsClone().get_changed(_("Clone"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
+        grid.add_action(self.request, GroupsEdit().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL})
+        self.add_component(grid)
+
+        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
+
+@describ_action('')
+class GroupsEdit(XferContainerCustom):
+    # pylint: disable=too-many-public-methods
+    caption = _("Modify a group")
+    icon = "group.png"
+    model = Group
+    field_id = 'group'
+
+    def fillresponse(self):
+        if self.is_new:
+            self.caption = _("Add a group")
+        else:
+            self.caption = _("Modify a group")
+        img = XferCompImage('img')
+        img.set_value('images/group.png')
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.fill_from_model(1, 0, False, ['name', 'permissions'])
+
+        self.add_action(GroupsModify().get_changed(_('Ok'), 'images/ok.png'), {})
+        self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
+
+@describ_action('')
+class GroupsDelete(XferDelete):
+    caption = _("Delete group")
+    icon = "group.png"
+    # model = Group
+    # field_id = 'group'
+
+@describ_action('')
+class GroupsClone(XferContainerCustom):
+    # pylint: disable=too-many-public-methods
+    caption = _("Clone group")
+    icon = "group.png"
+    # model = Group
+    # field_id = 'group'
+
+@describ_action('')
+class GroupsModify(XferSave):
+    caption = _("Modify a group")
+    icon = "group.png"
+    model = Group
+    field_id = 'group'
 
 @describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
