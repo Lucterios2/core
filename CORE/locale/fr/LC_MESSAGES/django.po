@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 13:33+0000\n"
+"POT-Creation-Date: 2015-02-26 17:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -130,120 +130,142 @@ msgstr "_Etiquettes"
 msgid "Disconnect"
 msgstr "Déconnection"
 
-#: views_usergroup.py:17
+#: views_usergroup.py:19
 msgid "_Rights manage"
 msgstr "Gestion des droits"
 
-#: views_usergroup.py:17
+#: views_usergroup.py:19
 msgid "To manage users, groups and permissions."
 msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
 
-#: views_usergroup.py:19
+#: views_usergroup.py:21
 msgid "To manage permissions groupes."
 msgstr "Pour gérer les groupes."
 
-#: views_usergroup.py:22
+#: views_usergroup.py:24
 msgid "_Groups"
 msgstr "_Groupes"
 
-#: views_usergroup.py:32
+#: views_usergroup.py:34
 msgid "Existing groups"
 msgstr "Groupes éxistants"
 
-#: views_usergroup.py:40 views_usergroup.py:110
+#: views_usergroup.py:42 views_usergroup.py:112
 msgid "Modify"
 msgstr "Modifier"
 
-#: views_usergroup.py:41 views_usergroup.py:112 views_usergroup.py:131
+#: views_usergroup.py:43 views_usergroup.py:114 views_usergroup.py:133
 msgid "Delete"
 msgstr "Supprimer"
 
-#: views_usergroup.py:42 views_usergroup.py:113
+#: views_usergroup.py:44 views_usergroup.py:115
 msgid "Add"
 msgstr "Ajouter"
 
-#: views_usergroup.py:45 views_usergroup.py:134
+#: views_usergroup.py:47 views_usergroup.py:136
 msgid "Close"
 msgstr "Fermer"
 
-#: views_usergroup.py:50 views_usergroup.py:59 views_usergroup.py:79
+#: views_usergroup.py:52 views_usergroup.py:61 views_usergroup.py:81
 msgid "Modify a group"
 msgstr "Modifier un groupe"
 
-#: views_usergroup.py:57
+#: views_usergroup.py:59
 msgid "Add a group"
 msgstr "Ajouter un groupe"
 
-#: views_usergroup.py:65
+#: views_usergroup.py:67 views_usergroup.py:208
 msgid "Available permissions"
 msgstr "Permissions disponibles"
 
-#: views_usergroup.py:65
+#: views_usergroup.py:67 views_usergroup.py:208
 msgid "Chosen permissions"
 msgstr "Permissions choisies"
 
-#: views_usergroup.py:67 views_usergroup.py:189
+#: views_usergroup.py:69 views_usergroup.py:211
 msgid "Ok"
 msgstr "Ok"
 
-#: views_usergroup.py:68 views_usergroup.py:190
+#: views_usergroup.py:70 views_usergroup.py:212
 msgid "Cancel"
 msgstr "Annuler"
 
-#: views_usergroup.py:72
+#: views_usergroup.py:74
 msgid "Delete group"
 msgstr "Suppression d'un groupe"
 
-#: views_usergroup.py:84
+#: views_usergroup.py:86
 msgid "To manage users."
 msgstr "Pour gérer les utilisateurs."
 
-#: views_usergroup.py:87
+#: views_usergroup.py:89
 msgid "_Users"
 msgstr "_Utilisateurs"
 
-#: views_usergroup.py:97
+#: views_usergroup.py:99
 msgid "Users of the software"
 msgstr "Utilisateurs du logiciel"
 
-#: views_usergroup.py:102
+#: views_usergroup.py:104
 msgid "List of active users"
 msgstr "Liste des utilisateurs actifs"
 
-#: views_usergroup.py:111
+#: views_usergroup.py:113
 msgid "Disabled"
 msgstr "Désactiver"
 
-#: views_usergroup.py:122
+#: views_usergroup.py:124
 msgid "List of inactive users"
 msgstr "Liste des utilisateurs inactifs"
 
-#: views_usergroup.py:130
+#: views_usergroup.py:132
 msgid "Enabled"
 msgstr "Réactiver"
 
-#: views_usergroup.py:138
+#: views_usergroup.py:140
 msgid "Delete users"
 msgstr "Suppression d'utilisateur"
 
-#: views_usergroup.py:145
+#: views_usergroup.py:147
 msgid "Disabled an user"
 msgstr "Désactiver un utilisateur"
 
-#: views_usergroup.py:156
+#: views_usergroup.py:158
 msgid "Enabled an user"
 msgstr "Réactiver un utilisateur"
 
-#: views_usergroup.py:168 views_usergroup.py:177 views_usergroup.py:194
+#: views_usergroup.py:170 views_usergroup.py:179 views_usergroup.py:216
 msgid "Modify an user"
 msgstr "Modifier un utilisateur"
 
-#: views_usergroup.py:175
+#: views_usergroup.py:177
 msgid "Add an users"
 msgstr "Ajouter un utilisateur"
 
-#~ msgid "Clone"
-#~ msgstr "Cloner"
+#: views_usergroup.py:189
+msgid "Informations"
+msgstr "Informations"
 
-#~ msgid "Clone group"
-#~ msgstr "Cloner un groupe"
+#: views_usergroup.py:193
+msgid "password"
+msgstr "mot de passe"
+
+#: views_usergroup.py:197
+msgid "password (again)"
+msgstr "re-mot de passe"
+
+#: views_usergroup.py:206
+msgid "Permissions"
+msgstr "Permissions"
+
+#: views_usergroup.py:207
+msgid "Available groups"
+msgstr "Groupes disponibles"
+
+#: views_usergroup.py:207
+msgid "Chosen groups"
+msgstr "Groupes choisis"
+
+#: views_usergroup.py:224
+msgid "The passwords are differents!"
+msgstr "Les mots de passes sont différents!"

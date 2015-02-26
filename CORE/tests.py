@@ -6,7 +6,7 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user
+from lucterios.framework.test import LucteriosTest, add_empty_user
 from django.utils import six
 from unittest.suite import TestSuite
 from unittest import TestLoader
@@ -17,7 +17,6 @@ class AuthentificationTest(LucteriosTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
-        add_admin_user()
         add_empty_user()
 
     def test_blank(self):

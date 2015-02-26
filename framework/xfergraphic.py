@@ -179,75 +179,36 @@ class XferContainerCustom(XferContainerAbstract):
 
     def find_tab(self, tab_name):
         num = -1
-        index = 0
+        tab_name = six.text_type(tab_name)
         for comp in self.components.values():
-            if 'XferCompTab' == comp.__class__:
-                index = max(index, comp.tab)
+            if isinstance(comp, XferCompTab):
                 if comp.value == tab_name:
                     num = comp.tab
-        if isinstance(tab_name, six.text_type):
-            return num
-        else:
-            return index
+        return num
+
+    def max_tab(self):
+        index = 0
+        for comp in self.components.values():
+            if isinstance(comp, XferCompTab):
+                index = max(index, comp.tab)
+        return index
 
     def new_tab(self, tab_name, num=-1):
         old_num = self.find_tab(tab_name)
         if old_num == -1:
             if num == -1:
-                self.tab = self.find_tab(None) + 1
+                self.tab = self.max_tab() + 1
             else:
                 for comp in self.components.values():
                     if comp.tab >= num:
                         comp.tab = comp.tab + 1
                 self.tab = num
             new_tab = XferCompTab()
-            new_tab.set_value(tab_name)
+            new_tab.set_value(six.text_type(tab_name))
             new_tab.set_location(-1, -1)
             self.add_component(new_tab)
         else:
             self.tab = old_num
-    def get_component_count(self):
-        if self.components == None:
-            return 0
-        else:
-            return len(self.components)
-
-    def get_components(self, cmp_idx):
-        if isinstance(cmp_idx, six.integer_types):
-            nb_comp = len(self.components)
-            if cmp_idx < 0:
-                cmp_idx = nb_comp + cmp_idx
-            if (cmp_idx >= 0) and (cmp_idx < nb_comp):
-                list_ids = self.components.keys()
-                comp_id = list_ids[cmp_idx]
-                return self.components[comp_id]
-            else:
-                return cmp_idx - nb_comp
-        elif isinstance(cmp_idx, six.text_type):
-            comp_res = None
-            for comp in self.components.values():
-                if comp.name == cmp_idx:
-                    comp_res = comp
-            return comp_res
-        else:
-            return None
-
-    def remove_components(self, cmp_idx):
-        if isinstance(cmp_idx, six.integer_types):
-            nb_comp = len(self.components)
-            if cmp_idx < 0:
-                cmp_idx = nb_comp + cmp_idx
-            if (cmp_idx >= 0) and (cmp_idx < nb_comp):
-                list_ids = self.components.keys()
-                comp_id = list_ids[cmp_idx]
-                del self.components[comp_id]
-        elif isinstance(cmp_idx, six.text_type):
-            comp_id = ''
-            for key, comp in self.components.items():
-                if comp.name == cmp_idx:
-                    comp_id = key
-            if comp_id != '':
-                del self.components[comp_id]
 
     def get_writing_comp(self, field_name):
         # pylint: disable=protected-access
@@ -434,16 +395,20 @@ if (%(comp)s_current !== null) {
 
     def get_sort_components(self):
         final_components = {}
+        sortedkey_components = []
         for comp in self.components.values():
             comp_id = comp.get_id()
+            sortedkey_components.append(comp_id)
             final_components[comp_id] = comp
-        return final_components  # TODO: check order
+        sortedkey_components.sort()
+        return sortedkey_components, final_components
 
     def _finalize(self):
         if len(self.components) != 0:
-            final_components = self.get_sort_components()
+            sortedkey_components, final_components = self.get_sort_components()
             xml_comps = etree.SubElement(self.responsexml, "COMPONENTS")
-            for comp in final_components.values():
+            for key in sortedkey_components:
+                comp = final_components[key]
                 xml_comp = comp.get_reponse_xml()
                 xml_comps.append(xml_comp)
         if len(self.actions) != 0:

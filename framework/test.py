@@ -10,15 +10,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, Client, RequestFactory
 from django.utils import six
 from lxml import etree
-
-def add_admin_user():
-    from django.contrib.auth.models import User
-    user = User.objects.create_user(username='admin', password='admin')
-    user.first_name = 'administrator'
-    user.last_name = 'ADMIN'
-    user.is_staff = True
-    user.is_active = True
-    user.save()
+from lucterios.framework.middleware import LucteriosErrorMiddleware
 
 def add_user(username):
     from django.contrib.auth.models import User
@@ -55,10 +47,14 @@ class XmlRequestFactory(RequestFactory):
             self.xfer = None
 
     def call(self, path, data):
-        request = self.post(path, data)
-        request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
-        request.user = AnonymousUser()
-        return self.xfer.get(request)
+        try:
+            request = self.post(path, data)
+            request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
+            request.user = AnonymousUser()
+            return self.xfer.get(request)
+        except Exception as expt:  # pylint: disable=broad-except
+            err = LucteriosErrorMiddleware()
+            return err.process_exception(request, expt)
 
 class LucteriosTest(TestCase):
     # pylint: disable=too-many-public-methods
@@ -128,6 +124,8 @@ class LucteriosTest(TestCase):
         self.assert_attrib_equal(xpath, "y", six.text_type(coord[1]))
         self.assert_attrib_equal(xpath, "colspan", six.text_type(coord[2]))
         self.assert_attrib_equal(xpath, "rowspan", six.text_type(coord[3]))
+        if len(coord) > 4:
+            self.assert_attrib_equal(xpath, "tab", six.text_type(coord[4]))
 
     def assert_action_equal(self, xpath, act_desc):
         self.assert_xml_equal(xpath, act_desc[0])

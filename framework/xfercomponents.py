@@ -25,8 +25,6 @@ class XferComponent(object):
         self.row = 0
         self.vmin = ""
         self.hmin = ""
-        self.vmax = ""
-        self.hmax = ""
         self.colspan = 1
         self.rowspan = 1
         self.description = ""
@@ -41,11 +39,9 @@ class XferComponent(object):
         self.colspan = colspan
         self.rowspan = rowspan
 
-    def set_size(self, vmin, hmin, vmax="", hmax=""):
+    def set_size(self, vmin, hmin):
         self.vmin = vmin
         self.hmin = hmin
-        self.vmax = vmax
-        self.hmax = hmax
 
     def set_value(self, value):
         self.value = value
@@ -57,20 +53,7 @@ class XferComponent(object):
         return self.value
 
     def get_id(self):
-        text = ""
-        if isinstance(self.tab, six.integer_types):
-            text += "tab=%4d" % self.tab
-        else:
-            text += "tab=%4d" % 0
-        if isinstance(self.row, six.integer_types) and (self.row >= 0):
-            text += "_y=%4d" % self.row
-        else:
-            text += "_y=    "
-        if isinstance(self.col, six.integer_types) and (self.col >= 0):
-            text += "_x=%4d" % self.col
-        else:
-            text += "_x=    "
-        return text
+        return "tab=%04d_y=%04d_x=%04d" % (int(self.tab), int(self.row) + 1, int(self.col) + 1)
 
     def _get_attribut(self, compxml):
         compxml.attrib['name'] = self.name
@@ -89,10 +72,6 @@ class XferComponent(object):
             compxml.attrib['VMin'] = six.text_type(self.vmin)
         if isinstance(self.hmin, six.integer_types):
             compxml.attrib['HMin'] = six.text_type(self.hmin)
-        if isinstance(self.vmax, six.integer_types):
-            compxml.attrib['VMax'] = six.text_type(self.vmax)
-        if isinstance(self.hmax, six.integer_types):
-            compxml.attrib['VMax'] = six.text_type(self.hmax)
 
     def get_reponse_xml(self):
         compxml = etree.Element(self._component_ident)
@@ -107,7 +86,7 @@ class XferCompTab(XferComponent):
         self._component_ident = "TAB"
 
     def set_value(self, value):
-        self.value = value.trim()
+        self.value = value.strip()
 
 class XferCompLABEL(XferComponent):
 
@@ -116,7 +95,13 @@ class XferCompLABEL(XferComponent):
         self._component_ident = "LABEL"
 
     def set_value(self, value):
-        self.value = value.trim()
+        self.value = value.strip()
+
+class XferCompPassword(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "PASSWORD"
 
 class XferCompImage(XferComponent):
 

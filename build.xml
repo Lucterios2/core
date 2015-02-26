@@ -102,10 +102,6 @@
 			<arg value="syncdb"/>
 			<arg value="--noinput"/>			
 		</exec>	
-		<exec executable="python" dir=".." input='create_admin'>
-			<arg value="./manage_${test.instance}.py"/>
-			<arg value="shell"/>
-		</exec>	
 	</target>	
 
 	<target name="del_instance">

@@ -65,7 +65,7 @@ class XferContainerAbstract(View):
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
-                self.item = self.model() # pylint: disable=not-callable
+                self.item = self.model()  # pylint: disable=not-callable
                 self.is_new = True
 
     def _initialize(self, request, *_, **kwargs):

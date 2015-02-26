@@ -10,9 +10,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge, XferDelete, XferSave
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
 
 from django.contrib.auth.models import User, Group
+from django.utils import six
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -177,13 +179,33 @@ class UsersEdit(XferContainerCustom):
             self.caption = _("Modify an user")
         img = XferCompImage('img')
         img.set_value('images/user.png')
-        img.set_location(0, 0, 1, 6)
+        img.set_location(0, 0, 1, 3)
         self.add_component(img)
         if self.is_new:
-            self.fill_from_model(1, 0, False, ['username', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email'])
+            self.fill_from_model(1, 0, False, ['username'])
         else:
-            self.fill_from_model(1, 0, True, ['username', 'date_joined', 'last_login', 'is_active'])
-            self.fill_from_model(1, 4, False, ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'])
+            self.fill_from_model(1, 0, True, ['username', 'date_joined', 'last_login'])
+
+        self.new_tab(_('Informations'))
+        self.fill_from_model(0, 0, False, ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'])
+        lbl = XferCompLabelForm('lbl_password1')
+        lbl.set_location(0, 5, 1, 1)
+        lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % _("password"))
+        self.add_component(lbl)
+        lbl = XferCompLabelForm('lbl_password2')
+        lbl.set_location(0, 6, 1, 1)
+        lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % _("password (again)"))
+        self.add_component(lbl)
+        pwd = XferCompPassword('password1')
+        pwd.set_location(1, 5, 1, 1)
+        self.add_component(pwd)
+        pwd = XferCompPassword('password2')
+        pwd.set_location(1, 6, 1, 1)
+        self.add_component(pwd)
+
+        self.new_tab(_('Permissions'))
+        self.selector_from_model(0, 0, 'groups', _("Available groups"), _("Chosen groups"))
+        self.selector_from_model(0, 5, 'user_permissions', _("Available permissions"), _("Chosen permissions"))
         # 'password''groups''user_permissions'
 
         self.add_action(UsersModify().get_changed(_('Ok'), 'images/ok.png'), {})
@@ -195,3 +217,11 @@ class UsersModify(XferSave):
     icon = "user.png"
     model = User
     field_id = 'user_actif'
+
+    def fillresponse(self, password1='', password2=''):
+        XferSave.fillresponse(self)
+        if password1 != password2:
+            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+        if password1 != '':
+            self.item.set_password(password1)
+            self.item.save()
