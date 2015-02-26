@@ -10,8 +10,10 @@ from datetime import date
 
 from lucterios.framework.test import LucteriosTest, add_admin_user, add_empty_user, add_user
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify
+from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify, \
+    GroupsModify
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
+from django.contrib.auth.models import Group, Permission
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
@@ -205,13 +207,13 @@ class UserTest(LucteriosTest):
     def test_usermodif(self):
         add_user("user1")
         self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'user_actif':'3', "is_staff":'1', "is_superuser":'1', "first_name":'foo', "last_name":'SUPER', "email":'foo@super.com'}, False)
+        self.call('/CORE/usersModify', {'user_actif':'3', "is_staff":'1', "is_superuser":'o', "first_name":'foo', "last_name":'SUPER', "email":'foo@super.com'}, False)
 
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
         self.assert_count_equal('CONTEXT/PARAM', 6)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '1')
-        self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', '1')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', 'o')
         self.assert_xml_equal('CONTEXT/PARAM[@name="first_name"]', 'foo')
         self.assert_xml_equal('CONTEXT/PARAM[@name="last_name"]', 'SUPER')
         self.assert_xml_equal('CONTEXT/PARAM[@name="email"]', 'foo@super.com')
@@ -334,11 +336,10 @@ class GroupTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Groupes éxistants{[/bold]}{[/underline]}{[/center]}', \
                                ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
-        self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 4)
+        self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Cloner', 'images/add.png', 'CORE', 'groupsClone', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=4]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/RECORD', 0)
@@ -353,8 +354,58 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'groupsModify', 1, 1, 1))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
-        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png')
-        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '6'))
+        self.assert_count_equal('COMPONENTS/*', 12)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png', (0, 0, 1, 6))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (2, 0, 1, 1))
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_permissions"]', "{[bold]}permissions{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_available"]', "{[center]}{[italic]}Permissions disponibles{[/italic]}{[/center]}", (2, 1, 1, 1))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_available"]', (2, 2, 1, 5))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_chosen"]', "{[center]}{[italic]}Permissions choisies{[/italic]}{[/center]}", (4, 1, 1, 1))
+        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_chosen"]', (4, 2, 1, 5))
+
+        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_addall"]', (3, 2, 1, 1))
+        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_add"]', (3, 3, 1, 1))
+        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_del"]', (3, 4, 1, 1))
+        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_delall"]', (3, 5, 1, 1))
+        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_addall"]/ACTIONS/ACTION', ('>>', None, None, None, 0, 1, 1))
+        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_add"]/ACTIONS/ACTION', ('>', None, None, None, 0, 1, 1))
+        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_del"]/ACTIONS/ACTION', ('<', None, None, None, 0, 1, 1))
+        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
+
+    def test_useraddsave(self):
+        groups = Group.objects.all()
+        self.assertEqual(len(groups), 0)
+
+        self.factory.xfer = GroupsModify()
+        self.call('/CORE/groupsModify', {'name':'newgroup', "permissions":'1;3;5;7'}, False)
+
+        self.assert_observer('Core.Acknowledge', 'CORE', 'groupsModify')
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
+
+        groups = Group.objects.all()
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0].name, "newgroup")
+        perm = groups[0].permissions.all().order_by('id')
+        self.assertEqual(len(perm), 4)
+        self.assertEqual(perm[0].id, 1)
+        self.assertEqual(perm[1].id, 3)
+        self.assertEqual(perm[2].id, 5)
+        self.assertEqual(perm[3].id, 7)
+
+    def test_groupedit(self):
+        group = Group.objects.create(name="my_group")
+        group.permissions = Permission.objects.filter(id__in=[1, 3])
+        group.save()
+
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {'group':'1'}, False)
+        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_xml_equal('TITLE', 'Modifier un groupe')
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (2, 0, 1, 1))

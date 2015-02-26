@@ -8,6 +8,7 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from django.utils import six
 from lxml import etree
+from django.utils.http import urlquote_plus
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO
@@ -170,7 +171,7 @@ class XferCompButton(XferComponent):
             if new_xml != None:
                 xml_acts.append(new_xml)
         if self.java_script != "":
-            etree.SubElement(compxml, "JavaScript").text = six.text_type(self.java_script)
+            etree.SubElement(compxml, "JavaScript").text = six.text_type(urlquote_plus(self.java_script))
         return compxml
 
 class XferCompEdit(XferCompButton):
@@ -251,12 +252,13 @@ class XferCompSelect(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "SELECT"
         self.select_list = {}
+        self.value = []
 
     def set_select(self, select_list):
         self.select_list = select_list
 
     def set_value(self, value):
-        self.value = int(value)
+        self.value = value
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
@@ -272,6 +274,7 @@ class XferCompCheckList(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "CHECKLIST"
         self.select_list = {}
+        self.value = []
         self.simple = False
 
     def set_value(self, value):

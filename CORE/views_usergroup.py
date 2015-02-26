@@ -33,13 +33,12 @@ class GroupsList(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
 
-        group = Group.objects.filter() # pylint: disable=no-member
+        group = Group.objects.filter()  # pylint: disable=no-member
         grid = XferCompGrid('group')
         grid.set_location(0, 1, 2)
         grid.set_model(group, ['name'])
         grid.add_action(self.request, GroupsEdit().get_changed(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
         grid.add_action(self.request, GroupsDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, GroupsClone().get_changed(_("Clone"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
         grid.add_action(self.request, GroupsEdit().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL})
         self.add_component(grid)
 
@@ -62,7 +61,8 @@ class GroupsEdit(XferContainerCustom):
         img.set_value('images/group.png')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
-        self.fill_from_model(1, 0, False, ['name', 'permissions'])
+        self.fill_from_model(1, 0, False, ['name'])
+        self.selector_from_model(1, 1, 'permissions', _("Available permissions"), _("Chosen permissions"))
 
         self.add_action(GroupsModify().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
@@ -71,16 +71,8 @@ class GroupsEdit(XferContainerCustom):
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
     icon = "group.png"
-    # model = Group
-    # field_id = 'group'
-
-@describ_action('')
-class GroupsClone(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
-    caption = _("Clone group")
-    icon = "group.png"
-    # model = Group
-    # field_id = 'group'
+    model = Group
+    field_id = 'group'
 
 @describ_action('')
 class GroupsModify(XferSave):

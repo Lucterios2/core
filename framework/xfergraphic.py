@@ -12,8 +12,9 @@ from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
-    XferCompEdit, XferCompFloat, XferCompCheck
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, ifplural, get_value_converted
+    XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, ifplural, get_value_converted, \
+    CLOSE_NO
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 from lucterios.framework.error import LucteriosException, GRAVE
 
@@ -284,9 +285,145 @@ class XferContainerCustom(XferContainerAbstract):
                         comp.set_value(get_value_converted(getattr(self.item, field_name), True))
                     else:
                         comp = self.get_writing_comp(field_name)
-                    comp.set_location(col + 1, row, 1, 1)
-                    self.add_component(comp)
+                else:
+                    comp = XferCompGrid(field_name)
+                    comp.add_header("text", six.text_type(dep_field[0].verbose_name))
+                    if self.item.id is not None:
+                        values = getattr(self.item, field_name).all()
+                        for value in values:
+                            comp.set_value(value.id, "text", six.text_type(value))
+                comp.set_location(col + 1, row, 1, 1)
+                self.add_component(comp)
                 row += 1
+
+    def _get_scripts_for_selectors(self, field_name, availables):
+        sela = {}
+        for available in availables:
+            sela[six.text_type(available.id)] = six.text_type(available)
+
+        selc = {}
+        selval = []
+        if self.item.id is not None:
+            values = getattr(self.item, field_name).all()
+            for value in values:
+                selval.append(six.text_type(value.id))
+                selc[value.id] = six.text_type(value)
+
+        java_script_init = """
+    var %(comp)s_current = parent.mContext.get('%(comp)s');
+    var %(comp)s_dico = %(sela)s;
+    var %(comp)s_valid = '%(selc)s';
+    if (%(comp)s_current !== null) {
+        %(comp)s_valid = %(comp)s_current;
+    }
+    """ % {'comp':field_name, 'sela':six.text_type(sela), 'selc':";".join(selval)}
+        java_script_treat = """
+    var valid_list = %(comp)s_valid.split(";")
+    var %(comp)s_xml_available = "<SELECT>";
+    var %(comp)s_xml_chosen = "<SELECT>";
+    for (var key in %(comp)s_dico) {
+        var value = %(comp)s_dico[key];
+        if (valid_list.indexOf(key) > -1) {
+            %(comp)s_xml_chosen += "<CASE id='"+key+"'>"+value+"</CASE>";
+
+        } else {
+            %(comp)s_xml_available += "<CASE id='"+key+"'>"+value+"</CASE>";
+        }
+
+    }
+    %(comp)s_xml_available += "</SELECT>";
+    %(comp)s_xml_chosen += "</SELECT>";
+    parent.get('%(comp)s_available').setValue(%(comp)s_xml_available);
+    parent.get('%(comp)s_chosen').setValue(%(comp)s_xml_chosen);
+    if (%(comp)s_current === null) {
+        var tmp_cpt = parent.mContext.get('%(comp)s_cpt');
+        if (tmp_cpt === null) tmp_cpt=0;
+        tmp_cpt += 1;
+        if (tmp_cpt === 4) {
+            parent.mContext.put('%(comp)s',%(comp)s_valid);
+        }
+        else {
+             parent.mContext.put('%(comp)s_cpt',tmp_cpt);
+        }
+    }
+    """ % {'comp':field_name}
+        return java_script_init, java_script_treat
+
+    def selector_from_model(self, col, row, field_name, title_available, title_chosen):
+        # pylint: disable=too-many-locals
+        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+        if dep_field[2] and dep_field[3]:
+            availables = dep_field[0].rel.to.objects.all()
+            java_script_init, java_script_treat = self._get_scripts_for_selectors(field_name, availables)
+
+            lbl = XferCompLabelForm('lbl_' + field_name)
+            lbl.set_location(col, row, 1, 1)
+            lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % six.text_type(dep_field[0].verbose_name))
+            self.add_component(lbl)
+
+            lbl = XferCompLabelForm('hd_' + field_name + '_available')
+            lbl.set_location(col + 1, row, 1, 1)
+            lbl.set_value(six.text_type('{[center]}{[italic]}%s{[/italic]}{[/center]}') % title_available)
+            self.add_component(lbl)
+
+            lista = XferCompCheckList(field_name + '_available')
+            lista.set_location(col + 1, row + 1, 1, 5)
+            self.add_component(lista)
+
+            lbl = XferCompLabelForm('hd_' + field_name + '_chosen')
+            lbl.set_location(col + 3, row, 1, 1)
+            lbl.set_value(six.text_type('{[center]}{[italic]}%s{[/italic]}{[/center]}') % title_chosen)
+            self.add_component(lbl)
+
+            listc = XferCompCheckList(field_name + '_chosen')
+            listc.set_location(col + 3, row + 1, 1, 5)
+            self.add_component(listc)
+
+            btn_idx = 0
+            for (button_name, button_title, button_script) in [("addall", ">>", """
+if (%(comp)s_current !== null) {
+    %(comp)s_valid ='';
+    for (var key in %(comp)s_dico) {
+        if (%(comp)s_valid !== '')
+            %(comp)s_valid +=';';
+        %(comp)s_valid +=key;
+    }
+    parent.mContext.put('%(comp)s',%(comp)s_valid);
+}
+"""), ("add", ">", """
+if (%(comp)s_current !== null) {
+    var value = parent.get('%(comp)s_available').getValue();
+    %(comp)s_valid +=';'+value;
+parent.mContext.put('%(comp)s',%(comp)s_valid);
+}
+"""), ("del", "<", """
+if (%(comp)s_current !== null) {
+    var values = parent.get('%(comp)s_chosen').getValue().split(';');
+    var valid_list = %(comp)s_valid.split(';');
+    %(comp)s_valid ='';
+    for (var key in valid_list) {
+        selected_val = valid_list[key];
+        if (values.indexOf(selected_val) === -1) {
+            if (%(comp)s_valid !== '')
+                %(comp)s_valid +=';';
+            %(comp)s_valid +=selected_val;
+        }
+    }
+    parent.mContext.put('%(comp)s',%(comp)s_valid);
+}
+"""), ("delall", "<<", """
+if (%(comp)s_current !== null) {
+    %(comp)s_valid ='';
+    parent.mContext.put('%(comp)s',%(comp)s_valid);
+}
+""")]:
+                btn = XferCompButton(field_name + '_' + button_name)
+                btn.set_action(self.request, XferContainerAcknowledge().get_changed(button_title, ""), {'close':CLOSE_NO})
+                btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
+                btn.set_is_mini(True)
+                btn.java_script = java_script_init + button_script % {'comp':field_name} + java_script_treat
+                self.add_component(btn)
+                btn_idx += 1
 
     def add_action(self, action, option, pos_act=-1):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
@@ -347,12 +484,17 @@ class XferSave(XferContainerAcknowledge):
         changed = False
         for field_name in field_names:
             dep_field = self.item._meta.get_field_by_name(field_name)
-            if dep_field[2] and not dep_field[3]:
+            if dep_field[2]:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    from django.db.models.fields import BooleanField
-                    if isinstance(dep_field[0], BooleanField):
-                        new_value = (new_value == '1')
+                    if dep_field[3]:
+                        self.item.save()
+                        relation_model = dep_field[0].rel.to
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                    else:
+                        from django.db.models.fields import BooleanField
+                        if isinstance(dep_field[0], BooleanField):
+                            new_value = (new_value != '0') and (new_value != 'n')
                     setattr(self.item, field_name, new_value)
                     changed = True
         if changed:

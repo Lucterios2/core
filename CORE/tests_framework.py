@@ -8,6 +8,7 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING
+from django.utils.http import urlquote_plus
 
 class ContainerAcknowledgeTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -97,7 +98,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Traitment{[newline]}Wait...{[/center]}')
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
         self.assert_action_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', ('Traitment...', None, 'customer', 'details', 1, 1, 1))
-        self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/JavaScript', 'parent.refresh()')
+        self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/JavaScript', urlquote_plus('parent.refresh()'))
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Annuler', 'images/cancel.png'))
 
