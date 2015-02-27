@@ -10,6 +10,8 @@ from django.utils import six, formats
 from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -143,3 +145,31 @@ def get_value_converted(value, bool_textual=False):
                 return six.text_type("0")
     else:
         return six.text_type(value)
+
+def get_corrected_setquery(setquery):
+    if setquery.model == Permission:
+        ctypes = ContentType.objects.all()  # pylint: disable=no-member
+        for ctype in ctypes:
+            if ctype.model in ('session', 'contenttype', 'logentry', 'permission'):
+
+                setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
+                setquery = setquery.exclude(content_type=ctype, codename__startswith='change_')
+                setquery = setquery.exclude(content_type=ctype, codename__startswith='delete_')
+    return setquery
+
+def get_dico_from_setquery(setquery):
+    res_dico = {}
+    if setquery.model == Permission:
+        for record in setquery:
+            rigths = six.text_type(record.name).split(" ")
+            if rigths[1] == 'add':
+                rigth_name = _('add')
+            if rigths[1] == 'change':
+                rigth_name = _('view')
+            if rigths[1] == 'delete':
+                rigth_name = _('delete')
+            res_dico[six.text_type(record.id)] = "%s | %s %s" % (six.text_type(record.content_type), _("Can"), rigth_name)
+    else:
+        for record in setquery:
+            res_dico[six.text_type(record.id)] = six.text_type(record)
+    return res_dico

@@ -13,9 +13,10 @@ from lxml import etree
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, ifplural, get_value_converted, \
-    CLOSE_NO
-from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml,\
+    get_dico_from_setquery
+from lucterios.framework.tools import ifplural, get_value_converted, get_corrected_setquery
+from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from lucterios.framework.error import LucteriosException, GRAVE
 
 class XferContainerAcknowledge(XferContainerAbstract):
@@ -258,17 +259,12 @@ class XferContainerCustom(XferContainerAbstract):
                 row += 1
 
     def _get_scripts_for_selectors(self, field_name, availables):
-        sela = {}
-        for available in availables:
-            sela[six.text_type(available.id)] = six.text_type(available)
-
-        selc = {}
+        sela = get_dico_from_setquery(availables)
         selval = []
         if self.item.id is not None:
             values = getattr(self.item, field_name).all()
             for value in values:
                 selval.append(six.text_type(value.id))
-                selc[value.id] = six.text_type(value)
 
         java_script_init = """
     var %(comp)s_current = parent.mContext.get('%(comp)s');
@@ -278,6 +274,7 @@ class XferContainerCustom(XferContainerAbstract):
         %(comp)s_valid = %(comp)s_current;
     }
     """ % {'comp':field_name, 'sela':six.text_type(sela), 'selc':";".join(selval)}
+        java_script_init = java_script_init.replace("u'", "'").replace('u"', '"')
         java_script_treat = """
     var valid_list = %(comp)s_valid.split(";")
     var %(comp)s_xml_available = "<SELECT>";
@@ -314,7 +311,7 @@ class XferContainerCustom(XferContainerAbstract):
         # pylint: disable=too-many-locals
         dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if dep_field[2] and dep_field[3]:
-            availables = dep_field[0].rel.to.objects.all()
+            availables = get_corrected_setquery(dep_field[0].rel.to.objects.all())
             java_script_init, java_script_treat = self._get_scripts_for_selectors(field_name, availables)
 
             lbl = XferCompLabelForm('lbl_' + field_name)
@@ -354,7 +351,9 @@ if (%(comp)s_current !== null) {
 """), ("add", ">", """
 if (%(comp)s_current !== null) {
     var value = parent.get('%(comp)s_available').getValue();
-    %(comp)s_valid +=';'+value;
+    if (%(comp)s_valid !== '')
+        %(comp)s_valid +=';';
+    %(comp)s_valid +=value;
 parent.mContext.put('%(comp)s',%(comp)s_valid);
 }
 """), ("del", "<", """

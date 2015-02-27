@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 17:04+0000\n"
+"POT-Creation-Date: 2015-02-27 13:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -55,76 +55,12 @@ msgid "Main configuration"
 msgstr "Configuration générale"
 
 #: views.py:39
-msgid "Backup"
-msgstr "Sauvegarde"
-
-#: views.py:39
-msgid "Tools to backup and restore data"
-msgstr "Outils pour savegarder et restaurer les données."
-
-#: views.py:41
-msgid "To backup software data."
-msgstr "Pour sauvegarder les données du logiciel."
-
-#: views.py:43
-msgid "_Backup"
-msgstr "_Sauvegarde"
-
-#: views.py:46
-msgid "To restore archive."
-msgstr "Pour restaurer une archive."
-
-#: views.py:48
-msgid "_Restore"
-msgstr "_Restauration"
-
-#: views.py:51
-msgid "To upload or to download saved archives."
-msgstr "Pour télécharger des archives sauvegardées."
-
-#: views.py:53
-msgid "_Archives manager"
-msgstr "Gestion des _archives"
-
-#: views.py:56
 msgid "_Extensions (conf.)"
 msgstr "Modules (conf.)"
 
-#: views.py:56
+#: views.py:39
 msgid "To manage of modules configurations."
 msgstr "Pour gérer les configurations des modules"
-
-#: views.py:58
-msgid "_Report and print"
-msgstr "_Rapport et impression"
-
-#: views.py:58
-msgid "To manage reports and tools of printing."
-msgstr "Pour gérer les rapports et les outils d'impression."
-
-#: views.py:60
-msgid "To Manage printing models."
-msgstr "Pour gérer les modèles d'impression."
-
-#: views.py:62
-msgid "_Report models"
-msgstr "Modèles de _rapport"
-
-#: views.py:65
-msgid "To print old saved report."
-msgstr ""
-
-#: views.py:67
-msgid "_Saved reports"
-msgstr "Rapports _sauvegardés"
-
-#: views.py:70
-msgid "To manage boards of labels"
-msgstr "Pour gérer les planches d'étiquettes."
-
-#: views.py:72
-msgid "_Labels"
-msgstr "_Etiquettes"
 
 #: views_auth.py:63
 msgid "Disconnect"
@@ -269,3 +205,48 @@ msgstr "Groupes choisis"
 #: views_usergroup.py:224
 msgid "The passwords are differents!"
 msgstr "Les mots de passes sont différents!"
+
+#~ msgid "Backup"
+#~ msgstr "Sauvegarde"
+
+#~ msgid "Tools to backup and restore data"
+#~ msgstr "Outils pour savegarder et restaurer les données."
+
+#~ msgid "To backup software data."
+#~ msgstr "Pour sauvegarder les données du logiciel."
+
+#~ msgid "_Backup"
+#~ msgstr "_Sauvegarde"
+
+#~ msgid "To restore archive."
+#~ msgstr "Pour restaurer une archive."
+
+#~ msgid "_Restore"
+#~ msgstr "_Restauration"
+
+#~ msgid "To upload or to download saved archives."
+#~ msgstr "Pour télécharger des archives sauvegardées."
+
+#~ msgid "_Archives manager"
+#~ msgstr "Gestion des _archives"
+
+#~ msgid "_Report and print"
+#~ msgstr "_Rapport et impression"
+
+#~ msgid "To manage reports and tools of printing."
+#~ msgstr "Pour gérer les rapports et les outils d'impression."
+
+#~ msgid "To Manage printing models."
+#~ msgstr "Pour gérer les modèles d'impression."
+
+#~ msgid "_Report models"
+#~ msgstr "Modèles de _rapport"
+
+#~ msgid "_Saved reports"
+#~ msgstr "Rapports _sauvegardés"
+
+#~ msgid "To manage boards of labels"
+#~ msgstr "Pour gérer les planches d'étiquettes."
+
+#~ msgid "_Labels"
+#~ msgstr "_Etiquettes"

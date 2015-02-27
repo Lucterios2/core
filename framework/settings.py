@@ -28,6 +28,7 @@ DEFAULT_SETTINGS = {
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'lucterios.framework',
         'lucterios.CORE',
     ),
     'ROOT_URLCONF': 'lucterios.framework.urls',

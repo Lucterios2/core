@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 17:04+0000\n"
+"POT-Creation-Date: 2015-02-27 13:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -54,76 +54,12 @@ msgid "Main configuration"
 msgstr "Main configuration"
 
 #: views.py:39
-msgid "Backup"
-msgstr "Backup"
-
-#: views.py:39
-msgid "Tools to backup and restore data"
-msgstr "Tools to backup and restore data"
-
-#: views.py:41
-msgid "To backup software data."
-msgstr "To backup software data."
-
-#: views.py:43
-msgid "_Backup"
-msgstr "_Backup"
-
-#: views.py:46
-msgid "To restore archive."
-msgstr "To restore archive."
-
-#: views.py:48
-msgid "_Restore"
-msgstr "_Restore"
-
-#: views.py:51
-msgid "To upload or to download saved archives."
-msgstr "To upload or to download saved archives."
-
-#: views.py:53
-msgid "_Archives manager"
-msgstr "_Archives manager"
-
-#: views.py:56
 msgid "_Extensions (conf.)"
 msgstr "_Modules (conf.)"
 
-#: views.py:56
+#: views.py:39
 msgid "To manage of modules configurations."
 msgstr "To manage of modules configurations."
-
-#: views.py:58
-msgid "_Report and print"
-msgstr "_Report and print"
-
-#: views.py:58
-msgid "To manage reports and tools of printing."
-msgstr "To manage reports and tools of printing."
-
-#: views.py:60
-msgid "To Manage printing models."
-msgstr "To Manage printing models."
-
-#: views.py:62
-msgid "_Report models"
-msgstr "_Report models"
-
-#: views.py:65
-msgid "To print old saved report."
-msgstr "To print old saved report."
-
-#: views.py:67
-msgid "_Saved reports"
-msgstr "_Saved reports"
-
-#: views.py:70
-msgid "To manage boards of labels"
-msgstr "To manage boards of labels"
-
-#: views.py:72
-msgid "_Labels"
-msgstr ""
 
 #: views_auth.py:63
 msgid "Disconnect"
@@ -268,3 +204,48 @@ msgstr "Chosen groups"
 #: views_usergroup.py:224
 msgid "The passwords are differents!"
 msgstr "The passwords are differents!"
+
+#~ msgid "Backup"
+#~ msgstr "Backup"
+
+#~ msgid "Tools to backup and restore data"
+#~ msgstr "Tools to backup and restore data"
+
+#~ msgid "To backup software data."
+#~ msgstr "To backup software data."
+
+#~ msgid "_Backup"
+#~ msgstr "_Backup"
+
+#~ msgid "To restore archive."
+#~ msgstr "To restore archive."
+
+#~ msgid "_Restore"
+#~ msgstr "_Restore"
+
+#~ msgid "To upload or to download saved archives."
+#~ msgstr "To upload or to download saved archives."
+
+#~ msgid "_Archives manager"
+#~ msgstr "_Archives manager"
+
+#~ msgid "_Report and print"
+#~ msgstr "_Report and print"
+
+#~ msgid "To manage reports and tools of printing."
+#~ msgstr "To manage reports and tools of printing."
+
+#~ msgid "To Manage printing models."
+#~ msgstr "To Manage printing models."
+
+#~ msgid "_Report models"
+#~ msgstr "_Report models"
+
+#~ msgid "To print old saved report."
+#~ msgstr "To print old saved report."
+
+#~ msgid "_Saved reports"
+#~ msgstr "_Saved reports"
+
+#~ msgid "To manage boards of labels"
+#~ msgstr "To manage boards of labels"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-26 17:04+0000\n"
+"POT-Creation-Date: 2015-02-27 13:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -18,49 +18,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: tools.py:77
+#: tools.py:79
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:136 xfergraphic.py:76
+#: tools.py:138 xfergraphic.py:77
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:138 xfergraphic.py:77
+#: tools.py:140 xfergraphic.py:78
 msgid "No"
 msgstr "Non"
 
-#: xfergraphic.py:84
+#: tools.py:165
+msgid "add"
+msgstr "ajouter"
+
+#: tools.py:167
+msgid "view"
+msgstr "voir"
+
+#: tools.py:169
+msgid "delete"
+msgstr "supprimer"
+
+#: tools.py:170
+msgid "Can"
+msgstr "Pouvoir"
+
+#: xfergraphic.py:85
 msgid "Ok"
 msgstr "Ok"
 
-#: xfergraphic.py:102
+#: xfergraphic.py:103
 msgid "Close"
 msgstr "Fermer"
 
-#: xfergraphic.py:109
+#: xfergraphic.py:110
 msgid "Traitment..."
 msgstr "Traitement..."
 
-#: xfergraphic.py:112
+#: xfergraphic.py:113
 msgid "Cancel"
-msgstr "Annuer"
+msgstr "Annuler"
 
-#: xfergraphic.py:422
+#: xfergraphic.py:421
 msgid "No model"
-msgstr ""
+msgstr "Pas de model"
 
-#: xfergraphic.py:433
+#: xfergraphic.py:432
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xfergraphic.py:439
+#: xfergraphic.py:438
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xfergraphic.py:440
+#: xfergraphic.py:439
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"

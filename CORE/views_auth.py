@@ -18,7 +18,7 @@ def get_info_server():
     from django.conf import settings
     from django.utils.module_loading import import_module
     for appname in settings.INSTALLED_APPS:
-        if not "django" in appname:
+        if not "django" in appname and "lucterios.framework" != appname:
             appmodule = import_module(appname)
             res.append(six.text_type("%s=%s") % (appmodule.__title__(), appmodule.__version__))
     from platform import python_version, uname

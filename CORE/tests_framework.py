@@ -97,7 +97,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Traitment{[newline]}Wait...{[/center]}')
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', ('Traitment...', None, 'customer', 'details', 1, 1, 1))
+        self.assert_action_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', ('Traitement...', None, 'customer', 'details', 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/JavaScript', urlquote_plus('parent.refresh()'))
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Annuler', 'images/cancel.png'))

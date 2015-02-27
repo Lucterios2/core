@@ -101,7 +101,7 @@ class XferCompPassword(XferComponent):
 
     def __init__(self, name):
         XferComponent.__init__(self, name)
-        self._component_ident = "PASSWORD"
+        self._component_ident = "PASSWD"
 
 class XferCompImage(XferComponent):
 

@@ -95,7 +95,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="CONFIRME"]', 'YES')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3;4')
         self.assert_attrib_equal('TEXT', 'type', '2')
-        # self.assert_xml_equal('TEXT', 'Voulez-vous supprimer ces 2 utilisateurs?')
+        self.assert_xml_equal('TEXT', 'Voulez-vous supprimer ces 2 utilisateurs?')
         self.assert_count_equal('ACTIONS', 1)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_xml_equal('ACTIONS/ACTION[1]', 'Oui')
@@ -200,9 +200,9 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/EDIT[@name="email"]', None)
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[bold]}mot de passe{[/bold]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWORD[@name="password1"]', None, (1, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[bold]}re-mot de passe{[/bold]}", (0, 6, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWORD[@name="password2"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
 
@@ -289,8 +289,8 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/EDIT[@name="first_name"]', None, (1, 2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="last_name"]', None, (1, 3, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="email"]', None, (1, 4, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWORD[@name="password1"]', None, (1, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWORD[@name="password2"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[bold]}groupes{[/bold]}", (0, 0, 1, 1))
@@ -305,8 +305,8 @@ class UserTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (3, 6, 1, 5))
 
     def test_useraddsave(self):
-        group = Group.objects.create(name="my_group")
-        group.permissions = Permission.objects.filter(id__in=[1, 3])
+        group = Group.objects.create(name="my_group") # pylint: disable=no-member
+        group.permissions = Permission.objects.filter(id__in=[1, 3]) # pylint: disable=no-member
         group.save()
 
         add_user("user1")
@@ -326,7 +326,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="groups"]', '1')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_permissions"]', '7;9;11')
 
-        user = User.objects.get(id=5)
+        user = User.objects.get(id=5) # pylint: disable=no-member
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'user_actif':'5'}, False)
         self.assertEqual(user.username, 'newuser')
@@ -337,10 +337,10 @@ class UserTest(LucteriosTest):
         self.assertEqual(user.first_name, 'my')
         self.assertEqual(user.last_name, 'BIG')
         self.assertEqual(user.email, 'my@big.org')
-        groups = user.groups.all().order_by('id')
+        groups = user.groups.all().order_by('id') # pylint: disable=no-member
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].id, 1)
-        perms = user.user_permissions.all().order_by('id')
+        perms = user.user_permissions.all().order_by('id') # pylint: disable=no-member
         self.assertEqual(len(perms), 3)
         self.assertEqual(perms[0].id, 7)
         self.assertEqual(perms[1].id, 9)
@@ -359,6 +359,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersDelete()
         self.call('/CORE/usersDelete', {'user_inactif':'3'}, False)
         self.assert_observer('Core.DialogBox', 'CORE', 'usersDelete')
+        self.assert_xml_equal('TEXT', "Voulez-vous supprimer cet enregistrement de 'utilisateur'?")
         self.assert_count_equal('CONTEXT', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="CONFIRME"]', 'YES')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_inactif"]', '3')
@@ -377,7 +378,7 @@ class UserTest(LucteriosTest):
         user.set_password('user')
         user.save()
 
-        user = User.objects.get(id=3)
+        user = User.objects.get(id=3) # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'init')
 
         self.factory.xfer = UsersModify()
@@ -386,19 +387,19 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Les mots de passes sont différents!')
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
-        user = User.objects.get(id=3)
+        user = User.objects.get(id=3) # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after different')
 
         self.factory.xfer = UsersModify()
         self.call('/CORE/usersModify', {'user_actif':'3', 'password1':'', 'password2':''}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
-        user = User.objects.get(id=3)
+        user = User.objects.get(id=3) # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after empty')
 
         self.factory.xfer = UsersModify()
         self.call('/CORE/usersModify', {'user_actif':'3', 'password1':'abc', 'password2':'abc'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
-        user = User.objects.get(id=3)
+        user = User.objects.get(id=3) # pylint: disable=no-member
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
 
@@ -463,7 +464,7 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
 
     def test_useraddsave(self):
-        groups = Group.objects.all()
+        groups = Group.objects.all() # pylint: disable=no-member
         self.assertEqual(len(groups), 0)
 
         self.factory.xfer = GroupsModify()
@@ -474,10 +475,10 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
 
-        groups = Group.objects.all()
+        groups = Group.objects.all() # pylint: disable=no-member
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].name, "newgroup")
-        perm = groups[0].permissions.all().order_by('id')
+        perm = groups[0].permissions.all().order_by('id') # pylint: disable=no-member
         self.assertEqual(len(perm), 4)
         self.assertEqual(perm[0].id, 1)
         self.assertEqual(perm[1].id, 3)
@@ -485,8 +486,8 @@ class GroupTest(LucteriosTest):
         self.assertEqual(perm[3].id, 7)
 
     def test_groupedit(self):
-        group = Group.objects.create(name="my_group")
-        group.permissions = Permission.objects.filter(id__in=[1, 3])
+        group = Group.objects.create(name="my_group") # pylint: disable=no-member
+        group.permissions = Permission.objects.filter(id__in=[1, 3]) # pylint: disable=no-member
         group.save()
 
         self.factory.xfer = GroupsEdit()
