@@ -11,10 +11,10 @@
 		<antcall target="pylint" />
 		<antcall target="add_instance"/>
 		<antcall target="i18n" />
-		<antcall target="tests" />
-		<antcall target="tests_web" />
-		<antcall target="del_instance"/>
+		<ant dir="web" target="django" />		
 		<antcall target="packages" />
+		<antcall target="tests" />
+		<antcall target="del_instance"/>
 	</target>
 
 	<target name="clear">
@@ -23,6 +23,7 @@
 		<delete file="../manage_${test.instance}.py"/>
 		<delete file="../coverage2.xml"/>
 		<delete file="../coverage3.xml"/>
+		<delete file="../junit_py0.xml"/>
 		<delete file="../junit_py2.xml"/>
 		<delete file="../junit_py3.xml"/>
 		<delete file="../pylint.txt"/>
@@ -43,6 +44,7 @@
 		<property name="projet.version.build" value="${build.number}"/>
 		<echo message="${projet.version.build}" file="CORE/build" append="false" />
 		<echo message="${projet.version.build}" file="standard/build" append="false" />
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="../junit_py0.xml" append="false" />
 		<copy file="web/deployed/conf_template.js" tofile="web/conf/conf.js"/>
 		<replace file="web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}';"/>
 		<replace file="web/conf/conf.js" token="var G_New_Server = false;" value="var G_New_Server = true;"/>
@@ -134,23 +136,28 @@
 		</exec>
 		<move file="../coverage.xml" tofile="../${testversion}.xml"/>
 	</target>
-	
-	<target name="test_py2" if="python2.present">
-		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
-		<replace file="../junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
-	</target>
-
-	<target name="test_py3" if="python3.present">
-		<antcall target="test"><param name="testversion" value="coverage3"/></antcall>
-		<replace file="../junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
-	</target>
 
 	<target name="runserver">
 		<exec executable="sh" dir="..">
 			<arg value="lucterios/runner.sh"/>
+			<arg value="${testversion}"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="${run.mode}"/>
 		</exec>	
+	</target>
+
+	<target name="test_py2" if="python2.present">
+		<antcall target="runserver"><param name="run.mode" value="START"/><param name="testversion" value="python2"/></antcall>
+		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
+		<replace file="../junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
+		<antcall target="runserver"><param name="run.mode" value=""/><param name="testversion" value="python2"/></antcall>
+	</target>
+
+	<target name="test_py3" if="python3.present">
+		<antcall target="runserver"><param name="run.mode" value="START"/><param name="testversion" value="python3"/></antcall>
+		<antcall target="test"><param name="testversion" value="coverage3"/></antcall>
+		<replace file="../junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
+		<antcall target="runserver"><param name="run.mode" value=""/><param name="testversion" value="python3"/></antcall>
 	</target>
 
 	<target name="tests">
@@ -158,12 +165,6 @@
 		<antcall target="test_py3"/>
 	</target>
 
-	<target name="tests_web">
-		<antcall target="runserver"><param name="run.mode" value="START"/></antcall>
-		<ant dir="web" target="django" />
-		<antcall target="runserver"><param name="run.mode" value=""/></antcall>
-	</target>
-	
 	<target name="package">
 		<delete file="../MANIFEST"/>
 		<delete file="../MANIFEST.in"/>

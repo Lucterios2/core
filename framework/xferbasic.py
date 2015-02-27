@@ -96,7 +96,8 @@ class XferContainerAbstract(View):
         self.responsexml.attrib['source_action'] = self.action
         titlexml = etree.Element("TITLE")
         titlexml.text = self.caption.replace('_', '')
-        self.responsexml.insert(0, titlexml)
+        if titlexml.text != '':
+            self.responsexml.insert(0, titlexml)
         if len(self.params) > 0:
             context = etree.Element("CONTEXT")
             for key, value in self.params.items():

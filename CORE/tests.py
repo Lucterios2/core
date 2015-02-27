@@ -10,7 +10,7 @@ from lucterios.framework.test import LucteriosTest, add_empty_user
 from django.utils import six
 from unittest.suite import TestSuite
 from unittest import TestLoader
-from lucterios.CORE import tests_framework, tests_usergroup
+from lucterios.CORE import tests_framework, tests_usergroup, tests_web
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -160,4 +160,5 @@ def suite():
     suite.addTest(loader.loadTestsFromTestCase(tests_framework.ContainerAcknowledgeTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))
+    suite.addTest(tests_web.QUnitWeb('http://127.0.0.1:8000/web/tests.html'))
     return suite

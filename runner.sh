@@ -1,10 +1,11 @@
 #!/bin/bash
 
-script=$1
-mode=$2
+pythoncmd=$1
+script=$2
+mode=$3
 
 pwd
-CMD_TO_RUN="python $script runserver"
+CMD_TO_RUN="$pythoncmd $script runserver"
 
 FILE="pid.run"
 
