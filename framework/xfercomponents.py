@@ -72,6 +72,7 @@ class XferComponent(object):
             compxml.attrib['VMin'] = six.text_type(self.vmin)
         if isinstance(self.hmin, six.integer_types):
             compxml.attrib['HMin'] = six.text_type(self.hmin)
+        compxml.attrib['needed'] = six.text_type(1) if self.needed else six.text_type(0)
 
     def get_reponse_xml(self):
         compxml = etree.Element(self._component_ident)

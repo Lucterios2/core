@@ -13,7 +13,7 @@ from lxml import etree
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml,\
+from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, \
     get_dico_from_setquery
 from lucterios.framework.tools import ifplural, get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
@@ -227,6 +227,8 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(getattr(self.item, field_name))
+        comp.set_needed(dep_field[0].unique or not (dep_field[0].blank or dep_field[0].null))
+        comp.description = six.text_type(dep_field[0].verbose_name)
         return comp
 
     def fill_from_model(self, col, row, readonly=True, field_names=None):
@@ -443,23 +445,25 @@ class XferDelete(XferContainerAcknowledge):
 class XferSave(XferContainerAcknowledge):
 
     def fillresponse(self):
-        # pylint: disable=protected-access
-        field_names = self.item._meta.get_all_field_names()
-        changed = False
-        for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name)
-            if dep_field[2]:
-                new_value = self.getparam(field_name)
-                if new_value is not None:
-                    if dep_field[3]:
-                        self.item.save()
-                        relation_model = dep_field[0].rel.to
-                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))
-                    else:
-                        from django.db.models.fields import BooleanField
-                        if isinstance(dep_field[0], BooleanField):
-                            new_value = (new_value != '0') and (new_value != 'n')
-                    setattr(self.item, field_name, new_value)
-                    changed = True
-        if changed:
-            self.item.save()
+        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
+        for is_many_to_many in (False, True):
+            changed = False
+            for field_name in field_names:
+                dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+                if dep_field[2]:
+                    new_value = self.getparam(field_name)
+                    if new_value is not None:
+                        if is_many_to_many and dep_field[3]:
+                            if new_value != '':
+                                relation_model = dep_field[0].rel.to
+                                new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                                setattr(self.item, field_name, new_value)
+                                changed = True
+                        elif not is_many_to_many and not dep_field[3]:
+                            from django.db.models.fields import BooleanField
+                            if isinstance(dep_field[0], BooleanField):
+                                new_value = (new_value != '0') and (new_value != 'n')
+                            setattr(self.item, field_name, new_value)
+                            changed = True
+            if changed:
+                self.item.save()

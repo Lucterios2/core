@@ -273,6 +273,8 @@ class UserTest(LucteriosTest):
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[bold]}nom d'utilisateur{[/bold]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="username"]', (2, 0, 1, 1))
+        self.assert_attrib_equal('COMPONENTS/EDIT[@name="username"]', 'needed', '1')
+        self.assert_attrib_equal('COMPONENTS/EDIT[@name="username"]', 'description', "nom d'utilisateur")
 
         self.assert_xml_equal('COMPONENTS/TAB[1]', "Informations")
 
@@ -287,6 +289,7 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_staff"]', '0', (1, 0, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_superuser"]', '0', (1, 1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="first_name"]', None, (1, 2, 1, 1, 1))
+        self.assert_attrib_equal('COMPONENTS/EDIT[@name="first_name"]', 'needed', '0')
         self.assert_comp_equal('COMPONENTS/EDIT[@name="last_name"]', None, (1, 3, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="email"]', None, (1, 4, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))

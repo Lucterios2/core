@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 13:04+0000\n"
+"POT-Creation-Date: 2015-02-27 14:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -31,19 +31,19 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: tools.py:165
+#: tools.py:166
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:167
+#: tools.py:168
 msgid "view"
 msgstr "voir"
 
-#: tools.py:169
+#: tools.py:170
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:170
+#: tools.py:171
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -63,20 +63,20 @@ msgstr "Traitement..."
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xfergraphic.py:421
+#: xfergraphic.py:423
 msgid "No model"
 msgstr "Pas de model"
 
-#: xfergraphic.py:432
+#: xfergraphic.py:434
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xfergraphic.py:438
+#: xfergraphic.py:440
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xfergraphic.py:439
+#: xfergraphic.py:441
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
