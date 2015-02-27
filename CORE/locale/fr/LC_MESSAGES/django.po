@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 14:16+0000\n"
+"POT-Creation-Date: 2015-02-27 15:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -22,43 +22,75 @@ msgstr ""
 msgid "Lucterios core"
 msgstr "Coeur Lucterios"
 
-#: views.py:15
+#: views.py:18
 msgid "General"
 msgstr "Général"
 
-#: views.py:15
+#: views.py:18
 msgid "Generality"
 msgstr "Généralité"
 
-#: views.py:16
+#: views.py:19
 msgid "Management"
 msgstr "Administration"
 
-#: views.py:16
+#: views.py:19
 msgid "Manage settings and configurations."
 msgstr "Gestion des réglages et des configurations"
 
-#: views.py:29
+#: views.py:32
 msgid "To Change your password."
 msgstr "Pour changer de mot de passe."
 
-#: views.py:31
+#: views.py:34 views.py:72
 msgid "_Password"
 msgstr "Mot de _passe"
 
-#: views.py:34
+#: views.py:45
+msgid "old password"
+msgstr "ancien mot de passe"
+
+#: views.py:53
+msgid "new password"
+msgstr "nouveau mot de passe"
+
+#: views.py:61
+msgid "new password (again)"
+msgstr "re-nouveau mot de passe"
+
+#: views.py:67 views_usergroup.py:69 views_usergroup.py:211
+msgid "Ok"
+msgstr "Ok"
+
+#: views.py:68 views_usergroup.py:70 views_usergroup.py:212
+msgid "Cancel"
+msgstr "Annuler"
+
+#: views.py:77
+msgid "Bad current password!"
+msgstr "Mot de passe actuel érroné!"
+
+#: views.py:81 views_usergroup.py:224
+msgid "The passwords are differents!"
+msgstr "Les mots de passes sont différents!"
+
+#: views.py:84
+msgid "Password modify"
+msgstr "Mot de passe modifié"
+
+#: views.py:86
 msgid "To view and to modify main parameters."
 msgstr "Pour voir et modifier les paramètres principaux."
 
-#: views.py:36
+#: views.py:88
 msgid "Main configuration"
 msgstr "Configuration générale"
 
-#: views.py:39
+#: views.py:91
 msgid "_Extensions (conf.)"
 msgstr "Modules (conf.)"
 
-#: views.py:39
+#: views.py:91
 msgid "To manage of modules configurations."
 msgstr "Pour gérer les configurations des modules"
 
@@ -117,14 +149,6 @@ msgstr "Permissions disponibles"
 #: views_usergroup.py:67 views_usergroup.py:208
 msgid "Chosen permissions"
 msgstr "Permissions choisies"
-
-#: views_usergroup.py:69 views_usergroup.py:211
-msgid "Ok"
-msgstr "Ok"
-
-#: views_usergroup.py:70 views_usergroup.py:212
-msgid "Cancel"
-msgstr "Annuler"
 
 #: views_usergroup.py:74
 msgid "Delete group"
@@ -201,52 +225,3 @@ msgstr "Groupes disponibles"
 #: views_usergroup.py:207
 msgid "Chosen groups"
 msgstr "Groupes choisis"
-
-#: views_usergroup.py:224
-msgid "The passwords are differents!"
-msgstr "Les mots de passes sont différents!"
-
-#~ msgid "Backup"
-#~ msgstr "Sauvegarde"
-
-#~ msgid "Tools to backup and restore data"
-#~ msgstr "Outils pour savegarder et restaurer les données."
-
-#~ msgid "To backup software data."
-#~ msgstr "Pour sauvegarder les données du logiciel."
-
-#~ msgid "_Backup"
-#~ msgstr "_Sauvegarde"
-
-#~ msgid "To restore archive."
-#~ msgstr "Pour restaurer une archive."
-
-#~ msgid "_Restore"
-#~ msgstr "_Restauration"
-
-#~ msgid "To upload or to download saved archives."
-#~ msgstr "Pour télécharger des archives sauvegardées."
-
-#~ msgid "_Archives manager"
-#~ msgstr "Gestion des _archives"
-
-#~ msgid "_Report and print"
-#~ msgstr "_Rapport et impression"
-
-#~ msgid "To manage reports and tools of printing."
-#~ msgstr "Pour gérer les rapports et les outils d'impression."
-
-#~ msgid "To Manage printing models."
-#~ msgstr "Pour gérer les modèles d'impression."
-
-#~ msgid "_Report models"
-#~ msgstr "Modèles de _rapport"
-
-#~ msgid "_Saved reports"
-#~ msgstr "Rapports _sauvegardés"
-
-#~ msgid "To manage boards of labels"
-#~ msgstr "Pour gérer les planches d'étiquettes."
-
-#~ msgid "_Labels"
-#~ msgstr "_Etiquettes"

@@ -23,6 +23,8 @@ class LucteriosErrorMiddleware(XferContainerAbstract):
         if not isinstance(exception, LucteriosException):
             getLogger(__name__).exception(exception)
         self.exception = exception
+        self.responsesxml = etree.Element('REPONSES')
+        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
         self._initialize(request)
         self.fillresponse()
         return self._finalize()

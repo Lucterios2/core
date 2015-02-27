@@ -74,7 +74,7 @@ class AuthentificationTest(LucteriosTest):
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
         self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
-        self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changerPassword']", 'Mot de _passe')
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
 
         self.call('/CORE/exitConnection', {})
@@ -103,6 +103,54 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+
+    def test_password(self):
+        self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+
+        self.call('/CORE/changePassword', {})
+        self.assert_observer('Core.Custom', 'CORE', 'changePassword')
+        self.assert_xml_equal('TITLE', 'Mot de passe')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'modifyPassword', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('COMPONENTS/*', 7)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/passwd.png', ('0', '0', '1', '3'))
+        self.assert_comp_equal('COMPONENTS/LABEL[@name="lbl_oldpass"]', 'ancien mot de passe', ('1', '0', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/LABEL[@name="lbl_newpass1"]', 'nouveau mot de passe', ('1', '1', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/LABEL[@name="lbl_newpass2"]', 're-nouveau mot de passe', ('1', '2', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="oldpass"]', None, ('2', '0', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass1"]', None, ('2', '1', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass2"]', None, ('2', '2', '1', '1'))
+
+    def test_changepassword(self):
+        self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/modifyPassword', {'oldpass':'aaa', 'newpass1':'123', 'newpass2':'123'})
+        self.assert_observer('CORE.Exception', 'CORE', 'modifyPassword')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel érroné!'))
+        self.assert_xml_equal('EXCEPTION/CODE', '3')
+
+        self.call('/CORE/modifyPassword', {'oldpass':'empty', 'newpass1':'123', 'newpass2':'456'})
+        self.assert_observer('CORE.Exception', 'CORE', 'modifyPassword')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Les mots de passes sont différents!'))
+        self.assert_xml_equal('EXCEPTION/CODE', '3')
+
+        self.call('/CORE/modifyPassword', {'oldpass':'empty', 'newpass1':'123', 'newpass2':'123'})
+        self.assert_observer('Core.DialogBox', 'CORE', 'modifyPassword')
+        #self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
+        self.assert_attrib_equal('TEXT', 'type', '1')
+
+        self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'BADAUTH')
+
+        self.call('/CORE/authentification', {'username':'empty', 'password':'123'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
 
 def suite():
     # pylint: disable=redefined-outer-name

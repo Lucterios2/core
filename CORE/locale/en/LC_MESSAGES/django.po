@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 14:16+0000\n"
+"POT-Creation-Date: 2015-02-27 15:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,43 +21,76 @@ msgstr ""
 msgid "Lucterios core"
 msgstr "Lucterios core"
 
-#: views.py:15
+#: views.py:18
 msgid "General"
 msgstr "General"
 
-#: views.py:15
+#: views.py:18
 msgid "Generality"
 msgstr "Generality"
 
-#: views.py:16
+#: views.py:19
 msgid "Management"
 msgstr "Management"
 
-#: views.py:16
+#: views.py:19
 msgid "Manage settings and configurations."
 msgstr "Manage settings and configurations."
 
-#: views.py:29
+#: views.py:32
 msgid "To Change your password."
 msgstr "To Change your password."
 
-#: views.py:31
+#: views.py:34 views.py:72
 msgid "_Password"
 msgstr "_Password"
 
-#: views.py:34
+#: views.py:45
+#, fuzzy
+msgid "old password"
+msgstr "old password"
+
+#: views.py:53
+msgid "new password"
+msgstr "new password"
+
+#: views.py:61
+msgid "new password (again)"
+msgstr "new password (again)"
+
+#: views.py:67 views_usergroup.py:69 views_usergroup.py:211
+msgid "Ok"
+msgstr "Ok"
+
+#: views.py:68 views_usergroup.py:70 views_usergroup.py:212
+msgid "Cancel"
+msgstr "Annuler"
+
+#: views.py:77
+msgid "Bad current password!"
+msgstr "Bad current password!"
+
+#: views.py:81 views_usergroup.py:224
+msgid "The passwords are differents!"
+msgstr "The passwords are differents!"
+
+#: views.py:84
+msgid "Password modify"
+msgstr "Password modify"
+
+#: views.py:86
 msgid "To view and to modify main parameters."
 msgstr "To view and to modify main parameters."
 
-#: views.py:36
+#: views.py:88
 msgid "Main configuration"
 msgstr "Main configuration"
 
-#: views.py:39
+#: views.py:91
 msgid "_Extensions (conf.)"
 msgstr "_Modules (conf.)"
 
-#: views.py:39
+#: views.py:91
 msgid "To manage of modules configurations."
 msgstr "To manage of modules configurations."
 
@@ -116,14 +149,6 @@ msgstr "Available permissions"
 #: views_usergroup.py:67 views_usergroup.py:208
 msgid "Chosen permissions"
 msgstr "Chosen permissions"
-
-#: views_usergroup.py:69 views_usergroup.py:211
-msgid "Ok"
-msgstr "Ok"
-
-#: views_usergroup.py:70 views_usergroup.py:212
-msgid "Cancel"
-msgstr "Annuler"
 
 #: views_usergroup.py:74
 msgid "Delete group"
@@ -200,52 +225,3 @@ msgstr "Available groups"
 #: views_usergroup.py:207
 msgid "Chosen groups"
 msgstr "Chosen groups"
-
-#: views_usergroup.py:224
-msgid "The passwords are differents!"
-msgstr "The passwords are differents!"
-
-#~ msgid "Backup"
-#~ msgstr "Backup"
-
-#~ msgid "Tools to backup and restore data"
-#~ msgstr "Tools to backup and restore data"
-
-#~ msgid "To backup software data."
-#~ msgstr "To backup software data."
-
-#~ msgid "_Backup"
-#~ msgstr "_Backup"
-
-#~ msgid "To restore archive."
-#~ msgstr "To restore archive."
-
-#~ msgid "_Restore"
-#~ msgstr "_Restore"
-
-#~ msgid "To upload or to download saved archives."
-#~ msgstr "To upload or to download saved archives."
-
-#~ msgid "_Archives manager"
-#~ msgstr "_Archives manager"
-
-#~ msgid "_Report and print"
-#~ msgstr "_Report and print"
-
-#~ msgid "To manage reports and tools of printing."
-#~ msgstr "To manage reports and tools of printing."
-
-#~ msgid "To Manage printing models."
-#~ msgstr "To Manage printing models."
-
-#~ msgid "_Report models"
-#~ msgstr "_Report models"
-
-#~ msgid "To print old saved report."
-#~ msgstr "To print old saved report."
-
-#~ msgid "_Saved reports"
-#~ msgstr "_Saved reports"
-
-#~ msgid "To manage boards of labels"
-#~ msgstr "To manage boards of labels"
