@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'verbose_name': 'parameter',
-                'default_permissions': ('add', 'change'),
+                'default_permissions': ['add', 'change'],
                 'verbose_name_plural': 'parameters',
             },
             bases=(models.Model,),

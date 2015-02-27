@@ -24,6 +24,6 @@ setup(
     license="GNU General Public License v2",
     # Packages
     packages=["lucterios.standard"],
-    requires=["lucterios"],
+    requires=["lucterios (>=2.0)"],
 )
 

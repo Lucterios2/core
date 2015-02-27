@@ -93,21 +93,21 @@
 	</target>	
 
 	<target name="add_instance">
-		<exec executable="python" dir="..">
+		<exec executable="python3" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="add"/>
 			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
 		</exec>	
-		<exec executable="python" dir="..">
+		<exec executable="python3" dir="..">
 			<arg value="./manage_${test.instance}.py"/>
-			<arg value="syncdb"/>
+			<arg value="migrate"/>
 			<arg value="--noinput"/>			
 		</exec>	
 	</target>	
 
 	<target name="del_instance">
-		<exec executable="python" dir="..">
+		<exec executable="python3" dir="..">
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="del"/>
 			<arg value="--name=${test.instance}"/>

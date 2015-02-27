@@ -24,6 +24,6 @@ setup(
     license="GNU General Public License v2",
     # Packages
     packages=["lucterios.CORE", "lucterios.framework", "lucterios.install"],
-    requires=["Django", "django_jux", "lxml"],
+    requires=["Django (>=1.7)", "django_jux (>=1.0)", "lxml (>=3.2)"],
 )
 
