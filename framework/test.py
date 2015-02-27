@@ -6,14 +6,13 @@ Created on feb. 2015
 '''
 
 from __future__ import unicode_literals
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import User
 from django.test import TestCase, Client, RequestFactory
 from django.utils import six
 from lxml import etree
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 
 def add_user(username):
-    from django.contrib.auth.models import User
     user = User.objects.create_user(username=username, password=username)
     user.first_name = username
     user.last_name = username.upper()
@@ -50,7 +49,9 @@ class XmlRequestFactory(RequestFactory):
         try:
             request = self.post(path, data)
             request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
-            request.user = AnonymousUser()
+            request.user = User()
+            request.user.is_superuser = True
+            request.user.is_staff = True
             return self.xfer.get(request)
         except Exception as expt:  # pylint: disable=broad-except
             err = LucteriosErrorMiddleware()

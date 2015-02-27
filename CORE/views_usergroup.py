@@ -18,7 +18,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 
 add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
+@describ_action('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupsList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("_Groups")
@@ -46,7 +46,7 @@ class GroupsList(XferContainerCustom):
 
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('')
+@describ_action('auth.add_group')
 class GroupsEdit(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("Modify a group")
@@ -69,21 +69,21 @@ class GroupsEdit(XferContainerCustom):
         self.add_action(GroupsModify().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('')
+@describ_action('auth.delete_group')
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
     icon = "group.png"
     model = Group
     field_id = 'group'
 
-@describ_action('')
+@describ_action('auth.add_group')
 class GroupsModify(XferSave):
     caption = _("Modify a group")
     icon = "group.png"
     model = Group
     field_id = 'group'
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
+@describ_action('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("_Users")
@@ -135,14 +135,14 @@ class UsersList(XferContainerCustom):
 
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('')
+@describ_action('auth.delete_user')
 class UsersDelete(XferDelete):
     caption = _("Delete users")
     icon = "user.png"
     model = User
     field_id = ('user_actif', 'user_inactif')
 
-@describ_action('')
+@describ_action('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
     icon = "user.png"
@@ -153,7 +153,7 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.is_active = False
         self.item.save()
 
-@describ_action('')
+@describ_action('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
     icon = "user.png"
@@ -164,7 +164,7 @@ class UsersEnabled(XferContainerAcknowledge):
         self.item.is_active = True
         self.item.save()
 
-@describ_action('')
+@describ_action('auth.add_user')
 class UsersEdit(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("Modify an user")
@@ -211,7 +211,7 @@ class UsersEdit(XferContainerCustom):
         self.add_action(UsersModify().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('')
+@describ_action('auth.add_user')
 class UsersModify(XferSave):
     caption = _("Modify an user")
     icon = "user.png"

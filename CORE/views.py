@@ -83,7 +83,7 @@ class ModifyPassword(XferContainerAcknowledge):
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
+@describ_action('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerAcknowledge):
     caption = _("Main configuration")
     icon = "config.png"

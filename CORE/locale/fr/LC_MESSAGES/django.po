@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 15:43+0000\n"
+"POT-Creation-Date: 2015-02-27 17:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,6 +21,42 @@ msgstr ""
 #: __init__.py:15
 msgid "Lucterios core"
 msgstr "Coeur Lucterios"
+
+#: models.py:15 models.py:19
+msgid "module"
+msgstr "module"
+
+#: models.py:16 models.py:18
+msgid "name"
+msgstr "nom"
+
+#: models.py:17
+msgid "String"
+msgstr "Chaîne"
+
+#: models.py:17
+msgid "Integer"
+msgstr "Entier"
+
+#: models.py:17
+msgid "Real"
+msgstr "Réel"
+
+#: models.py:17
+msgid "Boolean"
+msgstr "Booléan"
+
+#: models.py:17
+msgid "Select"
+msgstr "Sélection"
+
+#: models.py:23
+msgid "parameter"
+msgstr "parametre"
+
+#: models.py:24
+msgid "parameters"
+msgstr "parametres"
 
 #: views.py:18
 msgid "General"
