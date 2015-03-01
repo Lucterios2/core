@@ -10,6 +10,15 @@ from __future__ import unicode_literals
 from unittest.suite import BaseTestSuite
 import time
 
+class QUnitNull(object):
+
+    _testMethodName = "QUnitError"
+    failureException = None
+
+    def shortDescription(self):
+        # pylint: disable=invalid-name,no-self-use
+        return None
+
 class QUnitCase(object):
 
     def __init__(self, test):
@@ -41,14 +50,13 @@ class QUnitCase(object):
         old_exc_info = result._exc_info_to_string
         result._exc_info_to_string = my_exc_info_to_string
         try:
-
             result.startTest(self)
             if hasattr(result, "case_start_time"):
                 setattr(result, "case_start_time", time.time() - self.runtime / 1000)
             if self.nb_failed == 0:
                 result.addSuccess(self)
             else:
-                result.addError(self, (AssertionError, "QUnit error", self.failure))
+                result.addFailure(self, (AssertionError, "QUnit error", self.failure))
             result.stopTest(self)
         finally:
             result._exc_info_to_string = old_exc_info
@@ -93,6 +101,9 @@ class QUnitWeb(BaseTestSuite):
                 for test in tests:
                     unit = QUnitCase(test)
                     unit.run(result)
+            except Exception: # pylint: disable=broad-except
+                from sys import exc_info 
+                result.addError(QUnitNull(), exc_info())
             finally:
                 self.driver.quit()
 
