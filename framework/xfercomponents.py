@@ -30,9 +30,6 @@ class XferComponent(object):
         self.description = ""
         self.needed = False
 
-    def get_ident(self):
-        return self._component_ident
-
     def set_location(self, col, row, colspan=1, rowspan=1):
         self.col = col
         self.row = row

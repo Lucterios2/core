@@ -28,25 +28,7 @@ class QUnitCase(object):
                 self.failure += "\n"
         self._testMethodName = '.'.join((self.module_name, self.test_name))  # pylint: disable=invalid-name
 
-    def id(self):
-        # pylint: disable=invalid-name
-        return "%s.%s" % (self.module_name, self.test_name)
-
-    def __eq__(self, other):
-        if type(self) is not type(other):
-            return NotImplemented
-        return self.test_name == other.test_name
-
-    def __ne__(self, other):
-        return not self == other
-
     __hash__ = None
-
-    def __str__(self):
-        return self._testMethodName
-
-    def __repr__(self):
-        return "<%s testMethod=%s>" % (self.module_name, self.test_name)
 
     def shortDescription(self):
         # pylint: disable=invalid-name,no-self-use
@@ -82,9 +64,6 @@ class QUnitWeb(BaseTestSuite):
             self.driver_class = None
         self.driver = None
         self.testurl = testurl
-
-    def __repr__(self):
-        return "<QUnit tests=%s>" % list(self)
 
     def is_el_present(self):
         from selenium.common.exceptions import NoSuchElementException

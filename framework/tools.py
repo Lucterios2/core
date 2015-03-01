@@ -87,35 +87,32 @@ def get_actions_xml(actions):
     return actionsxml
 
 def get_action_xml(item, option, desc='', tag='ACTION'):
-    try:
-        actionxml = etree.Element(tag)
-        actionxml.text = six.text_type(item.caption)
-        actionxml.attrib['id'] = item.url_text
-        if hasattr(item, 'icon') and item.icon != "":
-            if (item.extension == '') or ('images/' in item.icon):
-                actionxml.attrib['icon'] = item.icon
-            elif item.extension == 'CORE':
-                actionxml.attrib['icon'] = "images/" + item.icon
-            else:
-                actionxml.attrib['icon'] = "%s/images/%s" % (item.extension, item.icon)
-            # actionxml.attrib['sizeicon']=filesize(item.icon)
-        if item.extension != "":
-            actionxml.attrib['extension'] = item.extension
-        if item.action != "":
-            actionxml.attrib['action'] = item.action
-        if desc != "":
-            etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-        if isinstance(item.modal, int):
-            actionxml.attrib['modal'] = six.text_type(item.modal)
-        actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
-        actionxml.attrib['close'] = six.text_type(CLOSE_YES)
-        actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
-        for key in option.keys():  # modal, close, unique
-            if isinstance(option[key], six.integer_types):
-                actionxml.attrib[key] = six.text_type(option[key])
-        return actionxml
-    except AttributeError:
-        return None
+    actionxml = etree.Element(tag)
+    actionxml.text = six.text_type(item.caption)
+    actionxml.attrib['id'] = item.url_text
+    if hasattr(item, 'icon') and item.icon != "":
+        if (item.extension == '') or ('images/' in item.icon):
+            actionxml.attrib['icon'] = item.icon
+        elif item.extension == 'CORE':
+            actionxml.attrib['icon'] = "images/" + item.icon
+        else:
+            actionxml.attrib['icon'] = "%s/images/%s" % (item.extension, item.icon)
+        # actionxml.attrib['sizeicon']=filesize(item.icon)
+    if item.extension != "":
+        actionxml.attrib['extension'] = item.extension
+    if item.action != "":
+        actionxml.attrib['action'] = item.action
+    if desc != "":
+        etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
+    if isinstance(item.modal, int):
+        actionxml.attrib['modal'] = six.text_type(item.modal)
+    actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
+    actionxml.attrib['close'] = six.text_type(CLOSE_YES)
+    actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+    for key in option.keys():  # modal, close, unique
+        if isinstance(option[key], six.integer_types):
+            actionxml.attrib[key] = six.text_type(option[key])
+    return actionxml
 
 def ifplural(count, test_singular, test_plural):
     if count == 1:

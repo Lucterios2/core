@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 22:33+0000\n"
+"POT-Creation-Date: 2015-03-01 19:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -94,11 +94,11 @@ msgstr "nouveau mot de passe"
 msgid "new password (again)"
 msgstr "re-nouveau mot de passe"
 
-#: views.py:67 views_usergroup.py:69 views_usergroup.py:211
+#: views.py:67 views_usergroup.py:69 views_usergroup.py:219
 msgid "Ok"
 msgstr "Ok"
 
-#: views.py:68 views_usergroup.py:70 views_usergroup.py:212
+#: views.py:68 views_usergroup.py:70 views_usergroup.py:220
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -106,7 +106,7 @@ msgstr "Annuler"
 msgid "Bad current password!"
 msgstr "Mot de passe actuel érroné!"
 
-#: views.py:81 views_usergroup.py:224
+#: views.py:81 views_usergroup.py:232
 msgid "The passwords are differents!"
 msgstr "Les mots de passes sont différents!"
 
@@ -178,11 +178,11 @@ msgstr "Modifier un groupe"
 msgid "Add a group"
 msgstr "Ajouter un groupe"
 
-#: views_usergroup.py:67 views_usergroup.py:208
+#: views_usergroup.py:67 views_usergroup.py:216
 msgid "Available permissions"
 msgstr "Permissions disponibles"
 
-#: views_usergroup.py:67 views_usergroup.py:208
+#: views_usergroup.py:67 views_usergroup.py:216
 msgid "Chosen permissions"
 msgstr "Permissions choisies"
 
@@ -222,42 +222,50 @@ msgstr "Réactiver"
 msgid "Delete users"
 msgstr "Suppression d'utilisateur"
 
-#: views_usergroup.py:147
+#: views_usergroup.py:148
+msgid "You can delete yourself!"
+msgstr "Vous ne pouvez vous supprimer!"
+
+#: views_usergroup.py:153
 msgid "Disabled an user"
 msgstr "Désactiver un utilisateur"
 
-#: views_usergroup.py:158
+#: views_usergroup.py:160
+msgid "You can disabled yourself!"
+msgstr "Vous ne pouvez vous désactiver!"
+
+#: views_usergroup.py:166
 msgid "Enabled an user"
 msgstr "Réactiver un utilisateur"
 
-#: views_usergroup.py:170 views_usergroup.py:179 views_usergroup.py:216
+#: views_usergroup.py:178 views_usergroup.py:187 views_usergroup.py:224
 msgid "Modify an user"
 msgstr "Modifier un utilisateur"
 
-#: views_usergroup.py:177
+#: views_usergroup.py:185
 msgid "Add an users"
 msgstr "Ajouter un utilisateur"
 
-#: views_usergroup.py:189
+#: views_usergroup.py:197
 msgid "Informations"
 msgstr "Informations"
 
-#: views_usergroup.py:193
+#: views_usergroup.py:201
 msgid "password"
 msgstr "mot de passe"
 
-#: views_usergroup.py:197
+#: views_usergroup.py:205
 msgid "password (again)"
 msgstr "re-mot de passe"
 
-#: views_usergroup.py:206
+#: views_usergroup.py:214
 msgid "Permissions"
 msgstr "Permissions"
 
-#: views_usergroup.py:207
+#: views_usergroup.py:215
 msgid "Available groups"
 msgstr "Groupes disponibles"
 
-#: views_usergroup.py:207
+#: views_usergroup.py:215
 msgid "Chosen groups"
 msgstr "Groupes choisis"

@@ -73,9 +73,12 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_count_equal("MENUS/MENU", 3)
         self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
+        self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']", 'Gestion des droits')
+        self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU[@id='CORE/groupsList']", '_Groupes')
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
@@ -83,6 +86,28 @@ class AuthentificationTest(LucteriosTest):
         self.call('/CORE/menu', {})
         self.assert_attrib_equal('', 'observer', 'CORE.Auth')
         self.assert_xml_equal('', 'NEEDAUTH')
+
+    def test_menu_connected_with_empty(self):
+        self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})
+        self.assert_xml_equal('', 'OK')
+        self.assert_xml_equal('CONNECTION/LOGIN', 'empty')
+
+        self.call('/CORE/menu', {})
+        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
+        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 1)
+        self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 2)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
+
+        self.call('/CORE/configuration', {})
+        self.assert_observer('CORE.Exception', 'CORE', 'configuration')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
+
+        self.call('/CORE/exitConnection', {})
+        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
     def test_menu_reconnected(self):
         self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
@@ -141,7 +166,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/modifyPassword', {'oldpass':'empty', 'newpass1':'123', 'newpass2':'123'})
         self.assert_observer('Core.DialogBox', 'CORE', 'modifyPassword')
-        #self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
+        # self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
         self.assert_attrib_equal('TEXT', 'type', '1')
 
         self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})

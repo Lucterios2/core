@@ -142,6 +142,12 @@ class UsersDelete(XferDelete):
     model = User
     field_id = ('user_actif', 'user_inactif')
 
+    def fillresponse(self):
+        for item in self.items:
+            if item == self.request.user:
+                raise LucteriosException(IMPORTANT, _("You can delete yourself!"))
+        XferDelete.fillresponse(self)
+
 @describ_action('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
@@ -150,6 +156,8 @@ class UsersDisabled(XferContainerAcknowledge):
     field_id = 'user_actif'
 
     def fillresponse(self):
+        if self.item == self.request.user:
+            raise LucteriosException(IMPORTANT, _("You can disabled yourself!"))
         self.item.is_active = False
         self.item.save()
 

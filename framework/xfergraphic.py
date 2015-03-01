@@ -173,11 +173,6 @@ class XferContainerCustom(XferContainerAbstract):
         comp_id = component.get_id()
         self.components[comp_id] = component
 
-    def resize(self, col, hmin, vmin):
-        for comp in self.components.values():
-            if (comp.col == col) and (comp.colspan == 1):
-                comp.set_size(vmin, hmin)
-
     def find_tab(self, tab_name):
         num = -1
         tab_name = six.text_type(tab_name)
@@ -231,11 +226,8 @@ class XferContainerCustom(XferContainerAbstract):
         comp.description = six.text_type(dep_field[0].verbose_name)
         return comp
 
-    def fill_from_model(self, col, row, readonly=True, field_names=None):
-
+    def fill_from_model(self, col, row, readonly, field_names):
         # pylint: disable=protected-access
-        if field_names is None:
-            field_names = self.item._meta.get_all_field_names()
         for field_name in field_names:
             dep_field = self.item._meta.get_field_by_name(field_name)
             if dep_field[2]:  # field real in model
