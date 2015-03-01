@@ -58,8 +58,8 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="first_name"]', 'empty')
         self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_name"]', 'ADMIN')
         self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_name"]', 'NOFULL')
-        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_login"]', date.today().strftime('%d'), True)
-        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_login"]', date.today().strftime('%d'), True)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_login"]', date.today().strftime('%e').strip(), True)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_login"]', date.today().strftime('%e').strip(), True)
 
         self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION', 4)
         self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
@@ -176,10 +176,10 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="username"]', 'user1')
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_date_joined"]', "{[bold]}date d'inscription{[/bold]}", (1, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="date_joined"]', (2, 1, 1, 1))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="date_joined"]', date.today().strftime('%d'), True)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="date_joined"]', date.today().strftime('%e').strip(), True)
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_login"]', "{[bold]}dernière connexion{[/bold]}", (1, 2, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="last_login"]', (2, 2, 1, 1))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="last_login"]', date.today().strftime('%d'), True)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="last_login"]', date.today().strftime('%e').strip(), True)
 
         self.assert_xml_equal('COMPONENTS/TAB[1]', "Informations")
 

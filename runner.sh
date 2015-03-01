@@ -1,8 +1,17 @@
 #!/bin/bash
 
 pythoncmd=$1
+if [[ ${pythoncmd:2:11} == "testversion" ]]
+then
+	pythoncmd=python
+fi
 script=$2
 mode=$3
+if [[ ${mode:2:8} == "run.mode" ]]	
+then
+	mode=
+fi
+echo "run: $pythoncmd - $script - $mode"
 
 pwd
 CMD_TO_RUN="$pythoncmd $script runserver"

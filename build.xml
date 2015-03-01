@@ -120,6 +120,9 @@
 		<delete file="converage.xml"/>
 		<delete file="${testversion}.xml"/>
 		<exec executable="${testversion}" dir="..">
+			<arg value="erase"/> 
+		</exec>	
+		<exec executable="${testversion}" dir="..">
 			<arg value="run"/>
 			<arg value="--source=lucterios"/>
 			<arg value="--omit=lucterios/install/*"/>
@@ -138,7 +141,7 @@
 	</target>
 
 	<target name="runserver">
-		<exec executable="sh" dir="..">
+		<exec executable="bash" dir="..">
 			<arg value="lucterios/runner.sh"/>
 			<arg value="${testversion}"/>
 			<arg value="./manage_${test.instance}.py"/>
