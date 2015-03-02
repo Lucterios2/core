@@ -1,6 +1,7 @@
 <project name="Lucterios2" default="all" basedir=".">
 	<property name="test.instance" value="test"/>
 	<property name="web.version" value="0.9.7"/>
+	<property name="standard.path" value="${basedir}/../lct-standard"/>
 	
 	<available file="/usr/local/bin/coverage2" property="python2.present"/>
 	<available file="/usr/local/bin/coverage3" property="python3.present"/>
@@ -12,7 +13,7 @@
 		<antcall target="add_instance"/>
 		<antcall target="i18n" />
 		<ant dir="lucterios/web" target="django" />		
-		<antcall target="packages" />
+		<antcall target="package" />
 		<antcall target="tests" />
 		<antcall target="del_instance"/>
 	</target>
@@ -43,7 +44,6 @@
 		<buildnumber />
 		<property name="projet.version.build" value="${build.number}"/>
 		<echo message="${projet.version.build}" file="lucterios/CORE/build" append="false" />
-		<echo message="${projet.version.build}" file="lucterios/standard/build" append="false" />
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py0.xml" append="false" />
 	</target>
 
@@ -68,6 +68,7 @@
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="${basedir}/manage_${test.instance}.py"/>
 			<arg value="makemessages"/>
 		    <arg value="-l"/>
@@ -78,6 +79,7 @@
 
 		<echo message="-- compile ${sub_path} --"/>
 		<exec executable="python" dir="./${sub_path}">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="${basedir}/manage_${test.instance}.py"/>
 			<arg value="compilemessages"/>
 		</exec>	
@@ -86,17 +88,18 @@
 	<target name="i18n">
 		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/CORE"/></antcall>			
 		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/framework"/></antcall>			
-		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/standard"/></antcall>			
 	</target>	
 
 	<target name="add_instance">
 		<exec executable="python3">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="add"/>
 			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
 		</exec>	
 		<exec executable="python3">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="migrate"/>
 			<arg value="--noinput"/>			
@@ -105,6 +108,7 @@
 
 	<target name="del_instance">
 		<exec executable="python3">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="lucterios/install/cmd.py"/>
 			<arg value="del"/>
 			<arg value="--name=${test.instance}"/>
@@ -120,6 +124,7 @@
 			<arg value="erase"/> 
 		</exec>	
 		<exec executable="${testversion}">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="run"/>
 			<arg value="--source=lucterios"/>
 			<arg value="--omit=lucterios/install/*"/>
@@ -169,16 +174,12 @@
 		<delete file="MANIFEST"/>
 		<delete file="MANIFEST.in"/>
 		<delete file="setup.py"/>
-		<copy file='deployed/setup_${modname}.py' tofile='setup.py'/>
-		<copy file='deployed/MANIFEST_${modname}.in' tofile='MANIFEST.in'/>
+		<copy file='deployed/setup_core.py' tofile='setup.py'/>
+		<copy file='deployed/MANIFEST_core.in' tofile='MANIFEST.in'/>
 		<exec executable="python3">
 			<arg value="setup.py"/>
 			<arg value="sdist"/>
 		</exec>	
 	</target>
-
-	<target name="packages">
-		<antcall target="package"><param name="modname" value="core"/></antcall>
-		<antcall target="package"><param name="modname" value="standard"/></antcall>
-	</target>
+	
 </project>	
