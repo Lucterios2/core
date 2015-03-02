@@ -144,6 +144,7 @@
 
 	<target name="runserver">
 		<exec executable="bash">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="runner.sh"/>
 			<arg value="${testversion}"/>
 			<arg value="./manage_${test.instance}.py"/>

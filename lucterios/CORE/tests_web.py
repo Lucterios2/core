@@ -102,7 +102,7 @@ class QUnitWeb(BaseTestSuite):
                     unit = QUnitCase(test)
                     unit.run(result)
             except Exception: # pylint: disable=broad-except
-                from sys import exc_info 
+                from sys import exc_info
                 result.addError(QUnitNull(), exc_info())
             finally:
                 self.driver.quit()
