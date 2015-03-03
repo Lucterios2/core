@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# pylint: disable=invalid-name
 '''
 Created on 11 fevr. 2015
 
@@ -49,7 +51,7 @@ def del_lucterios_instance(name):
         rmtree(instance_dir)
     if isfile(instance_conf):
         remove(instance_conf)
-    print ("Instance '%s' deleted." % name) # pylint: disable=superfluous-parens
+    print ("Instance '%s' deleted." % name)  # pylint: disable=superfluous-parens
 
 def add_lucterios_instance(name, appli_name, database, module):
     instance_dir = join(INSTANCE_PATH, name)
@@ -67,8 +69,12 @@ def add_lucterios_instance(name, appli_name, database, module):
     mkdir(instance_dir)
     with open(join(instance_dir, '__init__.py'), "w") as file_py:
         file_py.write('\n')
-    write_setting(name, appli_name, database, tuple(module.split(',')))
-    print ("Instance '%s' created." % name) # pylint: disable=superfluous-parens
+    if module != '':
+        modules = tuple(module.split(','))
+    else:
+        modules = ()
+    write_setting(name, appli_name, database, modules)
+    print ("Instance '%s' created." % name)  # pylint: disable=superfluous-parens
 
 def main():
     parser = OptionParser(usage="usage: %prog [options] filename",

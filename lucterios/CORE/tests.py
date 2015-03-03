@@ -10,7 +10,7 @@ from lucterios.framework.test import LucteriosTest, add_empty_user
 from django.utils import six
 from unittest.suite import TestSuite
 from unittest import TestLoader
-from lucterios.CORE import tests_framework, tests_usergroup, tests_web
+from lucterios.CORE import tests_framework, tests_usergroup
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -56,7 +56,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/TITLE', 'Lucterios standard')
         self.assert_xml_equal('CONNECTION/SUBTITLE', 'other subtitle')
         self.assert_xml_equal('CONNECTION/VERSION', '2.0.1.', (0, 6))
-        self.assert_xml_equal('CONNECTION/SERVERVERSION', '2.0.beta.', (0, 9))
+        self.assert_xml_equal('CONNECTION/SERVERVERSION', '2.0b', (0, 4))
         self.assert_xml_equal('CONNECTION/COPYRIGHT', '(c) ', (0, 4))
         self.assert_xml_equal('CONNECTION/LOGONAME', 'data:image/*;base64,', (0, 20))
         self.assert_xml_equal('CONNECTION/SUPPORT_EMAIL', 'support@', (0, 8))
@@ -185,5 +185,4 @@ def suite():
     suite.addTest(loader.loadTestsFromTestCase(tests_framework.ContainerAcknowledgeTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))
-    suite.addTest(tests_web.QUnitWeb('http://127.0.0.1:8000/web/tests.html'))
     return suite

@@ -29,8 +29,6 @@
 		<delete file="junit_py3.xml"/>
 		<delete file="pylint.txt"/>
 		<delete file="MANIFEST"/>
-		<delete file="MANIFEST.in"/>
-		<delete file="setup.py"/>
 		<delete>
 		    <fileset dir="." includes="**/*.pyc"/>
 		</delete>		
@@ -93,7 +91,7 @@
 	<target name="add_instance">
 		<exec executable="python3">
 			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="lucterios/install/cmd.py"/>
+			<arg value="lucterios/install/lucterios-admin.py"/>
 			<arg value="add"/>
 			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
@@ -109,7 +107,7 @@
 	<target name="del_instance">
 		<exec executable="python3">
 			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="lucterios/install/cmd.py"/>
+			<arg value="lucterios/install/lucterios-admin.py"/>
 			<arg value="del"/>
 			<arg value="--name=${test.instance}"/>
 		</exec>	
@@ -142,28 +140,16 @@
 		<move file="coverage.xml" tofile="${testversion}.xml"/>
 	</target>
 
-	<target name="runserver">
-		<exec executable="bash">
-			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="runner.sh"/>
-			<arg value="${testversion}"/>
-			<arg value="./manage_${test.instance}.py"/>
-			<arg value="${run.mode}"/>
-		</exec>	
-	</target>
-
 	<target name="test_py2" if="python2.present">
-		<antcall target="runserver"><param name="run.mode" value="START"/><param name="testversion" value="python2"/></antcall>
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py2.xml" append="false" />
 		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
 		<replace file="junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
-		<antcall target="runserver"><param name="run.mode" value=""/><param name="testversion" value="python2"/></antcall>
 	</target>
 
 	<target name="test_py3" if="python3.present">
-		<antcall target="runserver"><param name="run.mode" value="START"/><param name="testversion" value="python3"/></antcall>
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py3.xml" append="false" />
 		<antcall target="test"><param name="testversion" value="coverage3"/></antcall>
 		<replace file="junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
-		<antcall target="runserver"><param name="run.mode" value=""/><param name="testversion" value="python3"/></antcall>
 	</target>
 
 	<target name="tests">
@@ -173,10 +159,6 @@
 
 	<target name="package">
 		<delete file="MANIFEST"/>
-		<delete file="MANIFEST.in"/>
-		<delete file="setup.py"/>
-		<copy file='deployed/setup_core.py' tofile='setup.py'/>
-		<copy file='deployed/MANIFEST_core.in' tofile='MANIFEST.in'/>
 		<exec executable="python3">
 			<arg value="setup.py"/>
 			<arg value="sdist"/>
