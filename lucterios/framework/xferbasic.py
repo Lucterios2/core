@@ -102,7 +102,10 @@ class XferContainerAbstract(View):
             context = etree.Element("CONTEXT")
             for key, value in self.params.items():
                 new_param = etree.SubElement(context, 'PARAM')
-                new_param.text = value
+                if isinstance(value, tuple) or isinstance(value, list):
+                    new_param.text = ";".join(value)
+                else:
+                    new_param.text = value
                 new_param.attrib['name'] = key
             self.responsexml.insert(1, context)
         if self.closeaction != None:

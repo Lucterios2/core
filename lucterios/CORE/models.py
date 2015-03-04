@@ -12,11 +12,10 @@ from django.db import models
 
 class Parameter(models.Model):
 
-    module = models.CharField(_('module'), max_length=80)
-    name = models.CharField(_('name'), max_length=80)
+    name = models.CharField(_('name'), max_length=100, unique=True)
     typeparam = models.IntegerField(choices=((0, _('String')), (1, _('Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
-    param = models.CharField(_('name'), max_length=80, blank=True)
-    value = models.TextField(_('module'), blank=True)
+    args = models.CharField(_('arguments'), max_length=200, default="{}")
+    value = models.TextField(_('value'), blank=True)
 
     class Meta(object):
         # pylint: disable=no-init

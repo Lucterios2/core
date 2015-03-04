@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-03 14:24+0000\n"
+"POT-Creation-Date: 2015-03-04 13:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,112 +21,173 @@ msgstr ""
 msgid "Lucterios core"
 msgstr "Lucterios core"
 
-#: models.py:15 models.py:19
-msgid "module"
-msgstr "module"
+#: migrations/0001_initial.py:22
+msgid "CORE-GUID"
+msgstr "Serial number of software"
 
-#: models.py:16 models.py:18
+#: migrations/0001_initial.py:28
+msgid "CORE-connectmode"
+msgstr "Connection mode"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.0"
+msgstr "Connection always needed"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.1"
+msgstr "Open in anonymous"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.2"
+msgstr "Free access"
+
+#: models.py:15
 msgid "name"
 msgstr "name"
 
-#: models.py:17
+#: models.py:16
 msgid "String"
 msgstr "String"
 
-#: models.py:17
+#: models.py:16
 msgid "Integer"
 msgstr "Integer"
 
-#: models.py:17
+#: models.py:16
 msgid "Real"
 msgstr "Real"
 
-#: models.py:17
+#: models.py:16
 msgid "Boolean"
 msgstr "Boolean"
 
-#: models.py:17
+#: models.py:16
 msgid "Select"
 msgstr "Select"
 
-#: models.py:23
+#: models.py:17
+msgid "arguments"
+msgstr "arguments"
+
+#: models.py:18
+msgid "value"
+msgstr "value"
+
+#: models.py:22
 msgid "parameter"
 msgstr "parameter"
 
-#: models.py:24
+#: models.py:23
 msgid "parameters"
 msgstr "parameters"
 
-#: views.py:18
+#: parameters.py:50
+#, python-format
+msgid ".%d"
+msgstr ""
+
+#: parameters.py:59
+msgid "Yes"
+msgstr "Yes"
+
+#: parameters.py:61
+msgid "No"
+msgstr "No"
+
+#: parameters.py:63
+msgid "."
+msgstr "."
+
+#: views.py:22
 msgid "General"
 msgstr "General"
 
-#: views.py:18
+#: views.py:22
 msgid "Generality"
 msgstr "Generality"
 
-#: views.py:19
+#: views.py:23
 msgid "Management"
 msgstr "Management"
 
-#: views.py:19
+#: views.py:23
 msgid "Manage settings and configurations."
 msgstr "Manage settings and configurations."
 
-#: views.py:32
+#: views.py:36
 msgid "To Change your password."
 msgstr "To Change your password."
 
-#: views.py:34 views.py:72
+#: views.py:38 views.py:76
 msgid "_Password"
 msgstr "_Password"
 
-#: views.py:45
+#: views.py:49
 #, fuzzy
 msgid "old password"
 msgstr "old password"
 
-#: views.py:53
+#: views.py:57
 msgid "new password"
 msgstr "new password"
 
-#: views.py:61
+#: views.py:65
 msgid "new password (again)"
 msgstr "new password (again)"
 
-#: views.py:67 views_usergroup.py:69 views_usergroup.py:219
+#: views.py:71 views.py:129 views_usergroup.py:69 views_usergroup.py:219
 msgid "Ok"
 msgstr "Ok"
 
-#: views.py:68 views_usergroup.py:70 views_usergroup.py:220
+#: views.py:72 views.py:130 views_usergroup.py:70 views_usergroup.py:220
 msgid "Cancel"
 msgstr "Annuler"
 
-#: views.py:77
+#: views.py:81
 msgid "Bad current password!"
 msgstr "Bad current password!"
 
-#: views.py:81 views_usergroup.py:232
+#: views.py:85 views_usergroup.py:232
 msgid "The passwords are differents!"
 msgstr "The passwords are differents!"
 
-#: views.py:84
+#: views.py:88
 msgid "Password modify"
 msgstr "Password modify"
 
-#: views.py:86
+#: views.py:95
 msgid "To view and to modify main parameters."
 msgstr "To view and to modify main parameters."
 
-#: views.py:88
+#: views.py:97
 msgid "Main configuration"
 msgstr "Main configuration"
 
-#: views.py:91
+#: views.py:107
+msgid "Software configuration"
+msgstr "Software configuration"
+
+#: views.py:111 views_usergroup.py:42 views_usergroup.py:112
+msgid "Modify"
+msgstr "Modify"
+
+#: views.py:112 views_usergroup.py:47 views_usergroup.py:136
+msgid "Close"
+msgstr "Close"
+
+#: views.py:116 views.py:134
+msgid "Parameters"
+msgstr "Parameters"
+
+#: views.py:126
+msgid "Edition of parameters"
+msgstr "Edition of parameters"
+
+#: views.py:143
 msgid "_Extensions (conf.)"
 msgstr "_Modules (conf.)"
 
-#: views.py:91
+#: views.py:143
 msgid "To manage of modules configurations."
 msgstr "To manage of modules configurations."
 
@@ -154,10 +215,6 @@ msgstr "_Groups"
 msgid "Existing groups"
 msgstr "Existing groups"
 
-#: views_usergroup.py:42 views_usergroup.py:112
-msgid "Modify"
-msgstr "Modify"
-
 #: views_usergroup.py:43 views_usergroup.py:114 views_usergroup.py:133
 msgid "Delete"
 msgstr "Delete"
@@ -165,10 +222,6 @@ msgstr "Delete"
 #: views_usergroup.py:44 views_usergroup.py:115
 msgid "Add"
 msgstr "Add"
-
-#: views_usergroup.py:47 views_usergroup.py:136
-msgid "Close"
-msgstr "Close"
 
 #: views_usergroup.py:52 views_usergroup.py:61 views_usergroup.py:81
 msgid "Modify a group"

@@ -11,6 +11,8 @@ from django.utils import six
 from unittest.suite import TestSuite
 from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
+from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
+from lucterios.CORE.models import Parameter
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -177,11 +179,69 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('CORE.Auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
+class ConfigTest(LucteriosTest):
+    # pylint: disable=too-many-public-methods
+
+    def setUp(self):
+        LucteriosTest.setUp(self)
+        add_empty_user()
+
+    def test_config(self):
+        self.factory.xfer = Configuration()
+        self.call('/CORE/configuration', {}, False)
+        self.assert_observer('Core.Custom', 'CORE', 'configuration')
+        self.assert_xml_equal('TITLE', 'Configuration générale')
+        self.assert_count_equal('CONTEXT/PARAM', 1)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="params"]', 'CORE-connectmode')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Modifier', 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 10))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[newline]}{[center]}{[bold]}{[underline]}Configuration du logiciel{[/underline]}{[/bold]}{[/center]}", (1, 0, 3, 1))
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[bold]}Mode de connexion{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connection toujours nécessaire", (2, 1, 1, 1))
+
+    def test_config_edit(self):
+        self.factory.xfer = ParamEdit()
+        self.call('/CORE/paramEdit', {'params':'CORE-connectmode'}, False)
+        self.assert_observer('Core.Custom', 'CORE', 'paramEdit')
+
+        self.assert_xml_equal('TITLE', 'Paramètres')
+        self.assert_count_equal('CONTEXT/PARAM', 1)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="params"]', 'CORE-connectmode')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'paramSave', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[newline]}{[center]}{[bold]}{[underline]}Edition de paramètres{[/underline]}{[/bold]}{[/center]}", (1, 0, 1, 1))
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[bold]}Mode de connexion{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (2, 1, 1, 1))
+        self.assert_count_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connection toujours nécessaire")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert entant qu'anonyme")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
+
+    def test_config_save(self):
+        param = Parameter.objects.get(name='CORE-connectmode') # pylint: disable=no-member
+        self.assertEqual("0", param.value)
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'CORE-connectmode', 'CORE-connectmode':'1'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+
+        param = Parameter.objects.get(name='CORE-connectmode') # pylint: disable=no-member
+        self.assertEqual("1", param.value)
+
 def suite():
     # pylint: disable=redefined-outer-name
     suite = TestSuite()
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(AuthentificationTest))
+    suite.addTest(loader.loadTestsFromTestCase(ConfigTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_framework.ContainerAcknowledgeTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))

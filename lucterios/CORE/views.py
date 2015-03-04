@@ -10,10 +10,14 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu
-from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom,\
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, \
     XFER_DBOX_INFORMATION
-from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage
+from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, \
+    XferCompLabelForm
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.signal import call_signal, signal
+from lucterios.CORE.parameters import fill_parameter, clear_parameters
+from lucterios.CORE.models import Parameter
 
 add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -83,10 +87,59 @@ class ModifyPassword(XferContainerAcknowledge):
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
 
+@signal('config')
+def config_core(xfer):
+    fill_parameter(xfer, ['CORE-connectmode'], 1, 1)
+    xfer.params['params'].append('CORE-connectmode')
+
 @describ_action('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
-class Configuration(XferContainerAcknowledge):
+class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
+
+    def fillresponse(self):
+        img_title = XferCompImage('img')
+        img_title.set_location(0, 0, 1, 10)
+        img_title.set_value('images/config.png')
+        self.add_component(img_title)
+        lab = XferCompLabelForm('title')
+        lab.set_location(1, 0, 3)
+        lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Software configuration"))
+        self.add_component(lab)
+        self.params['params'] = []
+        call_signal("config", self)
+        self.add_action(ParamEdit().get_changed(_('Modify'), 'images/edit.png'), {'close':0})
+        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
+
+@describ_action('CORE.add_parameter')
+class ParamEdit(XferContainerCustom):
+    caption = _("Parameters")
+    icon = "config.png"
+
+    def fillresponse(self, params=()):
+        img_title = XferCompImage('img')
+        img_title.set_location(0, 0)
+        img_title.set_value('images/config.png')
+        self.add_component(img_title)
+        lab = XferCompLabelForm('title')
+        lab.set_location(1, 0)
+        lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Edition of parameters"))
+        self.add_component(lab)
+        fill_parameter(self, params, 1, 1, False)
+        self.add_action(ParamSave().get_changed(_('Ok'), 'images/ok.png'), {})
+        self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
+
+@describ_action('CORE.add_parameter')
+class ParamSave(XferContainerAcknowledge):
+    caption = _("Parameters")
+    icon = "config.png"
+
+    def fillresponse(self, params=()):
+        for pname in params:
+            db_param = Parameter.objects.get(name=pname) # pylint: disable=no-member
+            db_param.value = self.getparam(pname)
+            db_param.save()
+        clear_parameters()
 
 add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
