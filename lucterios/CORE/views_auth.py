@@ -10,8 +10,9 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action
-from lucterios.framework.xferbasic import XferContainerAuth
+from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.CORE.parameters import secure_mode_connect, get_parameter
 
 def get_info_server():
     res = []
@@ -26,7 +27,35 @@ def get_info_server():
     return six.text_type("{[newline]}").join(res)
 
 @describ_action('')
-class Authentification(XferContainerAuth):
+class Authentification(XferContainerAbstract):
+    observer_name = 'CORE.Auth'
+
+    def fillresponse(self, username, password, info):
+        from django.contrib.auth import authenticate, login, logout
+        if (username is not None) and (password is not None):
+            if self.request.user.is_authenticated():
+                logout(self.request)
+            if (username == '') and (password == '') and not secure_mode_connect():
+                self.params["ses"] = 'null'
+                self.get_connection_info()
+            else:
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(self.request, user)
+                    self.params["ses"] = user.username
+                    self.get_connection_info()
+                else:
+                    self.must_autentificate('BADAUTH')
+        elif info is not None:
+            self.get_connection_info()
+        else:
+            if self.request.user.is_authenticated() or not secure_mode_connect():
+                self.get_connection_info()
+            else:
+                self.must_autentificate('NEEDAUTH')
+
+    def must_autentificate(self, mess):
+        self.responsexml.text = mess
 
     def get_connection_info(self):
         from lxml import etree
@@ -47,6 +76,7 @@ class Authentification(XferContainerAuth):
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
+        etree.SubElement(connextion, 'MODE').text = six.text_type(get_parameter("CORE-connectmode").value)
         if self.request.user.is_authenticated():
             etree.SubElement(connextion, 'LOGIN').text = self.request.user.username
             etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (self.request.user.first_name, self.request.user.last_name)

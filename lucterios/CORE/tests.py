@@ -13,6 +13,7 @@ from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.models import Parameter
+from lucterios.CORE.parameters import clear_parameters
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -65,6 +66,7 @@ class AuthentificationTest(LucteriosTest):
         # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
         self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
         self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
+        self.assert_xml_equal('CONNECTION/MODE', '0')
 
         self.call('/CORE/exitConnection', {})
         self.assert_observer('Core.Acknowledge', 'CORE', 'exitConnection')
@@ -93,6 +95,8 @@ class AuthentificationTest(LucteriosTest):
         self.call('/CORE/authentification', {'username':'empty', 'password':'empty'})
         self.assert_xml_equal('', 'OK')
         self.assert_xml_equal('CONNECTION/LOGIN', 'empty')
+        self.assert_xml_equal('CONNECTION/REALNAME', 'empty NOFULL')
+        self.assert_xml_equal('CONNECTION/MODE', '0')
 
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
@@ -110,6 +114,58 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+
+    def test_connect_anonymous(self):
+        clear_parameters()
+        self.call('/CORE/authentification', {'username':'', 'password':''})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'BADAUTH')
+
+        param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
+        param.value = '1'
+        param.save()
+        clear_parameters()
+
+        self.call('/CORE/authentification', {'username':'', 'password':''})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+        self.assert_xml_equal('CONNECTION/LOGIN', None)
+        self.assert_xml_equal('CONNECTION/REALNAME', None)
+        self.assert_xml_equal('CONNECTION/MODE', '1')
+
+        self.call('/CORE/menu', {})
+        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 2)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
+
+    def test_connect_free(self):
+        clear_parameters()
+        self.call('/CORE/authentification', {'username':'', 'password':''})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'BADAUTH')
+
+        param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
+        param.value = '2'
+        param.save()
+        clear_parameters()
+
+        self.call('/CORE/authentification', {'username':'', 'password':''})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+        self.assert_xml_equal('CONNECTION/LOGIN', None)
+        self.assert_xml_equal('CONNECTION/REALNAME', None)
+        self.assert_xml_equal('CONNECTION/MODE', '2')
+
+        self.call('/CORE/menu', {})
+        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 2)
 
     def test_menu_reconnected(self):
         self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
@@ -226,14 +282,14 @@ class ConfigTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
 
     def test_config_save(self):
-        param = Parameter.objects.get(name='CORE-connectmode') # pylint: disable=no-member
+        param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
         self.assertEqual("0", param.value)
 
         self.factory.xfer = ParamSave()
         self.call('/CORE/paramSave', {'params':'CORE-connectmode', 'CORE-connectmode':'1'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
 
-        param = Parameter.objects.get(name='CORE-connectmode') # pylint: disable=no-member
+        param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
         self.assertEqual("1", param.value)
 
 def suite():

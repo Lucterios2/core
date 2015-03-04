@@ -165,33 +165,3 @@ class XferContainerMenu(XferContainerAbstract):
     def fillresponse(self):
         main_menu = etree.SubElement(self.responsexml, "MENUS")
         self.fill_menu(None, main_menu)
-
-class XferContainerAuth(XferContainerAbstract):
-    observer_name = 'CORE.Auth'
-
-    def fillresponse(self, username, password, info):
-        from django.contrib.auth import authenticate, login, logout
-        if (username is not None) and (password is not None):
-            if self.request.user.is_authenticated():
-                logout(self.request)
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(self.request, user)
-                self.params["ses"] = user.username
-                self.get_connection_info()
-            else:
-                self.must_autentificate('BADAUTH')
-        elif info is not None:
-            self.get_connection_info()
-        else:
-            if self.request.user.is_authenticated():
-
-                self.get_connection_info()
-            else:
-                self.must_autentificate('NEEDAUTH')
-
-    def get_connection_info(self):
-        pass
-
-    def must_autentificate(self, mess):
-        self.responsexml.text = mess

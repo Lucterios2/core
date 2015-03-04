@@ -32,7 +32,7 @@ def menu_key_to_comp(menu_item):
 
 def add_sub_menu(ref, parentref, icon, caption, desc, pos=0):
     class _SubMenu(object):
-        # pylint: disable=    too-few-public-methods
+        # pylint: disable=too-few-public-methods
         def __init__(self, caption, icon, ref):
             self.caption = caption
             self.icon = icon
@@ -65,10 +65,15 @@ def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=No
         return item
     return wrapper
 
+notfree_mode_connect = None  # pylint: disable=invalid-name
+
 def check_permission(item, request):
     try:
-        if (item.is_view_right != '') and not request.user.has_perm(item.is_view_right):
-            return False
+        if item.is_view_right == None:
+            return request.user.is_authenticated()
+        if notfree_mode_connect is None or notfree_mode_connect():
+            if (item.is_view_right != '') and not request.user.has_perm(item.is_view_right):
+                return False
     except AttributeError:
         pass
     return True

@@ -16,8 +16,11 @@ from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, 
     XferCompLabelForm
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal import call_signal, signal
-from lucterios.CORE.parameters import fill_parameter, clear_parameters
+from lucterios.CORE.parameters import fill_parameter, clear_parameters, \
+    secure_mode_connect
 from lucterios.CORE.models import Parameter
+from lucterios.framework import tools
+from lucterios.CORE import parameters
 
 add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -26,14 +29,14 @@ add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage 
 class Menu(XferContainerMenu):
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated() or not secure_mode_connect():
             return XferContainerMenu.get(self, request, *args, **kwargs)
         else:
             from lucterios.CORE.views_auth import Authentification
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@describ_action('', FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
+@describ_action(None, FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"
@@ -136,7 +139,7 @@ class ParamSave(XferContainerAcknowledge):
 
     def fillresponse(self, params=()):
         for pname in params:
-            db_param = Parameter.objects.get(name=pname) # pylint: disable=no-member
+            db_param = Parameter.objects.get(name=pname)  # pylint: disable=no-member
             db_param.value = self.getparam(pname)
             db_param.save()
         clear_parameters()
@@ -162,3 +165,5 @@ add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Exten
 # class EtiquettesListe(XferContainerAcknowledge):
 #     caption = _("_Labels")
 #     icon = "PrintReportLabel.png"
+
+tools.notfree_mode_connect = parameters.notfree_mode_connect

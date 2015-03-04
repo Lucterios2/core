@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-04 13:21+0000\n"
+"POT-Creation-Date: 2015-03-04 17:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -82,116 +82,112 @@ msgstr "parametre"
 msgid "parameters"
 msgstr "parametres"
 
-#: parameters.py:50
+#: parameters.py:74 parameters.py:87
 #, python-format
 msgid ".%d"
 msgstr ""
 
-#: parameters.py:59
+#: parameters.py:83
 msgid "Yes"
 msgstr "Oui"
 
-#: parameters.py:61
+#: parameters.py:85
 msgid "No"
 msgstr "Non"
 
-#: parameters.py:63
-msgid "."
-msgstr ""
-
-#: views.py:22
+#: views.py:25
 msgid "General"
 msgstr "Général"
 
-#: views.py:22
+#: views.py:25
 msgid "Generality"
 msgstr "Généralité"
 
-#: views.py:23
+#: views.py:26
 msgid "Management"
 msgstr "Administration"
 
-#: views.py:23
+#: views.py:26
 msgid "Manage settings and configurations."
 msgstr "Gestion des réglages et des configurations"
 
-#: views.py:36
+#: views.py:39
 msgid "To Change your password."
 msgstr "Pour changer de mot de passe."
 
-#: views.py:38 views.py:76
+#: views.py:41 views.py:79
 msgid "_Password"
 msgstr "Mot de _passe"
 
-#: views.py:49
+#: views.py:52
 msgid "old password"
 msgstr "ancien mot de passe"
 
-#: views.py:57
+#: views.py:60
 msgid "new password"
 msgstr "nouveau mot de passe"
 
-#: views.py:65
+#: views.py:68
 msgid "new password (again)"
 msgstr "re-nouveau mot de passe"
 
-#: views.py:71 views.py:129 views_usergroup.py:69 views_usergroup.py:219
+#: views.py:74 views.py:132 views_usergroup.py:69 views_usergroup.py:219
 msgid "Ok"
 msgstr "Ok"
 
-#: views.py:72 views.py:130 views_usergroup.py:70 views_usergroup.py:220
+#: views.py:75 views.py:133 views_usergroup.py:70 views_usergroup.py:220
 msgid "Cancel"
 msgstr "Annuler"
 
-#: views.py:81
+#: views.py:84
 msgid "Bad current password!"
 msgstr "Mot de passe actuel érroné!"
 
-#: views.py:85 views_usergroup.py:232
+#: views.py:88 views_usergroup.py:232
 msgid "The passwords are differents!"
 msgstr "Les mots de passes sont différents!"
 
-#: views.py:88
+#: views.py:91
 msgid "Password modify"
 msgstr "Mot de passe modifié"
 
-#: views.py:95
+#: views.py:98
 msgid "To view and to modify main parameters."
 msgstr "Pour voir et modifier les paramètres principaux."
 
-#: views.py:97
+#: views.py:100
 msgid "Main configuration"
 msgstr "Configuration générale"
 
-#: views.py:107
+#: views.py:110
 msgid "Software configuration"
 msgstr "Configuration du logiciel"
 
-#: views.py:111 views_usergroup.py:42 views_usergroup.py:112
+#: views.py:114 views_usergroup.py:42 views_usergroup.py:112
 msgid "Modify"
 msgstr "Modifier"
 
-#: views.py:112 views_usergroup.py:47 views_usergroup.py:136
+#: views.py:115 views_usergroup.py:47 views_usergroup.py:136
 msgid "Close"
 msgstr "Fermer"
 
-#: views.py:116 views.py:134
+#: views.py:119 views.py:137
 msgid "Parameters"
 msgstr "Paramètres"
 
-#: views.py:126
+#: views.py:129
 msgid "Edition of parameters"
 msgstr "Edition de paramètres"
 
-#: views.py:143
+#: views.py:147
 msgid "_Extensions (conf.)"
 msgstr "Modules (conf.)"
 
-#: views.py:143
+#: views.py:147
 msgid "To manage of modules configurations."
 msgstr "Pour gérer les configurations des modules"
 
-#: views_auth.py:63
+#: views_auth.py:93
 msgid "Disconnect"
 msgstr "Déconnection"
 
