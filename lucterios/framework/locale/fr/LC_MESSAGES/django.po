@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-04 17:21+0000\n"
+"POT-Creation-Date: 2015-03-05 16:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,34 +21,38 @@ msgstr ""
 #: signal.py:25
 #, python-format
 msgid "Unknown signal %s"
-msgstr ""
+msgstr "Signal %s inconnu"
 
-#: tools.py:84
+#: tools.py:87
+msgid "Anonymous user"
+msgstr "Utilisateur anonyme"
+
+#: tools.py:88
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:140 xfergraphic.py:77
+#: tools.py:144 xfergraphic.py:77
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:142 xfergraphic.py:78
+#: tools.py:146 xfergraphic.py:78
 msgid "No"
 msgstr "Non"
 
-#: tools.py:168
+#: tools.py:172
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:170
+#: tools.py:174
 msgid "view"
 msgstr "voir"
 
-#: tools.py:172
+#: tools.py:176
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:173
+#: tools.py:177
 msgid "Can"
 msgstr "Pouvoir"
 
