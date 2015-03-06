@@ -10,12 +10,13 @@ from inspect import stack, getmodule
 import logging, sys
 from django.utils import six
 from django.utils.module_loading import import_module
-from os.path import dirname
+from os.path import dirname, join
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
+        'django.middleware.locale.LocaleMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -34,6 +35,9 @@ DEFAULT_SETTINGS = {
     'TEMPLATE_LOADERS': (
         'django.template.loaders.filesystem.Loader',
     ),
+    'TEMPLATE_CONTEXT_PROCESSOR': (
+        'django.core.context_processors.i18n',
+    ),
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': 'en-us',
     'TIME_ZONE': 'UTC',
@@ -46,6 +50,10 @@ DEFAULT_SETTINGS = {
     'STATIC_URL':'/static/',
     'TEST_RUNNER':'juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME':'./junit_py%d.xml' % sys.version_info[0],
+    'LANGUAGES' : (
+        ('en', six.text_type('English')),
+        ('fr', six.text_type('Français')),
+    ),
 }
 
 def extract_icon(file_path):
@@ -69,13 +77,17 @@ def fill_appli_settings(appli_name, addon_modules=None):
     last_mod.INSTALLED_APPS = last_mod.INSTALLED_APPS + (appli_name,)
     if not hasattr(last_mod, "DEBUG"):
         last_mod.DEBUG = False
-
-    setattr(last_mod, 'APPLIS_MODULE', import_module(appli_name))
-    appli_module = import_module("%s.appli_settings" % appli_name)
-    for item in dir(appli_module):
-        setattr(last_mod, item, getattr(appli_module, item))
-    if 'APPLIS_LOGO_NAME' in dir(appli_module):
-        setattr(last_mod, 'APPLIS_LOGO', extract_icon(appli_module.APPLIS_LOGO_NAME))
+    appli_module = import_module(appli_name)
+    setattr(last_mod, 'APPLIS_MODULE', appli_module)
+    local_path = [join(import_module("lucterios.CORE").__path__[0], 'locale/'), join(appli_module.__path__[0], 'locale/')]
+    for addon_module in addon_modules:
+        local_path.append(join(import_module(addon_module).__path__[0], 'locale/'))
+    setattr(last_mod, 'LOCALE_PATHS', tuple(local_path))
+    setting_module = import_module("%s.appli_settings" % appli_name)
+    for item in dir(setting_module):
+        setattr(last_mod, item, getattr(setting_module, item))
+    if 'APPLIS_LOGO_NAME' in dir(setting_module):
+        setattr(last_mod, 'APPLIS_LOGO', extract_icon(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(last_mod, 'APPLIS_LOGO', '')
 

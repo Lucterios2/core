@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-06 15:33+0000\n"
+"POT-Creation-Date: 2015-03-06 21:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
-"Language: \n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,11 +28,16 @@ msgstr "Mot de passe"
 
 #: help/01_password.html:4
 msgid "help-password-intro"
-msgstr "The Administration/Password allows you to change the access password of the current user."
+msgstr ""
+"Le menu Administration/Mot de passe vous permet de changer le mot de passe "
+"d'accès de l'utilisateur courant."
 
 #: help/01_password.html:6
 msgid "help-password-security"
-msgstr "Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe comprenant des lettres et des chiffres et ne constituant pas un mot compréhensible. "
+msgstr ""
+"Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe "
+"comprenant des lettres et des chiffres et ne constituant pas un mot "
+"compréhensible. "
 
 #: help/02_groups.html:2
 msgid "02_groups.html"
@@ -40,8 +45,10 @@ msgstr "Les groupes"
 
 #: help/02_groups.html:4
 msgid "help-groups-intro"
-msgstr "Le menu Administration/Gestion des Droits/Groupes vous permet de créer, modifier ou supprimer un groupe de droits.
-Un groupe de droits réuni un ensemble d'autorisations aux actions de l'application."
+msgstr ""
+"Le menu Administration/Gestion des Droits/Groupes vous permet de créer, "
+"modifier ou supprimer un groupe de droits. Un groupe de droits réuni un "
+"ensemble d'autorisations aux actions de l'application."
 
 #: help/03_users.html:2
 msgid "03_users.html"
@@ -49,8 +56,12 @@ msgstr "Les utilisateurs"
 
 #: help/03_users.html:4
 msgid "help-users-intro"
-msgstr "Le menu Administration/Gestion des Droits/Utilisateurs vous permet de créer, modifier ou désactiver un utilisateur de l'application.
-Un utilisateur définit un droit de connexion au logiciel. Il est constitué par un alias, un mot de passe et un groupe de droits (voir Les groupes ) définissant le niveau d'accès de cette utilisateur."
+msgstr ""
+"Le menu Administration/Gestion des Droits/Utilisateurs vous permet de créer, "
+"modifier ou désactiver un utilisateur de l'application. Un utilisateur "
+"définit un droit de connexion au logiciel. Il est constitué par un alias, un "
+"mot de passe et un groupe de droits (voir Les groupes ) définissant le "
+"niveau d'accès de cette utilisateur."
 
 #: help/04_architecture.html:2
 msgid "04_architecture.html"
@@ -58,7 +69,10 @@ msgstr "L'architecture"
 
 #: help/04_architecture.html:4
 msgid "help-archi-intro"
-msgstr "Depuis le commencement de ce logiciel, les développeurs ont voulu que cette application puisse avoir une architecture ouverte permettant les dévolutions les plus larges."
+msgstr ""
+"Depuis le commencement de ce logiciel, les développeurs ont voulu que cette "
+"application puisse avoir une architecture ouverte permettant les dévolutions "
+"les plus larges."
 
 #: migrations/0001_initial.py:22
 msgid "CORE-GUID"
