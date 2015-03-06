@@ -59,17 +59,11 @@ class Authentification(XferContainerAbstract):
 
     def get_connection_info(self):
         from lxml import etree
-        from inspect import isfunction
         from django.conf import settings
         import lucterios.CORE
         connextion = etree.SubElement(self.responsexml, "CONNECTION")
         etree.SubElement(connextion, 'TITLE').text = six.text_type(settings.APPLIS_NAME)
-        if isinstance(settings.APPLIS_SUBTITLE, str):
-            etree.SubElement(connextion, 'SUBTITLE').text = six.text_type(settings.APPLIS_SUBTITLE)
-        if isfunction(settings.APPLIS_SUBTITLE):
-            etree.SubElement(connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
-        else:
-            etree.SubElement(connextion, 'SUBTITLE').text = ""
+        etree.SubElement(connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
         etree.SubElement(connextion, 'VERSION').text = six.text_type(settings.APPLIS_VERSION)
         etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.CORE.__version__)
         etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(settings.APPLIS_COPYRIGHT)

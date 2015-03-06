@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-05 16:51+0000\n"
+"POT-Creation-Date: 2015-03-06 15:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: main_help.html:5
+msgid "Help"
+msgstr "Aide"
+
+#: main_help.html:126
+msgid "Table of content"
+msgstr "Sommaire"
+
+#: main_help.html:147 main_help.html.py:153
+msgid "User manual"
+msgstr "Manuel utilisateur"
 
 #: signal.py:25
 #, python-format

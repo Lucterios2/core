@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-05 16:51+0000\n"
+"POT-Creation-Date: 2015-03-06 15:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -20,6 +20,46 @@ msgstr ""
 #: __init__.py:22
 msgid "Lucterios core"
 msgstr "Lucterios core"
+
+#: help/01_password.html:2
+#, fuzzy
+#| msgid "password"
+msgid "01_password.html"
+msgstr "Password"
+
+#: help/01_password.html:4
+msgid "help-password-intro"
+msgstr ""
+
+#: help/01_password.html:6
+msgid "help-password-security"
+msgstr "For added security, we recommend that you use a password consisting of letters and numbers and not being an understandable word."
+
+#: help/02_groups.html:2
+msgid "02_groups.html"
+msgstr "Groups"
+
+#: help/02_groups.html:4
+msgid "help-groups-intro"
+msgstr "The Administration/Rights Management/Groups allow you to create, modify or delete a rights group.
+A rights group together a set of permissions to the actions of the application."
+
+#: help/03_users.html:2
+msgid "03_users.html"
+msgstr "Users"
+
+#: help/03_users.html:4
+msgid "help-users-intro"
+msgstr "The Administration/Management rights/Users allows you to create, modify, or disable an application user.
+A user defines a connection right to the software. It consists of an alias, a password and a rights group (see Groups) defining the access level of the user."
+
+#: help/04_architecture.html:2
+msgid "04_architecture.html"
+msgstr "Architecture"
+
+#: help/04_architecture.html:4
+msgid "help-archi-intro"
+msgstr "Since the beginning of this software, the developers wanted this application can have an open architecture allowing the widest devolution."
 
 #: migrations/0001_initial.py:22
 msgid "CORE-GUID"
@@ -187,7 +227,7 @@ msgstr "_Modules (conf.)"
 msgid "To manage of modules configurations."
 msgstr "To manage of modules configurations."
 
-#: views_auth.py:93
+#: views_auth.py:87
 msgid "Disconnect"
 msgstr "Disconnect"
 

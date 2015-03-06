@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-05 16:51+0000\n"
+"POT-Creation-Date: 2015-03-06 15:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,6 +21,44 @@ msgstr ""
 #: __init__.py:22
 msgid "Lucterios core"
 msgstr "Coeur Lucterios"
+
+#: help/01_password.html:2
+msgid "01_password.html"
+msgstr "Mot de passe"
+
+#: help/01_password.html:4
+msgid "help-password-intro"
+msgstr "The Administration/Password allows you to change the access password of the current user."
+
+#: help/01_password.html:6
+msgid "help-password-security"
+msgstr "Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe comprenant des lettres et des chiffres et ne constituant pas un mot compréhensible. "
+
+#: help/02_groups.html:2
+msgid "02_groups.html"
+msgstr "Les groupes"
+
+#: help/02_groups.html:4
+msgid "help-groups-intro"
+msgstr "Le menu Administration/Gestion des Droits/Groupes vous permet de créer, modifier ou supprimer un groupe de droits.
+Un groupe de droits réuni un ensemble d'autorisations aux actions de l'application."
+
+#: help/03_users.html:2
+msgid "03_users.html"
+msgstr "Les utilisateurs"
+
+#: help/03_users.html:4
+msgid "help-users-intro"
+msgstr "Le menu Administration/Gestion des Droits/Utilisateurs vous permet de créer, modifier ou désactiver un utilisateur de l'application.
+Un utilisateur définit un droit de connexion au logiciel. Il est constitué par un alias, un mot de passe et un groupe de droits (voir Les groupes ) définissant le niveau d'accès de cette utilisateur."
+
+#: help/04_architecture.html:2
+msgid "04_architecture.html"
+msgstr "L'architecture"
+
+#: help/04_architecture.html:4
+msgid "help-archi-intro"
+msgstr "Depuis le commencement de ce logiciel, les développeurs ont voulu que cette application puisse avoir une architecture ouverte permettant les dévolutions les plus larges."
 
 #: migrations/0001_initial.py:22
 msgid "CORE-GUID"
@@ -187,7 +225,7 @@ msgstr "Modules (conf.)"
 msgid "To manage of modules configurations."
 msgstr "Pour gérer les configurations des modules"
 
-#: views_auth.py:93
+#: views_auth.py:87
 msgid "Disconnect"
 msgstr "Déconnection"
 

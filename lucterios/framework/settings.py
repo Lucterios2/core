@@ -31,6 +31,9 @@ DEFAULT_SETTINGS = {
         'lucterios.framework',
         'lucterios.CORE',
     ),
+    'TEMPLATE_LOADERS': (
+        'django.template.loaders.filesystem.Loader',
+    ),
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': 'en-us',
     'TIME_ZONE': 'UTC',
@@ -63,11 +66,12 @@ def fill_appli_settings(appli_name, addon_modules=None):
     setattr(last_mod, "BASE_DIR", dirname(dirname(last_mod.__file__)))
     if isinstance(addon_modules, tuple):
         last_mod.INSTALLED_APPS = last_mod.INSTALLED_APPS + addon_modules
+    last_mod.INSTALLED_APPS = last_mod.INSTALLED_APPS + (appli_name,)
     if not hasattr(last_mod, "DEBUG"):
         last_mod.DEBUG = False
 
+    setattr(last_mod, 'APPLIS_MODULE', import_module(appli_name))
     appli_module = import_module("%s.appli_settings" % appli_name)
-    setattr(last_mod, 'APPLIS_MODULE', appli_module)
     for item in dir(appli_module):
         setattr(last_mod, item, getattr(appli_module, item))
     if 'APPLIS_LOGO_NAME' in dir(appli_module):

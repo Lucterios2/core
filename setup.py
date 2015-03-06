@@ -27,7 +27,7 @@ setup(
     scripts=['lucterios/install/lucterios-admin.py'],
     package_data={
        "lucterios.CORE.migration":['*'],
-       "lucterios.CORE":['build', 'images/*', 'locale/*/*/*'],
+       "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
        "lucterios.framework":['locale/*/*/*'],
        "lucterios.install":['*'],
     },

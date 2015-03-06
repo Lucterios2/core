@@ -1,0 +1,155 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>{% trans "Help" %}</title>
+<style type="text/css">
+<!--
+BODY {
+	background-color: lightgrey;
+}
+
+.title {
+	font-family: Helvetica, serif;
+	font-size: 9mm;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+	color: #2D2DFF;
+}
+
+.subtitle {
+	font-family: Helvetica, serif;
+	font-size: 4mm;
+	text-align: center;
+	vertical-align: middle;
+	color: #2D2DFF;
+}
+
+#header {
+	top: 0px;
+	position: fixed;
+	margin: 10px 0px 5px 0px;
+	width: 99%;
+	height: 70px;
+}
+
+#foot {
+	background-color: #2D2DFF;
+	color: #FFF;
+	font-size: 10px;
+	text-align: right;
+	font-weight: bold;
+	bottom: 0px;
+	position: fixed;
+	margin: 10px 0px 5px 0px;
+	width: 99%;
+	height: 15px;
+}
+
+#sidebar {
+	top: 90px;
+	bottom: 25px;
+	position: fixed;
+	width: 20%;
+}
+
+#sep1 {
+	background-color: #2D2DFF;
+	top: 85px;
+	position: fixed;
+	width: 99%;
+	height: 1px;
+}
+
+#sep2 {
+	background-color: #2D2DFF;
+	top: 85px;
+	bottom: 20px;
+	left: 21%;
+	position: fixed;
+	width: 1px;
+}
+
+#content {
+	top: 90px;
+	left: 22%;
+	bottom: 25px;
+	position: fixed;
+	width: 77%;
+}
+li.menu {
+    font-size: 11pt;
+    width: 100%;
+    background-color: #E6E6E6;
+    text-align: left;
+    color: #808080;
+}
+li.submenu {
+    font-size: 10pt;
+    font-family: verdana,helvetica;
+}
+-->
+</style>
+<script language="javascript">
+function showmenu(menuid)
+{
+	var menus=document.getElementsByName('menu');
+	for(var menu_idx=0;menu_idx<menus.length;menu_idx++) {
+		var sub_menu=menus[menu_idx].getElementsByTagName('ul')
+		var sub_menu_id=sub_menu[0].getAttribute('id');
+		if (sub_menu_id==menuid)
+			sub_menu[0].style.display='block';
+		else
+			sub_menu[0].style.display='none';
+	}
+}
+function showcontent(submenuid) {
+	var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "?helpid="+submenuid, false );
+    xmlHttp.send(null);	
+	var content=document.getElementById('content');
+	content.innerHTML = xmlHttp.responseText;
+}
+</script>
+</head>
+
+<body>
+	<div id="header">
+		<div class="title">{{ title }}</div>
+		<div class="subtitle">{{ subtitle }}</div>
+	</div>
+
+	<div id="sep1"></div>
+
+	<div id="sidebar">
+		<h2>{% trans "Table of content" %}</h2>
+		<ul>
+			{% for menu in menus %}
+			<li name='menu' classname='menu' onclick='showmenu("{{ menu.0 }}")'>{{ menu.1 }}
+				<ul id='{{ menu.0 }}' style="display:none">
+					{% for submenu in menu.2 %}
+					<li name='submenu' classname='submenu' onclick='showcontent("{{ submenu.0 }}")'>{{ submenu.1 }}</li>
+					{% endfor %}
+				</ul>
+			</li> 
+			{% endfor %}
+		</ul>
+	</div>
+
+	<div id="sep2"></div>
+
+	<div id="content">
+		<div class="title">
+			<br>
+			<br>
+			<br>
+			<br>{% trans "User manual" %}<br> <font size="-1">{{
+				version }}</font> <br>
+			<br> <img src="{{ applogo }}">
+		</div>
+	</div>
+
+	<div id="foot">{{ title }} - {% trans "User manual" %}</div>
+</body>
+</html>

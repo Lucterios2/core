@@ -11,9 +11,8 @@ from django.conf import settings
 from django.utils.module_loading import import_module
 
 from os.path import join, dirname, isdir, isfile
-import logging
-import inspect
-import pkgutil
+import logging, inspect, pkgutil
+from lucterios.framework.help import defaulthelp
 
 def defaultblank(_):
     from django.http import HttpResponse
@@ -29,6 +28,7 @@ def _init_url_patterns():
     res = patterns('')
     web_path = join(dirname(dirname(__file__)), 'web')
     if isdir(web_path) and isfile(join(web_path, 'index.html')):
+        res.append(url(r'^Help$', defaulthelp))
         res.append(url(r'^$', defaultview))
         res.append(url(r'^web/$', defaultview))
         res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', {'document_root':join(dirname(dirname(__file__)), 'web')}))
@@ -37,6 +37,17 @@ def _init_url_patterns():
         res.append(url(r'^web/.*', defaultblank))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
+
+def add_url_from_module(url_list, appmodule, lucterios_ext):
+    extpath_img = join(dirname(appmodule.__file__), 'images')
+    if isdir(extpath_img):
+        if lucterios_ext == 'CORE':
+            url_list.append(url(r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root':extpath_img}))
+        else:
+            url_list.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root':extpath_img}))
+    extpath_help = join(dirname(appmodule.__file__), 'help')
+    if isdir(extpath_help):
+        url_list.append(url(r'^%s/help/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root':extpath_help}))
 
 def get_url_patterns():
     res = _init_url_patterns()
@@ -57,12 +68,7 @@ def get_url_patterns():
                         except AttributeError:
                             pass
             if lucterios_ext is not None:
-                extpath = join(dirname(appmodule.__file__), 'images')
-                if isdir(extpath):
-                    if lucterios_ext == 'CORE':
-                        res.append(url(r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root' : extpath}))
-                    else:
-                        res.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root' : extpath}))
+                add_url_from_module(res, appmodule, lucterios_ext)
     logging.getLogger(__name__).debug("Urls:" + str(res))
     return res
 
