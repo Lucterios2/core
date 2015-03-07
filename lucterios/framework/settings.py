@@ -18,6 +18,7 @@ DEFAULT_SETTINGS = {
         'django.middleware.common.CommonMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'lucterios.framework.middleware.LucteriosErrorMiddleware',
@@ -34,6 +35,7 @@ DEFAULT_SETTINGS = {
     ),
     'TEMPLATE_LOADERS': (
         'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
     ),
     'TEMPLATE_CONTEXT_PROCESSOR': (
         'django.core.context_processors.i18n',
