@@ -82,6 +82,7 @@ class GroupsModify(XferSave):
     icon = "group.png"
     model = Group
     field_id = 'group'
+    raise_except_class = GroupsEdit
 
 @describ_action('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
@@ -225,11 +226,13 @@ class UsersModify(XferSave):
     icon = "user.png"
     model = User
     field_id = 'user_actif'
+    raise_except_class = UsersEdit
 
     def fillresponse(self, password1='', password2=''):
         XferSave.fillresponse(self)
-        if password1 != password2:
-            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
-        if password1 != '':
-            self.item.set_password(password1)
-            self.item.save()
+        if self.except_msg == '':
+            if password1 != password2:
+                raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+            if password1 != '':
+                self.item.set_password(password1)
+                self.item.save()

@@ -18,6 +18,7 @@ from lucterios.framework.tools import check_permission, get_action_xml, get_acti
 from lucterios.framework.tools import ifplural, get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from lucterios.framework.error import LucteriosException, GRAVE
+from django.db.utils import IntegrityError
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -27,6 +28,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
     traitment_data = None
     typemsg = 1
     redirect_act = None
+    except_msg = ""
+    except_classact = None
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
@@ -35,6 +38,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.traitment_data = None
         self.typemsg = 1
         self.redirect_act = None
+        self.except_msg = ""
+        self.except_classact = None
 
     def confirme(self, title):
         self.title = title
@@ -61,8 +66,40 @@ class XferContainerAcknowledge(XferContainerAbstract):
         if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
             self.redirect_act = action
 
+    def raise_except(self, error_msg, action=None):
+        self.except_msg = error_msg
+        self.except_classact = action
+
     def fillresponse(self):
         pass
+
+    def _get_from_custom(self, request, *args, **kwargs):
+        dlg = XferContainerCustom()
+        dlg.caption = self.caption
+        dlg.extension = self.extension
+        dlg.action = self.action
+        img_title = XferCompImage('img_title')
+        img_title.set_location(0, 0, 1, 2)
+        img_title.set_value(self.traitment_data[0])
+        dlg.add_component(img_title)
+
+        lbl = XferCompLabelForm("info")
+        lbl.set_location(1, 0)
+        dlg.add_component(lbl)
+        if self.getparam("RELOAD") is not None:
+            lbl.set_value("{[newline]}{[center]}" + self.traitment_data[2] + "{[/center]}")
+            dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
+        else:
+            lbl.set_value("{[newline]}{[center]}" + self.traitment_data[1] + "{[/center]}")
+            kwargs["RELOAD"] = "YES"
+            btn = XferCompButton("Next")
+            btn.set_location(1, 1)
+            btn.set_size(50, 300)
+            btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {})
+            btn.java_script = "parent.refresh()"
+            dlg.add_component(btn)
+            dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"), {})
+        return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
@@ -85,33 +122,18 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.add_action(XferContainerAbstract().get_changed(_("Ok"), "images/ok.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
-        elif self.traitment_data != None:
-            dlg = XferContainerCustom()
+        elif self.except_msg != "":
+            dlg = XferContainerDialogBox()
             dlg.caption = self.caption
-            dlg.extension = self.extension
-            dlg.action = self.action
-            img_title = XferCompImage('img_title')
-            img_title.set_location(0, 0, 1, 2)
-            img_title.set_value(self.traitment_data[0])
-            dlg.add_component(img_title)
-
-            lbl = XferCompLabelForm("info")
-            lbl.set_location(1, 0)
-            dlg.add_component(lbl)
-            if self.getparam("RELOAD") is not None:
-                lbl.set_value("{[newline]}{[center]}" + self.traitment_data[2] + "{[/center]}")
-                dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
-            else:
-                lbl.set_value("{[newline]}{[center]}" + self.traitment_data[1] + "{[/center]}")
-                kwargs["RELOAD"] = "YES"
-                btn = XferCompButton("Next")
-                btn.set_location(1, 1)
-                btn.set_size(50, 300)
-                btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {})
-                btn.java_script = "parent.refresh()"
-                dlg.add_component(btn)
-                dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"), {})
+            dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
+            if self.except_classact is not None:
+                except_action = self.except_classact()
+                if isinstance(except_action, XferContainerAbstract) and check_permission(except_action, self.request):
+                    dlg.add_action(except_action.get_changed(_("Retry"), ""), {})
+            dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
+        elif self.traitment_data != None:
+            return self._get_from_custom(request, *args, **kwargs)
         else:
             return self._finalize()
 
@@ -436,26 +458,14 @@ class XferDelete(XferContainerAcknowledge):
 
 class XferSave(XferContainerAcknowledge):
 
+    raise_except_class = None
+
     def fillresponse(self):
-        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
-        for is_many_to_many in (False, True):
-            changed = False
-            for field_name in field_names:
-                dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-                if dep_field[2]:
-                    new_value = self.getparam(field_name)
-                    if new_value is not None:
-                        if is_many_to_many and dep_field[3]:
-                            if new_value != '':
-                                relation_model = dep_field[0].rel.to
-                                new_value = relation_model.objects.filter(id__in=new_value.split(';'))
-                                setattr(self.item, field_name, new_value)
-                                changed = True
-                        elif not is_many_to_many and not dep_field[3]:
-                            from django.db.models.fields import BooleanField
-                            if isinstance(dep_field[0], BooleanField):
-                                new_value = (new_value != '0') and (new_value != 'n')
-                            setattr(self.item, field_name, new_value)
-                            changed = True
-            if changed:
+        if self.has_changed:
+            try:
                 self.item.save()
+                self.has_changed = False
+                if self.fill_manytomany_fields():
+                    self.item.save()
+            except IntegrityError:
+                self.raise_except(_("This record exists yet!"), self.raise_except_class)

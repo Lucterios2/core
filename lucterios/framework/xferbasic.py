@@ -10,9 +10,11 @@ from lxml import etree
 
 from django.views.generic import View
 from django.http import HttpResponse
-from django.utils import translation
+from django.utils import translation, six
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
+from lucterios.framework.error import LucteriosException, get_error_trace
+from django.utils.log import getLogger
 
 class XferContainerAbstract(View):
     # pylint: disable=too-many-instance-attributes
@@ -39,6 +41,7 @@ class XferContainerAbstract(View):
         self.items = None
         self.item = None
         self.is_new = False
+        self.has_changed = False
 
     def get_changed(self, caption, icon, extension=None, action=None):
         self.caption = caption
@@ -56,17 +59,51 @@ class XferContainerAbstract(View):
             return None
 
     def _search_model(self):
+        self.has_changed = False
         if self.model is not None:
             ids = self.getparam(self.field_id)
             if ids is not None:
                 ids = ids.split(';')
                 if len(ids) == 1:
                     self.item = self.model.objects.get(id=ids[0])
+                    self.fill_simple_fields()
+                    self.fill_manytomany_fields()
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
                 self.item = self.model()  # pylint: disable=not-callable
                 self.is_new = True
+                self.fill_simple_fields()
+
+    def fill_simple_fields(self):
+        field_names = self.item._meta.get_all_field_names() # pylint: disable=protected-access
+        for field_name in field_names:
+            dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+            if dep_field[2]:
+                new_value = self.getparam(field_name)
+                if new_value is not None:
+                    if not dep_field[3]:
+                        from django.db.models.fields import BooleanField
+                        if isinstance(dep_field[0], BooleanField):
+                            new_value = new_value != '0' and new_value != 'n'
+                        setattr(self.item, field_name, new_value)
+                        self.has_changed = True
+        return self.has_changed
+
+    def fill_manytomany_fields(self):
+        field_names = self.item._meta.get_all_field_names() # pylint: disable=protected-access
+        for field_name in field_names:
+            dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+            if dep_field[2]:
+                new_value = self.getparam(field_name)
+                if new_value is not None:
+                    if dep_field[3]:
+                        if new_value != '':
+                            relation_model = dep_field[0].rel.to
+                            new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                            setattr(self.item, field_name, new_value)
+                            self.has_changed = True
+        return self.has_changed
 
     def _initialize(self, request, *_, **kwargs):
         raise_bad_permission(self, request)
@@ -165,3 +202,27 @@ class XferContainerMenu(XferContainerAbstract):
     def fillresponse(self):
         main_menu = etree.SubElement(self.responsexml, "MENUS")
         self.fill_menu(None, main_menu)
+
+class XferContainerException(XferContainerAbstract):
+
+    observer_name = 'CORE.Exception'
+    exception = None
+
+    def __init__(self):
+        XferContainerAbstract.__init__(self)
+        self.exception = None
+
+    def set_except(self, exception):
+        if not isinstance(exception, LucteriosException):
+            getLogger(__name__).exception(exception)
+        self.exception = exception
+
+    def fillresponse(self):
+        expt = etree.SubElement(self.responsexml, "EXCEPTION")
+        etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
+        if isinstance(self.exception, LucteriosException):
+            etree.SubElement(expt, 'CODE').text = six.text_type(self.exception.code)
+        else:
+            etree.SubElement(expt, 'CODE').text = '0'
+        etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
+        etree.SubElement(expt, 'TYPE').text = self.exception.__class__.__name__

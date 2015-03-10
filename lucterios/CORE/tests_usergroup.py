@@ -14,6 +14,7 @@ from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled
     GroupsModify
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 from django.contrib.auth.models import Group, Permission, User
+from lucterios.framework import tools
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
@@ -424,6 +425,7 @@ class GroupTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
     def setUp(self):
+        tools.notfree_mode_connect = None
         self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
         add_empty_user()
@@ -514,3 +516,31 @@ class GroupTest(LucteriosTest):
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (2, 0, 1, 1))
+
+    def test_groupadd_same(self):
+        grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
+        grp.save()
+
+        self.factory.xfer = GroupsModify()
+        self.call('/CORE/groupsModify', {'name':'mygroup', "permissions":'1;3;5;7'}, False)
+
+        self.assert_observer('Core.DialogBox', 'CORE', 'groupsModify')
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'mygroup')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
+        self.assert_attrib_equal('TEXT', 'type', '3')
+        self.assert_xml_equal('TEXT', 'Cet enregistrement existe déjà!')
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+        self.assert_action_equal('ACTIONS/ACTION', ('Recommencer', None, "CORE", "groupsEdit", 1, 1, 1))
+
+    def test_groupedit_fornew(self):
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {'name':'mygroup', "permissions":'1;3;5;7'}, False)
+        self.assert_xml_equal('TITLE', 'Ajouter un groupe')
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'mygroup')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (2, 0, 1, 1))
