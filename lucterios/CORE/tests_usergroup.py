@@ -544,3 +544,52 @@ class GroupTest(LucteriosTest):
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (2, 0, 1, 1))
+
+class SessionTest(LucteriosTest):
+    # pylint: disable=too-many-public-methods,too-many-statements
+
+    def setUp(self):
+        self.xfer_class = XferContainerAcknowledge
+        LucteriosTest.setUp(self)
+        add_empty_user()
+
+    def test_sessionlist(self):
+        self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/sessionList', {})
+        self.assert_observer('Core.Custom', 'CORE', 'sessionList')
+        self.assert_xml_equal('TITLE', 'Sessions')
+        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('ACTIONS/ACTION', 1)
+        self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/extensions.png')
+        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Sessions existantes{[/bold]}{[/underline]}{[/center]}')
+        self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="session"]', ('0', '1', '2', '1'))
+
+        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/HEADER', 2)
+
+        self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="username"]', "nom d'utilisateur")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="expire_date"]', "date d'expiration")
+        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/RECORD[1]/VALUE[@name="username"]', 'admin')
+
+    def test_sessiondel(self):
+        self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/sessionList', {})
+        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
+        session_id = self.response_xml.xpath('COMPONENTS/GRID[@name="session"]/RECORD')[0].get("id")
+
+        self.call('/CORE/sessionDelete', {'session':session_id, 'CONFIRME':'YES'})
+        self.assert_observer('Core.Acknowledge', 'CORE', 'sessionDelete')
+
+        self.call('/CORE/sessionList', {})
+        self.assert_observer('CORE.Exception', 'CORE', 'sessionList')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'Utilisateur anonyme'")

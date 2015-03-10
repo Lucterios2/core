@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-10 14:31+0000\n"
+"POT-Creation-Date: 2015-03-10 16:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -43,68 +43,68 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:144 xfergraphic.py:87
+#: tools.py:144 xfergraphic.py:114
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:146 xfergraphic.py:88
+#: tools.py:146 xfergraphic.py:115
 msgid "No"
 msgstr "No"
 
-#: tools.py:172
+#: tools.py:173
 msgid "add"
 msgstr "add"
 
-#: tools.py:174
+#: tools.py:175
 msgid "view"
 msgstr "view"
 
-#: tools.py:176
+#: tools.py:177
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:177
+#: tools.py:178
 msgid "Can"
 msgstr "Can"
 
-#: xfergraphic.py:95
-msgid "Ok"
-msgstr "Ok"
-
-#: xfergraphic.py:113
+#: xfergraphic.py:91
 msgid "Close"
 msgstr "Close"
 
-#: xfergraphic.py:120
+#: xfergraphic.py:98
 msgid "Traitment..."
 msgstr "Traitment..."
 
-#: xfergraphic.py:123
+#: xfergraphic.py:101
 msgid "Cancel"
 msgstr "Cancel"
+
+#: xfergraphic.py:122
+msgid "Ok"
+msgstr "Ok"
 
 #: xfergraphic.py:132
 msgid "Retry"
 msgstr "Retry"
 
-#: xfergraphic.py:435
+#: xfergraphic.py:437
 msgid "No model"
 msgstr "No model"
 
-#: xfergraphic.py:446
+#: xfergraphic.py:448
 msgid "No selection"
 msgstr "No selection"
 
-#: xfergraphic.py:452
+#: xfergraphic.py:454
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xfergraphic.py:453
+#: xfergraphic.py:455
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xfergraphic.py:469
+#: xfergraphic.py:471
 msgid "This record exists yet!"
 msgstr "This record exists yet!"

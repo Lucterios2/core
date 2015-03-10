@@ -89,7 +89,6 @@ class ParamCache(object):
             param_cmp.set_value(self.value)
         return param_cmp
 
-
 PARAM_CACHE_LIST = {}
 
 def clear_parameters():

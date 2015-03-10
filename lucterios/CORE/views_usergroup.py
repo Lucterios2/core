@@ -15,6 +15,8 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage,
 from django.contrib.auth.models import User, Group
 from django.utils import six
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.CORE.models import LucteriosSession
+from django.contrib.sessions.models import Session
 
 add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -236,3 +238,36 @@ class UsersModify(XferSave):
             if password1 != '':
                 self.item.set_password(password1)
                 self.item.save()
+
+@describ_action('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
+class SessionList(XferContainerCustom):
+    # pylint: disable=too-many-public-methods
+    caption = _("Sessions")
+    icon = "extensions.png"
+
+    def fillresponse(self):
+        img = XferCompImage('img')
+        img.set_value('images/extensions.png')
+        img.set_location(0, 0)
+        self.add_component(img)
+
+        lbl = XferCompLabelForm('title')
+        lbl.set_value('{[center]}{[underline]}{[bold]}%s{[/bold]}{[/underline]}{[/center]}' % _('Existing sessions'))
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+
+        session = LucteriosSession.objects.filter()  # pylint: disable=no-member
+        grid = XferCompGrid('session')
+        grid.set_location(0, 1, 2)
+        grid.set_model(session, [(_('username'), 'username'), 'expire_date'])
+        grid.add_action(self.request, SessionDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
+        self.add_component(grid)
+
+        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
+
+@describ_action('sessions.delete_session')
+class SessionDelete(XferDelete):
+    caption = _("Delete session")
+    icon = "extensions.png"
+    model = Session
+    field_id = 'session'

@@ -43,6 +43,7 @@ DEFAULT_SETTINGS = {
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': 'en-us',
     'TIME_ZONE': 'UTC',
+    'SESSION_COOKIE_AGE': 60 * 60,
     'USE_I18N': True,
     'USE_L10N': True,
     'USE_TZ': True,

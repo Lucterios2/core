@@ -156,11 +156,12 @@ def get_corrected_setquery(setquery):
     if setquery.model == Permission:
         ctypes = ContentType.objects.all()  # pylint: disable=no-member
         for ctype in ctypes:
-            if ctype.model in ('session', 'contenttype', 'logentry', 'permission'):
-
+            if ctype.model in ('contenttype', 'logentry', 'permission'):
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='change_')
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='delete_')
+            if ctype.model in ('session', ):
+                setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
     return setquery
 
 def get_dico_from_setquery(setquery):

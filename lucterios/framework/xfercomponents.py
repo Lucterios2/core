@@ -381,17 +381,25 @@ class XferCompGrid(XferComponent):
 
     def set_model(self, query_set, fieldnames):
         from django.db.models.fields import IntegerField, FloatField, BooleanField
+        primary_key_fieldname = query_set.model._meta.pk.name  # pylint: disable=protected-access
         for fieldname in fieldnames:
-            dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
-            if isinstance(dep_field[0], IntegerField):
-                hfield = 'int'
-            elif isinstance(dep_field[0], FloatField):
-                hfield = 'float'
-            elif isinstance(dep_field[0], BooleanField):
-                hfield = 'bool'
-            else:
+            if isinstance(fieldname, tuple):
+                verbose_name, fieldname = fieldname
                 hfield = 'str'
-            self.add_header(fieldname, dep_field[0].verbose_name, hfield)
+            else:
+                dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                if isinstance(dep_field[0], IntegerField):
+                    hfield = 'int'
+                elif isinstance(dep_field[0], FloatField):
+                    hfield = 'float'
+                elif isinstance(dep_field[0], BooleanField):
+                    hfield = 'bool'
+                else:
+                    hfield = 'str'
+                verbose_name = dep_field[0].verbose_name
+            self.add_header(fieldname, verbose_name, hfield)
         for value in query_set:
             for fieldname in fieldnames:
-                self.set_value(value.id, fieldname, getattr(value, fieldname))
+                if isinstance(fieldname, tuple):
+                    _, fieldname = fieldname
+                self.set_value(getattr(value, primary_key_fieldname), fieldname, getattr(value, fieldname))
