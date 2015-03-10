@@ -173,8 +173,8 @@ class XferContainerDialogBox(XferContainerAbstract):
 
     def _finalize(self):
         text_dlg = etree.SubElement(self.responsexml, "TEXT")
-        text_dlg.attrib['type'] = str(self.msgtype)
-        text_dlg.text = str(self.msgtext)
+        text_dlg.attrib['type'] = six.text_type(self.msgtype)
+        text_dlg.text = six.text_type(self.msgtext)
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)

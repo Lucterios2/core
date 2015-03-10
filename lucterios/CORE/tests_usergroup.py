@@ -13,8 +13,10 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify, \
     GroupsModify
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
-from django.contrib.auth.models import Group, Permission, User
 from lucterios.framework import tools
+
+from django.contrib.auth.models import Group, Permission, User
+from django.utils import six
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
@@ -529,7 +531,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'mygroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
         self.assert_attrib_equal('TEXT', 'type', '3')
-        self.assert_xml_equal('TEXT', 'Cet enregistrement existe déjà!')
+        self.assert_xml_equal('TEXT', six.text_type('Cet enregistrement existe déjà!'))
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Recommencer', None, "CORE", "groupsEdit", 1, 1, 1))
 
@@ -592,4 +594,4 @@ class SessionTest(LucteriosTest):
 
         self.call('/CORE/sessionList', {})
         self.assert_observer('CORE.Exception', 'CORE', 'sessionList')
-        self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'Utilisateur anonyme'")
+        self.assert_xml_equal("EXCEPTION/MESSAGE", six.text_type("Mauvaise permission pour 'Utilisateur anonyme'"))
