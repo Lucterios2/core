@@ -20,6 +20,12 @@ class LucteriosException(Exception):
         Exception.__init__(self, msg)
         self.code = code
 
+class LucteriosRedirectException(LucteriosException):
+
+    def __init__(self, msg, redirectclassaction):
+        LucteriosException.__init__(self, IMPORTANT, msg)
+        self.redirectclassaction = redirectclassaction
+        
 def get_error_trace():
     import sys, traceback
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]

@@ -167,3 +167,4 @@ add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Exten
 #     icon = "PrintReportLabel.png"
 
 tools.notfree_mode_connect = parameters.notfree_mode_connect
+tools.bad_permission_redirect_classaction = Menu

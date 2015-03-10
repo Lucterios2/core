@@ -40,3 +40,4 @@ class LucteriosSession(Session):
     class Meta(object):
         # pylint: disable=no-init
         proxy = True
+        default_permissions = []

@@ -66,6 +66,7 @@ def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=No
     return wrapper
 
 notfree_mode_connect = None  # pylint: disable=invalid-name
+bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
 
 def check_permission(item, request):
     try:
@@ -80,12 +81,12 @@ def check_permission(item, request):
 
 def raise_bad_permission(item, request):
     if not check_permission(item, request):
-        from lucterios.framework.error import LucteriosException, IMPORTANT
+        from lucterios.framework.error import LucteriosRedirectException
         if request.user.is_authenticated():
             username = request.user.username
         else:
             username = _("Anonymous user")
-        raise LucteriosException(IMPORTANT, _("Bad permission for '%s'") % username)
+        raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
 
 def get_actions_xml(actions):
     actionsxml = etree.Element("ACTIONS")
@@ -160,7 +161,7 @@ def get_corrected_setquery(setquery):
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='change_')
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='delete_')
-            if ctype.model in ('session', ):
+            if ctype.model in ('session',):
                 setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
     return setquery
 
