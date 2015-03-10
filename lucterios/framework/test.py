@@ -91,12 +91,12 @@ class LucteriosTest(TestCase):
 
     def print_xml(self, xpath):
         from logging import getLogger
-        xml_values = self.response_xml.xpath(xpath)
-        getLogger(__name__).info(etree.tostring(xml_values[0], xml_declaration=True, pretty_print=True, encoding='utf-8'))
+        xml_value = self._get_first_xpath(xpath)
+        getLogger(__name__).info(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
-        self.assertEqual(len(xml_values), size, "size of %s different" % xpath)
+        self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d" % (xpath, len(xml_values), size))
 
     def assert_xml_equal(self, xpath, value, txtrange=None):
         xml_value = self._get_first_xpath(xpath)
@@ -109,12 +109,19 @@ class LucteriosTest(TestCase):
 
     def assert_attrib_equal(self, xpath, name, value):
         xml_value = self._get_first_xpath(xpath)
-        self.assertEqual(xml_value.get(name), value, xpath + '/@' + name)
+        attr_value = xml_value.get(name)
+        self.assertEqual(attr_value, value, "%s/@%s: %s => %s" % (xpath, name, attr_value, value))
 
     def assert_observer(self, obsname, extension, action):
-        self.assert_attrib_equal('', 'observer', obsname)
-        self.assert_attrib_equal('', 'source_extension', extension)
-        self.assert_attrib_equal('', 'source_action', action)
+        try:
+            self.assert_attrib_equal('', 'observer', obsname)
+            self.assert_attrib_equal('', 'source_extension', extension)
+            self.assert_attrib_equal('', 'source_action', action)
+        except AssertionError:
+            if self._get_first_xpath('').get('observer') == 'CORE.Exception':
+                six.print_("Error:" + six.text_type(self._get_first_xpath('EXCEPTION/MESSAGE').text))
+                six.print_("Call-stack:" + six.text_type(self._get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[newline]}", "\n"))
+            raise
 
     def assert_comp_equal(self, xpath, text, coord):
         self.assert_xml_equal(xpath, text)

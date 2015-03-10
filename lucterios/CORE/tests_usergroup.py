@@ -13,16 +13,19 @@ from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify, \
     GroupsModify
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
-from lucterios.framework import tools
+from lucterios.framework import tools, signal_and_lock
 
 from django.contrib.auth.models import Group, Permission, User
 from django.utils import six
+from lucterios.CORE.views import Unlock
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
+        signal_and_lock.unlocker_action_class = Unlock
+        signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
         add_empty_user()
 
@@ -423,6 +426,40 @@ class UserTest(LucteriosTest):
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
 
+    def test_concurentedit(self):
+        user1 = add_user("user1")
+        user1.is_superuser = True
+        user1.save()
+
+        self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/usersEdit', {'user_actif':'3'})
+        self.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+        self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
+        self.assert_action_equal('CLOSE_ACTION/ACTION', (None, None, "CORE", "unlock", 1, 1, 1))
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'django.contrib.auth.models-User-3')
+
+        new_test = LucteriosTest("setUp")
+        new_test.setUp()
+        new_test.call('/CORE/authentification', {'username':'user1', 'password':'user1'})
+        new_test.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        new_test.assert_xml_equal('', 'OK')
+
+        new_test.call('/CORE/usersEdit', {'user_actif':'3'})
+        new_test.assert_observer('CORE.Exception', 'CORE', 'usersEdit')
+        new_test.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type("Enregistrement verrouillé par 'admin'!"))
+        new_test.assert_xml_equal('EXCEPTION/CODE', '3')
+
+        self.call('/CORE/unlock', {'user_actif':'3', "LOCK_IDENT":'django.contrib.auth.models-User-3'})
+        self.assert_observer('Core.Acknowledge', 'CORE', 'unlock')
+
+        new_test.call('/CORE/usersEdit', {'user_actif':'3'})
+        new_test.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+
 class GroupTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
@@ -430,6 +467,8 @@ class GroupTest(LucteriosTest):
         tools.notfree_mode_connect = None
         self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
+        signal_and_lock.unlocker_action_class = Unlock
+        signal_and_lock.RecordLocker.clear()
         add_empty_user()
 
     def test_grouplist(self):
@@ -547,6 +586,41 @@ class GroupTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (2, 0, 1, 1))
 
+    def test_concurentedit(self):
+        user1 = add_user("user1")
+        user1.is_superuser = True
+        user1.save()
+        grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
+        grp.save()
+
+        self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
+        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_xml_equal('', 'OK')
+
+        self.call('/CORE/groupsEdit', {'group':'1'})
+        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
+        self.assert_action_equal('CLOSE_ACTION/ACTION', (None, None, "CORE", "unlock", 1, 1, 1))
+        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.assert_xml_equal('CONTEXT/PARAM[@name="group"]', '1')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'django.contrib.auth.models-Group-1')
+
+        new_test = LucteriosTest("setUp")
+        new_test.setUp()
+        new_test.call('/CORE/authentification', {'username':'user1', 'password':'user1'})
+        new_test.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        new_test.assert_xml_equal('', 'OK')
+
+        new_test.call('/CORE/groupsEdit', {'group':'1'})
+        new_test.assert_observer('CORE.Exception', 'CORE', 'groupsEdit')
+        new_test.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type("Enregistrement verrouillé par 'admin'!"))
+        new_test.assert_xml_equal('EXCEPTION/CODE', '3')
+
+        self.call('/CORE/exitConnection', {})
+
+        new_test.call('/CORE/groupsEdit', {'group':'1'})
+        new_test.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+
 class SessionTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
@@ -595,3 +669,5 @@ class SessionTest(LucteriosTest):
         self.call('/CORE/sessionList', {})
         self.assert_observer('CORE.Exception', 'CORE', 'sessionList')
         self.assert_xml_equal("EXCEPTION/MESSAGE", six.text_type("Mauvaise permission pour 'Utilisateur anonyme'"))
+        self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
+        self.assert_action_equal('CLOSE_ACTION/ACTION', (None, None, "CORE", "menu", 1, 1, 1))

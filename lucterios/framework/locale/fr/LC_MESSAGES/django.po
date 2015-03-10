@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-10 18:43+0000\n"
+"POT-Creation-Date: 2015-03-10 21:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,41 +30,46 @@ msgstr "Sommaire"
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: signal.py:25
+#: signal_and_lock.py:28
 #, python-format
 msgid "Unknown signal %s"
 msgstr "Signal %s inconnu"
 
-#: tools.py:87
+#: signal_and_lock.py:57 tools.py:88
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:88
+#: signal_and_lock.py:60
+#, python-format
+msgid "Record locked by '%s'!"
+msgstr "Enregistrement verrouillé par '%s'!"
+
+#: tools.py:89
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:144 xfergraphic.py:114
+#: tools.py:145 xfergraphic.py:114
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:146 xfergraphic.py:115
+#: tools.py:147 xfergraphic.py:115
 msgid "No"
 msgstr "Non"
 
-#: tools.py:173
+#: tools.py:174
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:175
+#: tools.py:176
 msgid "view"
 msgstr "voir"
 
-#: tools.py:177
+#: tools.py:178
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:178
+#: tools.py:179
 msgid "Can"
 msgstr "Pouvoir"
 

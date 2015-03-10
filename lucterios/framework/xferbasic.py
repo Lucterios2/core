@@ -15,6 +15,7 @@ from django.utils import translation, six
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
 from lucterios.framework.error import LucteriosException, get_error_trace
 from django.utils.log import getLogger
+from lucterios.framework import signal_and_lock
 
 class XferContainerAbstract(View):
     # pylint: disable=too-many-instance-attributes
@@ -30,6 +31,7 @@ class XferContainerAbstract(View):
 
     model = None
     field_id = ''
+    locked = False
 
     def __init__(self, **kwargs):
         View.__init__(self, **kwargs)
@@ -68,6 +70,10 @@ class XferContainerAbstract(View):
                     self.item = self.model.objects.get(id=ids[0])
                     self.fill_simple_fields()
                     self.fill_manytomany_fields()
+                    if self.locked:
+                        lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
+                        self.params.update(lock_params)
+                        self.set_close_action(signal_and_lock.unlocker_action_class())
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
@@ -76,9 +82,9 @@ class XferContainerAbstract(View):
                 self.fill_simple_fields()
 
     def fill_simple_fields(self):
-        field_names = self.item._meta.get_all_field_names() # pylint: disable=protected-access
+        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
         for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+            dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
             if dep_field[2]:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
@@ -91,9 +97,9 @@ class XferContainerAbstract(View):
         return self.has_changed
 
     def fill_manytomany_fields(self):
-        field_names = self.item._meta.get_all_field_names() # pylint: disable=protected-access
+        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
         for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+            dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
             if dep_field[2]:
                 new_value = self.getparam(field_name)
                 if new_value is not None:

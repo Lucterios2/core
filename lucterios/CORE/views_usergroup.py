@@ -55,6 +55,7 @@ class GroupsEdit(XferContainerCustom):
     icon = "group.png"
     model = Group
     field_id = 'group'
+    locked = True
 
     def fillresponse(self):
         if self.is_new:
@@ -182,6 +183,8 @@ class UsersEdit(XferContainerCustom):
     icon = "user.png"
     model = User
     field_id = 'user_actif'
+
+    locked = True
 
     def fillresponse(self):
         if self.is_new:

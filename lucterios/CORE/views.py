@@ -10,20 +10,24 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu
-from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, \
-    XFER_DBOX_INFORMATION
-from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, \
-    XferCompLabelForm
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
+from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.signal import call_signal, signal
-from lucterios.CORE.parameters import fill_parameter, clear_parameters, \
-    secure_mode_connect
+from lucterios.framework import signal_and_lock, tools
+from lucterios.CORE.parameters import fill_parameter, clear_parameters, secure_mode_connect
 from lucterios.CORE.models import Parameter
-from lucterios.framework import tools
 from lucterios.CORE import parameters
 
 add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
+
+@describ_action('')
+class Unlock(XferContainerAcknowledge):
+
+    def fillresponse(self):
+        signal_and_lock.RecordLocker.unlock(self.request, self.params)
+
+signal_and_lock.unlocker_action_class = Unlock
 
 @describ_action('')
 class Menu(XferContainerMenu):
@@ -90,7 +94,7 @@ class ModifyPassword(XferContainerAcknowledge):
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
 
-@signal('config')
+@signal_and_lock.signal('config')
 def config_core(xfer):
     fill_parameter(xfer, ['CORE-connectmode'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
@@ -110,7 +114,7 @@ class Configuration(XferContainerCustom):
         lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Software configuration"))
         self.add_component(lab)
         self.params['params'] = []
-        call_signal("config", self)
+        signal_and_lock.call_signal("config", self)
         self.add_action(ParamEdit().get_changed(_('Modify'), 'images/edit.png'), {'close':0})
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 

@@ -65,7 +65,7 @@ def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=No
         return item
     return wrapper
 
-notfree_mode_connect = None  # pylint: disable=invalid-name
+notfree_mode_connect = None # pylint: disable=invalid-name
 bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
 
 def check_permission(item, request):
