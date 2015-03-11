@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-10 21:37+0000\n"
+"POT-Creation-Date: 2015-03-11 09:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -72,6 +72,14 @@ msgstr "supprimer"
 #: tools.py:179
 msgid "Can"
 msgstr "Pouvoir"
+
+#: xferbasic.py:76
+msgid ""
+"This record not exist!\n"
+"Refresh your application."
+msgstr ""
+"Cet enregistrment n'existe pas!\n"
+"Veuillez rafraichir votre application."
 
 #: xfergraphic.py:91
 msgid "Close"

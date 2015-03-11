@@ -8,13 +8,15 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from lxml import etree
 
-from django.views.generic import View
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.utils import translation, six
-
-from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, menu_key_to_comp
-from lucterios.framework.error import LucteriosException, get_error_trace
 from django.utils.log import getLogger
+from django.views.generic import View
+from django.core.exceptions import ObjectDoesNotExist
+
+from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml
+from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 
 class XferContainerAbstract(View):
@@ -60,6 +62,18 @@ class XferContainerAbstract(View):
         else:
             return None
 
+    def _load_unique_record(self, itemid):
+        try:
+            self.item = self.model.objects.get(id=itemid)
+            self.fill_simple_fields()
+            self.fill_manytomany_fields()
+            if self.locked:
+                lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
+                self.params.update(lock_params)
+                self.set_close_action(signal_and_lock.unlocker_action_class())
+        except ObjectDoesNotExist:
+            raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
+
     def _search_model(self):
         self.has_changed = False
         if self.model is not None:
@@ -67,13 +81,7 @@ class XferContainerAbstract(View):
             if ids is not None:
                 ids = ids.split(';')
                 if len(ids) == 1:
-                    self.item = self.model.objects.get(id=ids[0])
-                    self.fill_simple_fields()
-                    self.fill_manytomany_fields()
-                    if self.locked:
-                        lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
-                        self.params.update(lock_params)
-                        self.set_close_action(signal_and_lock.unlocker_action_class())
+                    self._load_unique_record(ids[0])
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
@@ -193,21 +201,10 @@ class XferContainerMenu(XferContainerAbstract):
 
     observer_name = 'CORE.Menu'
 
-    def fill_menu(self, parentref, parentxml):
-        from lucterios.framework.tools import MENU_LIST
-        if parentref in MENU_LIST.keys():
-            sub_menus = MENU_LIST[parentref]
-            sub_menus.sort(key=menu_key_to_comp)  # menu_comp)
-            for sub_menu_item in sub_menus:
-                if check_permission(sub_menu_item[0], self.request):
-                    new_xml = get_action_xml(sub_menu_item[0], {}, sub_menu_item[1], "MENU")
-                    if new_xml != None:
-                        parentxml.append(new_xml)
-                        self.fill_menu(sub_menu_item[0].url_text, new_xml)
-
     def fillresponse(self):
+        from lucterios.framework.tools import MenuManage
         main_menu = etree.SubElement(self.responsexml, "MENUS")
-        self.fill_menu(None, main_menu)
+        MenuManage.fill(self.request, None, main_menu)
 
 class XferContainerException(XferContainerAbstract):
 

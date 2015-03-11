@@ -12,6 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from lxml import etree
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+import threading
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -22,48 +23,78 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-MENU_LIST = {}
-
 def menu_key_to_comp(menu_item):
     try:
         return menu_item[0].pos
     except AttributeError:
         return 0
 
-def add_sub_menu(ref, parentref, icon, caption, desc, pos=0):
-    class _SubMenu(object):
-        # pylint: disable=too-few-public-methods
-        def __init__(self, caption, icon, ref):
-            self.caption = caption
-            self.icon = icon
-            self.modal = FORMTYPE_NOMODAL
-            self.is_view_right = ''
-            self.extension = ''
-            self.action = ''
-            self.url_text = ref
-            self.pos = pos
-    if parentref not in MENU_LIST.keys():
-        MENU_LIST[parentref] = []
-    MENU_LIST[parentref].append((_SubMenu(caption, icon, ref), desc))
+class MenuManage(object):
 
-def describ_action(right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
-    def wrapper(item):
-        item.is_view_right = right
-        module_items = item.__module__.split('.')
-        if module_items[0] == 'lucterios':
-            module_items = module_items[1:]
-        if module_items[-1][:5] == 'views':
-            module_items = module_items[:-1]
-        item.extension = ".".join(module_items)
-        item.modal = modal
-        item.action = item.__name__[0].lower() + item.__name__[1:]
-        item.url_text = r'%s/%s' % (item.extension, item.action)
-        if menu_parent != None:
-            if menu_parent not in MENU_LIST.keys():
-                MENU_LIST[menu_parent] = []
-            MENU_LIST[menu_parent].append((item, menu_desc))
-        return item
-    return wrapper
+    _MENU_LIST = {}
+
+    _menulock = threading.RLock()
+
+    @classmethod
+    def add_sub(cls, ref, parentref, icon, caption, desc, pos=0):
+        class _SubMenu(object):
+            # pylint: disable=too-few-public-methods
+            def __init__(self, caption, icon, ref):
+                self.caption = caption
+                self.icon = icon
+                self.modal = FORMTYPE_NOMODAL
+                self.is_view_right = ''
+                self.extension = ''
+                self.action = ''
+                self.url_text = ref
+                self.pos = pos
+        cls._menulock.acquire()
+        try:
+            if parentref not in cls._MENU_LIST.keys():
+                cls._MENU_LIST[parentref] = []
+            cls._MENU_LIST[parentref].append((_SubMenu(caption, icon, ref), desc))
+        finally:
+            cls._menulock.release()
+
+    @classmethod
+    def describ(cls, right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
+        def wrapper(item):
+            cls._menulock.acquire()
+            try:
+                item.is_view_right = right
+                module_items = item.__module__.split('.')
+                if module_items[0] == 'lucterios':
+                    module_items = module_items[1:]
+                if module_items[-1][:5] == 'views':
+                    module_items = module_items[:-1]
+                item.extension = ".".join(module_items)
+                item.modal = modal
+                item.action = item.__name__[0].lower() + item.__name__[1:]
+                item.url_text = r'%s/%s' % (item.extension, item.action)
+                if menu_parent != None:
+                    if menu_parent not in cls._MENU_LIST.keys():
+                        cls._MENU_LIST[menu_parent] = []
+                    cls._MENU_LIST[menu_parent].append((item, menu_desc))
+                return item
+            finally:
+                cls._menulock.release()
+        return wrapper
+
+    @classmethod
+    def fill(cls, request, parentref, parentxml):
+        cls._menulock.acquire()
+        try:
+            if parentref in cls._MENU_LIST.keys():
+                sub_menus = cls._MENU_LIST[parentref]
+                sub_menus.sort(key=menu_key_to_comp)  # menu_comp)
+                for sub_menu_item in sub_menus:
+                    if check_permission(sub_menu_item[0], request):
+                        new_xml = get_action_xml(sub_menu_item[0], {}, sub_menu_item[1], "MENU")
+                        if new_xml != None:
+                            parentxml.append(new_xml)
+                            cls.fill(request, sub_menu_item[0].url_text, new_xml)
+        finally:
+            cls._menulock.release()
 
 notfree_mode_connect = None # pylint: disable=invalid-name
 bad_permission_redirect_classaction = None  # pylint: disable=invalid-name

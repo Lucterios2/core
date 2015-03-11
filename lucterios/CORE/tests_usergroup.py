@@ -558,6 +558,13 @@ class GroupTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (2, 0, 1, 1))
 
+    def test_groupedit_notexist(self):
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {'group':'50'}, False)
+        self.assert_observer('CORE.Exception', 'CORE', 'groupsEdit')
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type("Cet enregistrment n'existe pas!\nVeuillez rafraichir votre application."))
+        self.assert_xml_equal('EXCEPTION/CODE', '3')
+
     def test_groupadd_same(self):
         grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
         grp.save()

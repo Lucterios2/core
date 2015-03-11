@@ -13,7 +13,7 @@ from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.models import Parameter
-from lucterios.CORE.parameters import clear_parameters
+from lucterios.CORE.parameters import Params
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -116,7 +116,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
 
     def test_connect_anonymous(self):
-        clear_parameters()
+        Params.clear()
         self.call('/CORE/authentification', {'username':'', 'password':''})
         self.assert_observer('CORE.Auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
@@ -124,7 +124,7 @@ class AuthentificationTest(LucteriosTest):
         param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
         param.value = '1'
         param.save()
-        clear_parameters()
+        Params.clear()
 
         self.call('/CORE/authentification', {'username':'', 'password':''})
         self.assert_observer('CORE.Auth', 'CORE', 'authentification')
@@ -142,7 +142,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
 
     def test_connect_free(self):
-        clear_parameters()
+        Params.clear()
         self.call('/CORE/authentification', {'username':'', 'password':''})
         self.assert_observer('CORE.Auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
@@ -150,7 +150,7 @@ class AuthentificationTest(LucteriosTest):
         param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
         param.value = '2'
         param.save()
-        clear_parameters()
+        Params.clear()
 
         self.call('/CORE/authentification', {'username':'', 'password':''})
         self.assert_observer('CORE.Auth', 'CORE', 'authentification')

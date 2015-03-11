@@ -8,20 +8,19 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL
 from lucterios.framework.xferbasic import XferContainerMenu
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock, tools
-from lucterios.CORE.parameters import fill_parameter, clear_parameters, secure_mode_connect
+from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter
-from lucterios.CORE import parameters
 
-add_sub_menu('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
-add_sub_menu('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
+MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
+MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
 
-@describ_action('')
+@MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
 
     def fillresponse(self):
@@ -29,7 +28,7 @@ class Unlock(XferContainerAcknowledge):
 
 signal_and_lock.unlocker_action_class = Unlock
 
-@describ_action('')
+@MenuManage.describ('')
 class Menu(XferContainerMenu):
 
     def get(self, request, *args, **kwargs):
@@ -40,7 +39,7 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@describ_action(None, FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
+@MenuManage.describ(None, FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"
@@ -78,7 +77,7 @@ class ChangePassword(XferContainerCustom):
         self.add_action(ModifyPassword().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('')
+@MenuManage.describ('')
 class ModifyPassword(XferContainerAcknowledge):
     caption = _("_Password")
     icon = "passwd.png"
@@ -94,12 +93,12 @@ class ModifyPassword(XferContainerAcknowledge):
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
 
-@signal_and_lock.signal('config')
+@signal_and_lock.Signal.decorate('config')
 def config_core(xfer):
-    fill_parameter(xfer, ['CORE-connectmode'], 1, 1)
+    Params.fill(xfer, ['CORE-connectmode'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
 
-@describ_action('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
@@ -114,11 +113,11 @@ class Configuration(XferContainerCustom):
         lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Software configuration"))
         self.add_component(lab)
         self.params['params'] = []
-        signal_and_lock.call_signal("config", self)
+        signal_and_lock.Signal.call_signal("config", self)
         self.add_action(ParamEdit().get_changed(_('Modify'), 'images/edit.png'), {'close':0})
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('CORE.add_parameter')
+@MenuManage.describ('CORE.add_parameter')
 class ParamEdit(XferContainerCustom):
     caption = _("Parameters")
     icon = "config.png"
@@ -132,11 +131,11 @@ class ParamEdit(XferContainerCustom):
         lab.set_location(1, 0)
         lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Edition of parameters"))
         self.add_component(lab)
-        fill_parameter(self, params, 1, 1, False)
+        Params.fill(self, params, 1, 1, False)
         self.add_action(ParamSave().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('CORE.add_parameter')
+@MenuManage.describ('CORE.add_parameter')
 class ParamSave(XferContainerAcknowledge):
     caption = _("Parameters")
     icon = "config.png"
@@ -146,29 +145,28 @@ class ParamSave(XferContainerAcknowledge):
             db_param = Parameter.objects.get(name=pname)  # pylint: disable=no-member
             db_param.value = self.getparam(pname)
             db_param.save()
-        clear_parameters()
+        Params.clear()
 
-add_sub_menu("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
+MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
-# add_sub_menu("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."), 30)
+# MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."), 30)
 #
 
-# @describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
+# @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
 # class PrintmodelList(XferContainerAcknowledge):
 #     caption = _("_Report models")
 #     icon = "PrintReportModel.png"
 #
 
-# @describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To print old saved report."))
+# @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To print old saved report."))
 # class FinalreportList(XferContainerAcknowledge):
 #     caption = _("_Saved reports")
 #     icon = "PrintReportSave.png"
 #
 
-# @describ_action('', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
+# @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
 # class EtiquettesListe(XferContainerAcknowledge):
 #     caption = _("_Labels")
 #     icon = "PrintReportLabel.png"
 
-tools.notfree_mode_connect = parameters.notfree_mode_connect
 tools.bad_permission_redirect_classaction = Menu

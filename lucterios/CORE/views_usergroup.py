@@ -8,19 +8,19 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import describ_action, add_sub_menu, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge, XferDelete, XferSave
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
 
 from django.contrib.auth.models import User, Group
 from django.utils import six
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.CORE.models import LucteriosSession
 from django.contrib.sessions.models import Session
+from lucterios.framework.signal_and_lock import LucteriosSession
 
-add_sub_menu("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
+MenuManage.add_sub("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
-@describ_action('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
+@MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupsList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("_Groups")
@@ -48,7 +48,7 @@ class GroupsList(XferContainerCustom):
 
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('auth.add_group')
+@MenuManage.describ('auth.add_group')
 class GroupsEdit(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("Modify a group")
@@ -72,14 +72,14 @@ class GroupsEdit(XferContainerCustom):
         self.add_action(GroupsModify().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('auth.delete_group')
+@MenuManage.describ('auth.delete_group')
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
     icon = "group.png"
     model = Group
     field_id = 'group'
 
-@describ_action('auth.add_group')
+@MenuManage.describ('auth.add_group')
 class GroupsModify(XferSave):
     caption = _("Modify a group")
     icon = "group.png"
@@ -87,7 +87,7 @@ class GroupsModify(XferSave):
     field_id = 'group'
     raise_except_class = GroupsEdit
 
-@describ_action('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
+@MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("_Users")
@@ -139,7 +139,7 @@ class UsersList(XferContainerCustom):
 
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('auth.delete_user')
+@MenuManage.describ('auth.delete_user')
 class UsersDelete(XferDelete):
     caption = _("Delete users")
     icon = "user.png"
@@ -152,7 +152,7 @@ class UsersDelete(XferDelete):
                 raise LucteriosException(IMPORTANT, _("You can delete yourself!"))
         XferDelete.fillresponse(self)
 
-@describ_action('auth.add_user')
+@MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
     icon = "user.png"
@@ -165,7 +165,7 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.is_active = False
         self.item.save()
 
-@describ_action('auth.add_user')
+@MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
     icon = "user.png"
@@ -176,7 +176,7 @@ class UsersEnabled(XferContainerAcknowledge):
         self.item.is_active = True
         self.item.save()
 
-@describ_action('auth.add_user')
+@MenuManage.describ('auth.add_user')
 class UsersEdit(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("Modify an user")
@@ -225,7 +225,7 @@ class UsersEdit(XferContainerCustom):
         self.add_action(UsersModify().get_changed(_('Ok'), 'images/ok.png'), {})
         self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
-@describ_action('auth.add_user')
+@MenuManage.describ('auth.add_user')
 class UsersModify(XferSave):
     caption = _("Modify an user")
     icon = "user.png"
@@ -242,7 +242,7 @@ class UsersModify(XferSave):
                 self.item.set_password(password1)
                 self.item.save()
 
-@describ_action('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
+@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
 class SessionList(XferContainerCustom):
     # pylint: disable=too-many-public-methods
     caption = _("Sessions")
@@ -268,7 +268,7 @@ class SessionList(XferContainerCustom):
 
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
-@describ_action('sessions.delete_session')
+@MenuManage.describ('sessions.delete_session')
 class SessionDelete(XferDelete):
     caption = _("Delete session")
     icon = "extensions.png"

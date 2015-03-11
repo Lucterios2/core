@@ -6,20 +6,22 @@ Created on march 2015
 '''
 
 from __future__ import unicode_literals
+import threading
+
 from django.utils.translation import ugettext_lazy
 from django.utils import six
+from django.utils.log import getLogger
+from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.CORE.models import Parameter
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, \
-    XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect
-from django.core.exceptions import ObjectDoesNotExist
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect
 from lucterios.framework.error import LucteriosException, GRAVE
-from django.utils.log import getLogger
+from lucterios.framework import tools
 
 class ParamCache(object):
 
     def __init__(self, name):
-        param = Parameter.objects.get(name=name) # pylint: disable=no-member
+        param = Parameter.objects.get(name=name)  # pylint: disable=no-member
         self.name = param.name
         self.type = param.typeparam
         if self.type == 0:  # String
@@ -38,8 +40,8 @@ class ParamCache(object):
             self.value = int(param.value)
             self.args = {'Enum':0}
         try:
-            current_args = eval(param.args) # pylint: disable=eval-used
-        except Exception as expt: # pylint: disable=broad-except
+            current_args = eval(param.args)  # pylint: disable=eval-used
+        except Exception as expt:  # pylint: disable=broad-except
             getLogger(__name__).exception(expt)
             current_args = {}
         for arg_key in self.args.keys():
@@ -89,38 +91,63 @@ class ParamCache(object):
             param_cmp.set_value(self.value)
         return param_cmp
 
-PARAM_CACHE_LIST = {}
+class Params(object):
 
-def clear_parameters():
-    PARAM_CACHE_LIST.clear()
+    _PARAM_CACHE_LIST = {}
 
-def get_parameter(name):
-    if not name is PARAM_CACHE_LIST.keys():
+    _paramlock = threading.RLock()
+
+    @classmethod
+    def clear(cls):
+        cls._paramlock.acquire()
         try:
-            PARAM_CACHE_LIST[name] = ParamCache(name)
-        except ObjectDoesNotExist:
-            raise LucteriosException(GRAVE, "Parameter %s unknow!" % name)
-    return PARAM_CACHE_LIST[name]
+            cls._PARAM_CACHE_LIST.clear()
+        finally:
+            cls._paramlock.release()
 
-def fill_parameter(xfer, names, col, row, readonly=True):
-    for name in names:
-        param = get_parameter(name)
-        if param is not None:
-            lbl = param.get_label_comp()
-            lbl.set_location(col, row, 1, 1)
-            xfer.add_component(lbl)
-            if readonly:
-                param_cmp = param.get_read_comp()
-            else:
-                param_cmp = param.get_write_comp()
-            param_cmp.set_location(col + 1, row, 1, 1)
-            xfer.add_component(param_cmp)
-            row += 1
+    @classmethod
+    def _get(cls, name):
+        if not name is cls._PARAM_CACHE_LIST.keys():
+            try:
+                cls._PARAM_CACHE_LIST[name] = ParamCache(name)
+            except ObjectDoesNotExist:
+                raise LucteriosException(GRAVE, "Parameter %s unknow!" % name)
+        return cls._PARAM_CACHE_LIST[name]
+
+    @classmethod
+    def getvalue(cls, name):
+        cls._paramlock.acquire()
+        try:
+            return cls._get(name).value
+        finally:
+            cls._paramlock.release()
+
+    @classmethod
+    def fill(cls, xfer, names, col, row, readonly=True):
+        cls._paramlock.acquire()
+        try:
+            for name in names:
+                param = cls._get(name)
+                if param is not None:
+                    lbl = param.get_label_comp()
+                    lbl.set_location(col, row, 1, 1)
+                    xfer.add_component(lbl)
+                    if readonly:
+                        param_cmp = param.get_read_comp()
+                    else:
+                        param_cmp = param.get_write_comp()
+                    param_cmp.set_location(col + 1, row, 1, 1)
+                    xfer.add_component(param_cmp)
+                    row += 1
+        finally:
+            cls._paramlock.release()
 
 def notfree_mode_connect():
-    mode_connection = get_parameter("CORE-connectmode").value
+    mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection != 2
 
 def secure_mode_connect():
-    mode_connection = get_parameter("CORE-connectmode").value
+    mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection == 0
+
+tools.notfree_mode_connect = notfree_mode_connect

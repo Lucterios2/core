@@ -9,8 +9,6 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from django.db import models
-from django.contrib.sessions.models import Session
-from django.contrib.auth.models import User
 
 class Parameter(models.Model):
 
@@ -25,19 +23,3 @@ class Parameter(models.Model):
         verbose_name_plural = _('parameters')
         default_permissions = ['add', 'change']
 
-
-class LucteriosSession(Session):
-
-    @property
-    def username(self):
-        data = self.get_decoded()
-        user_id = data.get('_auth_user_id', None)
-        if user_id is None:
-            return "---"
-        else:
-            return User.objects.get(id=user_id).username # pylint: disable=no-member
-
-    class Meta(object):
-        # pylint: disable=no-init
-        proxy = True
-        default_permissions = []

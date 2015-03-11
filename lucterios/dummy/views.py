@@ -9,15 +9,15 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
-from lucterios.framework.tools import describ_action, add_sub_menu
+from lucterios.framework.tools import MenuManage
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 
-add_sub_menu('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
+MenuManage.add_sub('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
-@describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
+@MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
 
     caption = _("_Bidule")
@@ -30,7 +30,7 @@ class Bidule(XferContainerAcknowledge):
         else:
             raise AttributeError("Other error:" + error)
 
-@describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
+@MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
 class Truc(XferContainerAcknowledge):
     caption = _("_Truc")
     icon = "2.png"
@@ -38,7 +38,7 @@ class Truc(XferContainerAcknowledge):
     def fillresponse(self, val1, val2=4):
         self.message("Hello world (%s,%s)!" % (str(val1), str(val2)), XFER_DBOX_INFORMATION)
 
-@describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
+@MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
 class Multi(XferContainerAcknowledge):
     caption = _("_Multi")
     icon = "3.png"
@@ -49,7 +49,7 @@ class Multi(XferContainerAcknowledge):
                 import time
                 time.sleep(3)
 
-@describ_action('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
+@MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
 class TestComposants(XferContainerCustom):
     # pylint: disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value,too-many-public-methods
 
@@ -182,7 +182,7 @@ class TestComposants(XferContainerCustom):
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
-@describ_action('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
+@MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
 class SimpleGrid(XferContainerCustom):
     # pylint: disable=too-many-public-methods
 

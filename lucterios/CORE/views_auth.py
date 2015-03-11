@@ -9,10 +9,10 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import describ_action
+from lucterios.framework.tools import MenuManage
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.parameters import secure_mode_connect, get_parameter
+from lucterios.CORE.parameters import Params, secure_mode_connect
 
 def get_info_server():
     res = []
@@ -26,7 +26,7 @@ def get_info_server():
     res.append(six.text_type("{[i]}Python %s - %s %s %s{[/i]}") % (python_version(), uname()[0], uname()[4], uname()[2]))
     return six.text_type("{[newline]}").join(res)
 
-@describ_action('')
+@MenuManage.describ('')
 class Authentification(XferContainerAbstract):
     observer_name = 'CORE.Auth'
 
@@ -70,7 +70,7 @@ class Authentification(XferContainerAbstract):
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
-        etree.SubElement(connextion, 'MODE').text = six.text_type(get_parameter("CORE-connectmode").value)
+        etree.SubElement(connextion, 'MODE').text = six.text_type(Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
             etree.SubElement(connextion, 'LOGIN').text = self.request.user.username
             etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
@@ -79,11 +79,10 @@ class Authentification(XferContainerAbstract):
             etree.SubElement(connextion, 'REALNAME').text = ''
         self.responsexml.text = "OK"
 
-@describ_action('')
+@MenuManage.describ('')
 class ExitConnection(XferContainerAcknowledge):
 
     def fillresponse(self):
         from django.contrib.auth import logout
         self.caption = _("Disconnect")
         logout(self.request)
-
