@@ -302,9 +302,9 @@ class XferCompGrid(XferComponent):
         self.headers = []
         self.records = {}
         self.actions = []
-#         self.page_max = 0
-#         self.page_num = 0
-#         self.nb_lines = 0
+        self.page_max = 0
+        self.page_num = 0
+        self.nb_lines = 0
 
     def add_header(self, name, descript, htype=""):
         self.headers.append(XferCompHeader(name, descript, htype))
@@ -319,22 +319,24 @@ class XferCompGrid(XferComponent):
             else:
                 self.actions.append((action, option))
 
-#     def define_page(self, xfer_custom):
-#         page_num = xfer_custom.getParam(GRID_PAGE + self.name)
-#         if page_num is not None:
-#             page_num = int(page_num)
-#             self.page_max = int(self.nb_lines / MAX_GRID_RECORD)
-#             if self.page_max < page_num:
-#                 page_num = 0
-#             self.page_num = page_num
-#             record_min = self.page_num * MAX_GRID_RECORD
-#             record_max = (self.page_num + 1) * MAX_GRID_RECORD
-#         else:
-#             record_min = 0
-#             record_max = self.nb_lines
-#             self.page_max = None
-#             self.page_num = 0
-#         return (record_min, record_max)
+    def define_page(self, xfer_custom=None):
+        if xfer_custom is not None:
+            self.page_max = int(self.nb_lines / MAX_GRID_RECORD)
+            self.page_num = xfer_custom.getparam(GRID_PAGE + self.name)
+            if self.page_num is None:
+                self.page_num = 0
+            else:
+                self.page_num = int(self.page_num)
+                if self.page_max < self.page_num:
+                    self.page_num = 0
+            record_min = self.page_num * MAX_GRID_RECORD
+            record_max = (self.page_num + 1) * MAX_GRID_RECORD
+        else :
+            record_min = 0;
+            record_max = self.nb_lines;
+            self.page_max = 1;
+            self.page_num = 0;
+        return (record_min, record_max)
 
     def _new_record(self, compid):
         if not compid in self.records.keys():
@@ -354,11 +356,11 @@ class XferCompGrid(XferComponent):
         self._new_record(compid)
         self.records[compid][name] = value
 
-#     def _get_attribut(self, compxml):
-#         XferComponent._get_attribut(self, compxml)
-#         if isinstance(self.page_max, six.integer_types) and (self.page_max > 1):
-#             compxml.attrib['PageMax'] = six.text_type(self.page_max)
-#             compxml.attrib['PageNum'] = six.text_type(self.page_num)
+    def _get_attribut(self, compxml):
+        XferComponent._get_attribut(self, compxml)
+        if isinstance(self.page_max, six.integer_types) and (self.page_max > 1):
+            compxml.attrib['PageMax'] = six.text_type(self.page_max)
+            compxml.attrib['PageNum'] = six.text_type(self.page_num)
 
     def get_reponse_xml(self):
         compxml = XferComponent.get_reponse_xml(self)
@@ -379,7 +381,7 @@ class XferCompGrid(XferComponent):
             compxml.append(get_actions_xml(self.actions))
         return compxml
 
-    def set_model(self, query_set, fieldnames):
+    def set_model(self, query_set, fieldnames, xfer_custom=None):
         from django.db.models.fields import IntegerField, FloatField, BooleanField
         primary_key_fieldname = query_set.model._meta.pk.name  # pylint: disable=protected-access
         for fieldname in fieldnames:
@@ -398,7 +400,9 @@ class XferCompGrid(XferComponent):
                     hfield = 'str'
                 verbose_name = dep_field[0].verbose_name
             self.add_header(fieldname, verbose_name, hfield)
-        for value in query_set:
+        self.nb_lines = len(query_set)
+        record_min, record_max = self.define_page(xfer_custom)
+        for value in query_set[record_min:record_max]:
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
