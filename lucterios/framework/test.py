@@ -90,9 +90,8 @@ class LucteriosTest(TestCase):
             return xml_values[0]
 
     def print_xml(self, xpath):
-        from logging import getLogger
         xml_value = self._get_first_xpath(xpath)
-        getLogger(__name__).info(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+        six.print_(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
