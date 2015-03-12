@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-12 13:23+0000\n"
+"POT-Creation-Date: 2015-03-12 17:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -39,36 +39,36 @@ msgstr "Unknown signal %s"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:119
+#: tools.py:130
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:120
+#: tools.py:131
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:176 xfergraphic.py:114
+#: tools.py:182 xfergraphic.py:114
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:178 xfergraphic.py:115
+#: tools.py:184 xfergraphic.py:115
 msgid "No"
 msgstr "No"
 
-#: tools.py:205
+#: tools.py:211
 msgid "add"
 msgstr "add"
 
-#: tools.py:207
+#: tools.py:213
 msgid "view"
 msgstr "view"
 
-#: tools.py:209
+#: tools.py:215
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:210
+#: tools.py:216
 msgid "Can"
 msgstr "Can"
 
@@ -88,11 +88,11 @@ msgstr "Close"
 msgid "Traitment..."
 msgstr "Traitment..."
 
-#: xfergraphic.py:101
+#: xfergraphic.py:101 xfergraphic.py:453
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xfergraphic.py:122
+#: xfergraphic.py:122 xfergraphic.py:452
 msgid "Ok"
 msgstr "Ok"
 
@@ -100,24 +100,24 @@ msgstr "Ok"
 msgid "Retry"
 msgstr "Retry"
 
-#: xfergraphic.py:437
+#: xfergraphic.py:470
 msgid "No model"
 msgstr "No model"
 
-#: xfergraphic.py:448
+#: xfergraphic.py:481
 msgid "No selection"
 msgstr "No selection"
 
-#: xfergraphic.py:454
+#: xfergraphic.py:487
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xfergraphic.py:455
+#: xfergraphic.py:488
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xfergraphic.py:471
+#: xfergraphic.py:504
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
