@@ -25,11 +25,11 @@ setup(
     packages=["lucterios", "lucterios.CORE", "lucterios.framework", "lucterios.install"],
     scripts=['lucterios/install/lucterios-admin.py'],
     package_data={
-       "lucterios.CORE.migration":['*'],
+       "lucterios.CORE.migrations":['*'],
        "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
        "lucterios.framework":['locale/*/*/*'],
        "lucterios.install":['*'],
     },
-    install_requires=["Django>=1.7", "django_jux>=1.0", "lxml>=3.2"],
+    install_requires=["Django >=1.7", "django_jux >=1.0", "lxml >=3.2"],
 )
 
