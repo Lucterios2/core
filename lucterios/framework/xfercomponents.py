@@ -331,11 +331,11 @@ class XferCompGrid(XferComponent):
                     self.page_num = 0
             record_min = self.page_num * MAX_GRID_RECORD
             record_max = (self.page_num + 1) * MAX_GRID_RECORD
-        else :
-            record_min = 0;
-            record_max = self.nb_lines;
-            self.page_max = 1;
-            self.page_num = 0;
+        else:
+            record_min = 0
+            record_max = self.nb_lines
+            self.page_max = 1
+            self.page_num = 0
         return (record_min, record_max)
 
     def _new_record(self, compid):
@@ -381,15 +381,14 @@ class XferCompGrid(XferComponent):
             compxml.append(get_actions_xml(self.actions))
         return compxml
 
-    def set_model(self, query_set, fieldnames, xfer_custom=None):
+    def _add_header_from_model(self, query_set, fieldnames):
         from django.db.models.fields import IntegerField, FloatField, BooleanField
-        primary_key_fieldname = query_set.model._meta.pk.name  # pylint: disable=protected-access
         for fieldname in fieldnames:
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
             else:
-                dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                dep_field = query_set.model._meta.get_field_by_name(fieldname) # pylint: disable=protected-access
                 if isinstance(dep_field[0], IntegerField):
                     hfield = 'int'
                 elif isinstance(dep_field[0], FloatField):
@@ -400,7 +399,12 @@ class XferCompGrid(XferComponent):
                     hfield = 'str'
                 verbose_name = dep_field[0].verbose_name
             self.add_header(fieldname, verbose_name, hfield)
+
+    def set_model(self, query_set, fieldnames, xfer_custom=None):
+        self._add_header_from_model(query_set, fieldnames)
+
         self.nb_lines = len(query_set)
+        primary_key_fieldname = query_set.model._meta.pk.name  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
             for fieldname in fieldnames:
