@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-11 13:06+0000\n"
+"POT-Creation-Date: 2015-03-12 13:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,285 +21,376 @@ msgstr ""
 #: __init__.py:22
 #, fuzzy
 #| msgid "Lucterios core"
-msgid "Lucterios contacts"
+msgid "Lucterios core"
 msgstr "Coeur Lucterios"
 
-#~ msgid "01_password.html"
-#~ msgstr "Mot de passe"
-
-#~ msgid "help-password-intro"
-#~ msgstr ""
-#~ "Le menu Administration/Mot de passe vous permet de changer le mot de "
-#~ "passe d'accès de l'utilisateur courant."
-
-#~ msgid "help-password-security"
-#~ msgstr ""
-#~ "Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe "
-#~ "comprenant des lettres et des chiffres et ne constituant pas un mot "
-#~ "compréhensible. "
-
-#~ msgid "02_groups.html"
-#~ msgstr "Les groupes"
-
-#~ msgid "help-groups-intro"
-#~ msgstr ""
-#~ "Le menu Administration/Gestion des Droits/Groupes vous permet de créer, "
-#~ "modifier ou supprimer un groupe de droits. Un groupe de droits réuni un "
-#~ "ensemble d'autorisations aux actions de l'application."
-
-#~ msgid "03_users.html"
-#~ msgstr "Les utilisateurs"
-
-#~ msgid "help-users-intro"
-#~ msgstr ""
-#~ "Le menu Administration/Gestion des Droits/Utilisateurs vous permet de "
-#~ "créer, modifier ou désactiver un utilisateur de l'application. Un "
-#~ "utilisateur définit un droit de connexion au logiciel. Il est constitué "
-#~ "par un alias, un mot de passe et un groupe de droits (voir Les groupes ) "
-#~ "définissant le niveau d'accès de cette utilisateur."
-
-#~ msgid "04_architecture.html"
-#~ msgstr "L'architecture"
-
-#~ msgid "help-archi-intro"
-#~ msgstr ""
-#~ "Depuis le commencement de ce logiciel, les développeurs ont voulu que "
-#~ "cette application puisse avoir une architecture ouverte permettant les "
-#~ "dévolutions les plus larges."
-
-#~ msgid "CORE-GUID"
-#~ msgstr "Numéro de série du logiciel"
-
-#~ msgid "CORE-connectmode"
-#~ msgstr "Mode de connexion"
-
-#~ msgid "CORE-connectmode.0"
-#~ msgstr "Connection toujours nécessaire"
-
-#~ msgid "CORE-connectmode.1"
-#~ msgstr "Ouvert entant qu'anonyme"
-
-#~ msgid "CORE-connectmode.2"
-#~ msgstr "Accès libre"
-
-#~ msgid "name"
-#~ msgstr "nom"
-
-#~ msgid "String"
-#~ msgstr "Chaîne"
-
-#~ msgid "Integer"
-#~ msgstr "Entier"
-
-#~ msgid "Real"
-#~ msgstr "Réel"
-
-#~ msgid "Boolean"
-#~ msgstr "Booléan"
-
-#~ msgid "Select"
-#~ msgstr "Sélection"
-
-#~ msgid "arguments"
-#~ msgstr "arguments"
-
-#~ msgid "value"
-#~ msgstr "valeur"
-
-#~ msgid "parameter"
-#~ msgstr "parametre"
-
-#~ msgid "parameters"
-#~ msgstr "parametres"
-
-#~ msgid ".%d"
-#~ msgstr ".%d"
-
-#~ msgid "Yes"
-#~ msgstr "Oui"
-
-#~ msgid "No"
-#~ msgstr "Non"
-
-#~ msgid "General"
-#~ msgstr "Général"
-
-#~ msgid "Generality"
-#~ msgstr "Généralité"
-
-#~ msgid "Management"
-#~ msgstr "Administration"
-
-#~ msgid "Manage settings and configurations."
-#~ msgstr "Gestion des réglages et des configurations"
-
-#~ msgid "To Change your password."
-#~ msgstr "Pour changer de mot de passe."
-
-#~ msgid "_Password"
-#~ msgstr "Mot de _passe"
-
-#~ msgid "old password"
-#~ msgstr "ancien mot de passe"
-
-#~ msgid "new password"
-#~ msgstr "nouveau mot de passe"
-
-#~ msgid "new password (again)"
-#~ msgstr "re-nouveau mot de passe"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Cancel"
-#~ msgstr "Annuler"
-
-#~ msgid "Bad current password!"
-#~ msgstr "Mot de passe actuel érroné!"
-
-#~ msgid "The passwords are differents!"
-#~ msgstr "Les mots de passes sont différents!"
-
-#~ msgid "Password modify"
-#~ msgstr "Mot de passe modifié"
-
-#~ msgid "To view and to modify main parameters."
-#~ msgstr "Pour voir et modifier les paramètres principaux."
-
-#~ msgid "Main configuration"
-#~ msgstr "Configuration générale"
-
-#~ msgid "Software configuration"
-#~ msgstr "Configuration du logiciel"
-
-#~ msgid "Modify"
-#~ msgstr "Modifier"
-
-#~ msgid "Close"
-#~ msgstr "Fermer"
-
-#~ msgid "Parameters"
-#~ msgstr "Paramètres"
-
-#~ msgid "Edition of parameters"
-#~ msgstr "Edition de paramètres"
-
-#~ msgid "_Extensions (conf.)"
-#~ msgstr "Modules (conf.)"
-
-#~ msgid "To manage of modules configurations."
-#~ msgstr "Pour gérer les configurations des modules"
-
-#~ msgid "Disconnect"
-#~ msgstr "Déconnection"
-
-#~ msgid "_Rights manage"
-#~ msgstr "Gestion des droits"
-
-#~ msgid "To manage users, groups and permissions."
-#~ msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
-
-#~ msgid "To manage permissions groupes."
-#~ msgstr "Pour gérer les groupes."
-
-#~ msgid "_Groups"
-#~ msgstr "_Groupes"
-
-#~ msgid "Existing groups"
-#~ msgstr "Groupes éxistants"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
-
-#~ msgid "Add"
-#~ msgstr "Ajouter"
-
-#~ msgid "Modify a group"
-#~ msgstr "Modifier un groupe"
-
-#~ msgid "Add a group"
-#~ msgstr "Ajouter un groupe"
-
-#~ msgid "Available permissions"
-#~ msgstr "Permissions disponibles"
-
-#~ msgid "Chosen permissions"
-#~ msgstr "Permissions choisies"
-
-#~ msgid "Delete group"
-#~ msgstr "Suppression d'un groupe"
-
-#~ msgid "To manage users."
-#~ msgstr "Pour gérer les utilisateurs."
-
-#~ msgid "_Users"
-#~ msgstr "_Utilisateurs"
-
-#~ msgid "Users of the software"
-#~ msgstr "Utilisateurs du logiciel"
-
-#~ msgid "List of active users"
-#~ msgstr "Liste des utilisateurs actifs"
-
-#~ msgid "Disabled"
-#~ msgstr "Désactiver"
-
-#~ msgid "List of inactive users"
-#~ msgstr "Liste des utilisateurs inactifs"
-
-#~ msgid "Enabled"
-#~ msgstr "Réactiver"
-
-#~ msgid "Delete users"
-#~ msgstr "Suppression d'utilisateur"
-
-#~ msgid "You can delete yourself!"
-#~ msgstr "Vous ne pouvez vous supprimer!"
-
-#~ msgid "Disabled an user"
-#~ msgstr "Désactiver un utilisateur"
-
-#~ msgid "You can disabled yourself!"
-#~ msgstr "Vous ne pouvez vous désactiver!"
-
-#~ msgid "Enabled an user"
-#~ msgstr "Réactiver un utilisateur"
-
-#~ msgid "Modify an user"
-#~ msgstr "Modifier un utilisateur"
-
-#~ msgid "Add an users"
-#~ msgstr "Ajouter un utilisateur"
-
-#~ msgid "Informations"
-#~ msgstr "Informations"
-
-#~ msgid "password"
-#~ msgstr "mot de passe"
-
-#~ msgid "password (again)"
-#~ msgstr "re-mot de passe"
-
-#~ msgid "Permissions"
-#~ msgstr "Permissions"
-
-#~ msgid "Available groups"
-#~ msgstr "Groupes disponibles"
-
-#~ msgid "Chosen groups"
-#~ msgstr "Groupes choisis"
-
-#~ msgid "To manage session."
-#~ msgstr "Pour gérer les sessions."
-
-#~ msgid "Sessions"
-#~ msgstr "Sessions"
-
-#~ msgid "Existing sessions"
-#~ msgstr "Sessions existantes"
-
-#~ msgid "username"
-#~ msgstr "nom d'utilisateur"
-
-#~ msgid "Delete session"
-#~ msgstr "Suppression de session"
+#: help/01_password.html:2
+msgid "01_password.html"
+msgstr "Mot de passe"
+
+#: help/01_password.html:4
+msgid "help-password-intro"
+msgstr ""
+"Le menu Administration/Mot de passe vous permet de changer le mot de passe "
+"d'accès de l'utilisateur courant."
+
+#: help/01_password.html:6
+msgid "help-password-security"
+msgstr ""
+"Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe "
+"comprenant des lettres et des chiffres et ne constituant pas un mot "
+"compréhensible. "
+
+#: help/02_groups.html:2
+msgid "02_groups.html"
+msgstr "Les groupes"
+
+#: help/02_groups.html:4
+msgid "help-groups-intro"
+msgstr ""
+"Le menu Administration/Gestion des Droits/Groupes vous permet de créer, "
+"modifier ou supprimer un groupe de droits. Un groupe de droits réuni un "
+"ensemble d'autorisations aux actions de l'application."
+
+#: help/03_users.html:2
+msgid "03_users.html"
+msgstr "Les utilisateurs"
+
+#: help/03_users.html:4
+msgid "help-users-intro"
+msgstr ""
+"Le menu Administration/Gestion des Droits/Utilisateurs vous permet de créer, "
+"modifier ou désactiver un utilisateur de l'application. Un utilisateur "
+"définit un droit de connexion au logiciel. Il est constitué par un alias, un "
+"mot de passe et un groupe de droits (voir Les groupes ) définissant le "
+"niveau d'accès de cette utilisateur."
+
+#: help/04_architecture.html:2
+msgid "04_architecture.html"
+msgstr "L'architecture"
+
+#: help/04_architecture.html:4
+msgid "help-archi-intro"
+msgstr ""
+"Depuis le commencement de ce logiciel, les développeurs ont voulu que cette "
+"application puisse avoir une architecture ouverte permettant les dévolutions "
+"les plus larges."
+
+#: migrations/0001_initial.py:22
+msgid "CORE-GUID"
+msgstr "Numéro de série du logiciel"
+
+#: migrations/0001_initial.py:28
+msgid "CORE-connectmode"
+msgstr "Mode de connexion"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.0"
+msgstr "Connection toujours nécessaire"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.1"
+msgstr "Ouvert entant qu'anonyme"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.2"
+msgstr "Accès libre"
+
+#: models.py:15
+msgid "name"
+msgstr "nom"
+
+#: models.py:16
+msgid "String"
+msgstr "Chaîne"
+
+#: models.py:16
+msgid "Integer"
+msgstr "Entier"
+
+#: models.py:16
+msgid "Real"
+msgstr "Réel"
+
+#: models.py:16
+msgid "Boolean"
+msgstr "Booléan"
+
+#: models.py:16
+msgid "Select"
+msgstr "Sélection"
+
+#: models.py:17
+msgid "arguments"
+msgstr "arguments"
+
+#: models.py:18
+msgid "value"
+msgstr "valeur"
+
+#: models.py:22
+msgid "parameter"
+msgstr "parametre"
+
+#: models.py:23
+msgid "parameters"
+msgstr "parametres"
+
+#: parameters.py:76 parameters.py:89
+#, python-format
+msgid ".%d"
+msgstr ".%d"
+
+#: parameters.py:85
+msgid "Yes"
+msgstr "Oui"
+
+#: parameters.py:87
+msgid "No"
+msgstr "Non"
+
+#: views.py:20
+msgid "General"
+msgstr "Général"
+
+#: views.py:20
+msgid "Generality"
+msgstr "Généralité"
+
+#: views.py:21
+msgid "Management"
+msgstr "Administration"
+
+#: views.py:21
+msgid "Manage settings and configurations."
+msgstr "Gestion des réglages et des configurations"
+
+#: views.py:42
+msgid "To Change your password."
+msgstr "Pour changer de mot de passe."
+
+#: views.py:44 views.py:82
+msgid "_Password"
+msgstr "Mot de _passe"
+
+#: views.py:55
+msgid "old password"
+msgstr "ancien mot de passe"
+
+#: views.py:63
+msgid "new password"
+msgstr "nouveau mot de passe"
+
+#: views.py:71
+msgid "new password (again)"
+msgstr "re-nouveau mot de passe"
+
+#: views.py:77 views.py:135 views_usergroup.py:72 views_usergroup.py:225
+msgid "Ok"
+msgstr "Ok"
+
+#: views.py:78 views.py:136 views_usergroup.py:73 views_usergroup.py:226
+msgid "Cancel"
+msgstr "Annuler"
+
+#: views.py:87
+msgid "Bad current password!"
+msgstr "Mot de passe actuel érroné!"
+
+#: views.py:91 views_usergroup.py:240
+msgid "The passwords are differents!"
+msgstr "Les mots de passes sont différents!"
+
+#: views.py:94
+msgid "Password modify"
+msgstr "Mot de passe modifié"
+
+#: views.py:101
+msgid "To view and to modify main parameters."
+msgstr "Pour voir et modifier les paramètres principaux."
+
+#: views.py:103
+msgid "Main configuration"
+msgstr "Configuration générale"
+
+#: views.py:113
+msgid "Software configuration"
+msgstr "Configuration du logiciel"
+
+#: views.py:117 views_usergroup.py:44 views_usergroup.py:116
+msgid "Modify"
+msgstr "Modifier"
+
+#: views.py:118 views_usergroup.py:49 views_usergroup.py:140
+#: views_usergroup.py:269
+msgid "Close"
+msgstr "Fermer"
+
+#: views.py:122 views.py:140
+msgid "Parameters"
+msgstr "Paramètres"
+
+#: views.py:132
+msgid "Edition of parameters"
+msgstr "Edition de paramètres"
+
+#: views.py:150
+msgid "_Extensions (conf.)"
+msgstr "Modules (conf.)"
+
+#: views.py:150
+msgid "To manage of modules configurations."
+msgstr "Pour gérer les configurations des modules"
+
+#: views_auth.py:87
+msgid "Disconnect"
+msgstr "Déconnection"
+
+#: views_usergroup.py:21
+msgid "_Rights manage"
+msgstr "Gestion des droits"
+
+#: views_usergroup.py:21
+msgid "To manage users, groups and permissions."
+msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
+
+#: views_usergroup.py:23
+msgid "To manage permissions groupes."
+msgstr "Pour gérer les groupes."
+
+#: views_usergroup.py:26
+msgid "_Groups"
+msgstr "_Groupes"
+
+#: views_usergroup.py:36
+msgid "Existing groups"
+msgstr "Groupes éxistants"
+
+#: views_usergroup.py:45 views_usergroup.py:118 views_usergroup.py:137
+#: views_usergroup.py:266
+msgid "Delete"
+msgstr "Supprimer"
+
+#: views_usergroup.py:46 views_usergroup.py:119
+msgid "Add"
+msgstr "Ajouter"
+
+#: views_usergroup.py:54 views_usergroup.py:64 views_usergroup.py:84
+msgid "Modify a group"
+msgstr "Modifier un groupe"
+
+#: views_usergroup.py:62
+msgid "Add a group"
+msgstr "Ajouter un groupe"
+
+#: views_usergroup.py:70 views_usergroup.py:222
+msgid "Available permissions"
+msgstr "Permissions disponibles"
+
+#: views_usergroup.py:70 views_usergroup.py:222
+msgid "Chosen permissions"
+msgstr "Permissions choisies"
+
+#: views_usergroup.py:77
+msgid "Delete group"
+msgstr "Suppression d'un groupe"
+
+#: views_usergroup.py:90
+msgid "To manage users."
+msgstr "Pour gérer les utilisateurs."
+
+#: views_usergroup.py:93
+msgid "_Users"
+msgstr "_Utilisateurs"
+
+#: views_usergroup.py:103
+msgid "Users of the software"
+msgstr "Utilisateurs du logiciel"
+
+#: views_usergroup.py:108
+msgid "List of active users"
+msgstr "Liste des utilisateurs actifs"
+
+#: views_usergroup.py:117
+msgid "Disabled"
+msgstr "Désactiver"
+
+#: views_usergroup.py:128
+msgid "List of inactive users"
+msgstr "Liste des utilisateurs inactifs"
+
+#: views_usergroup.py:136
+msgid "Enabled"
+msgstr "Réactiver"
+
+#: views_usergroup.py:144
+msgid "Delete users"
+msgstr "Suppression d'utilisateur"
+
+#: views_usergroup.py:152
+msgid "You can delete yourself!"
+msgstr "Vous ne pouvez vous supprimer!"
+
+#: views_usergroup.py:157
+msgid "Disabled an user"
+msgstr "Désactiver un utilisateur"
+
+#: views_usergroup.py:164
+msgid "You can disabled yourself!"
+msgstr "Vous ne pouvez vous désactiver!"
+
+#: views_usergroup.py:170
+msgid "Enabled an user"
+msgstr "Réactiver un utilisateur"
+
+#: views_usergroup.py:182 views_usergroup.py:193 views_usergroup.py:230
+msgid "Modify an user"
+msgstr "Modifier un utilisateur"
+
+#: views_usergroup.py:191
+msgid "Add an users"
+msgstr "Ajouter un utilisateur"
+
+#: views_usergroup.py:203
+msgid "Informations"
+msgstr "Informations"
+
+#: views_usergroup.py:207
+msgid "password"
+msgstr "mot de passe"
+
+#: views_usergroup.py:211
+msgid "password (again)"
+msgstr "re-mot de passe"
+
+#: views_usergroup.py:220
+msgid "Permissions"
+msgstr "Permissions"
+
+#: views_usergroup.py:221
+msgid "Available groups"
+msgstr "Groupes disponibles"
+
+#: views_usergroup.py:221
+msgid "Chosen groups"
+msgstr "Groupes choisis"
+
+#: views_usergroup.py:245
+msgid "To manage session."
+msgstr "Pour gérer les sessions."
+
+#: views_usergroup.py:248
+msgid "Sessions"
+msgstr "Sessions"
+
+#: views_usergroup.py:258
+msgid "Existing sessions"
+msgstr "Sessions existantes"
+
+#: views_usergroup.py:265
+msgid "username"
+msgstr "nom d'utilisateur"
+
+#: views_usergroup.py:273
+msgid "Delete session"
+msgstr "Suppression de session"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-11 13:06+0000\n"
+"POT-Creation-Date: 2015-03-12 13:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -20,282 +20,373 @@ msgstr ""
 #: __init__.py:22
 #, fuzzy
 #| msgid "Lucterios core"
-msgid "Lucterios contacts"
+msgid "Lucterios core"
 msgstr "Lucterios core"
 
-#~ msgid "01_password.html"
-#~ msgstr "Password"
+#: help/01_password.html:2
+msgid "01_password.html"
+msgstr "Password"
+
+#: help/01_password.html:4
+msgid "help-password-intro"
+msgstr ""
+"The Administration/Password allows you to change the access password of the "
+"current user."
+
+#: help/01_password.html:6
+msgid "help-password-security"
+msgstr ""
+"For added security, we recommend that you use a password consisting of "
+"letters and numbers and not being an understandable word."
+
+#: help/02_groups.html:2
+msgid "02_groups.html"
+msgstr "Groups"
+
+#: help/02_groups.html:4
+msgid "help-groups-intro"
+msgstr ""
+"The Administration/Rights Management/Groups allow you to create, modify or "
+"delete a rights group. A rights group together a set of permissions to the "
+"actions of the application."
+
+#: help/03_users.html:2
+msgid "03_users.html"
+msgstr "Users"
+
+#: help/03_users.html:4
+msgid "help-users-intro"
+msgstr ""
+"The Administration/Management rights/Users allows you to create, modify, or "
+"disable an application user. A user defines a connection right to the "
+"software. It consists of an alias, a password and a rights group (see "
+"Groups) defining the access level of the user."
+
+#: help/04_architecture.html:2
+msgid "04_architecture.html"
+msgstr "Architecture"
+
+#: help/04_architecture.html:4
+msgid "help-archi-intro"
+msgstr ""
+"Since the beginning of this software, the developers wanted this application "
+"can have an open architecture allowing the widest devolution."
+
+#: migrations/0001_initial.py:22
+msgid "CORE-GUID"
+msgstr "Serial number of software"
+
+#: migrations/0001_initial.py:28
+msgid "CORE-connectmode"
+msgstr "Connection mode"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.0"
+msgstr "Connection always needed"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.1"
+msgstr "Open in anonymous"
+
+#: migrations/0001_initial.py:29
+msgid "CORE-connectmode.2"
+msgstr "Free access"
+
+#: models.py:15
+msgid "name"
+msgstr "name"
+
+#: models.py:16
+msgid "String"
+msgstr "String"
+
+#: models.py:16
+msgid "Integer"
+msgstr "Integer"
+
+#: models.py:16
+msgid "Real"
+msgstr "Real"
+
+#: models.py:16
+msgid "Boolean"
+msgstr "Boolean"
+
+#: models.py:16
+msgid "Select"
+msgstr "Select"
+
+#: models.py:17
+msgid "arguments"
+msgstr "arguments"
+
+#: models.py:18
+msgid "value"
+msgstr "value"
+
+#: models.py:22
+msgid "parameter"
+msgstr "parameter"
 
-#~ msgid "help-password-intro"
-#~ msgstr ""
-#~ "The Administration/Password allows you to change the access password of "
-#~ "the current user."
+#: models.py:23
+msgid "parameters"
+msgstr "parameters"
 
-#~ msgid "help-password-security"
-#~ msgstr ""
-#~ "For added security, we recommend that you use a password consisting of "
-#~ "letters and numbers and not being an understandable word."
-
-#~ msgid "02_groups.html"
-#~ msgstr "Groups"
-
-#~ msgid "help-groups-intro"
-#~ msgstr ""
-#~ "The Administration/Rights Management/Groups allow you to create, modify "
-#~ "or delete a rights group. A rights group together a set of permissions to "
-#~ "the actions of the application."
-
-#~ msgid "03_users.html"
-#~ msgstr "Users"
-
-#~ msgid "help-users-intro"
-#~ msgstr ""
-#~ "The Administration/Management rights/Users allows you to create, modify, "
-#~ "or disable an application user. A user defines a connection right to the "
-#~ "software. It consists of an alias, a password and a rights group (see "
-#~ "Groups) defining the access level of the user."
-
-#~ msgid "04_architecture.html"
-#~ msgstr "Architecture"
-
-#~ msgid "help-archi-intro"
-#~ msgstr ""
-#~ "Since the beginning of this software, the developers wanted this "
-#~ "application can have an open architecture allowing the widest devolution."
-
-#~ msgid "CORE-GUID"
-#~ msgstr "Serial number of software"
-
-#~ msgid "CORE-connectmode"
-#~ msgstr "Connection mode"
-
-#~ msgid "CORE-connectmode.0"
-#~ msgstr "Connection always needed"
-
-#~ msgid "CORE-connectmode.1"
-#~ msgstr "Open in anonymous"
-
-#~ msgid "CORE-connectmode.2"
-#~ msgstr "Free access"
-
-#~ msgid "name"
-#~ msgstr "name"
-
-#~ msgid "String"
-#~ msgstr "String"
-
-#~ msgid "Integer"
-#~ msgstr "Integer"
-
-#~ msgid "Real"
-#~ msgstr "Real"
-
-#~ msgid "Boolean"
-#~ msgstr "Boolean"
-
-#~ msgid "Select"
-#~ msgstr "Select"
-
-#~ msgid "arguments"
-#~ msgstr "arguments"
-
-#~ msgid "value"
-#~ msgstr "value"
-
-#~ msgid "parameter"
-#~ msgstr "parameter"
-
-#~ msgid "parameters"
-#~ msgstr "parameters"
-
-#~ msgid ".%d"
-#~ msgstr ".%d"
-
-#~ msgid "Yes"
-#~ msgstr "Yes"
-
-#~ msgid "No"
-#~ msgstr "No"
-
-#~ msgid "General"
-#~ msgstr "General"
-
-#~ msgid "Generality"
-#~ msgstr "Generality"
-
-#~ msgid "Management"
-#~ msgstr "Management"
-
-#~ msgid "Manage settings and configurations."
-#~ msgstr "Manage settings and configurations."
-
-#~ msgid "To Change your password."
-#~ msgstr "To Change your password."
-
-#~ msgid "_Password"
-#~ msgstr "_Password"
-
-#~ msgid "old password"
-#~ msgstr "old password"
-
-#~ msgid "new password"
-#~ msgstr "new password"
-
-#~ msgid "new password (again)"
-#~ msgstr "new password (again)"
-
-#~ msgid "Ok"
-#~ msgstr "Ok"
-
-#~ msgid "Cancel"
-#~ msgstr "Annuler"
-
-#~ msgid "Bad current password!"
-#~ msgstr "Bad current password!"
-
-#~ msgid "The passwords are differents!"
-#~ msgstr "The passwords are differents!"
-
-#~ msgid "Password modify"
-#~ msgstr "Password modify"
-
-#~ msgid "To view and to modify main parameters."
-#~ msgstr "To view and to modify main parameters."
-
-#~ msgid "Main configuration"
-#~ msgstr "Main configuration"
-
-#~ msgid "Software configuration"
-#~ msgstr "Software configuration"
-
-#~ msgid "Modify"
-#~ msgstr "Modify"
-
-#~ msgid "Close"
-#~ msgstr "Close"
-
-#~ msgid "Parameters"
-#~ msgstr "Parameters"
-
-#~ msgid "Edition of parameters"
-#~ msgstr "Edition of parameters"
-
-#~ msgid "_Extensions (conf.)"
-#~ msgstr "_Modules (conf.)"
-
-#~ msgid "To manage of modules configurations."
-#~ msgstr "To manage of modules configurations."
-
-#~ msgid "Disconnect"
-#~ msgstr "Disconnect"
-
-#~ msgid "_Rights manage"
-#~ msgstr "_Rights manage"
-
-#~ msgid "To manage users, groups and permissions."
-#~ msgstr "To manage users, groups and permissions."
-
-#~ msgid "To manage permissions groupes."
-#~ msgstr "To manage permissions groups."
-
-#~ msgid "_Groups"
-#~ msgstr "_Groups"
-
-#~ msgid "Existing groups"
-#~ msgstr "Existing groups"
-
-#~ msgid "Delete"
-#~ msgstr "Delete"
-
-#~ msgid "Add"
-#~ msgstr "Add"
-
-#~ msgid "Modify a group"
-#~ msgstr "Modify a group"
-
-#~ msgid "Add a group"
-#~ msgstr "Add a group"
-
-#~ msgid "Available permissions"
-#~ msgstr "Available permissions"
-
-#~ msgid "Chosen permissions"
-#~ msgstr "Chosen permissions"
-
-#~ msgid "Delete group"
-#~ msgstr "Delete group"
-
-#~ msgid "To manage users."
-#~ msgstr "To manage users."
-
-#~ msgid "_Users"
-#~ msgstr "_Users"
-
-#~ msgid "Users of the software"
-#~ msgstr "Users of the software"
-
-#~ msgid "List of active users"
-#~ msgstr "List of active users"
-
-#~ msgid "Disabled"
-#~ msgstr "Disabled"
-
-#~ msgid "List of inactive users"
-#~ msgstr "List of inactive users"
-
-#~ msgid "Enabled"
-#~ msgstr "Enabled"
-
-#~ msgid "Delete users"
-#~ msgstr "Delete users"
-
-#~ msgid "You can delete yourself!"
-#~ msgstr "You can delete yourself!"
-
-#~ msgid "Disabled an user"
-#~ msgstr "Disabled an user"
-
-#~ msgid "You can disabled yourself!"
-#~ msgstr "You can disabled yourself!"
-
-#~ msgid "Enabled an user"
-#~ msgstr "Enabled an user"
-
-#~ msgid "Modify an user"
-#~ msgstr "Modify an user"
-
-#~ msgid "Add an users"
-#~ msgstr "Add an users"
-
-#~ msgid "Informations"
-#~ msgstr "Informations"
-
-#~ msgid "password"
-#~ msgstr "password"
-
-#~ msgid "password (again)"
-#~ msgstr "password (again)"
-
-#~ msgid "Permissions"
-#~ msgstr "Permissions"
-
-#~ msgid "Available groups"
-#~ msgstr "Available groups"
-
-#~ msgid "Chosen groups"
-#~ msgstr "Chosen groups"
-
-#~ msgid "To manage session."
-#~ msgstr "To manage session."
-
-#~ msgid "Sessions"
-#~ msgstr "Sessions"
-
-#~ msgid "Existing sessions"
-#~ msgstr "Existing sessions"
-
-#~ msgid "username"
-#~ msgstr "user name"
-
-#~ msgid "Delete session"
-#~ msgstr "Delete session"
+#: parameters.py:76 parameters.py:89
+#, python-format
+msgid ".%d"
+msgstr ".%d"
+
+#: parameters.py:85
+msgid "Yes"
+msgstr "Yes"
+
+#: parameters.py:87
+msgid "No"
+msgstr "No"
+
+#: views.py:20
+msgid "General"
+msgstr "General"
+
+#: views.py:20
+msgid "Generality"
+msgstr "Generality"
+
+#: views.py:21
+msgid "Management"
+msgstr "Management"
+
+#: views.py:21
+msgid "Manage settings and configurations."
+msgstr "Manage settings and configurations."
+
+#: views.py:42
+msgid "To Change your password."
+msgstr "To Change your password."
+
+#: views.py:44 views.py:82
+msgid "_Password"
+msgstr "_Password"
+
+#: views.py:55
+msgid "old password"
+msgstr "old password"
+
+#: views.py:63
+msgid "new password"
+msgstr "new password"
+
+#: views.py:71
+msgid "new password (again)"
+msgstr "new password (again)"
+
+#: views.py:77 views.py:135 views_usergroup.py:72 views_usergroup.py:225
+msgid "Ok"
+msgstr "Ok"
+
+#: views.py:78 views.py:136 views_usergroup.py:73 views_usergroup.py:226
+msgid "Cancel"
+msgstr "Annuler"
+
+#: views.py:87
+msgid "Bad current password!"
+msgstr "Bad current password!"
+
+#: views.py:91 views_usergroup.py:240
+msgid "The passwords are differents!"
+msgstr "The passwords are differents!"
+
+#: views.py:94
+msgid "Password modify"
+msgstr "Password modify"
+
+#: views.py:101
+msgid "To view and to modify main parameters."
+msgstr "To view and to modify main parameters."
+
+#: views.py:103
+msgid "Main configuration"
+msgstr "Main configuration"
+
+#: views.py:113
+msgid "Software configuration"
+msgstr "Software configuration"
+
+#: views.py:117 views_usergroup.py:44 views_usergroup.py:116
+msgid "Modify"
+msgstr "Modify"
+
+#: views.py:118 views_usergroup.py:49 views_usergroup.py:140
+#: views_usergroup.py:269
+msgid "Close"
+msgstr "Close"
+
+#: views.py:122 views.py:140
+msgid "Parameters"
+msgstr "Parameters"
+
+#: views.py:132
+msgid "Edition of parameters"
+msgstr "Edition of parameters"
+
+#: views.py:150
+msgid "_Extensions (conf.)"
+msgstr "_Modules (conf.)"
+
+#: views.py:150
+msgid "To manage of modules configurations."
+msgstr "To manage of modules configurations."
+
+#: views_auth.py:87
+msgid "Disconnect"
+msgstr "Disconnect"
+
+#: views_usergroup.py:21
+msgid "_Rights manage"
+msgstr "_Rights manage"
+
+#: views_usergroup.py:21
+msgid "To manage users, groups and permissions."
+msgstr "To manage users, groups and permissions."
+
+#: views_usergroup.py:23
+msgid "To manage permissions groupes."
+msgstr "To manage permissions groups."
+
+#: views_usergroup.py:26
+msgid "_Groups"
+msgstr "_Groups"
+
+#: views_usergroup.py:36
+msgid "Existing groups"
+msgstr "Existing groups"
+
+#: views_usergroup.py:45 views_usergroup.py:118 views_usergroup.py:137
+#: views_usergroup.py:266
+msgid "Delete"
+msgstr "Delete"
+
+#: views_usergroup.py:46 views_usergroup.py:119
+msgid "Add"
+msgstr "Add"
+
+#: views_usergroup.py:54 views_usergroup.py:64 views_usergroup.py:84
+msgid "Modify a group"
+msgstr "Modify a group"
+
+#: views_usergroup.py:62
+msgid "Add a group"
+msgstr "Add a group"
+
+#: views_usergroup.py:70 views_usergroup.py:222
+msgid "Available permissions"
+msgstr "Available permissions"
+
+#: views_usergroup.py:70 views_usergroup.py:222
+msgid "Chosen permissions"
+msgstr "Chosen permissions"
+
+#: views_usergroup.py:77
+msgid "Delete group"
+msgstr "Delete group"
+
+#: views_usergroup.py:90
+msgid "To manage users."
+msgstr "To manage users."
+
+#: views_usergroup.py:93
+msgid "_Users"
+msgstr "_Users"
+
+#: views_usergroup.py:103
+msgid "Users of the software"
+msgstr "Users of the software"
+
+#: views_usergroup.py:108
+msgid "List of active users"
+msgstr "List of active users"
+
+#: views_usergroup.py:117
+msgid "Disabled"
+msgstr "Disabled"
+
+#: views_usergroup.py:128
+msgid "List of inactive users"
+msgstr "List of inactive users"
+
+#: views_usergroup.py:136
+msgid "Enabled"
+msgstr "Enabled"
+
+#: views_usergroup.py:144
+msgid "Delete users"
+msgstr "Delete users"
+
+#: views_usergroup.py:152
+msgid "You can delete yourself!"
+msgstr "You can delete yourself!"
+
+#: views_usergroup.py:157
+msgid "Disabled an user"
+msgstr "Disabled an user"
+
+#: views_usergroup.py:164
+msgid "You can disabled yourself!"
+msgstr "You can disabled yourself!"
+
+#: views_usergroup.py:170
+msgid "Enabled an user"
+msgstr "Enabled an user"
+
+#: views_usergroup.py:182 views_usergroup.py:193 views_usergroup.py:230
+msgid "Modify an user"
+msgstr "Modify an user"
+
+#: views_usergroup.py:191
+msgid "Add an users"
+msgstr "Add an users"
+
+#: views_usergroup.py:203
+msgid "Informations"
+msgstr "Informations"
+
+#: views_usergroup.py:207
+msgid "password"
+msgstr "password"
+
+#: views_usergroup.py:211
+msgid "password (again)"
+msgstr "password (again)"
+
+#: views_usergroup.py:220
+msgid "Permissions"
+msgstr "Permissions"
+
+#: views_usergroup.py:221
+msgid "Available groups"
+msgstr "Available groups"
+
+#: views_usergroup.py:221
+msgid "Chosen groups"
+msgstr "Chosen groups"
+
+#: views_usergroup.py:245
+msgid "To manage session."
+msgstr "To manage session."
+
+#: views_usergroup.py:248
+msgid "Sessions"
+msgstr "Sessions"
+
+#: views_usergroup.py:258
+msgid "Existing sessions"
+msgstr "Existing sessions"
+
+#: views_usergroup.py:265
+msgid "username"
+msgstr "user name"
+
+#: views_usergroup.py:273
+msgid "Delete session"
+msgstr "Delete session"
