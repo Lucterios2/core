@@ -5,7 +5,7 @@ Created on fevr. 2015
 @author: sd-libre
 '''
 
-from distutils.core import setup
+from setuptools import setup
 from lucterios.CORE import __version__
 
 setup(
