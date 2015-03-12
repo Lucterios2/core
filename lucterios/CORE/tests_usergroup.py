@@ -40,14 +40,14 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 7)
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Utilisateurs du logiciel{[/bold]}{[/underline]}{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Utilisateurs du logiciel{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_actifs"]', '{[bold]}Liste des utilisateurs actifs{[/bold]}{[newline]}{[newline]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_actifs"]', '{[b]}Liste des utilisateurs actifs{[/b]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="lbl_actifs"]', ('0', '1', '2', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="user_actif"]', ('0', '2', '2', '1'))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="separator"]', None)
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="separator"]', ('0', '3', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_inactif"]', '{[bold]}Liste des utilisateurs inactifs{[/bold]}{[newline]}{[newline]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_inactif"]', '{[b]}Liste des utilisateurs inactifs{[/b]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="lbl_inactif"]', ('0', '4', '2', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="user_inactif"]', ('0', '5', '2', '1'))
 
@@ -191,45 +191,45 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '3'))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[bold]}nom d'utilisateur{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[b]}nom d'utilisateur{[/b]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="username"]', (2, 0, 1, 1))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="username"]', 'user1')
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_date_joined"]', "{[bold]}date d'inscription{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_date_joined"]', "{[b]}date d'inscription{[/b]}", (1, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="date_joined"]', (2, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="date_joined"]', date.today().strftime('%e').strip(), True)
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_login"]', "{[bold]}dernière connexion{[/bold]}", (1, 2, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_login"]', "{[b]}dernière connexion{[/b]}", (1, 2, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="last_login"]', (2, 2, 1, 1))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="last_login"]', date.today().strftime('%e').strip(), True)
 
         self.assert_xml_equal('COMPONENTS/TAB[1]', "Informations")
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_staff"]', "{[bold]}statut équipe{[/bold]}", (0, 0, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_staff"]', "{[b]}statut équipe{[/b]}", (0, 0, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECK[@name="is_staff"]', (1, 0, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/CHECK[@name="is_staff"]', '0')
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_superuser"]', "{[bold]}statut super-utilisateur{[/bold]}", (0, 1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_superuser"]', "{[b]}statut super-utilisateur{[/b]}", (0, 1, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECK[@name="is_superuser"]', (1, 1, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/CHECK[@name="is_superuser"]', '0')
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[bold]}prénom{[/bold]}", (0, 2, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[b]}prénom{[/b]}", (0, 2, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="first_name"]', (1, 2, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/EDIT[@name="first_name"]', 'user1')
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[bold]}nom{[/bold]}", (0, 3, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[b]}nom{[/b]}", (0, 3, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="last_name"]', (1, 3, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/EDIT[@name="last_name"]', 'USER1')
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[bold]}adresse électronique{[/bold]}", (0, 4, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[b]}adresse électronique{[/b]}", (0, 4, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="email"]', (1, 4, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/EDIT[@name="email"]', None)
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[bold]}mot de passe{[/bold]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 5, 1, 1))
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[bold]}re-mot de passe{[/bold]}", (0, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[bold]}groupes{[/bold]}", (0, 0, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[italic]}Groupes disponibles{[/italic]}{[/center]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[b]}groupes{[/b]}", (0, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[i]}Groupes disponibles{[/i]}{[/center]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_available"]', (1, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[italic]}Groupes choisis{[/italic]}{[/center]}", (3, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[i]}Groupes choisis{[/i]}{[/center]}", (3, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_chosen"]', (3, 1, 1, 5))
 
         self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="groups_addall"]', (2, 1, 1, 1))
@@ -241,10 +241,10 @@ class UserTest(LucteriosTest):
         self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_del"]/ACTIONS/ACTION', ('<', None, None, None, 0, 1, 1))
         self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_user_permissions"]', "{[bold]}permissions de l'utilisateur{[/bold]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[italic]}Permissions disponibles{[/italic]}{[/center]}", (1, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_user_permissions"]', "{[b]}permissions de l'utilisateur{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (1, 5, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_available"]', (1, 6, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[italic]}Permissions choisies{[/italic]}{[/center]}", (3, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (3, 5, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (3, 6, 1, 5))
 
         self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="user_permissions_addall"]', (2, 6, 1, 1))
@@ -291,20 +291,20 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '3'))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[bold]}nom d'utilisateur{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[b]}nom d'utilisateur{[/b]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="username"]', (2, 0, 1, 1))
         self.assert_attrib_equal('COMPONENTS/EDIT[@name="username"]', 'needed', '1')
         self.assert_attrib_equal('COMPONENTS/EDIT[@name="username"]', 'description', "nom d'utilisateur")
 
         self.assert_xml_equal('COMPONENTS/TAB[1]', "Informations")
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_staff"]', "{[bold]}statut équipe{[/bold]}", (0, 0, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_superuser"]', "{[bold]}statut super-utilisateur{[/bold]}", (0, 1, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[bold]}prénom{[/bold]}", (0, 2, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[bold]}nom{[/bold]}", (0, 3, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[bold]}adresse électronique{[/bold]}", (0, 4, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[bold]}mot de passe{[/bold]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[bold]}re-mot de passe{[/bold]}", (0, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_staff"]', "{[b]}statut équipe{[/b]}", (0, 0, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_is_superuser"]', "{[b]}statut super-utilisateur{[/b]}", (0, 1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[b]}prénom{[/b]}", (0, 2, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[b]}nom{[/b]}", (0, 3, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[b]}adresse électronique{[/b]}", (0, 4, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 6, 1, 1))
 
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_staff"]', '0', (1, 0, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_superuser"]', '0', (1, 1, 1, 1, 1))
@@ -316,15 +316,15 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[bold]}groupes{[/bold]}", (0, 0, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[italic]}Groupes disponibles{[/italic]}{[/center]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[b]}groupes{[/b]}", (0, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[i]}Groupes disponibles{[/i]}{[/center]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_available"]', (1, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[italic]}Groupes choisis{[/italic]}{[/center]}", (3, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[i]}Groupes choisis{[/i]}{[/center]}", (3, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_chosen"]', (3, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_user_permissions"]', "{[bold]}permissions de l'utilisateur{[/bold]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[italic]}Permissions disponibles{[/italic]}{[/center]}", (1, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_user_permissions"]', "{[b]}permissions de l'utilisateur{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (1, 5, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_available"]', (1, 6, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[italic]}Permissions choisies{[/italic]}{[/center]}", (3, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (3, 5, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (3, 6, 1, 5))
 
     def test_useraddsave(self):
@@ -481,7 +481,7 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png', ('0', '0', '1', '1'))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Groupes éxistants{[/bold]}{[/underline]}{[/center]}', \
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Groupes éxistants{[/b]}{[/u]}{[/center]}', \
                                ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
@@ -505,13 +505,13 @@ class GroupTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 12)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png', (0, 0, 1, 6))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[b]}nom{[/b]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (2, 0, 1, 1))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_permissions"]', "{[bold]}permissions{[/bold]}", (1, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_available"]', "{[center]}{[italic]}Permissions disponibles{[/italic]}{[/center]}", (2, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_permissions"]', "{[b]}permissions{[/b]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (2, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_available"]', (2, 2, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_chosen"]', "{[center]}{[italic]}Permissions choisies{[/italic]}{[/center]}", (4, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (4, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_chosen"]', (4, 2, 1, 5))
 
         self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_addall"]', (3, 2, 1, 1))
@@ -555,7 +555,7 @@ class GroupTest(LucteriosTest):
         self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
         self.assert_xml_equal('TITLE', 'Modifier un groupe')
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[b]}nom{[/b]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (2, 0, 1, 1))
 
     def test_groupedit_notexist(self):
@@ -590,7 +590,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
         self.assert_count_equal('ACTIONS/ACTION', 2)
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[bold]}nom{[/bold]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_name"]', "{[b]}nom{[/b]}", (1, 0, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (2, 0, 1, 1))
 
     def test_concurentedit(self):
@@ -650,7 +650,7 @@ class SessionTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/extensions.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[center]}{[underline]}{[bold]}Sessions existantes{[/bold]}{[/underline]}{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Sessions existantes{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="session"]', ('0', '1', '2', '1'))
 

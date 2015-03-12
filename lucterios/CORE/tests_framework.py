@@ -85,7 +85,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
     def test_traitment(self):
         self.value = False
         def fillresponse_traitment():
-            if self.factory.xfer.traitment("customer/images/foo.png", "Traitment{[newline]}Wait...", "Done"):
+            if self.factory.xfer.traitment("customer/images/foo.png", "Traitment{[br/]}Wait...", "Done"):
                 self.value = True
         self.factory.xfer.fillresponse = fillresponse_traitment
         self.call('/customer/details', {}, False)
@@ -95,7 +95,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_attrib_equal('CONTEXT/PARAM', 'name', 'RELOAD')
         self.assert_xml_equal('CONTEXT/PARAM', 'YES')
         self.assert_count_equal('COMPONENTS/*', 3)
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Traitment{[newline]}Wait...{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Traitment{[br/]}Wait...{[/center]}')
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
         self.assert_action_equal('COMPONENTS/BUTTON[@name="Next"]/ACTIONS/ACTION', ('Traitement...', None, 'customer', 'details', 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/BUTTON[@name="Next"]/JavaScript', urlquote_plus('parent.refresh()'))
@@ -110,5 +110,5 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM', 'YES')
         self.assert_count_equal('COMPONENTS/*', 2)
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Done{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Done{[/center]}')
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))

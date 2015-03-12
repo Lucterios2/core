@@ -14,7 +14,7 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
 from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, \
-    get_dico_from_setquery
+    get_dico_from_setquery, icon_path
 from lucterios.framework.tools import ifplural, get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from lucterios.framework.error import LucteriosException, GRAVE
@@ -87,10 +87,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
         lbl.set_location(1, 0)
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
-            lbl.set_value("{[newline]}{[center]}" + self.traitment_data[2] + "{[/center]}")
+            lbl.set_value("{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
             dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
         else:
-            lbl.set_value("{[newline]}{[center]}" + self.traitment_data[1] + "{[/center]}")
+            lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
             kwargs["RELOAD"] = "YES"
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
@@ -255,7 +255,7 @@ class XferContainerCustom(XferContainerAbstract):
             if dep_field[2]:  # field real in model
                 lbl = XferCompLabelForm('lbl_' + field_name)
                 lbl.set_location(col, row, 1, 1)
-                lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % six.text_type(dep_field[0].verbose_name))
+                lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
                 self.add_component(lbl)
                 if not dep_field[3]:  # field not many-to-many
                     if readonly:
@@ -332,12 +332,12 @@ class XferContainerCustom(XferContainerAbstract):
 
             lbl = XferCompLabelForm('lbl_' + field_name)
             lbl.set_location(col, row, 1, 1)
-            lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % six.text_type(dep_field[0].verbose_name))
+            lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
             self.add_component(lbl)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_available')
             lbl.set_location(col + 1, row, 1, 1)
-            lbl.set_value(six.text_type('{[center]}{[italic]}%s{[/italic]}{[/center]}') % title_available)
+            lbl.set_value_as_header(title_available)
             self.add_component(lbl)
 
             lista = XferCompCheckList(field_name + '_available')
@@ -346,7 +346,7 @@ class XferContainerCustom(XferContainerAbstract):
 
             lbl = XferCompLabelForm('hd_' + field_name + '_chosen')
             lbl.set_location(col + 3, row, 1, 1)
-            lbl.set_value(six.text_type('{[center]}{[italic]}%s{[/italic]}{[/center]}') % title_chosen)
+            lbl.set_value_as_header(title_chosen)
             self.add_component(lbl)
 
             listc = XferCompCheckList(field_name + '_chosen')
@@ -429,6 +429,39 @@ if (%(comp)s_current !== null) {
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
+
+class XferAddEditor(XferContainerCustom):
+
+    caption_add = ''
+    caption_modify = ''
+    fieldnames = []
+
+    def get(self, request, *args, **kwargs):
+        self._initialize(request, *args, **kwargs)
+        if self.getparam("SAVE") != "YES":
+            if self.is_new:
+                self.caption = self.caption_add
+            else:
+                self.caption = self.caption_modify
+            img = XferCompImage('img')
+            img.set_value(icon_path(self))
+            img.set_location(0, 0, 1, 6)
+            self.add_component(img)
+            self.fill_from_model(1, 0, False, self.fieldnames)
+            self.params["SAVE"] = "YES"
+            self.add_action(self.__class__().get_changed(_('Ok'), 'images/ok.png'), {})
+            self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
+            return self._finalize()
+        else:
+            del self.params["SAVE"]
+            save = XferSave()
+            save.model = self.model
+            save.field_id = self.field_id
+            save.caption = self.caption
+            save.raise_except_class = self.__class__
+
+            save.closeaction = self.closeaction
+            return save.get(request, *args, **kwargs)
 
 class XferDelete(XferContainerAcknowledge):
 

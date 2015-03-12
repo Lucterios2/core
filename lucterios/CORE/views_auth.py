@@ -24,7 +24,7 @@ def get_info_server():
             res.append(six.text_type("%s=%s") % (appmodule.__title__(), appmodule.__version__))
     from platform import python_version, uname
     res.append(six.text_type("{[i]}Python %s - %s %s %s{[/i]}") % (python_version(), uname()[0], uname()[4], uname()[2]))
-    return six.text_type("{[newline]}").join(res)
+    return six.text_type("{[br/]}").join(res)
 
 @MenuManage.describ('')
 class Authentification(XferContainerAbstract):

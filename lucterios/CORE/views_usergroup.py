@@ -13,7 +13,6 @@ from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAc
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
 
 from django.contrib.auth.models import User, Group
-from django.utils import six
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from django.contrib.sessions.models import Session
 from lucterios.framework.signal_and_lock import LucteriosSession
@@ -33,7 +32,7 @@ class GroupsList(XferContainerCustom):
         self.add_component(img)
 
         lbl = XferCompLabelForm('title')
-        lbl.set_value('{[center]}{[underline]}{[bold]}%s{[/bold]}{[/underline]}{[/center]}' % _('Existing groups'))
+        lbl.set_value_as_title(_('Existing groups'))
         lbl.set_location(1, 0)
         self.add_component(lbl)
 
@@ -100,12 +99,12 @@ class UsersList(XferContainerCustom):
         self.add_component(img)
 
         lbl = XferCompLabelForm('title')
-        lbl.set_value('{[center]}{[underline]}{[bold]}%s{[/bold]}{[/underline]}{[/center]}' % _('Users of the software'))
+        lbl.set_value_as_title(_('Users of the software'))
         lbl.set_location(1, 0)
         self.add_component(lbl)
 
         lbl = XferCompLabelForm('lbl_actifs')
-        lbl.set_value('{[bold]}%s{[/bold]}{[newline]}{[newline]}' % _("List of active users"))
+        lbl.set_value_as_name(_("List of active users"))
         lbl.set_location(0, 1, 2)
         self.add_component(lbl)
 
@@ -125,7 +124,7 @@ class UsersList(XferContainerCustom):
         self.add_component(lbl)
 
         lbl = XferCompLabelForm('lbl_inactif')
-        lbl.set_value('{[bold]}%s{[/bold]}{[newline]}{[newline]}' % _("List of inactive users"))
+        lbl.set_value_as_name(_("List of inactive users"))
         lbl.set_location(0, 4, 2)
         self.add_component(lbl)
 
@@ -204,11 +203,11 @@ class UsersEdit(XferContainerCustom):
         self.fill_from_model(0, 0, False, ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'])
         lbl = XferCompLabelForm('lbl_password1')
         lbl.set_location(0, 5, 1, 1)
-        lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % _("password"))
+        lbl.set_value_as_name(_("password"))
         self.add_component(lbl)
         lbl = XferCompLabelForm('lbl_password2')
         lbl.set_location(0, 6, 1, 1)
-        lbl.set_value(six.text_type('{[bold]}%s{[/bold]}') % _("password (again)"))
+        lbl.set_value_as_name(_("password (again)"))
         self.add_component(lbl)
         pwd = XferCompPassword('password1')
         pwd.set_location(1, 5, 1, 1)
@@ -255,7 +254,7 @@ class SessionList(XferContainerCustom):
         self.add_component(img)
 
         lbl = XferCompLabelForm('title')
-        lbl.set_value('{[center]}{[underline]}{[bold]}%s{[/bold]}{[/underline]}{[/center]}' % _('Existing sessions'))
+        lbl.set_value_as_title(_('Existing sessions'))
         lbl.set_location(1, 0)
         self.add_component(lbl)
 

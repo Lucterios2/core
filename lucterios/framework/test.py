@@ -119,7 +119,7 @@ class LucteriosTest(TestCase):
         except AssertionError:
             if self._get_first_xpath('').get('observer') == 'CORE.Exception':
                 six.print_("Error:" + six.text_type(self._get_first_xpath('EXCEPTION/MESSAGE').text))
-                six.print_("Call-stack:" + six.text_type(self._get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[newline]}", "\n"))
+                six.print_("Call-stack:" + six.text_type(self._get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
             raise
 
     def assert_comp_equal(self, xpath, text, coord):

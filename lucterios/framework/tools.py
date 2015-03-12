@@ -23,6 +23,17 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
+def icon_path(item):
+    res_icon_path = ""
+    if hasattr(item, 'icon') and item.icon != "":
+        if (item.extension == '') or ('images/' in item.icon):
+            res_icon_path = item.icon
+        elif item.extension == 'CORE':
+            res_icon_path = "images/" + item.icon
+        else:
+            res_icon_path = "%s/images/%s" % (item.extension, item.icon)
+    return res_icon_path
+
 def menu_key_to_comp(menu_item):
     try:
         return menu_item[0].pos
@@ -132,12 +143,7 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
     actionxml.text = six.text_type(item.caption)
     actionxml.attrib['id'] = item.url_text
     if hasattr(item, 'icon') and item.icon != "":
-        if (item.extension == '') or ('images/' in item.icon):
-            actionxml.attrib['icon'] = item.icon
-        elif item.extension == 'CORE':
-            actionxml.attrib['icon'] = "images/" + item.icon
-        else:
-            actionxml.attrib['icon'] = "%s/images/%s" % (item.extension, item.icon)
+        actionxml.attrib['icon'] = six.text_type(icon_path(item))
         # actionxml.attrib['sizeicon']=filesize(item.icon)
     if item.extension != "":
         actionxml.attrib['extension'] = item.extension

@@ -254,9 +254,9 @@ class ConfigTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 10))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[newline]}{[center]}{[bold]}{[underline]}Configuration du logiciel{[/underline]}{[/bold]}{[/center]}", (1, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[bold]}Mode de connexion{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connection toujours nécessaire", (2, 1, 1, 1))
 
     def test_config_edit(self):
@@ -272,9 +272,9 @@ class ConfigTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[newline]}{[center]}{[bold]}{[underline]}Edition de paramètres{[/underline]}{[/bold]}{[/center]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Edition de paramètres{[/u]}{[/b]}{[/center]}", (1, 0, 1, 1))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[bold]}Mode de connexion{[/bold]}", (1, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (2, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
         self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connection toujours nécessaire")

@@ -110,7 +110,7 @@ class Configuration(XferContainerCustom):
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
-        lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Software configuration"))
+        lab.set_value('{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Software configuration"))
         self.add_component(lab)
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
@@ -129,7 +129,7 @@ class ParamEdit(XferContainerCustom):
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0)
-        lab.set_value('{[newline]}{[center]}{[bold]}{[underline]}%s{[/underline]}{[/bold]}{[/center]}' % _("Edition of parameters"))
+        lab.set_value('{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Edition of parameters"))
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False)
         self.add_action(ParamSave().get_changed(_('Ok'), 'images/ok.png'), {})

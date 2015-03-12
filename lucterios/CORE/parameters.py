@@ -50,7 +50,7 @@ class ParamCache(object):
 
     def get_label_comp(self):
         lbl = XferCompLabelForm('lbl_' + self.name)
-        lbl.set_value('{[bold]}%s{[/bold]}' % ugettext_lazy(self.name))
+        lbl.set_value_as_name(ugettext_lazy(self.name))
         return lbl
 
     def get_write_comp(self):

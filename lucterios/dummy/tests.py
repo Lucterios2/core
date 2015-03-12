@@ -60,13 +60,13 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
         self.assert_attrib_equal('', 'source_extension', 'dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Waiting...{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Waiting...{[/center]}')
 
         self.call('/dummy/multi', {'CONFIRME':'YES', 'RELOAD':'YES'})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
         self.assert_attrib_equal('', 'source_extension', 'dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[newline]}{[center]}Done!{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Done!{[/center]}')
 
     def test_testcomposants(self):
         # pylint: disable=too-many-statements

@@ -113,6 +113,15 @@ class XferCompLabelForm(XferComponent):
         XferComponent.__init__(self, name)
         self._component_ident = "LABELFORM"
 
+    def set_value_as_title(self, value):
+        self.set_value(six.text_type('{[br/]}{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}') % value)
+
+    def set_value_as_name(self, value):
+        self.set_value(six.text_type('{[b]}%s{[/b]}') % value)
+
+    def set_value_as_header(self, value):
+        self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
+
 class XferCompButton(XferComponent):
 
     def __init__(self, name):
@@ -388,7 +397,7 @@ class XferCompGrid(XferComponent):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
             else:
-                dep_field = query_set.model._meta.get_field_by_name(fieldname) # pylint: disable=protected-access
+                dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
                 if isinstance(dep_field[0], IntegerField):
                     hfield = 'int'
                 elif isinstance(dep_field[0], FloatField):

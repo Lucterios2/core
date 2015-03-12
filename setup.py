@@ -6,7 +6,6 @@ Created on fevr. 2015
 '''
 
 from distutils.core import setup
-from setuptools.command.install import install
 from lucterios.CORE import __version__
 
 setup(

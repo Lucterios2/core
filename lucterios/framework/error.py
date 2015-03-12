@@ -31,5 +31,5 @@ def get_error_trace():
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
     res = six.text_type('')
     for item in trace:
-        res += six.text_type("%s in line %d in %s : %s{[newline]}") % item
+        res += six.text_type("%s in line %d in %s : %s{[br/]}") % item
     return res
