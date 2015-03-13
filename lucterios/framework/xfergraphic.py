@@ -14,11 +14,9 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
 from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, \
-    get_dico_from_setquery, icon_path
-from lucterios.framework.tools import ifplural, get_value_converted, get_corrected_setquery
+    get_dico_from_setquery
+from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
-from lucterios.framework.error import LucteriosException, GRAVE
-from django.db.utils import IntegrityError
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -248,31 +246,38 @@ class XferContainerCustom(XferContainerAbstract):
         comp.description = six.text_type(dep_field[0].verbose_name)
         return comp
 
-    def fill_from_model(self, col, row, readonly, field_names):
+    def fill_from_model(self, col, row, readonly, field_names=None):
         # pylint: disable=protected-access
-        for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name)
-            if dep_field[2]:  # field real in model
-                lbl = XferCompLabelForm('lbl_' + field_name)
-                lbl.set_location(col, row, 1, 1)
-                lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
-                self.add_component(lbl)
-                if not dep_field[3]:  # field not many-to-many
-                    if readonly:
-                        comp = XferCompLabelForm(field_name)
-                        comp.set_value(get_value_converted(getattr(self.item, field_name), True))
+        if field_names is None:
+            field_names = self.item.get_file_names()
+        for line_field_name in field_names:
+            if not isinstance(line_field_name, tuple):
+                line_field_name = (line_field_name,)
+            offset = 0
+            for field_name in line_field_name:
+                dep_field = self.item._meta.get_field_by_name(field_name)
+                if dep_field[2]:  # field real in model
+                    lbl = XferCompLabelForm('lbl_' + field_name)
+                    lbl.set_location(col + offset, row, 1, 1)
+                    lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                    self.add_component(lbl)
+                    if not dep_field[3]:  # field not many-to-many
+                        if readonly:
+                            comp = XferCompLabelForm(field_name)
+                            comp.set_value(get_value_converted(getattr(self.item, field_name), True))
+                        else:
+                            comp = self.get_writing_comp(field_name)
                     else:
-                        comp = self.get_writing_comp(field_name)
-                else:
-                    comp = XferCompGrid(field_name)
-                    comp.add_header("text", six.text_type(dep_field[0].verbose_name))
-                    if self.item.id is not None:
-                        values = getattr(self.item, field_name).all()
-                        for value in values:
-                            comp.set_value(value.id, "text", six.text_type(value))
-                comp.set_location(col + 1, row, 1, 1)
-                self.add_component(comp)
-                row += 1
+                        comp = XferCompGrid(field_name)
+                        comp.add_header("text", six.text_type(dep_field[0].verbose_name))
+                        if self.item.id is not None:
+                            values = getattr(self.item, field_name).all()
+                            for value in values:
+                                comp.set_value(value.id, "text", six.text_type(value))
+                    comp.set_location(col + 1 + offset, row, 1, 1)
+                    self.add_component(comp)
+                    offset += 2
+            row += 1
 
     def _get_scripts_for_selectors(self, field_name, availables):
         sela = get_dico_from_setquery(availables)
@@ -429,76 +434,3 @@ if (%(comp)s_current !== null) {
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
         return XferContainerAbstract._finalize(self)
-
-class XferAddEditor(XferContainerCustom):
-
-    caption_add = ''
-    caption_modify = ''
-    fieldnames = []
-
-    def get(self, request, *args, **kwargs):
-        self._initialize(request, *args, **kwargs)
-        if self.getparam("SAVE") != "YES":
-            if self.is_new:
-                self.caption = self.caption_add
-            else:
-                self.caption = self.caption_modify
-            img = XferCompImage('img')
-            img.set_value(icon_path(self))
-            img.set_location(0, 0, 1, 6)
-            self.add_component(img)
-            self.fill_from_model(1, 0, False, self.fieldnames)
-            self.params["SAVE"] = "YES"
-            self.add_action(self.__class__().get_changed(_('Ok'), 'images/ok.png'), {})
-            self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
-            return self._finalize()
-        else:
-            del self.params["SAVE"]
-            save = XferSave()
-            save.model = self.model
-            save.field_id = self.field_id
-            save.caption = self.caption
-            save.raise_except_class = self.__class__
-
-            save.closeaction = self.closeaction
-            return save.get(request, *args, **kwargs)
-
-class XferDelete(XferContainerAcknowledge):
-
-    def _search_model(self):
-        if self.model is None:
-            raise LucteriosException(GRAVE, _("No model"))
-        if isinstance(self.field_id, tuple):
-            for field_id in self.field_id:
-                ids = self.getparam(field_id)
-                if ids is not None:
-                    self.field_id = field_id
-
-                    break
-        else:
-            ids = self.getparam(self.field_id)
-        if ids is None:
-            raise LucteriosException(GRAVE, _("No selection"))
-        ids = ids.split(';')
-        self.items = self.model.objects.filter(pk__in=ids)
-
-    def fillresponse(self):
-        # pylint: disable=protected-access
-        if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name':self.model._meta.verbose_name}, \
-                                    _("Do you want delete those %(nb)s %(name)s ?") % {'nb':len(self.items), 'name':self.model._meta.verbose_name_plural})):
-            for item in self.items:
-                item.delete()
-
-class XferSave(XferContainerAcknowledge):
-
-    raise_except_class = None
-
-    def fillresponse(self):
-        if self.has_changed:
-            try:
-                self.item.save()
-                self.has_changed = False
-                if self.fill_manytomany_fields():
-                    self.item.save()
-            except IntegrityError:
-                self.raise_except(_("This record exists yet!"), self.raise_except_class)

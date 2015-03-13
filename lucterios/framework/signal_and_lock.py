@@ -9,10 +9,9 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from django.utils import six
-from django.contrib.sessions.models import Session
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 import threading
+from lucterios.framework.models import LucteriosSession
 
 class Signal(object):
 
@@ -45,22 +44,6 @@ class Signal(object):
             cls._signlock.release()
 
 unlocker_action_class = None # pylint: disable=invalid-name
-
-class LucteriosSession(Session):
-
-    @property
-    def username(self):
-        data = self.get_decoded()
-        user_id = data.get('_auth_user_id', None)
-        if user_id is None:
-            return "---"
-        else:
-            return User.objects.get(id=user_id).username # pylint: disable=no-member
-
-    class Meta(object):
-        # pylint: disable=no-init
-        proxy = True
-        default_permissions = []
 
 class RecordLocker(object):
 

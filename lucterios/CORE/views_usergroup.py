@@ -6,15 +6,16 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils.translation import ugettext_lazy as _
-
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
-from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge, XferDelete, XferSave
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
 
 from django.contrib.auth.models import User, Group
-from lucterios.framework.error import LucteriosException, IMPORTANT
 from django.contrib.sessions.models import Session
+from django.utils.translation import ugettext_lazy as _
+
+from lucterios.framework.xferadvance import XferDelete, XferSave
+from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 
 MenuManage.add_sub("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)

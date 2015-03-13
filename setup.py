@@ -27,6 +27,7 @@ setup(
     package_data={
        "lucterios.CORE.migrations":['*'],
        "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
+       "lucterios.framework.migrations":['*'],
        "lucterios.framework":['locale/*/*/*'],
        "lucterios.install":['*'],
     },

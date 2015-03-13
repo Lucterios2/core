@@ -124,7 +124,7 @@
 		<exec executable="${testversion}">
 			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="run"/>
-			<arg value="--source=${basedir}/lucterios"/>
+			<arg value="--source=lucterios"/>
 			<arg value="--omit=${basedir}/lucterios/install/*"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>

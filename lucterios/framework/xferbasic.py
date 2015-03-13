@@ -77,7 +77,10 @@ class XferContainerAbstract(View):
     def _search_model(self):
         self.has_changed = False
         if self.model is not None:
-            ids = self.getparam(self.field_id)
+            if isinstance(self.field_id, six.integer_types):
+                ids = six.text_type(self.field_id)
+            else:
+                ids = self.getparam(self.field_id)
             if ids is not None:
                 ids = ids.split(';')
                 if len(ids) == 1:
