@@ -246,16 +246,26 @@ class XferContainerCustom(XferContainerAbstract):
         comp.description = six.text_type(dep_field[0].verbose_name)
         return comp
 
-    def fill_from_model(self, col, row, readonly, field_names=None):
-        # pylint: disable=protected-access
-        if field_names is None:
-            field_names = self.item.get_file_names()
+    def get_grid_comp(self, field_name, title):
+        comp = XferCompGrid(field_name)
+        comp.add_header("text", title)
+        if self.item.id is not None:
+            values = getattr(self.item, field_name).all()
+            for value in values:
+                comp.set_value(value.id, "text", six.text_type(value))
+        return comp
+
+    def _filltab_from_model(self, col, row, readonly, field_names):
+        size_in_line = 1
+        for line_field_name in field_names:
+            if isinstance(line_field_name, tuple):
+                size_in_line = max((size_in_line, len(line_field_name)))
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
-                line_field_name = (line_field_name,)
+                line_field_name = line_field_name,
             offset = 0
             for field_name in line_field_name:
-                dep_field = self.item._meta.get_field_by_name(field_name)
+                dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
                 if dep_field[2]:  # field real in model
                     lbl = XferCompLabelForm('lbl_' + field_name)
                     lbl.set_location(col + offset, row, 1, 1)
@@ -268,16 +278,32 @@ class XferContainerCustom(XferContainerAbstract):
                         else:
                             comp = self.get_writing_comp(field_name)
                     else:
-                        comp = XferCompGrid(field_name)
-                        comp.add_header("text", six.text_type(dep_field[0].verbose_name))
-                        if self.item.id is not None:
-                            values = getattr(self.item, field_name).all()
-                            for value in values:
-                                comp.set_value(value.id, "text", six.text_type(value))
-                    comp.set_location(col + 1 + offset, row, 1, 1)
+                        comp = self.get_grid_comp(field_name, six.text_type(dep_field[0].verbose_name))
+                    colspan = 1
+                    if offset == (len(line_field_name) - 1):
+                        colspan = 2 * size_in_line - (1 + offset)
+                    comp.set_location(col + 1 + offset, row, colspan, 1)
                     self.add_component(comp)
                     offset += 2
+
             row += 1
+
+    def fill_from_model(self, col, row, readonly, desc_fields=None):
+        # pylint: disable=protected-access
+        if desc_fields is None:
+            desc_fields = self.item.get_fields_names(readonly)
+        if isinstance(desc_fields, list):
+            desc_fields = {'':desc_fields}
+        tab_keys = list(desc_fields.keys())
+
+        if '' in tab_keys:
+            self._filltab_from_model(col, row, readonly, desc_fields[''])
+            tab_keys.remove('')
+        tab_keys.sort()
+        for tab_key in tab_keys:
+            self.new_tab(tab_key[tab_key.find('@') + 1:])
+
+            self._filltab_from_model(0, 0, readonly, desc_fields[tab_key])
 
     def _get_scripts_for_selectors(self, field_name, availables):
         sela = get_dico_from_setquery(availables)

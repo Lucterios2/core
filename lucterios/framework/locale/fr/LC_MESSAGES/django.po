@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-12 17:09+0000\n"
+"POT-Creation-Date: 2015-03-13 18:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,12 +30,12 @@ msgstr "Sommaire"
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: signal_and_lock.py:41
+#: signal_and_lock.py:40
 #, python-format
 msgid "Unknown signal %s"
 msgstr "Signal %s inconnu"
 
-#: signal_and_lock.py:94
+#: signal_and_lock.py:77
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
@@ -49,11 +49,11 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:182 xfergraphic.py:114
+#: tools.py:182 xfergraphic.py:112
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:184 xfergraphic.py:115
+#: tools.py:184 xfergraphic.py:113
 msgid "No"
 msgstr "Non"
 
@@ -73,6 +73,36 @@ msgstr "supprimer"
 msgid "Can"
 msgstr "Pouvoir"
 
+#: xferadvance.py:36 xfergraphic.py:120
+msgid "Ok"
+msgstr "Ok"
+
+#: xferadvance.py:37 xfergraphic.py:99
+msgid "Cancel"
+msgstr "Annuler"
+
+#: xferadvance.py:54
+msgid "No model"
+msgstr "Pas de model"
+
+#: xferadvance.py:65
+msgid "No selection"
+msgstr "Pas de sélection!"
+
+#: xferadvance.py:71
+#, python-format
+msgid "Do you want delete this %(name)s ?"
+msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
+
+#: xferadvance.py:72
+#, python-format
+msgid "Do you want delete those %(nb)s %(name)s ?"
+msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
+
+#: xferadvance.py:88
+msgid "This record exists yet!"
+msgstr "Cet enregistrement existe déjà!"
+
 #: xferbasic.py:75
 msgid ""
 "This record not exist!\n"
@@ -81,44 +111,14 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfergraphic.py:91
+#: xfergraphic.py:89
 msgid "Close"
 msgstr "Fermer"
 
-#: xfergraphic.py:98
+#: xfergraphic.py:96
 msgid "Traitment..."
 msgstr "Traitement..."
 
-#: xfergraphic.py:101 xfergraphic.py:453
-msgid "Cancel"
-msgstr "Annuler"
-
-#: xfergraphic.py:122 xfergraphic.py:452
-msgid "Ok"
-msgstr "Ok"
-
-#: xfergraphic.py:132
+#: xfergraphic.py:130
 msgid "Retry"
 msgstr "Recommencer"
-
-#: xfergraphic.py:470
-msgid "No model"
-msgstr "Pas de model"
-
-#: xfergraphic.py:481
-msgid "No selection"
-msgstr "Pas de sélection!"
-
-#: xfergraphic.py:487
-#, python-format
-msgid "Do you want delete this %(name)s ?"
-msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
-
-#: xfergraphic.py:488
-#, python-format
-msgid "Do you want delete those %(nb)s %(name)s ?"
-msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
-
-#: xfergraphic.py:504
-msgid "This record exists yet!"
-msgstr "Cet enregistrement existe déjà!"

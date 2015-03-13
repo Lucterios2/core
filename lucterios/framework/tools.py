@@ -187,6 +187,8 @@ def get_value_converted(value, bool_textual=False):
                 return six.text_type("1")
             else:
                 return six.text_type("0")
+    elif value is None:
+        return six.text_type("---")
     else:
         return six.text_type(value)
 
