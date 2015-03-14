@@ -10,8 +10,7 @@ from datetime import date
 
 from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, UsersModify, \
-    GroupsModify
+from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 from lucterios.framework import tools, signal_and_lock
 
@@ -184,11 +183,11 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('CONTEXT', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersModify', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersEdit', 1, 1, 1, {'SAVE':'YES'}))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
-        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '3'))
+        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', (0, 0, 1, 6))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[b]}nom d'utilisateur{[/b]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="username"]', (2, 0, 1, 1))
@@ -257,11 +256,10 @@ class UserTest(LucteriosTest):
 
     def test_usermodif(self):
         add_user("user1")
-        self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'user_actif':'3', "is_staff":'1', "is_superuser":'o', "first_name":'foo', "last_name":'SUPER', "email":'foo@super.com'}, False)
-
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
-        self.assert_count_equal('CONTEXT/PARAM', 6)
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', "is_staff":'1', "is_superuser":'o', "first_name":'foo', "last_name":'SUPER', "email":'foo@super.com'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_count_equal('CONTEXT/PARAM', 7)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '1')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', 'o')
@@ -284,11 +282,11 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Ajouter un utilisateur')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersModify', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersEdit', 1, 1, 1, {'SAVE':'YES'}))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
-        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '3'))
+        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', (0, 0, 1, 6))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_username"]', "{[b]}nom d'utilisateur{[/b]}", (1, 0, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="username"]', (2, 0, 1, 1))
@@ -333,12 +331,12 @@ class UserTest(LucteriosTest):
 
         add_user("user1")
         add_user("user2")
-        self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'username':'newuser', "is_staff":'0', "is_superuser":'1', "first_name":'my', "last_name":'BIG', \
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'username':'newuser', "is_staff":'0', "is_superuser":'1', "first_name":'my', "last_name":'BIG', \
                                          "email":'my@big.org', 'groups':'1', 'user_permissions':'7;9;11'}, False)
 
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
-        self.assert_count_equal('CONTEXT/PARAM', 8)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_count_equal('CONTEXT/PARAM', 9)
         self.assert_xml_equal('CONTEXT/PARAM[@name="username"]', 'newuser')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '0')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', '1')
@@ -402,24 +400,24 @@ class UserTest(LucteriosTest):
         user = User.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'init')
 
-        self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'user_actif':'3', 'password1':'abc', 'password2':'132'}, False)
-        self.assert_observer('CORE.Exception', 'CORE', 'usersModify')
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'abc', 'password2':'132'}, False)
+        self.assert_observer('CORE.Exception', 'CORE', 'usersEdit')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Les mots de passes sont différents!')
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
         user = User.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after different')
 
-        self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'user_actif':'3', 'password1':'', 'password2':''}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'', 'password2':''}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
         user = User.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after empty')
 
-        self.factory.xfer = UsersModify()
-        self.call('/CORE/usersModify', {'user_actif':'3', 'password1':'abc', 'password2':'abc'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersModify')
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'abc', 'password2':'abc'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
         user = User.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
@@ -439,7 +437,7 @@ class UserTest(LucteriosTest):
         self.assert_action_equal('CLOSE_ACTION/ACTION', (None, None, "CORE", "unlock", 1, 1, 1))
         self.assert_count_equal('CONTEXT/PARAM', 2)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
-        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'django.contrib.auth.models-User-3')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'lucterios.CORE.models-LucteriosUser-3')
 
         new_test = LucteriosTest("setUp")
         new_test.setUp()
@@ -452,7 +450,7 @@ class UserTest(LucteriosTest):
         new_test.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type("Enregistrement verrouillé par 'admin'!"))
         new_test.assert_xml_equal('EXCEPTION/CODE', '3')
 
-        self.call('/CORE/unlock', {'user_actif':'3', "LOCK_IDENT":'django.contrib.auth.models-User-3'})
+        self.call('/CORE/unlock', {'user_actif':'3', "LOCK_IDENT":'lucterios.CORE.models-LucteriosUser-3'})
         self.assert_observer('Core.Acknowledge', 'CORE', 'unlock')
 
         new_test.call('/CORE/usersEdit', {'user_actif':'3'})
@@ -497,7 +495,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Ajouter un groupe')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'groupsModify', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'groupsEdit', 1, 1, 1, {'SAVE':'YES'}))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_count_equal('COMPONENTS/*', 12)
@@ -525,11 +523,10 @@ class GroupTest(LucteriosTest):
         groups = Group.objects.all()  # pylint: disable=no-member
         self.assertEqual(len(groups), 0)
 
-        self.factory.xfer = GroupsModify()
-        self.call('/CORE/groupsModify', {'name':'newgroup', "permissions":'1;3;5;7'}, False)
-
-        self.assert_observer('Core.Acknowledge', 'CORE', 'groupsModify')
-        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {'SAVE':'YES', 'name':'newgroup', "permissions":'1;3;5;7'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'groupsEdit')
+        self.assert_count_equal('CONTEXT/PARAM', 3)
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
 
@@ -567,11 +564,10 @@ class GroupTest(LucteriosTest):
         grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
         grp.save()
 
-        self.factory.xfer = GroupsModify()
-        self.call('/CORE/groupsModify', {'name':'mygroup', "permissions":'1;3;5;7'}, False)
-
-        self.assert_observer('Core.DialogBox', 'CORE', 'groupsModify')
-        self.assert_count_equal('CONTEXT/PARAM', 2)
+        self.factory.xfer = GroupsEdit()
+        self.call('/CORE/groupsEdit', {'SAVE':'YES', 'name':'mygroup', "permissions":'1;3;5;7'}, False)
+        self.assert_observer('Core.DialogBox', 'CORE', 'groupsEdit')
+        self.assert_count_equal('CONTEXT/PARAM', 3)
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'mygroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
         self.assert_attrib_equal('TEXT', 'type', '3')
@@ -608,7 +604,7 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('CLOSE_ACTION/ACTION', (None, None, "CORE", "unlock", 1, 1, 1))
         self.assert_count_equal('CONTEXT/PARAM', 2)
         self.assert_xml_equal('CONTEXT/PARAM[@name="group"]', '1')
-        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'django.contrib.auth.models-Group-1')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="LOCK_IDENT"]', 'lucterios.CORE.models-LucteriosGroup-1')
 
         new_test = LucteriosTest("setUp")
         new_test.setUp()

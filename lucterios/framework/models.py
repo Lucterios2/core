@@ -55,7 +55,7 @@ class LucteriosModel(models.Model):
         # pylint: disable=no-init
         abstract = True
 
-class LucteriosSession(Session):
+class LucteriosSession(Session, LucteriosModel):
 
     @property
     def username(self):

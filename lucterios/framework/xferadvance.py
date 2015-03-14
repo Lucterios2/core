@@ -20,6 +20,10 @@ class XferAddEditor(XferContainerCustom):
     caption_modify = ''
     fieldnames = []
 
+    def fillreponse_forsave(self):
+        # pylint: disable=no-self-use
+        return
+
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
         if self.getparam("SAVE") != "YES":
@@ -41,7 +45,7 @@ class XferAddEditor(XferContainerCustom):
             save.field_id = self.field_id
             save.caption = self.caption
             save.raise_except_class = self.__class__
-
+            save.fillreponse_forsave = self.fillreponse_forsave
             save.closeaction = self.closeaction
             return save.get(request, *args, **kwargs)
 
@@ -74,6 +78,10 @@ class XferSave(XferContainerAcknowledge):
 
     raise_except_class = None
 
+    def fillreponse_forsave(self):
+        # pylint: disable=no-self-use
+        return
+
     def fillresponse(self):
         if self.has_changed:
             try:
@@ -83,3 +91,5 @@ class XferSave(XferContainerAcknowledge):
                     self.item.save()
             except IntegrityError:
                 self.raise_except(_("This record exists yet!"), self.raise_except_class)
+        if self.except_msg == '':
+            self.fillreponse_forsave()

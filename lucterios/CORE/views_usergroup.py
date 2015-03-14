@@ -7,16 +7,15 @@ Created on 11 fevr. 2015
 
 from __future__ import unicode_literals
 
-from django.contrib.auth.models import User, Group
-from django.contrib.sessions.models import Session
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.xferadvance import XferDelete, XferSave
+from lucterios.framework.xferadvance import XferDelete, XferAddEditor
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid, XferCompPassword
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 MenuManage.add_sub("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -37,7 +36,7 @@ class GroupsList(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
 
-        group = Group.objects.filter()  # pylint: disable=no-member
+        group = LucteriosGroup.objects.filter()  # pylint: disable=no-member
         grid = XferCompGrid('group')
         grid.set_location(0, 1, 2)
         grid.set_model(group, ['name'])
@@ -49,43 +48,21 @@ class GroupsList(XferContainerCustom):
         self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('auth.add_group')
-class GroupsEdit(XferContainerCustom):
+class GroupsEdit(XferAddEditor):
     # pylint: disable=too-many-public-methods
-    caption = _("Modify a group")
+    caption_add = _("Add a group")
+    caption_modify = _("Modify a group")
     icon = "group.png"
-    model = Group
+    model = LucteriosGroup
     field_id = 'group'
     locked = True
-
-    def fillresponse(self):
-        if self.is_new:
-            self.caption = _("Add a group")
-        else:
-            self.caption = _("Modify a group")
-        img = XferCompImage('img')
-        img.set_value('images/group.png')
-        img.set_location(0, 0, 1, 6)
-        self.add_component(img)
-        self.fill_from_model(1, 0, False, ['name'])
-        self.selector_from_model(1, 1, 'permissions', _("Available permissions"), _("Chosen permissions"))
-
-        self.add_action(GroupsModify().get_changed(_('Ok'), 'images/ok.png'), {})
-        self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('auth.delete_group')
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
     icon = "group.png"
-    model = Group
+    model = LucteriosGroup
     field_id = 'group'
-
-@MenuManage.describ('auth.add_group')
-class GroupsModify(XferSave):
-    caption = _("Modify a group")
-    icon = "group.png"
-    model = Group
-    field_id = 'group'
-    raise_except_class = GroupsEdit
 
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
@@ -109,7 +86,7 @@ class UsersList(XferContainerCustom):
         lbl.set_location(0, 1, 2)
         self.add_component(lbl)
 
-        users = User.objects.filter(is_active=True)  # pylint: disable=no-member
+        users = LucteriosUser.objects.filter(is_active=True)  # pylint: disable=no-member
         grid = XferCompGrid('user_actif')
         grid.set_location(0, 2, 2)
         grid.set_model(users, ['username', 'first_name', 'last_name', 'last_login'])
@@ -129,7 +106,7 @@ class UsersList(XferContainerCustom):
         lbl.set_location(0, 4, 2)
         self.add_component(lbl)
 
-        users = User.objects.filter(is_active=False)  # pylint: disable=no-member
+        users = LucteriosUser.objects.filter(is_active=False)  # pylint: disable=no-member
         grid = XferCompGrid('user_inactif')
         grid.set_location(0, 5, 2)
         grid.set_model(users, ['username', 'first_name', 'last_name'])
@@ -143,7 +120,7 @@ class UsersList(XferContainerCustom):
 class UsersDelete(XferDelete):
     caption = _("Delete users")
     icon = "user.png"
-    model = User
+    model = LucteriosUser
     field_id = ('user_actif', 'user_inactif')
 
     def fillresponse(self):
@@ -156,7 +133,7 @@ class UsersDelete(XferDelete):
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
     icon = "user.png"
-    model = User
+    model = LucteriosUser
     field_id = 'user_actif'
 
     def fillresponse(self):
@@ -169,7 +146,7 @@ class UsersDisabled(XferContainerAcknowledge):
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
     icon = "user.png"
-    model = User
+    model = LucteriosUser
     field_id = 'user_inactif'
 
     def fillresponse(self):
@@ -177,70 +154,23 @@ class UsersEnabled(XferContainerAcknowledge):
         self.item.save()
 
 @MenuManage.describ('auth.add_user')
-class UsersEdit(XferContainerCustom):
+class UsersEdit(XferAddEditor):
     # pylint: disable=too-many-public-methods
-    caption = _("Modify an user")
+    caption_add = _("Add an users")
+    caption_modify = _("Modify an user")
     icon = "user.png"
-    model = User
+    model = LucteriosUser
     field_id = 'user_actif'
-
     locked = True
 
-    def fillresponse(self):
-        if self.is_new:
-            self.caption = _("Add an users")
-        else:
-            self.caption = _("Modify an user")
-        img = XferCompImage('img')
-        img.set_value('images/user.png')
-        img.set_location(0, 0, 1, 3)
-        self.add_component(img)
-        if self.is_new:
-            self.fill_from_model(1, 0, False, ['username'])
-        else:
-            self.fill_from_model(1, 0, True, ['username', 'date_joined', 'last_login'])
-
-        self.new_tab(_('Informations'))
-        self.fill_from_model(0, 0, False, ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'])
-        lbl = XferCompLabelForm('lbl_password1')
-        lbl.set_location(0, 5, 1, 1)
-        lbl.set_value_as_name(_("password"))
-        self.add_component(lbl)
-        lbl = XferCompLabelForm('lbl_password2')
-        lbl.set_location(0, 6, 1, 1)
-        lbl.set_value_as_name(_("password (again)"))
-        self.add_component(lbl)
-        pwd = XferCompPassword('password1')
-        pwd.set_location(1, 5, 1, 1)
-        self.add_component(pwd)
-        pwd = XferCompPassword('password2')
-        pwd.set_location(1, 6, 1, 1)
-        self.add_component(pwd)
-
-        self.new_tab(_('Permissions'))
-        self.selector_from_model(0, 0, 'groups', _("Available groups"), _("Chosen groups"))
-        self.selector_from_model(0, 5, 'user_permissions', _("Available permissions"), _("Chosen permissions"))
-        # 'password''groups''user_permissions'
-
-        self.add_action(UsersModify().get_changed(_('Ok'), 'images/ok.png'), {})
-        self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
-
-@MenuManage.describ('auth.add_user')
-class UsersModify(XferSave):
-    caption = _("Modify an user")
-    icon = "user.png"
-    model = User
-    field_id = 'user_actif'
-    raise_except_class = UsersEdit
-
-    def fillresponse(self, password1='', password2=''):
-        XferSave.fillresponse(self)
-        if self.except_msg == '':
-            if password1 != password2:
-                raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
-            if password1 != '':
-                self.item.set_password(password1)
-                self.item.save()
+    def fillreponse_forsave(self):
+        password1 = self.getparam('password1')
+        password2 = self.getparam('password2')
+        if password1 != password2:
+            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+        if (password1 is not None) and (password1 != ''):
+            self.item.set_password(password1)
+            self.item.save()
 
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
 class SessionList(XferContainerCustom):
@@ -272,5 +202,5 @@ class SessionList(XferContainerCustom):
 class SessionDelete(XferDelete):
     caption = _("Delete session")
     icon = "extensions.png"
-    model = Session
+    model = LucteriosSession
     field_id = 'session'

@@ -247,7 +247,7 @@ class XferContainerCustom(XferContainerAbstract):
 
     def get_reading_comp(self, field_name):
         value = get_value_converted(getattr(self.item, field_name), True)
-        dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], EmailField):
             comp = XferCompLinkLabel(field_name)
             comp.set_link('mailto:' + value)
@@ -259,7 +259,7 @@ class XferContainerCustom(XferContainerAbstract):
     def get_writing_comp(self, field_name):
         from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
         from django.db.models.fields.related import ForeignKey
-        dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
             comp = XferCompFloat(field_name)
             comp.set_value(getattr(self.item, field_name))
@@ -301,7 +301,7 @@ class XferContainerCustom(XferContainerAbstract):
                 comp.set_value(value.id, "text", six.text_type(value))
         return comp
 
-    def _filltab_from_model(self, col, row, readonly, field_names):
+    def filltab_from_model(self, col, row, readonly, field_names):
         size_in_line = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
@@ -310,27 +310,29 @@ class XferContainerCustom(XferContainerAbstract):
             if not isinstance(line_field_name, tuple):
                 line_field_name = line_field_name,
             offset = 0
+            height = 1
             for field_name in line_field_name:
                 dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
                 if dep_field[2]:  # field real in model
-                    lbl = XferCompLabelForm('lbl_' + field_name)
-                    lbl.set_location(col + offset, row, 1, 1)
-                    lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
-                    self.add_component(lbl)
                     if not dep_field[3]:  # field not many-to-many
+                        lbl = XferCompLabelForm('lbl_' + field_name)
+                        lbl.set_location(col + offset, row, 1, 1)
+                        lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                        self.add_component(lbl)
                         if readonly:
                             comp = self.get_reading_comp(field_name)
                         else:
                             comp = self.get_writing_comp(field_name)
-                    else:
-                        comp = self.get_grid_comp(field_name, six.text_type(dep_field[0].verbose_name))
-                    colspan = 1
-                    if offset == (len(line_field_name) - 1):
-                        colspan = 2 * size_in_line - (1 + offset)
-                    comp.set_location(col + 1 + offset, row, colspan, 1)
-                    self.add_component(comp)
+                        colspan = 1
+                        if offset == (len(line_field_name) - 1):
+                            colspan = 2 * size_in_line - (1 + offset)
+                        comp.set_location(col + 1 + offset, row, colspan, 1)
+                        self.add_component(comp)
+                    else:  # field many-to-many
+                        self.selector_from_model(col + offset, row, field_name)
+                        height = 5
                     offset += 2
-            row += 1
+            row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
         # pylint: disable=protected-access
@@ -341,15 +343,15 @@ class XferContainerCustom(XferContainerAbstract):
         tab_keys = list(desc_fields.keys())
 
         if '' in tab_keys:
-            self._filltab_from_model(col, row, readonly, desc_fields[''])
+            self.filltab_from_model(col, row, readonly, desc_fields[''])
             tab_keys.remove('')
         tab_keys.sort()
         for tab_key in tab_keys:
             self.new_tab(tab_key[tab_key.find('@') + 1:])
-            self._filltab_from_model(0, 0, readonly, desc_fields[tab_key])
-        if readonly and hasattr(self.item, "show"):
+            self.filltab_from_model(0, 0, readonly, desc_fields[tab_key])
+        if readonly:
             self.item.show(self)
-        if not readonly and hasattr(self.item, "edit"):
+        else:
             self.item.edit(self)
 
     def _get_scripts_for_selectors(self, field_name, availables):
@@ -401,10 +403,14 @@ class XferContainerCustom(XferContainerAbstract):
     """ % {'comp':field_name}
         return java_script_init, java_script_treat
 
-    def selector_from_model(self, col, row, field_name, title_available, title_chosen):
+    def selector_from_model(self, col, row, field_name):
         # pylint: disable=too-many-locals
         dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if dep_field[2] and dep_field[3]:
+            if hasattr(self.item, field_name + "__titles"):
+                title_available, title_chosen = getattr(self.item, field_name + "__titles")
+            else:
+                title_available, title_chosen = ('', '')
             availables = get_corrected_setquery(dep_field[0].rel.to.objects.all())
             java_script_init, java_script_treat = self._get_scripts_for_selectors(field_name, availables)
 
