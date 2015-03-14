@@ -32,12 +32,10 @@ class XferAddEditor(XferContainerCustom):
             img.set_location(0, 0, 1, 6)
             self.add_component(img)
             self.fill_from_model(1, 0, False)
-            self.params["SAVE"] = "YES"
-            self.add_action(self.__class__().get_changed(_('Ok'), 'images/ok.png'), {})
+            self.add_action(self.__class__().get_changed(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
             self.add_action(XferContainerAcknowledge().get_changed(_('Cancel'), 'images/cancel.png'), {})
             return self._finalize()
         else:
-            del self.params["SAVE"]
             save = XferSave()
             save.model = self.model
             save.field_id = self.field_id
@@ -57,7 +55,6 @@ class XferDelete(XferContainerAcknowledge):
                 ids = self.getparam(field_id)
                 if ids is not None:
                     self.field_id = field_id
-
                     break
         else:
             ids = self.getparam(self.field_id)

@@ -12,11 +12,13 @@ from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
-    XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList
+    XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
+    XferCompMemo, XferCompSelect, XferCompLinkLabel
 from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, \
     get_dico_from_setquery
 from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
+from django.db.models.fields import EmailField
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -89,11 +91,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
         else:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
-            kwargs["RELOAD"] = "YES"
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
-            btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {})
+            btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
             dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"), {})
@@ -103,13 +104,12 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
-            kwargs["CONFIRME"] = "YES"
             dlg = XferContainerDialogBox()
             dlg.caption = "Confirmation"
             dlg.extension = self.extension
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-            dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
+            dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
             dlg.add_action(XferContainerAbstract().get_changed(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
@@ -193,6 +193,25 @@ class XferContainerCustom(XferContainerAbstract):
         comp_id = component.get_id()
         self.components[comp_id] = component
 
+    def get_components(self, cmp_name):
+        if isinstance(cmp_name, six.text_type):
+            comp_res = None
+            for comp in self.components.values():
+                if comp.name == cmp_name:
+                    comp_res = comp
+            return comp_res
+        else:
+            return None
+
+    def remove_component(self, cmp_name):
+        if isinstance(cmp_name, six.text_type):
+            comp_id = None
+            for (key, comp) in self.components.items():
+                if comp.name == cmp_name:
+                    comp_id = key
+            if comp_id is not None:
+                del self.components[comp_id]
+
     def find_tab(self, tab_name):
         num = -1
         tab_name = six.text_type(tab_name)
@@ -226,10 +245,21 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             self.tab = old_num
 
+    def get_reading_comp(self, field_name):
+        value = get_value_converted(getattr(self.item, field_name), True)
+        dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+        if isinstance(dep_field[0], EmailField):
+            comp = XferCompLinkLabel(field_name)
+            comp.set_link('mailto:' + value)
+        else:
+            comp = XferCompLabelForm(field_name)
+        comp.set_value(value)
+        return comp
+
     def get_writing_comp(self, field_name):
-        # pylint: disable=protected-access
-        from django.db.models.fields import IntegerField, FloatField, BooleanField
-        dep_field = self.item._meta.get_field_by_name(field_name)
+        from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
+        from django.db.models.fields.related import ForeignKey
+        dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
             comp = XferCompFloat(field_name)
             comp.set_value(getattr(self.item, field_name))
@@ -239,6 +269,22 @@ class XferContainerCustom(XferContainerAbstract):
         elif isinstance(dep_field[0], BooleanField):
             comp = XferCompCheck(field_name)
             comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], TextField):
+            comp = XferCompMemo(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], ForeignKey):
+            comp = XferCompSelect(field_name)
+            value = getattr(self.item, field_name)
+            if value is None:
+                comp.set_value(0)
+            else:
+                comp.set_value(value.id)
+            sel_list = {}
+            if dep_field[0].null:
+                sel_list[0] = "---"
+            for select_obj in dep_field[0].rel.to.objects.all():
+                sel_list[select_obj.id] = six.text_type(select_obj)
+            comp.set_select(sel_list)
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(getattr(self.item, field_name))
@@ -265,7 +311,7 @@ class XferContainerCustom(XferContainerAbstract):
                 line_field_name = line_field_name,
             offset = 0
             for field_name in line_field_name:
-                dep_field = self.item._meta.get_field_by_name(field_name) # pylint: disable=protected-access
+                dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
                 if dep_field[2]:  # field real in model
                     lbl = XferCompLabelForm('lbl_' + field_name)
                     lbl.set_location(col + offset, row, 1, 1)
@@ -273,8 +319,7 @@ class XferContainerCustom(XferContainerAbstract):
                     self.add_component(lbl)
                     if not dep_field[3]:  # field not many-to-many
                         if readonly:
-                            comp = XferCompLabelForm(field_name)
-                            comp.set_value(get_value_converted(getattr(self.item, field_name), True))
+                            comp = self.get_reading_comp(field_name)
                         else:
                             comp = self.get_writing_comp(field_name)
                     else:
@@ -285,7 +330,6 @@ class XferContainerCustom(XferContainerAbstract):
                     comp.set_location(col + 1 + offset, row, colspan, 1)
                     self.add_component(comp)
                     offset += 2
-
             row += 1
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
@@ -302,8 +346,11 @@ class XferContainerCustom(XferContainerAbstract):
         tab_keys.sort()
         for tab_key in tab_keys:
             self.new_tab(tab_key[tab_key.find('@') + 1:])
-
             self._filltab_from_model(0, 0, readonly, desc_fields[tab_key])
+        if readonly and hasattr(self.item, "show"):
+            self.item.show(self)
+        if not readonly and hasattr(self.item, "edit"):
+            self.item.edit(self)
 
     def _get_scripts_for_selectors(self, field_name, availables):
         sela = get_dico_from_setquery(availables)

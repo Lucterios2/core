@@ -138,6 +138,15 @@ def get_actions_xml(actions):
             actionsxml.append(new_xml)
     return actionsxml
 
+def fill_param_xml(context, params):
+    for key, value in params.items():
+        new_param = etree.SubElement(context, 'PARAM')
+        if isinstance(value, tuple) or isinstance(value, list):
+            new_param.text = ";".join(value)
+        else:
+            new_param.text = value
+        new_param.attrib['name'] = key
+
 def get_action_xml(item, option, desc='', tag='ACTION'):
     actionxml = etree.Element(tag)
     actionxml.text = six.text_type(item.caption)
@@ -156,6 +165,9 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
     actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
     actionxml.attrib['close'] = six.text_type(CLOSE_YES)
     actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+    if 'params' in option:
+        fill_param_xml(actionxml, option['params'])
+        del option['params']
     for key in option.keys():  # modal, close, unique
         if isinstance(option[key], six.integer_types):
             actionxml.attrib[key] = six.text_type(option[key])

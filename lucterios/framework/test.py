@@ -143,6 +143,9 @@ class LucteriosTest(TestCase):
             self.assert_attrib_equal(xpath, "close", six.text_type(act_desc[4]))
             self.assert_attrib_equal(xpath, "modal", six.text_type(act_desc[5]))
             self.assert_attrib_equal(xpath, "unique", six.text_type(act_desc[6]))
+            if len(act_desc) > 7:
+                for key, value in act_desc[7].items():
+                    self.assert_xml_equal("%s/PARAM[@name='%s']" % (xpath, key), value)
         else:
             self.assert_attrib_equal(xpath, "extension", None)
             self.assert_attrib_equal(xpath, "action", None)

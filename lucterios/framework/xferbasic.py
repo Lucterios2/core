@@ -15,9 +15,11 @@ from django.utils.log import getLogger
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml
+from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml,\
+    fill_param_xml
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
+from django.db.models.fields.related import ForeignKey
 
 class XferContainerAbstract(View):
     # pylint: disable=too-many-instance-attributes
@@ -103,6 +105,12 @@ class XferContainerAbstract(View):
                         from django.db.models.fields import BooleanField
                         if isinstance(dep_field[0], BooleanField):
                             new_value = new_value != '0' and new_value != 'n'
+                        if isinstance(dep_field[0], ForeignKey):
+                            pk_id = int(new_value)
+                            if pk_id == 0:
+                                new_value = None
+                            else:
+                                new_value = dep_field[0].rel.to.objects.get(pk=pk_id)
                         setattr(self.item, field_name, new_value)
                         self.has_changed = True
         return self.has_changed
@@ -154,13 +162,7 @@ class XferContainerAbstract(View):
             self.responsexml.insert(0, titlexml)
         if len(self.params) > 0:
             context = etree.Element("CONTEXT")
-            for key, value in self.params.items():
-                new_param = etree.SubElement(context, 'PARAM')
-                if isinstance(value, tuple) or isinstance(value, list):
-                    new_param.text = ";".join(value)
-                else:
-                    new_param.text = value
-                new_param.attrib['name'] = key
+            fill_param_xml(context, self.params)
             self.responsexml.insert(1, context)
         if self.closeaction != None:
             etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], self.closeaction[1]))

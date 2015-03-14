@@ -122,6 +122,21 @@ class XferCompLabelForm(XferComponent):
     def set_value_as_header(self, value):
         self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
 
+class XferCompLinkLabel(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "LINK"
+        self.link = ''
+
+    def set_link(self, link):
+        self.link = link.strip()
+
+    def get_reponse_xml(self):
+        compxml = XferComponent.get_reponse_xml(self)
+        etree.SubElement(compxml, "LINK").text = six.text_type(self.link)
+        return compxml
+
 class XferCompButton(XferComponent):
 
     def __init__(self, name):
