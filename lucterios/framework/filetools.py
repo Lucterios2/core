@@ -21,10 +21,13 @@ def get_tmp_dir():
         makedirs(tmp_path)
     return tmp_path
 
-def get_user_path(rootpath, filename):
+def get_user_dir():
     from django.conf import settings
     setting_path = join(settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
-    root_path = join(setting_path, 'usr', rootpath)
+    return join(setting_path, 'usr')
+
+def get_user_path(rootpath, filename):
+    root_path = join(get_user_dir(), rootpath)
     if not exists(root_path):
         makedirs(root_path)
     return join(root_path, filename)
