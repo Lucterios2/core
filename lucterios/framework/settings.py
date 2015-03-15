@@ -11,6 +11,7 @@ import logging, sys
 from django.utils import six
 from django.utils.module_loading import import_module
 from os.path import dirname, join
+from lucterios.framework.filetools import readimage_to_base64
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
@@ -59,15 +60,6 @@ DEFAULT_SETTINGS = {
     ),
 }
 
-def extract_icon(file_path):
-    import base64
-    if six.PY2:
-        img_prefix = six.binary_type('data:image/*;base64,')
-    else:
-        img_prefix = six.binary_type('data:image/*;base64,', 'ascii')
-    with open(file_path, "rb") as image_file:
-        return img_prefix + base64.b64encode(image_file.read())
-
 def fill_appli_settings(appli_name, addon_modules=None):
     last_frm = stack()[1]
     last_mod = getmodule(last_frm[0])
@@ -90,7 +82,7 @@ def fill_appli_settings(appli_name, addon_modules=None):
     for item in dir(setting_module):
         setattr(last_mod, item, getattr(setting_module, item))
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
-        setattr(last_mod, 'APPLIS_LOGO', extract_icon(setting_module.APPLIS_LOGO_NAME))
+        setattr(last_mod, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(last_mod, 'APPLIS_LOGO', '')
 

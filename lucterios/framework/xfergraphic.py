@@ -203,6 +203,16 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             return None
 
+    def move(self, tab, col_offset, row_offset):
+        new_components = {}
+        for comp in self.components.values():
+            if comp.tab == tab:
+                comp.col += col_offset
+                comp.row += row_offset
+            comp_id = comp.get_id()
+            new_components[comp_id] = comp
+        self.components = new_components
+
     def remove_component(self, cmp_name):
         if isinstance(cmp_name, six.text_type):
             comp_id = None

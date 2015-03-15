@@ -106,6 +106,18 @@ class XferCompImage(XferComponent):
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "IMAGE"
+        self.type = ""
+
+    def set_value(self, value):
+        if isinstance(value, six.binary_type):
+            self.value = value.decode("utf-8")
+        else:
+            self.value = six.text_type(value)
+
+    def _get_attribut(self, compxml):
+        XferComponent._get_attribut(self, compxml)
+        if self.type != '':
+            compxml.attrib['type'] = six.text_type(self.type)
 
 class XferCompLabelForm(XferComponent):
 
@@ -310,6 +322,33 @@ class XferCompCheckList(XferCompButton):
             else:
                 xml_case.attrib['checked'] = '0'
             xml_case.text = six.text_type(val)
+        return compxml
+
+class XferCompUpLoad(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "UPLOAD"
+        self.fitre = []
+        self.compress = False
+        self.http_file = False
+        self.maxsize = 1024 * 1024  # 1Mo
+
+    def add_filter(self, newfiltre):
+        self.fitre.append(newfiltre)
+
+    def _get_attribut(self, compxml):
+        XferComponent._get_attribut(self, compxml)
+        if self.compress:
+            compxml.attrib['Compress'] = 'true'
+        if self.http_file:
+            compxml.attrib['HttpFile'] = '1'
+        compxml.attrib['maxsize'] = six.text_type(self.maxsize)
+
+    def get_reponse_xml(self):
+        compxml = XferComponent.get_reponse_xml(self)
+        for filte_item in self.fitre:
+            etree.SubElement(compxml, "FILTER").text = six.text_type(filte_item)
         return compxml
 
 MAX_GRID_RECORD = 25
