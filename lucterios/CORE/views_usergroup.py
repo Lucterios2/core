@@ -163,15 +163,6 @@ class UsersEdit(XferAddEditor):
     field_id = 'user_actif'
     locked = True
 
-    def fillreponse_forsave(self):
-        password1 = self.getparam('password1')
-        password2 = self.getparam('password2')
-        if password1 != password2:
-            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
-        if (password1 is not None) and (password1 != ''):
-            self.item.set_password(password1)
-            self.item.save()
-
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
 class SessionList(XferContainerCustom):
     # pylint: disable=too-many-public-methods

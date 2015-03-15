@@ -51,6 +51,10 @@ class LucteriosModel(models.Model):
         # pylint: disable=unused-argument,no-self-use
         return
 
+    def saving(self, xfer):
+        # pylint: disable=unused-argument,no-self-use
+        return
+
     class Meta(object):
         # pylint: disable=no-init
         abstract = True

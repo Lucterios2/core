@@ -12,6 +12,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 class Parameter(LucteriosModel):
 
@@ -70,6 +71,15 @@ class LucteriosUser(User, LucteriosModel):
         xfer.add_component(pwd2)
         return LucteriosModel.edit(self, xfer)
 
+    def saving(self, xfer):
+        password1 = xfer.getparam('password1')
+        password2 = xfer.getparam('password2')
+        if password1 != password2:
+            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+        if (password1 is not None) and (password1 != ''):
+            self.set_password(password1)
+            self.save()
+
     class Meta(User.Meta):
         # pylint: disable=no-init
         proxy = True
@@ -81,7 +91,9 @@ class LucteriosGroup(Group, LucteriosModel):
 
     permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
-    class Meta(Group.Meta):
+    class Meta(object):
         # pylint: disable=no-init
         proxy = True
         default_permissions = []
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')

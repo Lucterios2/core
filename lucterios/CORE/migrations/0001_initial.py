@@ -54,5 +54,30 @@ class Migration(migrations.Migration):
             },
             bases=(models.Model,),
         ),
+        migrations.CreateModel(
+            name='LucteriosGroup',
+            fields=[
+            ],
+            options={
+                'verbose_name_plural': 'groups',
+                'verbose_name': 'group',
+                'proxy': True,
+                'default_permissions': [],
+            },
+            bases=('auth.group', models.Model),
+        ),
+        migrations.CreateModel(
+            name='LucteriosUser',
+            fields=[
+            ],
+            options={
+                'verbose_name_plural': 'users',
+                'verbose_name': 'user',
+                'proxy': True,
+                'abstract': False,
+                'default_permissions': [],
+            },
+            bases=('auth.user', models.Model),
+        ),
         migrations.RunPython(initial_values),
     ]
