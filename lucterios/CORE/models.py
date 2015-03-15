@@ -81,7 +81,7 @@ class LucteriosGroup(Group, LucteriosModel):
 
     permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
-    class Meta(User.Meta):
+    class Meta(Group.Meta):
         # pylint: disable=no-init
         proxy = True
         default_permissions = []
