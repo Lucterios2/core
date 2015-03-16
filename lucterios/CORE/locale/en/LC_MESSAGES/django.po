@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-16 09:38+0000\n"
+"POT-Creation-Date: 2015-03-16 15:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -140,41 +140,41 @@ msgstr "Informations"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:36
+#: models.py:38
 msgid "Available groups"
 msgstr "Available groups"
 
-#: models.py:36
+#: models.py:38
 msgid "Chosen groups"
 msgstr "Chosen groups"
 
-#: models.py:37 models.py:92
+#: models.py:39 models.py:94
 msgid "Available permissions"
 msgstr "Available permissions"
 
-#: models.py:37 models.py:92
+#: models.py:39 models.py:94
 msgid "Chosen permissions"
 msgstr "Chosen permissions"
 
-#: models.py:60
+#: models.py:62
 msgid "password"
 msgstr "password"
 
-#: models.py:64
+#: models.py:66
 msgid "password (again)"
 msgstr "password (again)"
 
-#: models.py:78 views.py:91
+#: models.py:80 views.py:91
 msgid "The passwords are differents!"
 msgstr "The passwords are differents!"
 
-#: models.py:98
+#: models.py:100
 #, fuzzy
 #| msgid "_Groups"
 msgid "group"
 msgstr "_Groups"
 
-#: models.py:99
+#: models.py:101
 #, fuzzy
 #| msgid "_Groups"
 msgid "groups"

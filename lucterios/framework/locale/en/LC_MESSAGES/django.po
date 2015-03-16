@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-16 09:38+0000\n"
+"POT-Creation-Date: 2015-03-16 15:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -102,7 +102,7 @@ msgstr "Do you want delete those %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:77
+#: xferbasic.py:78
 msgid ""
 "This record not exist!\n"
 "Refresh your application."

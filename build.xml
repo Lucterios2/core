@@ -139,6 +139,7 @@
 			<arg value="xml"/>
 		</exec>
 		<move file="coverage.xml" tofile="${testversion}.xml"/>
+		<replace file="${testversion}.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />		
 	</target>
 
 	<target name="test_py2" if="python2.present">
