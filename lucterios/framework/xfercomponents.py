@@ -439,7 +439,7 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 xml_value = etree.SubElement(xml_record, "VALUE")
                 xml_value.attrib['name'] = six.text_type(header.name)
-                xml_value.text = get_value_converted(record[header.name])
+                xml_value.text = six.text_type(get_value_converted(record[header.name]))
         if len(self.actions) != 0:
             compxml.append(get_actions_xml(self.actions))
         return compxml

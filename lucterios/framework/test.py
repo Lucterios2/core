@@ -6,14 +6,14 @@ Created on feb. 2015
 '''
 
 from __future__ import unicode_literals
-from django.contrib.auth.models import User
 from django.test import TestCase, Client, RequestFactory
 from django.utils import six
 from lxml import etree
 from lucterios.framework.middleware import LucteriosErrorMiddleware
+from lucterios.CORE.models import LucteriosUser
 
 def add_user(username):
-    user = User.objects.create_user(username=username, password=username)
+    user = LucteriosUser.objects.create_user(username=username, password=username)
     user.first_name = username
     user.last_name = username.upper()
     user.is_staff = False
@@ -25,6 +25,7 @@ def add_empty_user():
     user = add_user('empty')
     user.last_name = 'NOFULL'
     user.save()
+    return user
 
 class XmlClient(Client):
 
@@ -40,6 +41,9 @@ class XmlRequestFactory(RequestFactory):
     def __init__(self, xfer_class, language='fr'):
         RequestFactory.__init__(self)
         self.language = language
+        self.user = LucteriosUser()
+        self.user.is_superuser = True
+        self.user.is_staff = True
         if xfer_class is not None:
             self.xfer = xfer_class()
         else:
@@ -49,9 +53,7 @@ class XmlRequestFactory(RequestFactory):
         try:
             request = self.post(path, data)
             request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
-            request.user = User()
-            request.user.is_superuser = True
-            request.user.is_staff = True
+            request.user = self.user
             return self.xfer.get(request)
         except Exception as expt:  # pylint: disable=broad-except
             err = LucteriosErrorMiddleware()

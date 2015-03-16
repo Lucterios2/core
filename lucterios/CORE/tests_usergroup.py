@@ -14,9 +14,10 @@ from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 from lucterios.framework import tools, signal_and_lock
 
-from django.contrib.auth.models import Group, Permission, User
+from django.contrib.auth.models import Permission
 from django.utils import six
 from lucterios.CORE.views import Unlock
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
@@ -325,7 +326,7 @@ class UserTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (3, 6, 1, 5))
 
     def test_useraddsave(self):
-        group = Group.objects.create(name="my_group")  # pylint: disable=no-member
+        group = LucteriosGroup.objects.create(name="my_group")  # pylint: disable=no-member
         group.permissions = Permission.objects.filter(id__in=[1, 3])  # pylint: disable=no-member
         group.save()
 
@@ -346,7 +347,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="groups"]', '1')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_permissions"]', '7;9;11')
 
-        user = User.objects.get(id=5)  # pylint: disable=no-member
+        user = LucteriosUser.objects.get(id=5)  # pylint: disable=no-member
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'user_actif':'5'}, False)
         self.assertEqual(user.username, 'newuser')
@@ -397,7 +398,7 @@ class UserTest(LucteriosTest):
         user.set_password('user')
         user.save()
 
-        user = User.objects.get(id=3)  # pylint: disable=no-member
+        user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'init')
 
         self.factory.xfer = UsersEdit()
@@ -406,19 +407,19 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Les mots de passes sont différents!')
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
-        user = User.objects.get(id=3)  # pylint: disable=no-member
+        user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after different')
 
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'', 'password2':''}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
-        user = User.objects.get(id=3)  # pylint: disable=no-member
+        user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after empty')
 
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'abc', 'password2':'abc'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
-        user = User.objects.get(id=3)  # pylint: disable=no-member
+        user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
 
@@ -520,7 +521,7 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
 
     def test_useraddsave(self):
-        groups = Group.objects.all()  # pylint: disable=no-member
+        groups = LucteriosGroup.objects.all()  # pylint: disable=no-member
         self.assertEqual(len(groups), 0)
 
         self.factory.xfer = GroupsEdit()
@@ -530,7 +531,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
 
-        groups = Group.objects.all()  # pylint: disable=no-member
+        groups = LucteriosGroup.objects.all()  # pylint: disable=no-member
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].name, "newgroup")
         perm = groups[0].permissions.all().order_by('id')  # pylint: disable=no-member
@@ -541,7 +542,7 @@ class GroupTest(LucteriosTest):
         self.assertEqual(perm[3].id, 7)
 
     def test_groupedit(self):
-        group = Group.objects.create(name="my_group")  # pylint: disable=no-member
+        group = LucteriosGroup.objects.create(name="my_group")  # pylint: disable=no-member
         group.permissions = Permission.objects.filter(id__in=[1, 3])  # pylint: disable=no-member
         group.save()
 
@@ -561,7 +562,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
     def test_groupadd_same(self):
-        grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
+        grp = LucteriosGroup.objects.create(name="mygroup")  # pylint: disable=no-member
         grp.save()
 
         self.factory.xfer = GroupsEdit()
@@ -591,7 +592,7 @@ class GroupTest(LucteriosTest):
         user1 = add_user("user1")
         user1.is_superuser = True
         user1.save()
-        grp = Group.objects.create(name="mygroup")  # pylint: disable=no-member
+        grp = LucteriosGroup.objects.create(name="mygroup")  # pylint: disable=no-member
         grp.save()
 
         self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})

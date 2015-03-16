@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-13 18:08+0000\n"
+"POT-Creation-Date: 2015-03-16 09:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -48,61 +48,61 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:182 xfergraphic.py:112
+#: tools.py:194 xfergraphic.py:112
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:184 xfergraphic.py:113
+#: tools.py:196 xfergraphic.py:113
 msgid "No"
 msgstr "No"
 
-#: tools.py:211
+#: tools.py:225
 msgid "add"
 msgstr "add"
 
-#: tools.py:213
+#: tools.py:227
 msgid "view"
 msgstr "view"
 
-#: tools.py:215
+#: tools.py:229
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:216
+#: tools.py:230
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:36 xfergraphic.py:120
+#: xferadvance.py:35 xfergraphic.py:120
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:37 xfergraphic.py:99
+#: xferadvance.py:36 xfergraphic.py:100
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:54
+#: xferadvance.py:51
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:65
+#: xferadvance.py:61
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:71
+#: xferadvance.py:67
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:72
+#: xferadvance.py:68
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:88
+#: xferadvance.py:84
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:75
+#: xferbasic.py:77
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -110,11 +110,11 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfergraphic.py:89
+#: xfergraphic.py:91
 msgid "Close"
 msgstr "Close"
 
-#: xfergraphic.py:96
+#: xfergraphic.py:97
 msgid "Traitment..."
 msgstr "Traitment..."
 

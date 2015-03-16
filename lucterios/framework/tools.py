@@ -202,7 +202,7 @@ def get_value_converted(value, bool_textual=False):
     elif value is None:
         return six.text_type("---")
     else:
-        return six.text_type(value)
+        return value
 
 def get_corrected_setquery(setquery):
     if setquery.model == Permission:

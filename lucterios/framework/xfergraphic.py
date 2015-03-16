@@ -263,6 +263,11 @@ class XferContainerCustom(XferContainerAbstract):
             comp.set_link('mailto:' + value)
         else:
             comp = XferCompLabelForm(field_name)
+        if hasattr(dep_field[0], 'choices') and (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
+            for choices_key, choices_value in dep_field[0].choices:
+                if choices_key == value:
+                    value = six.text_type(choices_value)
+                    break
         comp.set_value(value)
         return comp
 

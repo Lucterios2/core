@@ -33,12 +33,14 @@ class LucteriosUser(User, LucteriosModel):
                                  _('Informations'):['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'], \
                                  _('Permissions'):['groups', 'user_permissions']}
 
+    lucteriosuser__showfields = ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
+
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
     def edit(self, xfer):
         from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword
-        if self.id is not None: # pylint: disable=no-member
+        if self.id is not None:  # pylint: disable=no-member
             obj_username = xfer.get_components('username')
             xfer.remove_component('username')
             xfer.tab = obj_username.tab
