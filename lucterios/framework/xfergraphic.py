@@ -276,7 +276,11 @@ class XferContainerCustom(XferContainerAbstract):
         from django.db.models.fields.related import ForeignKey
         dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
-            comp = XferCompFloat(field_name)
+            if (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
+                comp = XferCompSelect(field_name)
+                comp.set_select(dict(dep_field[0].choices))
+            else:
+                comp = XferCompFloat(field_name)
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field[0], FloatField):
             comp = XferCompFloat(field_name)
