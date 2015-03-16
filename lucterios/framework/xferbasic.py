@@ -72,7 +72,8 @@ class XferContainerAbstract(View):
             if self.locked:
                 lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
                 self.params.update(lock_params)
-                self.set_close_action(signal_and_lock.unlocker_action_class())
+                if signal_and_lock.unlocker_action_class is not None:
+                    self.set_close_action(signal_and_lock.unlocker_action_class())
         except ObjectDoesNotExist:
             raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
 
