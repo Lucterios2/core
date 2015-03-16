@@ -43,7 +43,7 @@ class Signal(object):
         finally:
             cls._signlock.release()
 
-unlocker_action_class = None # pylint: disable=invalid-name
+unlocker_action_class = None  # pylint: disable=invalid-name
 
 class RecordLocker(object):
 
@@ -72,11 +72,12 @@ class RecordLocker(object):
                 params['LOCK_IDENT'] = lock_ident
                 if lock_ident in cls._lock_list.keys():
                     old_session_key = cls._lock_list[lock_ident]
-                    try:
-                        old_session = LucteriosSession.objects.get(pk=old_session_key) # pylint: disable=no-member
-                        raise LucteriosException(IMPORTANT, _("Record locked by '%s'!") % old_session.username)
-                    except ObjectDoesNotExist:
-                        pass
+                    if old_session_key != session_key:
+                        try:
+                            old_session = LucteriosSession.objects.get(pk=old_session_key)  # pylint: disable=no-member
+                            raise LucteriosException(IMPORTANT, _("Record locked by '%s'!") % old_session.username)
+                        except ObjectDoesNotExist:
+                            pass
                 cls._lock_list[lock_ident] = session_key
             return params
         finally:

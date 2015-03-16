@@ -140,6 +140,7 @@
 		</exec>
 		<move file="coverage.xml" tofile="${testversion}.xml"/>
 		<replace file="${testversion}.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />		
+		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 	</target>
 
 	<target name="test_py2" if="python2.present">
