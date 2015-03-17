@@ -365,23 +365,26 @@ class XferContainerCustom(XferContainerAbstract):
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
         # pylint: disable=protected-access
+        current_desc_fields = desc_fields
+
         if desc_fields is None:
-            desc_fields = self.item.get_fields_names(readonly)
-        if isinstance(desc_fields, list):
-            desc_fields = {'':desc_fields}
-        tab_keys = list(desc_fields.keys())
+            current_desc_fields = self.item.get_fields_names(readonly)
+        if isinstance(current_desc_fields, list):
+            current_desc_fields = {'':current_desc_fields}
+        tab_keys = list(current_desc_fields.keys())
 
         if '' in tab_keys:
-            self.filltab_from_model(col, row, readonly, desc_fields[''])
+            self.filltab_from_model(col, row, readonly, current_desc_fields[''])
             tab_keys.remove('')
         tab_keys.sort()
         for tab_key in tab_keys:
             self.new_tab(tab_key[tab_key.find('@') + 1:])
-            self.filltab_from_model(0, 0, readonly, desc_fields[tab_key])
-        if readonly:
-            self.item.show(self)
-        else:
-            self.item.edit(self)
+            self.filltab_from_model(0, 0, readonly, current_desc_fields[tab_key])
+        if desc_fields is None:
+            if readonly:
+                self.item.show(self)
+            else:
+                self.item.edit(self)
 
     def _get_scripts_for_selectors(self, field_name, availables):
         sela = get_dico_from_setquery(availables)

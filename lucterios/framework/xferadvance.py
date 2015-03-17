@@ -17,7 +17,7 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
 
 class XferListEditor(XferContainerCustom):
     field_names = []
-    filter = {}
+    filter = None
     show_class = None
     edit_class = None
     add_class = None
@@ -43,7 +43,12 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         self.fillresponse_header()
         row = self.get_max_row()
-        items = self.model.objects.filter(**self.filter)  # pylint: disable=no-member
+        if isinstance(self.filter, dict):
+            items = self.model.objects.filter(**self.filter)  # pylint: disable=no-member
+        elif isinstance(self.filter, list):
+            items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        else:
+            items = self.model.objects.all()  # pylint: disable=no-member
         grid = XferCompGrid(self.field_id)
         grid.set_model(items, self.field_names, self)
         if self.show_class is not None:
@@ -54,12 +59,12 @@ class XferListEditor(XferContainerCustom):
             grid.add_action(self.request, self.del_class().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
         if self.add_class is not None:
             grid.add_action(self.request, self.add_class().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_NONE})
-        grid.set_location(0, row+1, 2)
+        grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
         lbl = XferCompLabelForm("nb")
-        lbl.set_location(0, row+2, 2)
-        lbl.set_value(_("Total number of %s: %d") % (self.model._meta.verbose_name_plural, grid.nb_lines)) # pylint: disable=protected-access
+        lbl.set_location(0, row + 2, 2)
+        lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
         self.add_component(lbl)
         self.fillresponse_footer()
 
@@ -109,10 +114,9 @@ class XferShowEditor(XferContainerCustom):
         lbl.set_value_as_title(self.caption)
         lbl.set_location(1, 0)
         self.add_component(lbl)
-
         self.fill_from_model(1, 0, True)
         if self.modify_class is not None:
-            self.add_action(self.modify_class().get_changed(_('Modify'), 'images/edit.png'), {'close':CLOSE_NO}) # pylint: disable=not-callable
+            self.add_action(self.modify_class().get_changed(_('Modify'), 'images/edit.png'), {'close':CLOSE_NO})  # pylint: disable=not-callable
         self.add_action(SubAction(_('Close'), 'images/close.png'), {})
         return self._finalize()
 

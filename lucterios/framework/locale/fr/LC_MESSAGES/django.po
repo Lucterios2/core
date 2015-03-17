@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-17 16:16+0000\n"
+"POT-Creation-Date: 2015-03-17 16:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -32,11 +32,11 @@ msgstr "Manuel utilisateur"
 
 #: models.py:78
 msgid "session"
-msgstr ""
+msgstr "session"
 
 #: models.py:79
 msgid "sessions"
-msgstr ""
+msgstr "sessions"
 
 #: signal_and_lock.py:40
 #, python-format
@@ -99,8 +99,8 @@ msgstr "Ajouter"
 
 #: xferadvance.py:62
 #, python-format
-msgid "Total number of %s: %d"
-msgstr "Nombre total de %s: %d"
+msgid "Total number of %(name)s: %(count)d"
+msgstr "Nombre total de %(name)s: %(count)d"
 
 #: xferadvance.py:66 xferadvance.py:116 xfergraphic.py:92
 msgid "Close"

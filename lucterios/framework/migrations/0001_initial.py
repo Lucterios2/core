@@ -20,6 +20,8 @@ class Migration(migrations.Migration):
             options={
                 'default_permissions': [],
                 'proxy': True,
+                'verbose_name': 'session',
+                'verbose_name_plural': 'sessions'
             },
             bases=('sessions.session',),
         ),
