@@ -197,14 +197,11 @@ class XferContainerCustom(XferContainerAbstract):
         self.components[comp_id] = component
 
     def get_components(self, cmp_name):
-        if isinstance(cmp_name, six.text_type):
-            comp_res = None
-            for comp in self.components.values():
-                if comp.name == cmp_name:
-                    comp_res = comp
-            return comp_res
-        else:
-            return None
+        comp_res = None
+        for comp in self.components.values():
+            if comp.name == cmp_name:
+                comp_res = comp
+        return comp_res
 
     def move(self, tab, col_offset, row_offset):
         new_components = {}
@@ -224,13 +221,26 @@ class XferContainerCustom(XferContainerAbstract):
         return row
 
     def remove_component(self, cmp_name):
-        if isinstance(cmp_name, six.text_type):
-            comp_id = None
-            for (key, comp) in self.components.items():
-                if comp.name == cmp_name:
-                    comp_id = key
-            if comp_id is not None:
-                del self.components[comp_id]
+        comp_id = None
+        for (key, comp) in self.components.items():
+            if comp.name == cmp_name:
+                comp_id = key
+        if comp_id is not None:
+            del self.components[comp_id]
+
+    def change_to_readonly(self, cmp_name):
+        old_obj = self.get_components(cmp_name)
+        self.remove_component(cmp_name)
+        self.tab = old_obj.tab
+        new_lbl = XferCompLabelForm(cmp_name)
+        new_lbl.set_value(old_obj.value)
+        new_lbl.col = old_obj.col
+        new_lbl.row = old_obj.row
+        new_lbl.vmin = old_obj.vmin
+        new_lbl.hmin = old_obj.hmin
+        new_lbl.colspan = old_obj.colspan
+        new_lbl.rowspan = old_obj.rowspan
+        self.add_component(new_lbl)
 
     def find_tab(self, tab_name):
         num = -1
