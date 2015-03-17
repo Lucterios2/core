@@ -82,7 +82,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']", 'Gestion des droits')
-        self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU[@id='CORE/groupsList']", '_Groupes')
+        self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU[@id='CORE/groupsList']", 'Les groupes')
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')

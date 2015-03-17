@@ -8,9 +8,8 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 
 from lxml import etree
-from lucterios.framework.xferbasic import XferContainerException, XferContainerAbstract
+from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
-from lucterios.framework.tools import check_permission
 
 class LucteriosErrorMiddleware(XferContainerException):
 
@@ -19,7 +18,7 @@ class LucteriosErrorMiddleware(XferContainerException):
         self.closeaction = None
         if isinstance(exception, LucteriosRedirectException) and (exception.redirectclassaction is not None):
             redirectaction = exception.redirectclassaction()
-            if isinstance(redirectaction, XferContainerAbstract) and check_permission(redirectaction, self.request):
+            if self.check_action_permission(redirectaction):
                 self.closeaction = (redirectaction, {})
         self.responsesxml = etree.Element('REPONSES')
         self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')

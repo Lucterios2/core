@@ -15,8 +15,8 @@ from django.utils.log import getLogger
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml,\
-    fill_param_xml
+from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, \
+    fill_param_xml, SubAction
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.db.models.fields.related import ForeignKey
@@ -31,6 +31,7 @@ class XferContainerAbstract(View):
     closeaction = None
     icon = ""
     url_text = ""
+    # is_view_right = ""
     modal = None
 
     model = None
@@ -50,13 +51,18 @@ class XferContainerAbstract(View):
         self.has_changed = False
 
     def get_changed(self, caption, icon, extension=None, action=None):
-        self.caption = caption
-        self.icon = icon
+        act_ret = SubAction(caption, icon, url_text=self.url_text)
+        act_ret.modal = self.modal
+        act_ret.is_view_right = self.is_view_right  # pylint: disable=no-member
         if extension is not None:
-            self.extension = extension
+            act_ret.extension = extension
+        elif act_ret.extension == '':
+            act_ret.extension = self.extension
         if action is not None:
-            self.action = action
-        return self
+            act_ret.action = action
+        elif act_ret.action == '':
+            act_ret.action = self.action
+        return act_ret
 
     def getparam(self, key):
         if key in self.params.keys():
@@ -146,8 +152,11 @@ class XferContainerAbstract(View):
 
         self._search_model()
 
+    def check_action_permission(self, action):
+        return (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, self.request)
+
     def set_close_action(self, action, **option):
-        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
+        if self.check_action_permission(action):
             self.closeaction = (action, option)
 
     def fillresponse(self):

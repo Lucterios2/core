@@ -14,8 +14,8 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, \
-    get_dico_from_setquery
+from lucterios.framework.tools import get_action_xml, get_actions_xml, \
+    get_dico_from_setquery, SubAction
 from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
@@ -63,7 +63,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             return False
 
     def redirect_action(self, action):
-        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
+        if self.check_action_permission(action):
             self.redirect_act = action
 
     def raise_except(self, error_msg, action=None):
@@ -75,6 +75,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _get_from_custom(self, request, *args, **kwargs):
         dlg = XferContainerCustom()
+        dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
         dlg.caption = self.caption
         dlg.extension = self.extension
         dlg.action = self.action
@@ -88,7 +89,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
-            dlg.add_action(XferContainerAbstract().get_changed(_("Close"), "images/close.png"), {})
+            dlg.add_action(SubAction(_("Close"), "images/close.png"), {})
         else:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
             btn = XferCompButton("Next")
@@ -97,7 +98,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
-            dlg.add_action(XferContainerAbstract().get_changed(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(SubAction(_("Cancel"), "images/cancel.png"), {})
         return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -105,28 +106,30 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.fillresponse(**self._get_params())
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
             dlg = XferContainerDialogBox()
+            dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
             dlg.caption = "Confirmation"
             dlg.extension = self.extension
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
             dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
-            dlg.add_action(XferContainerAbstract().get_changed(_("No"), "images/cancel.png"), {})
+            dlg.add_action(SubAction(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.msg != "":
             dlg = XferContainerDialogBox()
             dlg.caption = self.caption
             dlg.set_dialog(self.msg, self.typemsg)
-            dlg.add_action(XferContainerAbstract().get_changed(_("Ok"), "images/ok.png"), {})
+            dlg.add_action(SubAction(_("Ok"), "images/ok.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.except_msg != "":
             dlg = XferContainerDialogBox()
+            dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
             dlg.caption = self.caption
             dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
             if self.except_classact is not None:
                 except_action = self.except_classact()
-                if isinstance(except_action, XferContainerAbstract) and check_permission(except_action, self.request):
+                if self.check_action_permission(except_action):
                     dlg.add_action(except_action.get_changed(_("Retry"), ""), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
@@ -166,7 +169,7 @@ class XferContainerDialogBox(XferContainerAbstract):
         self.msgtext = msgtext
 
     def add_action(self, action, options):
-        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
+        if self.check_action_permission(action):
             self.actions.append((action, options))
 
     def _finalize(self):
@@ -212,6 +215,13 @@ class XferContainerCustom(XferContainerAbstract):
             comp_id = comp.get_id()
             new_components[comp_id] = comp
         self.components = new_components
+
+    def get_max_row(self):
+        row = 0
+        for comp in self.components.values():
+            if comp.tab == self.tab:
+                row = max((row, comp.row))
+        return row
 
     def remove_component(self, cmp_name):
         if isinstance(cmp_name, six.text_type):
@@ -497,7 +507,7 @@ if (%(comp)s_current !== null) {
 }
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(self.request, XferContainerAcknowledge().get_changed(button_title, ""), {'close':CLOSE_NO})
+                btn.set_action(self.request, SubAction(button_title, ""), {'close':CLOSE_NO})
                 btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
                 btn.java_script = java_script_init + button_script % {'comp':field_name} + java_script_treat
@@ -505,7 +515,7 @@ if (%(comp)s_current !== null) {
                 btn_idx += 1
 
     def add_action(self, action, option, pos_act=-1):
-        if isinstance(action, XferContainerAbstract) and check_permission(action, self.request):
+        if self.check_action_permission(action):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
             else:

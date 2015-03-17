@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-16 15:36+0000\n"
+"POT-Creation-Date: 2015-03-17 16:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -29,80 +29,113 @@ msgstr "Table of content"
 msgid "User manual"
 msgstr "User manual"
 
+#: models.py:78
+msgid "session"
+msgstr ""
+
+#: models.py:79
+msgid "sessions"
+msgstr ""
+
 #: signal_and_lock.py:40
 #, python-format
 msgid "Unknown signal %s"
 msgstr "Unknown signal %s"
 
-#: signal_and_lock.py:77
+#: signal_and_lock.py:78
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:130
+#: tools.py:138
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:131
+#: tools.py:139
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:194 xfergraphic.py:112
+#: tools.py:202 xfergraphic.py:114
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:196 xfergraphic.py:113
+#: tools.py:204 xfergraphic.py:115
 msgid "No"
 msgstr "No"
 
-#: tools.py:225
+#: tools.py:233
 msgid "add"
 msgstr "add"
 
-#: tools.py:227
+#: tools.py:235
 msgid "view"
 msgstr "view"
 
-#: tools.py:229
+#: tools.py:237
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:230
+#: tools.py:238
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:35 xfergraphic.py:120
+#: xferadvance.py:50
+msgid "Edit"
+msgstr "Edit"
+
+#: xferadvance.py:52 xferadvance.py:115
+msgid "Modify"
+msgstr "Modify"
+
+#: xferadvance.py:54
+msgid "Delete"
+msgstr "Delete"
+
+#: xferadvance.py:56
+msgid "Add"
+msgstr "Add"
+
+#: xferadvance.py:62
+#, python-format
+msgid "Total number of %s: %d"
+msgstr "Total number of %s: %d"
+
+#: xferadvance.py:66 xferadvance.py:116 xfergraphic.py:92
+msgid "Close"
+msgstr "Close"
+
+#: xferadvance.py:85 xfergraphic.py:122
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:36 xfergraphic.py:100
+#: xferadvance.py:86 xfergraphic.py:101
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:51
+#: xferadvance.py:123
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:61
+#: xferadvance.py:133
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:67
+#: xferadvance.py:139
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:68
+#: xferadvance.py:140
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:84
+#: xferadvance.py:156
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:78
+#: xferbasic.py:84
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -110,14 +143,10 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfergraphic.py:91
-msgid "Close"
-msgstr "Close"
-
-#: xfergraphic.py:97
+#: xfergraphic.py:98
 msgid "Traitment..."
 msgstr "Traitment..."
 
-#: xfergraphic.py:130
+#: xfergraphic.py:133
 msgid "Retry"
 msgstr "Retry"

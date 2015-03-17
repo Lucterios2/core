@@ -33,7 +33,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersList()
         self.call('/CORE/usersList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'usersList')
-        self.assert_xml_equal('TITLE', 'Utilisateurs')
+        self.assert_xml_equal('TITLE', 'Les utilisateurs')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
@@ -472,13 +472,13 @@ class GroupTest(LucteriosTest):
         self.factory.xfer = GroupsList()
         self.call('/CORE/groupsList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'groupsList')
-        self.assert_xml_equal('TITLE', 'Groupes')
+        self.assert_xml_equal('TITLE', 'Les groupes')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
-        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/group.png', ('0', '0', '1', '1'))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Groupes éxistants{[/b]}{[/u]}{[/center]}', \
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les groupes{[/b]}{[/u]}{[/center]}', \
                                ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
@@ -488,6 +488,7 @@ class GroupTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/RECORD', 0)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="nb"]', "Nombre total de groupes: 0", (0, 2, 2, 1))
 
     def test_groupadd(self):
         self.factory.xfer = GroupsEdit()
@@ -638,14 +639,14 @@ class SessionTest(LucteriosTest):
 
         self.call('/CORE/sessionList', {})
         self.assert_observer('Core.Custom', 'CORE', 'sessionList')
-        self.assert_xml_equal('TITLE', 'Sessions')
+        self.assert_xml_equal('TITLE', 'Les sessions')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
-        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/extensions.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Sessions existantes{[/b]}{[/u]}{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les sessions{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="session"]', ('0', '1', '2', '1'))
 
@@ -655,6 +656,7 @@ class SessionTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="expire_date"]', "date d'expiration")
         self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/RECORD[1]/VALUE[@name="username"]', 'admin')
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="nb"]', "Nombre total de sessions: 1", (0, 2, 2, 1))
 
     def test_sessiondel(self):
         self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})

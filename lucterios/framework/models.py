@@ -10,6 +10,7 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
 
 class LucteriosModel(models.Model):
 
@@ -74,3 +75,5 @@ class LucteriosSession(Session, LucteriosModel):
         # pylint: disable=no-init
         proxy = True
         default_permissions = []
+        verbose_name = _('session')
+        verbose_name_plural = _('sessions')

@@ -9,43 +9,17 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.xferadvance import XferDelete, XferAddEditor
+from lucterios.framework.xferadvance import XferDelete, XferAddEditor,\
+    XferListEditor
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI,\
+    SubAction
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
 MenuManage.add_sub("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
-
-@MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
-class GroupsList(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
-    caption = _("_Groups")
-    icon = "group.png"
-
-    def fillresponse(self):
-        img = XferCompImage('img')
-        img.set_value('images/group.png')
-        img.set_location(0, 0)
-        self.add_component(img)
-
-        lbl = XferCompLabelForm('title')
-        lbl.set_value_as_title(_('Existing groups'))
-        lbl.set_location(1, 0)
-        self.add_component(lbl)
-
-        group = LucteriosGroup.objects.filter()  # pylint: disable=no-member
-        grid = XferCompGrid('group')
-        grid.set_location(0, 1, 2)
-        grid.set_model(group, ['name'])
-        grid.add_action(self.request, GroupsEdit().get_changed(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, GroupsDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, GroupsEdit().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL})
-        self.add_component(grid)
-
-        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
@@ -63,6 +37,18 @@ class GroupsDelete(XferDelete):
     icon = "group.png"
     model = LucteriosGroup
     field_id = 'group'
+
+@MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
+class GroupsList(XferListEditor):
+    # pylint: disable=too-many-public-methods
+    caption = _("Groups")
+    icon = "group.png"
+    model = LucteriosGroup
+    field_names = ['name']
+    field_id = 'group'
+    edit_class = GroupsEdit
+    add_class = GroupsEdit
+    del_class = GroupsDelete
 
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
@@ -114,7 +100,7 @@ class UsersList(XferContainerCustom):
         grid.add_action(self.request, UsersDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
         self.add_component(grid)
 
-        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
+        self.add_action(SubAction(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('auth.delete_user')
 class UsersDelete(XferDelete):
@@ -163,35 +149,19 @@ class UsersEdit(XferAddEditor):
     field_id = 'user_actif'
     locked = True
 
-@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
-class SessionList(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
-    caption = _("Sessions")
-    icon = "extensions.png"
-
-    def fillresponse(self):
-        img = XferCompImage('img')
-        img.set_value('images/extensions.png')
-        img.set_location(0, 0)
-        self.add_component(img)
-
-        lbl = XferCompLabelForm('title')
-        lbl.set_value_as_title(_('Existing sessions'))
-        lbl.set_location(1, 0)
-        self.add_component(lbl)
-
-        session = LucteriosSession.objects.filter()  # pylint: disable=no-member
-        grid = XferCompGrid('session')
-        grid.set_location(0, 1, 2)
-        grid.set_model(session, [(_('username'), 'username'), 'expire_date'])
-        grid.add_action(self.request, SessionDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        self.add_component(grid)
-
-        self.add_action(XferContainerAcknowledge().get_changed(_('Close'), 'images/close.png'), {})
-
 @MenuManage.describ('sessions.delete_session')
 class SessionDelete(XferDelete):
     caption = _("Delete session")
     icon = "extensions.png"
     model = LucteriosSession
     field_id = 'session'
+
+@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
+class SessionList(XferListEditor):
+    # pylint: disable=too-many-public-methods
+    caption = _("Sessions")
+    icon = "extensions.png"
+    model = LucteriosSession
+    field_id = 'session'
+    field_names = [(_('username'), 'username'), 'expire_date']
+    del_class = SessionDelete

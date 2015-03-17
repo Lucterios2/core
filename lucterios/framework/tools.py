@@ -23,15 +23,34 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
+class SubAction(object):
+    # pylint: disable=too-few-public-methods
+    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0):
+        self.caption = caption
+        self.icon = icon
+        self.modal = FORMTYPE_NOMODAL
+        self.is_view_right = ''
+        self.url_text = url_text
+        if (extension == '') and (action == '') and (url_text.find('/') != -1):
+            self.extension, self.action = url_text.split('/')
+        else:
+            self.extension = extension
+            self.action = action
+        self.pos = pos
+
 def icon_path(item):
     res_icon_path = ""
     if hasattr(item, 'icon') and item.icon != "":
-        if (item.extension == '') or ('images/' in item.icon):
+        if item.url_text.find('/') != -1:
+            extension = item.url_text.split('/')[0]
+        else:
+            extension = item.extension
+        if (extension == '') or ('images/' in item.icon):
             res_icon_path = item.icon
-        elif item.extension == 'CORE':
+        elif extension == 'CORE':
             res_icon_path = "images/" + item.icon
         else:
-            res_icon_path = "%s/images/%s" % (item.extension, item.icon)
+            res_icon_path = "%s/images/%s" % (extension, item.icon)
     return res_icon_path
 
 def menu_key_to_comp(menu_item):
@@ -48,22 +67,11 @@ class MenuManage(object):
 
     @classmethod
     def add_sub(cls, ref, parentref, icon, caption, desc, pos=0):
-        class _SubMenu(object):
-            # pylint: disable=too-few-public-methods
-            def __init__(self, caption, icon, ref):
-                self.caption = caption
-                self.icon = icon
-                self.modal = FORMTYPE_NOMODAL
-                self.is_view_right = ''
-                self.extension = ''
-                self.action = ''
-                self.url_text = ref
-                self.pos = pos
         cls._menulock.acquire()
         try:
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
-            cls._MENU_LIST[parentref].append((_SubMenu(caption, icon, ref), desc))
+            cls._MENU_LIST[parentref].append((SubAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
@@ -107,7 +115,7 @@ class MenuManage(object):
         finally:
             cls._menulock.release()
 
-notfree_mode_connect = None # pylint: disable=invalid-name
+notfree_mode_connect = None  # pylint: disable=invalid-name
 bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
 
 def check_permission(item, request):

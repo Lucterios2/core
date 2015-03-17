@@ -9,12 +9,15 @@ from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING
 from django.utils.http import urlquote_plus
+from lucterios.framework.tools import SubAction
 
 class ContainerAcknowledgeTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
+        self.xfer_class.is_view_right = ''
+
         LucteriosTest.setUp(self)
         self.value = False
 
@@ -29,7 +32,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
 
     def test_close(self):
         def fillresponse_close():
-            self.factory.xfer.set_close_action(XferContainerAcknowledge().get_changed("close", "", "customer", "list"))
+            self.factory.xfer.set_close_action(SubAction("close", "", "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_close
         self.call('/customer/details', {}, False)
         self.assert_observer('Core.Acknowledge', 'customer', 'details')
@@ -40,7 +43,7 @@ class ContainerAcknowledgeTest(LucteriosTest):
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.factory.xfer.redirect_action(XferContainerAcknowledge().get_changed("redirect", "", "customer", "list"))
+            self.factory.xfer.redirect_action(SubAction("redirect", "", "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.call('/customer/details', {}, False)
         self.assert_observer('Core.Acknowledge', 'customer', 'details')

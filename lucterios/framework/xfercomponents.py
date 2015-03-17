@@ -10,8 +10,9 @@ from django.utils import six
 from lxml import etree
 from django.utils.http import urlquote_plus
 
+from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO,\
+    check_permission, SubAction
 from lucterios.framework.xferbasic import XferContainerAbstract
-from lucterios.framework.tools import check_permission, get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes
@@ -171,7 +172,7 @@ class XferCompButton(XferComponent):
             self.is_mini = False
 
     def set_action(self, request, action, option):
-        if isinstance(action, XferContainerAbstract) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
             self.action = (action, option)
 
     def _get_attribut(self, compxml):
@@ -374,9 +375,8 @@ class XferCompGrid(XferComponent):
 
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
-
             option['close'] = CLOSE_NO
-        if isinstance(action, XferContainerAbstract) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
             else:
@@ -467,7 +467,7 @@ class XferCompGrid(XferComponent):
         self._add_header_from_model(query_set, fieldnames)
 
         self.nb_lines = len(query_set)
-        primary_key_fieldname = query_set.model._meta.pk.name  # pylint: disable=protected-access
+        primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
             for fieldname in fieldnames:
