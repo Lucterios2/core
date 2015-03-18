@@ -23,13 +23,13 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-class SubAction(object):
+class StubAction(object):
     # pylint: disable=too-few-public-methods
-    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0):
+    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon = icon
         self.modal = FORMTYPE_NOMODAL
-        self.is_view_right = ''
+        self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
             self.extension, self.action = url_text.split('/')
@@ -71,7 +71,7 @@ class MenuManage(object):
         try:
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
-            cls._MENU_LIST[parentref].append((SubAction(caption, icon, url_text=ref, pos=pos), desc))
+            cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 

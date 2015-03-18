@@ -11,7 +11,7 @@ from lxml import etree
 from django.utils.http import urlquote_plus
 
 from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO,\
-    check_permission, SubAction
+    check_permission, StubAction
 from lucterios.framework.xferbasic import XferContainerAbstract
 
 class XferComponent(object):
@@ -172,7 +172,7 @@ class XferCompButton(XferComponent):
             self.is_mini = False
 
     def set_action(self, request, action, option):
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
             self.action = (action, option)
 
     def _get_attribut(self, compxml):
@@ -376,7 +376,7 @@ class XferCompGrid(XferComponent):
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
             option['close'] = CLOSE_NO
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
             else:

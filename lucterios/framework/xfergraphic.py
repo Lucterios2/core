@@ -15,7 +15,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel
 from lucterios.framework.tools import get_action_xml, get_actions_xml, \
-    get_dico_from_setquery, SubAction
+    get_dico_from_setquery, StubAction
 from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
@@ -89,7 +89,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
-            dlg.add_action(SubAction(_("Close"), "images/close.png"), {})
+            dlg.add_action(StubAction(_("Close"), "images/close.png"), {})
         else:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
             btn = XferCompButton("Next")
@@ -98,7 +98,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
-            dlg.add_action(SubAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(StubAction(_("Cancel"), "images/cancel.png"), {})
         return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -112,14 +112,14 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
             dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
-            dlg.add_action(SubAction(_("No"), "images/cancel.png"), {})
+            dlg.add_action(StubAction(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.msg != "":
             dlg = XferContainerDialogBox()
             dlg.caption = self.caption
             dlg.set_dialog(self.msg, self.typemsg)
-            dlg.add_action(SubAction(_("Ok"), "images/ok.png"), {})
+            dlg.add_action(StubAction(_("Ok"), "images/ok.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.except_msg != "":
@@ -520,7 +520,7 @@ if (%(comp)s_current !== null) {
 }
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(self.request, SubAction(button_title, ""), {'close':CLOSE_NO})
+                btn.set_action(self.request, StubAction(button_title, ""), {'close':CLOSE_NO})
                 btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
                 btn.java_script = java_script_init + button_script % {'comp':field_name} + java_script_treat

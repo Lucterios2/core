@@ -16,7 +16,7 @@ from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, \
-    fill_param_xml, SubAction
+    fill_param_xml, StubAction
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.db.models.fields.related import ForeignKey
@@ -51,7 +51,7 @@ class XferContainerAbstract(View):
         self.has_changed = False
 
     def get_changed(self, caption, icon, extension=None, action=None):
-        act_ret = SubAction(caption, icon, url_text=self.url_text)
+        act_ret = StubAction(caption, icon, url_text=self.url_text)
         act_ret.modal = self.modal
         act_ret.is_view_right = self.is_view_right  # pylint: disable=no-member
         if extension is not None:
@@ -153,7 +153,7 @@ class XferContainerAbstract(View):
         self._search_model()
 
     def check_action_permission(self, action):
-        return (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, self.request)
+        return (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, self.request)
 
     def set_close_action(self, action, **option):
         if self.check_action_permission(action):

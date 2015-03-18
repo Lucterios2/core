@@ -44,6 +44,10 @@ class LucteriosModel(models.Model):
 
         return res
 
+    def can_delete(self):
+        # pylint: disable=unused-argument,no-self-use
+        return ''
+
     def edit(self, xfer):
         # pylint: disable=unused-argument,no-self-use
         return

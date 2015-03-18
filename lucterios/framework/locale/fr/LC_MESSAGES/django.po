@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-17 21:27+0000\n"
+"POT-Creation-Date: 2015-03-18 10:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,11 +30,11 @@ msgstr "Sommaire"
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:78
+#: models.py:82
 msgid "session"
 msgstr "session"
 
-#: models.py:79
+#: models.py:83
 msgid "sessions"
 msgstr "sessions"
 
@@ -122,17 +122,17 @@ msgstr "Pas de model"
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:143
+#: xferadvance.py:147
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:144
+#: xferadvance.py:148
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:160
+#: xferadvance.py:164
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
