@@ -6,22 +6,18 @@ Created on march 2015
 '''
 
 from __future__ import unicode_literals
+
 from django.utils.translation import ugettext as _
-from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from django.db import IntegrityError
+
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
-from lucterios.framework.tools import icon_path, ifplural, CLOSE_NO, \
-    FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE, StubAction
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, \
-    XferCompGrid
+from lucterios.framework.tools import icon_path, ifplural, CLOSE_NO, StubAction
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
 class XferListEditor(XferContainerCustom):
-    field_names = []
+    field_names = None
     filter = None
-    show_class = None
-    edit_class = None
-    add_class = None
-    del_class = None
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use
@@ -51,14 +47,7 @@ class XferListEditor(XferContainerCustom):
             items = self.model.objects.all()  # pylint: disable=no-member
         grid = XferCompGrid(self.field_id)
         grid.set_model(items, self.field_names, self)
-        if self.show_class is not None:
-            grid.add_action(self.request, self.show_class().get_changed(_("Edit"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        if self.edit_class is not None:
-            grid.add_action(self.request, self.edit_class().get_changed(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        if self.del_class is not None:
-            grid.add_action(self.request, self.del_class().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        if self.add_class is not None:
-            grid.add_action(self.request, self.add_class().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_NONE})
+        grid.add_actions(self)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)

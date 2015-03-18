@@ -66,6 +66,8 @@ class LucteriosModel(models.Model):
 
 class LucteriosSession(Session, LucteriosModel):
 
+    default_fields = [(_('username'), 'username'), 'expire_date']
+
     @property
     def username(self):
         data = self.get_decoded()

@@ -35,6 +35,8 @@ class LucteriosUser(User, LucteriosModel):
 
     lucteriosuser__showfields = ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
 
+    default_fields = ['username', 'first_name', 'last_name', 'last_login']
+
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
@@ -86,6 +88,8 @@ class LucteriosGroup(Group, LucteriosModel):
     lucteriosgroup__editfields = ['name', 'permissions']
 
     permissions__titles = [_("Available permissions"), _("Chosen permissions")]
+
+    default_fields = ['name']
 
     class Meta(object):
         # pylint: disable=no-init

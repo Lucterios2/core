@@ -6,12 +6,14 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
 from lxml import etree
+
+from django.utils import six
+from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO,\
-    check_permission, StubAction
+from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage
+from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
 
 class XferComponent(object):
@@ -464,6 +466,11 @@ class XferCompGrid(XferComponent):
             self.add_header(fieldname, verbose_name, hfield)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
+        if fieldnames == None:
+            if hasattr(query_set.model, 'default_fields'):
+                fieldnames = list(getattr(query_set.model, 'default_fields'))
+            else:
+                fieldnames = []
         self._add_header_from_model(query_set, fieldnames)
 
         self.nb_lines = len(query_set)
@@ -474,3 +481,12 @@ class XferCompGrid(XferComponent):
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
                 self.set_value(getattr(value, primary_key_fieldname), fieldname, getattr(value, fieldname))
+
+    def add_actions(self, xfer_custom, model=None, action_list=None):
+        if model is None:
+            model = xfer_custom.model
+        if action_list is None:
+            action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE), \
+                         ('del', _("Delete"), "images/suppr.png", SELECT_SINGLE), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+        for act_type, title, icon, unique in action_list:
+            self.add_action(xfer_custom.request, ActionsManage.get_act_changed(model.__name__, act_type, title, icon), {'modal':FORMTYPE_MODAL, 'unique':unique})

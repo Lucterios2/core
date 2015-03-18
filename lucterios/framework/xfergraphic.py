@@ -340,37 +340,62 @@ class XferContainerCustom(XferContainerAbstract):
                 comp.set_value(value.id, "text", six.text_type(value))
         return comp
 
-    def filltab_from_model(self, col, row, readonly, field_names):
-        size_in_line = 1
+
+    def get_maxsize_of_lines(self, field_names):
+        # pylint: disable=no-self-use
+        maxsize_of_lines = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
-                size_in_line = max((size_in_line, len(line_field_name)))
+                maxsize_of_lines = max((maxsize_of_lines, len(line_field_name)))
+        return maxsize_of_lines
+
+
+    def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
+        # pylint: disable=no-self-use
+        colspan = 1
+        if offset == (line_field_size - 1):
+            colspan = 2 * maxsize_of_lines - (1 + offset)
+        return colspan
+
+    def filltab_from_model(self, col, row, readonly, field_names):
+        maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
                 line_field_name = line_field_name,
             offset = 0
             height = 1
             for field_name in line_field_name:
-                dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-                if dep_field[2]:  # field real in model
-                    if not dep_field[3]:  # field not many-to-many
-                        lbl = XferCompLabelForm('lbl_' + field_name)
-                        lbl.set_location(col + offset, row, 1, 1)
-                        lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
-                        self.add_component(lbl)
-                        if readonly:
-                            comp = self.get_reading_comp(field_name)
-                        else:
-                            comp = self.get_writing_comp(field_name)
-                        colspan = 1
-                        if offset == (len(line_field_name) - 1):
-                            colspan = 2 * size_in_line - (1 + offset)
-                        comp.set_location(col + 1 + offset, row, colspan, 1)
-                        self.add_component(comp)
-                    else:  # field many-to-many
-                        self.selector_from_model(col + offset, row, field_name)
-                        height = 5
+                colspan = self.get_current_offset(maxsize_of_lines, len(line_field_name), offset)
+                if field_name[-4:] == '_set':  # field is one-to-many relation
+                    child = getattr(self.item, field_name).all()
+                    lbl = XferCompLabelForm('lbl_' + field_name)
+                    lbl.set_location(col + offset, row, 1, 1)
+                    lbl.set_value_as_name(child.model._meta.verbose_name)  # pylint: disable=protected-access
+                    self.add_component(lbl)
+                    comp = XferCompGrid(field_name)
+                    comp.set_model(child, None, self)
+                    comp.add_actions(self, model=child.model)
+                    comp.set_location(col + 1 + offset, row, colspan, 1)
+                    self.add_component(comp)
                     offset += 2
+                else:
+                    dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+                    if dep_field[2]:  # field real in model
+                        if not dep_field[3]:  # field not many-to-many
+                            lbl = XferCompLabelForm('lbl_' + field_name)
+                            lbl.set_location(col + offset, row, 1, 1)
+                            lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                            self.add_component(lbl)
+                            if readonly:
+                                comp = self.get_reading_comp(field_name)
+                            else:
+                                comp = self.get_writing_comp(field_name)
+                            comp.set_location(col + 1 + offset, row, colspan, 1)
+                            self.add_component(comp)
+                        else:  # field many-to-many
+                            self.selector_from_model(col + offset, row, field_name)
+                            height = 5
+                        offset += 2
             row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):

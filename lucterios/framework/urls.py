@@ -54,7 +54,12 @@ def get_url_patterns():
     for appname in settings.INSTALLED_APPS:
         if not "django" in appname:
             appmodule = import_module(appname)
-            lucterios_ext = None
+            module_items = appname.split('.')
+            if module_items[0] == 'lucterios':
+                module_items = module_items[1:]
+
+            lucterios_ext = ".".join(module_items)
+
             for _, modname, ispkg in pkgutil.iter_modules(appmodule.__path__):
                 if (modname[:5] == 'views') and not ispkg:
                     view = import_module(appname + '.' + modname)
@@ -64,7 +69,6 @@ def get_url_patterns():
                                 if inspect.isclass(obj[1]):
                                     as_view_meth = getattr(obj[1], "as_view")
                                     res.append(url(r"^%s$" % obj[1].url_text, as_view_meth()))
-                                    lucterios_ext = obj[1].extension
                         except AttributeError:
                             pass
             if lucterios_ext is not None:

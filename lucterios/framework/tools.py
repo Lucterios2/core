@@ -59,6 +59,40 @@ def menu_key_to_comp(menu_item):
     except AttributeError:
         return 0
 
+class ActionsManage(object):
+
+    _ACT_LIST = {}
+
+    _actlock = threading.RLock()
+
+    @classmethod
+    def affect(cls, *arg_tuples):
+        def wrapper(item):
+            cls._actlock.acquire()
+            try:
+                model_name = arg_tuples[0]
+                action_types = arg_tuples[1:]
+                for action_type in action_types:
+                    ident = "%s@%s" % (model_name, action_type)
+                    cls._ACT_LIST[ident] = item
+                return item
+            finally:
+                cls._actlock.release()
+        return wrapper
+
+    @classmethod
+    def get_act_changed(cls, model_name, action_type, title, icon):
+        cls._actlock.acquire()
+        try:
+            ident = "%s@%s" % (model_name, action_type)
+            if ident in cls._ACT_LIST.keys():
+                act_class = cls._ACT_LIST[ident]
+                return act_class().get_changed(title, icon)
+            else:
+                return None
+        finally:
+            cls._actlock.release()
+
 class MenuManage(object):
 
     _MENU_LIST = {}
