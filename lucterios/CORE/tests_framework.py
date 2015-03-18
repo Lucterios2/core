@@ -7,19 +7,32 @@ Created on 11 fevr. 2015
 
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest
-from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING, \
+    XferContainerCustom
 from django.utils.http import urlquote_plus
 from lucterios.framework.tools import StubAction
+from lucterios.CORE.models import Parameter
+from lucterios.CORE.parameters import Params
+from lucterios.CORE.views import ParamSave
 
-class ContainerAcknowledgeTest(LucteriosTest):
+class GenericTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
+
+    def __init__(self, methodName):
+        LucteriosTest.__init__(self, methodName)
+        self.xfer = None
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
         self.xfer_class.is_view_right = ''
-
         LucteriosTest.setUp(self)
         self.value = False
+        self.xfer = XferContainerCustom()
+        Params.clear()
+
+    def callparam(self):
+        self.factory.xfer = self.xfer
+        self.call("CORE/params", {}, False)
 
     def test_simple(self):
         self.call('/customer/details', {'id':12, 'value':'abc'}, False)
@@ -111,3 +124,119 @@ class ContainerAcknowledgeTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img_title"]', 'customer/images/foo.png')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Done{[/center]}')
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+
+    def test_parameters_text(self):
+        param = Parameter.objects.create(name='param_text', typeparam=0)  # pylint: disable=no-member
+        param.args = "{'Multi':False}"
+        param.value = 'my value'
+        param.save()
+        Params.fill(self.xfer, ['param_text'], 1, 1, True)
+        Params.fill(self.xfer, ['param_text'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_text"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_text"]', 'my value')
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="param_text"]', 'my value')
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_text', 'param_text':'new value'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_text'), 'new value')
+
+    def test_parameters_memo(self):
+        param = Parameter.objects.create(name='param_memo', typeparam=0)  # pylint: disable=no-member
+        param.args = "{'Multi':True}"
+        param.value = 'other value'
+        param.save()
+        Params.fill(self.xfer, ['param_memo'], 1, 1, True)
+        Params.fill(self.xfer, ['param_memo'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_memo"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_memo"]', 'other value')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="param_memo"]', 'other value')
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_memo', 'param_memo':'new special value'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_memo'), 'new special value')
+
+    def test_parameters_int(self):
+        param = Parameter.objects.create(name='param_int', typeparam=1)  # pylint: disable=no-member
+        param.args = "{'Min':5, 'Max':25}"
+        param.value = '5'
+        param.save()
+        Params.fill(self.xfer, ['param_int'], 1, 1, True)
+        Params.fill(self.xfer, ['param_int'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_int"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_int"]', '5')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="param_int"]', '5')
+
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'min', '5.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'max', '25.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'prec', '0')
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_int', 'param_int':'13'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_int'), 13)
+
+    def test_parameters_float(self):
+        param = Parameter.objects.create(name='param_float', typeparam=2)  # pylint: disable=no-member
+        param.args = "{'Min':20, 'Max':30, 'Prec':2}"
+        param.value = '22.25'
+        param.save()
+        Params.fill(self.xfer, ['param_float'], 1, 1, True)
+        Params.fill(self.xfer, ['param_float'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_float"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_float"]', '22.25')
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="param_float"]', '22.25')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'min', '20.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'max', '30.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'prec', '2')
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_float', 'param_float':'26.87'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_float'), 26.87)
+
+    def test_parameters_bool(self):
+        param = Parameter.objects.create(name='param_bool', typeparam=3)  # pylint: disable=no-member
+        param.args = "{}"
+        param.value = 'False'
+        param.save()
+        Params.fill(self.xfer, ['param_bool'], 1, 1, True)
+        Params.fill(self.xfer, ['param_bool'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_bool"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_bool"]', 'Non')
+        self.assert_xml_equal('COMPONENTS/CHECK[@name="param_bool"]', '0')
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_bool', 'param_bool':'1'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_bool'), True)
+
+    def test_parameters_select(self):
+        param = Parameter.objects.create(name='param_select', typeparam=4)  # pylint: disable=no-member
+        param.args = "{'Enum':4}"
+        param.value = '2'
+        param.save()
+        Params.fill(self.xfer, ['param_select'], 1, 1, True)
+        Params.fill(self.xfer, ['param_select'], 1, 2, False)
+        self.callparam()
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_count_equal('COMPONENTS/LABELFORM[@name="lbl_param_select"]', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_select"]', 'param_select.2')
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="param_select"]', '2')
+        self.assert_count_equal('COMPONENTS/SELECT[@name="param_select"]/CASE', 4)
+
+        self.factory.xfer = ParamSave()
+        self.call('/CORE/paramSave', {'params':'param_select', 'param_select':'1'}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assertEqual(Params.getvalue('param_select'), 1)

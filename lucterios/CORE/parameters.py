@@ -34,7 +34,7 @@ class ParamCache(object):
             self.value = float(param.value)
             self.args = {'Min':0, 'Max':10000000, 'Prec':2}
         elif self.type == 3:  # Boolean
-            self.value = bool(param.value)
+            self.value = (param.value == 'True')
             self.args = {}
         elif self.type == 4:  # Select
             self.value = int(param.value)
@@ -61,14 +61,14 @@ class ParamCache(object):
                 param_cmp = XferCompEdit(self.name)
             param_cmp.set_value(self.value)
         elif self.type == 1:  # Integer
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'])
+            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
             param_cmp.set_value(self.value)
         elif self.type == 2:  # Real
             param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=self.args['Prec'])
             param_cmp.set_value(self.value)
         elif self.type == 3:  # Boolean
             param_cmp = XferCompCheck(self.name)
-            param_cmp.set_value(self.value)
+            param_cmp.set_value(six.text_type(self.value))
         elif self.type == 4:  # Select
             param_cmp = XferCompSelect(self.name)
             selection = {}
@@ -81,7 +81,7 @@ class ParamCache(object):
     def get_read_comp(self):
         param_cmp = XferCompLabelForm(self.name)
         if self.type == 3:  # Boolean
-            if self.value == 'True':
+            if self.value:
                 param_cmp.set_value(ugettext_lazy("Yes"))
             else:
                 param_cmp.set_value(ugettext_lazy("No"))

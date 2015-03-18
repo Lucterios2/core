@@ -298,7 +298,7 @@ def suite():
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(AuthentificationTest))
     suite.addTest(loader.loadTestsFromTestCase(ConfigTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_framework.ContainerAcknowledgeTest))
+    suite.addTest(loader.loadTestsFromTestCase(tests_framework.GenericTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))
     suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.SessionTest))

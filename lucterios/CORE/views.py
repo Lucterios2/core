@@ -16,6 +16,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter
+from django.utils import six
 
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -143,7 +144,10 @@ class ParamSave(XferContainerAcknowledge):
     def fillresponse(self, params=()):
         for pname in params:
             db_param = Parameter.objects.get(name=pname)  # pylint: disable=no-member
-            db_param.value = self.getparam(pname)
+            if db_param.typeparam == 3:
+                db_param.value = six.text_type(self.getparam(pname) == '1')
+            else:
+                db_param.value = self.getparam(pname)
             db_param.save()
         Params.clear()
 
