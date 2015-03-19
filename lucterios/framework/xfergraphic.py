@@ -230,10 +230,13 @@ class XferContainerCustom(XferContainerAbstract):
 
     def change_to_readonly(self, cmp_name):
         old_obj = self.get_components(cmp_name)
+        value = old_obj.value
+        if isinstance(old_obj, XferCompSelect) and (value in old_obj.select_list.keys()):
+            value = old_obj.select_list[value]
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
         new_lbl = XferCompLabelForm(cmp_name)
-        new_lbl.set_value(old_obj.value)
+        new_lbl.set_value(value)
         new_lbl.col = old_obj.col
         new_lbl.row = old_obj.row
         new_lbl.vmin = old_obj.vmin

@@ -477,10 +477,11 @@ class XferCompGrid(XferComponent):
         primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
+            pk_id = getattr(value, primary_key_fieldname)
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
-                self.set_value(getattr(value, primary_key_fieldname), fieldname, getattr(value, fieldname))
+                self.set_value(pk_id, fieldname, getattr(value, fieldname))
 
     def add_actions(self, xfer_custom, model=None, action_list=None):
         if model is None:

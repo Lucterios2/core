@@ -222,9 +222,16 @@ def ifplural(count, test_singular, test_plural):
         return test_plural
 
 def get_value_converted(value, bool_textual=False):
-    # pylint: disable=too-many-return-statements
+    # pylint: disable=too-many-return-statements, too-many-branches
     import datetime
-    if isinstance(value, datetime.datetime):
+    if hasattr(value, 'all'):
+        values = []
+
+        for val_item in value.all():
+            values.append(six.text_type(val_item))
+        return "{[br/]}".join(values)
+
+    elif isinstance(value, datetime.datetime):
         return formats.date_format(value, "SHORT_DATETIME_FORMAT")
     elif isinstance(value, datetime.date):
         return formats.date_format(value, "SHORT_DATE_FORMAT")

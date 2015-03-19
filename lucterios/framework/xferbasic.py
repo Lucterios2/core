@@ -126,15 +126,16 @@ class XferContainerAbstract(View):
         field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
         for field_name in field_names:
             dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-            if dep_field[2]:
+            if dep_field[2] and dep_field[3]:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    if dep_field[3]:
-                        if new_value != '':
-                            relation_model = dep_field[0].rel.to
-                            new_value = relation_model.objects.filter(id__in=new_value.split(';'))
-                            setattr(self.item, field_name, new_value)
-                            self.has_changed = True
+                    relation_model = dep_field[0].rel.to
+                    if new_value != '':
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                    else:
+                        new_value = relation_model.objects.filter(id__in=[])
+                    setattr(self.item, field_name, new_value)
+                    self.has_changed = True
         return self.has_changed
 
     def _initialize(self, request, *_, **kwargs):

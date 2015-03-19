@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-18 10:33+0000\n"
+"POT-Creation-Date: 2015-03-19 09:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,11 +30,15 @@ msgstr "Sommaire"
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:82
+#: models.py:69
+msgid "username"
+msgstr ""
+
+#: models.py:84
 msgid "session"
 msgstr "session"
 
-#: models.py:83
+#: models.py:85
 msgid "sessions"
 msgstr "sessions"
 
@@ -48,91 +52,79 @@ msgstr "Signal %s inconnu"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:138
+#: tools.py:172
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:139
+#: tools.py:173
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:202 xfergraphic.py:114
+#: tools.py:236 xfergraphic.py:114
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:204 xfergraphic.py:115
+#: tools.py:238 xfergraphic.py:115
 msgid "No"
 msgstr "Non"
 
-#: tools.py:233
+#: tools.py:267
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:235
+#: tools.py:269
 msgid "view"
 msgstr "voir"
 
-#: tools.py:237
+#: tools.py:271
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:238
+#: tools.py:272
 msgid "Can"
 msgstr "Pouvoir"
 
-#: xferadvance.py:55
-msgid "Edit"
-msgstr "Editer"
-
-#: xferadvance.py:57 xferadvance.py:119
-msgid "Modify"
-msgstr "Modifier"
-
-#: xferadvance.py:59
-msgid "Delete"
-msgstr "Supprimer"
-
-#: xferadvance.py:61
-msgid "Add"
-msgstr "Ajouter"
-
-#: xferadvance.py:67
+#: xferadvance.py:56
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:71 xferadvance.py:120 xfergraphic.py:92
+#: xferadvance.py:60 xferadvance.py:109 xfergraphic.py:92
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:90 xfergraphic.py:122
+#: xferadvance.py:79 xfergraphic.py:122
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:91 xfergraphic.py:101
+#: xferadvance.py:80 xfergraphic.py:101
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:127
+#: xferadvance.py:108 xfercomponents.py:498
+msgid "Modify"
+msgstr "Modifier"
+
+#: xferadvance.py:116
 msgid "No model"
 msgstr "Pas de model"
 
-#: xferadvance.py:137
+#: xferadvance.py:126
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:147
+#: xferadvance.py:138
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:148
+#: xferadvance.py:139
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:164
+#: xferadvance.py:155
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
@@ -143,6 +135,18 @@ msgid ""
 msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
+
+#: xfercomponents.py:498
+msgid "Edit"
+msgstr "Editer"
+
+#: xfercomponents.py:499
+msgid "Delete"
+msgstr "Supprimer"
+
+#: xfercomponents.py:499
+msgid "Add"
+msgstr "Ajouter"
 
 #: xfergraphic.py:98
 msgid "Traitment..."
