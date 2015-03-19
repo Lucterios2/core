@@ -12,7 +12,8 @@ from django.utils import six
 from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage
+from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage,\
+    SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
 
@@ -488,6 +489,6 @@ class XferCompGrid(XferComponent):
             model = xfer_custom.model
         if action_list is None:
             action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE), \
-                         ('del', _("Delete"), "images/suppr.png", SELECT_SINGLE), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+                         ('del', _("Delete"), "images/suppr.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
         for act_type, title, icon, unique in action_list:
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(model.__name__, act_type, title, icon), {'modal':FORMTYPE_MODAL, 'unique':unique})

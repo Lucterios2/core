@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-19 09:22+0000\n"
+"POT-Creation-Date: 2015-03-19 10:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -61,27 +61,27 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:236 xfergraphic.py:114
+#: tools.py:243 xfergraphic.py:114
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:238 xfergraphic.py:115
+#: tools.py:245 xfergraphic.py:115
 msgid "No"
 msgstr "Non"
 
-#: tools.py:267
+#: tools.py:274
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:269
+#: tools.py:276
 msgid "view"
 msgstr "voir"
 
-#: tools.py:271
+#: tools.py:278
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:272
+#: tools.py:279
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -102,7 +102,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:108 xfercomponents.py:498
+#: xferadvance.py:108 xfercomponents.py:490
 msgid "Modify"
 msgstr "Modifier"
 
@@ -136,15 +136,15 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:498
+#: xfercomponents.py:490
 msgid "Edit"
 msgstr "Editer"
 
-#: xfercomponents.py:499
+#: xfercomponents.py:491
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:499
+#: xfercomponents.py:491
 msgid "Add"
 msgstr "Ajouter"
 

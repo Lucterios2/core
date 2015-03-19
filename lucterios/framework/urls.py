@@ -28,13 +28,13 @@ def _init_url_patterns():
     res = patterns('')
     web_path = join(dirname(dirname(__file__)), 'web')
     if isdir(web_path) and isfile(join(web_path, 'index.html')):
-        res.append(url(r'^Help$', defaulthelp))
         res.append(url(r'^$', defaultview))
         res.append(url(r'^web/$', defaultview))
         res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', {'document_root':join(dirname(dirname(__file__)), 'web')}))
     else:
         res.append(url(r'^$', defaultblank))
         res.append(url(r'^web/.*', defaultblank))
+    res.append(url(r'^Help$', defaulthelp))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
 
