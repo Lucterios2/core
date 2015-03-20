@@ -44,6 +44,28 @@ class LucteriosModel(models.Model):
 
         return res
 
+    @classmethod
+    def _get_list_fields_for_search(cls, current_desc):
+        res = []
+        for fieldname in current_desc:
+            if fieldname is None:
+                for subclass in cls.__bases__:
+                    if issubclass(subclass, LucteriosModel):
+                        res.extend(subclass.get_fieldnames_for_search())
+            else:
+                res.append(fieldname)
+        return res
+
+    @classmethod
+    def get_fieldnames_for_search(cls):
+        res = []
+        dataname = cls.__name__.lower() + '__searchfields'
+        if hasattr(cls, dataname):
+            current_desc = getattr(cls, dataname)
+            if isinstance(current_desc, list):
+                res = cls._get_list_fields_for_search(current_desc)
+        return res
+
     def can_delete(self):
         # pylint: disable=unused-argument,no-self-use
         return ''

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-19 10:56+0000\n"
+"POT-Creation-Date: 2015-03-20 14:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -255,11 +255,11 @@ msgstr "Configuration générale"
 msgid "Software configuration"
 msgstr "Configuration du logiciel"
 
-#: views.py:118 views_usergroup.py:78
+#: views.py:118 views_usergroup.py:77
 msgid "Modify"
 msgstr "Modifier"
 
-#: views.py:119 views_usergroup.py:102
+#: views.py:119 views_usergroup.py:101
 msgid "Close"
 msgstr "Fermer"
 
@@ -283,107 +283,107 @@ msgstr "Pour gérer les configurations des modules"
 msgid "Disconnect"
 msgstr "Déconnection"
 
-#: views_usergroup.py:22
+#: views_usergroup.py:21
 msgid "_Rights manage"
 msgstr "Gestion des droits"
 
-#: views_usergroup.py:22
+#: views_usergroup.py:21
 msgid "To manage users, groups and permissions."
 msgstr "Pour gérer les utilisateurs, les groupes et les permissions."
 
-#: views_usergroup.py:28
+#: views_usergroup.py:27
 msgid "Add a group"
 msgstr "Ajouter un groupe"
 
-#: views_usergroup.py:29
+#: views_usergroup.py:28
 msgid "Modify a group"
 msgstr "Modifier un groupe"
 
-#: views_usergroup.py:38
+#: views_usergroup.py:37
 msgid "Delete group"
 msgstr "Suppression d'un groupe"
 
-#: views_usergroup.py:43
+#: views_usergroup.py:42
 msgid "To manage permissions groupes."
 msgstr "Pour gérer les groupes."
 
-#: views_usergroup.py:46
+#: views_usergroup.py:45
 msgid "Groups"
 msgstr "Les groupes"
 
-#: views_usergroup.py:51
+#: views_usergroup.py:50
 msgid "To manage users."
 msgstr "Pour gérer les utilisateurs."
 
-#: views_usergroup.py:54
+#: views_usergroup.py:53
 msgid "_Users"
 msgstr "Les utilisateurs"
 
-#: views_usergroup.py:65
+#: views_usergroup.py:64
 msgid "Users of the software"
 msgstr "Utilisateurs du logiciel"
 
-#: views_usergroup.py:70
+#: views_usergroup.py:69
 msgid "List of active users"
 msgstr "Liste des utilisateurs actifs"
 
-#: views_usergroup.py:79
+#: views_usergroup.py:78
 msgid "Disabled"
 msgstr "Désactiver"
 
-#: views_usergroup.py:80 views_usergroup.py:99
+#: views_usergroup.py:79 views_usergroup.py:98
 msgid "Delete"
 msgstr "Supprimer"
 
-#: views_usergroup.py:81
+#: views_usergroup.py:80
 msgid "Add"
 msgstr "Ajouter"
 
-#: views_usergroup.py:90
+#: views_usergroup.py:89
 msgid "List of inactive users"
 msgstr "Liste des utilisateurs inactifs"
 
-#: views_usergroup.py:98
+#: views_usergroup.py:97
 msgid "Enabled"
 msgstr "Réactiver"
 
-#: views_usergroup.py:107
+#: views_usergroup.py:106
 msgid "Delete users"
 msgstr "Suppression d'utilisateur"
 
-#: views_usergroup.py:115
+#: views_usergroup.py:114
 msgid "You can delete yourself!"
 msgstr "Vous ne pouvez vous supprimer!"
 
-#: views_usergroup.py:120
+#: views_usergroup.py:119
 msgid "Disabled an user"
 msgstr "Désactiver un utilisateur"
 
-#: views_usergroup.py:127
+#: views_usergroup.py:126
 msgid "You can disabled yourself!"
 msgstr "Vous ne pouvez vous désactiver!"
 
-#: views_usergroup.py:133
+#: views_usergroup.py:132
 msgid "Enabled an user"
 msgstr "Réactiver un utilisateur"
 
-#: views_usergroup.py:146
+#: views_usergroup.py:145
 msgid "Add an users"
 msgstr "Ajouter un utilisateur"
 
-#: views_usergroup.py:147
+#: views_usergroup.py:146
 msgid "Modify an user"
 msgstr "Modifier un utilisateur"
 
-#: views_usergroup.py:156
+#: views_usergroup.py:155
 msgid "Delete session"
 msgstr "Suppression de session"
 
-#: views_usergroup.py:161
+#: views_usergroup.py:160
 msgid "To manage session."
 msgstr "Pour gérer les sessions."
 
-#: views_usergroup.py:164
+#: views_usergroup.py:163
 msgid "Sessions"
 msgstr "Les sessions"
 

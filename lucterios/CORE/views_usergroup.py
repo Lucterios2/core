@@ -9,8 +9,7 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.xferadvance import XferDelete, XferAddEditor, \
-    XferListEditor
+from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI, \

@@ -16,14 +16,9 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
 class XferListEditor(XferContainerCustom):
-    field_names = None
     filter = None
 
     def fillresponse_header(self):
-        # pylint: disable=unused-argument,no-self-use
-        return
-
-    def fillresponse_footer(self):
         # pylint: disable=unused-argument,no-self-use
         return
 
@@ -46,7 +41,7 @@ class XferListEditor(XferContainerCustom):
         else:
             items = self.model.objects.all()  # pylint: disable=no-member
         grid = XferCompGrid(self.field_id)
-        grid.set_model(items, self.field_names, self)
+        grid.set_model(items, None, self)
         grid.add_actions(self)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
@@ -55,7 +50,6 @@ class XferListEditor(XferContainerCustom):
         lbl.set_location(0, row + 2, 2)
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
         self.add_component(lbl)
-        self.fillresponse_footer()
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 

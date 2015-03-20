@@ -135,6 +135,12 @@ class XferCompLabelForm(XferComponent):
     def set_value_as_name(self, value):
         self.set_value(six.text_type('{[b]}%s{[/b]}') % value)
 
+    def set_value_as_info(self, value):
+        self.set_value("{[b]{[u]%s{[/u]{[/b]" % value)
+
+    def set_value_as_infocenter(self, value):
+        self.set_value("{[center]}{[b]}{[u]}%s{[/u]{[/b]{[/center]}" % value)
+
     def set_value_as_header(self, value):
         self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
 
@@ -160,13 +166,7 @@ class XferCompButton(XferComponent):
         self._component_ident = "BUTTON"
         self.action = None
         self.java_script = ""
-        self.clickname = ""
-        self.clickvalue = ""
         self.is_mini = False
-
-    def set_click_info(self, clickname, clickvalue):
-        self.clickname = clickname
-        self.clickvalue = clickvalue
 
     def set_is_mini(self, is_mini):
         if is_mini:
@@ -180,9 +180,6 @@ class XferCompButton(XferComponent):
 
     def _get_attribut(self, compxml):
         XferComponent._get_attribut(self, compxml)
-        if self.clickname != '':
-            compxml.attrib['clickname'] = six.text_type(self.clickname)
-            compxml.attrib['clickvalue'] = six.text_type(self.clickvalue)
         if self.is_mini:
             compxml.attrib['isMini'] = '1'
 
@@ -211,6 +208,7 @@ class XferCompFloat(XferCompButton):
         self.min = float(minval)
         self.max = float(maxval)
         self.prec = int(precval)
+        self.value = self.min
 
     def set_value(self, value):
         self.value = float(value)
@@ -285,7 +283,11 @@ class XferCompSelect(XferCompButton):
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
-        for (key, val) in self.select_list.items():
+        if isinstance(self.select_list, dict):
+            list_of_select = self.select_list.items()
+        else:
+            list_of_select = list(self.select_list)
+        for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)
             xml_case.text = six.text_type(val)
