@@ -8,7 +8,7 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SubAction
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction
 from lucterios.framework.xferbasic import XferContainerMenu
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm
@@ -16,6 +16,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter
+from django.utils import six
 
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -75,7 +76,7 @@ class ChangePassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(ModifyPassword().get_changed(_('Ok'), 'images/ok.png'), {})
-        self.add_action(SubAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('')
 class ModifyPassword(XferContainerAcknowledge):
@@ -115,7 +116,7 @@ class Configuration(XferContainerCustom):
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
         self.add_action(ParamEdit().get_changed(_('Modify'), 'images/edit.png'), {'close':0})
-        self.add_action(SubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamEdit(XferContainerCustom):
@@ -133,7 +134,7 @@ class ParamEdit(XferContainerCustom):
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False)
         self.add_action(ParamSave().get_changed(_('Ok'), 'images/ok.png'), {})
-        self.add_action(SubAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamSave(XferContainerAcknowledge):
@@ -143,7 +144,10 @@ class ParamSave(XferContainerAcknowledge):
     def fillresponse(self, params=()):
         for pname in params:
             db_param = Parameter.objects.get(name=pname)  # pylint: disable=no-member
-            db_param.value = self.getparam(pname)
+            if db_param.typeparam == 3:
+                db_param.value = six.text_type(self.getparam(pname) == '1')
+            else:
+                db_param.value = self.getparam(pname)
             db_param.save()
         Params.clear()
 

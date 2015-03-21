@@ -44,6 +44,32 @@ class LucteriosModel(models.Model):
 
         return res
 
+    @classmethod
+    def _get_list_fields_for_search(cls, current_desc):
+        res = []
+        for fieldname in current_desc:
+            if fieldname is None:
+                for subclass in cls.__bases__:
+                    if issubclass(subclass, LucteriosModel):
+                        res.extend(subclass.get_fieldnames_for_search())
+            else:
+                res.append(fieldname)
+        return res
+
+    @classmethod
+    def get_fieldnames_for_search(cls):
+        res = []
+        dataname = cls.__name__.lower() + '__searchfields'
+        if hasattr(cls, dataname):
+            current_desc = getattr(cls, dataname)
+            if isinstance(current_desc, list):
+                res = cls._get_list_fields_for_search(current_desc)
+        return res
+
+    def can_delete(self):
+        # pylint: disable=unused-argument,no-self-use
+        return ''
+
     def edit(self, xfer):
         # pylint: disable=unused-argument,no-self-use
         return
@@ -61,6 +87,8 @@ class LucteriosModel(models.Model):
         abstract = True
 
 class LucteriosSession(Session, LucteriosModel):
+
+    default_fields = [(_('username'), 'username'), 'expire_date']
 
     @property
     def username(self):

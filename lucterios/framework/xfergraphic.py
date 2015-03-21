@@ -15,7 +15,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel
 from lucterios.framework.tools import get_action_xml, get_actions_xml, \
-    get_dico_from_setquery, SubAction
+    get_dico_from_setquery, StubAction
 from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
@@ -89,7 +89,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
-            dlg.add_action(SubAction(_("Close"), "images/close.png"), {})
+            dlg.add_action(StubAction(_("Close"), "images/close.png"), {})
         else:
             lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
             btn = XferCompButton("Next")
@@ -98,7 +98,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
-            dlg.add_action(SubAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(StubAction(_("Cancel"), "images/cancel.png"), {})
         return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -112,14 +112,14 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
             dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
-            dlg.add_action(SubAction(_("No"), "images/cancel.png"), {})
+            dlg.add_action(StubAction(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.msg != "":
             dlg = XferContainerDialogBox()
             dlg.caption = self.caption
             dlg.set_dialog(self.msg, self.typemsg)
-            dlg.add_action(SubAction(_("Ok"), "images/ok.png"), {})
+            dlg.add_action(StubAction(_("Ok"), "images/ok.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.except_msg != "":
@@ -197,14 +197,11 @@ class XferContainerCustom(XferContainerAbstract):
         self.components[comp_id] = component
 
     def get_components(self, cmp_name):
-        if isinstance(cmp_name, six.text_type):
-            comp_res = None
-            for comp in self.components.values():
-                if comp.name == cmp_name:
-                    comp_res = comp
-            return comp_res
-        else:
-            return None
+        comp_res = None
+        for comp in self.components.values():
+            if comp.name == cmp_name:
+                comp_res = comp
+        return comp_res
 
     def move(self, tab, col_offset, row_offset):
         new_components = {}
@@ -224,13 +221,29 @@ class XferContainerCustom(XferContainerAbstract):
         return row
 
     def remove_component(self, cmp_name):
-        if isinstance(cmp_name, six.text_type):
-            comp_id = None
-            for (key, comp) in self.components.items():
-                if comp.name == cmp_name:
-                    comp_id = key
-            if comp_id is not None:
-                del self.components[comp_id]
+        comp_id = None
+        for (key, comp) in self.components.items():
+            if comp.name == cmp_name:
+                comp_id = key
+        if comp_id is not None:
+            del self.components[comp_id]
+
+    def change_to_readonly(self, cmp_name):
+        old_obj = self.get_components(cmp_name)
+        value = old_obj.value
+        if isinstance(old_obj, XferCompSelect) and (value in old_obj.select_list.keys()):
+            value = old_obj.select_list[value]
+        self.remove_component(cmp_name)
+        self.tab = old_obj.tab
+        new_lbl = XferCompLabelForm(cmp_name)
+        new_lbl.set_value(value)
+        new_lbl.col = old_obj.col
+        new_lbl.row = old_obj.row
+        new_lbl.vmin = old_obj.vmin
+        new_lbl.hmin = old_obj.hmin
+        new_lbl.colspan = old_obj.colspan
+        new_lbl.rowspan = old_obj.rowspan
+        self.add_component(new_lbl)
 
     def find_tab(self, tab_name):
         num = -1
@@ -330,37 +343,62 @@ class XferContainerCustom(XferContainerAbstract):
                 comp.set_value(value.id, "text", six.text_type(value))
         return comp
 
-    def filltab_from_model(self, col, row, readonly, field_names):
-        size_in_line = 1
+
+    def get_maxsize_of_lines(self, field_names):
+        # pylint: disable=no-self-use
+        maxsize_of_lines = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
-                size_in_line = max((size_in_line, len(line_field_name)))
+                maxsize_of_lines = max((maxsize_of_lines, len(line_field_name)))
+        return maxsize_of_lines
+
+
+    def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
+        # pylint: disable=no-self-use
+        colspan = 1
+        if offset == (line_field_size - 1):
+            colspan = 2 * maxsize_of_lines - (1 + offset)
+        return colspan
+
+    def filltab_from_model(self, col, row, readonly, field_names):
+        maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
                 line_field_name = line_field_name,
             offset = 0
             height = 1
             for field_name in line_field_name:
-                dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-                if dep_field[2]:  # field real in model
-                    if not dep_field[3]:  # field not many-to-many
-                        lbl = XferCompLabelForm('lbl_' + field_name)
-                        lbl.set_location(col + offset, row, 1, 1)
-                        lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
-                        self.add_component(lbl)
-                        if readonly:
-                            comp = self.get_reading_comp(field_name)
-                        else:
-                            comp = self.get_writing_comp(field_name)
-                        colspan = 1
-                        if offset == (len(line_field_name) - 1):
-                            colspan = 2 * size_in_line - (1 + offset)
-                        comp.set_location(col + 1 + offset, row, colspan, 1)
-                        self.add_component(comp)
-                    else:  # field many-to-many
-                        self.selector_from_model(col + offset, row, field_name)
-                        height = 5
+                colspan = self.get_current_offset(maxsize_of_lines, len(line_field_name), offset)
+                if field_name[-4:] == '_set':  # field is one-to-many relation
+                    child = getattr(self.item, field_name).all()
+                    lbl = XferCompLabelForm('lbl_' + field_name)
+                    lbl.set_location(col + offset, row, 1, 1)
+                    lbl.set_value_as_name(child.model._meta.verbose_name)  # pylint: disable=protected-access
+                    self.add_component(lbl)
+                    comp = XferCompGrid(field_name)
+                    comp.set_model(child, None, self)
+                    comp.add_actions(self, model=child.model)
+                    comp.set_location(col + 1 + offset, row, colspan, 1)
+                    self.add_component(comp)
                     offset += 2
+                else:
+                    dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+                    if dep_field[2]:  # field real in model
+                        if not dep_field[3]:  # field not many-to-many
+                            lbl = XferCompLabelForm('lbl_' + field_name)
+                            lbl.set_location(col + offset, row, 1, 1)
+                            lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                            self.add_component(lbl)
+                            if readonly:
+                                comp = self.get_reading_comp(field_name)
+                            else:
+                                comp = self.get_writing_comp(field_name)
+                            comp.set_location(col + 1 + offset, row, colspan, 1)
+                            self.add_component(comp)
+                        else:  # field many-to-many
+                            self.selector_from_model(col + offset, row, field_name)
+                            height = 5
+                        offset += 2
             row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
@@ -510,7 +548,7 @@ if (%(comp)s_current !== null) {
 }
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(self.request, SubAction(button_title, ""), {'close':CLOSE_NO})
+                btn.set_action(self.request, StubAction(button_title, ""), {'close':CLOSE_NO})
                 btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
                 btn.java_script = java_script_init + button_script % {'comp':field_name} + java_script_treat

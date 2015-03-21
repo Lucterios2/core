@@ -23,13 +23,13 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-class SubAction(object):
+class StubAction(object):
     # pylint: disable=too-few-public-methods
-    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0):
+    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon = icon
         self.modal = FORMTYPE_NOMODAL
-        self.is_view_right = ''
+        self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
             self.extension, self.action = url_text.split('/')
@@ -59,6 +59,40 @@ def menu_key_to_comp(menu_item):
     except AttributeError:
         return 0
 
+class ActionsManage(object):
+
+    _ACT_LIST = {}
+
+    _actlock = threading.RLock()
+
+    @classmethod
+    def affect(cls, *arg_tuples):
+        def wrapper(item):
+            cls._actlock.acquire()
+            try:
+                model_name = arg_tuples[0]
+                action_types = arg_tuples[1:]
+                for action_type in action_types:
+                    ident = "%s@%s" % (model_name, action_type)
+                    cls._ACT_LIST[ident] = item
+                return item
+            finally:
+                cls._actlock.release()
+        return wrapper
+
+    @classmethod
+    def get_act_changed(cls, model_name, action_type, title, icon):
+        cls._actlock.acquire()
+        try:
+            ident = "%s@%s" % (model_name, action_type)
+            if ident in cls._ACT_LIST.keys():
+                act_class = cls._ACT_LIST[ident]
+                return act_class().get_changed(title, icon)
+            else:
+                return None
+        finally:
+            cls._actlock.release()
+
 class MenuManage(object):
 
     _MENU_LIST = {}
@@ -71,7 +105,7 @@ class MenuManage(object):
         try:
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
-            cls._MENU_LIST[parentref].append((SubAction(caption, icon, url_text=ref, pos=pos), desc))
+            cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
@@ -188,9 +222,16 @@ def ifplural(count, test_singular, test_plural):
         return test_plural
 
 def get_value_converted(value, bool_textual=False):
-    # pylint: disable=too-many-return-statements
+    # pylint: disable=too-many-return-statements, too-many-branches
     import datetime
-    if isinstance(value, datetime.datetime):
+    if hasattr(value, 'all'):
+        values = []
+
+        for val_item in value.all():
+            values.append(six.text_type(val_item))
+        return "{[br/]}".join(values)
+
+    elif isinstance(value, datetime.datetime):
         return formats.date_format(value, "SHORT_DATETIME_FORMAT")
     elif isinstance(value, datetime.date):
         return formats.date_format(value, "SHORT_DATE_FORMAT")

@@ -16,7 +16,7 @@ from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, \
-    fill_param_xml, SubAction
+    fill_param_xml, StubAction
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.db.models.fields.related import ForeignKey
@@ -51,7 +51,7 @@ class XferContainerAbstract(View):
         self.has_changed = False
 
     def get_changed(self, caption, icon, extension=None, action=None):
-        act_ret = SubAction(caption, icon, url_text=self.url_text)
+        act_ret = StubAction(caption, icon, url_text=self.url_text)
         act_ret.modal = self.modal
         act_ret.is_view_right = self.is_view_right  # pylint: disable=no-member
         if extension is not None:
@@ -126,15 +126,16 @@ class XferContainerAbstract(View):
         field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
         for field_name in field_names:
             dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-            if dep_field[2]:
+            if dep_field[2] and dep_field[3]:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    if dep_field[3]:
-                        if new_value != '':
-                            relation_model = dep_field[0].rel.to
-                            new_value = relation_model.objects.filter(id__in=new_value.split(';'))
-                            setattr(self.item, field_name, new_value)
-                            self.has_changed = True
+                    relation_model = dep_field[0].rel.to
+                    if new_value != '':
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                    else:
+                        new_value = relation_model.objects.filter(id__in=[])
+                    setattr(self.item, field_name, new_value)
+                    self.has_changed = True
         return self.has_changed
 
     def _initialize(self, request, *_, **kwargs):
@@ -153,7 +154,7 @@ class XferContainerAbstract(View):
         self._search_model()
 
     def check_action_permission(self, action):
-        return (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, self.request)
+        return (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, self.request)
 
     def set_close_action(self, action, **option):
         if self.check_action_permission(action):

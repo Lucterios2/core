@@ -6,12 +6,15 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
 from lxml import etree
+
+from django.utils import six
+from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, CLOSE_NO,\
-    check_permission, SubAction
+from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage,\
+    SELECT_MULTI
+from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
 
 class XferComponent(object):
@@ -132,6 +135,12 @@ class XferCompLabelForm(XferComponent):
     def set_value_as_name(self, value):
         self.set_value(six.text_type('{[b]}%s{[/b]}') % value)
 
+    def set_value_as_info(self, value):
+        self.set_value("{[b]{[u]%s{[/u]{[/b]" % value)
+
+    def set_value_as_infocenter(self, value):
+        self.set_value("{[center]}{[b]}{[u]}%s{[/u]{[/b]{[/center]}" % value)
+
     def set_value_as_header(self, value):
         self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
 
@@ -157,13 +166,7 @@ class XferCompButton(XferComponent):
         self._component_ident = "BUTTON"
         self.action = None
         self.java_script = ""
-        self.clickname = ""
-        self.clickvalue = ""
         self.is_mini = False
-
-    def set_click_info(self, clickname, clickvalue):
-        self.clickname = clickname
-        self.clickvalue = clickvalue
 
     def set_is_mini(self, is_mini):
         if is_mini:
@@ -172,14 +175,11 @@ class XferCompButton(XferComponent):
             self.is_mini = False
 
     def set_action(self, request, action, option):
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
             self.action = (action, option)
 
     def _get_attribut(self, compxml):
         XferComponent._get_attribut(self, compxml)
-        if self.clickname != '':
-            compxml.attrib['clickname'] = six.text_type(self.clickname)
-            compxml.attrib['clickvalue'] = six.text_type(self.clickvalue)
         if self.is_mini:
             compxml.attrib['isMini'] = '1'
 
@@ -208,6 +208,7 @@ class XferCompFloat(XferCompButton):
         self.min = float(minval)
         self.max = float(maxval)
         self.prec = int(precval)
+        self.value = self.min
 
     def set_value(self, value):
         self.value = float(value)
@@ -282,7 +283,11 @@ class XferCompSelect(XferCompButton):
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
-        for (key, val) in self.select_list.items():
+        if isinstance(self.select_list, dict):
+            list_of_select = self.select_list.items()
+        else:
+            list_of_select = list(self.select_list)
+        for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)
             xml_case.text = six.text_type(val)
@@ -376,7 +381,7 @@ class XferCompGrid(XferComponent):
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
             option['close'] = CLOSE_NO
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, SubAction)) and check_permission(action, request):
+        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
             else:
@@ -464,13 +469,28 @@ class XferCompGrid(XferComponent):
             self.add_header(fieldname, verbose_name, hfield)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
+        if fieldnames == None:
+            if hasattr(query_set.model, 'default_fields'):
+                fieldnames = list(getattr(query_set.model, 'default_fields'))
+            else:
+                fieldnames = []
         self._add_header_from_model(query_set, fieldnames)
 
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
+            pk_id = getattr(value, primary_key_fieldname)
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
-                self.set_value(getattr(value, primary_key_fieldname), fieldname, getattr(value, fieldname))
+                self.set_value(pk_id, fieldname, getattr(value, fieldname))
+
+    def add_actions(self, xfer_custom, model=None, action_list=None):
+        if model is None:
+            model = xfer_custom.model
+        if action_list is None:
+            action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE), \
+                         ('del', _("Delete"), "images/suppr.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+        for act_type, title, icon, unique in action_list:
+            self.add_action(xfer_custom.request, ActionsManage.get_act_changed(model.__name__, act_type, title, icon), {'modal':FORMTYPE_MODAL, 'unique':unique})

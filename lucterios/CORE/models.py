@@ -35,25 +35,17 @@ class LucteriosUser(User, LucteriosModel):
 
     lucteriosuser__showfields = ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
 
+    default_fields = ['username', 'first_name', 'last_name', 'last_login']
+
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
     def edit(self, xfer):
         from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword
         if self.id is not None:  # pylint: disable=no-member
+            xfer.change_to_readonly('username')
             obj_username = xfer.get_components('username')
-            xfer.remove_component('username')
-            xfer.tab = obj_username.tab
-            lbl_un = XferCompLabelForm('username')
-            lbl_un.set_value(obj_username.value)
-            lbl_un.col = obj_username.col
-            lbl_un.row = obj_username.row
-            lbl_un.vmin = obj_username.vmin
-            lbl_un.hmin = obj_username.hmin
-            lbl_un.colspan = obj_username.colspan
-            lbl_un.rowspan = obj_username.rowspan
-            xfer.add_component(lbl_un)
-            xfer.filltab_from_model(lbl_un.col - 1, lbl_un.row + 1, True, ['date_joined', 'last_login'])
+            xfer.filltab_from_model(obj_username.col - 1, obj_username.row + 1, True, ['date_joined', 'last_login'])
         obj_email = xfer.get_components('email')
         xfer.tab = obj_email.tab
         new_row = obj_email.row
@@ -71,6 +63,10 @@ class LucteriosUser(User, LucteriosModel):
         pwd2 = XferCompPassword('password2')
         pwd2.set_location(1, new_row + 2, 1, 1)
         xfer.add_component(pwd2)
+        if xfer.getparam("IDENT_READ") is not None:
+            xfer.change_to_readonly('first_name')
+            xfer.change_to_readonly('last_name')
+            xfer.change_to_readonly('email')
         return LucteriosModel.edit(self, xfer)
 
     def saving(self, xfer):
@@ -92,6 +88,8 @@ class LucteriosGroup(Group, LucteriosModel):
     lucteriosgroup__editfields = ['name', 'permissions']
 
     permissions__titles = [_("Available permissions"), _("Chosen permissions")]
+
+    default_fields = ['name']
 
     class Meta(object):
         # pylint: disable=no-init

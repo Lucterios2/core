@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
-from lucterios.framework.tools import MenuManage, SubAction
+from lucterios.framework.tools import MenuManage, StubAction
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
@@ -178,7 +178,7 @@ class TestComposants(XferContainerCustom):
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(SubAction('Fin', 'images/close.png'), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
+        self.add_action(StubAction('Fin', 'images/close.png'), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 

@@ -483,7 +483,7 @@ class GroupTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 2))
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
