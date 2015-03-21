@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-03-17 16:33+0000\n"
+"POT-Creation-Date: 2015-03-17 19:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -80,58 +80,58 @@ msgstr "delete"
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:50
+#: xferadvance.py:55
 msgid "Edit"
 msgstr "Edit"
 
-#: xferadvance.py:52 xferadvance.py:115
+#: xferadvance.py:57 xferadvance.py:119
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:54
+#: xferadvance.py:59
 msgid "Delete"
 msgstr "Delete"
 
-#: xferadvance.py:56
+#: xferadvance.py:61
 msgid "Add"
 msgstr "Add"
 
-#: xferadvance.py:62
+#: xferadvance.py:67
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:66 xferadvance.py:116 xfergraphic.py:92
+#: xferadvance.py:71 xferadvance.py:120 xfergraphic.py:92
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:85 xfergraphic.py:122
+#: xferadvance.py:90 xfergraphic.py:122
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:86 xfergraphic.py:101
+#: xferadvance.py:91 xfergraphic.py:101
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:123
+#: xferadvance.py:127
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:133
+#: xferadvance.py:137
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:139
+#: xferadvance.py:143
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:140
+#: xferadvance.py:144
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:156
+#: xferadvance.py:160
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
