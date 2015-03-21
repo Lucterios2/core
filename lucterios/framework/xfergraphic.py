@@ -404,13 +404,11 @@ class XferContainerCustom(XferContainerAbstract):
     def fill_from_model(self, col, row, readonly, desc_fields=None):
         # pylint: disable=protected-access
         current_desc_fields = desc_fields
-
         if desc_fields is None:
             current_desc_fields = self.item.get_fields_names(readonly)
         if isinstance(current_desc_fields, list):
             current_desc_fields = {'':current_desc_fields}
         tab_keys = list(current_desc_fields.keys())
-
         if '' in tab_keys:
             self.filltab_from_model(col, row, readonly, current_desc_fields[''])
             tab_keys.remove('')

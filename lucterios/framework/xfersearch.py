@@ -15,6 +15,7 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
     XferCompDate, XferCompTime, XferCompCheckList
 from lucterios.framework.xfergraphic import XferContainerCustom
 from django.utils import six
+from django.db.models.fields.related import ManyToManyField
 
 TYPE_FLOAT = 'float'
 TYPE_STR = 'str'
@@ -68,50 +69,75 @@ class FieldDescItem(object):
         self.field_type = TYPE_FLOAT
         self.field_list = []
 
-    def _init_for_list(self, sub_model):
+    def _init_for_list(self, sub_model, multi):
         if len(self.sub_fieldnames) == 1:
-            self.field_type = TYPE_LIST
+            if multi:
+                self.field_type = TYPE_LISTMULT
+            else:
+                self.field_type = TYPE_LIST
             self.field_list = []
             for select_obj in sub_model.objects.all():
                 self.field_list.append((six.text_type(select_obj.id), six.text_type(select_obj)))
         else:
             sub_fied_desc = FieldDescItem(".".join(self.sub_fieldnames[1:]))
-            sub_fied_desc.init(sub_model._meta.get_field_by_name(self.sub_fieldnames[1])[0]) # pylint: disable=protected-access
+            if not sub_fied_desc.init(sub_model):
+                return False
             self.description = "%s > %s" % (self.description, sub_fied_desc.description)
             self.field_type = sub_fied_desc.field_type
             self.field_list = sub_fied_desc.field_list
+        return True
 
-    def init(self, dbfield):
+    def get_field_from_name(self, model):
+        dbfield = None
         if self.sub_fieldnames[0][-4:] == '_set':
-            self.description = dbfield.model._meta.verbose_name # pylint: disable=protected-access
+            self.description = model._meta.verbose_name  # pylint: disable=protected-access
+            dbfield = getattr(model, self.sub_fieldnames[0])
         else:
-            self.description = dbfield.verbose_name
-        from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
-        from django.db.models.fields.related import ForeignKey
-        if isinstance(dbfield, IntegerField):
-            if (dbfield.choices is not None) and (len(dbfield.choices) > 0):
-                self.field_type = TYPE_LIST
-                self.field_list = []
-                for choice_id, choice_val in dbfield.choices:
-                    self.field_list.append((six.text_type(choice_id), six.text_type(choice_val)))
-            else:
-                self.field_type = TYPE_FLOAT
-                self.field_list = [(0, 10, 0)]
-        elif isinstance(dbfield, FloatField):
+            dep_field = model._meta.get_field_by_name(self.sub_fieldnames[0])  # pylint: disable=protected-access
+            if dep_field[2]:  # field real in model
+                if not dep_field[3]:  # field not many-to-many
+                    dbfield = dep_field[0]
+                    self.description = dbfield.verbose_name
+                else:
+                    dbfield = dep_field[0]
+                    self.description = dbfield.verbose_name
+        return dbfield
+
+    def manage_integer_or_choices(self, dbfield):
+        if (dbfield.choices is not None) and (len(dbfield.choices) > 0):
+            self.field_type = TYPE_LIST
+            self.field_list = []
+            for choice_id, choice_val in dbfield.choices:
+                self.field_list.append((six.text_type(choice_id), six.text_type(choice_val)))
+        else:
             self.field_type = TYPE_FLOAT
-            self.field_list = [(0, 10, 2)]
-        elif isinstance(dbfield, BooleanField):
-            self.field_type = TYPE_BOOL
-        elif isinstance(dbfield, TextField):
-            self.field_type = TYPE_STR
-        elif isinstance(dbfield, ForeignKey):
-            sub_model = dbfield.rel.to
-            self._init_for_list(sub_model)
-        elif hasattr(dbfield, "model"):
-            sub_model = dbfield.model
-            self._init_for_list(sub_model)
+            self.field_list = [(0, 10, 0)]
+
+    def init(self, model):
+        dbfield = self.get_field_from_name(model)
+        if dbfield is not None:
+            from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
+            from django.db.models.fields.related import ForeignKey
+            if isinstance(dbfield, IntegerField):
+                self.manage_integer_or_choices(dbfield)
+            elif isinstance(dbfield, FloatField):
+                self.field_type = TYPE_FLOAT
+                self.field_list = [(0, 10, 2)]
+            elif isinstance(dbfield, BooleanField):
+                self.field_type = TYPE_BOOL
+            elif isinstance(dbfield, TextField):
+                self.field_type = TYPE_STR
+            elif isinstance(dbfield, ForeignKey):
+                return self._init_for_list(dbfield.rel.to, False)
+            elif isinstance(dbfield, ManyToManyField):
+                return self._init_for_list(dbfield.rel.to, True)
+            elif 'RelatedManager' in dbfield.__class__.__name__:
+                return self._init_for_list(dbfield.model, False)
+            else:
+                self.field_type = TYPE_STR
+            return True
         else:
-            self.field_type = TYPE_STR
+            return False
 
     def get_list(self):
         # list => 'xxx||yyyy;xxx||yyyy;xxx||yyyy'
@@ -159,13 +185,18 @@ class FieldDescItem(object):
                 query_txt = "Q(%s=False)" % self.fieldname
         elif self.field_type == TYPE_FLOAT:
             query_txt = "Q(%s%s=%s)" % (self.fieldname, OP_LIST[operation][2], value)
-        elif (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT):
-            if operation == OP_OR[0]:
-                query_txt = "Q(%s__in=%s)" % (self.fieldname, six.text_type(value.split(';')))
+        elif self.field_type == TYPE_LIST:
+            query_txt = "Q(%s__in=%s)" % (self.fieldname, six.text_type(value.split(';')))
+        elif self.field_type == TYPE_LISTMULT:
+            val_ids = []
+            for val_str in value.split(';'):
+                val_ids.append(int(val_str))
+            if operation == int(OP_OR[0]):
+                query_txt = "Q(%s__in=%s)" % (self.fieldname, six.text_type(val_ids))
             else:
                 query_list = []
-                for value_item in value.split(';'):
-                    query_list.append("Q(%s=%s)" % (self.fieldname, six.text_type(value_item)))
+                for value_item in val_ids:
+                    query_list.append("Q(%s__id=%d)" % (self.fieldname, value_item))
                 query_txt = " & ".join(query_list)
         else:
             query_txt = "Q(%s%s='%s')" % (self.fieldname, OP_LIST[operation][2], value)
@@ -202,18 +233,8 @@ class FieldDescList(object):
     def initial(self, model):
         self.field_desc_list = []
         for field_name in model.get_fieldnames_for_search():
-            field = None
-            sub_field_name = field_name.split('.')[0]
-            if sub_field_name[-4:] == '_set':  # field is one-to-many relation
-                field = getattr(model, sub_field_name)
-            else:
-                dep_field = model._meta.get_field_by_name(sub_field_name)  # pylint: disable=protected-access
-                if dep_field[2]:  # field real in model
-                    if not dep_field[3]:  # field not many-to-many
-                        field = dep_field[0]
-            if field is not None:
-                new_field = FieldDescItem(field_name)
-                new_field.init(field)
+            new_field = FieldDescItem(field_name)
+            if new_field.init(model):
                 self.field_desc_list.append(new_field)
 
     def get_select_and_script(self):
@@ -286,6 +307,7 @@ class XferSearchEditor(XferContainerCustom):
         if len(filter_text_list) > 0:
             from django.db.models import Q  # pylint: disable=unused-variable
             filter_text = "[%s]" % " & ".join(filter_text_list)
+            six.print_("filter_text:" + filter_text)
             self.filter = eval(filter_text)  # pylint: disable=eval-used
         else:
             self.filter = []

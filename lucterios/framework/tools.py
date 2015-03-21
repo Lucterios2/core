@@ -226,11 +226,9 @@ def get_value_converted(value, bool_textual=False):
     import datetime
     if hasattr(value, 'all'):
         values = []
-
         for val_item in value.all():
             values.append(six.text_type(val_item))
         return "{[br/]}".join(values)
-
     elif isinstance(value, datetime.datetime):
         return formats.date_format(value, "SHORT_DATETIME_FORMAT")
     elif isinstance(value, datetime.date):
