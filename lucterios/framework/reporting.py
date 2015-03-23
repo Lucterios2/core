@@ -54,33 +54,6 @@ def extract_text(xmltext):
     para_text = para_text.strip()
     return para_text
 
-def create_para(xmltext):
-    para_text = extract_text(xmltext)
-    font_name = xmltext.get('font_family')
-    align = xmltext.get('text_align')
-    if (align == 'left') or (align == 'start'):
-        alignment = TA_LEFT
-    elif align == 'center':
-        alignment = TA_CENTER
-    else:
-        alignment = TA_RIGHT
-    font_size = int(xmltext.get('font_size'))
-    style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size, \
-                           alignment=alignment, leading=int(xmltext.get('line_height')))
-    six.print_("%s:%s" % (xmltext.tag, para_text))
-    text = Paragraph(para_text, style=style)
-    return text, style
-
-def extract_columns_for_table(xmlcolumns):
-    cellcolumns = []
-    width_columns = []
-    for xmlcolumn in xmlcolumns:
-        width_columns.append(get_size(xmlcolumn, 'width'))
-        cells = xmlcolumn.xpath('cell')
-        text, _ = create_para(cells[0])
-        cellcolumns.append(text)
-    return cellcolumns, width_columns
-
 TABLE_STYLE = TableStyle([
     ('GRID', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0)),
     ('BOX', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0))
@@ -133,21 +106,68 @@ class LucteriosPDF(object):
             current_y = self.y_offset + get_size(xmlitem, 'top')
         return current_y
 
+    def create_para(self, xmltext, current_w, current_h, offset_font_size=0):
+        para_text = extract_text(xmltext)
+        font_name = xmltext.get('font_family')
+        align = xmltext.get('text_align')
+        if (align == 'left') or (align == 'start'):
+            alignment = TA_LEFT
+        elif align == 'center':
+            alignment = TA_CENTER
+        else:
+            alignment = TA_RIGHT
+        font_size = float(xmltext.get('font_size')) - offset_font_size
+        style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size, \
+                               alignment=alignment, leading=int(xmltext.get('line_height')))
+        # six.print_("%s:%s" % (xmltext.tag, para_text))
+        text = Paragraph(para_text, style=style)
+        _, new_current_h = text.wrapOn(self.pdf, current_w, current_h)
+        return text, style, new_current_h
+
+    def extract_columns_for_table(self, xmlcolumns):
+        max_current_h = 0
+        cellcolumns = []
+        width_columns = []
+        for xmlcolumn in xmlcolumns:
+            current_w = get_size(xmlcolumn, 'width')
+            width_columns.append(current_w)
+            cells = xmlcolumn.xpath('cell')
+            text, _, new_current_h = self.create_para(cells[0], current_w, 0, 0.85)
+            max_current_h = max(max_current_h, new_current_h)
+            cellcolumns.append(text)
+        return cellcolumns, width_columns, max_current_h
+
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
+        # pylint: disable=too-many-locals
+        def get_table_heigth(current_data, current_width_columns):
+            table = Table(current_data, style=TABLE_STYLE, colWidths=current_width_columns)
+            _, table_h = table.wrapOn(self.pdf, current_w, current_h)
+            return table_h
+        def draw_table(width_columns, data):
+            table = Table(data, style=TABLE_STYLE, colWidths=width_columns)
+            _, new_current_h = table.wrapOn(self.pdf, current_w, current_h)
+            table.drawOn(self.pdf, current_x, self.height - current_y - new_current_h)
+            self.position_y = current_y + max(new_current_h, current_h)
+            return
+        cellcolumns, width_columns, _ = self.extract_columns_for_table(xmltable.xpath('columns'))
         data = []
-        cellcolumns, width_columns = extract_columns_for_table(xmltable.xpath('columns'))
         data.append(cellcolumns)
         for row in xmltable.xpath('rows'):
             row_line = []
+            col_idx = 0
             for cell in row.xpath('cell'):
-                text, style = create_para(cell)
+                text, _, _ = self.create_para(cell, width_columns[col_idx], 0)
                 row_line.append(text)
+                col_idx += 1
+            table_height = get_table_heigth(data + [row_line], width_columns)
+            # six.print_("table y:%f height:%f h-b:%F" % (self.position_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
+            if (self.position_y + table_height) > (self.height - self.bottom_h - self.b_margin):
+                draw_table(width_columns, data)
+                self.add_page()
+                data = []
+                data.append(cellcolumns)
             data.append(row_line)
-        table = Table(data, style=TABLE_STYLE, colWidths=width_columns)
-        current_w, current_h = table.wrapOn(self.pdf, current_w, current_h)
-        current_y += style.leading
-        table.drawOn(self.pdf, current_x, self.height - current_y)
-        self.position_y = current_y + current_h
+        draw_table(width_columns, data)
 
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         img_content = xmlimage.text.strip()
@@ -159,20 +179,18 @@ class LucteriosPDF(object):
         img = Image(img_file)
         img.drawHeight = current_h
         img.drawWidth = current_w
-        current_w, current_h = img.wrapOn(self.pdf, current_w, current_h)
+        _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
         img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
-        self.position_y = current_y + current_h
+        self.position_y = current_y + max(new_current_h, current_h)
         if is_base64 and isfile(img_file):
             unlink(img_file)
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
-        text, style = create_para(xmltext)
-        _, new_current_h = text.wrapOn(self.pdf, current_w, current_h)
+        text, style, new_current_h = self.create_para(xmltext, current_w, current_h)
         if new_current_h == 0:
             new_current_h = style.leading
-        current_y += style.leading * 0.15
-        new_current_h += style.leading * 0.25
-        text.drawOn(self.pdf, current_x, self.height - current_y)
+        new_current_h += style.leading * 0.40
+        text.drawOn(self.pdf, current_x, self.height - current_y - new_current_h)
         self.position_y = current_y + max(new_current_h, current_h)
 
     def _parse_comp(self, comp, y_offset):
@@ -180,6 +198,8 @@ class LucteriosPDF(object):
         self.y_offset = y_offset
         self.position_y = y_offset
         for child in comp:
+            if self.position_y > (self.height + self.bottom_h):
+                self.add_page()
             current_x = self.l_margin + get_size(child, 'left')
             current_y = self.get_top_component(child)
             current_w = get_size(child, 'width')
@@ -193,13 +213,20 @@ class LucteriosPDF(object):
                 six.print_("Unsupported method: " + mtd)
         self.y_offset = last_y_offset
 
+    def add_page(self):
+        if not self.pdf.pageHasData():
+            self.pdf.showPage()
+        self.draw_header()
+        self.draw_footer()
+        self.position_y = self.y_offset
+
     def draw_header(self):
         header = self.current_page.xpath('header')
         self._parse_comp(header[0], self.t_margin)
 
     def draw_footer(self):
         bottom = self.current_page.xpath('bottom')
-        self._parse_comp(bottom[0], -1 * self.b_margin)
+        self._parse_comp(bottom[0], self.height - self.b_margin - self.bottom_h)
 
     def execute(self, xml_content):
         self.xml = etree.fromstring(xml_content)
@@ -208,10 +235,8 @@ class LucteriosPDF(object):
             self.current_page = page
             bodies = self.current_page.xpath('body')
             for body in bodies:
-                self.draw_header()
+                self.add_page()
                 self._parse_comp(body, self.header_h + self.t_margin)
-                self.draw_footer()
-                self.pdf.showPage()
 
     def output(self):
         return self.pdf.getpdfdata()

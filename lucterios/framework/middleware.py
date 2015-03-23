@@ -20,8 +20,8 @@ class LucteriosErrorMiddleware(XferContainerException):
             redirectaction = exception.redirectclassaction()
             if self.check_action_permission(redirectaction):
                 self.closeaction = (redirectaction, {})
-        self.responsesxml = etree.Element('REPONSES')
-        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
+        self.modelxml = etree.Element('REPONSES')
+        self.responsexml = etree.SubElement(self.modelxml, 'REPONSE')
         self._initialize(request)
         self.fillresponse()
         return self._finalize()

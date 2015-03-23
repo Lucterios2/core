@@ -12,7 +12,7 @@ from django.utils import six
 from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage,\
+from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage, \
     SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
@@ -273,7 +273,7 @@ class XferCompSelect(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "SELECT"
         self.select_list = {}
-        self.value = []
+        self.value = None
 
     def set_select(self, select_list):
         self.select_list = select_list
@@ -282,11 +282,13 @@ class XferCompSelect(XferCompButton):
         self.value = value
 
     def get_reponse_xml(self):
-        compxml = XferCompButton.get_reponse_xml(self)
         if isinstance(self.select_list, dict):
             list_of_select = self.select_list.items()
         else:
             list_of_select = list(self.select_list)
+        if self.value is None and len(list_of_select) > 0 and len(list_of_select[0]):
+            self.value = list_of_select[0][0]
+        compxml = XferCompButton.get_reponse_xml(self)
         for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)

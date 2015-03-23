@@ -23,13 +23,6 @@ from django.db.models.fields import EmailField
 class XferContainerAcknowledge(XferContainerAbstract):
 
     observer_name = 'Core.Acknowledge'
-    title = ""
-    msg = ""
-    traitment_data = None
-    typemsg = 1
-    redirect_act = None
-    except_msg = ""
-    except_classact = None
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
