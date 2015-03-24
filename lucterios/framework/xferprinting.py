@@ -87,7 +87,7 @@ class XferContainerPrint(XferContainerAbstract):
         dlg.extension = self.extension
         dlg.action = self.action
         lbl = XferCompLabelForm('lblPrintMode')
-        lbl.set_value_as_title(_('Kind of report'))
+        lbl.set_value_as_name(_('Kind of report'))
         lbl.set_location(0, 0)
         dlg.add_component(lbl)
         print_mode = XferCompSelect('PRINT_MODE')
@@ -95,7 +95,7 @@ class XferContainerPrint(XferContainerAbstract):
         if self.with_text_export:
             selector.append((PRINT_CSV_FILE, _('CSV file')))
         print_mode.set_select(selector)
-        print_mode.set_value(1)
+        print_mode.set_value(PRINT_PDF_FILE)
         print_mode.set_location(1, 0)
         dlg.add_component(print_mode)
         if (self.selector is not None) and (self.selector != 0):
@@ -132,7 +132,7 @@ class XferContainerPrint(XferContainerAbstract):
             dlg = self._get_from_selector()
             return dlg.get(request, *args, **kwargs)
 
-    def getBodyContent(self):
+    def get_body_content(self):
         if self.report_mode == PRINT_CSV_FILE:
             xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
             if not isfile(xsl_file):
@@ -140,14 +140,18 @@ class XferContainerPrint(XferContainerAbstract):
             rep_content = self.report_content
             with open(xsl_file, 'rb') as xsl_file:
                 csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
-            content = csv_transform(etree.XML(rep_content))
+            content = six.text_type(csv_transform(etree.XML(rep_content)))
         else:
             content = transforme_xml2pdf(self.report_content)
-        return b64encode(content)
+        if len(content) > 0:
+
+            return b64encode(content)
+        else:
+            return ""
 
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")
         printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV
-        printxml.text = self.getBodyContent()
+        printxml.text = self.get_body_content()
         etree.SubElement(printxml, "TITLE").text = six.text_type(self.caption)
         return XferContainerAbstract._finalize(self)

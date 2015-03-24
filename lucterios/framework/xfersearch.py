@@ -34,8 +34,8 @@ OP_MORE = ('4', _("superior"), '__gt')
 OP_CONTAINS = ('5', _("contains"), '__contains')
 OP_STARTBY = ('6', _("starts with"), '__startswith')
 OP_ENDBY = ('7', _("ends with"), '__endswith')
-OP_OR = ('8', _("or"), '')
-OP_AND = ('9', _("and"), '')
+OP_OR = ('8', _("or"), '__in')
+OP_AND = ('9', _("and"), '__id')
 OP_LIST = [OP_NULL, OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE, OP_CONTAINS, OP_STARTBY, OP_ENDBY, OP_OR, OP_AND]
 
 LIST_OP_BY_TYPE = {
@@ -64,6 +64,7 @@ class FieldDescItem(object):
 
     def __init__(self, fieldname):
         self.fieldname = fieldname
+        self.dbfieldname = ''
         self.sub_fieldnames = self.fieldname.split('.')
         self.description = ''
         self.field_type = TYPE_FLOAT
@@ -83,6 +84,7 @@ class FieldDescItem(object):
             if not sub_fied_desc.init(sub_model):
                 return False
             self.description = "%s > %s" % (self.description, sub_fied_desc.description)
+            self.dbfieldname = "%s__%s" % (self.dbfieldname, sub_fied_desc.dbfieldname)
             self.field_type = sub_fied_desc.field_type
             self.field_list = sub_fied_desc.field_list
         return True
@@ -90,10 +92,12 @@ class FieldDescItem(object):
     def get_field_from_name(self, model):
         dbfield = None
         if self.sub_fieldnames[0][-4:] == '_set':
+            self.dbfieldname = self.sub_fieldnames[0][:-4]
             self.description = model._meta.verbose_name  # pylint: disable=protected-access
             dbfield = getattr(model, self.sub_fieldnames[0])
         else:
             dep_field = model._meta.get_field_by_name(self.sub_fieldnames[0])  # pylint: disable=protected-access
+            self.dbfieldname = self.sub_fieldnames[0]
             if dep_field[2]:  # field real in model
                 if not dep_field[3]:  # field not many-to-many
                     dbfield = dep_field[0]
@@ -178,29 +182,32 @@ class FieldDescItem(object):
         return new_val_txt
 
     def get_query(self, value, operation):
-        if self.field_type == TYPE_BOOL:
-            if value == 'o':
-                query_txt = "Q(%s=True)" % self.fieldname
-            else:
-                query_txt = "Q(%s=False)" % self.fieldname
-        elif self.field_type == TYPE_FLOAT:
-            query_txt = "Q(%s%s=%s)" % (self.fieldname, OP_LIST[operation][2], value)
-        elif self.field_type == TYPE_LIST:
-            query_txt = "Q(%s__in=%s)" % (self.fieldname, six.text_type(value.split(';')))
-        elif self.field_type == TYPE_LISTMULT:
+        def get_int_list(value):
             val_ids = []
             for val_str in value.split(';'):
                 val_ids.append(int(val_str))
-            if operation == int(OP_OR[0]):
-                query_txt = "Q(%s__in=%s)" % (self.fieldname, six.text_type(val_ids))
+            return val_ids
+        from django.db.models import Q
+        query_res = Q()
+        field_with_op = self.dbfieldname + OP_LIST[operation][2]
+        if self.field_type == TYPE_BOOL:
+            if value == 'o':
+                query_res = Q(**{self.dbfieldname:True})
             else:
-                query_list = []
+                query_res = Q(**{self.dbfieldname:False})
+        elif self.field_type == TYPE_LIST:
+            query_res = Q(**{field_with_op:get_int_list(value)})
+        elif self.field_type == TYPE_LISTMULT:
+            val_ids = get_int_list(value)
+            if operation == int(OP_OR[0]):
+                query_res = Q(**{field_with_op:val_ids})
+            else:
+                query_res = Q()
                 for value_item in val_ids:
-                    query_list.append("Q(%s__id=%d)" % (self.fieldname, value_item))
-                query_txt = " & ".join(query_list)
+                    query_res = query_res & Q(**{field_with_op:value_item})
         else:
-            query_txt = "Q(%s%s='%s')" % (self.fieldname, OP_LIST[operation][2], value)
-        return query_txt
+            query_res = Q(**{field_with_op:value})
+        return query_res
 
     def get_new_criteria(self, params):
         operation = params['searchOperator']
@@ -287,7 +294,8 @@ class XferSearchEditor(XferContainerCustom):
                 del self.params[ctx_key]
 
     def get_text_search(self):
-        filter_text_list = []
+        from django.db.models import Q
+        filter_result = Q()
         criteria_desc = {}
         crit_index = 0
         for criteria_item in self.criteria_list:
@@ -297,20 +305,17 @@ class XferSearchEditor(XferContainerCustom):
                 new_val = criteria_item[2]
                 field_desc_item = self.fields_desc.get(new_name)
                 new_val_txt = field_desc_item.get_value(new_val, new_op)
-                filter_text_list.append(field_desc_item.get_query(new_val, new_op))
+                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
                 if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
                     sep_criteria = OP_EQUAL[1]
                 else:
                     sep_criteria = OP_LIST[new_op][1]
                 criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
                 crit_index += 1
-        if len(filter_text_list) > 0:
-            from django.db.models import Q  # pylint: disable=unused-variable
-            filter_text = "[%s]" % " & ".join(filter_text_list)
-            six.print_("filter_text:" + filter_text)
-            self.filter = eval(filter_text)  # pylint: disable=eval-used
+        if len(filter_result.children) > 0:
+            self.filter = [filter_result]
         else:
-            self.filter = []
+            self.filter = None
         return criteria_desc
 
     def fillresponse_search_select(self):
