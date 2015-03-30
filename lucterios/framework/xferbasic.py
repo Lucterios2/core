@@ -43,8 +43,8 @@ class XferContainerAbstract(View):
         self.language = ''
         self.request = None
         self.params = {}
-        self.modelxml = etree.Element('REPONSES')
-        self.responsexml = etree.SubElement(self.modelxml, 'REPONSE')
+        self.responsesxml = etree.Element('REPONSES')
+        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
         self.items = None
         self.item = None
         self.is_new = False
@@ -177,7 +177,9 @@ class XferContainerAbstract(View):
             self.responsexml.insert(1, context)
         if self.closeaction != None:
             etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], self.closeaction[1]))
-        return HttpResponse(etree.tostring(self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+
+    def get_response(self):
+        return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def _get_params(self):
         params = {}
@@ -208,7 +210,8 @@ class XferContainerAbstract(View):
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
-        return self._finalize()
+        self._finalize()
+        return self.get_response()
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)

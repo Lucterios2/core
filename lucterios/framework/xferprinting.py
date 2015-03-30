@@ -20,43 +20,6 @@ from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, StubAction
 from lucterios.framework.reporting import transforme_xml2pdf
 
-class ReportGenerator(object):
-
-    def __init__(self, title):
-        self.title = title
-        self.modelxml = etree.Element('model')
-        page = etree.SubElement(self.modelxml, "page")
-        self.header = etree.SubElement(page, "header")
-        self.bottom = etree.SubElement(page, "bottom")
-        self.body = etree.SubElement(page, "body")
-        self.page_width = 210
-        self.page_height = 297
-        self.horizontal_marge = 10
-        self.vertical_marge = 10
-        self.header_height = 0
-        self.bottom_height = 0
-
-    def fill_attrib(self):
-        self.modelxml.attrib['page_width'] = "%d.0" % self.page_width
-        self.modelxml.attrib['page_height'] = "%d.0" % self.page_height
-        self.modelxml.attrib['margin_right'] = "%d.0" % self.horizontal_marge
-        self.modelxml.attrib['margin_left'] = "%d.0" % self.horizontal_marge
-        self.modelxml.attrib['margin_bottom'] = "%d.0" % self.vertical_marge
-        self.modelxml.attrib['margin_top'] = "%d.0" % self.vertical_marge
-        self.header.attrib['extent'] = "%d.0" % self.header_height
-        self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
-
-    def fill_content(self):
-        pass
-
-    def get_title(self):
-        return self.title
-
-    def generate(self):
-        self.fill_content()
-        self.fill_attrib()
-        return etree.tostring(self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
-
 PRINT_PDF_FILE = 3
 PRINT_CSV_FILE = 4
 
@@ -81,15 +44,15 @@ class XferContainerPrint(XferContainerAbstract):
         if not isinstance(self.selector, dict) and not isinstance(self.selector, tuple) \
                 and not isinstance(self.selector, list) and (self.selector is not None) and (self.selector != 0):
             raise LucteriosException(GRAVE, "Error of print selector!")
-        dlg = XferContainerCustom()
-        dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
-        dlg.caption = self.caption
-        dlg.extension = self.extension
-        dlg.action = self.action
+        gui = XferContainerCustom()
+        gui.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init,no-member
+        gui.caption = self.caption
+        gui.extension = self.extension
+        gui.action = self.action
         lbl = XferCompLabelForm('lblPrintMode')
         lbl.set_value_as_name(_('Kind of report'))
         lbl.set_location(0, 0)
-        dlg.add_component(lbl)
+        gui.add_component(lbl)
         print_mode = XferCompSelect('PRINT_MODE')
         selector = [(PRINT_PDF_FILE, _('PDF file'))]
         if self.with_text_export:
@@ -97,24 +60,22 @@ class XferContainerPrint(XferContainerAbstract):
         print_mode.set_select(selector)
         print_mode.set_value(PRINT_PDF_FILE)
         print_mode.set_location(1, 0)
-        dlg.add_component(print_mode)
+        gui.add_component(print_mode)
         if (self.selector is not None) and (self.selector != 0):
             lbl = XferCompLabelForm('lblselector')
             lbl.set_value_as_title(self.selector_desc[0])
             lbl.set_location(0, 1)
-            dlg.add_component(lbl)
+            gui.add_component(lbl)
             selector = XferCompSelect(self.selector_desc[1])
             selector.set_select(self.selector)
             selector.set_value(None)
             selector.set_location(1, 1)
-            dlg.add_component(selector)
-        dlg.add_action(self.get_changed(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
-        dlg.add_action(StubAction(_("Close"), "images/close.png"), {})
-        return dlg
+            gui.add_component(selector)
+        gui.add_action(self.get_changed(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
+        gui.add_action(StubAction(_("Close"), "images/close.png"), {})
+        return gui
 
     def print_data(self, report_generator):
-        if not isinstance(report_generator, ReportGenerator):
-            raise LucteriosException(GRAVE, "Error of print generator!")
         self.caption = report_generator.get_title()
         self.report_content = report_generator.generate()
         if self.report_content == "":
@@ -127,7 +88,8 @@ class XferContainerPrint(XferContainerAbstract):
         if (self.selector != 0) or (report_mode is not None):
             if report_mode is not None:
                 self.report_mode = int(report_mode)
-            return self._finalize()
+            self._finalize()
+            return self.get_response()
         else:
             dlg = self._get_from_selector()
             return dlg.get(request, *args, **kwargs)
@@ -140,11 +102,10 @@ class XferContainerPrint(XferContainerAbstract):
             rep_content = self.report_content
             with open(xsl_file, 'rb') as xsl_file:
                 csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
-            content = six.text_type(csv_transform(etree.XML(rep_content)))
+            content = six.text_type(csv_transform(etree.XML(rep_content))).encode('utf-8')
         else:
             content = transforme_xml2pdf(self.report_content)
         if len(content) > 0:
-
             return b64encode(content)
         else:
             return ""
@@ -154,4 +115,4 @@ class XferContainerPrint(XferContainerAbstract):
         printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV
         printxml.text = self.get_body_content()
         etree.SubElement(printxml, "TITLE").text = six.text_type(self.caption)
-        return XferContainerAbstract._finalize(self)
+        XferContainerAbstract._finalize(self)

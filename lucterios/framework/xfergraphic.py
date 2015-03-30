@@ -129,14 +129,15 @@ class XferContainerAcknowledge(XferContainerAbstract):
         elif self.traitment_data != None:
             return self._get_from_custom(request, *args, **kwargs)
         else:
-            return self._finalize()
+            self._finalize()
+            return self.get_response()
 
     def _finalize(self):
         if self.redirect_act != None:
             act_xml = get_action_xml(self.redirect_act, {})
             if act_xml is not None:
                 self.responsexml.append(act_xml)
-        return XferContainerAbstract._finalize(self)
+        XferContainerAbstract._finalize(self)
 
 XFER_DBOX_INFORMATION = 1
 XFER_DBOX_CONFIRMATION = 2
@@ -171,7 +172,7 @@ class XferContainerDialogBox(XferContainerAbstract):
         text_dlg.text = six.text_type(self.msgtext)
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
-        return XferContainerAbstract._finalize(self)
+        XferContainerAbstract._finalize(self)
 
 class XferContainerCustom(XferContainerAbstract):
     # pylint: disable=too-many-public-methods
@@ -573,4 +574,4 @@ if (%(comp)s_current !== null) {
                 xml_comps.append(xml_comp)
         if len(self.actions) != 0:
             self.responsexml.append(get_actions_xml(self.actions))
-        return XferContainerAbstract._finalize(self)
+        XferContainerAbstract._finalize(self)

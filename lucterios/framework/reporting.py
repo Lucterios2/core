@@ -176,14 +176,15 @@ class LucteriosPDF(object):
             img_file = save_from_base64(img_content)
         else:
             img_file = img_content
-        img = Image(img_file)
-        img.drawHeight = current_h
-        img.drawWidth = current_w
-        _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
-        img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
-        self.position_y = current_y + max(new_current_h, current_h)
-        if is_base64 and isfile(img_file):
-            unlink(img_file)
+        if isfile(img_file):
+            img = Image(img_file)
+            img.drawHeight = current_h
+            img.drawWidth = current_w
+            _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
+            img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
+            self.position_y = current_y + max(new_current_h, current_h)
+            if is_base64 and isfile(img_file):
+                unlink(img_file)
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
         text, style, new_current_h = self.create_para(xmltext, current_w, current_h)

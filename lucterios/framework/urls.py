@@ -55,11 +55,9 @@ def get_url_patterns():
         if not "django" in appname:
             appmodule = import_module(appname)
             module_items = appname.split('.')
-            if module_items[0] == 'lucterios':
+            if module_items[1] == 'CORE':
                 module_items = module_items[1:]
-
             lucterios_ext = ".".join(module_items)
-
             for _, modname, ispkg in pkgutil.iter_modules(appmodule.__path__):
                 if (modname[:5] == 'views') and not ispkg:
                     view = import_module(appname + '.' + modname)

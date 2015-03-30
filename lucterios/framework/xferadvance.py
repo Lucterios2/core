@@ -72,7 +72,8 @@ class XferAddEditor(XferContainerCustom):
             self.fill_from_model(1, 0, False)
             self.add_action(self.get_changed(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
             self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
-            return self._finalize()
+            self._finalize()
+            return self.get_response()
         else:
             save = XferSave()
             save.is_view_right = self.is_view_right
@@ -101,7 +102,8 @@ class XferShowEditor(XferContainerCustom):
         if self.modify_class is not None:
             self.add_action(self.modify_class().get_changed(_('Modify'), 'images/edit.png'), {'close':CLOSE_NO})  # pylint: disable=not-callable
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
-        return self._finalize()
+        self._finalize()
+        return self.get_response()
 
 class XferDelete(XferContainerAcknowledge):
 

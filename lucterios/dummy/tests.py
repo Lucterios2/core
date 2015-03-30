@@ -14,9 +14,9 @@ class DummyTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
 
     def test_bidule1(self):
-        self.call('/dummy/bidule', {})
+        self.call('/lucterios.dummy/bidule', {})
         self.assert_attrib_equal('', 'observer', 'CORE.Exception')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Error of bidule')
         self.assert_xml_equal('EXCEPTION/CODE', '2')
@@ -24,9 +24,9 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/TYPE', 'LucteriosException')
 
     def test_bidule2(self):
-        self.call('/dummy/bidule', {'error':'big'})
+        self.call('/lucterios.dummy/bidule', {'error':'big'})
         self.assert_attrib_equal('', 'observer', 'CORE.Exception')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Other error:big')
         self.assert_xml_equal('EXCEPTION/CODE', '0')
@@ -34,9 +34,9 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('EXCEPTION/TYPE', 'AttributeError')
 
     def test_truc(self):
-        self.call('/dummy/truc', {})
+        self.call('/lucterios.dummy/truc', {})
         self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'truc')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_attrib_equal('TEXT', 'type', '1')
@@ -49,30 +49,30 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('ACTIONS/ACTION[1]', 'action', None)
 
     def test_multi(self):
-        self.call('/dummy/multi', {})
+        self.call('/lucterios.dummy/multi', {})
         self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_attrib_equal('TEXT', 'type', '2')
         self.assert_xml_equal('TEXT', 'Do you want?')
 
-        self.call('/dummy/multi', {'CONFIRME':'YES'})
+        self.call('/lucterios.dummy/multi', {'CONFIRME':'YES'})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Waiting...{[/center]}')
 
-        self.call('/dummy/multi', {'CONFIRME':'YES', 'RELOAD':'YES'})
+        self.call('/lucterios.dummy/multi', {'CONFIRME':'YES', 'RELOAD':'YES'})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Done!{[/center]}')
 
     def test_testcomposants(self):
         # pylint: disable=too-many-statements
-        self.call('/dummy/testComposants', {})
+        self.call('/lucterios.dummy/testComposants', {})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'testComposants')
         self.assert_count_equal('COMPONENTS/*', 22)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl2"]', 'editor=aaa')
@@ -130,7 +130,7 @@ class DummyTest(LucteriosTest):
                              ('FLOAT', 'flt2'), ('CHECKLIST', 'cl1')]:
             self.assert_count_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 1)
             self.assert_xml_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'Modify')
-            self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'extension', 'dummy')
+            self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'extension', 'lucterios.dummy')
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'action', 'testComposants')
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'close', '0')
             self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/ACTIONS/ACTION' % (tag, name), 'modal', '2')
@@ -138,10 +138,10 @@ class DummyTest(LucteriosTest):
 
     def test_testcomposants_again(self):
         # pylint: disable=too-many-statements
-        self.call('/dummy/testComposants', {'edt1':'bbb', 'flt1':'7.896666', 'mm1':'qwerty', 'dt1':'2015-02-22', 'tm1':'21:05:00', \
+        self.call('/lucterios.dummy/testComposants', {'edt1':'bbb', 'flt1':'7.896666', 'mm1':'qwerty', 'dt1':'2015-02-22', 'tm1':'21:05:00', \
                      'ck1':'o', 'slct1':'2', 'flt2':'27', 'cl1':'2;4', 'stm1':'2015-03-30 10:00:00'})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'testComposants')
         self.assert_count_equal('COMPONENTS/*', 22)
 
@@ -161,9 +161,9 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('COMPONENTS/CHECKLIST[@name="cl1"]/CASE[@id="4"]', 'checked', '1')
 
     def test_simplegrid(self):
-        self.call('/dummy/simpleGrid', {})
+        self.call('/lucterios.dummy/simpleGrid', {})
         self.assert_attrib_equal('', 'observer', 'Core.Custom')
-        self.assert_attrib_equal('', 'source_extension', 'dummy')
+        self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'simpleGrid')
 
         self.assert_count_equal('COMPONENTS/*', 1)

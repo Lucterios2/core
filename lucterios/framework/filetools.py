@@ -7,12 +7,12 @@ Created on march 2015
 
 from __future__ import unicode_literals
 
-from django.utils import six
-
 from base64 import b64encode, b64decode
-from os.path import join, exists
+from os.path import join, exists, dirname, isfile
 from os import makedirs, environ
 from Crypto.Hash.MD5 import MD5Hash
+from lucterios.framework.tools import get_binay
+from _io import BytesIO
 
 BASE64_PREFIX = 'data:image/*;base64,'
 
@@ -41,11 +41,7 @@ def get_user_path(rootpath, filename):
 def readimage_to_base64(file_path, with_prefix=True):
     with open(file_path, "rb") as image_file:
         if with_prefix:
-            if six.PY2:
-                img_prefix = six.binary_type(BASE64_PREFIX)
-            else:
-                img_prefix = six.binary_type(BASE64_PREFIX, 'ascii')
-            return img_prefix + b64encode(image_file.read())
+            return get_binay(BASE64_PREFIX) + b64encode(image_file.read())
         else:
             return b64encode(image_file.read())
 
@@ -60,6 +56,13 @@ def save_from_base64(base64stream):
     with open(file_path, "wb") as image_tmp:
         image_tmp.write(b64decode(stream))
     return file_path
+
+def open_from_base64(base64stream):
+    if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+        stream = base64stream[len(BASE64_PREFIX):]
+    else:
+        _, stream = base64stream.split(";")
+    return BytesIO(b64decode(stream))
 
 def open_image_resize(filep, max_width, max_height):
     from PIL import Image
@@ -76,3 +79,35 @@ def open_image_resize(filep, max_width, max_height):
             tn_height = int(max_height)
         image = image.resize((tn_width, tn_height))
     return image
+
+def get_image_absolutepath(icon_path):
+    if isfile(icon_path):
+        return icon_path
+    root_dir = icon_path.split('/')[0]
+    if root_dir == 'images':
+        root_dir = 'CORE'
+        sub_path = icon_path.split('/')
+    else:
+        sub_path = icon_path.split('/')[1:]
+    from django.utils.module_loading import import_module
+    try:
+
+        module = import_module(root_dir)
+        return join(dirname(module.__file__), *sub_path)
+    except ImportError:
+        return icon_path
+
+def get_image_size(image_path):
+    from PIL import Image
+    filep = None
+    try:
+        if image_path[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+            filep = open_from_base64(image_path)
+        else:
+            filep = open(get_image_absolutepath(image_path), "rb")
+        image = Image.open(filep)
+        width, height = image.size
+    finally:
+        if filep is not None:
+            filep.close()
+    return width, height

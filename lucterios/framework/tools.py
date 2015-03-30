@@ -116,7 +116,7 @@ class MenuManage(object):
             try:
                 item.is_view_right = right
                 module_items = item.__module__.split('.')
-                if module_items[0] == 'lucterios':
+                if module_items[1] == 'CORE':
                     module_items = module_items[1:]
                 if module_items[-1][:5] == 'views':
                     module_items = module_items[:-1]
@@ -279,3 +279,9 @@ def get_dico_from_setquery(setquery):
         for record in setquery:
             res_dico[six.text_type(record.id)] = six.text_type(record)
     return res_dico
+
+def get_binay(text):
+    if six.PY2:
+        return six.binary_type(text)
+    else:
+        return six.binary_type(text, 'ascii')
