@@ -35,6 +35,10 @@ class XferContainerPrint(XferContainerAbstract):
         self.selector_desc = ''
         self.selector = None
 
+    def get_report_generator(self):
+        # pylint: disable=no-self-use
+        return None
+
     def show_selector(self, selector=0, selector_desc=None):
         self.selector = selector
         self.selector_desc = selector_desc
@@ -75,12 +79,6 @@ class XferContainerPrint(XferContainerAbstract):
         gui.add_action(StubAction(_("Close"), "images/close.png"), {})
         return gui
 
-    def print_data(self, report_generator):
-        self.caption = report_generator.get_title()
-        self.report_content = report_generator.generate()
-        if self.report_content == "":
-            raise LucteriosException(GRAVE, "report empty!")
-
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
@@ -109,6 +107,13 @@ class XferContainerPrint(XferContainerAbstract):
             return b64encode(content)
         else:
             return ""
+
+    def fillresponse(self):
+        if self.show_selector():
+            report_generator = self.get_report_generator()
+            if report_generator is not None:
+                report_generator.title = self.caption
+                self.report_content = report_generator.generate(self.request)
 
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")

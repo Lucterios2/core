@@ -9,7 +9,8 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext as _
 
-from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH
+from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH,\
+    ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
@@ -51,7 +52,6 @@ LIST_OP_BY_TYPE = {
 
 def get_script_for_operator():
     script = "var new_operator='';\n"
-
     for current_type, op_list in LIST_OP_BY_TYPE.items():
         script += "if (type=='%(type)s') {\n" % {'type':current_type}
         for op_id, op_title, __op_q  in op_list:  # pylint: disable=unused-variable
@@ -59,6 +59,41 @@ def get_script_for_operator():
         script += "}\n"
     script += "parent.get('searchOperator').setValue('<SELECT>'+new_operator+'</SELECT>');\n"
     return script
+
+def get_criteria_list(criteria):
+    criteria_list = []
+    for criteria_item in criteria.split('//'):
+        criteriaval = criteria_item.split('||')
+        criteria_list.append(criteriaval)
+    return criteria_list
+
+def get_query_from_criterialist(criteria_list, fields_desc):
+    from django.db.models import Q
+    filter_result = Q()
+    criteria_desc = {}
+    crit_index = 0
+    for criteria_item in criteria_list:
+        new_name = criteria_item[0]
+        if new_name != '':
+            new_op = int(criteria_item[1])
+            new_val = criteria_item[2]
+            field_desc_item = fields_desc.get(new_name)
+            new_val_txt = field_desc_item.get_value(new_val, new_op)
+            filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
+            if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
+                sep_criteria = OP_EQUAL[1]
+            else:
+                sep_criteria = OP_LIST[new_op][1]
+            criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
+            crit_index += 1
+    return filter_result, criteria_desc
+
+def get_search_query(criteria, item):
+    criteria_list = get_criteria_list(criteria)
+    fields_desc = FieldDescList()
+    fields_desc.initial(item)
+    filter_result, _ = get_query_from_criterialist(criteria_list, fields_desc)
+    return [filter_result]
 
 class FieldDescItem(object):
 
@@ -270,9 +305,7 @@ class XferSearchEditor(XferContainerCustom):
     def read_criteria_from_params(self):
         criteria = self.getparam('CRITERIA')
         if criteria is not None:
-            for criteria_item in criteria.split('//'):
-                criteriaval = criteria_item.split('||')
-                self.criteria_list.append(criteriaval)
+            self.criteria_list = get_criteria_list(criteria)
         act_param = self.getparam('ACT')
         if act_param == 'ADD':
             new_name = self.getparam('searchSelector')
@@ -294,24 +327,7 @@ class XferSearchEditor(XferContainerCustom):
                 del self.params[ctx_key]
 
     def get_text_search(self):
-        from django.db.models import Q
-        filter_result = Q()
-        criteria_desc = {}
-        crit_index = 0
-        for criteria_item in self.criteria_list:
-            new_name = criteria_item[0]
-            if new_name != '':
-                new_op = int(criteria_item[1])
-                new_val = criteria_item[2]
-                field_desc_item = self.fields_desc.get(new_name)
-                new_val_txt = field_desc_item.get_value(new_val, new_op)
-                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
-                if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
-                    sep_criteria = OP_EQUAL[1]
-                else:
-                    sep_criteria = OP_LIST[new_op][1]
-                criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
-                crit_index += 1
+        filter_result, criteria_desc = get_query_from_criterialist(self.criteria_list, self.fields_desc)
         if len(filter_result.children) > 0:
             self.filter = [filter_result]
         else:
@@ -472,5 +488,9 @@ if ((type=='list') || (type=='listmult')) {
         lbl.set_location(0, row + 5, 4)
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
         self.add_component(lbl)
+
+        action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
+        for act_type, title, icon in action_list:
+            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
