@@ -104,8 +104,9 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 1)
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 2)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
 
         self.call('/CORE/configuration', {})
@@ -137,8 +138,9 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU", 3)
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 2)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
 
     def test_connect_free(self):
@@ -163,8 +165,9 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU", 3)
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 1)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 3)
 
     def test_menu_reconnected(self):

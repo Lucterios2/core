@@ -14,8 +14,8 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.xferadvance import get_items_from_filter
-from lucterios.framework.tools import get_value_converted
 from django.utils import six
+from lucterios.framework.models import get_value_converted
 
 def remove_format(xml_text):
     xml_text = xml_text.replace('<b>', '')
@@ -54,13 +54,6 @@ def get_text_size(text):
         size_x = max(size_x, len(remove_format(line)))
         size_y = size_y + 1
     return (size_x, size_y)
-
-def evaluate_cell(item, column):
-    value = column[2]
-    for field in column[3]:
-        field_val = get_value_converted(getattr(item, field[1:]), True)
-        value = value.replace(field, six.text_type(field_val))
-    return value
 
 class PrintItem(object):
     # pylint: disable=too-many-instance-attributes
@@ -405,13 +398,11 @@ class ActionGenerator(ReportGenerator):
 class ListingGenerator(ReportGenerator):
 
     def __init__(self, model):
-        import re
         ReportGenerator.__init__(self)
         self.header_height = 12
         self.columns = []
         self.model = model
         self.filter = None
-        self.finder = re.compile("#[a-z_0-9]+")
 
     def add_page(self):
         ReportGenerator.add_page(self)
@@ -426,13 +417,8 @@ class ListingGenerator(ReportGenerator):
         xml_table.attrib['left'] = "0.0"
         xml_table.attrib['spacing'] = "0.0"
         size_x = 0
-        new_columns = []
         for column in self.columns:
             size_x += column[0]
-            fields = self.finder.findall(column[2])
-            new_columns.append((column[0], column[1], column[2], fields))
-        self.columns = new_columns
-
         for column in self.columns:
             size_col = int(self.content_width * column[0] / size_x)
             new_col = etree.SubElement(xml_table, "columns")
@@ -447,5 +433,46 @@ class ListingGenerator(ReportGenerator):
         for item in items:
             new_row = etree.SubElement(xml_table, "rows")
             for column in self.columns:
-                xml_text = convert_to_html('cell', evaluate_cell(item, column), "sans-serif", 9, 10, "start")
+                xml_text = convert_to_html('cell', item.evaluate(column[2]), "sans-serif", 9, 10, "start")
                 new_row.append(xml_text)
+
+class LabelGenerator(ReportGenerator):
+
+    def __init__(self, model, first_label):
+        ReportGenerator.__init__(self)
+        self.model = model
+        self.filter = None
+        self.first_label = first_label
+        self.label_text = ""
+        self.label_size = {'page_width':210, 'page_height':297, 'cell_width':105, 'cell_height':70, 'columns':2, 'rows':4, \
+                           'left_marge':0, 'top_marge':8, 'horizontal_space':105, 'vertical_space':70}
+
+    def fill_content(self, _):
+        self.horizontal_marge = self.label_size['left_marge']
+        self.vertical_marge = self.label_size['top_marge']
+        self.page_width = self.label_size['page_width']
+        self.page_height = self.label_size['page_height']
+        label_values = []
+        for _ in range(0, self.first_label):
+            label_values.append("")
+        items = get_items_from_filter(self.model, self.filter)
+        for item in items:
+            label_values.append(item.evaluate(self.label_text))
+        index = 0
+        for labelval in label_values:
+            if index == (self.label_size['columns'] * self.label_size['rows']):
+                index = 0
+                self.add_page()
+            col_num = index % self.label_size['columns']
+            row_num = int(index / self.label_size['columns'])
+            left = col_num * self.label_size['horizontal_space']
+            top = row_num * self.label_size['vertical_space']
+            xml_text = convert_to_html('text', labelval, "sans-serif", 9, 10, "center")
+            xml_text.attrib['height'] = "%d.0" % self.label_size['cell_height']
+            xml_text.attrib['width'] = "%d.0" % self.label_size['cell_width']
+            xml_text.attrib['top'] = "%d.0" % top
+            xml_text.attrib['left'] = "%d.0" % left
+            xml_text.attrib['spacing'] = "0.0"
+            self.body.append(xml_text)
+            index += 1
+

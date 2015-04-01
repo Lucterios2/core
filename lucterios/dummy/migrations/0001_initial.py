@@ -24,9 +24,9 @@ class Migration(migrations.Migration):
                 ('valid', models.BooleanField(default=False)),
                 ('comment', models.TextField(blank=True)),
             ],
+            bases=(models.Model,),
             options={
                 'abstract': False,
             },
-            bases=(models.Model,),
         ),
     ]

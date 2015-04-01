@@ -8,15 +8,18 @@ Created on 11 fevr. 2015
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction,\
+    ActionsManage
 from lucterios.framework.xferbasic import XferContainerMenu
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, Label
 from django.utils import six
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor,\
+    XferDelete
 
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -153,8 +156,8 @@ class ParamSave(XferContainerAcknowledge):
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
-# MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("_Report and print"), _("To manage reports and tools of printing."), 30)
-#
+MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("Report and print"), _("To manage reports and tools of printing."), 30)
+
 
 # @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
 # class PrintmodelList(XferContainerAcknowledge):
@@ -168,9 +171,29 @@ MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("
 #     icon = "PrintReportSave.png"
 #
 
-# @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
-# class EtiquettesListe(XferContainerAcknowledge):
-#     caption = _("_Labels")
-#     icon = "PrintReportLabel.png"
+@MenuManage.describ('CORE.change_label', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
+class LabelList(XferListEditor):
+    caption = _("Labels")
+    icon = "PrintReportLabel.png"
+    model = Label
+    field_id = 'label'
+
+@ActionsManage.affect('Label', 'edit', 'add')
+@MenuManage.describ('CORE.add_label')
+class LabelEdit(XferAddEditor):
+    # pylint: disable=too-many-public-methods
+    caption_add = _("Add a label")
+    caption_modify = _("Modify a label")
+    icon = "etiquette.png"
+    model = Label
+    field_id = 'label'
+
+@ActionsManage.affect('Label', 'del')
+@MenuManage.describ('CORE.delete_label')
+class LabelDelete(XferDelete):
+    caption = _("Delete label")
+    icon = "PrintReportLabel.png"
+    model = Label
+    field_id = 'label'
 
 tools.bad_permission_redirect_classaction = Menu

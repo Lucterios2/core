@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Parameter(LucteriosModel):
 
@@ -97,3 +98,43 @@ class LucteriosGroup(Group, LucteriosModel):
         default_permissions = []
         verbose_name = _('group')
         verbose_name_plural = _('groups')
+
+class Label(LucteriosModel):
+    name = models.CharField(_('name'), max_length=100, unique=True)
+
+    page_width = models.IntegerField(_('page width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    page_height = models.IntegerField(_('page height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    cell_width = models.IntegerField(_('cell width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    cell_height = models.IntegerField(_('cell height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    columns = models.IntegerField(_('number of columns'), validators=[MinValueValidator(1), MaxValueValidator(99)])
+    rows = models.IntegerField(_('number of rows'), validators=[MinValueValidator(1), MaxValueValidator(99)])
+    left_marge = models.IntegerField(_('left marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    top_marge = models.IntegerField(_('top marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    horizontal_space = models.IntegerField(_('horizontal space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    vertical_space = models.IntegerField(_('vertical space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+
+    def __str__(self):
+        return self.name
+
+    label__showfields = ['name', ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('columns', 'rows'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
+    label__editfields = ['name', ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('columns', 'rows'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
+    label__searchfields = ["name", 'columns', 'rows']
+    default_fields = ["name", 'columns', 'rows']
+
+    @classmethod
+    def get_print_selector(cls):
+        selection = []
+        for dblbl in cls.objects.all(): # pylint: disable=no-member
+            selection.append((dblbl.id, dblbl.name))
+        return [('LABEL', _('label'), selection), ('FIRSTLABEL', _('# of first label'), (1, 100, 0))]
+
+    @classmethod
+    def get_label_selected(cls, xfer):
+        label_id = xfer.getparam('LABEL')
+        first_label = xfer.getparam('FIRSTLABEL')
+        return cls.objects.get(id=label_id), int(first_label) # pylint: disable=no-member
+
+    class Meta(object):
+        # pylint: disable=no-init
+        verbose_name = _('label')
+        verbose_name_plural = _('labels')

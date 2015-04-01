@@ -5,12 +5,13 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from django.db import models, migrations
+import django.core.validators
 from django.contrib.auth.models import User
 from django.utils import six
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, Label
 
 def initial_values(*args):
-    # pylint: disable=unused-argument
+    # pylint: disable=unused-argument, no-member, expression-not-assigned
     admin = User.objects.create_user(six.text_type('admin'), '', six.text_type('admin'))
     admin.first_name = six.text_type('administrator')
     admin.last_name = six.text_type('ADMIN')
@@ -30,6 +31,19 @@ def initial_values(*args):
     param.args = "{'Enum':3}"
     param.value = '0'
     param.save()
+
+    Label.objects.create(name='Planche 2x4', page_height=297, page_width=210, cell_height=70, cell_width=105, \
+                         columns=2, rows=4, left_marge=0, top_marge=8, horizontal_space=105, vertical_space=70),
+    Label.objects.create(name='Planche 2x5', page_height=297, page_width=210, cell_height=57, cell_width=105, \
+                         columns=2, rows=5, left_marge=0, top_marge=6, horizontal_space=105, vertical_space=57),
+    Label.objects.create(name='Planche 2x6', page_height=297, page_width=210, cell_height=49, cell_width=105, \
+                         columns=2, rows=6, left_marge=0, top_marge=0, horizontal_space=105, vertical_space=49),
+    Label.objects.create(name='Planche 2x8', page_height=297, page_width=210, cell_height=35, cell_width=105, \
+                         columns=2, rows=8, left_marge=0, top_marge=8, horizontal_space=105, vertical_space=35),
+    Label.objects.create(name='Planche 3x8', page_width=210, page_height=297, cell_width=70, cell_height=35, \
+                         columns=3, rows=8, left_marge=0, top_marge=9, horizontal_space=70, vertical_space=35),
+    Label.objects.create(name='Planche 3x10', page_width=210, page_height=297, cell_width=70, cell_height=28, \
+                         columns=3, rows=10, left_marge=0, top_marge=9, horizontal_space=70, vertical_space=28)
 
 class Migration(migrations.Migration):
 
@@ -78,6 +92,27 @@ class Migration(migrations.Migration):
                 'default_permissions': [],
             },
             bases=('auth.user', models.Model),
+        ),
+        migrations.CreateModel(
+            name='Label',
+            fields=[
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(unique=True, max_length=100, verbose_name='name')),
+                ('page_width', models.IntegerField(verbose_name='page width', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('page_height', models.IntegerField(verbose_name='page height', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('cell_width', models.IntegerField(verbose_name='cell width', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('cell_height', models.IntegerField(verbose_name='cell height', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('columns', models.IntegerField(verbose_name='number of columns', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(99)])),
+                ('rows', models.IntegerField(verbose_name='number of rows', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(99)])),
+                ('left_marge', models.IntegerField(verbose_name='left marge', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('top_marge', models.IntegerField(verbose_name='top marge', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('horizontal_space', models.IntegerField(verbose_name='horizontal space', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('vertical_space', models.IntegerField(verbose_name='vertical space', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+            ],
+            options={
+                'abstract': False,
+            },
+            bases=(models.Model,),
         ),
         migrations.RunPython(initial_values),
     ]

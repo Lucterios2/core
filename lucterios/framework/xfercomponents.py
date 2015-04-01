@@ -12,11 +12,11 @@ from django.utils import six
 from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value_converted, check_permission, StubAction, ActionsManage, \
-    SELECT_MULTI
+from lucterios.framework.tools import get_action_xml, get_actions_xml, check_permission, StubAction, ActionsManage, SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
 import datetime
+from lucterios.framework.models import get_value_converted
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes

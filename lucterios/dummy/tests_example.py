@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
-    ExamplePrint, ExampleListing, ExampleSearch
+    ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel
 from lucterios.dummy.models import Example
 from base64 import b64decode
 from django.utils import six
@@ -94,6 +94,26 @@ class ExampleTest(LucteriosTest):
         pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
+    def testlabel(self):
+        self.factory.xfer = ExampleLabel()
+        self.call('/lucterios.dummy/exampleLabel', {}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleLabel')
+        self.assert_count_equal('COMPONENTS/*', 6)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lblPrintMode"]', "{[b]}Type de rapport{[/b]}", (0, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/SELECT[@name="PRINT_MODE"]', "3", (1, 0, 1, 1))
+        self.assert_count_equal('COMPONENTS/SELECT[@name="PRINT_MODE"]/CASE', 1)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lblLABEL"]', "{[b]}étiquette{[/b]}", (0, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/SELECT[@name="LABEL"]', "1", (1, 1, 1, 1))
+        self.assert_count_equal('COMPONENTS/SELECT[@name="LABEL"]/CASE', 6)
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lblFIRSTLABEL"]', "{[b]}N° première étiquette{[/b]}", (0, 2, 1, 1))
+        self.assert_comp_equal('COMPONENTS/FLOAT[@name="FIRSTLABEL"]', "1", (1, 2, 1, 1))
+
+        self.factory.xfer = ExampleLabel()
+        self.call('/lucterios.dummy/exampleLabel', {'PRINT_MODE':'3', 'LABEL':1, 'FIRSTLABEL':3}, False)
+        self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleLabel')
+        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+
     def testlisting(self):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'4'}, False)
@@ -103,4 +123,3 @@ class ExampleTest(LucteriosTest):
         self.assertEqual(len(content_csv), 11, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"Example"')
         self.assertEqual(content_csv[3].strip(), '"Name";"value + price";"date + time";')
-        

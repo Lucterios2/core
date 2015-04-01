@@ -16,7 +16,8 @@ from django.utils import six
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
+    XferCompFloat
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, StubAction
 from lucterios.framework.reporting import transforme_xml2pdf
 
@@ -32,22 +33,18 @@ class XferContainerPrint(XferContainerAbstract):
         XferContainerAbstract.__init__(self)
         self.report_content = ""
         self.report_mode = PRINT_PDF_FILE
-        self.selector_desc = ''
-        self.selector = None
         self.print_selector = []
+        self.selector = None
 
     def get_report_generator(self):
         # pylint: disable=no-self-use
         return None
 
-    def show_selector(self, selector=0, selector_desc=None):
-        self.selector = selector
-        self.selector_desc = selector_desc
+    def show_selector(self):
         return self.getparam("PRINT_MODE") is not None
 
     def _get_from_selector(self):
-        if not isinstance(self.selector, dict) and not isinstance(self.selector, tuple) \
-                and not isinstance(self.selector, list) and (self.selector is not None) and (self.selector != 0):
+        if not isinstance(self.selector, list) and (self.selector is not None):
             raise LucteriosException(GRAVE, "Error of print selector!")
         gui = XferContainerCustom()
         gui.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init,no-member
@@ -63,16 +60,23 @@ class XferContainerPrint(XferContainerAbstract):
         print_mode.set_value(PRINT_PDF_FILE)
         print_mode.set_location(1, 0)
         gui.add_component(print_mode)
-        if (self.selector is not None) and (self.selector != 0):
-            lbl = XferCompLabelForm('lblselector')
-            lbl.set_value_as_title(self.selector_desc[0])
-            lbl.set_location(0, 1)
-            gui.add_component(lbl)
-            selector = XferCompSelect(self.selector_desc[1])
-            selector.set_select(self.selector)
-            selector.set_value(None)
-            selector.set_location(1, 1)
-            gui.add_component(selector)
+        if self.selector is not None:
+            row_idx = 1
+            for name_selector, title_selector, option_selector in self.selector:
+                lbl = XferCompLabelForm('lbl' + name_selector)
+                lbl.set_value_as_name(title_selector)
+                lbl.set_location(0, row_idx)
+                gui.add_component(lbl)
+                if isinstance(option_selector, list):
+                    comp = XferCompSelect(name_selector)
+                    comp.set_select(option_selector)
+                    comp.set_value(None)
+                elif isinstance(option_selector, tuple):
+                    comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
+                    comp.set_value(option_selector[0])
+                comp.set_location(1, row_idx)
+                gui.add_component(comp)
+                row_idx += 1
         gui.add_action(self.get_changed(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
         gui.add_action(StubAction(_("Close"), "images/close.png"), {})
         return gui
@@ -81,14 +85,14 @@ class XferContainerPrint(XferContainerAbstract):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
         report_mode = self.getparam("PRINT_MODE")
-        if (self.selector != 0) or (len(self.print_selector) == 1) or (report_mode is not None):
+        if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
+            dlg = self._get_from_selector()
+            return dlg.get(request, *args, **kwargs)
+        else:
             if report_mode is not None:
                 self.report_mode = int(report_mode)
             self._finalize()
             return self.get_response()
-        else:
-            dlg = self._get_from_selector()
-            return dlg.get(request, *args, **kwargs)
 
     def get_body_content(self):
         if self.report_mode == PRINT_CSV_FILE:
@@ -110,7 +114,7 @@ class XferContainerPrint(XferContainerAbstract):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
         if self.with_text_export:
             self.print_selector.append((PRINT_CSV_FILE, _('CSV file')))
-        if self.show_selector() or (len(self.print_selector) == 1):
+        if self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
                 report_generator.title = self.caption

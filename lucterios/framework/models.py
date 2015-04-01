@@ -6,13 +6,54 @@ Created on march 2015
 '''
 
 from __future__ import unicode_literals
+import re
 
 from django.db import models
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six, formats
+
+def get_value_converted(value, bool_textual=False):
+    # pylint: disable=too-many-return-statements, too-many-branches
+    import datetime
+    if hasattr(value, 'all'):
+        values = []
+        for val_item in value.all():
+            values.append(six.text_type(val_item))
+        return "{[br/]}".join(values)
+    elif isinstance(value, datetime.datetime):
+        return formats.date_format(value, "DATETIME_FORMAT")
+    elif isinstance(value, datetime.date):
+        return formats.date_format(value, "DATE_FORMAT")
+    elif isinstance(value, datetime.time):
+        return formats.date_format(value, "TIME_FORMAT")
+    elif isinstance(value, bool):
+        if bool_textual:
+            if value:
+                return _("Yes")
+            else:
+                return _("No")
+        else:
+            if value:
+                return six.text_type("1")
+            else:
+                return six.text_type("0")
+    elif value is None:
+        return six.text_type("---")
+    else:
+        return value
 
 class LucteriosModel(models.Model):
+
+    TO_EVAL_FIELD = re.compile("#[a-z_0-9]+")
+
+    def evaluate(self, text):
+        value = text
+        for field in self.TO_EVAL_FIELD.findall(text):
+            field_val = get_value_converted(getattr(self, field[1:]), True)
+            value = value.replace(field, six.text_type(field_val))
+        return value
 
     @classmethod
     def _get_list_fields_names(cls, current_desc, readonly):

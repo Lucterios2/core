@@ -17,9 +17,9 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompDateTime
 from lucterios.framework.tools import get_action_xml, get_actions_xml, \
     get_dico_from_setquery, StubAction
-from lucterios.framework.tools import get_value_converted, get_corrected_setquery
-from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
+from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
+from lucterios.framework.models import get_value_converted
 
 def get_range_value(model_field):
     from django.core.validators import MaxValueValidator, MinValueValidator
@@ -350,16 +350,6 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_needed(dep_field[0].unique or not (dep_field[0].blank or dep_field[0].null))
         comp.description = six.text_type(dep_field[0].verbose_name)
         return comp
-
-    def get_grid_comp(self, field_name, title):
-        comp = XferCompGrid(field_name)
-        comp.add_header("text", title)
-        if self.item.id is not None:
-            values = getattr(self.item, field_name).all()
-            for value in values:
-                comp.set_value(value.id, "text", six.text_type(value))
-        return comp
-
 
     def get_maxsize_of_lines(self, field_names):
         # pylint: disable=no-self-use

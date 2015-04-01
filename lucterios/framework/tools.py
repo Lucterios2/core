@@ -6,7 +6,7 @@ Created on 11 fevr. 2015
 '''
 
 from __future__ import unicode_literals
-from django.utils import six, formats
+from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
@@ -220,36 +220,6 @@ def ifplural(count, test_singular, test_plural):
         return test_singular
     else:
         return test_plural
-
-def get_value_converted(value, bool_textual=False):
-    # pylint: disable=too-many-return-statements, too-many-branches
-    import datetime
-    if hasattr(value, 'all'):
-        values = []
-        for val_item in value.all():
-            values.append(six.text_type(val_item))
-        return "{[br/]}".join(values)
-    elif isinstance(value, datetime.datetime):
-        return formats.date_format(value, "DATETIME_FORMAT")
-    elif isinstance(value, datetime.date):
-        return formats.date_format(value, "DATE_FORMAT")
-    elif isinstance(value, datetime.time):
-        return formats.date_format(value, "TIME_FORMAT")
-    elif isinstance(value, bool):
-        if bool_textual:
-            if value:
-                return _("Yes")
-            else:
-                return _("No")
-        else:
-            if value:
-                return six.text_type("1")
-            else:
-                return six.text_type("0")
-    elif value is None:
-        return six.text_type("---")
-    else:
-        return value
 
 def get_corrected_setquery(setquery):
     if setquery.model == Permission:
