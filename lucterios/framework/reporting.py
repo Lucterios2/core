@@ -18,7 +18,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 import re
-from lucterios.framework.filetools import BASE64_PREFIX, save_from_base64
+from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
 
 def get_size(xmltext, name):
@@ -173,18 +173,19 @@ class LucteriosPDF(object):
         img_content = xmlimage.text.strip()
         is_base64 = img_content[:len(BASE64_PREFIX)] == BASE64_PREFIX
         if is_base64:
-            img_file = save_from_base64(img_content)
+            img_file = open_from_base64(img_content)
         else:
-            img_file = img_content
-        if isfile(img_file):
+            img_file = open(img_content, "rb")
+        try:
             img = Image(img_file)
             img.drawHeight = current_h
             img.drawWidth = current_w
             _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
             img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
             self.position_y = current_y + max(new_current_h, current_h)
-            if is_base64 and isfile(img_file):
-                unlink(img_file)
+        finally:
+            if img_file is not None:
+                img_file.close()
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
         text, style, new_current_h = self.create_para(xmltext, current_w, current_h)

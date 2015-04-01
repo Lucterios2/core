@@ -39,12 +39,14 @@ class GenericTest(LucteriosTest):
         response = self.client.get('/Help', {})
         self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
         help_content = six.text_type(response.content)
-        self.assertEqual(help_content.find('<html>'), 21)
+        self.assertGreaterEqual(help_content.find('<html>'), 17)
+        self.assertLessEqual(help_content.find('<html>'), 21)
 
         response = self.client.get('/Help', {'helpid':'lucterios.CORE-01_password.html'})
         self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
         help_content = six.text_type(response.content)
-        self.assertEqual(help_content.find('<h1>'), 4)
+        self.assertGreaterEqual(help_content.find('<h1>'), 1)
+        self.assertLessEqual(help_content.find('<h1>'), 4)
 
     def test_simple(self):
         self.call('/customer/details', {'id':12, 'value':'abc'}, False)
