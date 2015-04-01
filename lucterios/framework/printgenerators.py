@@ -14,6 +14,8 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.xferadvance import get_items_from_filter
+from lucterios.framework.tools import get_value_converted
+from django.utils import six
 
 def remove_format(xml_text):
     xml_text = xml_text.replace('<b>', '')
@@ -32,7 +34,7 @@ def remove_format(xml_text):
     return xml_text
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
-    text = text.replace('{[newline]}', '<br/>')
+    text = six.text_type(text).replace('{[newline]}', '<br/>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
     xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname':tagname, 'text':text})
@@ -47,7 +49,7 @@ def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_h
 def get_text_size(text):
     size_x = 0
     size_y = 0
-    text = text.replace('{[newline]}', "\n").replace('{[br/]}', "\n")
+    text = six.text_type(text).replace('{[newline]}', "\n").replace('{[br/]}', "\n")
     for line in text.split('\n'):
         size_x = max(size_x, len(remove_format(line)))
         size_y = size_y + 1
@@ -56,8 +58,8 @@ def get_text_size(text):
 def evaluate_cell(item, column):
     value = column[2]
     for field in column[3]:
-        field_val = getattr(item, field[1:])
-        value = value.replace(field, field_val)
+        field_val = get_value_converted(getattr(item, field[1:]), True)
+        value = value.replace(field, six.text_type(field_val))
     return value
 
 class PrintItem(object):
@@ -232,11 +234,11 @@ class PrintLabel(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        self.size_x, size_y = get_text_size(self.comp.value)
+        self.size_x, size_y = get_text_size(get_value_converted(self.comp.value, True))
         self.height = 4.8 * size_y
 
     def get_xml(self):
-        xml_text = convert_to_html('text', self.comp.value)
+        xml_text = convert_to_html('text', get_value_converted(self.comp.value, True))
         self.fill_attrib(xml_text)
         return xml_text
 

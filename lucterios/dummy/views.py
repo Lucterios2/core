@@ -9,13 +9,18 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
-from lucterios.framework.tools import MenuManage, StubAction
+from lucterios.framework.tools import MenuManage, StubAction, ActionsManage
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
+from lucterios.dummy.models import Example
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete
+from lucterios.framework.xferprinting import XferContainerPrint
+from lucterios.framework.printgenerators import ActionGenerator, ListingGenerator
+from lucterios.framework.xfersearch import XferSearchEditor
 
-MenuManage.add_sub('dummy.foo', None, 'dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
+MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
@@ -45,7 +50,7 @@ class Multi(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.confirme("Do you want?"):
-            if self.traitment("dummy/images/4.png", "Waiting...", "Done!"):
+            if self.traitment("lucterios.dummy/images/4.png", "Waiting...", "Done!"):
                 import time
                 time.sleep(3)
 
@@ -211,3 +216,65 @@ class SimpleGrid(XferContainerCustom):
 
         # grid.add_action(self.get_changed('Reopen', ''),-1, {'modal':FORMTYPE_REFRESH})
         self.add_component(grid)
+
+@MenuManage.describ('dummy.change_example', FORMTYPE_MODAL, 'dummy.foo', _("List of example."))
+class ExampleList(XferListEditor):
+    caption = _("List of example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+@ActionsManage.affect('Example', 'show')
+@MenuManage.describ('dummy.change_example')
+class ExampleShow(XferShowEditor):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+@ActionsManage.affect('Example', 'add', 'modify', 'edit')
+@MenuManage.describ('dummy.add_example')
+class ExampleAddModify(XferAddEditor):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+@ActionsManage.affect('Example', 'del')
+@MenuManage.describ('dummy.delete_example')
+class ExampleDel(XferDelete):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+@ActionsManage.affect('Example', 'print')
+@MenuManage.describ('dummy.change_example')
+class ExamplePrint(XferContainerPrint):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+    def get_report_generator(self):
+        return ActionGenerator(ExampleShow())
+
+@ActionsManage.affect('Example', 'listing')
+@MenuManage.describ('dummy.change_example')
+class ExampleListing(XferContainerPrint):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+    def get_report_generator(self):
+        gen = ListingGenerator(self.model)
+        gen.columns = [(10, 'Name', '#name'), (20, 'value + price', '#value/#price'), (20, 'date + time', '#date<br/>#time')]
+        return gen
+
+@MenuManage.describ('dummy.change_example', FORMTYPE_NOMODAL, 'dummy.foo', _("Find example."))
+class ExampleSearch(XferSearchEditor):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'

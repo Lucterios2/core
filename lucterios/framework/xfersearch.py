@@ -9,12 +9,12 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext as _
 
-from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH,\
+from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH, \
     ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xfergraphic import XferContainerCustom
+from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 from django.utils import six
 from django.db.models.fields.related import ManyToManyField
 
@@ -150,22 +150,31 @@ class FieldDescItem(object):
                 self.field_list.append((six.text_type(choice_id), six.text_type(choice_val)))
         else:
             self.field_type = TYPE_FLOAT
-            self.field_list = [(0, 10, 0)]
+            min_value, max_value = get_range_value(dbfield)
+            self.field_list = [(six.text_type(min_value), six.text_type(max_value), '0')]
 
     def init(self, model):
+        # pylint: disable=too-many-branches
         dbfield = self.get_field_from_name(model)
         if dbfield is not None:
-            from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
+            from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
             from django.db.models.fields.related import ForeignKey
             if isinstance(dbfield, IntegerField):
                 self.manage_integer_or_choices(dbfield)
-            elif isinstance(dbfield, FloatField):
+            elif isinstance(dbfield, DecimalField):
                 self.field_type = TYPE_FLOAT
-                self.field_list = [(0, 10, 2)]
+                min_value, max_value = get_range_value(dbfield)
+                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(dbfield.decimal_places))]
             elif isinstance(dbfield, BooleanField):
                 self.field_type = TYPE_BOOL
             elif isinstance(dbfield, TextField):
                 self.field_type = TYPE_STR
+            elif isinstance(dbfield, DateField):
+                self.field_type = TYPE_DATE
+            elif isinstance(dbfield, TimeField):
+                self.field_type = TYPE_TIME
+            elif isinstance(dbfield, DateTimeField):
+                self.field_type = TYPE_DATETIME
             elif isinstance(dbfield, ForeignKey):
                 return self._init_for_list(dbfield.rel.to, False)
             elif isinstance(dbfield, ManyToManyField):

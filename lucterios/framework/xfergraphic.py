@@ -13,12 +13,23 @@ from lxml import etree
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
-    XferCompMemo, XferCompSelect, XferCompLinkLabel
+    XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, \
+    XferCompDateTime
 from lucterios.framework.tools import get_action_xml, get_actions_xml, \
     get_dico_from_setquery, StubAction
 from lucterios.framework.tools import get_value_converted, get_corrected_setquery
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
+
+def get_range_value(model_field):
+    from django.core.validators import MaxValueValidator, MinValueValidator
+    min_value, max_value = 0, 10000
+    for valid in model_field.validators:
+        if isinstance(valid, MinValueValidator):
+            min_value = valid.limit_value
+        if isinstance(valid, MaxValueValidator):
+            max_value = valid.limit_value
+    return min_value, max_value
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -289,7 +300,8 @@ class XferContainerCustom(XferContainerAbstract):
         return comp
 
     def get_writing_comp(self, field_name):
-        from django.db.models.fields import IntegerField, FloatField, BooleanField, TextField
+        # pylint: disable=too-many-locals,too-many-branches
+        from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
         from django.db.models.fields.related import ForeignKey
         dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
@@ -297,16 +309,27 @@ class XferContainerCustom(XferContainerAbstract):
                 comp = XferCompSelect(field_name)
                 comp.set_select(dict(dep_field[0].choices))
             else:
-                comp = XferCompFloat(field_name)
+                min_value, max_value = get_range_value(dep_field[0])
+                comp = XferCompFloat(field_name, min_value, max_value, 0)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], FloatField):
-            comp = XferCompFloat(field_name)
+        elif isinstance(dep_field[0], DecimalField):
+            min_value, max_value = get_range_value(dep_field[0])
+            comp = XferCompFloat(field_name, min_value, max_value, dep_field[0].decimal_places)
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field[0], BooleanField):
             comp = XferCompCheck(field_name)
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field[0], TextField):
             comp = XferCompMemo(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], DateField):
+            comp = XferCompDate(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], TimeField):
+            comp = XferCompTime(field_name)
+            comp.set_value(getattr(self.item, field_name))
+        elif isinstance(dep_field[0], DateTimeField):
+            comp = XferCompDateTime(field_name)
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field[0], ForeignKey):
             comp = XferCompSelect(field_name)

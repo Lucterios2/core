@@ -230,11 +230,11 @@ def get_value_converted(value, bool_textual=False):
             values.append(six.text_type(val_item))
         return "{[br/]}".join(values)
     elif isinstance(value, datetime.datetime):
-        return formats.date_format(value, "SHORT_DATETIME_FORMAT")
+        return formats.date_format(value, "DATETIME_FORMAT")
     elif isinstance(value, datetime.date):
-        return formats.date_format(value, "SHORT_DATE_FORMAT")
+        return formats.date_format(value, "DATE_FORMAT")
     elif isinstance(value, datetime.time):
-        return formats.date_format(value, "SHORT_TIME_FORMAT")
+        return formats.date_format(value, "TIME_FORMAT")
     elif isinstance(value, bool):
         if bool_textual:
             if value:

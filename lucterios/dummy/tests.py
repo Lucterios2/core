@@ -9,6 +9,9 @@ from __future__ import unicode_literals
 
 from lucterios.framework.test import LucteriosTest
 from django.utils import six
+from unittest.suite import TestSuite
+from unittest.loader import TestLoader
+from lucterios.dummy.tests_example import ExampleTest
 
 class DummyTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -20,7 +23,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Error of bidule')
         self.assert_xml_equal('EXCEPTION/CODE', '2')
-        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 29 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-111, -7))
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 34 in fillresponse : raise LucteriosException(GRAVE, "Error of bidule")', (-111, -7))
         self.assert_xml_equal('EXCEPTION/TYPE', 'LucteriosException')
 
     def test_bidule2(self):
@@ -30,7 +33,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Other error:big')
         self.assert_xml_equal('EXCEPTION/CODE', '0')
-        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 31 in fillresponse : raise AttributeError("Other error:" + error)', (-105, -7))
+        self.assert_xml_equal('EXCEPTION/DEBUG_INFO', 'lucterios/dummy/views.py in line 36 in fillresponse : raise AttributeError("Other error:" + error)', (-105, -7))
         self.assert_xml_equal('EXCEPTION/TYPE', 'AttributeError')
 
     def test_truc(self):
@@ -189,3 +192,12 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col2"]', '789.644')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col3"]', '0')
         self.assert_xml_equal('COMPONENTS/GRID[@name="grid"]/RECORD[@id="5"]/VALUE[@name="col4"]', 'string')
+
+
+def suite():
+    # pylint: disable=redefined-outer-name
+    suite = TestSuite()
+    loader = TestLoader()
+    suite.addTest(loader.loadTestsFromTestCase(DummyTest))
+    suite.addTest(loader.loadTestsFromTestCase(ExampleTest))
+    return suite

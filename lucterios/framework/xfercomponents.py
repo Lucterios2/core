@@ -16,6 +16,7 @@ from lucterios.framework.tools import get_action_xml, get_actions_xml, get_value
     SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
+import datetime
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes
@@ -211,7 +212,10 @@ class XferCompFloat(XferCompButton):
         self.value = self.min
 
     def set_value(self, value):
-        self.value = float(value)
+        if value is None:
+            self.value = self.min
+        else:
+            self.value = float(value)
 
     def _get_content(self):
         value_format = "%%.%df" % self.prec
@@ -242,17 +246,35 @@ class XferCompDate(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "DATE"
 
+    def set_value(self, value):
+        if value is None:
+            self.value = datetime.date.today()
+        else:
+            self.value = value
+
 class XferCompTime(XferCompButton):
 
     def __init__(self, name):
         XferCompButton.__init__(self, name)
         self._component_ident = "TIME"
 
+    def set_value(self, value):
+        if value is None:
+            self.value = datetime.time()
+        else:
+            self.value = value
+
 class XferCompDateTime(XferCompButton):
 
     def __init__(self, name):
         XferCompButton.__init__(self, name)
         self._component_ident = "DATETIME"
+
+    def set_value(self, value):
+        if value is None:
+            self.value = datetime.datetime.now()
+        else:
+            self.value = value
 
 class XferCompCheck(XferCompButton):
 
