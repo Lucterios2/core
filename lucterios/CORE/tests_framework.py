@@ -14,6 +14,7 @@ from lucterios.framework.tools import StubAction
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamSave
+from django.utils import six
 
 class GenericTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -33,6 +34,17 @@ class GenericTest(LucteriosTest):
     def callparam(self):
         self.factory.xfer = self.xfer
         self.call("CORE/params", {}, False)
+
+    def test_help(self):
+        response = self.client.get('/Help', {})
+        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
+        help_content = six.text_type(response.content)
+        self.assertEqual(help_content.find('<html>'), 21)
+
+        response = self.client.get('/Help', {'helpid':'lucterios.CORE-01_password.html'})
+        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
+        help_content = six.text_type(response.content)
+        self.assertEqual(help_content.find('<h1>'), 4)
 
     def test_simple(self):
         self.call('/customer/details', {'id':12, 'value':'abc'}, False)

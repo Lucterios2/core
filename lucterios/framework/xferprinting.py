@@ -31,9 +31,10 @@ class XferContainerPrint(XferContainerAbstract):
     def __init__(self):
         XferContainerAbstract.__init__(self)
         self.report_content = ""
-        self.report_mode = 0
+        self.report_mode = PRINT_PDF_FILE
         self.selector_desc = ''
         self.selector = None
+        self.print_selector = []
 
     def get_report_generator(self):
         # pylint: disable=no-self-use
@@ -58,10 +59,7 @@ class XferContainerPrint(XferContainerAbstract):
         lbl.set_location(0, 0)
         gui.add_component(lbl)
         print_mode = XferCompSelect('PRINT_MODE')
-        selector = [(PRINT_PDF_FILE, _('PDF file'))]
-        if self.with_text_export:
-            selector.append((PRINT_CSV_FILE, _('CSV file')))
-        print_mode.set_select(selector)
+        print_mode.set_select(self.print_selector)
         print_mode.set_value(PRINT_PDF_FILE)
         print_mode.set_location(1, 0)
         gui.add_component(print_mode)
@@ -83,7 +81,7 @@ class XferContainerPrint(XferContainerAbstract):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
         report_mode = self.getparam("PRINT_MODE")
-        if (self.selector != 0) or (report_mode is not None):
+        if (self.selector != 0) or (len(self.print_selector) == 1) or (report_mode is not None):
             if report_mode is not None:
                 self.report_mode = int(report_mode)
             self._finalize()
@@ -109,7 +107,10 @@ class XferContainerPrint(XferContainerAbstract):
             return ""
 
     def fillresponse(self):
-        if self.show_selector():
+        self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
+        if self.with_text_export:
+            self.print_selector.append((PRINT_CSV_FILE, _('CSV file')))
+        if self.show_selector() or (len(self.print_selector) == 1):
             report_generator = self.get_report_generator()
             if report_generator is not None:
                 report_generator.title = self.caption

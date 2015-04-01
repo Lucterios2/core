@@ -208,7 +208,7 @@ class LucteriosPDF(object):
             mtd = 'parse_' + child.tag.lower()
             if hasattr(self, mtd):
                 fct = getattr(self, mtd)
-                six.print_("print: %s (x=%f,position_y*%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
+                # six.print_("print: %s (x=%f,position_y*%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
                 fct(child, current_x, current_y, current_w, current_h)
             else:
                 six.print_("Unsupported method: " + mtd)

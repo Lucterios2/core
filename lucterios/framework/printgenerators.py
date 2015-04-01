@@ -102,7 +102,10 @@ class PrintImage(PrintItem):
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
         if self.comp.type != '':
-            self.value = BASE64_PREFIX + self.comp.value
+            if self.comp.value[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+                self.value = self.comp.value
+            else:
+                self.value = BASE64_PREFIX + self.comp.value
         else:
             self.value = get_image_absolutepath(self.comp.value)
         self.img_size = get_image_size(self.value)

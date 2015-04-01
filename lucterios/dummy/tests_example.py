@@ -11,6 +11,8 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch
 from lucterios.dummy.models import Example
+from base64 import b64decode
+from django.utils import six
 
 class ExampleTest(LucteriosTest):
 
@@ -49,17 +51,56 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/exampleShow', {'example':'2'}, False)
         self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleShow')
 
+    def testsearch(self):
+        self.factory.xfer = ExampleSearch()
+        self.call('/lucterios.dummy/exampleSearch', {}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+
+        self.factory.xfer = ExampleSearch()
+        self.call('/lucterios.dummy/exampleSearch', {'CRITERIA':'value||3||10'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 3)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=3]/VALUE[@name="name"]', 'uvw')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=5]/VALUE[@name="name"]', 'boom')
+
+        self.factory.xfer = ExampleSearch()
+        self.call('/lucterios.dummy/exampleSearch', {'CRITERIA':'price||4||700.0'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 4)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=1]/VALUE[@name="name"]', 'abc')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=3]/VALUE[@name="name"]', 'uvw')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=4]/VALUE[@name="name"]', 'blabla')
+
+        self.factory.xfer = ExampleSearch()
+        self.call('/lucterios.dummy/exampleSearch', {'CRITERIA':'date||3||2010-12-31//date||4||2000-01-01'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=4]/VALUE[@name="name"]', 'blabla')
+
+        self.factory.xfer = ExampleSearch()
+        self.call('/lucterios.dummy/exampleSearch', {'CRITERIA':'time||4||06:00:00//time||3||18:00:00'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=5]/VALUE[@name="name"]', 'boom')
+
     def testprint(self):
         self.factory.xfer = ExamplePrint()
-        self.call('/lucterios.dummy/examplePrint', {'example':'2', 'PRINT_MODE':'3'}, False)
+        self.call('/lucterios.dummy/examplePrint', {'example':'2'}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'examplePrint')
+        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def testlisting(self):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'4'}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
-
-    def testsearch(self):
-        self.factory.xfer = ExampleSearch()
-        self.call('/lucterios.dummy/exampleSearch', {}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        csv_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text)).decode("utf-8")
+        content_csv = csv_value.split('\n')
+        self.assertEqual(len(content_csv), 11, str(content_csv))
+        self.assertEqual(content_csv[1].strip(), '"Example"')
+        self.assertEqual(content_csv[3].strip(), '"Name";"value + price";"date + time";')
+        

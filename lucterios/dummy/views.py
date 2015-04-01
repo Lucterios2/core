@@ -266,6 +266,7 @@ class ExampleListing(XferContainerPrint):
     icon = "9.png"
     model = Example
     field_id = 'example'
+    with_text_export = True
 
     def get_report_generator(self):
         gen = ListingGenerator(self.model)
