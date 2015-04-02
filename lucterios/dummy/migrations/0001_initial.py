@@ -4,11 +4,26 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import django.core.validators
+from lucterios.CORE.models import PrintModel
+from django.utils import six
 
+def initial_values(*args):
+    # pylint: disable=unused-argument, no-member, expression-not-assigned
+    prtmdl = PrintModel.objects.create(name="listing", kind=0, modelname='Example')
+    prtmdl.value = """210
+297
+10//Name//#name
+20//value + price//#value/#price
+20//date + time//#date<br/>#time"""
+    prtmdl.save()
+    prtmdl = PrintModel.objects.create(name="label", kind=1, modelname='Example')
+    prtmdl.value = "#name{[newline]}#value:#price{[newline]}#date #time"
+    prtmdl.save()
 
 class Migration(migrations.Migration):
 
     dependencies = [
+        (six.text_type("CORE"), six.text_type("0001_initial")),
     ]
 
     operations = [
@@ -29,4 +44,5 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
+        migrations.RunPython(initial_values),
     ]

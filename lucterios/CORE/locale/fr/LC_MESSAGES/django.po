@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-01 16:07+0000\n"
+"POT-Creation-Date: 2015-04-02 13:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -94,7 +94,7 @@ msgstr "Ouvert entant qu'anonyme"
 msgid "CORE-connectmode.2"
 msgstr "Accès libre"
 
-#: models.py:20 models.py:103
+#: models.py:20 models.py:103 models.py:143
 msgid "name"
 msgstr "nom"
 
@@ -122,7 +122,7 @@ msgstr "Sélection"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:23
+#: models.py:23 models.py:146
 msgid "value"
 msgstr "valeur"
 
@@ -178,57 +178,81 @@ msgstr "groupe"
 msgid "groups"
 msgstr "groupes"
 
-#: models.py:104
+#: models.py:105
 msgid "page width"
 msgstr "largeur de page"
 
-#: models.py:105
+#: models.py:106
 msgid "page height"
 msgstr "hauteur de page"
 
-#: models.py:106
+#: models.py:107
 msgid "cell width"
 msgstr "largeur de vignette"
 
-#: models.py:107
+#: models.py:108
 msgid "cell height"
 msgstr "hauteur de vignette"
 
-#: models.py:108
+#: models.py:109
 msgid "number of columns"
 msgstr "nombre de colonnes"
 
-#: models.py:109
+#: models.py:110
 msgid "number of rows"
 msgstr "nombre de lignes"
 
-#: models.py:110
+#: models.py:111
 msgid "left marge"
 msgstr "marge gauche"
 
-#: models.py:111
+#: models.py:112
 msgid "top marge"
 msgstr "marge haute"
 
-#: models.py:112
+#: models.py:113
 msgid "horizontal space"
 msgstr "espace horizontal"
 
-#: models.py:113
+#: models.py:114
 msgid "vertical space"
 msgstr "espace vertical"
 
-#: models.py:128 models.py:138
+#: models.py:129 models.py:139
 msgid "label"
 msgstr "étiquette"
 
-#: models.py:128
+#: models.py:129
 msgid "# of first label"
 msgstr "N° première étiquette"
 
-#: models.py:139
+#: models.py:140
 msgid "labels"
 msgstr "étiquettes"
+
+#: models.py:144
+msgid "kind"
+msgstr "Type"
+
+#: models.py:144
+msgid "Listing"
+msgstr "Liste"
+
+#: models.py:144
+msgid "Label"
+msgstr "Etiquette"
+
+#: models.py:144
+msgid "Report"
+msgstr "Rapport"
+
+#: models.py:145 models.py:161 models.py:170
+msgid "model"
+msgstr "modèle"
+
+#: models.py:171
+msgid "models"
+msgstr "modèles"
 
 #: parameters.py:76 parameters.py:89
 #, python-format

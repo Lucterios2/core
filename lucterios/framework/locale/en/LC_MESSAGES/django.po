@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-01 16:07+0000\n"
+"POT-Creation-Date: 2015-04-02 13:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -91,13 +91,13 @@ msgstr "Total number of %(name)s: %(count)d"
 
 #: xferadvance.py:58 xfersearch.py:501
 msgid "Listing"
-msgstr ""
+msgstr "Listing"
 
 #: xferadvance.py:58 xfersearch.py:501
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
-#: xferadvance.py:62 xferadvance.py:114 xfergraphic.py:96 xferprinting.py:81
+#: xferadvance.py:62 xferadvance.py:114 xfergraphic.py:96 xferprinting.py:89
 #: xfersearch.py:505
 msgid "Close"
 msgstr "Close"
@@ -114,7 +114,7 @@ msgstr "Cancel"
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:110 xferprinting.py:80
+#: xferadvance.py:110 xferprinting.py:88
 msgid "Print"
 msgstr "Print"
 
@@ -168,15 +168,15 @@ msgstr "Traitment..."
 msgid "Retry"
 msgstr "Retry"
 
-#: xferprinting.py:55
+#: xferprinting.py:63
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:114
+#: xferprinting.py:122
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:116
+#: xferprinting.py:124
 msgid "CSV file"
 msgstr "CSV file"
 

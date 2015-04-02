@@ -20,6 +20,7 @@ from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm
     XferCompFloat
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, StubAction
 from lucterios.framework.reporting import transforme_xml2pdf
+from lucterios.framework.xfersearch import get_search_query
 
 PRINT_PDF_FILE = 3
 PRINT_CSV_FILE = 4
@@ -35,6 +36,13 @@ class XferContainerPrint(XferContainerAbstract):
         self.report_mode = PRINT_PDF_FILE
         self.print_selector = []
         self.selector = None
+
+    def get_filter(self):
+        new_filter = None
+        criteria = self.getparam('CRITERIA')
+        if criteria is not None:
+            new_filter = get_search_query(criteria, self.item)
+        return new_filter
 
     def get_report_generator(self):
         # pylint: disable=no-self-use

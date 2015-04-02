@@ -51,7 +51,7 @@ def del_lucterios_instance(name):
         rmtree(instance_dir)
     if isfile(instance_conf):
         remove(instance_conf)
-    print ("Instance '%s' deleted." % name)  # pylint: disable=superfluous-parens
+    six.print_("Instance '%s' deleted." % name)  # pylint: disable=superfluous-parens
 
 def add_lucterios_instance(name, appli_name, database, module):
     instance_dir = join(INSTANCE_PATH, name)
@@ -74,7 +74,7 @@ def add_lucterios_instance(name, appli_name, database, module):
     else:
         modules = ()
     write_setting(name, appli_name, database, modules)
-    print ("Instance '%s' created." % name)  # pylint: disable=superfluous-parens
+    six.print_("Instance '%s' created." % name)  # pylint: disable=superfluous-parens
 
 def main():
     parser = OptionParser(usage="usage: %prog [options] filename",

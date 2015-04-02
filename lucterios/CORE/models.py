@@ -124,7 +124,7 @@ class Label(LucteriosModel):
     @classmethod
     def get_print_selector(cls):
         selection = []
-        for dblbl in cls.objects.all(): # pylint: disable=no-member
+        for dblbl in cls.objects.all():  # pylint: disable=no-member
             selection.append((dblbl.id, dblbl.name))
         return [('LABEL', _('label'), selection), ('FIRSTLABEL', _('# of first label'), (1, 100, 0))]
 
@@ -132,9 +132,45 @@ class Label(LucteriosModel):
     def get_label_selected(cls, xfer):
         label_id = xfer.getparam('LABEL')
         first_label = xfer.getparam('FIRSTLABEL')
-        return cls.objects.get(id=label_id), int(first_label) # pylint: disable=no-member
+        return cls.objects.get(id=label_id), int(first_label)  # pylint: disable=no-member
 
     class Meta(object):
         # pylint: disable=no-init
         verbose_name = _('label')
         verbose_name_plural = _('labels')
+
+class PrintModel(LucteriosModel):
+    name = models.CharField(_('name'), max_length=100, unique=False)
+    kind = models.IntegerField(_('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
+    modelname = models.CharField(_('model'), max_length=100)
+    value = models.TextField(_('value'), blank=True)
+
+    def __str__(self):
+        return self.name
+
+    printmdodel__showfields = ['name', 'kind', 'modelname', 'value']
+    printmdodel__editfields = ['name', 'kind', 'modelname', 'value']
+    printmdodel__searchfields = ['name', 'kind', 'modelname', 'value']
+    default_fields = ["name"]
+
+    @classmethod
+    def get_print_selector(cls, kind, model):
+        selection = []
+        for dblbl in cls.objects.filter(kind=kind, modelname=model.__name__):  # pylint: disable=no-member
+            selection.append((dblbl.id, dblbl.name))
+        if len(selection) == 0:
+            raise LucteriosException(IMPORTANT, _('No model!'))
+        return [('MODEL', _('model'), selection)]
+
+    @classmethod
+    def get_model_selected(cls, xfer):
+        try:
+            model_id = xfer.getparam('MODEL')
+            return cls.objects.get(id=model_id).value  # pylint: disable=no-member
+        except ValueError:
+            raise LucteriosException(IMPORTANT, _('No model selected!'))
+
+    class Meta(object):
+        # pylint: disable=no-init
+        verbose_name = _('model')
+        verbose_name_plural = _('models')

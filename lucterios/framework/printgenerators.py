@@ -404,6 +404,16 @@ class ListingGenerator(ReportGenerator):
         self.model = model
         self.filter = None
 
+    def initial(self, model_values):
+        self.page_width = int(model_values[0])
+        self.page_height = int(model_values[1])
+        del model_values[0]
+        del model_values[0]
+        self.columns = []
+        for col_value in model_values:
+            if col_value != '':
+                self.columns.append(col_value.split('//'))
+
     def add_page(self):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
@@ -418,9 +428,9 @@ class ListingGenerator(ReportGenerator):
         xml_table.attrib['spacing'] = "0.0"
         size_x = 0
         for column in self.columns:
-            size_x += column[0]
+            size_x += int(column[0])
         for column in self.columns:
-            size_col = int(self.content_width * column[0] / size_x)
+            size_col = int(self.content_width * int(column[0]) / size_x)
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
             xml_text = convert_to_html('cell', column[1], "sans-serif", 9, 10, "center")
@@ -475,4 +485,3 @@ class LabelGenerator(ReportGenerator):
             xml_text.attrib['spacing'] = "0.0"
             self.body.append(xml_text)
             index += 1
-

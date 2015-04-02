@@ -110,7 +110,24 @@ class Migration(migrations.Migration):
                 ('vertical_space', models.IntegerField(verbose_name='vertical space', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
             ],
             options={
+                'verbose_name_plural': 'labels',
+                'verbose_name': 'label',
                 'abstract': False,
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PrintModel',
+            fields=[
+                ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
+                ('name', models.CharField(unique=False, max_length=100, verbose_name='name')),
+                ('kind', models.IntegerField(choices=[(0, 'Listing'), (1, 'Label'), (2, 'Report')], verbose_name='kind')),
+                ('modelname', models.CharField(max_length=100, verbose_name='model')),
+                ('value', models.TextField(verbose_name='value', blank=True)),
+            ],
+            options={
+                'verbose_name_plural': 'models',
+                'verbose_name': 'model',
             },
             bases=(models.Model,),
         ),

@@ -12,6 +12,7 @@ from django.utils import six
 from django.utils.module_loading import import_module
 from os.path import dirname, join
 from lucterios.framework.filetools import readimage_to_base64
+from locale import getdefaultlocale
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
@@ -42,7 +43,7 @@ DEFAULT_SETTINGS = {
         'django.core.context_processors.i18n',
     ),
     'ROOT_URLCONF': 'lucterios.framework.urls',
-    'LANGUAGE_CODE': 'en-us',
+    'LANGUAGE_CODE': getdefaultlocale()[0],
     'TIME_ZONE': 'UTC',
     'SESSION_COOKIE_AGE': 60 * 60,
     'USE_I18N': True,

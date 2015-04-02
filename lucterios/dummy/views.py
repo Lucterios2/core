@@ -14,13 +14,10 @@ from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTY
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
-from lucterios.dummy.models import Example
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete
-from lucterios.framework.xferprinting import XferContainerPrint
-from lucterios.framework.printgenerators import ActionGenerator, ListingGenerator, \
-    LabelGenerator
 from lucterios.framework.xfersearch import XferSearchEditor
-from lucterios.CORE.models import Label
+from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
+from lucterios.dummy.models import Example
 
 MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
@@ -252,49 +249,28 @@ class ExampleDel(XferDelete):
 
 @ActionsManage.affect('Example', 'print')
 @MenuManage.describ('dummy.change_example')
-class ExamplePrint(XferContainerPrint):
+class ExamplePrint(XferPrintAction):
     caption = _("Example")
     icon = "9.png"
     model = Example
     field_id = 'example'
-
-    def get_report_generator(self):
-        return ActionGenerator(ExampleShow())
+    action_class = ExampleShow
 
 @ActionsManage.affect('Example', 'listing')
 @MenuManage.describ('dummy.change_example')
-class ExampleListing(XferContainerPrint):
+class ExampleListing(XferPrintListing):
     caption = _("Example")
     icon = "9.png"
     model = Example
     field_id = 'example'
-    with_text_export = True
-
-    def get_report_generator(self):
-        gen = ListingGenerator(self.model)
-        gen.columns = [(10, 'Name', '#name'), (20, 'value + price', '#value/#price'), (20, 'date + time', '#date<br/>#time')]
-        return gen
 
 @ActionsManage.affect('Example', 'label')
 @MenuManage.describ('dummy.change_example')
-class ExampleLabel(XferContainerPrint):
+class ExampleLabel(XferPrintLabel):
     caption = _("Example")
     icon = "9.png"
     model = Example
     field_id = 'example'
-
-    def __init__(self):
-        XferContainerPrint.__init__(self)
-        self.selector = Label.get_print_selector()
-
-    def get_report_generator(self):
-        dblbl, first_label = Label.get_label_selected(self)
-        gen = LabelGenerator(self.model, first_label)
-        gen.label_text = "#name<br/>#value:#price<br/>#date #time"
-        for lblkey in gen.label_size.keys():
-            gen.label_size[lblkey] = getattr(dblbl, lblkey)
-
-        return gen
 
 @MenuManage.describ('dummy.change_example', FORMTYPE_NOMODAL, 'dummy.foo', _("Find example."))
 class ExampleSearch(XferSearchEditor):

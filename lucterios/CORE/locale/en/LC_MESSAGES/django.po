@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-01 16:07+0000\n"
+"POT-Creation-Date: 2015-04-02 13:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -90,7 +90,7 @@ msgstr "Open in anonymous"
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:20 models.py:103
+#: models.py:20 models.py:103 models.py:143
 msgid "name"
 msgstr "name"
 
@@ -118,7 +118,7 @@ msgstr "Select"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:23
+#: models.py:23 models.py:146
 msgid "value"
 msgstr "value"
 
@@ -174,57 +174,81 @@ msgstr "group"
 msgid "groups"
 msgstr "groups"
 
-#: models.py:104
+#: models.py:105
 msgid "page width"
 msgstr "page width"
 
-#: models.py:105
+#: models.py:106
 msgid "page height"
 msgstr "page height"
 
-#: models.py:106
+#: models.py:107
 msgid "cell width"
 msgstr "cell width"
 
-#: models.py:107
+#: models.py:108
 msgid "cell height"
 msgstr "cell height"
 
-#: models.py:108
+#: models.py:109
 msgid "number of columns"
 msgstr "number of columns"
 
-#: models.py:109
+#: models.py:110
 msgid "number of rows"
 msgstr "number of rows"
 
-#: models.py:110
+#: models.py:111
 msgid "left marge"
 msgstr "left marge"
 
-#: models.py:111
+#: models.py:112
 msgid "top marge"
 msgstr "top marge"
 
-#: models.py:112
+#: models.py:113
 msgid "horizontal space"
 msgstr "horizontal space"
 
-#: models.py:113
+#: models.py:114
 msgid "vertical space"
 msgstr "vertical space"
 
-#: models.py:128 models.py:138
+#: models.py:129 models.py:139
 msgid "label"
 msgstr "label"
 
-#: models.py:128
+#: models.py:129
 msgid "# of first label"
 msgstr "# of first label"
 
-#: models.py:139
+#: models.py:140
 msgid "labels"
 msgstr "labels"
+
+#: models.py:144
+msgid "kind"
+msgstr "kind"
+
+#: models.py:144
+msgid "Listing"
+msgstr "Listing"
+
+#: models.py:144
+msgid "Label"
+msgstr "Label"
+
+#: models.py:144
+msgid "Report"
+msgstr "Report"
+
+#: models.py:145 models.py:161 models.py:170
+msgid "model"
+msgstr "model"
+
+#: models.py:171
+msgid "models"
+msgstr "models"
 
 #: parameters.py:76 parameters.py:89
 #, python-format
