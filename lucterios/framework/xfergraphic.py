@@ -19,7 +19,7 @@ from lucterios.framework.tools import get_action_xml, get_actions_xml, \
     get_dico_from_setquery, StubAction
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField
-from lucterios.framework.models import get_value_converted
+from lucterios.framework.models import get_value_converted, get_value_if_choices
 
 def get_range_value(model_field):
     from django.core.validators import MaxValueValidator, MinValueValidator
@@ -291,11 +291,7 @@ class XferContainerCustom(XferContainerAbstract):
             comp.set_link('mailto:' + value)
         else:
             comp = XferCompLabelForm(field_name)
-        if hasattr(dep_field[0], 'choices') and (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
-            for choices_key, choices_value in dep_field[0].choices:
-                if choices_key == value:
-                    value = six.text_type(choices_value)
-                    break
+        value = get_value_if_choices(value, dep_field)
         comp.set_value(value)
         return comp
 

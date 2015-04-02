@@ -153,10 +153,16 @@ class PrintModel(LucteriosModel):
     printmdodel__searchfields = ['name', 'kind', 'modelname', 'value']
     default_fields = ["name"]
 
+    def can_delete(self):
+        items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname) # pylint: disable=no-member
+        if len(items) <= 1:
+            return _('Last model of this kind!')
+        return ''
+
     @classmethod
     def get_print_selector(cls, kind, model):
         selection = []
-        for dblbl in cls.objects.filter(kind=kind, modelname=model.__name__):  # pylint: disable=no-member
+        for dblbl in cls.objects.filter(kind=kind, modelname=model.get_long_name()):  # pylint: disable=no-member
             selection.append((dblbl.id, dblbl.name))
         if len(selection) == 0:
             raise LucteriosException(IMPORTANT, _('No model!'))
@@ -166,9 +172,44 @@ class PrintModel(LucteriosModel):
     def get_model_selected(cls, xfer):
         try:
             model_id = xfer.getparam('MODEL')
-            return cls.objects.get(id=model_id).value  # pylint: disable=no-member
+            return cls.objects.get(id=model_id)  # pylint: disable=no-member
         except ValueError:
             raise LucteriosException(IMPORTANT, _('No model selected!'))
+
+    def model_associated(self):
+        from django.apps import apps
+        return apps.get_model(self.modelname)
+
+    def model_associated_title(self):
+        self.model_associated()._meta.verbose_name.title() # pylint: disable=protected-access
+
+    @property
+    def page_width(self):
+        model_values = self.value.split('\n')
+        return int(model_values[0])
+
+    @property
+    def page_height(self):
+        model_values = self.value.split('\n')
+        return int(model_values[1])
+
+    @property
+    def columns(self):
+        columns = []
+        model_values = self.value.split('\n')
+        del model_values[0]
+        del model_values[0]
+        for col_value in model_values:
+            if col_value != '':
+                new_col = col_value.split('//')
+                new_col[0] = int(new_col[0])
+                columns.append(new_col)
+        return columns
+
+    def change_listing(self, page_width, page_heigth, columns):
+        self.value = "%d\n%d\n" % (page_width, page_heigth)
+        for column in columns:
+            self.value += "%d//%s//%s\n" % column
 
     class Meta(object):
         # pylint: disable=no-init

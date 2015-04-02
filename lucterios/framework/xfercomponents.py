@@ -16,7 +16,8 @@ from lucterios.framework.tools import get_action_xml, get_actions_xml, check_per
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.xferbasic import XferContainerAbstract
 import datetime
-from lucterios.framework.models import get_value_converted
+from lucterios.framework.models import get_value_converted, get_value_if_choices
+from django.db.models.fields import FieldDoesNotExist
 
 class XferComponent(object):
     # pylint: disable=too-many-instance-attributes
@@ -232,13 +233,34 @@ class XferCompMemo(XferCompButton):
     def __init__(self, name):
         XferCompButton.__init__(self, name)
         self._component_ident = "MEMO"
+        self.sub_menu = []
         self.first_line = -1
         self.hmin = 200
         self.vmin = 50
 
+    def add_sub_menu(self, menutype, name, value):
+        self.sub_menu.append((menutype, name, value))
+
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
         compxml.attrib['FirstLine'] = six.text_type(self.first_line)
+
+    def get_reponse_xml(self):
+        compxml = XferCompButton.get_reponse_xml(self)
+        for sub_menu in self.sub_menu:
+            xml_menu = etree.SubElement(compxml, "SUBMENU")
+            etree.SubElement(xml_menu, "TYPE").text = six.text_type(sub_menu[0])
+            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[1])
+            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[2])
+        return compxml
+
+class XferCompMemoForm(XferCompButton):
+
+    def __init__(self, name):
+        XferCompButton.__init__(self, name)
+        self._component_ident = "MEMOFORM"
+        self.hmin = 250
+        self.vmin = 50
 
 class XferCompDate(XferCompButton):
 
@@ -499,7 +521,6 @@ class XferCompGrid(XferComponent):
             else:
                 fieldnames = []
         self._add_header_from_model(query_set, fieldnames)
-
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
@@ -508,7 +529,13 @@ class XferCompGrid(XferComponent):
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
-                self.set_value(pk_id, fieldname, getattr(value, fieldname))
+                resvalue = getattr(value, fieldname)
+                try:
+                    field_desc = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                    resvalue = get_value_if_choices(resvalue, field_desc)
+                except FieldDoesNotExist:
+                    pass
+                self.set_value(pk_id, fieldname, resvalue)
 
     def add_actions(self, xfer_custom, model=None, action_list=None):
         if model is None:

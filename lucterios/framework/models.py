@@ -44,9 +44,22 @@ def get_value_converted(value, bool_textual=False):
     else:
         return value
 
+def get_value_if_choices(value, dep_field):
+    if hasattr(dep_field[0], 'choices') and (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
+        for choices_key, choices_value in dep_field[0].choices:
+            if choices_key == value:
+                value = six.text_type(choices_value)
+                break
+    return value
+
 class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile("#[a-z_0-9]+")
+
+    @classmethod
+    def get_long_name(cls):
+        instance = cls()
+        return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)  # pylint: disable=no-member,protected-access
 
     def evaluate(self, text):
         value = text
@@ -82,7 +95,6 @@ class LucteriosModel(models.Model):
                 res = {}
                 for (key, value) in current_desc.items():
                     res[key] = cls._get_list_fields_names(value, readonly)
-
         return res
 
     @classmethod

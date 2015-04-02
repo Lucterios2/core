@@ -38,13 +38,13 @@ class GenericTest(LucteriosTest):
     def test_help(self):
         response = self.client.get('/Help', {})
         self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))  # pylint: disable=E1101
-        help_content = six.text_type(response.content)  # pylint: disable=E1101
+        help_content = six.text_type(response.content.decode('utf-8'))  # pylint: disable=E1101
         self.assertGreaterEqual(help_content.find('<html>'), 17)
         self.assertLessEqual(help_content.find('<html>'), 21)
 
         response = self.client.get('/Help', {'helpid':'lucterios.CORE-01_password.html'})
         self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))  # pylint: disable=E1101
-        help_content = six.text_type(response.content)  # pylint: disable=E1101
+        help_content = six.text_type(response.content.decode('utf-8'))  # pylint: disable=E1101
         self.assertGreaterEqual(help_content.find('<h1>'), 1)
         self.assertLessEqual(help_content.find('<h1>'), 4)
 

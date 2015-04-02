@@ -167,7 +167,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 1)
+        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 2)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 3)
 
     def test_menu_reconnected(self):

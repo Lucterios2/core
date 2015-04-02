@@ -17,7 +17,7 @@ class XferPrintAction(XferContainerPrint):
 
     def get_report_generator(self):
         if self.action_class is not None:
-            return ActionGenerator(self.action_class()) # pylint: disable=not-callable
+            return ActionGenerator(self.action_class())  # pylint: disable=not-callable
 
 class XferPrintListing(XferContainerPrint):
 
@@ -28,10 +28,12 @@ class XferPrintListing(XferContainerPrint):
         self.selector = PrintModel.get_print_selector(0, self.model)
 
     def get_report_generator(self):
-        model_value = PrintModel.get_model_selected(self)
+        dbmodel = PrintModel.get_model_selected(self)
         gen = ListingGenerator(self.model)
         gen.filter = self.get_filter()
-        gen.initial(model_value.split('\n'))
+        gen.page_height = dbmodel.page_height
+        gen.page_width = dbmodel.page_width
+        gen.columns = dbmodel.columns
         return gen
 
 class XferPrintLabel(XferContainerPrint):
@@ -46,7 +48,7 @@ class XferPrintLabel(XferContainerPrint):
         model_value = PrintModel.get_model_selected(self)
         gen = LabelGenerator(self.model, first_label)
         gen.filter = self.get_filter()
-        gen.label_text = model_value
+        gen.label_text = model_value.value
         for lblkey in gen.label_size.keys():
             gen.label_size[lblkey] = getattr(dblbl, lblkey)
         return gen

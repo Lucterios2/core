@@ -404,16 +404,6 @@ class ListingGenerator(ReportGenerator):
         self.model = model
         self.filter = None
 
-    def initial(self, model_values):
-        self.page_width = int(model_values[0])
-        self.page_height = int(model_values[1])
-        del model_values[0]
-        del model_values[0]
-        self.columns = []
-        for col_value in model_values:
-            if col_value != '':
-                self.columns.append(col_value.split('//'))
-
     def add_page(self):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
