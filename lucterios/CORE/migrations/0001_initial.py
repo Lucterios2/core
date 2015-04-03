@@ -4,8 +4,8 @@
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from django.db import models, migrations
 import django.core.validators
+from django.db import models, migrations
 from django.contrib.auth.models import User
 from django.utils import six
 from lucterios.CORE.models import Parameter, Label

@@ -6,9 +6,11 @@ Created on feb. 2015
 '''
 
 from __future__ import unicode_literals
+from lxml import etree
+
 from django.test import TestCase, Client, RequestFactory
 from django.utils import six
-from lxml import etree
+
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
 
