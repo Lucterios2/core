@@ -7,9 +7,32 @@ Created on avr. 2015
 @author: sd-libre
 '''
 
+from os.path import join, isfile, isdir, abspath
+from os import mkdir, unlink
+from shutil import rmtree, copyfile
+import sqlite3
+
+from django import setup
 from django.utils import six
+from django.core.management import ManagementUtility
 
 INSTANCE_PATH = '.'
+
+# pylint: disable=line-too-long
+PERMISSION_CODENAMES = {'add_label':('Impression', 'CORE'), 'change_label':('Impression', 'CORE'), 'delete_label':('Impression', 'CORE'), \
+                        'add_parameter':('Modifier les paramètres généraux', 'CORE'), 'change_parameter':('Consulter les paramètres généreaux', 'CORE'), \
+                        'add_printmodel':('Impression', 'CORE'), 'change_printmodel':('Impression', 'CORE'), 'delete_printmodel':('Impression', 'CORE'), \
+                        'add_logentry':('Paramètres généraux (avancé)', 'CORE'), 'change_logentry':('Paramètres généraux (avancé)', 'CORE'), 'delete_logentry':('Paramètres généraux (avancé)', 'CORE'), \
+                        'add_group':('Ajouter/Modifier un groupe', 'CORE'), 'change_group':('Ajouter/Modifier un groupe', 'CORE'), 'delete_group':('Ajouter/Modifier un groupe', 'CORE'), \
+                        'add_permission':('Ajouter/Modifier un groupe', 'CORE'), 'change_permission':('Ajouter/Modifier un groupe', 'CORE'), 'delete_permission':('Ajouter/Modifier un groupe', 'CORE'), \
+                        'add_contenttype':('Paramètres généraux (avancé)', 'CORE'), 'change_contenttype':('Paramètres généraux (avancé)', 'CORE'), 'delete_contenttype':('Paramètres généraux (avancé)', 'CORE'), \
+                        'add_session':('Consultation de session de connexion', 'CORE'), 'change_session':('Consultation de session de connexion', 'CORE'), 'delete_session':('Consultation de session de connexion', 'CORE'),
+                        'add_user':('Ajouter/modifier un utilisateur', 'CORE'), 'change_user':('Ajouter/modifier un utilisateur', 'CORE'), 'delete_user':('Ajouter/modifier un utilisateur', 'CORE'), \
+
+                        'add_individual':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_individual':('Voir/Lister', 'org_lucterios_contacts'), 'delete_individual':('Suppression/Fusion', 'org_lucterios_contacts'), \
+                        'add_legalentity':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_legalentity':('Voir/Lister', 'org_lucterios_contacts'), 'delete_legalentity':('Suppression/Fusion', 'org_lucterios_contacts'), \
+                        'add_postalcode':('Gestion des paramètres', 'org_lucterios_contacts'), 'change_postalcode':('Gestion des paramètres', 'org_lucterios_contacts'), \
+                        'add_responsability':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_responsability':('Voir/Lister', 'org_lucterios_contacts'), 'delete_responsability':('Suppression/Fusion', 'org_lucterios_contacts')}
 
 def dict_factory(cursor, row):
     dictdb = {}
@@ -17,275 +40,344 @@ def dict_factory(cursor, row):
         dictdb[col[0]] = row[idx]
     return dictdb
 
-def extract_archive(name, archive):
-    from shutil import rmtree
-    from os import mkdir
-    from os.path import join, isdir, abspath
-    tmp_path = join(abspath(INSTANCE_PATH), name, 'tmp_resore')
-    if isdir(tmp_path):
-        rmtree(tmp_path)
-    mkdir(tmp_path)
-    import tarfile
-    tar = tarfile.open(archive, 'r:gz')
-    for item in tar:
-        tar.extract(item, tmp_path)
-    return tmp_path
+class MigrateFromV1(object):
 
-def initial_olddb(name, debug):
-    from os import unlink
-    from os.path import join, isfile, abspath
-    old_db_path = join(abspath(INSTANCE_PATH), name, 'old_database.sqlite3')
-    if isfile(old_db_path) and (debug == ''):
-        unlink(old_db_path)
-    return old_db_path
+    def __init__(self, name, debug):
+        import os, sys
+        self.name = name
+        self.debug = debug
+        self.old_db_path = ""
+        self.tmp_path = ""
+        self.con = None
+        sys.path.insert(0, abspath(INSTANCE_PATH))
+        os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % self.name
+        setup()
 
-def read_sqlfile(sql_file_path):
-    # pylint: disable=too-many-branches
-    import re
-    with open(sql_file_path, 'r', encoding='iso 8859-15') as sqlf:
-        create_script = []
-        insert_script = []
-        new_create_script = None
-        new_insert_script = None
-        for line in sqlf.readlines():
-            line = line.strip()
-            if new_insert_script is not None:
-                if line[-1:] == ";":
-                    new_insert_script.append(line)
-                    insert_script.append("\n".join(new_insert_script))
-                    new_insert_script = None
-                else:
-                    new_insert_script.append(line)
-            if new_create_script is not None:
-                if line[:8] == ') ENGINE':
-                    new_create_script.append(')')
-                    new_script = " ".join(new_create_script)
-                    if new_script[-3:] == ", )":
-                        new_script = new_script[:-3] + ")"
-                    create_script.append(new_script)
-                    new_create_script = None
-                elif (line[:11] != 'PRIMARY KEY') and (line[:3] != 'KEY') and (line[:10] != 'UNIQUE KEY'):
-                    line = re.sub(r'int\([0-9]+\) unsigned', 'NUMERIC', line)
-                    line = re.sub(r'tinyint\([0-9]+\)', 'NUMERIC', line)
-                    line = re.sub(r'int\([0-9]+\)', 'NUMERIC', line)
-                    line = re.sub(r'varchar\([0-9]+\)', 'TEXT', line)
-                    line = re.sub(r'longtext', 'TEXT', line)
-                    line = re.sub(r'enum\(.*\)', 'TEXT', line)
-                    line = re.sub(r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
-                    if (line.find('NOT NULL') != -1) and (line.find('DEFAULT') == -1):
-                        line = re.sub(' NOT NULL,', ' NOT NULL DEFAULT "",', line)
+    def clear_current(self):
+        # pylint: disable=no-self-use
+        from lucterios.framework.filetools import get_user_dir
+        option_clear = ['manage', 'flush', '--noinput', '--verbosity=2']
+        sqlclear = ManagementUtility(option_clear)
+        sqlclear.execute()
+        migrate = ManagementUtility(['manage', 'migrate', '--verbosity=2'])
+        migrate.execute()
+        user_path = get_user_dir()
+        if isdir(user_path):
+            rmtree(user_path)
+
+    def extract_archive(self, archive):
+        import tarfile
+        self.tmp_path = join(abspath(INSTANCE_PATH), self.name, 'tmp_resore')
+        if isdir(self.tmp_path):
+            rmtree(self.tmp_path)
+        mkdir(self.tmp_path)
+        tar = tarfile.open(archive, 'r:gz')
+        for item in tar:
+            tar.extract(item, self.tmp_path)
+
+    def initial_olddb(self):
+        self.old_db_path = join(abspath(INSTANCE_PATH), self.name, 'old_database.sqlite3')
+        if isfile(self.old_db_path) and (self.debug == ''):
+            unlink(self.old_db_path)
+
+    def clear_old_archive(self):
+        if self.debug == '':
+            if isfile(self.old_db_path):
+                unlink(self.old_db_path)
+            if isdir(self.tmp_path):
+                rmtree(self.tmp_path)
+
+    def read_sqlfile(self, sql_file_path):
+        # pylint: disable=too-many-branches
+        import re
+        try:
+            sqlf = open(join(self.tmp_path, sql_file_path), 'r', encoding='iso 8859-15')
+        except TypeError:
+            sqlf = open(join(self.tmp_path, sql_file_path), 'r')
+        with sqlf:
+            create_script = []
+            insert_script = []
+            new_create_script = None
+            new_insert_script = None
+            for line in sqlf.readlines():
+                try:
+                    line = line.decode('iso 8859-15').strip()
+                except AttributeError:
+                    line = line.strip()
+                if new_insert_script is not None:
+                    if line[-1:] == ";":
+                        new_insert_script.append(line)
+                        insert_script.append("\n".join(new_insert_script))
+                        new_insert_script = None
+                    else:
+                        new_insert_script.append(line)
+                if new_create_script is not None:
+                    if line[:8] == ') ENGINE':
+                        new_create_script.append(')')
+                        new_script = " ".join(new_create_script)
+                        if new_script[-3:] == ", )":
+                            new_script = new_script[:-3] + ")"
+                        create_script.append(new_script)
+                        new_create_script = None
+                    elif (line[:11] != 'PRIMARY KEY') and (line[:3] != 'KEY') and (line[:10] != 'UNIQUE KEY'):
+                        line = re.sub(r'int\([0-9]+\) unsigned', 'NUMERIC', line)
+                        line = re.sub(r'tinyint\([0-9]+\)', 'NUMERIC', line)
+                        line = re.sub(r'int\([0-9]+\)', 'NUMERIC', line)
+                        line = re.sub(r'varchar\([0-9]+\)', 'TEXT', line)
+                        line = re.sub(r'longtext', 'TEXT', line)
+                        line = re.sub(r'enum\(.*\)', 'TEXT', line)
+                        line = re.sub(r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
+                        if (line.find('NOT NULL') != -1) and (line.find('DEFAULT') == -1):
+                            line = re.sub(' NOT NULL,', ' NOT NULL DEFAULT "",', line)
+                        new_create_script.append(line)
+                elif line[:12] == 'CREATE TABLE':
+                    new_create_script = []
                     new_create_script.append(line)
-            elif line[:12] == 'CREATE TABLE':
-                new_create_script = []
-                new_create_script.append(line)
-            elif line[:11] == 'INSERT INTO':
-                if line[-1:] == ";":
-                    insert_script.append(line)
-                else:
-                    new_insert_script = []
-                    new_insert_script.append(line)
-    return create_script, insert_script
+                elif line[:11] == 'INSERT INTO':
+                    if line[-1:] == ";":
+                        insert_script.append(line)
+                    else:
+                        new_insert_script = []
+                        new_insert_script.append(line)
+        return create_script, insert_script
 
-def import_in_olddb(old_db_path, create_script, insert_script):
-    import sqlite3
-    con = sqlite3.connect(old_db_path)
-    cur = con.cursor()
-    for item_script in create_script:
+    def open_olddb(self, with_factory=False):
+        if self.con is None:
+            self.con = sqlite3.connect(self.old_db_path)
+        if with_factory:
+            self.con.row_factory = dict_factory
+        else:
+
+            self.con.row_factory = None
+        return self.con.cursor()
+
+    def close_olddb(self):
+        self.con.close()
+        self.con = None
+
+    def import_in_olddb(self, create_script, insert_script):
+        cur = self.open_olddb()
         try:
-            cur.execute(item_script)
-        except (sqlite3.IntegrityError, sqlite3.OperationalError):
-            six.print_('error:' + item_script)
-            raise
-    last_begin = ""
-    for item_script in insert_script:
+            for item_script in create_script:
+                try:
+                    cur.execute(item_script)
+                except (sqlite3.IntegrityError, sqlite3.OperationalError):
+                    six.print_('error:' + item_script)
+                    raise
+            last_begin = ""
+            for item_script in insert_script:
+                try:
+                    if last_begin != item_script[:70]:
+                        self.con.commit()
+                        last_begin = item_script[:70]
+                    cur.execute(item_script)
+                except (sqlite3.IntegrityError, sqlite3.OperationalError):
+                    six.print_('error:' + item_script)
+                    raise
+        finally:
+            self.con.commit()
+            self.close_olddb()
+
+    def restore_usergroup(self):
+        # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+        from django.contrib.auth.models import User, Group, Permission
+        from django.db.utils import IntegrityError
         try:
-            if last_begin != item_script[:70]:
-                con.commit()
-                last_begin = item_script[:70]
-            cur.execute(item_script)
-        except (sqlite3.IntegrityError, sqlite3.OperationalError):
-            six.print_('error:' + item_script)
-            raise
-    con.commit()
-    con.close()
+            permissions = Permission.objects.all()  # pylint: disable=no-member
+            permission_relation = []
+            for permission in permissions:
+                if permission.codename in PERMISSION_CODENAMES.keys():
+                    rigth_name, ext_name = PERMISSION_CODENAMES[permission.codename]
+                    cur = self.open_olddb()
+                    try:
+                        rigth_name = rigth_name.decode('utf-8')
+                    except AttributeError:
+                        pass
+                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (rigth_name, ext_name)
+                    cur.execute(sql_text)
+                    rigth_id = cur.fetchone()
+                    if rigth_id is not None:
+                        permission_relation.append((permission.id, rigth_id[0]))
+                    else:
+                        six.print_("=> not found %s" % (sql_text,))
+            Group.objects.all().delete()  # pylint: disable=no-member
+            group_list = {}
+            cur = self.open_olddb()
+            cur.execute("SELECT id, groupName FROM CORE_groups")
+            for groupid, group_name in cur.fetchall():
+                premission_ref = []
+                for perm_id, perm_oldright in permission_relation:
+                    rigthcur = self.open_olddb()
+                    rigthcur.execute("SELECT value FROM CORE_group_rights WHERE rightref=%d AND groupref=%d" % (perm_oldright, groupid))
+                    rightvalue, = rigthcur.fetchone()
+                    if rightvalue == 'o':
+                        premission_ref.append(perm_id)
+                new_grp = Group.objects.create(name=group_name)  # pylint: disable=no-member
+                new_grp.permissions = Permission.objects.filter(id__in=premission_ref)  # pylint: disable=no-member
+                six.print_("=> Group %s (%s)" % (group_name, premission_ref))
+                group_list[groupid] = new_grp
 
-def restore_usergroup(old_db_path):
-    # pylint: disable=too-many-locals
-    import sqlite3
-    from django.contrib.auth.models import User, Group
-    con = sqlite3.connect(old_db_path)
-    try:
-        Group.objects.all().delete()  # pylint: disable=no-member
-        group_list = {}
-        cur = con.cursor()
-        cur.execute("SELECT id, groupName FROM CORE_groups")
-        for groupid, group_name in cur.fetchall():
-            new_grp = Group.objects.create(name=group_name)  # pylint: disable=no-member
-            six.print_("=> Group %s" % (group_name,))
-            group_list[groupid] = new_grp
+            User.objects.all().delete()  # pylint: disable=no-member
+            user_list = {}
+            cur = self.open_olddb()
 
-        User.objects.all().delete()  # pylint: disable=no-member
-        user_list = {}
-        cur = con.cursor()
+            cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
+            for userid, login, password, real_name, group_id, actif in cur.fetchall():
+                if login != '':
+                    six.print_("=> User %s [%s]" % (login, real_name))
+                    try:
+                        new_user = User.objects.create_user(username=login)  # pylint: disable=no-member
+                        if (login == "admin") and (password[0] == '*'):
+                            new_user.set_password('admin')
+                        else:
+                            new_user.password = password
+                        new_user.first_name = real_name.split(' ')[0]
+                        new_user.last_name = ''.join(real_name.split(' ')[1:])
+                        new_user.is_active = (actif == 'o')
+                        new_user.is_superuser = (login == 'admin')
+                        if group_id in group_list.keys():
+                            new_user.groups = Group.objects.filter(id__in=[group_list[group_id].pk])  # pylint: disable=no-member
+                        new_user.save()
+                        user_list[userid] = new_user
+                    except IntegrityError:
+                        six.print_("*** User %s doubled" % (login,))
+        finally:
+            self.close_olddb()
+        return user_list
 
-        cur.execute("SELECT id,login,pass,real_name,group_id,actif FROM CORE_users")
-        for userid, login, password, real_name, group_id, actif in cur.fetchall():
-            if login != '':
-                six.print_("=> User %s [%s]" % (login, real_name))
-                new_user = User.objects.create_user(username=login)  # pylint: disable=no-member
-                if (login == "admin") and (password[0] == '*'):
-                    new_user.set_password('admin')
+    def restore_contact(self, user_list):
+        # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+        def assign_abstact_values(new_legalentity, abstract_id):
+            from lucterios.framework.filetools import get_user_path
+            super_cur = self.open_olddb(True)
+            super_cur.execute("SELECT * FROM org_lucterios_contacts_personneAbstraite WHERE id=%d" % abstract_id)
+            abst_val = super_cur.fetchone()
+            for old_field, new_field in [['adresse', 'address'], ['codePostal', 'postal_code'], \
+                                         ['ville', 'city'], ['pays', 'country'], ['fixe', 'tel1'], \
+                                         ['portable', 'tel2'], ['mail', 'email'], ['commentaire', 'comment']]:
+                if abst_val[old_field] is not None:
+                    setattr(new_legalentity, new_field, abst_val[old_field])
+            old_image_filename = join(self.tmp_path, "usr", "org_lucterios_contacts", "Image_%d.jpg" % abstract_id)
+            if isfile(old_image_filename):
+                new_image_filename = get_user_path("contacts", "Image_%s.jpg" % new_legalentity.abstractcontact_ptr_id)
+                copyfile(old_image_filename, new_image_filename)
+        from django.apps import apps
+        try:
+            apps.get_app_config("contacts")
+        except LookupError:
+            six.print_("=> No contacts module")
+            return
+        function_mdl = apps.get_model("contacts", "Function")
+        structuretype_mdl = apps.get_model("contacts", "StructureType")
+        legalentity_mdl = apps.get_model("contacts", "LegalEntity")
+        individual_mdl = apps.get_model("contacts", "Individual")
+        responsability_mdl = apps.get_model("contacts", "Responsability")
+        try:
+            function_mdl.objects.all().delete()
+            function_list = {}
+            cur = self.open_olddb()
+
+            cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
+            for functionid, function_name in cur.fetchall():
+                six.print_("=> Function %s" % (function_name,))
+                function_list[functionid] = function_mdl.objects.create(name=function_name)
+
+            structuretype_mdl.objects.all().delete()
+            structuretype_list = {}
+            cur = self.open_olddb()
+
+            cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
+            for structuretypeid, structuretype_name in cur.fetchall():
+                six.print_("=> StructureType %s" % (structuretype_name,))
+                structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
+
+            legalentity_mdl.objects.all().delete()
+            legalentity_list = {}
+            cur = self.open_olddb()
+
+            cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
+            for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
+                six.print_("=> LegalEntity[%d] %s (siren=%s)" % (legalentityid, legalentity_name, legalentity_siren))
+                if legalentityid == 1:
+                    new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
                 else:
-                    new_user.password = password
-                new_user.first_name = real_name.split(' ')[0]
-                new_user.last_name = ''.join(real_name.split(' ')[1:])
-                new_user.is_active = (actif == 'o')
-                new_user.is_superuser = (login == 'admin')
-                if group_id in group_list.keys():
-                    new_user.groups = Group.objects.filter(id__in=[group_list[group_id].pk])  # pylint: disable=no-member
-                new_user.save()
-                user_list[userid] = new_user
-    finally:
-        con.close()
-    return user_list
+                    new_legalentity = legalentity_mdl.objects.create(name=legalentity_name)
+                assign_abstact_values(new_legalentity, legalentity_super)
+                if legalentity_type in structuretype_list.keys():
+                    new_legalentity.structure_type = structuretype_list[legalentity_type]
+                if legalentity_siren is not None:
+                    new_legalentity.identify_number = legalentity_siren
+                new_legalentity.save()
+                legalentity_list[legalentityid] = new_legalentity
 
-def read_personne_abstacte(con, abstract_id):
-    con.row_factory = dict_factory
-    super_cur = con.cursor()
-    super_cur.execute("SELECT * FROM org_lucterios_contacts_personneAbstraite WHERE id=%d" % abstract_id)
-    abst_val = super_cur.fetchone()
-    return abst_val
+            individual_mdl.objects.all().delete()
+            individual_list = {}
+            cur = self.open_olddb()
 
-def assign_abstact_values(new_legalentity, abst_val):
-    for old_field, new_field in [['adresse', 'address'], ['codePostal', 'postal_code'], \
-                                 ['ville', 'city'], ['pays', 'country'], ['fixe', 'tel1'], \
-                                 ['portable', 'tel2'], ['mail', 'email'], ['commentaire', 'comment']]:
-        if abst_val[old_field] is not None:
-            setattr(new_legalentity, new_field, abst_val[old_field])
+            cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
+            for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
+                six.print_("=> Individual %s %s (user=%s)" % (individual_firstname, individual_lastname, individual_user))
+                new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
+                assign_abstact_values(new_individual, individual_super)
+                new_individual.genre = individual_sexe + 1
+                if individual_user in user_list.keys():
+                    new_individual.user = user_list[individual_user]
+                new_individual.save()
+                individual_list[individualid] = new_individual
 
-def restore_contact(old_db_path, user_list):
-    # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-    import sqlite3
-    from django.apps import apps
-    function_mdl = apps.get_model("contacts", "Function")
-    structuretype_mdl = apps.get_model("contacts", "StructureType")
-    legalentity_mdl = apps.get_model("contacts", "LegalEntity")
-    individual_mdl = apps.get_model("contacts", "Individual")
-    responsability_mdl = apps.get_model("contacts", "Responsability")
-    con = sqlite3.connect(old_db_path)
-    try:
-        function_mdl.objects.all().delete()
-        function_list = {}
-        cur = con.cursor()
+            responsability_mdl.objects.all().delete()
+            cur = self.open_olddb()
 
-        cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
-        for functionid, function_name in cur.fetchall():
-            six.print_("=> Function %s" % (function_name,))
-            function_list[functionid] = function_mdl.objects.create(name=function_name)
+            cur.execute("SELECT DISTINCT physique, morale FROM org_lucterios_contacts_liaison")
+            for physique, morale in cur.fetchall():
+                if (morale in legalentity_list.keys()) and (physique in individual_list.keys()):
+                    new_resp = responsability_mdl.objects.create(individual=individual_list[physique], legal_entity=legalentity_list[morale])
+                    ids = []
+                    fctcur = self.open_olddb()
+                    fctcur.execute('SELECT fonction FROM org_lucterios_contacts_liaison WHERE physique=%d AND morale=%d' % (physique, morale))
+                    for (fonction,) in fctcur.fetchall():
+                        if fonction in function_list.keys():
+                            ids.append(function_list[fonction].pk)
+                    six.print_("=> Responsability %s %s =%s" % (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
+                    new_resp.functions = function_mdl.objects.filter(id__in=ids)
+                    new_resp.save()
+        finally:
+            self.close_olddb()
 
-        structuretype_mdl.objects.all().delete()
-        structuretype_list = {}
-        cur = con.cursor()
-
-        cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
-        for structuretypeid, structuretype_name in cur.fetchall():
-            six.print_("=> StructureType %s" % (structuretype_name,))
-            structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
-
-        legalentity_mdl.objects.all().delete()
-        legalentity_list = {}
-
-        con.row_factory = None
-        cur = con.cursor()
-        cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
-        for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
-            abst_val = read_personne_abstacte(con, legalentity_super)
-            six.print_("=> LegalEntity[%d] %s (siren=%s) %s" % (legalentityid, legalentity_name, legalentity_siren, six.text_type(abst_val)))
-            if legalentityid == 1:
-                new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
-            else:
-                new_legalentity = legalentity_mdl.objects.create(name=legalentity_name)
-            assign_abstact_values(new_legalentity, abst_val)
-            if legalentity_type in structuretype_list.keys():
-                new_legalentity.structure_type = structuretype_list[legalentity_type]
-            if legalentity_siren is not None:
-
-                new_legalentity.identify_number = legalentity_siren
-            new_legalentity.save()
-            legalentity_list[legalentityid] = new_legalentity
-
-        individual_mdl.objects.all().delete()
-        individual_list = {}
-        con.row_factory = None
-        cur = con.cursor()
-        cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
-        for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
-            abst_val = read_personne_abstacte(con, individual_super)
-            six.print_("=> Individual %s %s (user=%s) %s" % (individual_firstname, individual_lastname, individual_user, six.text_type(abst_val)))
-            new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
-            assign_abstact_values(new_individual, abst_val)
-            new_individual.genre = individual_sexe + 1
-            if individual_user in user_list.keys():
-                new_individual.user = user_list[individual_user]
-            new_individual.save()
-            individual_list[individualid] = new_individual
-
-        responsability_mdl.objects.all().delete()
-        con.row_factory = None
-        cur = con.cursor()
-        cur.execute("SELECT DISTINCT physique, morale FROM org_lucterios_contacts_liaison")
-        for physique, morale in cur.fetchall():
-            if (morale in legalentity_list.keys()) and (physique in individual_list.keys()):
-                new_resp = responsability_mdl.objects.create(individual=individual_list[physique], legal_entity=legalentity_list[morale])
-                ids = []
-                fctcur = con.cursor()
-                fctcur.execute('SELECT fonction FROM org_lucterios_contacts_liaison WHERE physique=%d AND morale=%d' % (physique, morale))
-                for (fonction,) in fctcur.fetchall():
-                    if fonction in function_list.keys():
-
-                        ids.append(function_list[fonction].pk)
-                six.print_("=> Responsability %s %s =%s" % (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
-
-                new_resp.functions = function_mdl.objects.filter(id__in=ids)
-                new_resp.save()
-    finally:
-        con.close()
-
-def restore(name, archive, debug):
-    import os, sys
-    from os.path import join, isfile, abspath
-    sys.path.insert(0, abspath(INSTANCE_PATH))
-
-    os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % name
-    from django import setup
-    setup()
-
-    old_db_path = initial_olddb(name, debug)
-    tmp_path = extract_archive(name, archive)
-    if not isfile(old_db_path):
-        for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql']:
-            create_script, insert_script = read_sqlfile(join(tmp_path, filename))
-            import_in_olddb(old_db_path, create_script, insert_script)
-
-    users = restore_usergroup(old_db_path)
-    restore_contact(old_db_path, users)
+    def restore(self, archive):
+        self.initial_olddb()
+        self.extract_archive(archive)
+        if not isfile(self.old_db_path):
+            for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql']:
+                create_script, insert_script = self.read_sqlfile(filename)
+                self.import_in_olddb(create_script, insert_script)
+        self.clear_current()
+        users = self.restore_usergroup()
+        self.restore_contact(users)
+        self.clear_old_archive()
 
 def main():
     from optparse import OptionParser
-    parser = OptionParser(usage="usage: %prog [options] filename",
+    parser = OptionParser(usage="usage: %prog --name <instance name> --archive <archive file>",
                           version="%prog 0.1")
     parser.add_option("-n", "--name",
                       dest="name",
                       help="Instance to restore")
     parser.add_option("-a", "--archive",
                       dest="archive",
+                      default="",
                       help="Archive to restore",)
     parser.add_option("-d", "--debug",
                       dest="debug",
                       default="",
                       help="Debug option",)
     (options, _) = parser.parse_args()
-    restore(options.name, options.archive, options.debug)
+    if options.name is None:
+        parser.error('Name needed!')
+    if not isfile(options.archive):
+        parser.error('Archive "%s" no found!' % options.archive)
+    mirg = MigrateFromV1(options.name, options.debug)
+    mirg.restore(options.archive)
 
 if __name__ == '__main__':
     main()
