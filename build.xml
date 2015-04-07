@@ -1,6 +1,7 @@
 <project name="Lucterios2" default="all" basedir=".">
 	<property name="test.instance" value="test"/>
 	<property name="web.version" value="0.9.7"/>
+	<property environment="env"/>
 	<property name="standard.path" value="${basedir}/../lct-standard"/>
 	
 	<available file="/usr/local/bin/coverage2" property="python2.present"/>
@@ -90,7 +91,7 @@
 
 	<target name="add_instance">
 		<exec executable="python3">
-			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
+			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="lucterios/install/lucterios-admin.py"/>
 			<arg value="add"/>
 			<arg value="--name=${test.instance}"/>
@@ -100,7 +101,7 @@
 
 	<target name="del_instance">
 		<exec executable="python3">
-			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
+			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="lucterios/install/lucterios-admin.py"/>
 			<arg value="del"/>
 			<arg value="--name=${test.instance}"/>

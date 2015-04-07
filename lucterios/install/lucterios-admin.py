@@ -148,7 +148,7 @@ class LucteriosInstance(object):
 def main():
     import lucterios.CORE
     parser = OptionParser(usage="usage: %prog <listing|add|read|del> [option]",
-                          version="%prog "+lucterios.CORE.__version__)
+                          version="%prog " + lucterios.CORE.__version__)
     parser.add_option("-n", "--name",
                       dest="name",
                       default='',
@@ -170,6 +170,7 @@ def main():
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("Bad arguments!")
+    instance = None
     try:
         if args[0] == 'listing':
             instance = LucteriosInstance('')
@@ -196,6 +197,10 @@ def main():
             return
     except AdminException as error:
         parser.error(six.text_type(error))
+    else:
+        if instance is not None:
+            instance.show_info()
+        raise
 
 if __name__ == '__main__':
     main()
