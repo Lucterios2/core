@@ -15,23 +15,194 @@ from django.utils import six
 
 INSTANCE_PATH = '.'
 
+def get_package_list():
+    def get_files(dist):
+        paths = []
+        import pkg_resources, os
+        if isinstance(dist, pkg_resources.DistInfoDistribution):
+            # RECORDs should be part of .dist-info metadatas
+            if dist.has_metadata('RECORD'):
+                lines = dist.get_metadata_lines('RECORD')
+                paths = [l.split(',')[0] for l in lines]
+                paths = [os.path.join(dist.location, p) for p in paths]
+        else:
+            # Otherwise use pip's log for .egg-info's
+            if dist.has_metadata('installed-files.txt'):
+                paths = dist.get_metadata_lines('installed-files.txt')
+                paths = [os.path.join(dist.egg_info, p) for p in paths]
+        return [os.path.relpath(p, dist.location) for p in paths]
+    def get_module_desc(modname):
+        from django.utils.module_loading import import_module
+        appmodule = import_module(modname)
+        return (modname, appmodule.__version__)
+    import pip
+    package_list = {}
+    for dist in pip.get_installed_distributions():
+        requires = [req.key for req in dist.requires()]
+        if (dist.key == 'lucterios') or ('lucterios' in requires):
+            current_applis = []
+            current_modules = []
+            for file_item in get_files(dist):
+                try:
+                    py_mod_name = ".".join(file_item.split('/')[:-1])
+                    if file_item.endswith('appli_settings.py'):
+                        current_applis.append(get_module_desc(py_mod_name))
+                    elif file_item.endswith('models.py'):
+                        current_modules.append(get_module_desc(py_mod_name))
+                except:  # pylint: disable=bare-except
+                    pass
+            package_list[dist.key] = (dist.version, current_applis, current_modules, requires)
+    return package_list
+
 class AdminException(Exception):
     pass
 
-class LucteriosInstance(object):
+class LucteriosManage(object):
 
-    def __init__(self, name):
+    def __init__(self, instance_path):
+        self.clear_info_()
+        self.instance_path = abspath(instance_path)
+
+    def clear_info_(self):
+        self.msg_list = []
+
+    def print_info_(self, msg):
+        self.msg_list.append(msg)
+
+    def show_info_(self):
+        six.print_("\n".join(self.msg_list))
+
+class LucteriosGlobal(LucteriosManage):
+
+    def __init__(self, instance_path=INSTANCE_PATH):
+        LucteriosManage.__init__(self, instance_path)
+
+    def listing(self):
+        import re, os
+        list_res = []
+        for manage_file in os.listdir(self.instance_path):
+            val = re.match(r"manage_([a-zA-Z0-9_]+)\.py", manage_file)
+            if val is not None and isdir(join(self.instance_path, val.group(1))):
+                list_res.append(val.group(1))
+        self.print_info_("Instance listing: %s" % ",".join(list_res))
+        return list_res
+
+    def installed(self):
+        def show_list(modlist):
+            res = []
+            for item in modlist:
+                res.append("\t%s\t[%s]\t%s" % (item[0], item[1], ",".join(item[2])))
+            return "\n".join(res)
+        package_list = get_package_list()
+        mod_lucterios = ('lucterios', package_list['lucterios'][0] if ('lucterios' in package_list.keys()) else '???')
+        if 'lucterios' in package_list.keys():
+            mod_lucterios = ('lucterios', package_list['lucterios'][0])
+            del package_list['lucterios']
+        else:
+            mod_lucterios = ('lucterios', '???')
+        mod_applis = []
+        mod_modules = []
+        for _, appli_list, module_list, require_list in package_list.values():
+            requires = []
+            for require_item in require_list:
+                if require_item in package_list.keys():
+                    for sub_item in package_list[require_item][2]:
+                        requires.append(sub_item[0])
+            for appli_item in appli_list:
+                mod_applis.append(appli_item + (requires,))
+            for module_item in module_list:
+                mod_modules.append(module_item + (requires,))
+        self.print_info_("Description:\n\t%s\t%s" % mod_lucterios)
+        self.print_info_("Applications:\n%s" % show_list(mod_applis))
+        self.print_info_("Modules:\n%s" % show_list(mod_modules))
+        return mod_lucterios, mod_applis, mod_modules
+
+    def get_default_args_(self, other_args):
+        # pylint: disable=no-self-use
+        import os, logging
+        logging.captureWarnings(True)
+        args = ['--quiet']
+        args.extend(other_args)
+        if 'http_proxy' in os.environ.keys():
+            args.append('--proxy=' + os.environ['http_proxy'])
+        return args
+
+    def check(self):
+        # pylint: disable=too-many-locals
+        from pip import get_installed_distributions
+        from pip.commands import list as list_
+        check_list = {}
+        for dist in get_installed_distributions():
+            requires = [req.key for req in dist.requires()]
+            if (dist.key == 'lucterios') or ('lucterios' in requires):
+                check_list[dist.project_name] = (dist.parsed_version, None, False)
+        list_command = list_.ListCommand()
+        options, _ = list_command.parse_args(self.get_default_args_([]))
+        try:
+            packages = [(pack[0], pack[2]) for pack in list_command.find_packages_latest_versions(options)]  # pylint: disable=no-member
+        except AttributeError:
+            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latests_versions(options)]  # pylint: disable=no-member
+        for dist, remote_version_parsed in packages:
+            if dist.project_name in check_list.keys():
+                check_list[dist.project_name] = (dist.parsed_version, remote_version_parsed, remote_version_parsed > dist.parsed_version)
+        must_upgrade = False
+        self.print_info_("check list:")
+        for project_name, versions in check_list.items():
+            must_upgrade = must_upgrade or versions[2]
+            self.print_info_("%25s\t%s" % (project_name, versions))
+        if must_upgrade:
+            self.print_info_("\t\t=> Must upgrade")
+        else:
+            self.print_info_("\t\t=> No upgrade")
+        return check_list, must_upgrade
+
+    def update(self):
+        from pip import get_installed_distributions
+        from pip.commands import install
+        module_list = []
+        for dist in get_installed_distributions():
+            requires = [req.key for req in dist.requires()]
+            if (dist.key == 'lucterios') or ('lucterios' in requires):
+                module_list.append(dist.project_name)
+        if len(module_list) > 0:
+            self.print_info_("Modules to update: %s" % ",".join(module_list))
+            install_command = install.InstallCommand()
+            options, _ = install_command.parse_args(self.get_default_args_(['-U']))
+            requirement_set = install_command.run(options, module_list)
+            requirement_set.install(options)
+            self.print_info_("Modules updated: %s" % ",".join(requirement_set.successfully_installed))
+            has_updated = len(requirement_set.successfully_installed) > 0
+            if has_updated:
+                self.refresh_all()
+            return has_updated
+        else:
+            self.print_info_("No modules to update")
+            return False
+
+    def refresh_all(self):
+        instances = self.listing()
+        self.clear_info_()
+        for instance in instances:
+            luct = LucteriosInstance(instance)
+            luct.refresh()
+            self.print_info_("Refresh %s" % instance)
+
+class LucteriosInstance(LucteriosManage):
+
+    def __init__(self, name, instance_path=INSTANCE_PATH):
+        LucteriosManage.__init__(self, instance_path)
         import random
         self.secret_key = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
-        self.msg_list = []
         self.name = name
-        self.instance_dir = join(abspath(INSTANCE_PATH), self.name)
+        self.instance_dir = join(self.instance_path, self.name)
         self.setting_path = join(self.instance_dir, 'settings.py')
-        self.instance_conf = join(abspath(INSTANCE_PATH), "manage_%s.py" % name)
+        self.instance_conf = join(self.instance_path, "manage_%s.py" % name)
         self.appli_name = ''
         self.database = ''
-
         self.modules = ()
+
+    def set_appli(self, appli_name):
+        self.appli_name = appli_name
 
     def set_database(self, database):
         self.database = database
@@ -42,23 +213,7 @@ class LucteriosInstance(object):
         else:
             self.modules = ()
 
-    def print_info(self, msg):
-        self.msg_list.append(msg)
-
-    def show_info(self):
-        six.print_("\n".join(self.msg_list))
-
-    def listing(self):
-        import re, os
-        list_res = []
-        for manage_file in os.listdir(abspath(INSTANCE_PATH)):
-            val = re.match(r"manage_([a-zA-Z0-9_]+)\.py", manage_file)
-            if val is not None and isdir(join(abspath(INSTANCE_PATH), val.group(1))):
-                list_res.append(val.group(1))
-        self.print_info("Instance listing: %s" % ",".join(list_res))
-        return list_res
-
-    def write_setting(self):
+    def write_setting_(self):
         with open(self.setting_path, "w") as file_py:
             file_py.write('#!/usr/bin/env python\n')
             file_py.write('# -*- coding: utf8 -*-\n')
@@ -89,7 +244,7 @@ class LucteriosInstance(object):
             rmtree(self.instance_dir)
         if isfile(self.instance_conf):
             remove(self.instance_conf)
-        self.print_info("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
 
     def read(self):
         import sys, os
@@ -98,7 +253,7 @@ class LucteriosInstance(object):
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists !")
-        sys.path.insert(0, abspath(INSTANCE_PATH))
+        sys.path.insert(0, self.instance_path)
         os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % self.name
         setup()
         from django.conf import settings
@@ -112,8 +267,7 @@ class LucteriosInstance(object):
             if (not "django" in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
 
                 self.modules = self.modules + (six.text_type(appname),)
-
-        self.print_info("""Instance %s:
+        self.print_info_("""Instance %s:
     path=%s
     appli=%s
     database=%s
@@ -138,25 +292,50 @@ class LucteriosInstance(object):
         mkdir(self.instance_dir)
         with open(join(self.instance_dir, '__init__.py'), "w") as file_py:
             file_py.write('\n')
-        self.write_setting()
-        self.print_info("Instance '%s' created." % self.name)  # pylint: disable=superfluous-parens
+        self.write_setting_()
+        self.print_info_("Instance '%s' created." % self.name)  # pylint: disable=superfluous-parens
+        self.refresh()
+
+    def modif(self):
+        if self.name == '':
+            raise AdminException("Instance not precise!")
+        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+            raise AdminException("Instance not exists!")
+        self.write_setting_()
+        self.print_info_("Instance '%s' modified." % self.name)  # pylint: disable=superfluous-parens
+        self.refresh()
+
+    def refresh(self):
+        if self.name == '':
+            raise AdminException("Instance not precise!")
+        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+            raise AdminException("Instance not exists!")
         self.read()
+        self.print_info_("Instance '%s' refreshed." % self.name)  # pylint: disable=superfluous-parens
         from django.core.management import ManagementUtility
         migrate = ManagementUtility(['lucterios-admin', 'migrate', '--noinput', '--verbosity=1'])
         migrate.execute()
 
+def list_method(from_class):
+    import inspect
+    res = []
+    for item in inspect.getmembers(from_class):
+        name = item[0]
+        if (name[-1] != '_') and not name.startswith('set_') and (inspect.ismethod(item[1]) or inspect.isfunction(item[1])):
+            res.append(name)
+    return "|".join(res)
+
 def main():
-    import lucterios.CORE
-    parser = OptionParser(usage="usage: %prog <listing|add|read|del> [option]",
-                          version="%prog " + lucterios.CORE.__version__)
+    parser = OptionParser(usage="\n\t%%prog <%s>\n\t%%prog <%s> [option]" % (list_method(LucteriosGlobal), list_method(LucteriosInstance)),
+                          version="%prog 2.0")
     parser.add_option("-n", "--name",
                       dest="name",
                       default='',
-                      help="Add new instance")
+                      help="Instance name")
     parser.add_option("-p", "--appli",
                       dest="appli",
                       default="lucterios.standard",
-                      help="Application to install",)
+                      help="Instance application",)
     parser.add_option("-d", "--database",
                       type='choice',
                       dest="database",
@@ -167,40 +346,30 @@ def main():
                       dest="module",
                       default="",
                       help="Modules to add (comma separator)",)
+    parser.add_option("-i", "--instance_path",
+                      dest="instance_path",
+                      default=INSTANCE_PATH,
+                      help="Directory of instance storage",)
     (options, args) = parser.parse_args()
     if len(args) != 1:
         parser.error("Bad arguments!")
-    instance = None
     try:
-        if args[0] == 'listing':
-            instance = LucteriosInstance('')
-            instance.listing()
-            instance.show_info()
+        luct = None
+        if hasattr(LucteriosGlobal, args[0]):
+            luct = LucteriosGlobal(options.instance_path)
+        elif hasattr(LucteriosInstance, args[0]):
+            luct = LucteriosInstance(options.name, options.instance_path)
+            luct.set_appli(options.appli)
+            luct.set_database(options.database)
+            luct.set_module(options.module)
+        if luct is not None:
+            getattr(luct, args[0])()
+            luct.show_info_()
             return
-        if args[0] == 'read':
-            instance = LucteriosInstance(options.name)
-            instance.read()
-            instance.show_info()
-            return
-        if args[0] == 'add':
-            instance = LucteriosInstance(options.name)
-            instance.appli_name = options.appli
-            instance.set_database(options.database)
-            instance.set_module(options.module)
-            instance.add()
-            instance.show_info()
-            return
-        if args[0] == 'del':
-            instance = LucteriosInstance(options.name)
-            instance.delete()
-            instance.show_info()
-            return
+        else:
+            parser.print_usage()
     except AdminException as error:
         parser.error(six.text_type(error))
-    else:
-        if instance is not None:
-            instance.show_info()
-        raise
 
 if __name__ == '__main__':
     main()
