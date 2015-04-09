@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 '''
 Created on 11 fevr. 2015
@@ -238,6 +238,20 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
             file_py.write('fill_appli_settings("%s", %s) \n' % (self.appli_name, six.text_type(self.modules)))
             file_py.write('\n')
+
+    def clear(self):
+        # pylint: disable=no-self-use
+        self.read()
+        from lucterios.framework.filetools import get_user_dir
+        from django.db import connection
+        tables = connection.introspection.table_names()
+        tables.sort()
+        for table in tables:
+            connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
+        user_path = get_user_dir()
+        if isdir(user_path):
+            rmtree(user_path)
+        self.print_info_("Instance '%s' clear." % self.name)  # pylint: disable=superfluous-parens
 
     def delete(self):
         if isdir(self.instance_dir):

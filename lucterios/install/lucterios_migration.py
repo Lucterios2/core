@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 '''
 Created on avr. 2015
@@ -7,14 +7,13 @@ Created on avr. 2015
 @author: sd-libre
 '''
 
-from os.path import join, isfile, isdir, abspath
+from os.path import join, isfile, isdir
 from os import mkdir, unlink
 from shutil import rmtree, copyfile
 import sqlite3
 
-from django import setup
+from lucterios.install.lucterios_admin import LucteriosInstance
 from django.utils import six
-from django.core.management import ManagementUtility
 
 INSTANCE_PATH = '.'
 
@@ -40,34 +39,23 @@ def dict_factory(cursor, row):
         dictdb[col[0]] = row[idx]
     return dictdb
 
-class MigrateFromV1(object):
+class MigrateFromV1(LucteriosInstance):
 
-    def __init__(self, name, debug):
-        import os, sys
-        self.name = name
+    def __init__(self, name, instance_path, debug):
+        LucteriosInstance.__init__(self, name, instance_path)
+        self.read()
         self.debug = debug
         self.old_db_path = ""
         self.tmp_path = ""
         self.con = None
-        sys.path.insert(0, abspath(INSTANCE_PATH))
-        os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % self.name
-        setup()
 
     def clear_current(self):
-        # pylint: disable=no-self-use
-        from lucterios.framework.filetools import get_user_dir
-        option_clear = ['manage', 'flush', '--noinput', '--verbosity=2']
-        sqlclear = ManagementUtility(option_clear)
-        sqlclear.execute()
-        migrate = ManagementUtility(['manage', 'migrate', '--verbosity=2'])
-        migrate.execute()
-        user_path = get_user_dir()
-        if isdir(user_path):
-            rmtree(user_path)
+        self.clear()
+        self.refresh()
 
     def extract_archive(self, archive):
         import tarfile
-        self.tmp_path = join(abspath(INSTANCE_PATH), self.name, 'tmp_resore')
+        self.tmp_path = join(self.instance_path, self.name, 'tmp_resore')
         if isdir(self.tmp_path):
             rmtree(self.tmp_path)
         mkdir(self.tmp_path)
@@ -76,7 +64,7 @@ class MigrateFromV1(object):
             tar.extract(item, self.tmp_path)
 
     def initial_olddb(self):
-        self.old_db_path = join(abspath(INSTANCE_PATH), self.name, 'old_database.sqlite3')
+        self.old_db_path = join(self.instance_path, self.name, 'old_database.sqlite3')
         if isfile(self.old_db_path) and (self.debug == ''):
             unlink(self.old_db_path)
 
@@ -367,6 +355,10 @@ def main():
                       dest="archive",
                       default="",
                       help="Archive to restore",)
+    parser.add_option("-i", "--instance_path",
+                      dest="instance_path",
+                      default=INSTANCE_PATH,
+                      help="Directory of instance storage",)
     parser.add_option("-d", "--debug",
                       dest="debug",
                       default="",
@@ -376,7 +368,7 @@ def main():
         parser.error('Name needed!')
     if not isfile(options.archive):
         parser.error('Archive "%s" no found!' % options.archive)
-    mirg = MigrateFromV1(options.name, options.debug)
+    mirg = MigrateFromV1(options.name, options.instance_path, options.debug)
     mirg.restore(options.archive)
 
 if __name__ == '__main__':

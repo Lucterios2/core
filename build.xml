@@ -92,7 +92,7 @@
 	<target name="add_instance">
 		<exec executable="python3">
 			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="lucterios/install/lucterios-admin.py"/>
+			<arg value="lucterios/install/lucterios_admin.py"/>
 			<arg value="add"/>
 			<arg value="--name=${test.instance}"/>
 			<arg value="--module=lucterios.dummy"/>			
@@ -103,7 +103,7 @@
 	<target name="del_instance">
 		<exec executable="python3">
 			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="lucterios/install/lucterios-admin.py"/>
+			<arg value="lucterios/install/lucterios_admin.py"/>
 			<arg value="delete"/>
 			<arg value="--name=${test.instance}"/>
 			<arg value="--instance_path=${basedir}"/>
@@ -162,7 +162,8 @@
 		<exec executable="python3">
 			<arg value="setup.py"/>
 			<arg value="sdist"/>
-		</exec>	
+		</exec>
+		<delete dir="Lucterios.egg-info"/>
 	</target>
 	
 </project>	

@@ -23,7 +23,7 @@ setup(
     license="GNU General Public License v2",
     # Packages
     packages=["lucterios", "lucterios.CORE", "lucterios.framework", "lucterios.install"],
-    scripts=['lucterios/install/lucterios-admin.py','lucterios/install/lucterios-migration.py'],
+    scripts=['lucterios/install/lucterios_admin.py','lucterios/install/lucterios_migration.py'],
     package_data={
        "lucterios.CORE.migrations":['*'],
        "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
