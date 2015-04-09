@@ -41,6 +41,15 @@ def dict_factory(cursor, row):
         dictdb[col[0]] = row[idx]
     return dictdb
 
+def convert_utf8(value):
+    try:
+        value = value.decode('utf-8')
+    except AttributeError:
+        pass
+    except UnicodeEncodeError:
+        pass
+    return value
+
 class MigrateFromV1(LucteriosInstance):
 
     def __init__(self, name, instance_path, debug):
@@ -57,8 +66,11 @@ class MigrateFromV1(LucteriosInstance):
             six.print_(six.text_type(msg) % arg)
         except UnicodeEncodeError:
             six.print_("*** UnicodeEncodeError ***")
-            six.print_(msg)
-            six.print_(arg)
+            try:
+                six.print_(msg)
+                six.print_(arg)
+            except UnicodeEncodeError:
+                pass
 
     def clear_current(self):
         self.clear()
@@ -187,11 +199,8 @@ class MigrateFromV1(LucteriosInstance):
             for permission in permissions:
                 if permission.codename in PERMISSION_CODENAMES.keys():
                     rigth_name, ext_name = PERMISSION_CODENAMES[permission.codename]
+                    rigth_name = convert_utf8(rigth_name)
                     cur = self.open_olddb()
-                    try:
-                        rigth_name = rigth_name.decode('utf-8')
-                    except AttributeError:
-                        pass
                     sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (rigth_name, ext_name)
                     cur.execute(sql_text)
                     rigth_id = cur.fetchone()
@@ -204,6 +213,7 @@ class MigrateFromV1(LucteriosInstance):
             cur = self.open_olddb()
             cur.execute("SELECT id, groupName FROM CORE_groups")
             for groupid, group_name in cur.fetchall():
+                group_name = convert_utf8(group_name)
                 premission_ref = []
                 for perm_id, perm_oldright in permission_relation:
                     rigthcur = self.open_olddb()
@@ -222,6 +232,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
             for userid, login, password, real_name, group_id, actif in cur.fetchall():
+                real_name = convert_utf8(real_name)
                 if login != '':
                     self.print_log("=> User %s [%s]", (login, real_name))
                     try:
@@ -255,7 +266,7 @@ class MigrateFromV1(LucteriosInstance):
                                          ['ville', 'city'], ['pays', 'country'], ['fixe', 'tel1'], \
                                          ['portable', 'tel2'], ['mail', 'email'], ['commentaire', 'comment']]:
                 if abst_val[old_field] is not None:
-                    setattr(new_legalentity, new_field, abst_val[old_field])
+                    setattr(new_legalentity, new_field, convert_utf8(abst_val[old_field]))
             old_image_filename = join(self.tmp_path, "usr", "org_lucterios_contacts", "Image_%d.jpg" % abstract_id)
             if isfile(old_image_filename):
                 new_image_filename = get_user_path("contacts", "Image_%s.jpg" % new_legalentity.abstractcontact_ptr_id)
@@ -278,6 +289,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
             for functionid, function_name in cur.fetchall():
+                function_name = convert_utf8(function_name)
                 self.print_log("=> Function %s", (function_name,))
                 function_list[functionid] = function_mdl.objects.create(name=function_name)
 
@@ -287,6 +299,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
             for structuretypeid, structuretype_name in cur.fetchall():
+                structuretype_name = convert_utf8(structuretype_name)
                 self.print_log("=> StructureType %s", (structuretype_name,))
                 structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
 
@@ -296,6 +309,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
             for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
+                legalentity_name = convert_utf8(legalentity_name)
                 self.print_log("=> LegalEntity[%d] %s (siren=%s)", (legalentityid, legalentity_name, legalentity_siren))
                 if legalentityid == 1:
                     new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
@@ -315,6 +329,8 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
             for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
+                individual_firstname = convert_utf8(individual_firstname)
+                individual_lastname = convert_utf8(individual_lastname)
                 self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
                 new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
                 assign_abstact_values(new_individual, individual_super)
