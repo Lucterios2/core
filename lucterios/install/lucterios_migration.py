@@ -7,6 +7,8 @@ Created on avr. 2015
 @author: sd-libre
 '''
 
+from __future__ import unicode_literals
+
 from os.path import join, isfile, isdir
 from os import mkdir, unlink
 from shutil import rmtree, copyfile
