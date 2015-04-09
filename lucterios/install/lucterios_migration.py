@@ -51,6 +51,15 @@ class MigrateFromV1(LucteriosInstance):
         self.tmp_path = ""
         self.con = None
 
+    def print_log(self, msg, arg):
+        # pylint: disable=no-self-use
+        try:
+            six.print_(six.text_type(msg) % arg)
+        except UnicodeEncodeError:
+            six.print_("*** UnicodeEncodeError ***")
+            six.print_(msg)
+            six.print_(arg)
+
     def clear_current(self):
         self.clear()
         self.refresh()
@@ -152,7 +161,7 @@ class MigrateFromV1(LucteriosInstance):
                 try:
                     cur.execute(item_script)
                 except (sqlite3.IntegrityError, sqlite3.OperationalError):
-                    six.print_('error:' + item_script)
+                    self.print_log('error: %s', item_script)
                     raise
             last_begin = ""
             for item_script in insert_script:
@@ -162,7 +171,7 @@ class MigrateFromV1(LucteriosInstance):
                         last_begin = item_script[:70]
                     cur.execute(item_script)
                 except (sqlite3.IntegrityError, sqlite3.OperationalError):
-                    six.print_('error:' + item_script)
+                    self.print_log('error: %s', item_script)
                     raise
         finally:
             self.con.commit()
@@ -189,7 +198,7 @@ class MigrateFromV1(LucteriosInstance):
                     if rigth_id is not None:
                         permission_relation.append((permission.id, rigth_id[0]))
                     else:
-                        six.print_("=> not found %s" % (sql_text,))
+                        self.print_log("=> not found %s", (sql_text,))
             Group.objects.all().delete()  # pylint: disable=no-member
             group_list = {}
             cur = self.open_olddb()
@@ -204,7 +213,7 @@ class MigrateFromV1(LucteriosInstance):
                         premission_ref.append(perm_id)
                 new_grp = Group.objects.create(name=group_name)  # pylint: disable=no-member
                 new_grp.permissions = Permission.objects.filter(id__in=premission_ref)  # pylint: disable=no-member
-                six.print_("=> Group %s (%s)" % (group_name, premission_ref))
+                self.print_log("=> Group %s (%s)", (group_name, premission_ref))
                 group_list[groupid] = new_grp
 
             User.objects.all().delete()  # pylint: disable=no-member
@@ -214,7 +223,7 @@ class MigrateFromV1(LucteriosInstance):
             cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
             for userid, login, password, real_name, group_id, actif in cur.fetchall():
                 if login != '':
-                    six.print_("=> User %s [%s]" % (login, real_name))
+                    self.print_log("=> User %s [%s]", (login, real_name))
                     try:
                         new_user = User.objects.create_user(username=login)  # pylint: disable=no-member
                         if (login == "admin") and (password[0] == '*'):
@@ -230,7 +239,7 @@ class MigrateFromV1(LucteriosInstance):
                         new_user.save()
                         user_list[userid] = new_user
                     except IntegrityError:
-                        six.print_("*** User %s doubled" % (login,))
+                        self.print_log("*** User %s doubled", (login,))
         finally:
             self.close_olddb()
         return user_list
@@ -255,7 +264,7 @@ class MigrateFromV1(LucteriosInstance):
         try:
             apps.get_app_config("contacts")
         except LookupError:
-            six.print_("=> No contacts module")
+            self.print_log("=> No contacts module", ())
             return
         function_mdl = apps.get_model("contacts", "Function")
         structuretype_mdl = apps.get_model("contacts", "StructureType")
@@ -269,7 +278,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
             for functionid, function_name in cur.fetchall():
-                six.print_("=> Function %s" % (function_name,))
+                self.print_log("=> Function %s", (function_name,))
                 function_list[functionid] = function_mdl.objects.create(name=function_name)
 
             structuretype_mdl.objects.all().delete()
@@ -278,7 +287,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
             for structuretypeid, structuretype_name in cur.fetchall():
-                six.print_("=> StructureType %s" % (structuretype_name,))
+                self.print_log("=> StructureType %s", (structuretype_name,))
                 structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
 
             legalentity_mdl.objects.all().delete()
@@ -287,7 +296,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
             for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
-                six.print_("=> LegalEntity[%d] %s (siren=%s)" % (legalentityid, legalentity_name, legalentity_siren))
+                self.print_log("=> LegalEntity[%d] %s (siren=%s)", (legalentityid, legalentity_name, legalentity_siren))
                 if legalentityid == 1:
                     new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
                 else:
@@ -306,7 +315,7 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
             for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
-                six.print_("=> Individual %s %s (user=%s)" % (individual_firstname, individual_lastname, individual_user))
+                self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
                 new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
                 assign_abstact_values(new_individual, individual_super)
                 new_individual.genre = individual_sexe + 1
@@ -328,7 +337,7 @@ class MigrateFromV1(LucteriosInstance):
                     for (fonction,) in fctcur.fetchall():
                         if fonction in function_list.keys():
                             ids.append(function_list[fonction].pk)
-                    six.print_("=> Responsability %s %s =%s" % (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
+                    self.print_log("=> Responsability %s %s =%s", (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
                     new_resp.functions = function_mdl.objects.filter(id__in=ids)
                     new_resp.save()
         finally:
