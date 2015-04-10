@@ -42,15 +42,27 @@ def dict_factory(cursor, row):
     return dictdb
 
 def convert_utf8(value):
-    try:
+    def conv1(value):
+        return value.decode('UTF-8')
+    def conv2(value):
+        return value.decode('ISO-8859-1')
+    def conv3(value):
+        return value.encode('UTF-8')
+    def conv4(value):
+        return value.encode('ISO-8859-1')
+    def conv5(value):
+        return value.decode('ISO-8859-1').encode('UTF-8')
+    def conv6(value):
+        return value.encode('ISO-8859-1').decode('UTF-8')
+    for fct_conv in [conv1, conv2, conv3, conv4, conv5, conv6]:
         try:
-            value = value.decode('UTF-8')
+            return six.text_type("%s") % fct_conv(value)
+        except AttributeError:
+            pass
+        except UnicodeDecodeError:
+            pass
         except UnicodeEncodeError:
-            value = value.decode('ISO-8859-1')
-    except AttributeError:
-        pass
-    except UnicodeEncodeError:
-        pass
+            pass
     return value
 
 class MigrateFromV1(LucteriosInstance):
@@ -166,7 +178,8 @@ class MigrateFromV1(LucteriosInstance):
         return self.con.cursor()
 
     def close_olddb(self):
-        self.con.close()
+        if self.con is not None:
+            self.con.close()
         self.con = None
 
     def import_in_olddb(self, create_script, insert_script):
