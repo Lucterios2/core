@@ -38,6 +38,8 @@ class XferPrintListing(XferContainerPrint):
 
 class XferPrintLabel(XferContainerPrint):
 
+    with_text_export = False
+
     def __init__(self):
         XferContainerPrint.__init__(self)
         self.selector = Label.get_print_selector()

@@ -7,12 +7,32 @@ Created on 11 fevr. 2015
 
 from __future__ import unicode_literals
 from inspect import stack, getmodule
-import logging, sys
+import logging, sys, os, socket
+from os.path import dirname, join
+from locale import getdefaultlocale
+
 from django.utils import six
 from django.utils.module_loading import import_module
-from os.path import dirname, join
+
 from lucterios.framework.filetools import readimage_to_base64
-from locale import getdefaultlocale
+
+def get_lan_ip():
+    if os.name != "nt":
+        import fcntl
+        import struct
+        def get_interface_ip(ifname):
+            scket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack('256s', bytes(ifname[:15], 'utf-8')))[20:24])
+    ip_address = socket.gethostbyname(socket.gethostname())
+    if ip_address.startswith("127.") and os.name != "nt":
+        interfaces = ["eth0", "eth1", "eth2", "wlan0", "wlan1", "wifi0", "ath0", "ath1", "ppp0"]
+        for ifname in interfaces:
+            try:
+                ip_address = get_interface_ip(ifname)
+                break
+            except IOError:
+                pass
+    return ip_address
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
@@ -50,7 +70,7 @@ DEFAULT_SETTINGS = {
     'USE_L10N': True,
     'USE_TZ': True,
     'TEMPLATE_DEBUG': False,
-    'ALLOWED_HOSTS': ['localhost', '127.0.0.1'],
+    'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION' : 'lucterios.framework.wsgi.application',
     'STATIC_URL':'/static/',
     'TEST_RUNNER':'juxd.JUXDTestSuiteRunner',

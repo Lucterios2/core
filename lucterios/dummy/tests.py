@@ -12,6 +12,7 @@ from django.utils import six
 from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from lucterios.dummy.tests_example import ExampleTest
+from lucterios.dummy.tests_print import PrintTest
 
 class DummyTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -200,4 +201,5 @@ def suite():
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(DummyTest))
     suite.addTest(loader.loadTestsFromTestCase(ExampleTest))
+    suite.addTest(loader.loadTestsFromTestCase(PrintTest))
     return suite
