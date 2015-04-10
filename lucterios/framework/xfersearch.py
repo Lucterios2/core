@@ -7,7 +7,7 @@ Created on march 2015
 
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH, \
     ActionsManage
