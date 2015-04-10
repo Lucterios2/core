@@ -43,7 +43,10 @@ def dict_factory(cursor, row):
 
 def convert_utf8(value):
     try:
-        value = value.decode('utf-8')
+        try:
+            value = value.decode('UTF-8')
+        except UnicodeEncodeError:
+            value = value.decode('ISO-8859-1')
     except AttributeError:
         pass
     except UnicodeEncodeError:
@@ -99,10 +102,10 @@ class MigrateFromV1(LucteriosInstance):
                 rmtree(self.tmp_path)
 
     def read_sqlfile(self, sql_file_path):
-        # pylint: disable=too-many-branches
+        # pylint: disable=too-many-branches, too-many-statements
         import re
         try:
-            sqlf = open(join(self.tmp_path, sql_file_path), 'r', encoding='iso 8859-15')
+            sqlf = open(join(self.tmp_path, sql_file_path), 'r', encoding='ISO-8859-1')
         except TypeError:
             sqlf = open(join(self.tmp_path, sql_file_path), 'r')
         with sqlf:
@@ -112,7 +115,7 @@ class MigrateFromV1(LucteriosInstance):
             new_insert_script = None
             for line in sqlf.readlines():
                 try:
-                    line = line.decode('iso 8859-15').strip()
+                    line = line.decode('ISO-8859-1').strip()
                 except AttributeError:
                     line = line.strip()
                 if new_insert_script is not None:
