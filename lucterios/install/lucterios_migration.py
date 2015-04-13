@@ -14,10 +14,8 @@ from os import mkdir, unlink
 from shutil import rmtree, copyfile
 import sqlite3
 
-from lucterios.install.lucterios_admin import LucteriosInstance
+from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
 from django.utils import six
-
-INSTANCE_PATH = '.'
 
 # pylint: disable=line-too-long
 PERMISSION_CODENAMES = {'add_label':('Impression', 'CORE'), 'change_label':('Impression', 'CORE'), 'delete_label':('Impression', 'CORE'), \
@@ -40,18 +38,6 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         dictdb[col[0]] = row[idx]
     return dictdb
-
-def convert_utf8(value):
-    try:
-        try:
-            value = value.decode('UTF-8')
-        except UnicodeEncodeError:
-            value = value.decode('ISO-8859-1')
-    except AttributeError:
-        pass
-    except UnicodeEncodeError:
-        pass
-    return value
 
 class MigrateFromV1(LucteriosInstance):
 
@@ -104,24 +90,24 @@ class MigrateFromV1(LucteriosInstance):
     def read_sqlfile(self, sql_file_path):
         # pylint: disable=too-many-branches, too-many-statements
         import re
-        try:
-            sqlf = open(join(self.tmp_path, sql_file_path), 'r', encoding='ISO-8859-1')
-        except TypeError:
-            sqlf = open(join(self.tmp_path, sql_file_path), 'r')
-        with sqlf:
+        import codecs
+        rigth_insert_script = []
+        with codecs.open(join(self.tmp_path, sql_file_path), 'rb', encoding='ISO-8859-1') as sqlf:
             create_script = []
             insert_script = []
             new_create_script = None
             new_insert_script = None
             for line in sqlf.readlines():
                 try:
-                    line = line.decode('ISO-8859-1').strip()
-                except AttributeError:
                     line = line.strip()
+                except UnicodeEncodeError:
+                    line = line.encode("ascii", 'replace').strip()
                 if new_insert_script is not None:
                     if line[-1:] == ";":
-                        new_insert_script.append(line)
-                        insert_script.append("\n".join(new_insert_script))
+                        new_insert_script.append(six.text_type(line))
+                        insert_script.append(six.text_type("\n").join(new_insert_script))
+                        if 'CORE_extension_rights' in six.text_type("\n").join(new_insert_script):
+                            rigth_insert_script.append(new_insert_script)
                         new_insert_script = None
                     else:
                         new_insert_script.append(line)
@@ -150,6 +136,8 @@ class MigrateFromV1(LucteriosInstance):
                 elif line[:11] == 'INSERT INTO':
                     if line[-1:] == ";":
                         insert_script.append(line)
+                        if 'CORE_extension_rights' in line:
+                            rigth_insert_script.append(line)
                     else:
                         new_insert_script = []
                         new_insert_script.append(line)
@@ -202,9 +190,8 @@ class MigrateFromV1(LucteriosInstance):
             for permission in permissions:
                 if permission.codename in PERMISSION_CODENAMES.keys():
                     rigth_name, ext_name = PERMISSION_CODENAMES[permission.codename]
-                    rigth_name = convert_utf8(rigth_name)
                     cur = self.open_olddb()
-                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (rigth_name, ext_name)
+                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (six.text_type(rigth_name), ext_name)
                     cur.execute(sql_text)
                     rigth_id = cur.fetchone()
                     if rigth_id is not None:
@@ -216,7 +203,6 @@ class MigrateFromV1(LucteriosInstance):
             cur = self.open_olddb()
             cur.execute("SELECT id, groupName FROM CORE_groups")
             for groupid, group_name in cur.fetchall():
-                group_name = convert_utf8(group_name)
                 premission_ref = []
                 for perm_id, perm_oldright in permission_relation:
                     rigthcur = self.open_olddb()
@@ -235,7 +221,6 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
             for userid, login, password, real_name, group_id, actif in cur.fetchall():
-                real_name = convert_utf8(real_name)
                 if login != '':
                     self.print_log("=> User %s [%s]", (login, real_name))
                     try:
@@ -269,7 +254,7 @@ class MigrateFromV1(LucteriosInstance):
                                          ['ville', 'city'], ['pays', 'country'], ['fixe', 'tel1'], \
                                          ['portable', 'tel2'], ['mail', 'email'], ['commentaire', 'comment']]:
                 if abst_val[old_field] is not None:
-                    setattr(new_legalentity, new_field, convert_utf8(abst_val[old_field]))
+                    setattr(new_legalentity, new_field, abst_val[old_field])
             old_image_filename = join(self.tmp_path, "usr", "org_lucterios_contacts", "Image_%d.jpg" % abstract_id)
             if isfile(old_image_filename):
                 new_image_filename = get_user_path("contacts", "Image_%s.jpg" % new_legalentity.abstractcontact_ptr_id)
@@ -292,7 +277,6 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
             for functionid, function_name in cur.fetchall():
-                function_name = convert_utf8(function_name)
                 self.print_log("=> Function %s", (function_name,))
                 function_list[functionid] = function_mdl.objects.create(name=function_name)
 
@@ -302,7 +286,6 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
             for structuretypeid, structuretype_name in cur.fetchall():
-                structuretype_name = convert_utf8(structuretype_name)
                 self.print_log("=> StructureType %s", (structuretype_name,))
                 structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
 
@@ -312,7 +295,6 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
             for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
-                legalentity_name = convert_utf8(legalentity_name)
                 self.print_log("=> LegalEntity[%d] %s (siren=%s)", (legalentityid, legalentity_name, legalentity_siren))
                 if legalentityid == 1:
                     new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
@@ -332,8 +314,6 @@ class MigrateFromV1(LucteriosInstance):
 
             cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
             for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
-                individual_firstname = convert_utf8(individual_firstname)
-                individual_lastname = convert_utf8(individual_lastname)
                 self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
                 new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
                 assign_abstact_values(new_individual, individual_super)
