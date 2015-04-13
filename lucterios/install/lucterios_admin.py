@@ -199,8 +199,8 @@ class LucteriosInstance(LucteriosManage):
         self.instance_dir = join(self.instance_path, self.name)
         self.setting_path = join(self.instance_dir, 'settings.py')
         self.instance_conf = join(self.instance_path, "manage_%s.py" % name)
-        self.appli_name = ''
-        self.database = ''
+        self.appli_name = 'lucterios.standard'
+        self.database = 'sqlite'
         self.modules = ()
 
     def set_appli(self, appli_name):
