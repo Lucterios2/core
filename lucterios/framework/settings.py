@@ -88,6 +88,12 @@ DEFAULT_SETTINGS = {
 def fill_appli_settings(appli_name, addon_modules=None):
     last_frm = stack()[1]
     last_mod = getmodule(last_frm[0])
+    extra = {}
+    for ext_item in dir(last_mod):
+        if ext_item == ext_item.upper() and not (ext_item in ['BASE_DIR', 'DATABASES', 'SECRET_KEY']):
+            extra[ext_item] = getattr(last_mod, ext_item)
+
+    setattr(last_mod, "EXTRA", extra)
     logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, last_mod.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(last_mod, key_name, setting_value)
@@ -110,4 +116,3 @@ def fill_appli_settings(appli_name, addon_modules=None):
         setattr(last_mod, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(last_mod, 'APPLIS_LOGO', '')
-

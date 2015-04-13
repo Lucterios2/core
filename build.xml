@@ -123,12 +123,18 @@
 			<arg value="run"/>
 			<arg value="--branch"/>
 			<arg value="--source=lucterios"/>
-			<arg value="--omit=${basedir}/lucterios/install/*"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>
 			<arg value="CORE"/>
 			<arg value="dummy"/>
 		</exec>	
+		<!-- exec executable="${testversion}">
+			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
+			<arg value="run"/>
+			<arg value="-a"/>
+			<arg value="source=lucterios"/>
+			<arg value="lucterios/install/admin_test.py"/>
+		</exec -->	
 		<exec executable="${testversion}">
 			<arg value="report"/>
 		</exec>	

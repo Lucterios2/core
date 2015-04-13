@@ -14,6 +14,8 @@ from os import mkdir, remove
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from django.utils import six
+from django.conf import Settings, ENVIRONMENT_VARIABLE
+from importlib import import_module
 
 INSTANCE_PATH = '.'
 
@@ -34,7 +36,6 @@ def get_package_list():
                 paths = [os.path.join(dist.egg_info, p) for p in paths]
         return [os.path.relpath(p, dist.location) for p in paths]
     def get_module_desc(modname):
-        from django.utils.module_loading import import_module
         appmodule = import_module(modname)
         return (modname, appmodule.__version__)
     import pip
@@ -202,9 +203,23 @@ class LucteriosInstance(LucteriosManage):
         self.appli_name = 'lucterios.standard'
         self.database = 'sqlite'
         self.modules = ()
+        self.extra = {}
 
     def set_appli(self, appli_name):
         self.appli_name = appli_name
+
+    def set_extra(self, extra):
+        self.extra = {}
+        for item in extra.split(','):
+            key, value = item.split('=')
+            if (value == 'True') or (value == 'True'):
+                self.extra[key] = value == 'True'
+            elif isinstance(value, float):
+                self.extra[key] = float(value)
+            elif value[0] == '[' and value[-1] == ']':
+                self.extra[key] = value[1:-1].split(',')
+            else:
+                self.extra[key] = value
 
     def set_database(self, database):
         self.database = database
@@ -236,6 +251,9 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('     }\n')
             file_py.write('}\n')
             file_py.write('\n')
+            file_py.write('# extra\n')
+            for key, value in self.extra.items():
+                file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
             file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
             file_py.write('fill_appli_settings("%s", %s) \n' % (self.appli_name, six.text_type(self.modules)))
@@ -270,10 +288,16 @@ class LucteriosInstance(LucteriosManage):
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists !")
         sys.path.insert(0, self.instance_path)
-        os.environ["DJANGO_SETTINGS_MODULE"] = "%s.settings" % self.name
+        setting_module_name = "%s.settings" % self.name
+        os.environ[ENVIRONMENT_VARIABLE] = setting_module_name
+        if setting_module_name in sys.modules.keys():
+            del sys.modules[setting_module_name]
+            import_module(setting_module_name)
         setup()
         from django.conf import settings
+        settings._wrapped = Settings(setting_module_name)  # pylint: disable=protected-access
         self.secret_key = settings.SECRET_KEY
+        self.extra = settings.EXTRA
         self.database = settings.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
             self.database = 'sqlite'
@@ -297,6 +321,10 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not precise!")
         if isdir(self.instance_dir) or isfile(self.instance_conf):
             raise AdminException("Instance exists yet!")
+        mkdir(self.instance_dir)
+        with open(join(self.instance_dir, '__init__.py'), "w") as file_py:
+            file_py.write('\n')
+        self.write_setting_()
         with open(self.instance_conf, "w") as file_py:
             file_py.write('#!/usr/bin/env python\n')
             file_py.write('import os, sys\n')
@@ -305,10 +333,6 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings")\n' % self.name)
             file_py.write('    from django.core.management import execute_from_command_line\n')
             file_py.write('    execute_from_command_line(sys.argv)\n')
-        mkdir(self.instance_dir)
-        with open(join(self.instance_dir, '__init__.py'), "w") as file_py:
-            file_py.write('\n')
-        self.write_setting_()
         self.print_info_("Instance '%s' created." % self.name)  # pylint: disable=superfluous-parens
         self.refresh()
 
@@ -355,13 +379,18 @@ def main():
     parser.add_option("-d", "--database",
                       type='choice',
                       dest="database",
-                      choices=['sqlite', 'MySQL', 'ProstGreSQL', ],
+                      choices=['sqlite', 'MySQL', 'PostGreSQL', ],
                       default='sqlite',
                       help="Database configuration")
     parser.add_option("-m", "--module",
                       dest="module",
                       default="",
                       help="Modules to add (comma separator)",)
+    parser.add_option("-e", "--extra",
+                      dest="extra",
+                      default="",
+                      help="extra parameters (<name>=value,...)",)
+
     parser.add_option("-i", "--instance_path",
                       dest="instance_path",
                       default=INSTANCE_PATH,
@@ -375,6 +404,7 @@ def main():
             luct = LucteriosGlobal(options.instance_path)
         elif hasattr(LucteriosInstance, args[0]):
             luct = LucteriosInstance(options.name, options.instance_path)
+            luct.set_extra(options.extra)
             luct.set_appli(options.appli)
             luct.set_database(options.database)
             luct.set_module(options.module)
@@ -383,7 +413,7 @@ def main():
             luct.show_info_()
             return
         else:
-            parser.print_usage()
+            parser.print_help()
     except AdminException as error:
         parser.error(six.text_type(error))
 
