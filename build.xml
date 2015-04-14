@@ -114,7 +114,7 @@
 		<delete file=".converage"/>
 		<delete file="converage.xml"/>
 	 	<exec executable="coverage3">
-			<env key="PYTHONPATH" value="${standard.path}:${env.PYTHONPATH}"/>
+			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
 			<arg value="run"/>
 			<arg value="--branch"/>
 			<arg value="--source=lucterios"/>
