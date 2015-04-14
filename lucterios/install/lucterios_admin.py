@@ -16,6 +16,11 @@ from optparse import OptionParser
 from django.utils import six
 from django.conf import Settings, ENVIRONMENT_VARIABLE
 from importlib import import_module
+from posix import unlink
+try:
+    from importlib import reload # pylint: disable=redefined-builtin,no-name-in-module
+except ImportError:
+    pass
 import sys, os
 
 INSTANCE_PATH = '.'
@@ -199,6 +204,7 @@ class LucteriosInstance(LucteriosManage):
         import random
         self.secret_key = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
         self.name = name
+        self.filename = ""
         self.setting_module_name = "%s.settings" % self.name
         self.instance_dir = join(self.instance_path, self.name)
         self.setting_path = join(self.instance_dir, 'settings.py')
@@ -267,7 +273,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('fill_appli_settings("%s", %s) \n' % (self.appli_name, six.text_type(self.modules)))
             file_py.write('\n')
 
-    def clear(self):
+    def clear(self, only_delete=False):
         # pylint: disable=no-self-use
         self.read()
         from lucterios.framework.filetools import get_user_dir
@@ -275,9 +281,12 @@ class LucteriosInstance(LucteriosManage):
         tables = connection.introspection.table_names()
         tables.sort()
         for table in tables:
-            connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
+            if only_delete:
+                connection.cursor().execute('DELETE FROM %s;' % table)
+            else:
+                connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
         user_path = get_user_dir()
-        if isdir(user_path):
+        if not only_delete and isdir(user_path):
             rmtree(user_path)
         self.print_info_("Instance '%s' clear." % self.name)  # pylint: disable=superfluous-parens
 
@@ -289,7 +298,6 @@ class LucteriosInstance(LucteriosManage):
         self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
 
     def read(self):
-        from django import setup
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
@@ -299,21 +307,21 @@ class LucteriosInstance(LucteriosManage):
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
-
         __import__(self.setting_module_name)
-        setup()
-        from django.conf import settings
-        settings._wrapped = Settings(self.setting_module_name)  # pylint: disable=protected-access
-        self.secret_key = settings.SECRET_KEY
-        self.extra = settings.EXTRA
-        self.database = settings.DATABASES['default']['ENGINE']
+        import django.conf
+        reload(django)
+        reload(django.conf)
+        django.setup()
+        django.conf.settings._wrapped = Settings(self.setting_module_name)  # pylint: disable=protected-access
+        self.secret_key = django.conf.settings.SECRET_KEY
+        self.extra = django.conf.settings.EXTRA
+        self.database = django.conf.settings.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
             self.database = 'sqlite'
-        self.appli_name = settings.APPLIS_MODULE.__name__
+        self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
         self.modules = ()
-        for appname in settings.INSTALLED_APPS:
+        for appname in django.conf.settings.INSTALLED_APPS:
             if (not "django" in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
-
                 self.modules = self.modules + (six.text_type(appname),)
         self.print_info_("""Instance %s:
     path=%s
@@ -360,9 +368,62 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         self.read()
         self.print_info_("Instance '%s' refreshed." % self.name)  # pylint: disable=superfluous-parens
-        from django.core.management import ManagementUtility
-        migrate = ManagementUtility(['lucterios-admin', 'migrate', '--noinput', '--verbosity=1'])
-        migrate.execute()
+        from django.core.management import call_command
+        call_command('migrate', stdout=sys.stdout)
+
+    def archive(self):
+        if self.name == '':
+            raise AdminException("Instance not precise!")
+        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+            raise AdminException("Instance not exists!")
+        if self.filename == '':
+            raise AdminException("Archive file not precise!")
+        self.read()
+        from lucterios.framework.filetools import get_tmp_dir, get_user_dir
+        output_filename = join(get_tmp_dir(), 'dump.json')
+
+        from django.core.management import call_command
+        with open(output_filename, 'w') as output:  # Point stdout at a file for dumping data to.
+            call_command('dumpdata', stdout=output)
+
+        import tarfile
+        with tarfile.open(self.filename, "w:gz") as tar:
+            tar.add(output_filename, arcname="dump.json")
+
+            user_dir = get_user_dir()
+            if isdir(user_dir):
+
+                tar.add(user_dir, arcname="usr")
+        unlink(output_filename)
+        return isfile(self.filename)
+
+    def restore(self):
+        if self.name == '':
+            raise AdminException("Instance not precise!")
+        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+            raise AdminException("Instance not exists!")
+        if self.filename == '':
+            raise AdminException("Archive file not precise!")
+        self.read()
+        from lucterios.framework.filetools import get_tmp_dir
+        import tarfile
+        tmp_path = join(get_tmp_dir(), 'tmp_resore')
+        if isdir(tmp_path):
+            rmtree(tmp_path)
+        mkdir(tmp_path)
+        with tarfile.open(self.filename, "r:gz") as tar:
+            for item in tar:
+                tar.extract(item, tmp_path)
+        output_filename = join(tmp_path, 'dump.json')
+        success = False
+        if isfile(output_filename):
+            self.clear(True)
+            from django.core.management import call_command
+            call_command('loaddata', output_filename)
+            success = True
+        if isdir(tmp_path):
+            rmtree(tmp_path)
+        return success
 
 def list_method(from_class):
     import inspect
@@ -398,7 +459,10 @@ def main():
                       dest="extra",
                       default="",
                       help="extra parameters (<name>=value,...)",)
-
+    parser.add_option("-f", "--file",
+                      dest="filename",
+                      default="",
+                      help="file name for restor or archive")
     parser.add_option("-i", "--instance_path",
                       dest="instance_path",
                       default=INSTANCE_PATH,
@@ -412,6 +476,7 @@ def main():
             luct = LucteriosGlobal(options.instance_path)
         elif hasattr(LucteriosInstance, args[0]):
             luct = LucteriosInstance(options.name, options.instance_path)
+            luct.filename = options.filename
             luct.set_extra(options.extra)
             luct.set_appli(options.appli)
             luct.set_database(options.database)

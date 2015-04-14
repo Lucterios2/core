@@ -12,6 +12,7 @@ from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from unittest.runner import TextTestRunner
 from juxd import JUXDTestResult
+from os.path import join
 
 class TestAdmin(unittest.TestCase):
 
@@ -22,7 +23,8 @@ class TestAdmin(unittest.TestCase):
         self.luct_glo = LucteriosGlobal(self.path_dir)
 
     def tearDown(self):
-        rmtree(self.path_dir, True)
+        # rmtree(self.path_dir, True)
+        pass
 
     def test_add_read(self):
         self.assertEqual([], self.luct_glo.listing())
@@ -93,6 +95,30 @@ class TestAdmin(unittest.TestCase):
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.read()
         self.assertEqual({'DEBUG':True, 'ALLOWED_HOSTS':['localhost']}, inst.extra)
+
+    def test_archive(self):
+        inst = LucteriosInstance("inst_a", self.path_dir)
+        inst.add()
+        path_usr = join(self.path_dir, 'inst_a', 'usr', 'foo')
+        makedirs(path_usr)
+        with open(join(path_usr, 'myfile'), mode='w+') as myfile:
+            myfile.write('boooo!!')
+
+        inst.filename = join(self.path_dir, "inst_a.arc")
+        self.assertEqual(True, inst.archive())
+
+        import tarfile
+        list_file = []
+        with tarfile.open(inst.filename, "r:gz") as tar:
+            for tarinfo in tar:
+                list_file.append(tarinfo.name)
+        list_file.sort()
+        self.assertEqual(['dump.json', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
+
+#         inst = LucteriosInstance("inst_b", self.path_dir)
+#         inst.add()
+#         inst.filename = join(self.path_dir,"inst_a.arc")
+#         self.assertEqual(True, inst.restore())
 
 class XMLTestResult(JUXDTestResult):
 
