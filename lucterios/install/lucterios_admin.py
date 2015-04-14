@@ -16,8 +16,27 @@ from optparse import OptionParser
 from django.utils import six
 from django.conf import Settings, ENVIRONMENT_VARIABLE
 from importlib import import_module
+try:
+    from importlib import reload
+except ImportError:
+    pass
+import sys, os
 
 INSTANCE_PATH = '.'
+
+class Reloader(object):
+    def __init__(self, modulename):
+        if modulename in sys.modules.keys():
+            del sys.modules[modulename]
+        before = sys.modules.keys()
+        import_module(modulename)
+        after = sys.modules.keys()
+        names = list(set(after) - set(before))
+        self._toreload = [sys.modules[name] for name in names]
+
+    def do_reload(self):
+        for old_mod in self._toreload:
+            reload(old_mod)
 
 def get_package_list():
     def get_files(dist):
@@ -197,6 +216,7 @@ class LucteriosInstance(LucteriosManage):
         import random
         self.secret_key = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
         self.name = name
+        self.setting_module_name = "%s.settings" % self.name
         self.instance_dir = join(self.instance_path, self.name)
         self.setting_path = join(self.instance_dir, 'settings.py')
         self.instance_conf = join(self.instance_path, "manage_%s.py" % name)
@@ -204,6 +224,10 @@ class LucteriosInstance(LucteriosManage):
         self.database = 'sqlite'
         self.modules = ()
         self.extra = {}
+        sys.path.insert(0, self.instance_path)
+        self.reloader = None
+        if self.setting_module_name in sys.modules.keys():
+            del sys.modules[self.setting_module_name]        
 
     def set_appli(self, appli_name):
         self.appli_name = appli_name
@@ -211,15 +235,16 @@ class LucteriosInstance(LucteriosManage):
     def set_extra(self, extra):
         self.extra = {}
         for item in extra.split(','):
-            key, value = item.split('=')
-            if (value == 'True') or (value == 'True'):
-                self.extra[key] = value == 'True'
-            elif isinstance(value, float):
-                self.extra[key] = float(value)
-            elif value[0] == '[' and value[-1] == ']':
-                self.extra[key] = value[1:-1].split(',')
-            else:
-                self.extra[key] = value
+            if '=' in item:
+                key, value = item.split('=')
+                if (value == 'True') or (value == 'True'):
+                    self.extra[key] = value == 'True'
+                elif isinstance(value, float):
+                    self.extra[key] = float(value)
+                elif value[0] == '[' and value[-1] == ']':
+                    self.extra[key] = value[1:-1].split(',')
+                else:
+                    self.extra[key] = value
 
     def set_database(self, database):
         self.database = database
@@ -281,21 +306,20 @@ class LucteriosInstance(LucteriosManage):
         self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
 
     def read(self):
-        import sys, os
         from django import setup
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists !")
-        sys.path.insert(0, self.instance_path)
-        setting_module_name = "%s.settings" % self.name
-        os.environ[ENVIRONMENT_VARIABLE] = setting_module_name
-        if setting_module_name in sys.modules.keys():
-            del sys.modules[setting_module_name]
-            import_module(setting_module_name)
+        os.environ[ENVIRONMENT_VARIABLE] = self.setting_module_name
+        if self.setting_module_name in sys.modules.keys():
+            mod_set = sys.modules[self.setting_module_name]
+            del mod_set
+            del sys.modules[self.setting_module_name]        
+        __import__(self.setting_module_name)
         setup()
         from django.conf import settings
-        settings._wrapped = Settings(setting_module_name)  # pylint: disable=protected-access
+        settings._wrapped = Settings(self.setting_module_name)  # pylint: disable=protected-access
         self.secret_key = settings.SECRET_KEY
         self.extra = settings.EXTRA
         self.database = settings.DATABASES['default']['ENGINE']

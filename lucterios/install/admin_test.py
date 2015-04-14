@@ -5,13 +5,15 @@ Created on 13 avr. 2015
 '''
 import unittest
 
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, \
+    Reloader
 from shutil import rmtree
 from os import makedirs
 from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from unittest.runner import TextTestRunner
 from juxd import JUXDTestResult
+from importlib import import_module
 
 class TestAdmin(unittest.TestCase):
 
@@ -45,6 +47,8 @@ class TestAdmin(unittest.TestCase):
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.add()
         self.assertEqual(["inst_a"], self.luct_glo.listing())
+        print(getattr(import_module('inst_a.settings'), 'INSTALLED_APPS'))
+        print(open(self.path_dir + '/inst_a/settings.py', 'r').readlines())
 
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.database = "sqlite"
@@ -52,10 +56,16 @@ class TestAdmin(unittest.TestCase):
         inst.modules = ('lucterios.dummy',)
         inst.modif()
 
+        import sys
         print(open(self.path_dir + '/inst_a/settings.py', 'r').readlines())
+        print(getattr(import_module('inst_a.settings'), 'INSTALLED_APPS'))
+        del sys.modules['inst_a.settings']
+        print(getattr(import_module('inst_a.settings'), 'INSTALLED_APPS'))
 
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.read()
+        set_mod = import_module('inst_a.settings')
+        print(getattr(set_mod, 'INSTALLED_APPS'))
         self.assertEqual("sqlite", inst.database)
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual(('lucterios.dummy',), inst.modules)
