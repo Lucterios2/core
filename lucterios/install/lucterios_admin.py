@@ -329,7 +329,8 @@ class LucteriosInstance(LucteriosManage):
     database=%s
     modules=%s
     secret_key=%s
-""" % (self.name, self.instance_dir, self.appli_name, self.database, ",".join(self.modules), self.secret_key))
+    extra=%s
+""" % (self.name, self.instance_dir, self.appli_name, self.database, ",".join(self.modules), self.secret_key, self.extra))
         return
 
     def add(self):

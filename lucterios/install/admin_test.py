@@ -23,8 +23,7 @@ class TestAdmin(unittest.TestCase):
         self.luct_glo = LucteriosGlobal(self.path_dir)
 
     def tearDown(self):
-        # rmtree(self.path_dir, True)
-        pass
+        rmtree(self.path_dir, True)
 
     def test_add_read(self):
         self.assertEqual([], self.luct_glo.listing())

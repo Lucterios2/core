@@ -195,7 +195,7 @@ class MigrateFromV1(LucteriosInstance):
                     sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (six.text_type(rigth_name), ext_name)
                     try:
                         cur.execute(sql_text)
-                    except sqlite3.OperationalError:
+                    except:
                         self.print_log("SQL error:%s", sql_text)
                     rigth_id = cur.fetchone()
                     if rigth_id is not None:
