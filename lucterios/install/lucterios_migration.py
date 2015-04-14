@@ -154,7 +154,8 @@ class MigrateFromV1(LucteriosInstance):
         return self.con.cursor()
 
     def close_olddb(self):
-        self.con.close()
+        if self.con is not None:
+            self.con.close()
         self.con = None
 
     def import_in_olddb(self, create_script, insert_script):
