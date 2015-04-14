@@ -16,32 +16,14 @@ from optparse import OptionParser
 from django.utils import six
 from django.conf import Settings, ENVIRONMENT_VARIABLE
 from importlib import import_module
-try:
-    from importlib import reload
-except ImportError:
-    pass
 import sys, os
 
 INSTANCE_PATH = '.'
 
-class Reloader(object):
-    def __init__(self, modulename):
-        if modulename in sys.modules.keys():
-            del sys.modules[modulename]
-        before = sys.modules.keys()
-        import_module(modulename)
-        after = sys.modules.keys()
-        names = list(set(after) - set(before))
-        self._toreload = [sys.modules[name] for name in names]
-
-    def do_reload(self):
-        for old_mod in self._toreload:
-            reload(old_mod)
-
 def get_package_list():
     def get_files(dist):
         paths = []
-        import pkg_resources, os
+        import pkg_resources
         if isinstance(dist, pkg_resources.DistInfoDistribution):
             # RECORDs should be part of .dist-info metadatas
             if dist.has_metadata('RECORD'):
@@ -100,7 +82,7 @@ class LucteriosGlobal(LucteriosManage):
         LucteriosManage.__init__(self, instance_path)
 
     def listing(self):
-        import re, os
+        import re
         list_res = []
         for manage_file in os.listdir(self.instance_path):
             val = re.match(r"manage_([a-zA-Z0-9_]+)\.py", manage_file)
@@ -141,7 +123,7 @@ class LucteriosGlobal(LucteriosManage):
 
     def get_default_args_(self, other_args):
         # pylint: disable=no-self-use
-        import os, logging
+        import logging
         logging.captureWarnings(True)
         args = ['--quiet']
         args.extend(other_args)
@@ -210,6 +192,7 @@ class LucteriosGlobal(LucteriosManage):
             self.print_info_("Refresh %s" % instance)
 
 class LucteriosInstance(LucteriosManage):
+    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, name, instance_path=INSTANCE_PATH):
         LucteriosManage.__init__(self, instance_path)
@@ -227,7 +210,7 @@ class LucteriosInstance(LucteriosManage):
         sys.path.insert(0, self.instance_path)
         self.reloader = None
         if self.setting_module_name in sys.modules.keys():
-            del sys.modules[self.setting_module_name]        
+            del sys.modules[self.setting_module_name]
 
     def set_appli(self, appli_name):
         self.appli_name = appli_name
@@ -315,7 +298,8 @@ class LucteriosInstance(LucteriosManage):
         if self.setting_module_name in sys.modules.keys():
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
-            del sys.modules[self.setting_module_name]        
+            del sys.modules[self.setting_module_name]
+
         __import__(self.setting_module_name)
         setup()
         from django.conf import settings
