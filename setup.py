@@ -9,7 +9,7 @@ from setuptools import setup
 from lucterios.CORE import __version__
 
 setup(
-    name="Lucterios",
+    name="lucterios",
     version=__version__,
     author="Lucterios",
     author_email="support@lucterios.org",
