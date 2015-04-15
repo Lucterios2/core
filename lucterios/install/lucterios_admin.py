@@ -13,12 +13,10 @@ from shutil import rmtree
 from os import mkdir, remove
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
-from django.utils import six
-from django.conf import Settings, ENVIRONMENT_VARIABLE
 from importlib import import_module
 from posix import unlink
 try:
-    from importlib import reload # pylint: disable=redefined-builtin,no-name-in-module
+    from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
 except ImportError:
     pass
 import sys, os
@@ -79,6 +77,7 @@ class LucteriosManage(object):
         self.msg_list.append(msg)
 
     def show_info_(self):
+        from django.utils import six
         six.print_("\n".join(self.msg_list))
 
 class LucteriosGlobal(LucteriosManage):
@@ -210,7 +209,7 @@ class LucteriosInstance(LucteriosManage):
         self.setting_path = join(self.instance_dir, 'settings.py')
         self.instance_conf = join(self.instance_path, "manage_%s.py" % name)
         self.appli_name = 'lucterios.standard'
-        self.database = 'sqlite'
+        self.database = ('sqlite', {})
         self.modules = ()
         self.extra = {}
         sys.path.insert(0, self.instance_path)
@@ -236,7 +235,17 @@ class LucteriosInstance(LucteriosManage):
                     self.extra[key] = value
 
     def set_database(self, database):
-        self.database = database
+        if ':' in database:
+            dbtype, info_text = database.split(':')
+            info = {'name':'default', 'user':'root', 'password':'', 'host':'localhost'}
+            for val in info_text.split(','):
+                if '=' in val:
+                    key, value = val.split('=')
+                    info[key] = value
+        else:
+            dbtype = database
+            info = {}
+        self.database = (dbtype, info)
 
     def set_module(self, module):
         if module != '':
@@ -245,6 +254,7 @@ class LucteriosInstance(LucteriosManage):
             self.modules = ()
 
     def write_setting_(self):
+        from django.utils import six
         with open(self.setting_path, "w") as file_py:
             file_py.write('#!/usr/bin/env python\n')
             file_py.write('# -*- coding: utf8 -*-\n')
@@ -257,9 +267,15 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('BASE_DIR = os.path.dirname(__file__)\n')
             file_py.write('DATABASES = {\n')
             file_py.write('     "default": {\n')
-            if self.database == 'sqlite':
+            if self.database[0] == 'sqlite':
                 file_py.write('         "ENGINE": "django.db.backends.sqlite3",\n')
                 file_py.write('         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),\n')
+            elif self.database[0] == 'mysql':
+                file_py.write('         "ENGINE": "mysql.connector.django",\n')
+                file_py.write('         "NAME": "%s",\n' % self.database[1]['name'])
+                file_py.write('         "USER": "%s",\n' % self.database[1]['user'])
+                file_py.write('         "PASSWORD": "%s",\n' % self.database[1]['password'])
+                file_py.write('         "HOST": "%s",\n' % self.database[1]['host'])
             else:
                 raise AdminException("Database not supported!")
             file_py.write('     }\n')
@@ -280,11 +296,19 @@ class LucteriosInstance(LucteriosManage):
         from django.db import connection
         tables = connection.introspection.table_names()
         tables.sort()
+        try:
+            connection.cursor().execute('SET foreign_key_checks = 0;')
+        except: # pylint: disable=bare-except
+            pass
         for table in tables:
             if only_delete:
                 connection.cursor().execute('DELETE FROM %s;' % table)
             else:
                 connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
+        try:
+            connection.cursor().execute('SET foreign_key_checks = 1;')
+        except: # pylint: disable=bare-except
+            pass
         user_path = get_user_dir()
         if not only_delete and isdir(user_path):
             rmtree(user_path)
@@ -298,26 +322,40 @@ class LucteriosInstance(LucteriosManage):
         self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
 
     def read(self):
+        from django.utils import six
+        import django.conf
+        import django.apps
+        import django.db
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists !")
-        os.environ[ENVIRONMENT_VARIABLE] = self.setting_module_name
+        os.environ[django.conf.ENVIRONMENT_VARIABLE] = self.setting_module_name
         if self.setting_module_name in sys.modules.keys():
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
         __import__(self.setting_module_name)
-        import django.conf
         reload(django)
         reload(django.conf)
+        reload(django.apps)
+        reload(django.db)
         django.setup()
-        django.conf.settings._wrapped = Settings(self.setting_module_name)  # pylint: disable=protected-access
+        django.conf.settings._wrapped = django.conf.Settings(self.setting_module_name)  # pylint: disable=protected-access
         self.secret_key = django.conf.settings.SECRET_KEY
         self.extra = django.conf.settings.EXTRA
         self.database = django.conf.settings.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
             self.database = 'sqlite'
+        if "mysql" in self.database:
+            self.database = 'mysql:'
+            key_list = list(django.conf.settings.DATABASES['default'].keys())
+            key_list.sort()
+            for key in key_list:
+                if key != 'ENGINE':
+                    val = django.conf.settings.DATABASES['default'][key]
+                    self.database += "%s=%s," % (key.lower(), val)
+            self.database = self.database[:-1]
         self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
         self.modules = ()
         for appname in django.conf.settings.INSTALLED_APPS:
@@ -489,6 +527,7 @@ def main():
         else:
             parser.print_help()
     except AdminException as error:
+        from django.utils import six
         parser.error(six.text_type(error))
 
 if __name__ == '__main__':

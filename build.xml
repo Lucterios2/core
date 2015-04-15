@@ -119,7 +119,20 @@
 			<arg value="--branch"/>
 			<arg value="--source=lucterios"/>
 			<arg value="lucterios/install/admin_test.py"/>
+	 		<arg value="TestAdmin"/>
 		</exec>
+		<replace file="results.xml" token="__main__." value="lucterios-py3.TestAdmin."/>
+		<move file="results.xml" tofile="junit_admin_py3.xml"/>
+	 	<exec executable="coverage3">
+			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
+			<arg value="run"/>
+			<arg value="--append"/>
+			<arg value="--source=lucterios"/>
+			<arg value="lucterios/install/admin_test.py"/>
+	 		<arg value="TestAdminMySQL"/>
+		</exec>
+		<replace file="results.xml" token="__main__." value="lucterios-py3.TestAdminMySQL."/>
+		<move file="results.xml" tofile="junit_adminmysql_py3.xml"/>
 		<exec executable="coverage3">
 			<arg value="report"/>
 		</exec>	
@@ -129,8 +142,6 @@
 		<move file="coverage.xml" tofile="coverage_admin_py3.xml"/>
 		<replace file="coverage_admin_py3.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />		
 		<replaceregexp file="coverage_admin_py3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
-		<replace file="results.xml" token="__main__." value="lucterios-py3."/>
-		<move file="results.xml" tofile="junit_admin_py3.xml"/>
 	</target>	
 
 	<target name="test">
