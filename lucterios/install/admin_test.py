@@ -71,7 +71,9 @@ class TestAdmin(unittest.TestCase):
 
         inst = LucteriosInstance("inst_b", self.path_dir)
         inst.add()
-        self.assertEqual(["inst_b", "inst_a"], self.luct_glo.listing())
+        list_res = self.luct_glo.listing()
+        list_res.sort()
+        self.assertEqual(["inst_a", "inst_b"], list_res)
 
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.delete()
