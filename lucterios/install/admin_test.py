@@ -275,6 +275,80 @@ class TestAdminMySQL(BaseTest):
 #         mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
 #         mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
 
+
+class TestAdminPostGreSQL(BaseTest):
+
+    def setUp(self):
+        BaseTest.setUp(self)
+        self.data = {'dbname':'testv2', 'username':'puser', 'passwd':'123456', 'server':'localhost'}
+        for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;", \
+                    "CREATE USER %(username)s;", \
+                    "CREATE DATABASE %(dbname)s OWNER %(username)s;", \
+                    "ALTER USER %(username)s WITH ENCRYPTED PASSWORD '%(passwd)s';"):
+            complete_cmd = 'sudo -u postgres psql -c "%s"' % (cmd % self.data)
+            os.system(complete_cmd)
+
+    def tearDown(self):
+        for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;"):
+            complete_cmd = 'sudo -u postgres psql -c "%s"' % (cmd % self.data)
+            os.system(complete_cmd)
+        BaseTest.tearDown(self)
+
+    def run_psql_cmd(self, cmd):
+        psqlres = join(self.path_dir, 'out.txt')
+        complete_cmd = 'sudo -u postgres psql -d "%s" -c "%s" > %s' % (self.data['dbname'], cmd, psqlres)
+        os.system(complete_cmd)
+        with open(psqlres, 'r') as res_file:
+            for line in res_file.readlines():
+                yield line.strip()
+
+    def test_add_read(self):
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
+        inst.add()
+        self.assertEqual(["inst_psql"], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.read()
+        self.assertEqual("postgresql", inst.database[0])
+        self.assertEqual("localhost", inst.database[1]['host'])
+        self.assertEqual("testv2", inst.database[1]['name'])
+        self.assertEqual("123456", inst.database[1]['password'])
+        self.assertEqual("puser", inst.database[1]['user'])
+        self.assertEqual("lucterios.standard", inst.appli_name)
+        self.assertEqual((), inst.modules)
+
+        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions', \
+                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', \
+                         'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
+        waiting_table.sort()
+        table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
+        table_list = table_list[2:-2]
+        table_list.sort()
+        self.assertEqual(waiting_table, table_list)
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.clear()
+        #table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
+        #table_list = table_list[2:-2]
+        #self.assertEqual([], len(table_list)
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.delete()
+        self.assertEqual([], self.luct_glo.listing())
+
+    def test_migration(self):
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
+        inst.add()
+        self.assertEqual(["inst_psql"], self.luct_glo.listing())
+        mirg = MigrateFromV1("inst_psql", self.path_dir, "")
+        mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
+
 class XMLTestResult(JUXDTestResult):
 
     def stopTestRun(self):
@@ -300,5 +374,6 @@ if __name__ == "__main__":
     loader = TestLoader()  # pylint: disable=invalid-name
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
     suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     XMLTestRunner(verbosity=1).run(suite)

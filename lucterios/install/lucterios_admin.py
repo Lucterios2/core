@@ -272,19 +272,22 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('# Database\n')
             file_py.write('import os\n')
             file_py.write('BASE_DIR = os.path.dirname(__file__)\n')
-            file_py.write('DATABASES = {\n')
-            file_py.write('     "default": {\n')
-            if self.database[0] == 'sqlite':
-                file_py.write('         "ENGINE": "django.db.backends.sqlite3",\n')
-                file_py.write('         "NAME": os.path.join(BASE_DIR, "db.sqlite3"),\n')
-            elif self.database[0] == 'mysql':
-                file_py.write('         "ENGINE": "mysql.connector.django",\n')
-                file_py.write('         "NAME": "%s",\n' % self.database[1]['name'])
-                file_py.write('         "USER": "%s",\n' % self.database[1]['user'])
-                file_py.write('         "PASSWORD": "%s",\n' % self.database[1]['password'])
-                file_py.write('         "HOST": "%s",\n' % self.database[1]['host'])
+            db_info = {}
+            if self.database[0].lower() == 'sqlite':
+                db_info["ENGINE"] = 'django.db.backends.sqlite3'
+                db_info["NAME"] = join(self.instance_dir, 'db.sqlite3')
+            elif self.database[0].lower() == 'mysql':
+                db_info = self.database[1]
+                db_info["ENGINE"] = 'mysql.connector.django'
+            elif self.database[0].lower() == 'postgresql':
+                db_info = self.database[1]
+                db_info["ENGINE"] = 'django.db.backends.postgresql_psycopg2'
             else:
                 raise AdminException("Database not supported!")
+            file_py.write('DATABASES = {\n')
+            file_py.write('     "default": {\n')
+            for db_key, db_data in db_info.items():
+                file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
             file_py.write('     }\n')
             file_py.write('}\n')
             file_py.write('\n')
@@ -305,13 +308,21 @@ class LucteriosInstance(LucteriosManage):
         tables.sort()
         try:
             connection.cursor().execute('SET foreign_key_checks = 0;')
+            option = ''
         except:  # pylint: disable=bare-except
-            pass
+            option = 'CASCADE'
         for table in tables:
-            if only_delete:
-                connection.cursor().execute('DELETE FROM %s;' % table)
-            else:
-                connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
+            try:
+                if only_delete:
+                    connection.cursor().execute('DELETE FROM %s %s;' % (table, option))
+                else:
+                    connection.cursor().execute('DROP TABLE IF EXISTS %s %s;' % (table, option))
+            except:  # pylint: disable=bare-except
+                option = ''
+                if only_delete:
+                    connection.cursor().execute('DELETE FROM %s %s;' % (table, option))
+                else:
+                    connection.cursor().execute('DROP TABLE IF EXISTS %s %s;' % (table, option))
         try:
             connection.cursor().execute('SET foreign_key_checks = 1;')
         except:  # pylint: disable=bare-except
@@ -350,6 +361,18 @@ class LucteriosInstance(LucteriosManage):
             if is_in_framwork_list:
                 del sys.modules[module_item]
 
+
+    def _get_db_info_(self):
+        # pylint: disable=no-self-use
+        import django.conf
+        info = {}
+        key_list = list(django.conf.settings.DATABASES['default'].keys())
+        key_list.sort()
+        for key in key_list:
+            if key != 'ENGINE':
+                info[key.lower()] = django.conf.settings.DATABASES['default'][key]
+        return info
+
     def read(self):
         self._clear_modules_()
         from django.utils import six
@@ -372,13 +395,9 @@ class LucteriosInstance(LucteriosManage):
         if "sqlite3" in self.database:
             self.database = ('sqlite', {})
         if "mysql" in self.database:
-            info = {}
-            key_list = list(django.conf.settings.DATABASES['default'].keys())
-            key_list.sort()
-            for key in key_list:
-                if key != 'ENGINE':
-                    info[key.lower()] = django.conf.settings.DATABASES['default'][key]
-            self.database = ('mysql', info)
+            self.database = ('mysql', self._get_db_info_())
+        if "postgresql" in self.database:
+            self.database = ('postgresql', self._get_db_info_())
         self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
         self.modules = ()
         for appname in django.conf.settings.INSTALLED_APPS:
@@ -510,11 +529,9 @@ def main():
                       default="lucterios.standard",
                       help="Instance application",)
     parser.add_option("-d", "--database",
-                      type='choice',
                       dest="database",
-                      choices=['sqlite', 'MySQL', 'PostGreSQL', ],
                       default='sqlite',
-                      help="Database configuration")
+                      help="Database configuration 'sqlite', 'MySQL:...' or 'PostGreSQL:...'")
     parser.add_option("-m", "--module",
                       dest="module",
                       default="",

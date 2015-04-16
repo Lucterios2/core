@@ -151,8 +151,7 @@
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py2.xml" append="false" />
 		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
 		<replace file="junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
-		<replace file="results.xml" token="__main__." value="lucterios-py2.TestAdmin."/>
-		<move file="results.xml" tofile="junit_admin_py2.xml"/>
+		<delete file="results.xml"/>
 	</target>
 
 	<target name="test_py3" if="python3.present">
