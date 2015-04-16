@@ -110,40 +110,6 @@
 		</exec>	
 	</target>	
 
-	<target name="testadmin">
-		<delete file=".converage"/>
-		<delete file="converage.xml"/>
-	 	<exec executable="coverage3">
-			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="run"/>
-			<arg value="--branch"/>
-			<arg value="--source=lucterios"/>
-			<arg value="lucterios/install/admin_test.py"/>
-	 		<arg value="TestAdmin"/>
-		</exec>
-		<replace file="results.xml" token="__main__." value="lucterios-py3.TestAdmin."/>
-		<move file="results.xml" tofile="junit_admin_py3.xml"/>
-	 	<exec executable="coverage3">
-			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
-			<arg value="run"/>
-			<arg value="--append"/>
-			<arg value="--source=lucterios"/>
-			<arg value="lucterios/install/admin_test.py"/>
-	 		<arg value="TestAdminMySQL"/>
-		</exec>
-		<replace file="results.xml" token="__main__." value="lucterios-py3.TestAdminMySQL."/>
-		<move file="results.xml" tofile="junit_adminmysql_py3.xml"/>
-		<exec executable="coverage3">
-			<arg value="report"/>
-		</exec>	
-		<exec executable="coverage3">
-			<arg value="xml"/>
-		</exec>
-		<move file="coverage.xml" tofile="coverage_admin_py3.xml"/>
-		<replace file="coverage_admin_py3.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />		
-		<replaceregexp file="coverage_admin_py3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
-	</target>	
-
 	<target name="test">
 		<echo message="-- test with ${testversion} --"/>
 		<delete file=".converage"/>
@@ -163,6 +129,14 @@
 			<arg value="dummy"/>
 		</exec>	
 		<exec executable="${testversion}">
+			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>
+			<arg value="run"/>
+			<arg value="--append"/>
+			<arg value="--branch"/>
+			<arg value="--source=lucterios"/>
+			<arg value="lucterios/install/admin_test.py"/>
+		</exec>
+		<exec executable="${testversion}">
 			<arg value="report"/>
 		</exec>	
 		<exec executable="${testversion}">
@@ -177,13 +151,16 @@
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py2.xml" append="false" />
 		<antcall target="test"><param name="testversion" value="coverage2"/></antcall>
 		<replace file="junit_py2.xml" token="lucterios." value="lucterios-py2."/>		
+		<replace file="results.xml" token="__main__." value="lucterios-py2.TestAdmin."/>
+		<move file="results.xml" tofile="junit_admin_py2.xml"/>
 	</target>
 
 	<target name="test_py3" if="python3.present">
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py3.xml" append="false" />
 		<antcall target="test"><param name="testversion" value="coverage3"/></antcall>
 		<replace file="junit_py3.xml" token="lucterios." value="lucterios-py3."/>		
-		<antcall target="testadmin"/>
+		<replace file="results.xml" token="__main__." value="lucterios-py3.TestAdmin."/>
+		<move file="results.xml" tofile="junit_admin_py3.xml"/>
 	</target>
 
 	<target name="tests">

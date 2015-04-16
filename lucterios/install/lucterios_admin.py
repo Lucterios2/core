@@ -15,6 +15,7 @@ from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
 from posix import unlink
+import shutil
 try:
     from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
 except ImportError:
@@ -133,6 +134,11 @@ class LucteriosGlobal(LucteriosManage):
         args.extend(other_args)
         if 'http_proxy' in os.environ.keys():
             args.append('--proxy=' + os.environ['http_proxy'])
+        if 'extra_url' in os.environ.keys():
+            if os.environ['extra_url'].startswith('https:'):
+                args.append('--extra-index-url=' + os.environ['extra_url'])
+            else:
+                args.append('--trusted-host=' + os.environ['extra_url'])
         return args
 
     def check(self):
@@ -194,6 +200,7 @@ class LucteriosGlobal(LucteriosManage):
             luct = LucteriosInstance(instance)
             luct.refresh()
             self.print_info_("Refresh %s" % instance)
+        return instances
 
 class LucteriosInstance(LucteriosManage):
     # pylint: disable=too-many-instance-attributes
@@ -298,7 +305,7 @@ class LucteriosInstance(LucteriosManage):
         tables.sort()
         try:
             connection.cursor().execute('SET foreign_key_checks = 0;')
-        except: # pylint: disable=bare-except
+        except:  # pylint: disable=bare-except
             pass
         for table in tables:
             if only_delete:
@@ -307,7 +314,7 @@ class LucteriosInstance(LucteriosManage):
                 connection.cursor().execute('DROP TABLE IF EXISTS %s;' % table)
         try:
             connection.cursor().execute('SET foreign_key_checks = 1;')
-        except: # pylint: disable=bare-except
+        except:  # pylint: disable=bare-except
             pass
         user_path = get_user_dir()
         if not only_delete and isdir(user_path):
@@ -321,11 +328,32 @@ class LucteriosInstance(LucteriosManage):
             remove(self.instance_conf)
         self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
 
+    def _clear_modules_(self):
+        # pylint: disable=no-self-use
+        framework_classes = ()
+        import django.conf
+        if django.conf.ENVIRONMENT_VARIABLE in os.environ:
+            framework_classes = django.conf.settings.INSTALLED_APPS
+            framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
+            framework_classes += django.conf.settings.TEMPLATE_LOADERS
+            framework_classes += django.conf.settings.TEMPLATE_CONTEXT_PROCESSOR
+        module_list = list(sys.modules.keys())
+        for module_item in module_list:
+            is_in_framwork_list = False
+            if not module_item.startswith('django'):
+                for framework_class in framework_classes:
+                    if module_item.startswith(framework_class):
+                        is_in_framwork_list = True
+                        break
+            else:
+                is_in_framwork_list = True
+            if is_in_framwork_list:
+                del sys.modules[module_item]
+
     def read(self):
+        self._clear_modules_()
         from django.utils import six
         import django.conf
-        import django.apps
-        import django.db
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
@@ -336,26 +364,21 @@ class LucteriosInstance(LucteriosManage):
             del mod_set
             del sys.modules[self.setting_module_name]
         __import__(self.setting_module_name)
-        reload(django)
         reload(django.conf)
-        reload(django.apps)
-        reload(django.db)
         django.setup()
-        django.conf.settings._wrapped = django.conf.Settings(self.setting_module_name)  # pylint: disable=protected-access
         self.secret_key = django.conf.settings.SECRET_KEY
         self.extra = django.conf.settings.EXTRA
         self.database = django.conf.settings.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
-            self.database = 'sqlite'
+            self.database = ('sqlite', {})
         if "mysql" in self.database:
-            self.database = 'mysql:'
+            info = {}
             key_list = list(django.conf.settings.DATABASES['default'].keys())
             key_list.sort()
             for key in key_list:
                 if key != 'ENGINE':
-                    val = django.conf.settings.DATABASES['default'][key]
-                    self.database += "%s=%s," % (key.lower(), val)
-            self.database = self.database[:-1]
+                    info[key.lower()] = django.conf.settings.DATABASES['default'][key]
+            self.database = ('mysql', info)
         self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
         self.modules = ()
         for appname in django.conf.settings.INSTALLED_APPS:
@@ -444,7 +467,7 @@ class LucteriosInstance(LucteriosManage):
         if self.filename == '':
             raise AdminException("Archive file not precise!")
         self.read()
-        from lucterios.framework.filetools import get_tmp_dir
+        from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
         tmp_path = join(get_tmp_dir(), 'tmp_resore')
         if isdir(tmp_path):
@@ -459,6 +482,8 @@ class LucteriosInstance(LucteriosManage):
             self.clear(True)
             from django.core.management import call_command
             call_command('loaddata', output_filename)
+            if isdir(join(tmp_path, 'usr')):
+                shutil.move(join(tmp_path, 'usr'), get_user_dir())
             success = True
         if isdir(tmp_path):
             rmtree(tmp_path)

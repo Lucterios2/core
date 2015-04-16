@@ -11,112 +11,153 @@ from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from unittest.runner import TextTestRunner
 from juxd import JUXDTestResult
-from os.path import join
-import os, sys
-from importlib import reload, import_module # pylint: disable=redefined-builtin,no-name-in-module
-
-class Reloader(object):
-
-    def __init__(self, name):
-        self.before_list = list(sys.modules.keys())
-        self.module = import_module(name)
-        self.after_list = list(sys.modules.keys())
-
-    def reload(self):
-        mod_list = list(set(self.after_list) - set(self.before_list))
-        for mod_name in mod_list:
-            reload(sys.modules[mod_name])
+from os.path import join, dirname, isfile, isdir
+import os
+from lucterios.install.lucterios_migration import MigrateFromV1
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
 
 class BaseTest(unittest.TestCase):
 
-    reloader = Reloader('lucterios.install.lucterios_admin')
-
     def setUp(self):
-        self.reloader.reload()
-        self.path_dir = "test"
+        self.path_dir = join(dirname(dirname(dirname(__file__))), "test")
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
-        self.luct_glo = self.reloader.module.LucteriosGlobal(self.path_dir)
+        self.luct_glo = LucteriosGlobal(self.path_dir)
 
     def tearDown(self):
         rmtree(self.path_dir, True)
 
-class TestAdmin(BaseTest):
+class TestGlobal(BaseTest):
+
+    def setUp(self):
+        BaseTest.setUp(self)
+        os.environ['extra_url'] = "http://v2.lucterios.org/simple"
+
+    def test_installed(self):
+        val = self.luct_glo.installed()
+        self.assertEqual('lucterios', val[0][0])
+        self.assertEqual('2.0', val[0][1][:3])
+        self.assertEqual(([], []), val[1:])
+
+    def test_check(self):
+        val = self.luct_glo.check()
+        list_key = list(val[0].keys())
+        list_key.sort()
+        self.assertEqual(['lucterios', 'lucterios-standard'], list_key)
+        self.assertEqual(None, val[0]['lucterios'][1])
+        self.assertEqual(False, val[0]['lucterios'][2])
+        self.assertEqual(None, val[0]['lucterios-standard'][1])
+        self.assertEqual(False, val[0]['lucterios-standard'][2])
+        self.assertEqual(False, val[1])
+
+    def test_refresh_all(self):
+        self.assertEqual([], self.luct_glo.refresh_all())
+
+class TestAdminSQLite(BaseTest):
+
+    def run_sqlite_cmd(self, instancename, cmd):
+        dbpath = join(self.path_dir, instancename, "db.sqlite3")
+        sqliteres = join(self.path_dir, 'out.txt')
+        complete_cmd = 'sqlite3 %s "%s" > %s' % (dbpath, cmd, sqliteres)
+        os.system(complete_cmd)
+        with open(sqliteres, 'r') as res_file:
+            for line in res_file.readlines():
+                yield line.strip()
 
     def test_add_read(self):
         self.assertEqual([], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_a", self.path_dir)
+        inst = LucteriosInstance("inst_a", self.path_dir)
         inst.add()
         self.assertEqual(["inst_a"], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_a", self.path_dir)
+        inst = LucteriosInstance("inst_a", self.path_dir)
         inst.read()
-        self.assertEqual("sqlite", inst.database)
+        self.assertEqual(("sqlite", {}), inst.database)
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
+
+        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions', \
+                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', \
+                         'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
+        waiting_table.sort()
+        table_list = list(self.run_sqlite_cmd("inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
+        if "sqlite_sequence" in table_list:
+            table_list.remove("sqlite_sequence")
+        table_list.sort()
+        self.assertEqual(waiting_table, table_list)
+
+        inst = LucteriosInstance("inst_a", self.path_dir)
+        inst.clear()
+
+        table_list = list(self.run_sqlite_cmd("inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
+        if "sqlite_sequence" in table_list:
+            table_list.remove("sqlite_sequence")
+        table_list.sort()
+        self.assertEqual([], table_list)
 
         self.assertEqual(["inst_a"], self.luct_glo.listing())
 
     def test_add_modif(self):
         self.assertEqual([], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_b", self.path_dir)
+        inst = LucteriosInstance("inst_b", self.path_dir)
         inst.add()
         self.assertEqual(["inst_b"], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_b", self.path_dir)
+        inst = LucteriosInstance("inst_b", self.path_dir)
         inst.set_database("sqlite")
         inst.appli_name = "lucterios.standard"
         inst.modules = ('lucterios.dummy',)
         inst.modif()
 
-        inst = self.reloader.module.LucteriosInstance("inst_b", self.path_dir)
+        inst = LucteriosInstance("inst_b", self.path_dir)
         inst.read()
-        self.assertEqual("sqlite", inst.database)
+        self.assertEqual(("sqlite", {}), inst.database)
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual(('lucterios.dummy',), inst.modules)
 
-        inst = self.reloader.module.LucteriosInstance("inst_b", self.path_dir)
+        inst = LucteriosInstance("inst_b", self.path_dir)
         inst.refresh()
 
     def test_add_del(self):
         self.assertEqual([], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_c", self.path_dir)
+        inst = LucteriosInstance("inst_c", self.path_dir)
         inst.add()
         self.assertEqual(["inst_c"], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_d", self.path_dir)
+        inst = LucteriosInstance("inst_d", self.path_dir)
         inst.add()
         list_res = self.luct_glo.listing()
         list_res.sort()
         self.assertEqual(["inst_c", "inst_d"], list_res)
 
-        inst = self.reloader.module.LucteriosInstance("inst_c", self.path_dir)
+        inst = LucteriosInstance("inst_c", self.path_dir)
         inst.delete()
         self.assertEqual(["inst_d"], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_d", self.path_dir)
+        inst = LucteriosInstance("inst_d", self.path_dir)
         inst.delete()
         self.assertEqual([], self.luct_glo.listing())
 
     def test_extra(self):
         self.assertEqual([], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_e", self.path_dir)
+        inst = LucteriosInstance("inst_e", self.path_dir)
         inst.set_extra("DEBUG=True,ALLOWED_HOSTS=[localhost]")
         inst.add()
         self.assertEqual(["inst_e"], self.luct_glo.listing())
 
         # print(open(self.path_dir + '/inst_a/settings.py', 'r').readlines())
 
-        inst = self.reloader.module.LucteriosInstance("inst_e", self.path_dir)
+        inst = LucteriosInstance("inst_e", self.path_dir)
         inst.read()
         self.assertEqual({'DEBUG':True, 'ALLOWED_HOSTS':['localhost']}, inst.extra)
 
     def test_archive(self):
-        inst = self.reloader.module.LucteriosInstance("inst_e", self.path_dir)
+        self.assertEqual([], self.luct_glo.listing())
+        inst = LucteriosInstance("inst_e", self.path_dir)
         inst.add()
         path_usr = join(self.path_dir, 'inst_e', 'usr', 'foo')
         makedirs(path_usr)
@@ -134,10 +175,22 @@ class TestAdmin(BaseTest):
         list_file.sort()
         self.assertEqual(['dump.json', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
 
-#         inst = LucteriosInstance("inst_b", self.path_dir)
-#         inst.add()
-#         inst.filename = join(self.path_dir,"inst_a.arc")
-#         self.assertEqual(True, inst.restore())
+        inst = LucteriosInstance("inst_f", self.path_dir)
+        inst.add()
+        inst.filename = join(self.path_dir, "inst_e.arc")
+        self.assertEqual(True, inst.restore())
+        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f', 'usr')))
+        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f', 'usr', 'foo')))
+        self.assertEqual(True, isfile(join(self.path_dir, 'inst_f', 'usr', 'foo', 'myfile')))
+
+    def test_migration(self):
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_h", self.path_dir)
+        inst.add()
+        self.assertEqual(["inst_h"], self.luct_glo.listing())
+        mirg = MigrateFromV1("inst_h", self.path_dir, "")
+        mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
 
 class TestAdminMySQL(BaseTest):
 
@@ -165,14 +218,18 @@ class TestAdminMySQL(BaseTest):
     def test_add_read(self):
         self.assertEqual([], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_mysql", self.path_dir)
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
         inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
 
-        inst = self.reloader.module.LucteriosInstance("inst_mysql", self.path_dir)
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
         inst.read()
-        self.assertEqual("mysql:host=localhost,name=testv2,password=123456,user=myuser", inst.database)
+        self.assertEqual("mysql", inst.database[0])
+        self.assertEqual("localhost", inst.database[1]['host'])
+        self.assertEqual("testv2", inst.database[1]['name'])
+        self.assertEqual("123456", inst.database[1]['password'])
+        self.assertEqual("myuser", inst.database[1]['user'])
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
@@ -182,19 +239,41 @@ class TestAdminMySQL(BaseTest):
         waiting_table.sort()
         table_list = list(self.run_mysql_cmd("use testv2;show tables;"))
         if "Tables_in_testv2" in table_list:
-
             table_list.remove("Tables_in_testv2")
         table_list.sort()
         self.assertEqual(waiting_table, table_list)
 
-        inst = self.reloader.module.LucteriosInstance("inst_mysql", self.path_dir)
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
         inst.clear()
         table_list = list(self.run_mysql_cmd("use testv2;show tables;"))
         self.assertEqual([], table_list)
 
-        inst = self.reloader.module.LucteriosInstance("inst_mysql", self.path_dir)
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
         inst.delete()
         self.assertEqual([], self.luct_glo.listing())
+
+    def test_archive(self):
+        self.assertEqual([], self.luct_glo.listing())
+        inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.add()
+        inst.filename = join(self.path_dir, "inst_g.arc")
+        self.assertEqual(True, inst.archive())
+
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
+        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.add()
+        inst.filename = join(self.path_dir, "inst_g.arc")
+        self.assertEqual(True, inst.restore())
+#
+#     def test_migration(self):
+#         self.assertEqual([], self.luct_glo.listing())
+#
+#         inst = LucteriosInstance("inst_mysql", self.path_dir)
+#         inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+#         inst.add()
+#         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
+#         mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
+#         mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
 
 class XMLTestResult(JUXDTestResult):
 
@@ -219,8 +298,7 @@ class XMLTestRunner(TextTestRunner):
 if __name__ == "__main__":
     suite = TestSuite()  # pylint: disable=invalid-name
     loader = TestLoader()  # pylint: disable=invalid-name
-    if sys.argv[1] == "TestAdmin":
-        suite.addTest(loader.loadTestsFromTestCase(TestAdmin))
-    if sys.argv[1] == "TestAdminMySQL":
-        suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
+    suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     XMLTestRunner(verbosity=1).run(suite)
