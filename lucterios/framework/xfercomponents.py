@@ -238,8 +238,8 @@ class XferCompMemo(XferCompButton):
         self.hmin = 200
         self.vmin = 50
 
-    def add_sub_menu(self, menutype, name, value):
-        self.sub_menu.append((menutype, name, value))
+    def add_sub_menu(self, name, value):
+        self.sub_menu.append((name, value))
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
@@ -249,9 +249,8 @@ class XferCompMemo(XferCompButton):
         compxml = XferCompButton.get_reponse_xml(self)
         for sub_menu in self.sub_menu:
             xml_menu = etree.SubElement(compxml, "SUBMENU")
-            etree.SubElement(xml_menu, "TYPE").text = six.text_type(sub_menu[0])
-            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[1])
-            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[2])
+            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
+            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
         return compxml
 
 class XferCompMemoForm(XferCompButton):

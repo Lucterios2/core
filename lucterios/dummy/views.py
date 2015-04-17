@@ -93,6 +93,9 @@ class TestComposants(XferContainerCustom):
         cmm = XferCompMemo('mm1')
         cmm.set_value(mm1)
         cmm.set_action(self.request, act_modif[0], act_modif[1])
+        cmm.add_sub_menu('Première valeur', 'VALUE_1')
+        cmm.add_sub_menu('Deuxième valeur', 'VALUE_2')
+        cmm.add_sub_menu('Troisième valeur', 'VALUE_3')
         cmm.set_location(1, 3)
         self.add_component(cmm)
 
