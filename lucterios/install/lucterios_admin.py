@@ -135,10 +135,18 @@ class LucteriosGlobal(LucteriosManage):
         if 'http_proxy' in os.environ.keys():
             args.append('--proxy=' + os.environ['http_proxy'])
         if 'extra_url' in os.environ.keys():
-            if os.environ['extra_url'].startswith('https:'):
-                args.append('--extra-index-url=' + os.environ['extra_url'])
-            else:
-                args.append('--trusted-host=' + os.environ['extra_url'])
+            extra_urls = os.environ['extra_url']
+            args.append('--extra-index-url=' + extra_urls)
+            trusted_host = []
+            for extra_url in extra_urls.split(','):
+                if extra_url.startswith('http://'):
+                    import re
+                    url_parse = re.compile(r'^(([^:/?#]+):)?//(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?')
+                    url_sep = url_parse.search(os.environ['extra_url'])
+                    if url_sep:
+                        trusted_host.append(url_sep.groups()[2])
+            if len(trusted_host) > 0:
+                args.append('--trusted-host=' + ",".join(trusted_host))
         return args
 
     def check(self):
@@ -149,21 +157,25 @@ class LucteriosGlobal(LucteriosManage):
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
             if (dist.key == 'lucterios') or ('lucterios' in requires):
-                check_list[dist.project_name] = (dist.parsed_version, None, False)
+                check_list[dist.project_name] = (dist.version, None, False)
         list_command = list_.ListCommand()
         options, _ = list_command.parse_args(self.get_default_args_([]))
         try:
-            packages = [(pack[0], pack[2]) for pack in list_command.find_packages_latest_versions(options)]  # pylint: disable=no-member
+            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latest_versions(options)]  # pylint: disable=no-member
         except AttributeError:
             packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latests_versions(options)]  # pylint: disable=no-member
         for dist, remote_version_parsed in packages:
             if dist.project_name in check_list.keys():
-                check_list[dist.project_name] = (dist.parsed_version, remote_version_parsed, remote_version_parsed > dist.parsed_version)
+                check_list[dist.project_name] = (dist.version, remote_version_parsed.public, remote_version_parsed > dist.parsed_version)
         must_upgrade = False
         self.print_info_("check list:")
         for project_name, versions in check_list.items():
             must_upgrade = must_upgrade or versions[2]
-            self.print_info_("%25s\t%s" % (project_name, versions))
+            if versions[2]:
+                text_version = 'to upgrade'
+            else:
+                text_version = ''
+            self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (project_name, versions[0], versions[1], text_version))
         if must_upgrade:
             self.print_info_("\t\t=> Must upgrade")
         else:
