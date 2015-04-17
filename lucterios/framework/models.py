@@ -56,6 +56,8 @@ class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile("#[a-z_0-9]+")
 
+    default_fields = []
+
     @classmethod
     def get_long_name(cls):
         instance = cls()
@@ -108,6 +110,32 @@ class LucteriosModel(models.Model):
             else:
                 res.append(fieldname)
         return res
+
+    @classmethod
+    def get_print_fields(cls):
+        from django.db.models.fields.related import ForeignKey        
+        fields = []
+        item = cls()
+        if hasattr(cls, "print_fields"):
+            dataname = "print_fields"
+        else:            
+            dataname = "default_fields"
+        for field_name in getattr(cls, dataname):
+            if field_name[-4:] == '_set':
+                child = getattr(item, field_name)
+                print(child.__module__)
+                field_title = child.model._meta.verbose_name
+                for sub_title, sub_name in child.model.get_print_fields():
+                    fields.append(("%s > %s" % (field_title, sub_title), "%s__%s" % (field_name, sub_name)))
+            else:
+                dep_field = item._meta.get_field_by_name(field_name)
+                field_title = dep_field[0].verbose_name
+                if dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey): 
+                    fields.append((field_title, field_name))
+                else:
+                    for sub_title, sub_name in dep_field[0].rel.to.get_print_fields():
+                        fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
+        return fields
 
     @classmethod
     def get_fieldnames_for_search(cls):

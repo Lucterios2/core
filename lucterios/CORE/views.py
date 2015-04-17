@@ -212,6 +212,10 @@ class PrintModelEdit(XferContainerCustom):
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
+    
+    def fill_menu_memo(self, memo_comp):
+        for name, value in self.item.model_associated().get_print_fields():
+            memo_comp.add_sub_menu(name, value)
 
     def fillresponse(self):
         img_title = XferCompImage('img')
@@ -277,6 +281,7 @@ class PrintModelEdit(XferContainerCustom):
             edt = XferCompMemo('col_text_%d' % col_index)
             edt.set_location(3, 6 + col_index)
             edt.set_value(col_text)
+            self.fill_menu_memo(edt)
             self.add_component(edt)
             col_index += 1
 
@@ -284,6 +289,7 @@ class PrintModelEdit(XferContainerCustom):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
         edit.set_location(1, 3, 2)
+        self.fill_menu_memo(edit)
         self.add_component(edit)
 
     def _fill_report_editor(self):

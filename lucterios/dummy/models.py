@@ -27,3 +27,4 @@ class Example(LucteriosModel):
     example__editfields = ['name', ('value', 'price'), ('date', 'time'), 'valid', 'comment']
     example__searchfields = ['name', 'value', 'price', 'date', 'time', 'valid', 'comment']
     default_fields = ["name", 'value', 'price']
+    print_fields = ['name', 'value', 'price', 'date', 'time', 'valid', 'comment']

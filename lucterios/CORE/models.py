@@ -37,6 +37,7 @@ class LucteriosUser(User, LucteriosModel):
     lucteriosuser__showfields = ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
 
     default_fields = ['username', 'first_name', 'last_name', 'last_login']
+    print_fields = ['username']
 
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
