@@ -202,11 +202,11 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
         actionxml.attrib['action'] = item.action
     if desc != "":
         etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-    if isinstance(item.modal, int):
-        actionxml.attrib['modal'] = six.text_type(item.modal)
     actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
     actionxml.attrib['close'] = six.text_type(CLOSE_YES)
     actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+    if isinstance(item.modal, int):
+        actionxml.attrib['modal'] = six.text_type(item.modal)
     if 'params' in option:
         fill_param_xml(actionxml, option['params'])
         del option['params']

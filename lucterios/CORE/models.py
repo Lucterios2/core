@@ -182,7 +182,7 @@ class PrintModel(LucteriosModel):
         return apps.get_model(self.modelname)
 
     def model_associated_title(self):
-        self.model_associated()._meta.verbose_name.title() # pylint: disable=protected-access
+        return self.model_associated()._meta.verbose_name.title() # pylint: disable=protected-access
 
     @property
     def page_width(self):

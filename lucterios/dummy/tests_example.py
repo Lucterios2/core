@@ -118,8 +118,8 @@ class ExampleTest(LucteriosTest):
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def testlisting(self):
-        for item_idx in range(0,25):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12+item_idx, price=34.18*item_idx+78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+        for item_idx in range(0, 25):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15, date='1997-10-07', time='21:43', valid=True, comment="") # pylint: disable=no-member
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'4', 'MODEL':1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
@@ -130,8 +130,8 @@ class ExampleTest(LucteriosTest):
         self.assertEqual(content_csv[3].strip(), '"Name";"value + price";"date + time";')
 
     def testlisting_pdf(self):
-        for item_idx in range(0,150):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12+item_idx, price=34.18*item_idx+78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+        for item_idx in range(0, 150):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15, date='1997-10-07', time='21:43', valid=True, comment="") # pylint: disable=no-member
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'3', 'MODEL':1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')

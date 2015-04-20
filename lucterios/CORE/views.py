@@ -9,7 +9,7 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
 from lucterios.framework.xferbasic import XferContainerMenu
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
@@ -44,7 +44,7 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@MenuManage.describ(None, FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
+@MenuManage.describ(None, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"
@@ -103,7 +103,7 @@ def config_core(xfer):
     Params.fill(xfer, ['CORE-connectmode'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
 
-@MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
@@ -190,7 +190,7 @@ class PrintModelList(XferContainerCustom):
         model_sel.set_location(2, 1, 2)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_changed("", ""), {'modal':FORMTYPE_REFRESH})
+        model_sel.set_action(self.request, self.get_changed("", ""), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
         self.add_component(model_sel)
 
         items = PrintModel.objects.filter(modelname=modelname)  # pylint: disable=no-member
@@ -212,7 +212,7 @@ class PrintModelEdit(XferContainerCustom):
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
-    
+
     def fill_menu_memo(self, memo_comp):
         for name, value in self.item.model_associated().get_print_fields():
             memo_comp.add_sub_menu(name, value)
