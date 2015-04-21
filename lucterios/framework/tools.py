@@ -28,7 +28,7 @@ class StubAction(object):
     def __init__(self, caption, icon, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon = icon
-        self.modal = FORMTYPE_NOMODAL
+        self.modal = FORMTYPE_MODAL
         self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
@@ -110,7 +110,7 @@ class MenuManage(object):
             cls._menulock.release()
 
     @classmethod
-    def describ(cls, right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
+    def describ(cls, right, modal=FORMTYPE_MODAL, menu_parent=None, menu_desc=None):
         def wrapper(item):
             cls._menulock.acquire()
             try:
