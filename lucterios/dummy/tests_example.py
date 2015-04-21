@@ -19,7 +19,7 @@ class ExampleTest(LucteriosTest):
     def setUp(self):
         # pylint: disable=no-member
         LucteriosTest.setUp(self)
-        Example.objects.create(name='abc', value=12, price=1224.06, date='1997-10-07', time='21:43', valid=True, comment="")
+        Example.objects.create(name='abc', value=12, price=1224.06, date='1997-10-07', time='21:43', valid=True, comment="blablabla")
         Example.objects.create(name='zzzz', value=7, price=714.03, date='2008-03-21', time='15:21', valid=False, comment="")
         Example.objects.create(name='uvw', value=9, price=918.05, date='2014-05-11', time='04:57', valid=True, comment="")
         Example.objects.create(name='blabla', value=17, price=1734.08, date='2001-07-17', time='23:14', valid=False, comment="")
@@ -86,6 +86,14 @@ class ExampleTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
         self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=5]/VALUE[@name="name"]', 'boom')
+
+    def test_fieldsprint(self):
+        print_text = ""
+        for print_fields in Example.get_print_fields():
+            print_text += "#%s " % print_fields[1]
+        self.assertEqual("#name #value #price #date #time #valid #comment ", print_text)
+        example_obj = Example.objects.get(name='abc') # pylint: disable=no-member
+        self.assertEqual("abc 12 1224.06 7 octobre 1997 21:43:00 Oui blablabla ", example_obj.evaluate(print_text))
 
     def testprint(self):
         self.factory.xfer = ExamplePrint()

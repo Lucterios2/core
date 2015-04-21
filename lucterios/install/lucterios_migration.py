@@ -183,7 +183,8 @@ class MigrateFromV1(LucteriosInstance):
 
     def restore_usergroup(self):
         # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-        from django.contrib.auth.models import User, Group, Permission
+        from django.contrib.auth.models import Permission, Group
+        from lucterios.CORE.models import LucteriosUser, LucteriosGroup
         from django.db.utils import IntegrityError
         try:
             permissions = Permission.objects.all()  # pylint: disable=no-member
@@ -202,7 +203,7 @@ class MigrateFromV1(LucteriosInstance):
                         permission_relation.append((permission.id, rigth_id[0]))
                     else:
                         self.print_log("=> not found %s", (sql_text,))
-            Group.objects.all().delete()  # pylint: disable=no-member
+            LucteriosGroup.objects.all().delete()  # pylint: disable=no-member
             group_list = {}
             cur = self.open_olddb()
             cur.execute("SELECT id, groupName FROM CORE_groups")
@@ -214,21 +215,20 @@ class MigrateFromV1(LucteriosInstance):
                     rightvalue, = rigthcur.fetchone()
                     if rightvalue == 'o':
                         premission_ref.append(perm_id)
-                new_grp = Group.objects.create(name=group_name)  # pylint: disable=no-member
+                new_grp = LucteriosGroup.objects.create(name=group_name)  # pylint: disable=no-member
                 new_grp.permissions = Permission.objects.filter(id__in=premission_ref)  # pylint: disable=no-member
                 self.print_log("=> Group %s (%s)", (group_name, premission_ref))
                 group_list[groupid] = new_grp
 
-            User.objects.all().delete()  # pylint: disable=no-member
+            LucteriosUser.objects.all().delete()  # pylint: disable=no-member
             user_list = {}
             cur = self.open_olddb()
-
             cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
             for userid, login, password, real_name, group_id, actif in cur.fetchall():
                 if login != '':
                     self.print_log("=> User %s [%s]", (login, real_name))
                     try:
-                        new_user = User.objects.create_user(username=login)  # pylint: disable=no-member
+                        new_user = LucteriosUser.objects.create_user(username=login)  # pylint: disable=no-member
                         if (login == "admin") and (password[0] == '*'):
                             new_user.set_password('admin')
                         else:
