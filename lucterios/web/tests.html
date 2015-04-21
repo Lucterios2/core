@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Tests du Client Lucterios AJAX</title>
+<link rel="stylesheet" href="test/qunit-1.12.0.css">
+<link rel="stylesheet" href="lib/jquery-ui-1.10.3.custom.css" />
+<link rel="stylesheet" href="lib/jquery-te-1.4.0.css" />
+<link rel="stylesheet" href="css/jsclient.css" />
+</head>
+<body>
+<div id="qunit"></div>
+<div id="qunit-fixture"></div>
+<script src="test/qunit-1.12.0.js"></script>
+
+<script src="lib/head.min.js"></script>
+<script src="conf/conf.js"></script>
+<script src="js/import.js"></script>
+
+<div id="lucteriosClient"></div>
+<script>
+    head.js(
+		"test/mock.js",
+		"test/tranportRest.js",
+		"test/observer_factoryRest.js",
+		"test/action.js",
+		"test/observer.js",
+		"test/observer.custom.js",
+		"test/observer.menu.js"
+    )
+</script>
+
+</body>
+</html>

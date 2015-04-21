@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-17 09:14+0000\n"
+"POT-Creation-Date: 2015-04-21 15:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -37,15 +37,15 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: models.py:144
+#: models.py:202
 msgid "username"
 msgstr "username"
 
-#: models.py:159
+#: models.py:217
 msgid "session"
 msgstr "session"
 
-#: models.py:160
+#: models.py:218
 msgid "sessions"
 msgstr "sessions"
 
@@ -110,7 +110,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:110 xfercomponents.py:544
+#: xferadvance.py:110 xfercomponents.py:543
 msgid "Modify"
 msgstr "Modify"
 
@@ -148,15 +148,15 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:544
+#: xfercomponents.py:543
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:545
+#: xfercomponents.py:544
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:545
+#: xfercomponents.py:544
 msgid "Add"
 msgstr "Add"
 

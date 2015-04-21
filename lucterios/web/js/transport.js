@@ -1,0 +1,152 @@
+/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,AUTH_PARAM_NAME*/
+
+var ENCODE = "utf-8";
+var MANAGER_FILE = "coreIndex.php";
+var AUTH_PARAM = "<PARAM name='ses' type='str'>";
+var MANAGER_FILE = "coreIndex.php";
+var POST_VARIABLE = "XMLinput";
+var NOENCODE = "nourlencode";
+
+var HttpTransportAbstract = Class.extend({
+    mLastLogin: '',
+
+    init: function() {
+        return undefined;
+    },
+
+    setLastLogin: function(aLastLogin) {
+        this.mLastLogin = aLastLogin;
+    },
+
+    getLastLogin: function() {
+        return this.mLastLogin;
+    },
+
+    getServerUrl: function() {
+        return get_serverurl();
+    },
+
+    getSession: function() {
+		var session=this.getSessionEx();
+		this.setSession(session);
+        return session;
+    },
+
+    getSessionEx: function() {
+		var session=$.cookie("lucterios_session");
+		if (session === undefined) {
+			session = "";
+		}
+        return session;
+	},
+    
+    setSession: function(session) {
+		if (session === '') {
+			$.removeCookie("lucterios_session");
+			$.cookie('sessionid', '', { path: '/' });
+			$.cookie('sessionid', '', { path: '/web/' });
+		}
+		else {
+			$.cookie("lucterios_session", session, { expires : 0.025 });
+		}
+    },
+
+    transfertFileFromServerString: function(aWebFile, aParams) {
+        unusedVariables(aWebFile, aParams);
+        return "";
+    },
+
+    getIconUrl: function(icon) {
+        return get_serverurl() + icon;
+    },
+
+    transfertXMLFromServer: function(aParams) {
+    	var AUTH_REQUETE = "<REQUETE extension='"+AUTH_PARAM_NAME[4]+"' action='authentification'>",
+        	xml_param = "<?xml version='1.0' encoding='" + ENCODE + "'?>",
+            post_xml,
+            data,
+            reponse;
+        xml_param = xml_param + "<REQUETES>\n";
+        post_xml = '';
+        if (aParams.hasOwnProperty(POST_VARIABLE)) {
+            post_xml = aParams.get(POST_VARIABLE);
+        }
+        if ((this.getSessionEx() !== "") && (post_xml.indexOf(AUTH_REQUETE) === -1)) {
+            xml_param = xml_param + AUTH_REQUETE;
+            xml_param = xml_param + AUTH_PARAM + this.getSessionEx() + "</PARAM>";
+            xml_param = xml_param + "</REQUETE>";
+        }
+        xml_param = xml_param + post_xml + "</REQUETES>";
+        post_log("Ask " + xml_param);
+        aParams.put(POST_VARIABLE, xml_param);
+        aParams.put(NOENCODE, "1");
+        data = this.transfertFileFromServerString(MANAGER_FILE, aParams);
+        reponse = "<?xml version='1.0' encoding='ISO-8859-1'?>" + data.replace(/\n/g, "");
+        return reponse;
+    },
+
+    close: function() {
+        return this.setSession("");
+    },
+
+    getFileContent: function(aUrl) {
+        unusedVariables(aUrl);
+    }
+
+});
+
+var HttpTransportImpl = HttpTransportAbstract.extend({
+
+    transfertFileFromServerString: function(aWebFile, aParams) {
+        var reponsetext = "",
+            formdata = new FormData();
+        if (aParams !== null) {
+            aParams.keys().forEach(function(key) {
+                formdata.append(key, aParams.get(key));
+            });
+        }
+
+		$.ajax({
+            url: this.getServerUrl() + aWebFile,
+            type: "POST",
+            data: formdata,
+            dataType: "text",
+            processData: false,
+            contentType: false,
+            async: false,
+            success: function(data) {
+                reponsetext = data;
+            },
+            error: function(xhr, textStatus, errorThrown) {
+            	post_log('HTTP ERROR:'+xhr.statusText+"/"+textStatus+"/"+errorThrown);
+            	reponsetext = "Http error:"+errorThrown;
+            }
+        });
+        return reponsetext;
+    },
+
+    close: function() {
+        if (this.getSessionEx() !== '') {
+            var act = Singleton().CreateAction();
+            if (act !== null) {
+                act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'exitConnection');
+                act.actionPerformed();
+            }
+        }
+        return this._super();
+    },
+
+    getFileContent: function(aUrl, callback) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', this.getServerUrl() + aUrl, true);
+        xhr.responseType = 'blob';
+        xhr.onload = function(e) {
+            unusedVariables(e);
+            if (this.status === 200) {
+                callback(this.response);
+            }
+        };
+        xhr.send();
+    }
+
+});

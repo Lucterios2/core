@@ -1,19 +1,23 @@
 <project name="Lucterios2" default="all" basedir=".">
 	<property name="test.instance" value="test"/>
-	<property name="web.version" value="0.9.7"/>
+	<property name="web.version" value="0.9.8"/>
 	<property environment="env"/>
 	<property name="standard.path" value="${basedir}/../lct-standard"/>
 	
 	<available file="/usr/local/bin/coverage2" property="python2.present"/>
 	<available file="/usr/local/bin/coverage3" property="python3.present"/>
-	
+
+	<taskdef name="jslint"
+       classname="com.googlecode.jslint4java.ant.JSLintTask"
+       classpath="lucterios/web/jslint/jslint4java-2.0.5.jar" />	
+
 	<target name="all">
 		<antcall target="clear" />
 		<antcall target="init" />
 		<antcall target="pylint" />
 		<antcall target="add_instance"/>
 		<antcall target="i18n" />
-		<ant dir="lucterios/web" target="django" />		
+		<antcall target="web" />
 		<antcall target="package" />
 		<antcall target="tests" />
 		<antcall target="del_instance"/>
@@ -165,6 +169,16 @@
 	<target name="tests">
 		<antcall target="test_py2"/>
 		<antcall target="test_py3"/>
+	</target>
+
+	<target name="web" depends="init">
+		<copy file="lucterios/web/deployed/conf_template.js" tofile="lucterios/web/conf/conf.js"/>
+		<replace file="lucterios/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${projet.version.build}';"/>
+		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
+			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
+			<formatter type="xml" destfile="jslint_results.xml"/> 
+			<fileset dir="lucterios/web/" includes="js/*.js"/>
+		</jslint>
 	</target>
 
 	<target name="package">
