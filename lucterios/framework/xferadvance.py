@@ -110,7 +110,6 @@ class XferShowEditor(XferContainerCustom):
         action_list = [('modify', _("Modify"), "images/edit.png"), ('print', _("Print"), "images/print.png")]
         for act_type, title, icon in action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
-
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 
     def get(self, request, *args, **kwargs):

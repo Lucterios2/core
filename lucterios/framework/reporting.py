@@ -22,7 +22,10 @@ from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
 
 def get_size(xmltext, name):
-    return float(xmltext.get(name)) * mm
+    try:
+        return float(xmltext.get(name)) * mm
+    except TypeError:
+        return 0
 
 def extract_text(xmltext):
     def add_sub_text(xmltext, sub_text):
@@ -78,8 +81,13 @@ class LucteriosPDF(object):
         self.y_offset = 0
         self.position_y = 0
         self.current_page = None
-        filenamepath = join(dirname(__file__), 'fonts', 'FreeSans.ttf')
-        pdfmetrics.registerFont(TTFont('sans-serif', filenamepath))
+        font_dir_path = join(dirname(__file__), 'fonts')
+        pdfmetrics.registerFont(TTFont('sans-serif', join(font_dir_path, 'FreeSans.ttf')))
+        pdfmetrics.registerFont(TTFont('sans-serif-bold', join(font_dir_path, 'FreeSansBold.ttf')))
+        pdfmetrics.registerFont(TTFont('sans-serif-italic', join(font_dir_path, 'FreeSansOblique.ttf')))
+        pdfmetrics.registerFont(TTFont('sans-serif-bolditalic', join(font_dir_path, 'FreeSansBoldOblique.ttf')))
+        pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold", \
+                                      italic="sans-serif-italic", boldItalic="sans-serif-bolditalic")
 
     def _init(self):
         self.pages = self.xml.xpath('page')
