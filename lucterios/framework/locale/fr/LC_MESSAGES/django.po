@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-04-21 15:51+0000\n"
+"POT-Creation-Date: 2015-04-22 14:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -98,7 +98,7 @@ msgstr "Liste"
 msgid "Label"
 msgstr "Etiquette"
 
-#: xferadvance.py:62 xferadvance.py:114 xfergraphic.py:96 xferprinting.py:89
+#: xferadvance.py:62 xferadvance.py:113 xfergraphic.py:96 xferprinting.py:89
 #: xfersearch.py:505
 msgid "Close"
 msgstr "Fermer"
@@ -119,25 +119,25 @@ msgstr "Modifier"
 msgid "Print"
 msgstr "Impression"
 
-#: xferadvance.py:126
+#: xferadvance.py:125
 msgid "No model"
 msgstr "Pas de model"
 
-#: xferadvance.py:136
+#: xferadvance.py:135
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:148
+#: xferadvance.py:147
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:149
+#: xferadvance.py:148
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:165
+#: xferadvance.py:164
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 

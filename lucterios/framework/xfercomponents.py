@@ -326,10 +326,10 @@ class XferCompSelect(XferCompButton):
 
     def get_reponse_xml(self):
         if isinstance(self.select_list, dict):
-            list_of_select = self.select_list.items()
+            list_of_select = list(self.select_list.items())
         else:
             list_of_select = list(self.select_list)
-        if self.value is None and len(list_of_select) > 0 and len(list_of_select[0]):
+        if self.value is None and (len(list_of_select) > 0) and (len(list_of_select[0]) > 0):
             self.value = list_of_select[0][0]
         compxml = XferCompButton.get_reponse_xml(self)
         for (key, val) in list_of_select:

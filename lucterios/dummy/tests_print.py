@@ -28,7 +28,7 @@ class PrintTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="print_model"]', (1, 2, 3, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="print_model"]/HEADER', 2)
         self.assert_xml_equal('COMPONENTS/GRID[@name="print_model"]/HEADER[@name="name"]', "nom")
-        self.assert_xml_equal('COMPONENTS/GRID[@name="print_model"]/HEADER[@name="kind"]', "Type")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="print_model"]/HEADER[@name="kind"]', "type")
         self.assert_count_equal('COMPONENTS/GRID[@name="print_model"]/RECORD', 2)
         self.assert_xml_equal('COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal('COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="kind"]', 'Liste')
