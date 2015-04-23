@@ -69,6 +69,7 @@ class LucteriosModel(models.Model):
             for sub_model in field_value.all():
                 field_val.append(sub_model.evaluate("#" + ".".join(field_list[1:])))
             return  "{[br/]}".join(field_val)
+        from django.db.models.fields import FieldDoesNotExist
         from django.db.models.fields.related import ForeignKey
         value = text
         for field in self.TO_EVAL_FIELD.findall(text):
@@ -81,19 +82,20 @@ class LucteriosModel(models.Model):
                 field_val = PrintFieldsPlugIn.get_plugin(field_list[0]).evaluate("#" + ".".join(field_list[1:]))
             elif field_list[0][-4:] == '_set':
                 field_val = eval_sublist(field_list, field_value)
-
             else:
-                dep_field = self._meta.get_field_by_name(field_list[0])  # pylint: disable=no-member,protected-access
-                if dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey):
+                try:
+                    dep_field = self._meta.get_field_by_name(field_list[0])  # pylint: disable=no-member,protected-access
+                except FieldDoesNotExist:
+                    dep_field = None
+                if (dep_field is None) or (dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey)):
                     field_val = get_value_converted(field_value, True)
                 else:
                     if field_value is None:
                         field_val = ""
                     elif isinstance(dep_field[0], ForeignKey):
-                        field_val = field_value.evaluate("#" + ".".join(field_list[1:])) # pylint: disable=no-member
+                        field_val = field_value.evaluate("#" + ".".join(field_list[1:]))  # pylint: disable=no-member
                     else:
                         field_val = eval_sublist(field_list, field_value)
-
             value = value.replace(field, six.text_type(field_val))
         return value
 
