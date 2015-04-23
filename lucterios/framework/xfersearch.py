@@ -17,6 +17,7 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 from django.utils import six
 from django.db.models.fields.related import ManyToManyField
+from django.db.models import Q
 
 TYPE_FLOAT = 'float'
 TYPE_STR = 'str'
@@ -67,43 +68,32 @@ def get_criteria_list(criteria):
         criteria_list.append(criteriaval)
     return criteria_list
 
-def get_query_from_criterialist(criteria_list, fields_desc):
-    from django.db.models import Q
-    filter_result = Q()
-    criteria_desc = {}
-    crit_index = 0
-    for criteria_item in criteria_list:
-        new_name = criteria_item[0]
-        if new_name != '':
-            new_op = int(criteria_item[1])
-            new_val = criteria_item[2]
-            field_desc_item = fields_desc.get(new_name)
-            new_val_txt = field_desc_item.get_value(new_val, new_op)
-            filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
-            if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
-                sep_criteria = OP_EQUAL[1]
-            else:
-                sep_criteria = OP_LIST[new_op][1]
-            criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
-            crit_index += 1
-    return filter_result, criteria_desc
-
-def get_search_query(criteria, item):
+def get_search_query_from_criteria(criteria, model):
     criteria_list = get_criteria_list(criteria)
     fields_desc = FieldDescList()
-    fields_desc.initial(item)
-    filter_result, _ = get_query_from_criterialist(criteria_list, fields_desc)
+    fields_desc.initial(model)
+    return fields_desc.get_query_from_criterialist(criteria_list)
+
+def get_search_query(criteria, model):
+    filter_result, _ = get_search_query_from_criteria(criteria, model)
     return [filter_result]
 
 class FieldDescItem(object):
 
     def __init__(self, fieldname):
         self.fieldname = fieldname
-        self.dbfieldname = ''
-        self.sub_fieldnames = self.fieldname.split('.')
         self.description = ''
         self.field_type = TYPE_FLOAT
         self.field_list = []
+        self.dbfieldname = ''
+        self.dbfield = None
+        self.initial_q = Q()
+        if isinstance(self.fieldname, tuple) and (len(self.fieldname) == 4):
+            self.dbfield = self.fieldname[1]
+            self.dbfieldname = self.fieldname[2]
+            self.initial_q = self.fieldname[3]
+            self.fieldname = self.fieldname[0]
+        self.sub_fieldnames = self.fieldname.split('.')
 
     def _init_for_list(self, sub_model, multi):
         if len(self.sub_fieldnames) == 1:
@@ -124,23 +114,24 @@ class FieldDescItem(object):
             self.field_list = sub_fied_desc.field_list
         return True
 
-    def get_field_from_name(self, model):
-        dbfield = None
-        if self.sub_fieldnames[0][-4:] == '_set':
-            self.dbfieldname = self.sub_fieldnames[0][:-4]
-            self.description = model._meta.verbose_name  # pylint: disable=protected-access
-            dbfield = getattr(model, self.sub_fieldnames[0])
+    def init_field_from_name(self, model):
+        if self.dbfield is None:
+            if self.sub_fieldnames[0][-4:] == '_set':
+                self.dbfieldname = self.sub_fieldnames[0][:-4]
+                self.description = model._meta.verbose_name  # pylint: disable=protected-access
+                self.dbfield = getattr(model, self.sub_fieldnames[0])
+            else:
+                dep_field = model._meta.get_field_by_name(self.sub_fieldnames[0])  # pylint: disable=protected-access
+                self.dbfieldname = self.sub_fieldnames[0]
+                if dep_field[2]:  # field real in model
+                    if not dep_field[3]:  # field not many-to-many
+                        self.dbfield = dep_field[0]
+                        self.description = self.dbfield.verbose_name
+                    else:
+                        self.dbfield = dep_field[0]
+                        self.description = self.dbfield.verbose_name
         else:
-            dep_field = model._meta.get_field_by_name(self.sub_fieldnames[0])  # pylint: disable=protected-access
-            self.dbfieldname = self.sub_fieldnames[0]
-            if dep_field[2]:  # field real in model
-                if not dep_field[3]:  # field not many-to-many
-                    dbfield = dep_field[0]
-                    self.description = dbfield.verbose_name
-                else:
-                    dbfield = dep_field[0]
-                    self.description = dbfield.verbose_name
-        return dbfield
+            self.description = self.dbfield.verbose_name
 
     def manage_integer_or_choices(self, dbfield):
         if (dbfield.choices is not None) and (len(dbfield.choices) > 0):
@@ -155,32 +146,32 @@ class FieldDescItem(object):
 
     def init(self, model):
         # pylint: disable=too-many-branches
-        dbfield = self.get_field_from_name(model)
-        if dbfield is not None:
+        self.init_field_from_name(model)
+        if self.dbfield is not None:
             from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
             from django.db.models.fields.related import ForeignKey
-            if isinstance(dbfield, IntegerField):
-                self.manage_integer_or_choices(dbfield)
-            elif isinstance(dbfield, DecimalField):
+            if isinstance(self.dbfield, IntegerField):
+                self.manage_integer_or_choices(self.dbfield)
+            elif isinstance(self.dbfield, DecimalField):
                 self.field_type = TYPE_FLOAT
-                min_value, max_value = get_range_value(dbfield)
-                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(dbfield.decimal_places))]
-            elif isinstance(dbfield, BooleanField):
+                min_value, max_value = get_range_value(self.dbfield)
+                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(self.dbfield.decimal_places))]
+            elif isinstance(self.dbfield, BooleanField):
                 self.field_type = TYPE_BOOL
-            elif isinstance(dbfield, TextField):
+            elif isinstance(self.dbfield, TextField):
                 self.field_type = TYPE_STR
-            elif isinstance(dbfield, DateField):
+            elif isinstance(self.dbfield, DateField):
                 self.field_type = TYPE_DATE
-            elif isinstance(dbfield, TimeField):
+            elif isinstance(self.dbfield, TimeField):
                 self.field_type = TYPE_TIME
-            elif isinstance(dbfield, DateTimeField):
+            elif isinstance(self.dbfield, DateTimeField):
                 self.field_type = TYPE_DATETIME
-            elif isinstance(dbfield, ForeignKey):
-                return self._init_for_list(dbfield.rel.to, False)
-            elif isinstance(dbfield, ManyToManyField):
-                return self._init_for_list(dbfield.rel.to, True)
-            elif 'RelatedManager' in dbfield.__class__.__name__:
-                return self._init_for_list(dbfield.model, False)
+            elif isinstance(self.dbfield, ForeignKey):
+                return self._init_for_list(self.dbfield.rel.to, False)
+            elif isinstance(self.dbfield, ManyToManyField):
+                return self._init_for_list(self.dbfield.rel.to, True)
+            elif 'RelatedManager' in self.dbfield.__class__.__name__:
+                return self._init_for_list(self.dbfield.model, False)
             else:
                 self.field_type = TYPE_STR
             return True
@@ -231,26 +222,26 @@ class FieldDescItem(object):
             for val_str in value.split(';'):
                 val_ids.append(int(val_str))
             return val_ids
-        from django.db.models import Q
-        query_res = Q()
+        query_res = self.initial_q
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
             if value == 'o':
-                query_res = Q(**{self.dbfieldname:True})
+                query_res = query_res & Q(**{self.dbfieldname:True})
             else:
-                query_res = Q(**{self.dbfieldname:False})
+                query_res = query_res & Q(**{self.dbfieldname:False})
         elif self.field_type == TYPE_LIST:
-            query_res = Q(**{field_with_op:get_int_list(value)})
+            query_res = query_res & Q(**{field_with_op:get_int_list(value)})
         elif self.field_type == TYPE_LISTMULT:
             val_ids = get_int_list(value)
             if operation == int(OP_OR[0]):
-                query_res = Q(**{field_with_op:val_ids})
+                query_res = query_res & Q(**{field_with_op:val_ids})
             else:
-                query_res = Q()
+                query_res = self.initial_q
+
                 for value_item in val_ids:
                     query_res = query_res & Q(**{field_with_op:value_item})
         else:
-            query_res = Q(**{field_with_op:value})
+            query_res = self.initial_q & Q(**{field_with_op:value})
         return query_res
 
     def get_new_criteria(self, params):
@@ -303,6 +294,26 @@ class FieldDescList(object):
                 return field_desc_item
         return None
 
+    def get_query_from_criterialist(self, criteria_list):
+        filter_result = Q()
+        criteria_desc = {}
+        crit_index = 0
+        for criteria_item in criteria_list:
+            new_name = criteria_item[0]
+            if new_name != '':
+                new_op = int(criteria_item[1])
+                new_val = criteria_item[2]
+                field_desc_item = self.get(new_name)
+                new_val_txt = field_desc_item.get_value(new_val, new_op)
+                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
+                if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
+                    sep_criteria = OP_EQUAL[1]
+                else:
+                    sep_criteria = OP_LIST[new_op][1]
+                criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
+                crit_index += 1
+        return filter_result, criteria_desc
+
 class XferSearchEditor(XferContainerCustom):
     filter = None
 
@@ -336,7 +347,7 @@ class XferSearchEditor(XferContainerCustom):
                 del self.params[ctx_key]
 
     def get_text_search(self):
-        filter_result, criteria_desc = get_query_from_criterialist(self.criteria_list, self.fields_desc)
+        filter_result, criteria_desc = self.fields_desc.get_query_from_criterialist(self.criteria_list)
         if len(filter_result.children) > 0:
             self.filter = [filter_result]
         else:

@@ -135,7 +135,7 @@ class LucteriosModel(models.Model):
             if fieldname is None:
                 for subclass in cls.__bases__:
                     if issubclass(subclass, LucteriosModel):
-                        res.extend(subclass.get_fieldnames_for_search())
+                        res.extend(subclass.get_fieldnames_for_search(False))
             else:
                 res.append(fieldname)
         return res
@@ -170,7 +170,8 @@ class LucteriosModel(models.Model):
         return fields
 
     @classmethod
-    def get_fieldnames_for_search(cls):
+    def get_fieldnames_for_search(cls, is_topleve=True):
+        # pylint: disable=unused-argument
         res = []
         dataname = cls.__name__.lower() + '__searchfields'
         if hasattr(cls, dataname):
