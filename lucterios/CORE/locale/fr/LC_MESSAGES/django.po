@@ -112,7 +112,7 @@ msgstr "Réel"
 
 #: models.py:21
 msgid "Boolean"
-msgstr "Booléan"
+msgstr "Booléen"
 
 #: models.py:21
 msgid "Select"
