@@ -93,6 +93,7 @@ class XferAddEditor(XferContainerCustom):
             save.caption = self.caption
             save.raise_except_class = self.__class__
             save.closeaction = self.closeaction
+            save.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''))
             return save.get(request, *args, **kwargs)
 
 class XferShowEditor(XferContainerCustom):
