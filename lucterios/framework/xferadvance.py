@@ -65,6 +65,7 @@ class XferAddEditor(XferContainerCustom):
     caption_add = ''
     caption_modify = ''
     fieldnames = []
+    redirect_to_show = True
 
     def fillresponse(self):
         if self.is_new:
@@ -93,7 +94,8 @@ class XferAddEditor(XferContainerCustom):
             save.caption = self.caption
             save.raise_except_class = self.__class__
             save.closeaction = self.closeaction
-            save.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''))
+            if self.redirect_to_show:
+                save.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''))
             return save.get(request, *args, **kwargs)
 
 class XferShowEditor(XferContainerCustom):
