@@ -289,6 +289,7 @@ class PrintModelEdit(XferContainerCustom):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
         edit.set_location(1, 3, 2)
+        edit.with_hypertext = True
         self.fill_menu_memo(edit)
         self.add_component(edit)
 

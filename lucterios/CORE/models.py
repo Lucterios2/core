@@ -43,7 +43,7 @@ class LucteriosUser(User, LucteriosModel):
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
     def edit(self, xfer):
-        from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword
+        from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword, XferCompCheck
         if self.id is not None:  # pylint: disable=no-member
             xfer.change_to_readonly('username')
             obj_username = xfer.get_components('username')
@@ -51,19 +51,33 @@ class LucteriosUser(User, LucteriosModel):
         obj_email = xfer.get_components('email')
         xfer.tab = obj_email.tab
         new_row = obj_email.row
+        lbl0 = XferCompLabelForm('lbl_password_change')
+        lbl0.set_location(0, new_row + 1, 1, 1)
+        lbl0.set_value_as_name(_("To change password?"))
+        xfer.add_component(lbl0)
+        ckk = XferCompCheck('password_change')
+        ckk.set_location(1, new_row + 1, 1, 1)
+        ckk.set_value(False)
+        ckk.java_script = """
+var pwd_change=current.getValue();
+parent.get('password1').setEnabled(pwd_change);
+parent.get('password2').setEnabled(pwd_change);
+"""
+        xfer.add_component(ckk)
+
         lbl1 = XferCompLabelForm('lbl_password1')
-        lbl1.set_location(0, new_row + 1, 1, 1)
+        lbl1.set_location(0, new_row + 2, 1, 1)
         lbl1.set_value_as_name(_("password"))
         xfer.add_component(lbl1)
         lbl2 = XferCompLabelForm('lbl_password2')
-        lbl2.set_location(0, new_row + 2, 1, 1)
+        lbl2.set_location(0, new_row + 3, 1, 1)
         lbl2.set_value_as_name(_("password (again)"))
         xfer.add_component(lbl2)
         pwd1 = XferCompPassword('password1')
-        pwd1.set_location(1, new_row + 1, 1, 1)
+        pwd1.set_location(1, new_row + 2, 1, 1)
         xfer.add_component(pwd1)
         pwd2 = XferCompPassword('password2')
-        pwd2.set_location(1, new_row + 2, 1, 1)
+        pwd2.set_location(1, new_row + 3, 1, 1)
         xfer.add_component(pwd2)
         if xfer.getparam("IDENT_READ") is not None:
             xfer.change_to_readonly('first_name')
@@ -72,13 +86,15 @@ class LucteriosUser(User, LucteriosModel):
         return LucteriosModel.edit(self, xfer)
 
     def saving(self, xfer):
-        password1 = xfer.getparam('password1')
-        password2 = xfer.getparam('password2')
-        if password1 != password2:
-            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
-        if (password1 is not None) and (password1 != ''):
-            self.set_password(password1)
-            self.save()
+        password_change = xfer.getparam('password_change')
+        if password_change == 'o':
+            password1 = xfer.getparam('password1')
+            password2 = xfer.getparam('password2')
+            if password1 != password2:
+                raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+            if password1 is not None:
+                self.set_password(password1)
+                self.save()
 
     class Meta(User.Meta):
         # pylint: disable=no-init
@@ -155,7 +171,7 @@ class PrintModel(LucteriosModel):
     default_fields = ["name"]
 
     def can_delete(self):
-        items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname) # pylint: disable=no-member
+        items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname)  # pylint: disable=no-member
         if len(items) <= 1:
             return _('Last model of this kind!')
         return ''
@@ -182,7 +198,7 @@ class PrintModel(LucteriosModel):
         return apps.get_model(self.modelname)
 
     def model_associated_title(self):
-        return self.model_associated()._meta.verbose_name.title() # pylint: disable=protected-access
+        return self.model_associated()._meta.verbose_name.title()  # pylint: disable=protected-access
 
     @property
     def page_width(self):

@@ -117,9 +117,6 @@ var ObserverCustom = ObserverGUI.extend({
                         case "MEMO":
                             comp = new compMemo(this);
                             break;
-                        case "MEMOFORM":
-                            comp = new compMemoForm(this);
-                            break;
                         case "CHECK":
                             comp = new compCheck(this);
                             break;

@@ -234,16 +234,19 @@ class XferCompMemo(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "MEMO"
         self.sub_menu = []
-        self.first_line = -1
         self.hmin = 200
         self.vmin = 50
+        self.with_hypertext = False
 
     def add_sub_menu(self, name, value):
         self.sub_menu.append((name, value))
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
-        compxml.attrib['FirstLine'] = six.text_type(self.first_line)
+        if self.with_hypertext:
+            compxml.attrib['with_hypertext'] = "1"
+        else:
+            compxml.attrib['with_hypertext'] = "0"
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
@@ -252,14 +255,6 @@ class XferCompMemo(XferCompButton):
             etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
             etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
         return compxml
-
-class XferCompMemoForm(XferCompButton):
-
-    def __init__(self, name):
-        XferCompButton.__init__(self, name)
-        self._component_ident = "MEMOFORM"
-        self.hmin = 250
-        self.vmin = 50
 
 class XferCompDate(XferCompButton):
 

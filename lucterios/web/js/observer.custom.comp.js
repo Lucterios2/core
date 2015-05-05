@@ -368,6 +368,7 @@ var compMemo = compAbstractEvent
 			initial : function(component) {
 				this._super(component);
 				this.sub_menus = [];
+				this.with_hypertext = component.getXMLAttributInt('with_hypertext', 0);
 				this.value = component.getTextFromXmlNode().replace(
 						/\{\[newline\]\}/g, "\n");
 				var sub_menu_xml = component.getElementsByTagName("SUBMENU"), isub_menu, sub_menu, sub_menu_name, sub_menu_value;
@@ -392,6 +393,11 @@ var compMemo = compAbstractEvent
 							imenu, sub_menu[0]);
 				}
 				html += '</ul>';
+				if (this.with_hypertext === 1) {
+					html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'.format(this.name);
+					html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'.format(this.name);
+					html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'.format(this.name);
+				}
 				html += this.getBuildHtml({}, true, false) + this.initialVal()
 						+ '</textarea>';
 				return html;
@@ -427,22 +433,6 @@ var compMemo = compAbstractEvent
 				}
 			}
 		});
-
-var compMemoForm = compMemo.extend({
-	addAction : function() {
-		this.getGUIComp().jqte();
-		this.addActionEx(0);
-	},
-
-	initialVal : function() {
-		return this.value.convertLuctoriosFormatToHtml();
-	},
-
-	fillValue : function(params) {
-		var val = this.getValue();
-		params.put(this.name, val.convertHtmlToLuctoriosFormat());
-	}
-});
 
 var compPassword = compAbstractEvent.extend({
 	value : "",

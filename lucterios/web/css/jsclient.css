@@ -128,3 +128,7 @@ body.loading {
 body.loading .waiting {
     display: block;
 }
+
+img.memobtn {
+	margin-right: 3px;
+}

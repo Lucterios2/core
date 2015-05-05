@@ -9,7 +9,7 @@ var G_Version = '0.9.8.32';
 
 var G_With_Extra_Menu = false;
 
-var G_Active_Log = false;
+var G_Active_Log = true;
 
 function get_serverurl() {
     var fullurl=window.location.href;
