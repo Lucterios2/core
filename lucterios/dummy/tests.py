@@ -100,7 +100,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('COMPONENTS/FLOAT[@name="flt1"]', 'max', '10000.0')
         self.assert_attrib_equal('COMPONENTS/FLOAT[@name="flt1"]', 'prec', '2')
         self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]', 'xyz')
-        self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'FirstLine', '-1')
+        self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'with_hypertext', '0')
         self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'VMin', '50')
         self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'HMin', '200')
         self.assert_xml_equal('COMPONENTS/DATE[@name="dt1"]', '2007-04-23')

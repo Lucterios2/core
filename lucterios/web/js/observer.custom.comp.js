@@ -394,15 +394,21 @@ var compMemo = compAbstractEvent
 				}
 				html += '</ul>';
 				if (this.with_hypertext === 1) {
+					html += '<div class="ui-widget-header">';
 					html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'.format(this.name);
 					html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'.format(this.name);
 					html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'.format(this.name);
+					html += '<img id="black_{0}" src="images/black.png" class="memobtn">'.format(this.name);
+					html += '<img id="blue_{0}" src="images/blue.png" class="memobtn">'.format(this.name);
+					html += '<img id="red_{0}" src="images/red.png" class="memobtn">'.format(this.name);
+					html += '<img id="green_{0}" src="images/green.png" class="memobtn">'.format(this.name);
+					html += '</div>';
 				}
 				html += this.getBuildHtml({}, true, false) + this.initialVal()
 						+ '</textarea>';
 				return html;
 			},
-
+			
 			initialVal : function() {
 				return this.value;
 			},
@@ -431,7 +437,29 @@ var compMemo = compAbstractEvent
 							    self.getGUIComp().val( textBefore+ variable_text +textAfter );
 							});
 				}
+				$("#bold_{0}".format(this.name)).click(function(){self.add_text_tag('b','');});
+				$("#italic_{0}".format(this.name)).click(function(){self.add_text_tag('i','');});
+				$("#underline_{0}".format(this.name)).click(function(){self.add_text_tag('u','');});
+				$("#black_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="black"');});
+				$("#red_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="red"');});
+				$("#blue_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="blue"');});
+				$("#green_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="green"');});
+			},
+			
+			add_text_tag: function(tagname, extra) {
+				var cursorPosBegin,cursorPosEnd,val_area,select_val,textBefore,textAfter;
+				if (extra !== '') {
+					extra=' '+extra;
+				}
+				cursorPosBegin = this.getGUIComp().prop('selectionStart');
+				cursorPosEnd = this.getGUIComp().prop('selectionEnd');
+			    val_area = this.getGUIComp().val();
+			    textBefore = val_area.substring(0,  cursorPosBegin);
+			    select_val = val_area.substring(cursorPosBegin, cursorPosEnd);
+			    textAfter  = val_area.substring(cursorPosEnd, val_area.length );
+			    this.getGUIComp().val("{0}{[{1}{2}]}{3}{[/{1}]}{4}".format(textBefore, tagname, extra, select_val, textAfter));
 			}
+
 		});
 
 var compPassword = compAbstractEvent.extend({

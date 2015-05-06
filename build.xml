@@ -171,14 +171,18 @@
 		<antcall target="test_py3"/>
 	</target>
 
-	<target name="web" depends="init">
-		<copy file="lucterios/web/deployed/conf_template.js" tofile="lucterios/web/conf/conf.js"/>
-		<replace file="lucterios/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${projet.version.build}';"/>
+	<target name="jslint">
 		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
 			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
 			<formatter type="xml" destfile="jslint_results.xml"/> 
 			<fileset dir="lucterios/web/" includes="js/*.js"/>
 		</jslint>
+	</target>
+
+	<target name="web" depends="init">
+		<copy file="lucterios/web/deployed/conf_template.js" tofile="lucterios/web/conf/conf.js"/>
+		<replace file="lucterios/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${projet.version.build}';"/>
+		<antcall target="jslint"/>
 	</target>
 
 	<target name="package">

@@ -257,6 +257,8 @@ var compGeneric = compBasic.extend({
             this.tab = component.getAttribute("tab");
             this.x = component.getAttribute("x");
             this.y = component.getAttribute("y");
+            this.vmin = component.getXMLAttributInt("VMin",-1);
+            this.hmin = component.getXMLAttributInt("HMin",-1);
             this.colspan = component.getAttribute("colspan");
             this.rowspan = component.getAttribute("rowspan");
             this.needed = component.getXMLAttributInt("needed", 0) === 1;
@@ -272,6 +274,12 @@ var compGeneric = compBasic.extend({
         args.cssclass += ' class_controle';
         if (isJustify) {
             args.style = "width:95%;margin:5px;";
+        }
+        if (this.hmin!==-1) {
+        	args.style += "min-width: {0}px;".format(this.hmin);
+        }
+        if (this.vmin!==-1) {
+        	args.style += "min-height: {0}px;".format(this.vmin);
         }
         var html = "<" + this.tag,
             element;
