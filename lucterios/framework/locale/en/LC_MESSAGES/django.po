@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-05 15:13+0000\n"
+"POT-Creation-Date: 2015-05-07 15:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -29,118 +29,118 @@ msgstr "Table of content"
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:34 xfergraphic.py:118
+#: models.py:51 xfergraphic.py:136
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:36 xfergraphic.py:119
+#: models.py:53 xfergraphic.py:137
 msgid "No"
 msgstr "No"
 
-#: models.py:205
+#: models.py:222
 msgid "username"
 msgstr "username"
 
-#: models.py:220
+#: models.py:237
 msgid "session"
 msgstr "session"
 
-#: models.py:221
+#: models.py:238
 msgid "sessions"
 msgstr "sessions"
 
-#: signal_and_lock.py:40
+#: signal_and_lock.py:57
 #, python-format
 msgid "Unknown signal %s"
 msgstr "Unknown signal %s"
 
-#: signal_and_lock.py:78
+#: signal_and_lock.py:95
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:172
+#: tools.py:189
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:173
+#: tools.py:190
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:242
+#: tools.py:259
 msgid "add"
 msgstr "add"
 
-#: tools.py:244
+#: tools.py:261
 msgid "view"
 msgstr "view"
 
-#: tools.py:246
+#: tools.py:263
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:247
+#: tools.py:264
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:56 xfersearch.py:509
+#: xferadvance.py:73 xfersearch.py:527
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:58 xfersearch.py:512
+#: xferadvance.py:75 xfersearch.py:530
 msgid "Listing"
 msgstr "Listing"
 
-#: xferadvance.py:58 xfersearch.py:512
+#: xferadvance.py:75 xfersearch.py:530
 msgid "Label"
 msgstr "Label"
 
-#: xferadvance.py:62 xferadvance.py:116 xfergraphic.py:96 xferprinting.py:89
-#: xfersearch.py:516
+#: xferadvance.py:79 xferadvance.py:133 xfergraphic.py:114 xferprinting.py:107
+#: xfersearch.py:534
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:80 xfergraphic.py:126
+#: xferadvance.py:97 xfergraphic.py:144
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:81 xfergraphic.py:105
+#: xferadvance.py:98 xfergraphic.py:123
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:113 xfercomponents.py:543
+#: xferadvance.py:130 xfercomponents.py:555
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:113 xferprinting.py:88
+#: xferadvance.py:130 xferprinting.py:106
 msgid "Print"
 msgstr "Print"
 
-#: xferadvance.py:128
+#: xferadvance.py:145
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:138
+#: xferadvance.py:155
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:150
+#: xferadvance.py:167
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:151
+#: xferadvance.py:168
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:167
+#: xferadvance.py:184
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:84
+#: xferbasic.py:102
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -148,70 +148,70 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:543
+#: xfercomponents.py:555
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:544
+#: xfercomponents.py:556
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:544
+#: xfercomponents.py:556
 msgid "Add"
 msgstr "Add"
 
-#: xfergraphic.py:102
+#: xfergraphic.py:120
 msgid "Traitment..."
 msgstr "Traitment..."
 
-#: xfergraphic.py:137
+#: xfergraphic.py:155
 msgid "Retry"
 msgstr "Retry"
 
-#: xferprinting.py:63
+#: xferprinting.py:81
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:122
+#: xferprinting.py:140
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:124
+#: xferprinting.py:142
 msgid "CSV file"
 msgstr "CSV file"
 
-#: xfersearch.py:32
+#: xfersearch.py:50
 msgid "equals"
 msgstr "equals"
 
-#: xfersearch.py:33
+#: xfersearch.py:51
 msgid "different"
 msgstr "different"
 
-#: xfersearch.py:34
+#: xfersearch.py:52
 msgid "inferior"
 msgstr "inferior"
 
-#: xfersearch.py:35
+#: xfersearch.py:53
 msgid "superior"
 msgstr "superior"
 
-#: xfersearch.py:36
+#: xfersearch.py:54
 msgid "contains"
 msgstr "contains"
 
-#: xfersearch.py:37
+#: xfersearch.py:55
 msgid "starts with"
 msgstr "start with"
 
-#: xfersearch.py:38
+#: xfersearch.py:56
 msgid "ends with"
 msgstr "ends with"
 
-#: xfersearch.py:39
+#: xfersearch.py:57
 msgid "or"
 msgstr "or"
 
-#: xfersearch.py:40
+#: xfersearch.py:58
 msgid "and"
 msgstr "and"
