@@ -14,3 +14,12 @@ To get more help:
 To contribute to Lucterios:
 
 * Send a email: contribute@lucterios.org
+
+Featuring of Lucterios Core
+---------------------------
+
+* Integre other modules to extend application
+* Allow easier tool to report generation (listing, label, record)
+* Use an generic web application to create commun GUI for each modules
+* Allow to manage User, Group, Permission and Session of Django
+* Manage global parameters
