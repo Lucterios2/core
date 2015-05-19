@@ -86,8 +86,8 @@ class UserTest(LucteriosTest):
 
         self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION', 4)
         self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]', ('Désactiver', 'images/suppr.png', 'CORE', 'usersDisabled', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]', ('Supprimer', 'images/suppr.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]', ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
         self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=4]', ('Ajouter', 'images/add.png', 'CORE', 'usersEdit', 0, 1, 1))
 
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER', 3)
@@ -98,7 +98,7 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION', 2)
         self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=1]', ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
 
     def test_userdelete(self):
         add_user("user1")
@@ -512,7 +512,7 @@ class GroupTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/delete.png', 'CORE', 'groupsDelete', 0, 1, 2))
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
@@ -673,7 +673,7 @@ class SessionTest(LucteriosTest):
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/extensions.png')
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/session.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les sessions{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))

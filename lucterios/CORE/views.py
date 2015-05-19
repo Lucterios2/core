@@ -216,7 +216,7 @@ class PrintModelList(XferContainerCustom):
         grid.set_model(items, ['name', 'kind'], self)
         grid.add_action(self.request, PrintModelEdit().get_changed(_('edit'), 'images/edit.png'), {'unique':SELECT_SINGLE})
         grid.add_action(self.request, PrintModelClone().get_changed(_('clone'), 'images/add.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelDelete().get_changed(_('delete'), 'images/suppr.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelDelete().get_changed(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
         self.add_component(grid)
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
@@ -385,7 +385,7 @@ class LabelEdit(XferAddEditor):
     # pylint: disable=too-many-public-methods
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
-    icon = "etiquette.png"
+    icon = "label_help.png"
     model = Label
     field_id = 'label'
 
