@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 13:50+0000\n"
+"POT-Creation-Date: 2015-05-20 15:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,11 +21,11 @@ msgstr ""
 msgid "Help"
 msgstr "Help"
 
-#: main_help.html:126
+#: main_help.html:127
 msgid "Table of content"
 msgstr "Table of content"
 
-#: main_help.html:147 main_help.html.py:153
+#: main_help.html:148 main_help.html.py:154
 msgid "User manual"
 msgstr "User manual"
 

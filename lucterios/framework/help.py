@@ -53,7 +53,7 @@ def defaulthelp(request):
     if help_id is None:
         dictionary = {}
         dictionary['title'] = six.text_type(settings.APPLIS_NAME)
-        dictionary['subtitle'] = six.text_type(settings.APPLIS_SUBTITLE())
+        dictionary['subtitle'] = settings.APPLIS_SUBTITLE()
         dictionary['applogo'] = settings.APPLIS_LOGO
         dictionary['version'] = six.text_type(settings.APPLIS_VERSION)
         dictionary['menus'] = []
