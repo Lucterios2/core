@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-07 15:56+0000\n"
+"POT-Creation-Date: 2015-05-20 13:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -178,21 +178,21 @@ msgstr "group"
 msgid "groups"
 msgstr "groups"
 
-#: models.py:139 views.py:260
+#: models.py:139
 msgid "page width"
-msgstr "page width"
+msgstr "page width (L)"
 
 #: models.py:140
 msgid "page height"
-msgstr "page height"
+msgstr "page height (H)"
 
 #: models.py:141
 msgid "cell width"
-msgstr "cell width"
+msgstr "cell width (l)"
 
 #: models.py:142
 msgid "cell height"
-msgstr "cell height"
+msgstr "cell height (h)"
 
 #: models.py:143
 msgid "number of columns"
@@ -204,19 +204,19 @@ msgstr "number of rows"
 
 #: models.py:145
 msgid "left marge"
-msgstr "left marge"
+msgstr "left marge (a)"
 
 #: models.py:146
 msgid "top marge"
-msgstr "top marge"
+msgstr "top marge (b)"
 
 #: models.py:147
 msgid "horizontal space"
-msgstr "horizontal space"
+msgstr "horizontal space (c)"
 
 #: models.py:148
 msgid "vertical space"
-msgstr "vertical space"
+msgstr "vertical space (d)"
 
 #: models.py:163 models.py:173
 msgid "label"
@@ -266,16 +266,16 @@ msgstr "No model selected!"
 msgid "models"
 msgstr "models"
 
-#: parameters.py:94 parameters.py:107
+#: parameters.py:93 parameters.py:106
 #, python-format
 msgid ".%d"
 msgstr ".%d"
 
-#: parameters.py:103
+#: parameters.py:102
 msgid "Yes"
 msgstr "Yes"
 
-#: parameters.py:105
+#: parameters.py:104
 msgid "No"
 msgstr "No"
 
@@ -411,8 +411,12 @@ msgstr "ok"
 msgid "cancel"
 msgstr "cancel"
 
+#: views.py:260
+msgid "list page width"
+msgstr "page width"
+
 #: views.py:268
-msgid "page heigth"
+msgid "list page height"
 msgstr "page height"
 
 #: views.py:277

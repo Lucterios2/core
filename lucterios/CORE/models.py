@@ -150,8 +150,8 @@ class Label(LucteriosModel):
     def __str__(self):
         return self.name
 
-    label__showfields = ['name', ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('columns', 'rows'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
-    label__editfields = ['name', ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('columns', 'rows'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
+    label__showfields = ['name', ('columns', 'rows'), ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
+    label__editfields = ['name', ('columns', 'rows'), ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
     label__searchfields = ["name", 'columns', 'rows']
     default_fields = ["name", 'columns', 'rows']
 
