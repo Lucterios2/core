@@ -140,9 +140,9 @@ function initial_function() {
 		Singleton().close();
 		first_action();
 	} else {
-		var disconnect_title = Singleton().getTranslate('Logon'), html, help_url, act;
+		var disconnect_title = Singleton().getTranslate('Logoff'), html, help_url, act;
 		if (Singleton().mDesc.getLogin() === '') {
-			disconnect_title = Singleton().getTranslate('Logoff');
+			disconnect_title = Singleton().getTranslate('Logon');
 		}
 		help_url = "Help";
 		html = "<div id='status' class='ui-widget ui-widget-content ui-corner-all'>"
