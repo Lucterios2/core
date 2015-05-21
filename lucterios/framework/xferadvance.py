@@ -29,7 +29,7 @@ from django.db import IntegrityError
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import icon_path, ifplural, CLOSE_NO, StubAction, \
-    ActionsManage
+    ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
@@ -127,9 +127,9 @@ class XferShowEditor(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fill_from_model(1, 0, True)
-        action_list = [('modify', _("Modify"), "images/edit.png"), ('print', _("Print"), "images/print.png")]
-        for act_type, title, icon in action_list:
-            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
+        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
+        for act_type, title, icon, close in action_list:
+            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':close})
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 
     def get(self, request, *args, **kwargs):
