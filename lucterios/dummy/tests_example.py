@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Unit test of example view of dummy
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -19,7 +36,7 @@ class ExampleTest(LucteriosTest):
     def setUp(self):
         # pylint: disable=no-member
         LucteriosTest.setUp(self)
-        Example.objects.create(name='abc', value=12, price=1224.06, date='1997-10-07', time='21:43', valid=True, comment="")
+        Example.objects.create(name='abc', value=12, price=1224.06, date='1997-10-07', time='21:43', valid=True, comment="blablabla")
         Example.objects.create(name='zzzz', value=7, price=714.03, date='2008-03-21', time='15:21', valid=False, comment="")
         Example.objects.create(name='uvw', value=9, price=918.05, date='2014-05-11', time='04:57', valid=True, comment="")
         Example.objects.create(name='blabla', value=17, price=1734.08, date='2001-07-17', time='23:14', valid=False, comment="")
@@ -87,6 +104,14 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
         self.assert_xml_equal('COMPONENTS/GRID[@name="example"]/RECORD[@id=5]/VALUE[@name="name"]', 'boom')
 
+    def test_fieldsprint(self):
+        print_text = ""
+        for print_fields in Example.get_print_fields():
+            print_text += "#%s " % print_fields[1]
+        self.assertEqual("#name #value #price #date #time #valid #comment ", print_text)
+        example_obj = Example.objects.get(name='abc') # pylint: disable=no-member
+        self.assertEqual("abc 12 1224.06 7 octobre 1997 21:43:00 Oui blablabla ", example_obj.evaluate(print_text))
+
     def testprint(self):
         self.factory.xfer = ExamplePrint()
         self.call('/lucterios.dummy/examplePrint', {'example':'2'}, False)
@@ -118,11 +143,22 @@ class ExampleTest(LucteriosTest):
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def testlisting(self):
+        for item_idx in range(0, 25):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15, date='1997-10-07', time='21:43', valid=True, comment="") # pylint: disable=no-member
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'4', 'MODEL':1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
         csv_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text)).decode("utf-8")
         content_csv = csv_value.split('\n')
-        self.assertEqual(len(content_csv), 11, str(content_csv))
+        self.assertEqual(len(content_csv), 36, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"Example"')
         self.assertEqual(content_csv[3].strip(), '"Name";"value + price";"date + time";')
+
+    def testlisting_pdf(self):
+        for item_idx in range(0, 150):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15, date='1997-10-07', time='21:43', valid=True, comment="") # pylint: disable=no-member
+        self.factory.xfer = ExampleListing()
+        self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'3', 'MODEL':1}, False)
+        self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
+        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))

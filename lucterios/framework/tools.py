@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+General tools for Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -28,7 +45,7 @@ class StubAction(object):
     def __init__(self, caption, icon, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon = icon
-        self.modal = FORMTYPE_NOMODAL
+        self.modal = FORMTYPE_MODAL
         self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
@@ -110,7 +127,7 @@ class MenuManage(object):
             cls._menulock.release()
 
     @classmethod
-    def describ(cls, right, modal=FORMTYPE_NOMODAL, menu_parent=None, menu_desc=None):
+    def describ(cls, right, modal=FORMTYPE_MODAL, menu_parent=None, menu_desc=None):
         def wrapper(item):
             cls._menulock.acquire()
             try:
@@ -202,11 +219,11 @@ def get_action_xml(item, option, desc='', tag='ACTION'):
         actionxml.attrib['action'] = item.action
     if desc != "":
         etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-    if isinstance(item.modal, int):
-        actionxml.attrib['modal'] = six.text_type(item.modal)
     actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
     actionxml.attrib['close'] = six.text_type(CLOSE_YES)
     actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+    if isinstance(item.modal, int):
+        actionxml.attrib['modal'] = six.text_type(item.modal)
     if 'params' in option:
         fill_param_xml(actionxml, option['params'])
         del option['params']

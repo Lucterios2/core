@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Views for manage user, group, permission and session in Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -18,7 +35,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
-MenuManage.add_sub("core.right", 'core.admin', "images/gestionDroits.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
+MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
 @ActionsManage.affect('LucteriosGroup', 'edit', 'add')
 @MenuManage.describ('auth.add_group')
@@ -75,8 +92,8 @@ class UsersList(XferContainerCustom):
         grid.set_location(0, 2, 2)
         grid.set_model(users, None)
         grid.add_action(self.request, UsersEdit().get_changed(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDisabled().get_changed(_("Disabled"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
+        grid.add_action(self.request, UsersDisabled().get_changed(_("Disabled"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
+        grid.add_action(self.request, UsersDelete().get_changed(_("Delete"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
         grid.add_action(self.request, UsersEdit().get_changed(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_NONE})
         self.add_component(grid)
 
@@ -95,7 +112,7 @@ class UsersList(XferContainerCustom):
         grid.set_location(0, 5, 2)
         grid.set_model(users, ['username', 'first_name', 'last_name'])
         grid.add_action(self.request, UsersEnabled().get_changed(_("Enabled"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDelete().get_changed(_("Delete"), "images/suppr.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
+        grid.add_action(self.request, UsersDelete().get_changed(_("Delete"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
         self.add_component(grid)
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
@@ -153,7 +170,7 @@ class UsersEdit(XferAddEditor):
 @MenuManage.describ('sessions.delete_session')
 class SessionDelete(XferDelete):
     caption = _("Delete session")
-    icon = "extensions.png"
+    icon = "session.png"
     model = LucteriosSession
     field_id = 'session'
 
@@ -161,6 +178,6 @@ class SessionDelete(XferDelete):
 class SessionList(XferListEditor):
     # pylint: disable=too-many-public-methods
     caption = _("Sessions")
-    icon = "extensions.png"
+    icon = "session.png"
     model = LucteriosSession
     field_id = 'session'

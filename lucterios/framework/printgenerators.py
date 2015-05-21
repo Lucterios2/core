@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on march 2015
+Tools to generate print xml for action, listing or label
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -84,9 +101,9 @@ class PrintItem(object):
         self.width = 0
         self.top = self.owner.top
         for col_idx in range(0, self.col):
-            self.left = self.left + self.owner.col_width[col_idx]
+            self.left = self.left + self.owner.col_width[self.tab][col_idx]
         for col_idx in range(self.col, self.col + self.colspan):
-            self.width = self.width + self.owner.col_width[col_idx]
+            self.width = self.width + self.owner.col_width[self.tab][col_idx]
 
 class PrintImage(PrintItem):
 
@@ -122,6 +139,8 @@ class PrintTable(PrintItem):
         self.columns = []
         self.rows = []
         self.size_rows = [0]
+        self.compute_table_size()
+        self.size_y, self.size_x = self.get_table_sizes()
 
     def compute_table_size(self):
         for header in self.comp.headers:
@@ -129,14 +148,14 @@ class PrintTable(PrintItem):
             column = [header.descript, size_cx]
             self.size_rows[0] = max(self.size_rows[0], size_cy)
             row_idx = 0
-            for record in self.comp.records:
+            for record in self.comp.records.values():
                 while len(self.rows) <= row_idx:
                     self.rows.append([])
 
                 while len(self.size_rows) <= (row_idx + 1):
                     self.size_rows.append(0)
 
-                value = record[header.name]
+                value = get_value_converted(record[header.name], True)
                 if header.type == 'icon':
                     value = BASE64_PREFIX + value
                     img_size = get_image_size(value)
@@ -144,11 +163,10 @@ class PrintTable(PrintItem):
                     size_y = int(img_size[1] * PrintImage.DPI)
                 else:
                     size_x, size_y = get_text_size(value)
-                self.rows[row_idx].append(value)
+                self.rows[row_idx].append(six.text_type(value))
                 self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
                 column[1] = max(column[1], size_x)
                 row_idx += 1
-
             self.columns.append(column)
 
     def get_table_sizes(self):
@@ -165,7 +183,7 @@ class PrintTable(PrintItem):
             size_col = int(self.width * column[1] / size_x)
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
-            xml_text = convert_to_html('cell', column[0], "sans-serif", 9, 10, "center")
+            xml_text = convert_to_html('cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", 9, 10, "center")
             xml_text.attrib['font_family'] = "sans-serif"
             xml_text.attrib['font_size'] = "9"
             xml_text.attrib['line_height'] = "10"
@@ -185,23 +203,14 @@ class PrintTable(PrintItem):
     def get_xml(self):
         xml_table = etree.Element('table')
         self.fill_attrib(xml_table)
-
-        self.columns = []
-        self.rows = []
-        self.size_rows = [0]
-
-        self.compute_table_size()
         if len(self.rows) == 0:
-
             row = []
             for _ in self.columns:
                 row.append('')
             self.rows.append(row)
             self.size_rows.append(get_text_size('')[1])
-
-        size_y, size_x = self.get_table_sizes()
-        self.height = 6 * size_y
-        self.write_columns(xml_table, size_x)
+        self.height = 6 * self.size_y
+        self.write_columns(xml_table, self.size_x)
         self.write_rows(xml_table)
         return xml_table
 
@@ -221,7 +230,7 @@ class PrintTab(PrintItem):
         self.width = self.owner.page_width - 2 * self.owner.horizontal_marge - self.left
 
     def get_xml(self):
-        xml_text = convert_to_html('text', self.comp.value)
+        xml_text = convert_to_html('text', "{[u]}%s{[/u]}" % self.comp.value)
         self.top += self.SEP_HEIGHT
         self.fill_attrib(xml_text)
         return xml_text
@@ -299,7 +308,7 @@ class ActionGenerator(ReportGenerator):
         self.last_top = 0
         self.top = 0
         self.print_items = []
-        self.col_width = []
+        self.col_width = {}
 
     def add_page(self):
         ReportGenerator.add_page(self)
@@ -328,8 +337,8 @@ class ActionGenerator(ReportGenerator):
         return value
 
     def compute_components(self):
-        col_size = []
-        max_col = 0
+        col_size = {}
+        max_col = {}
         sortedkey_components, final_components = self.action.get_sort_components()
         for key in sortedkey_components:
             comp = final_components[key]
@@ -343,36 +352,43 @@ class ActionGenerator(ReportGenerator):
             elif isinstance(comp, XferCompLABEL) or isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
+                if not new_item.tab in col_size.keys():
+                    col_size[new_item.tab] = []
+                if not new_item.tab in max_col.keys():
+                    max_col[new_item.tab] = 0
                 new_size_x = new_item.size_x / new_item.colspan
                 for item_idx in range(0, new_item.col + new_item.colspan):
-                    while len(col_size) <= item_idx:
-                        col_size.append(0)
+                    while len(col_size[new_item.tab]) <= item_idx:
+                        col_size[new_item.tab].append(0)
                     if item_idx >= new_item.col:
-                        col_size[item_idx] = max(col_size[item_idx], new_size_x)
-                max_col = max(max_col, new_item.col + new_item.colspan)
+                        col_size[new_item.tab][item_idx] = max(col_size[new_item.tab][item_idx], new_size_x)
+                max_col[new_item.tab] = max(max_col[new_item.tab], new_item.col + new_item.colspan)
                 self.print_items.append(new_item)
         return max_col, col_size
 
-    def define_col_size(self, col_size, max_col):
+    def define_col_size(self, tab_id, col_size, max_col):
         total_size = 0
+        self.col_width[tab_id] = []
         for col_idx in range(0, max_col):
             total_size = total_size + col_size[col_idx]
         for col_idx in range(0, max_col):
             if total_size == 0:
-                self.col_width.append(0)
+                new_col_size = 0
             else:
-                self.col_width.append(int(self.content_width * col_size[col_idx] / total_size))
+                new_col_size = int(self.content_width * col_size[col_idx] / total_size)
+            self.col_width[tab_id].append(new_col_size)
 
     def fill_content(self, request):
         self.action._initialize(request)  # pylint: disable=protected-access
         self.action.fillresponse(**self.action._get_params())  # pylint: disable=protected-access
         self.action._finalize()  # pylint: disable=protected-access
         self.print_items = []
-        self.col_width = []
+        self.col_width = {}
         max_col, col_size = self.compute_components()
-        if max_col == 0:
-            raise LucteriosException(IMPORTANT, "No colonm to print!")
-        self.define_col_size(col_size, max_col)
+        if len(max_col) == 0:
+            raise LucteriosException(IMPORTANT, "No colunm to print!")
+        for tab_id in max_col.keys():
+            self.define_col_size(tab_id, col_size[tab_id], max_col[tab_id])
         self.top = 0
         last_y = -1
         current_height = 0
@@ -453,7 +469,7 @@ class LabelGenerator(ReportGenerator):
         self.page_width = self.label_size['page_width']
         self.page_height = self.label_size['page_height']
         label_values = []
-        for _ in range(0, self.first_label):
+        for _ in range(1, self.first_label):
             label_values.append("")
         items = get_items_from_filter(self.model, self.filter)
         for item in items:

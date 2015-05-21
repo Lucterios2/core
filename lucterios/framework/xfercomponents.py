@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Components for customer viewer for Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -234,33 +251,27 @@ class XferCompMemo(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "MEMO"
         self.sub_menu = []
-        self.first_line = -1
         self.hmin = 200
         self.vmin = 50
+        self.with_hypertext = False
 
-    def add_sub_menu(self, menutype, name, value):
-        self.sub_menu.append((menutype, name, value))
+    def add_sub_menu(self, name, value):
+        self.sub_menu.append((name, value))
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
-        compxml.attrib['FirstLine'] = six.text_type(self.first_line)
+        if self.with_hypertext:
+            compxml.attrib['with_hypertext'] = "1"
+        else:
+            compxml.attrib['with_hypertext'] = "0"
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
         for sub_menu in self.sub_menu:
             xml_menu = etree.SubElement(compxml, "SUBMENU")
-            etree.SubElement(xml_menu, "TYPE").text = six.text_type(sub_menu[0])
-            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[1])
-            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[2])
+            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
+            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
         return compxml
-
-class XferCompMemoForm(XferCompButton):
-
-    def __init__(self, name):
-        XferCompButton.__init__(self, name)
-        self._component_ident = "MEMOFORM"
-        self.hmin = 250
-        self.vmin = 50
 
 class XferCompDate(XferCompButton):
 
@@ -327,10 +338,10 @@ class XferCompSelect(XferCompButton):
 
     def get_reponse_xml(self):
         if isinstance(self.select_list, dict):
-            list_of_select = self.select_list.items()
+            list_of_select = list(self.select_list.items())
         else:
             list_of_select = list(self.select_list)
-        if self.value is None and len(list_of_select) > 0 and len(list_of_select[0]):
+        if self.value is None and (len(list_of_select) > 0) and (len(list_of_select[0]) > 0):
             self.value = list_of_select[0][0]
         compxml = XferCompButton.get_reponse_xml(self)
         for (key, val) in list_of_select:
@@ -542,6 +553,6 @@ class XferCompGrid(XferComponent):
             model = xfer_custom.model
         if action_list is None:
             action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE), \
-                         ('del', _("Delete"), "images/suppr.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+                         ('del', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
         for act_type, title, icon, unique in action_list:
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(model.__name__, act_type, title, icon), {'modal':FORMTYPE_MODAL, 'unique':unique})

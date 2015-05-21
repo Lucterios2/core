@@ -1,8 +1,26 @@
 # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Unit test for simple actions in Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -100,7 +118,7 @@ class DummyTest(LucteriosTest):
         self.assert_attrib_equal('COMPONENTS/FLOAT[@name="flt1"]', 'max', '10000.0')
         self.assert_attrib_equal('COMPONENTS/FLOAT[@name="flt1"]', 'prec', '2')
         self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]', 'xyz')
-        self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'FirstLine', '-1')
+        self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'with_hypertext', '0')
         self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'VMin', '50')
         self.assert_attrib_equal('COMPONENTS/MEMO[@name="mm1"]', 'HMin', '200')
         self.assert_xml_equal('COMPONENTS/DATE[@name="dt1"]', '2007-04-23')
@@ -152,6 +170,13 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/EDIT[@name="edt1"]', 'bbb')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="flt1"]', '7.90')
         self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]', 'qwerty')
+        self.assert_count_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU', 3)
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[1]/NAME', 'Première valeur')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[1]/VALUE', 'VALUE_1')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[2]/NAME', 'Deuxième valeur')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[2]/VALUE', 'VALUE_2')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[3]/NAME', 'Troisième valeur')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="mm1"]/SUBMENU[3]/VALUE', 'VALUE_3')
         self.assert_xml_equal('COMPONENTS/DATE[@name="dt1"]', '2015-02-22')
         self.assert_xml_equal('COMPONENTS/TIME[@name="tm1"]', '21:05:00')
         self.assert_xml_equal('COMPONENTS/DATETIME[@name="stm1"]', '2015-03-30 10:00:00')

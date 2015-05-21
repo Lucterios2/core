@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on march 2015
+Abstract and proxy model for Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -54,7 +71,9 @@ def get_value_if_choices(value, dep_field):
 
 class LucteriosModel(models.Model):
 
-    TO_EVAL_FIELD = re.compile("#[a-z_0-9]+")
+    TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
+
+    default_fields = []
 
     @classmethod
     def get_long_name(cls):
@@ -62,9 +81,38 @@ class LucteriosModel(models.Model):
         return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)  # pylint: disable=no-member,protected-access
 
     def evaluate(self, text):
+        def eval_sublist(field_list, field_value):
+            field_val = []
+            for sub_model in field_value.all():
+                field_val.append(sub_model.evaluate("#" + ".".join(field_list[1:])))
+            return  "{[br/]}".join(field_val)
+        from django.db.models.fields import FieldDoesNotExist
+        from django.db.models.fields.related import ForeignKey
         value = text
         for field in self.TO_EVAL_FIELD.findall(text):
-            field_val = get_value_converted(getattr(self, field[1:]), True)
+            field_list = field[1:].split('.')
+            if hasattr(self, field_list[0]):
+                field_value = getattr(self, field_list[0])
+            else:
+                field_value = ""
+            if PrintFieldsPlugIn.is_plugin(field_list[0]):
+                field_val = PrintFieldsPlugIn.get_plugin(field_list[0]).evaluate("#" + ".".join(field_list[1:]))
+            elif field_list[0][-4:] == '_set':
+                field_val = eval_sublist(field_list, field_value)
+            else:
+                try:
+                    dep_field = self._meta.get_field_by_name(field_list[0])  # pylint: disable=no-member,protected-access
+                except FieldDoesNotExist:
+                    dep_field = None
+                if (dep_field is None) or (dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey)):
+                    field_val = get_value_converted(field_value, True)
+                else:
+                    if field_value is None:
+                        field_val = ""
+                    elif isinstance(dep_field[0], ForeignKey):
+                        field_val = field_value.evaluate("#" + ".".join(field_list[1:]))  # pylint: disable=no-member
+                    else:
+                        field_val = eval_sublist(field_list, field_value)
             value = value.replace(field, six.text_type(field_val))
         return value
 
@@ -104,13 +152,43 @@ class LucteriosModel(models.Model):
             if fieldname is None:
                 for subclass in cls.__bases__:
                     if issubclass(subclass, LucteriosModel):
-                        res.extend(subclass.get_fieldnames_for_search())
+                        res.extend(subclass.get_fieldnames_for_search(False))
             else:
                 res.append(fieldname)
         return res
 
     @classmethod
-    def get_fieldnames_for_search(cls):
+    def get_print_fields(cls, with_plugin=True):
+        def add_sub_field(field_name, field_title, model):
+            for sub_title, sub_name in model.get_print_fields(False):
+                fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
+        from django.db.models.fields.related import ForeignKey
+        fields = []
+        item = cls()
+        if hasattr(cls, "print_fields"):
+            dataname = "print_fields"
+        else:
+            dataname = "default_fields"
+        for field_name in getattr(cls, dataname):
+            if PrintFieldsPlugIn.is_plugin(field_name):
+                if with_plugin:
+                    fields.extend(PrintFieldsPlugIn.get_plugin(field_name).get_print_fields())
+            elif field_name[-4:] == '_set':
+                child = getattr(item, field_name)
+                field_title = child.model._meta.verbose_name  # pylint: disable=protected-access
+                add_sub_field(field_name, field_title, child.model)
+            else:
+                dep_field = item._meta.get_field_by_name(field_name)  # pylint: disable=no-member,protected-access
+                field_title = dep_field[0].verbose_name
+                if dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey):
+                    fields.append((field_title, field_name))
+                else:
+                    add_sub_field(field_name, field_title, dep_field[0].rel.to)
+        return fields
+
+    @classmethod
+    def get_fieldnames_for_search(cls, is_topleve=True):
+        # pylint: disable=unused-argument
         res = []
         dataname = cls.__name__.lower() + '__searchfields'
         if hasattr(cls, dataname):
@@ -158,3 +236,33 @@ class LucteriosSession(Session, LucteriosModel):
         default_permissions = []
         verbose_name = _('session')
         verbose_name_plural = _('sessions')
+
+class PrintFieldsPlugIn(object):
+
+    _plug_ins = {}
+
+    name = "EMPTY"
+    title = ""
+
+    @classmethod
+    def get_plugin(cls, name):
+        if name in cls._plug_ins.keys():
+            return cls._plug_ins[name]()
+        else:
+            return PrintFieldsPlugIn()
+
+    @classmethod
+    def is_plugin(cls, name):
+        return name in cls._plug_ins.keys()
+
+    @classmethod
+    def add_plugin(cls, pluginclass):
+        cls._plug_ins[pluginclass.name] = pluginclass
+
+    def get_print_fields(self):
+        # pylint: disable=no-self-use
+        return []
+
+    def evaluate(self, text_to_evaluate):
+        # pylint: disable=unused-argument,no-self-use
+        return ""

@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Unit test classes from user, group and session in Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -69,8 +86,8 @@ class UserTest(LucteriosTest):
 
         self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION', 4)
         self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]', ('Désactiver', 'images/suppr.png', 'CORE', 'usersDisabled', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]', ('Supprimer', 'images/suppr.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]', ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
         self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=4]', ('Ajouter', 'images/add.png', 'CORE', 'usersEdit', 0, 1, 1))
 
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER', 3)
@@ -81,7 +98,7 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/RECORD', 0)
         self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION', 2)
         self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=1]', ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
 
     def test_userdelete(self):
         add_user("user1")
@@ -218,10 +235,12 @@ class UserTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="email"]', (1, 4, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/EDIT[@name="email"]', None)
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 6, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}changer le mot de passe?{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/CHECK[@name="password_change"]', "0", (1, 5, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 7, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 7, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
 
@@ -301,8 +320,9 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[b]}prénom{[/b]}", (0, 2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[b]}nom{[/b]}", (0, 3, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[b]}adresse électronique{[/b]}", (0, 4, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}changer le mot de passe?{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 7, 1, 1))
 
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_staff"]', '0', (1, 0, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/CHECK[@name="is_superuser"]', '0', (1, 1, 1, 1, 1))
@@ -310,8 +330,9 @@ class UserTest(LucteriosTest):
         self.assert_attrib_equal('COMPONENTS/EDIT[@name="first_name"]', 'needed', '0')
         self.assert_comp_equal('COMPONENTS/EDIT[@name="last_name"]', None, (1, 3, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="email"]', None, (1, 4, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 5, 1, 1))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/CHECK[@name="password_change"]', '0', (1, 5, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 6, 1, 1))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (1, 7, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_groups"]', "{[b]}groupes{[/b]}", (0, 0, 1, 1))
@@ -402,7 +423,7 @@ class UserTest(LucteriosTest):
         self.assertTrue(user.check_password('user'), 'init')
 
         self.factory.xfer = UsersEdit()
-        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'abc', 'password2':'132'}, False)
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password_change':'o', 'password1':'abc', 'password2':'132'}, False)
         self.assert_observer('CORE.Exception', 'CORE', 'usersEdit')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Les mots de passes sont différents!')
         self.assert_xml_equal('EXCEPTION/CODE', '3')
@@ -411,17 +432,25 @@ class UserTest(LucteriosTest):
         self.assertTrue(user.check_password('user'), 'after different')
 
         self.factory.xfer = UsersEdit()
-        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'', 'password2':''}, False)
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password_change':'n', 'password1':'', 'password2':''}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
         user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('user'), 'after empty')
 
         self.factory.xfer = UsersEdit()
-        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password1':'abc', 'password2':'abc'}, False)
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password_change':'o', 'password1':'abc', 'password2':'abc'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
         user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
+
+        self.factory.xfer = UsersEdit()
+        self.call('/CORE/usersEdit', {'SAVE':'YES', 'user_actif':'3', 'password_change':'o', 'password1':'', 'password2':''}, False)
+        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        user = LucteriosUser.objects.get(id=3)  # pylint: disable=no-member
+        self.assertTrue(user.check_password(''), 'success after change')
+        self.assertFalse(user.check_password('abc'), 'wrong1 after change')
+        self.assertFalse(user.check_password('user'), 'wrong2 after change')
 
     def test_concurentedit(self):
         user1 = add_user("user1")
@@ -483,7 +512,7 @@ class GroupTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="group"]', ('0', '1', '2', '1'))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION', 3)
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
-        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/suppr.png', 'CORE', 'groupsDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/delete.png', 'CORE', 'groupsDelete', 0, 1, 2))
         self.assert_action_equal('COMPONENTS/GRID[@name="group"]/ACTIONS/ACTION[position()=3]', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/HEADER', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
@@ -644,7 +673,7 @@ class SessionTest(LucteriosTest):
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/extensions.png')
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/session.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les sessions{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))

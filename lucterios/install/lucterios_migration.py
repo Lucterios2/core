@@ -1,10 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
+# -*- coding: utf-8 -*-
 '''
-Created on avr. 2015
+Migration tools to import old Lucterios backup
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -14,10 +32,9 @@ from os import mkdir, unlink
 from shutil import rmtree, copyfile
 import sqlite3
 
-from lucterios.install.lucterios_admin import LucteriosInstance
+from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
 from django.utils import six
-
-INSTANCE_PATH = '.'
+from time import time
 
 # pylint: disable=line-too-long
 PERMISSION_CODENAMES = {'add_label':('Impression', 'CORE'), 'change_label':('Impression', 'CORE'), 'delete_label':('Impression', 'CORE'), \
@@ -40,30 +57,6 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         dictdb[col[0]] = row[idx]
     return dictdb
-
-def convert_utf8(value):
-    def conv1(value):
-        return value.decode('UTF-8')
-    def conv2(value):
-        return value.decode('ISO-8859-1')
-    def conv3(value):
-        return value.encode('UTF-8')
-    def conv4(value):
-        return value.encode('ISO-8859-1')
-    def conv5(value):
-        return value.decode('ISO-8859-1').encode('UTF-8')
-    def conv6(value):
-        return value.encode('ISO-8859-1').decode('UTF-8')
-    for fct_conv in [conv1, conv2, conv3, conv4, conv5, conv6]:
-        try:
-            return six.text_type("%s") % fct_conv(value)
-        except AttributeError:
-            pass
-        except UnicodeDecodeError:
-            pass
-        except UnicodeEncodeError:
-            pass
-    return value
 
 class MigrateFromV1(LucteriosInstance):
 
@@ -116,24 +109,24 @@ class MigrateFromV1(LucteriosInstance):
     def read_sqlfile(self, sql_file_path):
         # pylint: disable=too-many-branches, too-many-statements
         import re
-        try:
-            sqlf = open(join(self.tmp_path, sql_file_path), 'r', encoding='ISO-8859-1')
-        except TypeError:
-            sqlf = open(join(self.tmp_path, sql_file_path), 'r')
-        with sqlf:
+        import codecs
+        rigth_insert_script = []
+        with codecs.open(join(self.tmp_path, sql_file_path), 'rb', encoding='ISO-8859-1') as sqlf:
             create_script = []
             insert_script = []
             new_create_script = None
             new_insert_script = None
             for line in sqlf.readlines():
                 try:
-                    line = line.decode('ISO-8859-1').strip()
-                except AttributeError:
                     line = line.strip()
+                except UnicodeEncodeError:
+                    line = line.encode("ascii", 'replace').strip()
                 if new_insert_script is not None:
                     if line[-1:] == ";":
-                        new_insert_script.append(line)
-                        insert_script.append("\n".join(new_insert_script))
+                        new_insert_script.append(six.text_type(line))
+                        insert_script.append(six.text_type("\n").join(new_insert_script))
+                        if 'CORE_extension_rights' in six.text_type("\n").join(new_insert_script):
+                            rigth_insert_script.append(new_insert_script)
                         new_insert_script = None
                     else:
                         new_insert_script.append(line)
@@ -162,6 +155,8 @@ class MigrateFromV1(LucteriosInstance):
                 elif line[:11] == 'INSERT INTO':
                     if line[-1:] == ";":
                         insert_script.append(line)
+                        if 'CORE_extension_rights' in line:
+                            rigth_insert_script.append(line)
                     else:
                         new_insert_script = []
                         new_insert_script.append(line)
@@ -207,7 +202,8 @@ class MigrateFromV1(LucteriosInstance):
 
     def restore_usergroup(self):
         # pylint: disable=too-many-locals,too-many-branches,too-many-statements
-        from django.contrib.auth.models import User, Group, Permission
+        from django.contrib.auth.models import Permission, Group
+        from lucterios.CORE.models import LucteriosUser, LucteriosGroup
         from django.db.utils import IntegrityError
         try:
             permissions = Permission.objects.all()  # pylint: disable=no-member
@@ -215,21 +211,22 @@ class MigrateFromV1(LucteriosInstance):
             for permission in permissions:
                 if permission.codename in PERMISSION_CODENAMES.keys():
                     rigth_name, ext_name = PERMISSION_CODENAMES[permission.codename]
-                    rigth_name = convert_utf8(rigth_name)
                     cur = self.open_olddb()
-                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (rigth_name, ext_name)
-                    cur.execute(sql_text)
+                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (six.text_type(rigth_name), ext_name)
+                    try:
+                        cur.execute(sql_text)
+                    except:  # pylint: disable=bare-except
+                        self.print_log("SQL error:%s", sql_text)
                     rigth_id = cur.fetchone()
                     if rigth_id is not None:
                         permission_relation.append((permission.id, rigth_id[0]))
                     else:
                         self.print_log("=> not found %s", (sql_text,))
-            Group.objects.all().delete()  # pylint: disable=no-member
+            LucteriosGroup.objects.all().delete()  # pylint: disable=no-member
             group_list = {}
             cur = self.open_olddb()
             cur.execute("SELECT id, groupName FROM CORE_groups")
             for groupid, group_name in cur.fetchall():
-                group_name = convert_utf8(group_name)
                 premission_ref = []
                 for perm_id, perm_oldright in permission_relation:
                     rigthcur = self.open_olddb()
@@ -237,22 +234,20 @@ class MigrateFromV1(LucteriosInstance):
                     rightvalue, = rigthcur.fetchone()
                     if rightvalue == 'o':
                         premission_ref.append(perm_id)
-                new_grp = Group.objects.create(name=group_name)  # pylint: disable=no-member
+                new_grp = LucteriosGroup.objects.create(name=group_name)  # pylint: disable=no-member
                 new_grp.permissions = Permission.objects.filter(id__in=premission_ref)  # pylint: disable=no-member
                 self.print_log("=> Group %s (%s)", (group_name, premission_ref))
                 group_list[groupid] = new_grp
 
-            User.objects.all().delete()  # pylint: disable=no-member
+            LucteriosUser.objects.all().delete()  # pylint: disable=no-member
             user_list = {}
             cur = self.open_olddb()
-
             cur.execute("SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
             for userid, login, password, real_name, group_id, actif in cur.fetchall():
-                real_name = convert_utf8(real_name)
                 if login != '':
                     self.print_log("=> User %s [%s]", (login, real_name))
                     try:
-                        new_user = User.objects.create_user(username=login)  # pylint: disable=no-member
+                        new_user = LucteriosUser.objects.create_user(username=login)  # pylint: disable=no-member
                         if (login == "admin") and (password[0] == '*'):
                             new_user.set_password('admin')
                         else:
@@ -271,8 +266,71 @@ class MigrateFromV1(LucteriosInstance):
             self.close_olddb()
         return user_list
 
-    def restore_contact(self, user_list):
-        # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+    def _restore_contact_config(self):
+        # pylint: disable=too-many-locals,too-many-statements
+        from django.apps import apps
+        function_mdl = apps.get_model("contacts", "Function")
+        function_mdl.objects.all().delete()
+        function_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
+        for functionid, function_name in cur.fetchall():
+            self.print_log("=> Function %s", (function_name,))
+            function_list[functionid] = function_mdl.objects.create(name=function_name)
+
+        structuretype_mdl = apps.get_model("contacts", "StructureType")
+        structuretype_mdl.objects.all().delete()
+        structuretype_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
+        for structuretypeid, structuretype_name in cur.fetchall():
+            self.print_log("=> StructureType %s", (structuretype_name,))
+            structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
+
+        customfield_mdl = apps.get_model("contacts", "CustomField")
+        customfield_mdl.objects.all().delete()
+        customfield_list = {}
+        cur = self.open_olddb()
+        modelnames_relation = {}
+
+        modelnames_relation["org_lucterios_contacts/personneAbstraite"] = "contacts.AbstractContact"
+        modelnames_relation["org_lucterios_contacts/personneMorale"] = "contacts.LegalEntity"
+        modelnames_relation["org_lucterios_contacts/personnePhysique"] = "contacts.Individual"
+        # modelnames_relation["fr_sdlibre_membres/adherents"] = ""
+        cur.execute("SELECT id, class, description, type, param FROM org_lucterios_contacts_champPerso")
+        for customfield_val in cur.fetchall():
+            self.print_log("=> CustomField %s", customfield_val[2])
+            if customfield_val[1] in modelnames_relation.keys():
+                old_args = ""
+                args = {'min':0, 'max':0, 'prec':0, 'list':'', 'multi':False}
+                try:
+                    old_args = customfield_val[4].replace('array(', '{').replace(')', '}').replace('=>', ':')
+                    old_args = old_args.replace('false', 'False').replace("true", 'True')
+                    old_args_eval = eval(old_args)  # pylint: disable=eval-used
+                    for arg_key, arg_val in old_args_eval.items():
+                        if arg_key == "Multi":
+                            args['multi'] = bool(arg_val)
+                        if arg_key == "Min":
+                            args['min'] = int(arg_val)
+                        if arg_key == "Max":
+                            args['max'] = int(arg_val)
+                        if arg_key == "Prec":
+                            args['prec'] = int(arg_val)
+                        if arg_key == "Enum":
+                            args['list'] = arg_val
+                except:  # pylint: disable=bare-except
+                    import sys, traceback
+                    traceback.print_exc(file=sys.stdout)
+                    self.print_log("--- CustomField: error args=%s/%s", (customfield_val[4], old_args))
+                new_cf = customfield_mdl.objects.create(name=customfield_val[2], kind=customfield_val[3])
+                new_cf.modelname = modelnames_relation[customfield_val[1]]
+                new_cf.args = six.text_type(args)
+                new_cf.save()
+                customfield_list[customfield_val[0]] = new_cf
+        return structuretype_list, function_list, customfield_list
+
+    def _restore_contact_structure(self, user_list, structuretype_list):
+        # pylint: disable=too-many-locals
         def assign_abstact_values(new_legalentity, abstract_id):
             from lucterios.framework.filetools import get_user_path
             super_cur = self.open_olddb(True)
@@ -282,100 +340,100 @@ class MigrateFromV1(LucteriosInstance):
                                          ['ville', 'city'], ['pays', 'country'], ['fixe', 'tel1'], \
                                          ['portable', 'tel2'], ['mail', 'email'], ['commentaire', 'comment']]:
                 if abst_val[old_field] is not None:
-                    setattr(new_legalentity, new_field, convert_utf8(abst_val[old_field]))
+                    setattr(new_legalentity, new_field, abst_val[old_field])
             old_image_filename = join(self.tmp_path, "usr", "org_lucterios_contacts", "Image_%d.jpg" % abstract_id)
             if isfile(old_image_filename):
                 new_image_filename = get_user_path("contacts", "Image_%s.jpg" % new_legalentity.abstractcontact_ptr_id)
                 copyfile(old_image_filename, new_image_filename)
+        from django.apps import apps
+        abstract_list = {}
+        legalentity_mdl = apps.get_model("contacts", "LegalEntity")
+        legalentity_mdl.objects.all().delete()
+        legalentity_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
+        for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
+            self.print_log("=> LegalEntity[%d] %s (siren=%s)", (legalentityid, legalentity_name, legalentity_siren))
+            if legalentityid == 1:
+                new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
+            else:
+                new_legalentity = legalentity_mdl.objects.create(name=legalentity_name)
+            assign_abstact_values(new_legalentity, legalentity_super)
+            if legalentity_type in structuretype_list.keys():
+                new_legalentity.structure_type = structuretype_list[legalentity_type]
+            if legalentity_siren is not None:
+                new_legalentity.identify_number = legalentity_siren
+            new_legalentity.save()
+            legalentity_list[legalentityid] = new_legalentity
+            abstract_list[legalentity_super] = new_legalentity
+
+        individual_mdl = apps.get_model("contacts", "Individual")
+        individual_mdl.objects.all().delete()
+        individual_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
+        for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
+            self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
+            new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
+            assign_abstact_values(new_individual, individual_super)
+            new_individual.genre = individual_sexe + 1
+            if individual_user in user_list.keys():
+                new_individual.user = user_list[individual_user]
+            new_individual.save()
+            individual_list[individualid] = new_individual
+            abstract_list[individual_super] = new_legalentity
+
+        return legalentity_list, individual_list, abstract_list
+
+    def _restore_contact_relations(self, legalentity_list, individual_list, abstract_list, function_list, customfield_list):
+        # pylint: disable=too-many-locals
+        from django.apps import apps
+        function_mdl = apps.get_model("contacts", "Function")
+        responsability_mdl = apps.get_model("contacts", "Responsability")
+        responsability_mdl.objects.all().delete()
+        cur = self.open_olddb()
+        cur.execute("SELECT DISTINCT physique, morale FROM org_lucterios_contacts_liaison")
+        for physique, morale in cur.fetchall():
+            if (morale in legalentity_list.keys()) and (physique in individual_list.keys()):
+                new_resp = responsability_mdl.objects.create(individual=individual_list[physique], legal_entity=legalentity_list[morale])
+                ids = []
+                fctcur = self.open_olddb()
+                fctcur.execute('SELECT fonction FROM org_lucterios_contacts_liaison WHERE physique=%d AND morale=%d' % (physique, morale))
+                for fonction, in fctcur.fetchall():
+                    if fonction in function_list.keys():
+                        ids.append(function_list[fonction].pk)
+
+                self.print_log("=> Responsability %s %s =%s", (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
+                new_resp.functions = function_mdl.objects.filter(id__in=ids)
+                new_resp.save()
+
+        contactcustomfield_mdl = apps.get_model("contacts", "ContactCustomField")
+        contactcustomfield_mdl.objects.all().delete()
+        cur = self.open_olddb()
+        cur.execute("SELECT contact, champ, value FROM org_lucterios_contacts_personneChamp")
+        self.print_log("=> ContactCustomField %d", len(list(cur.fetchall())))
+        for contactcustomfield_val in cur.fetchall():
+            abs_contact = abstract_list[contactcustomfield_val[0]]
+            if (contactcustomfield_val[2] != '') and (contactcustomfield_val[1] in customfield_list.keys()):
+                cust_field = customfield_list[contactcustomfield_val[1]]
+                contactcustomfield_mdl.objects.create(contact=abs_contact, field=cust_field, value=contactcustomfield_val[2])
+
+    def restore_contact(self, user_list):
         from django.apps import apps
         try:
             apps.get_app_config("contacts")
         except LookupError:
             self.print_log("=> No contacts module", ())
             return
-        function_mdl = apps.get_model("contacts", "Function")
-        structuretype_mdl = apps.get_model("contacts", "StructureType")
-        legalentity_mdl = apps.get_model("contacts", "LegalEntity")
-        individual_mdl = apps.get_model("contacts", "Individual")
-        responsability_mdl = apps.get_model("contacts", "Responsability")
         try:
-            function_mdl.objects.all().delete()
-            function_list = {}
-            cur = self.open_olddb()
-
-            cur.execute("SELECT id, nom FROM org_lucterios_contacts_fonctions")
-            for functionid, function_name in cur.fetchall():
-                function_name = convert_utf8(function_name)
-                self.print_log("=> Function %s", (function_name,))
-                function_list[functionid] = function_mdl.objects.create(name=function_name)
-
-            structuretype_mdl.objects.all().delete()
-            structuretype_list = {}
-            cur = self.open_olddb()
-
-            cur.execute("SELECT id, nom FROM org_lucterios_contacts_typesMorales")
-            for structuretypeid, structuretype_name in cur.fetchall():
-                structuretype_name = convert_utf8(structuretype_name)
-                self.print_log("=> StructureType %s", (structuretype_name,))
-                structuretype_list[structuretypeid] = structuretype_mdl.objects.create(name=structuretype_name)
-
-            legalentity_mdl.objects.all().delete()
-            legalentity_list = {}
-            cur = self.open_olddb()
-
-            cur.execute("SELECT id, superId, raisonSociale, type, siren FROM org_lucterios_contacts_personneMorale")
-            for legalentityid, legalentity_super, legalentity_name, legalentity_type, legalentity_siren in cur.fetchall():
-                legalentity_name = convert_utf8(legalentity_name)
-                self.print_log("=> LegalEntity[%d] %s (siren=%s)", (legalentityid, legalentity_name, legalentity_siren))
-                if legalentityid == 1:
-                    new_legalentity = legalentity_mdl.objects.create(id=1, name=legalentity_name)
-                else:
-                    new_legalentity = legalentity_mdl.objects.create(name=legalentity_name)
-                assign_abstact_values(new_legalentity, legalentity_super)
-                if legalentity_type in structuretype_list.keys():
-                    new_legalentity.structure_type = structuretype_list[legalentity_type]
-                if legalentity_siren is not None:
-                    new_legalentity.identify_number = legalentity_siren
-                new_legalentity.save()
-                legalentity_list[legalentityid] = new_legalentity
-
-            individual_mdl.objects.all().delete()
-            individual_list = {}
-            cur = self.open_olddb()
-
-            cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
-            for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
-                individual_firstname = convert_utf8(individual_firstname)
-                individual_lastname = convert_utf8(individual_lastname)
-                self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
-                new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
-                assign_abstact_values(new_individual, individual_super)
-                new_individual.genre = individual_sexe + 1
-                if individual_user in user_list.keys():
-                    new_individual.user = user_list[individual_user]
-                new_individual.save()
-                individual_list[individualid] = new_individual
-
-            responsability_mdl.objects.all().delete()
-            cur = self.open_olddb()
-
-            cur.execute("SELECT DISTINCT physique, morale FROM org_lucterios_contacts_liaison")
-            for physique, morale in cur.fetchall():
-                if (morale in legalentity_list.keys()) and (physique in individual_list.keys()):
-                    new_resp = responsability_mdl.objects.create(individual=individual_list[physique], legal_entity=legalentity_list[morale])
-                    ids = []
-                    fctcur = self.open_olddb()
-                    fctcur.execute('SELECT fonction FROM org_lucterios_contacts_liaison WHERE physique=%d AND morale=%d' % (physique, morale))
-                    for (fonction,) in fctcur.fetchall():
-                        if fonction in function_list.keys():
-                            ids.append(function_list[fonction].pk)
-                    self.print_log("=> Responsability %s %s =%s", (six.text_type(individual_list[physique]), six.text_type(legalentity_list[morale]), six.text_type(ids)))
-                    new_resp.functions = function_mdl.objects.filter(id__in=ids)
-                    new_resp.save()
+            structuretype_list, function_list, customfield_list = self._restore_contact_config()
+            legalentity_list, individual_list, abstract_list = self._restore_contact_structure(user_list, structuretype_list)
+            self._restore_contact_relations(legalentity_list, individual_list, abstract_list, function_list, customfield_list)
         finally:
             self.close_olddb()
 
     def restore(self, archive):
+        begin_time = time()
         self.initial_olddb()
         self.extract_archive(archive)
         if not isfile(self.old_db_path):
@@ -386,6 +444,11 @@ class MigrateFromV1(LucteriosInstance):
         users = self.restore_usergroup()
         self.restore_contact(users)
         self.clear_old_archive()
+        duration_sec = time() - begin_time
+        duration_min = int(duration_sec / 60)
+        duration_sec = duration_sec - duration_min * 60
+
+        self.print_log("Migration duration: %d min %d sec", (duration_min, duration_sec))
 
 def main():
     from optparse import OptionParser

@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+Django setting adaptater to Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -88,6 +105,11 @@ DEFAULT_SETTINGS = {
 def fill_appli_settings(appli_name, addon_modules=None):
     last_frm = stack()[1]
     last_mod = getmodule(last_frm[0])
+    extra = {}
+    for ext_item in dir(last_mod):
+        if ext_item == ext_item.upper() and not (ext_item in ['BASE_DIR', 'DATABASES', 'SECRET_KEY']):
+            extra[ext_item] = getattr(last_mod, ext_item)
+    setattr(last_mod, "EXTRA", extra)
     logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, last_mod.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(last_mod, key_name, setting_value)
@@ -105,9 +127,9 @@ def fill_appli_settings(appli_name, addon_modules=None):
     setattr(last_mod, 'LOCALE_PATHS', tuple(local_path))
     setting_module = import_module("%s.appli_settings" % appli_name)
     for item in dir(setting_module):
-        setattr(last_mod, item, getattr(setting_module, item))
+        if item == item.upper():
+            setattr(last_mod, item, getattr(setting_module, item))
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
         setattr(last_mod, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(last_mod, 'APPLIS_LOGO', '')
-

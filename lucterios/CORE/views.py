@@ -1,15 +1,32 @@
 # -*- coding: utf-8 -*-
 '''
-Created on 11 fevr. 2015
+View for manage user password, print model and label in Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
 from lucterios.framework.xferbasic import XferContainerMenu
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
@@ -44,7 +61,7 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@MenuManage.describ(None, FORMTYPE_NOMODAL, 'core.general', _("To Change your password."))
+@MenuManage.describ(None, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"
@@ -103,7 +120,7 @@ def config_core(xfer):
     Params.fill(xfer, ['CORE-connectmode'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
 
-@MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify main parameters."))
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
@@ -190,7 +207,7 @@ class PrintModelList(XferContainerCustom):
         model_sel.set_location(2, 1, 2)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_changed("", ""), {'modal':FORMTYPE_REFRESH})
+        model_sel.set_action(self.request, self.get_changed("", ""), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
         self.add_component(model_sel)
 
         items = PrintModel.objects.filter(modelname=modelname)  # pylint: disable=no-member
@@ -199,7 +216,7 @@ class PrintModelList(XferContainerCustom):
         grid.set_model(items, ['name', 'kind'], self)
         grid.add_action(self.request, PrintModelEdit().get_changed(_('edit'), 'images/edit.png'), {'unique':SELECT_SINGLE})
         grid.add_action(self.request, PrintModelClone().get_changed(_('clone'), 'images/add.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelDelete().get_changed(_('delete'), 'images/suppr.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelDelete().get_changed(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
         self.add_component(grid)
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
@@ -212,6 +229,10 @@ class PrintModelEdit(XferContainerCustom):
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
+
+    def fill_menu_memo(self, memo_comp):
+        for name, value in self.item.model_associated().get_print_fields():
+            memo_comp.add_sub_menu(name, value)
 
     def fillresponse(self):
         img_title = XferCompImage('img')
@@ -236,15 +257,15 @@ class PrintModelEdit(XferContainerCustom):
     def _fill_listing_editor(self):
         lab = XferCompLabelForm('lbl_page_width')
         lab.set_location(1, 3)
-        lab.set_value_as_name(_("page width"))
+        lab.set_value_as_name(_("list page width"))
         self.add_component(lab)
         edt = XferCompFloat('page_width', 0, 9999, 0)
         edt.set_location(2, 3, 2)
         edt.set_value(self.item.page_width)
         self.add_component(edt)
-        lab = XferCompLabelForm('lbl_page_heigth')
+        lab = XferCompLabelForm('lbl_page_height')
         lab.set_location(1, 4)
-        lab.set_value_as_name(_("page heigth"))
+        lab.set_value_as_name(_("list page height"))
         self.add_component(lab)
         edt = XferCompFloat('page_heigth', 0, 9999, 0)
         edt.set_location(2, 4, 2)
@@ -273,10 +294,14 @@ class PrintModelEdit(XferContainerCustom):
             edt = XferCompMemo('col_title_%d' % col_index)
             edt.set_location(2, 6 + col_index)
             edt.set_value(col_title)
+            edt.set_size(75, 200)
             self.add_component(edt)
             edt = XferCompMemo('col_text_%d' % col_index)
             edt.set_location(3, 6 + col_index)
+            edt.set_size(50, 300)
+            edt.with_hypertext = True
             edt.set_value(col_text)
+            self.fill_menu_memo(edt)
             self.add_component(edt)
             col_index += 1
 
@@ -284,6 +309,9 @@ class PrintModelEdit(XferContainerCustom):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
         edit.set_location(1, 3, 2)
+        edit.set_size(100, 500)
+        edit.with_hypertext = True
+        self.fill_menu_memo(edit)
         self.add_component(edit)
 
     def _fill_report_editor(self):
@@ -357,7 +385,7 @@ class LabelEdit(XferAddEditor):
     # pylint: disable=too-many-public-methods
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
-    icon = "etiquette.png"
+    icon = "label_help.png"
     model = Label
     field_id = 'label'
 

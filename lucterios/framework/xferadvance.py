@@ -1,8 +1,25 @@
 # -*- coding: utf-8 -*-
 '''
-Created on march 2015
+Advance abstract viewer classes for Lucterios
 
-@author: sd-libre
+@author: Laurent GAY
+@organization: sd-libre.fr
+@contact: info@sd-libre.fr
+@copyright: 2015 sd-libre.fr
+@license: This file is part of Lucterios.
+
+Lucterios is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Lucterios is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
@@ -12,7 +29,7 @@ from django.db import IntegrityError
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import icon_path, ifplural, CLOSE_NO, StubAction, \
-    ActionsManage
+    ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
@@ -65,6 +82,7 @@ class XferAddEditor(XferContainerCustom):
     caption_add = ''
     caption_modify = ''
     fieldnames = []
+    redirect_to_show = True
 
     def fillresponse(self):
         if self.is_new:
@@ -93,6 +111,8 @@ class XferAddEditor(XferContainerCustom):
             save.caption = self.caption
             save.raise_except_class = self.__class__
             save.closeaction = self.closeaction
+            if self.redirect_to_show:
+                save.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''))
             return save.get(request, *args, **kwargs)
 
 class XferShowEditor(XferContainerCustom):
@@ -107,10 +127,9 @@ class XferShowEditor(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fill_from_model(1, 0, True)
-        action_list = [('modify', _("Modify"), "images/edit.png"), ('print', _("Print"), "images/print.png")]
-        for act_type, title, icon in action_list:
-            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
-
+        action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
+        for act_type, title, icon, close in action_list:
+            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':close})
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 
     def get(self, request, *args, **kwargs):
