@@ -175,6 +175,7 @@ class XferSave(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.has_changed:
+            self.item.before_save(self)
             try:
                 self.item.save()
                 self.has_changed = False

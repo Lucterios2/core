@@ -426,6 +426,7 @@ class XferCompGrid(XferComponent):
         XferComponent.__init__(self, name)
         self._component_ident = "GRID"
         self.headers = []
+        self.record_ids = []
         self.records = {}
         self.actions = []
         self.page_max = 0
@@ -476,6 +477,7 @@ class XferCompGrid(XferComponent):
                 else:
                     new_record[header.name] = ""
             self.records[compid] = new_record
+            self.record_ids.append(compid)
 
     def set_value(self, compid, name, value):
         self._new_record(compid)
@@ -495,7 +497,8 @@ class XferCompGrid(XferComponent):
             if header.type != "":
                 xml_header.attrib['type'] = six.text_type(header.type)
             xml_header.text = six.text_type(header.descript)
-        for (key, record) in self.records.items():
+        for key in self.record_ids:
+            record = self.records[key]
             xml_record = etree.SubElement(compxml, "RECORD")
             xml_record.attrib['id'] = six.text_type(key)
             for header in self.headers:

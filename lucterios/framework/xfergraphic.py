@@ -314,9 +314,10 @@ class XferContainerCustom(XferContainerAbstract):
         return comp
 
     def get_writing_comp(self, field_name):
-        # pylint: disable=too-many-locals,too-many-branches
+        # pylint: disable=too-many-locals,too-many-branches,too-many-statements
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
         from django.db.models.fields.related import ForeignKey
+        from django.core.exceptions import ObjectDoesNotExist
         dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
             if (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
@@ -347,7 +348,10 @@ class XferContainerCustom(XferContainerAbstract):
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field[0], ForeignKey):
             comp = XferCompSelect(field_name)
-            value = getattr(self.item, field_name)
+            try:
+                value = getattr(self.item, field_name)
+            except ObjectDoesNotExist:
+                value = None
             if value is None:
                 comp.set_value(0)
             else:

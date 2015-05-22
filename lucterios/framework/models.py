@@ -209,6 +209,10 @@ class LucteriosModel(models.Model):
         # pylint: disable=unused-argument,no-self-use
         return
 
+    def before_save(self, xfer):
+        # pylint: disable=unused-argument,no-self-use
+        return
+
     def saving(self, xfer):
         # pylint: disable=unused-argument,no-self-use
         return

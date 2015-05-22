@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-05-20 15:52+0000\n"
+"POT-Creation-Date: 2015-05-22 16:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -37,15 +37,15 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: models.py:222
+#: models.py:226
 msgid "username"
 msgstr "username"
 
-#: models.py:237
+#: models.py:241
 msgid "session"
 msgstr "session"
 
-#: models.py:238
+#: models.py:242
 msgid "sessions"
 msgstr "sessions"
 
@@ -110,7 +110,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:130 xfercomponents.py:555
+#: xferadvance.py:130 xfercomponents.py:558
 msgid "Modify"
 msgstr "Modify"
 
@@ -136,7 +136,7 @@ msgstr "Do you want delete this %(name)s?"
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:184
+#: xferadvance.py:185
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
@@ -148,15 +148,15 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:555
+#: xfercomponents.py:558
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:556
+#: xfercomponents.py:559
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:556
+#: xfercomponents.py:559
 msgid "Add"
 msgstr "Add"
 
