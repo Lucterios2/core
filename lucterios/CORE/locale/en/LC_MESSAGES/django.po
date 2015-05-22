@@ -34,7 +34,7 @@ msgstr ""
 #: help/01_password.html:8
 msgid "help-password-security"
 msgstr ""
-"<p>For added security, we recommend that you use a password consisting of "
+"<p>For more security, we recommend that you use a password consisting of "
 "letters and numbers and not being an understandable word.</p>"
 
 #: help/02_groups.html:2
@@ -51,7 +51,7 @@ msgstr ""
 msgid "help-groups-detail"
 msgstr ""
 "<p> Rights group brings together a set of permissions to the actions of the "
-"application. </p>"
+"application.</p>"
 
 #: help/03_users.html:2
 msgid "03_users.html"
@@ -67,10 +67,10 @@ msgstr ""
 #: help/03_users.html:8
 msgid "help-users-ended"
 msgstr ""
-"<p> In this list, you can create or edit the user: his alias, his name and "
+"<p>On this list, you can create or edit the user: his alias, his name and "
 "his password. You can add groups and additional permissions to define the "
 "access level to the software. You can also disable a user for him prohibit "
-"access to the application. </p>"
+"access to the application</p>"
 
 #: help/04_architecture.html:2
 msgid "04_architecture.html"
@@ -84,7 +84,7 @@ msgstr ""
 
 #: migrations/0001_initial.py:45
 msgid "CORE-GUID"
-msgstr "Serial number of software"
+msgstr "Software serial number"
 
 #: migrations/0001_initial.py:51
 msgid "CORE-connectmode"
@@ -180,7 +180,7 @@ msgstr "password (again)"
 
 #: models.py:111 views.py:113
 msgid "The passwords are differents!"
-msgstr "The passwords are differents!"
+msgstr "Passwords are differents!"
 
 #: models.py:133
 msgid "group"
@@ -309,7 +309,7 @@ msgstr "Manage settings and configurations."
 
 #: views.py:64
 msgid "To Change your password."
-msgstr "To Change your password."
+msgstr "Change your password."
 
 #: views.py:66 views.py:104
 msgid "_Password"
@@ -345,7 +345,7 @@ msgstr "Password modify"
 
 #: views.py:123
 msgid "To view and to modify main parameters."
-msgstr "To view and to modify main parameters."
+msgstr "View and modify main parameters."
 
 #: views.py:125
 msgid "Main configuration"
@@ -377,7 +377,7 @@ msgstr "_Modules (conf.)"
 
 #: views.py:175
 msgid "To manage of modules configurations."
-msgstr "To manage of modules configurations."
+msgstr "Manage of modules configurations."
 
 #: views.py:177
 msgid "Report and print"
@@ -385,11 +385,11 @@ msgstr "Report and print"
 
 #: views.py:177
 msgid "To manage reports and tools of printing."
-msgstr "To manage reports and tools of printing."
+msgstr "Manage reports and tools of printing."
 
 #: views.py:179
 msgid "To Manage printing models."
-msgstr "To Manage printing models."
+msgstr "Manage printing models."
 
 #: views.py:181 views.py:193 views.py:244
 msgid "Print models"
@@ -458,7 +458,7 @@ msgstr "Delete print model"
 
 #: views.py:375
 msgid "To manage boards of labels"
-msgstr "To manage boards of labels"
+msgstr "Manage boards of labels"
 
 #: views.py:377
 msgid "Labels"
@@ -486,7 +486,7 @@ msgstr "_Rights manage"
 
 #: views_usergroup.py:38
 msgid "To manage users, groups and permissions."
-msgstr "To manage users, groups and permissions."
+msgstr "Manage users, groups and permissions."
 
 #: views_usergroup.py:44
 msgid "Add a group"
@@ -502,7 +502,7 @@ msgstr "Delete group"
 
 #: views_usergroup.py:59
 msgid "To manage permissions groupes."
-msgstr "To manage permissions groups."
+msgstr "Manage permissions groups."
 
 #: views_usergroup.py:62
 msgid "Groups"
@@ -510,7 +510,7 @@ msgstr "Groups"
 
 #: views_usergroup.py:67
 msgid "To manage users."
-msgstr "To manage users."
+msgstr "Manage users."
 
 #: views_usergroup.py:70
 msgid "_Users"
@@ -550,7 +550,7 @@ msgstr "Delete users"
 
 #: views_usergroup.py:131
 msgid "You can delete yourself!"
-msgstr "You can delete yourself!"
+msgstr "You can't delete yourself!"
 
 #: views_usergroup.py:136
 msgid "Disabled an user"
@@ -558,7 +558,7 @@ msgstr "Disabled an user"
 
 #: views_usergroup.py:143
 msgid "You can disabled yourself!"
-msgstr "You can disabled yourself!"
+msgstr "You can't disabled yourself!"
 
 #: views_usergroup.py:149
 msgid "Enabled an user"
@@ -566,7 +566,7 @@ msgstr "Enabled an user"
 
 #: views_usergroup.py:162
 msgid "Add an users"
-msgstr "Add an users"
+msgstr "Add an user"
 
 #: views_usergroup.py:163
 msgid "Modify an user"
@@ -578,7 +578,7 @@ msgstr "Delete session"
 
 #: views_usergroup.py:177
 msgid "To manage session."
-msgstr "To manage session."
+msgstr "Manage session."
 
 #: views_usergroup.py:180
 msgid "Sessions"
