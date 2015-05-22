@@ -36,7 +36,7 @@ var ObserverDialogBox = ObserverGUI.extend({
         this.mText = this.mText.convertLuctoriosFormatToHtml();
 
         table[0] = [];
-        table[0][0] = new compBasic("<img src='" + image_name + "'></img>");
+        table[0][0] = new compBasic("<img src='" + image_name + "' alt='" + image_name + "'></img>");
         table[0][1] = new compBasic("<label>" + this.mText + "</label>");
 
         this.mGUI = new GUIManage(this.getId(), this.mTitle, this);

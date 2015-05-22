@@ -97,7 +97,7 @@ var ObserverException = ObserverAbstract
 						'images/' + image_name);
 				table[0] = [];
 				table[0][0] = new compBasic("<img src='" + image_name
-						+ "'></img>");
+						+ "' alt='" + image_name + "'></img>");
 				table[0][1] = new compBasic(
 						"<label style='max-width:800px;overflow:auto;'><b>"
 								+ this.message + "</b></label>", 1, 1,
