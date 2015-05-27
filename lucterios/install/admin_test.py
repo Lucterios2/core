@@ -393,5 +393,5 @@ if __name__ == "__main__":
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
-    suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
+    #suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     XMLTestRunner(verbosity=1).run(suite)

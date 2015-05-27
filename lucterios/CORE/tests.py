@@ -234,7 +234,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/modifyPassword', {'oldpass':'aaa', 'newpass1':'123', 'newpass2':'123'})
         self.assert_observer('CORE.Exception', 'CORE', 'modifyPassword')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel érroné!'))
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel erroné!'))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
         self.call('/CORE/modifyPassword', {'oldpass':'empty', 'newpass1':'123', 'newpass2':'456'})
@@ -277,7 +277,7 @@ class ConfigTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connection toujours nécessaire", (2, 1, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connexion toujours nécessaire", (2, 1, 1, 1))
 
     def test_config_edit(self):
         self.factory.xfer = ParamEdit()
@@ -297,8 +297,8 @@ class ConfigTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (2, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
-        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connection toujours nécessaire")
-        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert entant qu'anonyme")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connexion toujours nécessaire")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert en tant qu'anonyme")
         self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
 
     def test_config_save(self):

@@ -50,7 +50,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersList()
         self.call('/CORE/usersList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'usersList')
-        self.assert_xml_equal('TITLE', 'Les utilisateurs')
+        self.assert_xml_equal('TITLE', 'Utilisateurs')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
@@ -235,7 +235,7 @@ class UserTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/EDIT[@name="email"]', (1, 4, 1, 1, 1))
         self.assert_xml_equal('COMPONENTS/EDIT[@name="email"]', None)
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}changer le mot de passe?{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}Changer le mot de passe ?{[/b]}", (0, 5, 1, 1))
         self.assert_comp_equal('COMPONENTS/CHECK[@name="password_change"]', "0", (1, 5, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password1"]', None, (1, 6, 1, 1))
@@ -320,7 +320,7 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_first_name"]', "{[b]}prénom{[/b]}", (0, 2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_last_name"]', "{[b]}nom{[/b]}", (0, 3, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_email"]', "{[b]}adresse électronique{[/b]}", (0, 4, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}changer le mot de passe?{[/b]}", (0, 5, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}Changer le mot de passe ?{[/b]}", (0, 5, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}", (0, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}", (0, 7, 1, 1))
 
@@ -668,14 +668,14 @@ class SessionTest(LucteriosTest):
 
         self.call('/CORE/sessionList', {})
         self.assert_observer('Core.Custom', 'CORE', 'sessionList')
-        self.assert_xml_equal('TITLE', 'Les sessions')
+        self.assert_xml_equal('TITLE', 'Sessions')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', 'images/session.png')
         self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
-        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les sessions{[/b]}{[/u]}{[/center]}')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Sessions{[/b]}{[/u]}{[/center]}')
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="session"]', ('0', '1', '2', '1'))
 
