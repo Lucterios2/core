@@ -44,9 +44,11 @@
 	</target>
 
 	<target name="init">
-		<buildnumber />
-		<property name="projet.version.build" value="${build.number}"/>
-		<echo message="${projet.version.build}" file="lucterios/CORE/build" append="false" />
+		<tstamp>
+			<format property="build.time" pattern="yyMMddHH" unit="hour" />
+		</tstamp>		
+		<property name="projet.version.build" value="${build.time}"/>
+		<echo message="${projet.version.build}" file="lucterios/CORE/build" append="false" />		
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;'  file="junit_py0.xml" append="false" />
 	</target>
 
