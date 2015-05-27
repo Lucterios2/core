@@ -60,6 +60,6 @@ setup(
        "lucterios.framework":['locale/*/*/*'],
        "lucterios.install":['*'],
     },
-    install_requires=["Django ==1.7", "django_jux ==1.0", "lxml ==3.4", 'pycrypto ==2.6', 'reportlab ==3.1.44'],
+    install_requires=["Django ==1.7", "django_jux ==1.0", "lxml >=3.4", 'pycrypto >=2.6', 'reportlab >=3.1'],
 )
 
