@@ -122,7 +122,12 @@ class MenuManage(object):
         try:
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
-            cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
+            add_new_menu=True
+            for old_menu in cls._MENU_LIST[parentref]:
+                if old_menu[0].url_text==ref:
+                    add_new_menu=False
+            if add_new_menu:
+                cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
