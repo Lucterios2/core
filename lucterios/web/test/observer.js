@@ -140,7 +140,7 @@ test( "Authentification 3", function() {
 	var jcnt = gui.getHtmlDom();
 
 	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label");
-	equal(lbl.text(),"Session expirée!",'text 1');
+	equal(lbl.text(),"Session expirée !",'text 1');
 	
 	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
 	equal(btn1.text(),'Ok','btn 1');

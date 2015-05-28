@@ -348,7 +348,7 @@ asyncTest( "Custom_Upload", function() {
 	var comp_lbl = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(1) > label");
 	equal(comp_lbl.html(),'FileName.txt',"comp filename");
 	var comp_download = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(1) > button");
-	equal(comp_download.text(),'Sauver sous...',"comp download");
+	equal(comp_download.text(),'Enregistrer sous...',"comp download");
 	
 	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
 	equal(btn1.text(),'Ok','btn 1');
