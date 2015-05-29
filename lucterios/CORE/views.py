@@ -27,7 +27,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction, \
     ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
-from lucterios.framework.xferbasic import XferContainerMenu
+from lucterios.framework.xferbasic import XferContainerMenu, \
+    XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat
@@ -36,8 +37,13 @@ from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel
 from django.utils import six
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, \
-    XferDelete, XferSave
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
+from lucterios.framework.filetools import get_user_dir
+
+from os.path import isfile, join
+import mimetypes, stat, os
+from django.http.response import StreamingHttpResponse
+from django.utils.http import http_date
 
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
@@ -49,6 +55,26 @@ class Unlock(XferContainerAcknowledge):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)
 
 signal_and_lock.unlocker_action_class = Unlock
+
+@MenuManage.describ('')
+class Download(XferContainerAbstract):
+
+    def get(self, request, *args, **kwargs):
+        self._initialize(request, *args, **kwargs)
+        full_path = join(get_user_dir(), six.text_type(self.getparam('filename')))
+        if not isfile(full_path):
+            raise LucteriosException(IMPORTANT, _("File not found!"))
+        content_type, encoding = mimetypes.guess_type(full_path)
+        content_type = content_type or 'application/octet-stream'
+        statobj = os.stat(full_path)
+        response = StreamingHttpResponse(open(full_path, 'rb'),
+                                         content_type=content_type)
+        response["Last-Modified"] = http_date(statobj.st_mtime)
+        if stat.S_ISREG(statobj.st_mode):
+            response["Content-Length"] = statobj.st_size
+        if encoding:
+            response["Content-Encoding"] = encoding
+        return response
 
 @MenuManage.describ('')
 class Menu(XferContainerMenu):

@@ -377,7 +377,12 @@ class XferCompCheckList(XferCompButton):
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
-        for (key, val) in self.select_list.items():
+        if isinstance(self.select_list, dict):
+            list_of_select = list(self.select_list.items())
+        else:
+            list_of_select = list(self.select_list)
+
+        for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)
             if key in self.value:
@@ -403,7 +408,7 @@ class XferCompUpLoad(XferComponent):
     def _get_attribut(self, compxml):
         XferComponent._get_attribut(self, compxml)
         if self.compress:
-            compxml.attrib['Compress'] = 'true'
+            compxml.attrib['Compress'] = '1'
         if self.http_file:
             compxml.attrib['HttpFile'] = '1'
         compxml.attrib['maxsize'] = six.text_type(self.maxsize)
@@ -412,6 +417,32 @@ class XferCompUpLoad(XferComponent):
         compxml = XferComponent.get_reponse_xml(self)
         for filte_item in self.fitre:
             etree.SubElement(compxml, "FILTER").text = six.text_type(filte_item)
+        return compxml
+
+class XferCompDownLoad(XferCompButton):
+
+    def __init__(self, name):
+        XferCompButton.__init__(self, name)
+        self._component_ident = "DOWNLOAD"
+        self.filename = ""
+        self.compress = False
+        self.http_file = False
+        self.maxsize = 1048576
+
+    def set_filename(self, filename):
+        self.filename = six.text_type(filename).strip()
+
+    def _get_attribut(self, compxml):
+        XferCompButton._get_attribut(self, compxml)
+        if self.compress:
+            compxml.attrib['Compress'] = '1'
+        if self.http_file:
+            compxml.attrib['HttpFile'] = '1'
+        compxml.attrib['maxsize'] = six.text_type(self.maxsize)
+
+    def get_reponse_xml(self):
+        compxml = XferComponent.get_reponse_xml(self)
+        etree.SubElement(compxml, "FILENAME").text = self.filename
         return compxml
 
 MAX_GRID_RECORD = 25

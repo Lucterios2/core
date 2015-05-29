@@ -84,9 +84,9 @@ class XferContainerAcknowledge(XferContainerAbstract):
         else:
             return False
 
-    def redirect_action(self, action):
+    def redirect_action(self, action, option):
         if self.check_action_permission(action):
-            self.redirect_act = action
+            self.redirect_act = (action, option)
 
     def raise_except(self, error_msg, action=None):
         self.except_msg = error_msg
@@ -163,7 +163,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _finalize(self):
         if self.redirect_act != None:
-            act_xml = get_action_xml(self.redirect_act, {})
+            act_xml = get_action_xml(self.redirect_act[0], self.redirect_act[1])
             if act_xml is not None:
                 self.responsexml.append(act_xml)
         XferContainerAbstract._finalize(self)
@@ -254,8 +254,14 @@ class XferContainerCustom(XferContainerAbstract):
     def change_to_readonly(self, cmp_name):
         old_obj = self.get_components(cmp_name)
         value = old_obj.value
-        if isinstance(old_obj, XferCompSelect) and (value in old_obj.select_list.keys()):
-            value = old_obj.select_list[value]
+        if isinstance(old_obj, XferCompSelect):
+            if isinstance(old_obj.select_list, dict) and (value in old_obj.select_list.keys()):
+                value = old_obj.select_list[value]
+            if isinstance(old_obj.select_list, list):
+                for key, sel_val in old_obj.select_list:
+                    if value == key:
+                        value = sel_val
+                        break
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
         new_lbl = XferCompLabelForm(cmp_name)
@@ -356,11 +362,11 @@ class XferContainerCustom(XferContainerAbstract):
                 comp.set_value(0)
             else:
                 comp.set_value(value.id)
-            sel_list = {}
+            sel_list = []
             if dep_field[0].null:
-                sel_list[0] = "---"
+                sel_list.append((0, "---"))
             for select_obj in dep_field[0].rel.to.objects.all():
-                sel_list[select_obj.id] = six.text_type(select_obj)
+                sel_list.append((select_obj.id, six.text_type(select_obj)))
             comp.set_select(sel_list)
         else:
             comp = XferCompEdit(field_name)

@@ -122,10 +122,10 @@ class MenuManage(object):
         try:
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
-            add_new_menu=True
+            add_new_menu = True
             for old_menu in cls._MENU_LIST[parentref]:
-                if old_menu[0].url_text==ref:
-                    add_new_menu=False
+                if old_menu[0].url_text == ref:
+                    add_new_menu = False
             if add_new_menu:
                 cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
@@ -208,7 +208,7 @@ def fill_param_xml(context, params):
         if isinstance(value, tuple) or isinstance(value, list):
             new_param.text = ";".join(value)
         else:
-            new_param.text = value
+            new_param.text = six.text_type(value)
         new_param.attrib['name'] = key
 
 def get_action_xml(item, option, desc='', tag='ACTION'):

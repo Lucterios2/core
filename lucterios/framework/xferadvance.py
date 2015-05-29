@@ -111,8 +111,7 @@ class XferAddEditor(XferContainerCustom):
             save.caption = self.caption
             save.raise_except_class = self.__class__
             save.closeaction = self.closeaction
-            if self.redirect_to_show:
-                save.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''))
+            save.redirect_to_show = self.redirect_to_show
             return save.get(request, *args, **kwargs)
 
 class XferShowEditor(XferContainerCustom):
@@ -160,7 +159,6 @@ class XferDelete(XferContainerAcknowledge):
         # pylint: disable=protected-access
         for item in self.items:
             cant_del_msg = item.can_delete()
-
             if cant_del_msg != '':
                 raise LucteriosException(IMPORTANT, cant_del_msg)
 
@@ -172,6 +170,7 @@ class XferDelete(XferContainerAcknowledge):
 class XferSave(XferContainerAcknowledge):
 
     raise_except_class = None
+    redirect_to_show = True
 
     def fillresponse(self):
         if self.has_changed:
@@ -185,3 +184,5 @@ class XferSave(XferContainerAcknowledge):
                 self.raise_except(_("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
             self.item.saving(self)
+        if self.redirect_to_show:
+            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {'params':{self.field_id:self.item.id}})
