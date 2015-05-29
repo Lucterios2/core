@@ -111,55 +111,57 @@ class MigrateFromV1(LucteriosInstance):
         import re
         import codecs
         rigth_insert_script = []
-        with codecs.open(join(self.tmp_path, sql_file_path), 'rb', encoding='ISO-8859-1') as sqlf:
-            create_script = []
-            insert_script = []
-            new_create_script = None
-            new_insert_script = None
-            for line in sqlf.readlines():
-                try:
-                    line = line.strip()
-                except UnicodeEncodeError:
-                    line = line.encode("ascii", 'replace').strip()
-                if new_insert_script is not None:
-                    if line[-1:] == ";":
-                        new_insert_script.append(six.text_type(line))
-                        insert_script.append(six.text_type("\n").join(new_insert_script))
-                        if 'CORE_extension_rights' in six.text_type("\n").join(new_insert_script):
-                            rigth_insert_script.append(new_insert_script)
-                        new_insert_script = None
-                    else:
-                        new_insert_script.append(line)
-                if new_create_script is not None:
-                    if line[:8] == ') ENGINE':
-                        new_create_script.append(')')
-                        new_script = " ".join(new_create_script)
-                        if new_script[-3:] == ", )":
-                            new_script = new_script[:-3] + ")"
-                        create_script.append(new_script)
-                        new_create_script = None
-                    elif (line[:11] != 'PRIMARY KEY') and (line[:3] != 'KEY') and (line[:10] != 'UNIQUE KEY'):
-                        line = re.sub(r'int\([0-9]+\) unsigned', 'NUMERIC', line)
-                        line = re.sub(r'tinyint\([0-9]+\)', 'NUMERIC', line)
-                        line = re.sub(r'int\([0-9]+\)', 'NUMERIC', line)
-                        line = re.sub(r'varchar\([0-9]+\)', 'TEXT', line)
-                        line = re.sub(r'longtext', 'TEXT', line)
-                        line = re.sub(r'enum\(.*\)', 'TEXT', line)
-                        line = re.sub(r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
-                        if (line.find('NOT NULL') != -1) and (line.find('DEFAULT') == -1):
-                            line = re.sub(' NOT NULL,', ' NOT NULL DEFAULT "",', line)
+        create_script = []
+        insert_script = []
+        sql_file = join(self.tmp_path, sql_file_path)
+        if isfile(sql_file):
+            with codecs.open(sql_file, 'rb', encoding='ISO-8859-1') as sqlf:
+                new_create_script = None
+                new_insert_script = None
+                for line in sqlf.readlines():
+                    try:
+                        line = line.strip()
+                    except UnicodeEncodeError:
+                        line = line.encode("ascii", 'replace').strip()
+                    if new_insert_script is not None:
+                        if line[-1:] == ";":
+                            new_insert_script.append(six.text_type(line))
+                            insert_script.append(six.text_type("\n").join(new_insert_script))
+                            if 'CORE_extension_rights' in six.text_type("\n").join(new_insert_script):
+                                rigth_insert_script.append(new_insert_script)
+                            new_insert_script = None
+                        else:
+                            new_insert_script.append(line)
+                    if new_create_script is not None:
+                        if line[:8] == ') ENGINE':
+                            new_create_script.append(')')
+                            new_script = " ".join(new_create_script)
+                            if new_script[-3:] == ", )":
+                                new_script = new_script[:-3] + ")"
+                            create_script.append(new_script)
+                            new_create_script = None
+                        elif (line[:11] != 'PRIMARY KEY') and (line[:3] != 'KEY') and (line[:10] != 'UNIQUE KEY'):
+                            line = re.sub(r'int\([0-9]+\) unsigned', 'NUMERIC', line)
+                            line = re.sub(r'tinyint\([0-9]+\)', 'NUMERIC', line)
+                            line = re.sub(r'int\([0-9]+\)', 'NUMERIC', line)
+                            line = re.sub(r'varchar\([0-9]+\)', 'TEXT', line)
+                            line = re.sub(r'longtext', 'TEXT', line)
+                            line = re.sub(r'enum\(.*\)', 'TEXT', line)
+                            line = re.sub(r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
+                            if (line.find('NOT NULL') != -1) and (line.find('DEFAULT') == -1):
+                                line = re.sub(' NOT NULL,', ' NOT NULL DEFAULT "",', line)
+                            new_create_script.append(line)
+                    elif line[:12] == 'CREATE TABLE':
+                        new_create_script = []
                         new_create_script.append(line)
-                elif line[:12] == 'CREATE TABLE':
-                    new_create_script = []
-                    new_create_script.append(line)
-                elif line[:11] == 'INSERT INTO':
-                    if line[-1:] == ";":
-                        insert_script.append(line)
-                        if 'CORE_extension_rights' in line:
-                            rigth_insert_script.append(line)
-                    else:
-                        new_insert_script = []
-                        new_insert_script.append(line)
+                    elif line[:11] == 'INSERT INTO':
+                        if line[-1:] == ";":
+                            insert_script.append(line)
+                            if 'CORE_extension_rights' in line:
+                                rigth_insert_script.append(line)
+                        else:
+                            new_insert_script = []
+                            new_insert_script.append(line)
         return create_script, insert_script
 
     def open_olddb(self, with_factory=False):
@@ -264,7 +266,7 @@ class MigrateFromV1(LucteriosInstance):
                         self.print_log("*** User %s doubled", (login,))
         finally:
             self.close_olddb()
-        return user_list
+        return user_list, group_list
 
     def _restore_contact_config(self):
         # pylint: disable=too-many-locals,too-many-statements
@@ -432,17 +434,87 @@ class MigrateFromV1(LucteriosInstance):
         finally:
             self.close_olddb()
 
+    def _restore_document_folders(self, group_list):
+        # pylint: disable=too-many-locals
+        from django.apps import apps
+        group_mdl = apps.get_model("CORE", "LucteriosGroup")
+        folder_mdl = apps.get_model("documents", "Folder")
+        folder_mdl.objects.all().delete()
+        folder_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, nom, description, parent FROM org_lucterios_documents_categorie ORDER BY parent,id")
+        for folderid, folder_name, folder_description, folder_parent in cur.fetchall():
+            self.print_log("=> Folder %s", (folder_name,))
+            folder_list[folderid] = folder_mdl.objects.create(name=folder_name, description=folder_description)
+            if folder_parent is not None:
+                folder_list[folderid].parent = folder_list[folder_parent]
+                folder_list[folderid].save()
+
+            modif_group = []
+            cur_mod = self.open_olddb()
+            cur_mod.execute("SELECT groupe FROM org_lucterios_documents_modification WHERE categorie=%d" % folderid)
+            for group_id in cur_mod.fetchall():
+                modif_group.append(group_list[group_id[0]].id)
+
+            visu_group = []
+            cur_visu = self.open_olddb()
+            cur_visu.execute("SELECT groupe FROM org_lucterios_documents_visualisation WHERE categorie=%d" % folderid)
+            for group_id in cur_visu.fetchall():
+                visu_group.append(group_list[group_id[0]].id)
+
+            folder_list[folderid].modifier = group_mdl.objects.filter(id__in=modif_group)
+            folder_list[folderid].viewer = group_mdl.objects.filter(id__in=visu_group)
+        return folder_list
+
+    def _restore_document_docs(self, folder_list, user_list):
+        # pylint: disable=too-many-locals
+        from lucterios.framework.filetools import get_user_path
+        from django.apps import apps
+        doc_mdl = apps.get_model("documents", "Document")
+        doc_mdl.objects.all().delete()
+        doc_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, nom, description, categorie, modificateur, createur, dateModification, dateCreation FROM org_lucterios_documents_document")
+        for docid, doc_name, doc_description, doc_folder, doc_modifier, doc_creator, doc_datemod, doc_datecreat in cur.fetchall():
+            self.print_log("=> Document %s", (doc_name,))
+            doc_list[docid] = doc_mdl.objects.create(name=doc_name, description=doc_description, date_modification=doc_datemod, date_creation=doc_datecreat)
+            if doc_folder is not None:
+                doc_list[docid].folder = folder_list[doc_folder]
+            doc_list[docid].modifier = user_list[doc_modifier]
+            doc_list[docid].creator = user_list[doc_creator]
+            doc_list[docid].save()
+            new_filename = get_user_path("documents", "document_%s" % six.text_type(doc_list[docid].id))
+            old_filename = join(self.tmp_path, "usr", "org_lucterios_documents", "document%d" % docid)
+            if isfile(old_filename):
+                copyfile(old_filename, new_filename)
+            else:
+                with open(new_filename, 'wb') as newfl:
+                    newfl.write('')
+
+    def restore_document(self, group_list, user_list):
+        from django.apps import apps
+        try:
+            apps.get_app_config("documents")
+        except LookupError:
+            self.print_log("=> No documents module", ())
+            return
+        folder_list = self._restore_document_folders(group_list)
+        self._restore_document_docs(folder_list, user_list)
+
     def restore(self, archive):
         begin_time = time()
         self.initial_olddb()
         self.extract_archive(archive)
         if not isfile(self.old_db_path):
-            for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql']:
+            for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql', 'data_org_lucterios_documents.sql']:
                 create_script, insert_script = self.read_sqlfile(filename)
                 self.import_in_olddb(create_script, insert_script)
         self.clear_current()
-        users = self.restore_usergroup()
-        self.restore_contact(users)
+        users, groups = self.restore_usergroup()
+        if isfile(join(self.tmp_path, 'data_org_lucterios_documents.sql')):
+            self.restore_document(groups, users)
+        if isfile(join(self.tmp_path, 'data_org_lucterios_contacts.sql')):
+            self.restore_contact(users)
         self.clear_old_archive()
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
