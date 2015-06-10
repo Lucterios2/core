@@ -27,11 +27,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from shutil import rmtree
-from os import mkdir, remove
+from os import mkdir, unlink
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
-from posix import unlink
+#from posix import unlink
 import shutil
 try:
     from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
