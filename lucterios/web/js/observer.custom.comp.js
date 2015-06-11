@@ -326,10 +326,14 @@ var compFloat = compAbstractEvent.extend({
 
 	initial : function(component) {
 		this._super(component);
-		this.value = parseFloat('0' + component.getTextFromXmlNode());
+		var text_value = component.getTextFromXmlNode(), nb_dec = component
+				.getXMLAttributInt('prec', 0), dec_i;
+		if (text_value === '') {
+			text_value = '0';
+		}
+		this.value = parseFloat(text_value);
 		this.min = component.getXMLAttributInt('min', 0);
 		this.max = component.getXMLAttributInt('max', 1000);
-		var nb_dec = component.getXMLAttributInt('prec', 0), dec_i;
 		this.prec = 1;
 		for (dec_i = 0; dec_i < nb_dec; dec_i++) {
 			this.prec = this.prec / 10;
@@ -343,6 +347,13 @@ var compFloat = compAbstractEvent.extend({
 		};
 		args.value = this.initialVal();
 		return this.getBuildHtml(args, true, true);
+	},
+
+	getValue : function() {
+		var val_num = this.getGUIComp().val();
+		val_num = Math.max(val_num, this.min);
+		val_num = Math.min(val_num, this.max);
+		return "{0}".format(val_num);
 	},
 
 	initialVal : function() {
@@ -368,7 +379,8 @@ var compMemo = compAbstractEvent
 			initial : function(component) {
 				this._super(component);
 				this.sub_menus = [];
-				this.with_hypertext = component.getXMLAttributInt('with_hypertext', 0);
+				this.with_hypertext = component.getXMLAttributInt(
+						'with_hypertext', 0);
 				this.value = component.getTextFromXmlNode().replace(
 						/\{\[newline\]\}/g, "\n");
 				var sub_menu_xml = component.getElementsByTagName("SUBMENU"), isub_menu, sub_menu, sub_menu_name, sub_menu_value;
@@ -395,20 +407,27 @@ var compMemo = compAbstractEvent
 				html += '</ul>';
 				if (this.with_hypertext === 1) {
 					html += '<div class="ui-widget-header">';
-					html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'.format(this.name);
-					html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'.format(this.name);
-					html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'.format(this.name);
-					html += '<img id="black_{0}" src="images/black.png" class="memobtn">'.format(this.name);
-					html += '<img id="blue_{0}" src="images/blue.png" class="memobtn">'.format(this.name);
-					html += '<img id="red_{0}" src="images/red.png" class="memobtn">'.format(this.name);
-					html += '<img id="green_{0}" src="images/green.png" class="memobtn">'.format(this.name);
+					html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="black_{0}" src="images/black.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="blue_{0}" src="images/blue.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="red_{0}" src="images/red.png" class="memobtn">'
+							.format(this.name);
+					html += '<img id="green_{0}" src="images/green.png" class="memobtn">'
+							.format(this.name);
 					html += '</div>';
 				}
 				html += this.getBuildHtml({}, true, false) + this.initialVal()
 						+ '</textarea>';
 				return html;
 			},
-			
+
 			initialVal : function() {
 				return this.value;
 			},
@@ -423,41 +442,69 @@ var compMemo = compAbstractEvent
 						.format(this.name), self = this;
 				this.addActionEx(0);
 				if (this.sub_menus.length > 0) {
-					$(area_name).contextMenu({menu : menu_name},
-							function(action, el, pos) {
-								unusedVariables(el);
-								unusedVariables(pos);
-								var cursorPos,val_area,variable_text,textBefore,textAfter,variable_id;
-							    variable_id=parseInt(action.substring(5,action.length),10);
-							    variable_text = "#"+self.sub_menus[variable_id][1];
-								cursorPos = self.getGUIComp().prop('selectionStart');
-							    val_area = self.getGUIComp().val();
-							    textBefore = val_area.substring(0,  cursorPos );
-							    textAfter  = val_area.substring( cursorPos, val_area.length );
-							    self.getGUIComp().val( textBefore+ variable_text +textAfter );
-							});
+					$(area_name)
+							.contextMenu(
+									{
+										menu : menu_name
+									},
+									function(action, el, pos) {
+										unusedVariables(el);
+										unusedVariables(pos);
+										var cursorPos, val_area, variable_text, textBefore, textAfter, variable_id;
+										variable_id = parseInt(action
+												.substring(5, action.length),
+												10);
+										variable_text = "#"
+												+ self.sub_menus[variable_id][1];
+										cursorPos = self.getGUIComp().prop(
+												'selectionStart');
+										val_area = self.getGUIComp().val();
+										textBefore = val_area.substring(0,
+												cursorPos);
+										textAfter = val_area.substring(
+												cursorPos, val_area.length);
+										self.getGUIComp().val(
+												textBefore + variable_text
+														+ textAfter);
+									});
 				}
-				$("#bold_{0}".format(this.name)).click(function(){self.add_text_tag('b','');});
-				$("#italic_{0}".format(this.name)).click(function(){self.add_text_tag('i','');});
-				$("#underline_{0}".format(this.name)).click(function(){self.add_text_tag('u','');});
-				$("#black_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="black"');});
-				$("#red_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="red"');});
-				$("#blue_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="blue"');});
-				$("#green_{0}".format(this.name)).click(function(){self.add_text_tag('font','color="green"');});
+				$("#bold_{0}".format(this.name)).click(function() {
+					self.add_text_tag('b', '');
+				});
+				$("#italic_{0}".format(this.name)).click(function() {
+					self.add_text_tag('i', '');
+				});
+				$("#underline_{0}".format(this.name)).click(function() {
+					self.add_text_tag('u', '');
+				});
+				$("#black_{0}".format(this.name)).click(function() {
+					self.add_text_tag('font', 'color="black"');
+				});
+				$("#red_{0}".format(this.name)).click(function() {
+					self.add_text_tag('font', 'color="red"');
+				});
+				$("#blue_{0}".format(this.name)).click(function() {
+					self.add_text_tag('font', 'color="blue"');
+				});
+				$("#green_{0}".format(this.name)).click(function() {
+					self.add_text_tag('font', 'color="green"');
+				});
 			},
-			
-			add_text_tag: function(tagname, extra) {
-				var cursorPosBegin,cursorPosEnd,val_area,select_val,textBefore,textAfter;
+
+			add_text_tag : function(tagname, extra) {
+				var cursorPosBegin, cursorPosEnd, val_area, select_val, textBefore, textAfter;
 				if (extra !== '') {
-					extra=' '+extra;
+					extra = ' ' + extra;
 				}
 				cursorPosBegin = this.getGUIComp().prop('selectionStart');
 				cursorPosEnd = this.getGUIComp().prop('selectionEnd');
-			    val_area = this.getGUIComp().val();
-			    textBefore = val_area.substring(0,  cursorPosBegin);
-			    select_val = val_area.substring(cursorPosBegin, cursorPosEnd);
-			    textAfter  = val_area.substring(cursorPosEnd, val_area.length );
-			    this.getGUIComp().val("{0}{[{1}{2}]}{3}{[/{1}]}{4}".format(textBefore, tagname, extra, select_val, textAfter));
+				val_area = this.getGUIComp().val();
+				textBefore = val_area.substring(0, cursorPosBegin);
+				select_val = val_area.substring(cursorPosBegin, cursorPosEnd);
+				textAfter = val_area.substring(cursorPosEnd, val_area.length);
+				this.getGUIComp().val(
+						"{0}{[{1}{2}]}{3}{[/{1}]}{4}".format(textBefore,
+								tagname, extra, select_val, textAfter));
 			}
 
 		});

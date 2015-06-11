@@ -1,41 +1,42 @@
-module('TransportRest',{
-	mFileContent:null,
+module('TransportRest', {
+	mFileContent : null,
 
-    setup: function() {
-		this.transport=new HttpTransportImpl();
-		this.transport.close();		
-		$.removeCookie("sessionid");
-    }, 
-    teardown: function() {
+	setup : function() {
+		this.transport = new HttpTransportImpl();
 		this.transport.close();
-		this.transport=null;
 		$.removeCookie("sessionid");
-    },
-    
-    saveFile:function(aContent,aFileName) {
-		this.mFileContent=atob(aContent);
-		this.mFileName=aFileName;
+	},
+	teardown : function() {
+		this.transport.close();
+		this.transport = null;
+		$.removeCookie("sessionid");
 	},
 
-	convertXML:function(data) {
-		data = data.replace(/>\s*/g, '>');  // Replace "> " with ">"
-		data = data.replace(/\s*</g, '<');  // Replace "< " with "<"
+	saveFile : function(aContent, aFileName) {
+		this.mFileContent = atob(aContent);
+		this.mFileName = aFileName;
+	},
+
+	convertXML : function(data) {
+		data = data.replace(/>\s*/g, '>'); // Replace "> " with ">"
+		data = data.replace(/\s*</g, '<'); // Replace "< " with "<"
 		var parser = new DOMParser();
-		var xmlDoc = parser.parseFromString(data , "text/xml"); 
+		var xmlDoc = parser.parseFromString(data, "text/xml");
 		return (new XMLSerializer()).serializeToString(xmlDoc);
 	},
 
 });
 
-test( "Connection", function() {
-	equal(this.transport.getServerUrl(), "http://127.0.0.1:8000/", "Server connect");
+test("Connection", function() {
+	equal(this.transport.getServerUrl(), "http://127.0.0.1:8000/",
+			"Server connect");
 	equal(this.transport.getSession(), "", "session init");
 
 	this.transport.setSession("ABCDEF12345");
 	equal(this.transport.getSession(), "ABCDEF12345", "session final");
 });
 
-test( "Static", function() {
+test("Static", function() {
 	equal(this.transport.getSession(), "", "session init");
 	this.transport.setSession("ABCDEF12345");
 	equal(this.transport.getSession(), "ABCDEF12345", "session affected");
@@ -44,48 +45,69 @@ test( "Static", function() {
 	equal(new_http_transport.getSession(), "ABCDEF12345", "other session");
 });
 
-test("Actions", function() {
-	var xml_retour;
-	post_log('cookie before:'+document.cookie);
-	xml_retour = this.transport.transfertFileFromServerString('CORE/menu', new HashMap());
-	equal(this.convertXML(xml_retour), this.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='CORE' source_action='menu'>NEEDAUTH</REPONSE></REPONSES>"), "1er reponse");
+test(
+		"Actions",
+		function() {
+			var xml_retour;
+			post_log('cookie before:' + document.cookie);
+			xml_retour = this.transport.transfertFileFromServerString(
+					'CORE/menu', new HashMap());
+			equal(
+					this.convertXML(xml_retour),
+					this
+							.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='CORE' source_action='menu'>NEEDAUTH</REPONSE></REPONSES>"),
+					"1er reponse");
 
-	var params = new HashMap();
-	params.put(AUTH_PARAM_NAME[0],'admin');
-	params.put(AUTH_PARAM_NAME[1],'admin');
-	xml_retour = this.transport.transfertFileFromServerString(AUTH_PARAM_NAME[4]+'/authentification', params);
-	ok(140 <= xml_retour.length,"2eme reponse size");
-	equal(this.convertXML(xml_retour).substring(0, 138), this.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='"+AUTH_PARAM_NAME[4]+"' source_action='authentification'>OK</REPONSE></REPONSES>").substring(0, 138), "2eme reponse");
+			var params = new HashMap();
+			params.put(AUTH_PARAM_NAME[0], 'admin');
+			params.put(AUTH_PARAM_NAME[1], 'admin');
+			xml_retour = this.transport.transfertFileFromServerString(
+					AUTH_PARAM_NAME[4] + '/authentification', params);
+			ok(140 <= xml_retour.length, "2eme reponse size");
+			equal(
+					this.convertXML(xml_retour).substring(0, 138),
+					this
+							.convertXML(
+									"<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='"
+											+ AUTH_PARAM_NAME[4]
+											+ "' source_action='authentification'>OK</REPONSE></REPONSES>")
+							.substring(0, 138), "2eme reponse");
 
-	var pos_in = xml_retour.indexOf('<PARAM name="ses">');
-	ok(pos_in>1, "Pas de session:"+xml_retour);
-	var pos_out = xml_retour.indexOf("</PARAM>", pos_in);
-	var session = xml_retour.substring(pos_in + 18, pos_out);
-	this.transport.setSession(session);
+			var pos_in = xml_retour.indexOf('<PARAM name="ses">');
+			ok(pos_in > 1, "Pas de session:" + xml_retour);
+			var pos_out = xml_retour.indexOf("</PARAM>", pos_in);
+			var session = xml_retour.substring(pos_in + 18, pos_out);
+			this.transport.setSession(session);
 
-	xml_retour = this.transport.transfertFileFromServerString('CORE/menu', new HashMap());
-	ok(128 <= xml_retour.length, "3eme reponse size");
-	equal(this.convertXML(xml_retour).substring(0, 124),this.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Menu' source_extension='CORE' source_action='menu'><MENU/></REPONSE></REPONSES>").substring(0, 124),"3eme reponse:"+xml_retour.substring(0, 256));
-	post_log('cookie after:'+document.cookie);
-});
+			xml_retour = this.transport.transfertFileFromServerString(
+					'CORE/menu', new HashMap());
+			ok(128 <= xml_retour.length, "3eme reponse size");
+			equal(
+					this.convertXML(xml_retour).substring(0, 124),
+					this
+							.convertXML(
+									"<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Menu' source_extension='CORE' source_action='menu'><MENU/></REPONSE></REPONSES>")
+							.substring(0, 124), "3eme reponse:"
+							+ xml_retour.substring(0, 256));
+			post_log('cookie after:' + document.cookie);
+		});
 
 asyncTest("File", function() {
-	if (typeof(Blob) === typeof(Function)) {
-		equal(this.mFileContent,null,'init');
-		Singleton().mFileManager.saveFile = $.proxy(this.saveFile,this);
+	if (typeof (Blob) === typeof (Function)) {
+		equal(this.mFileContent, null, 'init');
+		Singleton().mFileManager.saveFile = $.proxy(this.saveFile, this);
 		this.transport.getFileContent('images/add.png', function(blob) {
 			Singleton().mFileManager.saveBlob(blob, 'add.png');
 		});
-		var transp_test=this;
+		var transp_test = this;
 
 		setTimeout(function() {
 			start();
-			equal(transp_test.mFileContent.length,487,'size');
-			equal(transp_test.mFileContent.substr(1,3),"PNG")
-		},300);
-	}
-	else {		
+			equal(transp_test.mFileContent.length, 487, 'size');
+			equal(transp_test.mFileContent.substr(1, 3), "PNG")
+		}, 300);
+	} else {
 		start();
-		ok(true,"NO BLOB MANAGE");
+		ok(true, "NO BLOB MANAGE");
 	}
 });

@@ -81,7 +81,8 @@ function aboutmore_function() {
 function sendsupport_function() {
 	var complement = Singleton().getTranslate(
 			"Describ your problem.<br>Thanks<br><br>");
-	window.location = Singleton().mDesc.fillEmailSupport(Singleton().getTranslate("Bug report"), complement);
+	window.location = Singleton().mDesc.fillEmailSupport(Singleton()
+			.getTranslate("Bug report"), complement);
 }
 
 function about_function() {
@@ -101,21 +102,24 @@ function about_function() {
 			+ "</table>", 2, 1);
 
 	table[2] = [];
-	table[2][0] = new compBasic(
-			"<HR SIZE='2' WIDTH='100%' ALIGN=center>"
-					+ "<table width='100%'>"
-					+ "<tr><td colspan='2'><font size='+1'><center>" + Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>"
-					+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</td><td><center>"
-					+ mDescription.getServerVersion() + "</center></td></tr>"
-					+ "<tr><td><center>" + Singleton().getTranslate("AJAX client") + "</td><td><center>"
-					+ G_Version + "</center></td></tr>" + "</table>", 3);
+	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>"
+			+ "<table width='100%'>"
+			+ "<tr><td colspan='2'><font size='+1'><center>"
+			+ Singleton().getTranslate("Use the <i>Lucterios</i> framework")
+			+ "</center></font></td><td>" + "<tr><td><center>"
+			+ Singleton().getTranslate("Server") + "</td><td><center>"
+			+ mDescription.getServerVersion() + "</center></td></tr>"
+			+ "<tr><td><center>" + Singleton().getTranslate("AJAX client")
+			+ "</td><td><center>" + G_Version + "</center></td></tr>"
+			+ "</table>", 3);
 	table[3] = [];
 	table[3][0] = new compBasic(
 			"<center><img src='images/LucteriosImage.gif'></center>", 3);
 	table[4] = [];
-	table[4][0] = new compBasic(
-			"<center><font size='-1'><center><i>" + Singleton().getTranslate("Tool of customize management on GPL license") + "</i></center></font></center>",
-			3);
+	table[4][0] = new compBasic("<center><font size='-1'><center><i>"
+			+ Singleton().getTranslate(
+					"Tool of customize management on GPL license")
+			+ "</i></center></font></center>", 3);
 	table[5] = [];
 	table[5][0] = new compBasic(
 			"<center><a href='http://www.lucterios.org'>http://www.lucterios.org</a></center>",
@@ -123,12 +127,14 @@ function about_function() {
 
 	table[6] = [];
 	table[6][1] = new compBasic(
-			"<input type='button' id='send_support' value='" + Singleton().getTranslate("ask support") + "'>",
-			1, 1, 'width:100%;');
+			"<input type='button' id='send_support' value='"
+					+ Singleton().getTranslate("ask support") + "'>", 1, 1,
+			'width:100%;');
 	table[6][2] = new compBasic(
 			"<input type='button' id='aboutmore' value='...'/>", 1);
 
-	this.mGUI = new GUIManage(createGuid(), Singleton().getTranslate("About..."), null);
+	this.mGUI = new GUIManage(createGuid(), Singleton()
+			.getTranslate("About..."), null);
 	this.mGUI.addcontent(createTable(table), []);
 	this.mGUI.showGUI(true);
 	$("#aboutmore").click(aboutmore_function);
@@ -152,8 +158,12 @@ function initial_function() {
 				+ "<label id='disconnect' class='ui-widget-header ui-corner-all' >"
 				+ disconnect_title
 				+ "</label>"
-				+ "<label id='refresh' class='ui-widget-header ui-corner-all' >" + Singleton().getTranslate('Refresh') + "</label>"
-				+ "<label id='about' class='ui-widget-header ui-corner-all' >" + Singleton().getTranslate("About...") + "</label>"
+				+ "<label id='refresh' class='ui-widget-header ui-corner-all' >"
+				+ Singleton().getTranslate('Refresh')
+				+ "</label>"
+				+ "<label id='about' class='ui-widget-header ui-corner-all' >"
+				+ Singleton().getTranslate("About...")
+				+ "</label>"
 				+ "<a href='{0}' target='_blank'><img src='{1}' /></a>".format(
 						Singleton().Transport().getIconUrl(help_url),
 						Singleton().Transport().getIconUrl('images/help.png'))

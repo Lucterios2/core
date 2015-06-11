@@ -2,42 +2,43 @@
 
 var ObserverAcknowledge = ObserverAbstract.extend({
 
-    mRedirectAction: null,
+	mRedirectAction : null,
 
-    getRedirectAction: function() {
-        return this.mRedirectAction;
-    },
+	getRedirectAction : function() {
+		return this.mRedirectAction;
+	},
 
-    setContent: function(aDomXmlContent) {
-        this._super(aDomXmlContent);
-        var acts = this.mDomXmlContent.getElementsByTagName("ACTION");
-        if (acts.length > 0) {
-            this.mRedirectAction = Singleton().CreateAction();
-            this.mRedirectAction.initialize(this, Singleton().Factory(), acts[0]);
-            this.mRedirectAction.setClose(true);
-        } else {
-            this.mRedirectAction = null;
-        }
-    },
+	setContent : function(aDomXmlContent) {
+		this._super(aDomXmlContent);
+		var acts = this.mDomXmlContent.getElementsByTagName("ACTION");
+		if (acts.length > 0) {
+			this.mRedirectAction = Singleton().CreateAction();
+			this.mRedirectAction.initialize(this, Singleton().Factory(),
+					acts[0]);
+			this.mRedirectAction.setClose(true);
+		} else {
+			this.mRedirectAction = null;
+		}
+	},
 
-    getObserverName: function() {
-        return "Core.Acknowledge";
-    },
+	getObserverName : function() {
+		return "Core.Acknowledge";
+	},
 
-    getParameters: function(aCheckNull) {
-        unusedVariables(aCheckNull);
-        var requete = new HashMap();
-        requete.putAll(this.mContext);
-        return requete;
-    },
+	getParameters : function(aCheckNull) {
+		unusedVariables(aCheckNull);
+		var requete = new HashMap();
+		requete.putAll(this.mContext);
+		return requete;
+	},
 
-    show: function(aTitle, aGUIType) {
-        this._super(aTitle, aGUIType);
-        this.setActive(true);
-        if (this.mRedirectAction !== null) {
-            this.mRedirectAction.actionPerformed();
-        }
-        this.close(this.mRedirectAction === null);
-    }
+	show : function(aTitle, aGUIType) {
+		this._super(aTitle, aGUIType);
+		this.setActive(true);
+		if (this.mRedirectAction !== null) {
+			this.mRedirectAction.actionPerformed();
+		}
+		this.close(this.mRedirectAction === null);
+	}
 
 });

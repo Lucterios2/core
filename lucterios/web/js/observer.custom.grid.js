@@ -41,9 +41,9 @@ var compGridValue = Class.extend({
 		case 'bool':
 			if ((this.value === '0') || (this.value.toLowerCase() === 'false')
 					|| (this.value === 'n')) {
-				return '<td>Non</td>';
+				return '<td><input type="checkbox" disabled="1" ></input></td>';
 			}
-			return '<td>Oui</td>';
+			return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
 		default:
 			return '<td>{0}</td>'.format(this.value
 					.convertLuctoriosFormatToHtml());
@@ -176,8 +176,8 @@ var compGrid = compGeneric
 			},
 
 			addPageSelector : function() {
-				var html = '', idx, opt_select,
-					option_text = '<option value="{0}" {1}>' + Singleton().getTranslate("Page #") + '{2}</option>';
+				var html = '', idx, opt_select, option_text = '<option value="{0}" {1}>'
+						+ Singleton().getTranslate("Page #") + '{2}</option>';
 				if (this.page_max > 1) {
 					html += "<select id='PAGE_{0}'>".format(this.name);
 					for (idx = 0; idx < this.page_max; idx++) {

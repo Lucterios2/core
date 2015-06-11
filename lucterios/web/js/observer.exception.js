@@ -141,8 +141,9 @@ var ObserverException = ObserverAbstract
 					table[1] = [];
 					table[1][0] = new compBasic(
 							"<input type='button' name='info' value='>>'/><input type='button' name='send' value='"
-									+ Singleton().getTranslate("Sent to support") + "'/>", 2,
-							1, 'text-align:center;');
+									+ Singleton().getTranslate(
+											"Sent to support") + "'/>", 2, 1,
+							'text-align:center;');
 					table[2] = [];
 					table[2][0] = new compBasic(createTab(titles, contents), 2,
 							1);
@@ -183,13 +184,14 @@ var ObserverException = ObserverAbstract
 			},
 
 			sendSupport : function() {
-				var complement = Singleton()
-						.getTranslate("Describ your problem.<br>Thanks<br><br>");
+				var complement = Singleton().getTranslate(
+						"Describ your problem.<br>Thanks<br><br>");
 				complement += "<h1>" + this.message + "</h1>";
 				if (this.stack_text !== '') {
 					complement += this.stack_text + "<br><br>";
 				}
-				return Singleton().mDesc.fillEmailSupport(Singleton().getTranslate("Bug report"), complement);
+				return Singleton().mDesc.fillEmailSupport(Singleton()
+						.getTranslate("Bug report"), complement);
 			}
 
 		});
