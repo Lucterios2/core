@@ -27,11 +27,10 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from shutil import rmtree
-from os import mkdir, unlink
+from os import mkdir, remove
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
-#from posix import unlink
 import shutil
 try:
     from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
@@ -503,7 +502,7 @@ class LucteriosInstance(LucteriosManage):
             if isdir(user_dir):
 
                 tar.add(user_dir, arcname="usr")
-        unlink(output_filename)
+        remove(output_filename)
         return isfile(self.filename)
 
     def restore(self):
