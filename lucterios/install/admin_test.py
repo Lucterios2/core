@@ -202,6 +202,38 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual(True, isdir(join(self.path_dir, 'inst_f', 'usr', 'foo')))
         self.assertEqual(True, isfile(join(self.path_dir, 'inst_f', 'usr', 'foo', 'myfile')))
 
+    def test_security(self):
+        from django.contrib.auth import authenticate
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.add()
+        self.assertEqual(["inst_g"], self.luct_glo.listing())
+
+        self.assertEqual(["0"], list(self.run_sqlite_cmd("inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
+        self.assertEqual(authenticate(username='admin', password='admin').username, 'admin')
+
+        inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.set_extra("PASSWORD=abc123,MODE=2")
+        inst.security()
+
+        self.assertEqual(["Admin password change in 'inst_g'.", "Security mode change in 'inst_g'."], inst.msg_list)
+        self.assertEqual(["2"], list(self.run_sqlite_cmd("inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
+        self.assertEqual(authenticate(username='admin', password='admin'), None)
+        self.assertEqual(authenticate(username='admin', password='abc123').username, 'admin')
+
+        inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.set_extra("MODE=1,PASSWORD=abc,123;ABC=789,3333")
+        inst.security()
+        self.assertEqual(authenticate(username='admin', password='admin'), None)
+        self.assertEqual(authenticate(username='admin', password='abc123'), None)
+        self.assertEqual(authenticate(username='admin', password='abc,123;ABC=789,3333').username, 'admin')
+
+        inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.set_extra("PASSWORD=ppooi=jjhg,fdd,MODE=0")
+        inst.security()
+        self.assertEqual(authenticate(username='admin', password='ppooi=jjhg,fdd').username, 'admin')
+
     def test_migration(self):
         self.assertEqual([], self.luct_glo.listing())
 
@@ -349,9 +381,9 @@ class TestAdminPostGreSQL(BaseTest):
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.clear()
-        #table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
-        #table_list = table_list[2:-2]
-        #self.assertEqual([], len(table_list)
+        # table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
+        # table_list = table_list[2:-2]
+        # self.assertEqual([], len(table_list)
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.delete()
@@ -393,5 +425,8 @@ if __name__ == "__main__":
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
-    #suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
+    # suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     XMLTestRunner(verbosity=1).run(suite)
+else:
+    import django
+    django.setup()

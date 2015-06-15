@@ -40,6 +40,10 @@ import sys, os
 
 INSTANCE_PATH = '.'
 
+SECURITY_PASSWD = 'PASSWORD'
+SECURITY_MODE = 'MODE'
+SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
+
 def get_package_list():
     def get_files(dist):
         paths = []
@@ -256,12 +260,12 @@ class LucteriosInstance(LucteriosManage):
         self.appli_name = appli_name
 
     def set_extra(self, extra):
-        self.extra = {}
+        self.extra = {'':extra}
         for item in extra.split(','):
             if '=' in item:
-                key, value = item.split('=')
-                if (value == 'True') or (value == 'True'):
-                    self.extra[key] = value == 'True'
+                key, value = item.split('=')[:2]
+                if (value.lower() == 'true') or (value.lower() == 'false'):
+                    self.extra[key] = value.lower() == 'true'
                 elif isinstance(value, float):
                     self.extra[key] = float(value)
                 elif value[0] == '[' and value[-1] == ']':
@@ -321,7 +325,8 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('\n')
             file_py.write('# extra\n')
             for key, value in self.extra.items():
-                file_py.write('%s = %s\n' % (key, value))
+                if key != '':
+                    file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
             file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
             file_py.write('fill_appli_settings("%s", %s) \n' % (self.appli_name, six.text_type(self.modules)))
@@ -468,6 +473,44 @@ class LucteriosInstance(LucteriosManage):
         self.write_setting_()
         self.print_info_("Instance '%s' modified." % self.name)  # pylint: disable=superfluous-parens
         self.refresh()
+
+    def security(self):
+        if self.name == '':
+            raise AdminException("Instance not precise!")
+        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+            raise AdminException("Instance not exists!")
+        security_param = self.extra
+        self.read()
+        self.clear_info_()
+        if SECURITY_PASSWD in security_param.keys():
+            passwd = security_param['']
+            for sec_item in SECURITY_LIST:
+                if (sec_item in security_param.keys()) and (sec_item != SECURITY_PASSWD):
+                    item_str = "%s=%s" % (sec_item, security_param[sec_item])
+                    if passwd[:len(item_str)] == item_str:
+                        passwd = passwd[len(item_str) + 1:]
+                    elif passwd[-1 * len(item_str):] == item_str:
+                        passwd = passwd[:-1 * len(item_str) - 1]
+                    else:
+                        item_idx = passwd.find(item_str)
+                        if item_idx != -1:
+                            passwd = passwd[:item_idx] + passwd[item_idx + len(item_str):]
+            passwd = passwd[len(SECURITY_PASSWD) + 1:]
+            from lucterios.CORE.models import LucteriosUser
+            adm_user = LucteriosUser.objects.get(username='admin')  # pylint: disable=no-member
+            adm_user.set_password(passwd)
+            adm_user.save()
+            self.print_info_("Admin password change in '%s'." % self.name)  # pylint: disable=superfluous-parens
+        if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
+            from django.utils import six
+            from lucterios.CORE.models import Parameter
+            from lucterios.CORE.parameters import Params
+            db_param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
+            db_param.value = six.text_type(security_param[SECURITY_MODE])
+            db_param.save()
+            Params.clear()
+
+            self.print_info_("Security mode change in '%s'." % self.name)  # pylint: disable=superfluous-parens
 
     def refresh(self):
         if self.name == '':
