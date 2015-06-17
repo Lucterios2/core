@@ -95,17 +95,22 @@ class ParamCache(object):
             param_cmp.set_value(self.value)
         return param_cmp
 
-    def get_read_comp(self):
-        param_cmp = XferCompLabelForm(self.name)
+    def get_read_text(self):
+        value_text = ""
         if self.type == 3:  # Boolean
             if self.value:
-                param_cmp.set_value(ugettext_lazy("Yes"))
+                value_text = ugettext_lazy("Yes")
             else:
-                param_cmp.set_value(ugettext_lazy("No"))
+                value_text = ugettext_lazy("No")
         elif self.type == 4:  # Select
-            param_cmp.set_value(ugettext_lazy(self.name + ".%d" % self.value))
+            value_text = ugettext_lazy(self.name + ".%d" % self.value)
         else:
-            param_cmp.set_value(self.value)
+            value_text = self.value
+        return value_text
+
+    def get_read_comp(self):
+        param_cmp = XferCompLabelForm(self.name)
+        param_cmp.set_value(self.get_read_text())
         return param_cmp
 
 class Params(object):
@@ -128,7 +133,9 @@ class Params(object):
             try:
                 cls._PARAM_CACHE_LIST[name] = ParamCache(name)
             except ObjectDoesNotExist:
-                raise LucteriosException(GRAVE, "Parameter %s unknow!" % name)
+                raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
+            except Exception:
+                raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
         return cls._PARAM_CACHE_LIST[name]
 
     @classmethod
@@ -136,6 +143,14 @@ class Params(object):
         cls._paramlock.acquire()
         try:
             return cls._get(name).value
+        finally:
+            cls._paramlock.release()
+
+    @classmethod
+    def gettext(cls, name):
+        cls._paramlock.acquire()
+        try:
+            return six.text_type(cls._get(name).get_read_text())
         finally:
             cls._paramlock.release()
 

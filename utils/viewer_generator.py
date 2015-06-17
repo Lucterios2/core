@@ -59,9 +59,12 @@ class GenForm(Tk):
         self._model_name = ''
         self._icon_name = ''
         self.title("Viewer generator")
-        Label(self, text='Model').grid(row=1, column=0, sticky=E)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.resizable(True, True)        
+        Label(self, text='Model').grid(row=1, column=0, sticky=(N,E))
         self.models = ttk.Combobox(self, textvariable=StringVar(), state='readonly')
-        self.models.grid(row=1, column=1)
+        self.models.grid(row=1, column=1, sticky=(N,W))
         mainframe = Frame(self, bd=1, relief=SUNKEN)
         mainframe.grid(row=2, column=0, columnspan=2, sticky=(N, S, E, W))
         current_row = 2

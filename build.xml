@@ -93,6 +93,7 @@
 	<target name="i18n">
 		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/CORE"/></antcall>			
 		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/framework"/></antcall>			
+		<antcall target="i18n_comp"><param name="sub_path" value="lucterios/install"/></antcall>
 	</target>	
 
 	<target name="add_instance">

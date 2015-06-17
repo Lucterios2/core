@@ -1,0 +1,186 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-06-17 16:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: lucterios_admin.py:482 lucterios_gui.py:208
+msgid "CORE-connectmode"
+msgstr ""
+
+#: lucterios_gui.py:64
+msgid "View generator"
+msgstr ""
+
+#: lucterios_gui.py:115
+msgid "Web browser unknown!"
+msgstr ""
+
+#: lucterios_gui.py:120
+msgid "Web browser not found!"
+msgstr ""
+
+#: lucterios_gui.py:157 lucterios_gui.py:255
+msgid "Instance editor"
+msgstr ""
+
+#: lucterios_gui.py:168
+msgid "General"
+msgstr ""
+
+#: lucterios_gui.py:174
+msgid "Database"
+msgstr ""
+
+#: lucterios_gui.py:178
+msgid "Cancel"
+msgstr ""
+
+#: lucterios_gui.py:179
+msgid "OK"
+msgstr ""
+
+#: lucterios_gui.py:182
+msgid "Type"
+msgstr ""
+
+#: lucterios_gui.py:186 lucterios_gui.py:197
+msgid "Name"
+msgstr ""
+
+#: lucterios_gui.py:189
+msgid "User"
+msgstr ""
+
+#: lucterios_gui.py:192 lucterios_gui.py:212
+msgid "Password"
+msgstr ""
+
+#: lucterios_gui.py:200
+msgid "Appli"
+msgstr ""
+
+#: lucterios_gui.py:204 lucterios_gui.py:389
+msgid "Modules"
+msgstr ""
+
+#: lucterios_gui.py:255
+msgid "Name empty!"
+msgstr ""
+
+#: lucterios_gui.py:298
+msgid "CORE-connectmode.0"
+msgstr ""
+
+#: lucterios_gui.py:298
+msgid "CORE-connectmode.1"
+msgstr ""
+
+#: lucterios_gui.py:298
+msgid "CORE-connectmode.2"
+msgstr ""
+
+#: lucterios_gui.py:328
+msgid "Lucterios installer"
+msgstr ""
+
+#: lucterios_gui.py:343
+msgid "Refresh"
+msgstr ""
+
+#: lucterios_gui.py:344 lucterios_gui.py:468
+msgid "No upgrade"
+msgstr ""
+
+#: lucterios_gui.py:347
+msgid "Close"
+msgstr ""
+
+#: lucterios_gui.py:375 lucterios_gui.py:516
+msgid "Launch"
+msgstr ""
+
+#: lucterios_gui.py:376
+msgid "Modify"
+msgstr ""
+
+#: lucterios_gui.py:377
+msgid "Delete"
+msgstr ""
+
+#: lucterios_gui.py:378
+msgid "Add"
+msgstr ""
+
+#: lucterios_gui.py:380
+msgid "Instances"
+msgstr ""
+
+#: lucterios_gui.py:419
+#, python-format
+msgid "Lucterios core\t\t%s\n"
+msgstr ""
+
+#: lucterios_gui.py:421
+msgid "Application\n"
+msgstr ""
+
+#: lucterios_gui.py:424
+msgid "Modules\n"
+msgstr ""
+
+#: lucterios_gui.py:466
+msgid "Upgrade needs"
+msgstr ""
+
+#: lucterios_gui.py:505
+#, python-format
+msgid "Database\t\t%s\n"
+msgstr ""
+
+#: lucterios_gui.py:506
+#, python-format
+msgid "Appli\t\t%s\n"
+msgstr ""
+
+#: lucterios_gui.py:507
+#, python-format
+msgid "Modules\t\t%s\n"
+msgstr ""
+
+#: lucterios_gui.py:508
+#, python-format
+msgid "Extra\t\t%s\n"
+msgstr ""
+
+#: lucterios_gui.py:511
+#, python-format
+msgid "=> Running in http://127.0.0.1:%s\n"
+msgstr ""
+
+#: lucterios_gui.py:512
+msgid "Stop"
+msgstr ""
+
+#: lucterios_gui.py:515
+msgid "=> Stopped\n"
+msgstr ""
+
+#: lucterios_gui.py:573
+#, python-format
+msgid "Do you want to delete '%s'?"
+msgstr ""

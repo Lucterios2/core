@@ -44,6 +44,11 @@ SECURITY_PASSWD = 'PASSWORD'
 SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
 
+def get_module_title(module_name):
+    from django.utils import six
+    current_mod = import_module(module_name)
+    return six.text_type(getattr(current_mod, '__title__')())
+
 def get_package_list():
     def get_files(dist):
         paths = []
@@ -113,6 +118,7 @@ class LucteriosGlobal(LucteriosManage):
             val = re.match(r"manage_([a-zA-Z0-9_]+)\.py", manage_file)
             if val is not None and isdir(join(self.instance_path, val.group(1))):
                 list_res.append(val.group(1))
+        list_res.sort()
         self.print_info_("Instance listing: %s" % ",".join(list_res))
         return list_res
 
@@ -173,6 +179,8 @@ class LucteriosGlobal(LucteriosManage):
         # pylint: disable=too-many-locals
         from pip import get_installed_distributions
         from pip.commands import list as list_
+        import pip.utils.logging
+        pip.utils.logging._log_state.indentation = 0 # pylint: disable=no-member, protected-access
         check_list = {}
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -205,6 +213,8 @@ class LucteriosGlobal(LucteriosManage):
     def update(self):
         from pip import get_installed_distributions
         from pip.commands import install
+        import pip.utils.logging
+        pip.utils.logging._log_state.indentation = 0 # pylint: disable=no-member, protected-access
         module_list = []
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -268,7 +278,7 @@ class LucteriosInstance(LucteriosManage):
                     self.extra[key] = value.lower() == 'true'
                 elif isinstance(value, float):
                     self.extra[key] = float(value)
-                elif value[0] == '[' and value[-1] == ']':
+                elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
                     self.extra[key] = value[1:-1].split(',')
                 else:
                     self.extra[key] = value
@@ -291,6 +301,37 @@ class LucteriosInstance(LucteriosManage):
             self.modules = tuple(module.split(','))
         else:
             self.modules = ()
+
+    def get_appli_txt(self):
+        return get_module_title(self.appli_name)
+
+    def get_extra_txt(self):
+        extra_txt = ''
+        for key, val in self.extra.items():
+            if key != '':
+                extra_txt += '%s=%s ' % (key, val)
+            else:
+                if ('mode' in val.keys()) and (val['mode'] is not None):
+                    extra_txt += 'mode=%s ' % val['mode'][1]
+        return extra_txt
+
+    def get_database_txt(self):
+        database_txt = self.database[0]
+        if database_txt != 'sqlite':
+            database_txt += ' ('
+            for key in ['name', 'user', 'password', 'port', 'host']:
+                if key in self.database[1].keys():
+                    val = self.database[1][key]
+                    if val != '':
+                        database_txt += '%s=%s,' % (key, val)
+            database_txt = database_txt[:-1] + ')'
+        return database_txt
+
+    def get_module_txt(self):
+        mod_list = []
+        for module in self.modules:
+            mod_list.append(get_module_title(module))
+        return ', '.join(mod_list)
 
     def write_setting_(self):
         from django.utils import six
@@ -435,14 +476,19 @@ class LucteriosInstance(LucteriosManage):
         for appname in django.conf.settings.INSTALLED_APPS:
             if (not "django" in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
                 self.modules = self.modules + (six.text_type(appname),)
+        from lucterios.CORE.parameters import Params
+        from lucterios.framework.error import LucteriosException
+        try:
+            self.extra[''] = {'mode':(Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
+        except LucteriosException:
+            self.extra[''] = {'mode': None}
         self.print_info_("""Instance %s:
-    path=%s
-    appli=%s
-    database=%s
-    modules=%s
-    secret_key=%s
-    extra=%s
-""" % (self.name, self.instance_dir, self.appli_name, self.database, ",".join(self.modules), self.secret_key, self.extra))
+    path\t%s
+    appli\t%s
+    database\t%s
+    modules\t%s
+    extra\t%s
+""" % (self.name, self.instance_dir, self.get_appli_txt(), self.get_database_txt(), self.get_module_txt(), self.get_extra_txt()))
         return
 
     def add(self):

@@ -27,8 +27,6 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 import threading
 
 CLOSE_NO = 0
@@ -244,6 +242,8 @@ def ifplural(count, test_singular, test_plural):
         return test_plural
 
 def get_corrected_setquery(setquery):
+    from django.contrib.auth.models import Permission
+    from django.contrib.contenttypes.models import ContentType
     if setquery.model == Permission:
         ctypes = ContentType.objects.all()  # pylint: disable=no-member
         for ctype in ctypes:
@@ -256,6 +256,7 @@ def get_corrected_setquery(setquery):
     return setquery
 
 def get_dico_from_setquery(setquery):
+    from django.contrib.auth.models import Permission
     res_dico = {}
     if setquery.model == Permission:
         for record in setquery:
