@@ -25,8 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, \
-    get_module_title
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title
 from django.utils import six
 from django.utils.translation import ugettext
 from subprocess import Popen, PIPE, STDOUT, check_output, CalledProcessError
@@ -63,7 +62,7 @@ def ProvideException(func):
             return func(*args)
         except Exception as e:  # pylint: disable=broad-except
             print_exc()
-            showerror(ugettext("View generator"), e)
+            showerror(ugettext("Lucterios installer"), e)
     return wrapper
 
 def ThreadRun(func):
@@ -151,6 +150,7 @@ class InstanceEditor(Toplevel):
     # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
+        # pylint: disable=super-init-not-called
         Toplevel.__init__(self)
         self.result = None
         self.module_data = None
@@ -326,6 +326,7 @@ class InstanceEditor(Toplevel):
 class LucteriosMainForm(Tk):
 
     def __init__(self):
+        # pylint: disable=super-init-not-called
         Tk.__init__(self)
         self.has_checked = False
         self.title(ugettext("Lucterios installer"))
@@ -343,14 +344,14 @@ class LucteriosMainForm(Tk):
 
         self.btnframe = Frame(self, bd=1)
         self.btnframe.grid(row=1, column=0, columnspan=1)
-        Button(self.btnframe, text=ugettext("Refresh"), width=10, command=self.refresh).grid(row=0, column=0, sticky=(N, S))
-        self.btnupgrade = Button(self.btnframe, text=ugettext("No upgrade"), width=10, command=self.upgrade)
+        Button(self.btnframe, text=ugettext("Refresh"), width=15, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
+        self.btnupgrade = Button(self.btnframe, text=ugettext("No upgrade"), width=15, command=self.upgrade)
         self.set_ugrade_state(False)
-        self.btnupgrade.grid(row=0, column=1, sticky=(N, S))
-        Button(self.btnframe, text=ugettext("Close"), width=10, command=self.destroy).grid(row=0, column=2, sticky=(N, S))
+        self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
+        Button(self.btnframe, text=ugettext("Close"), width=15, command=self.destroy).grid(row=0, column=2, padx=3, pady=3, sticky=(N, S))
 
     def destroy(self):
-        instance_names = self.running_instance.keys()
+        instance_names = list(self.running_instance.keys())
         for old_item in instance_names:
             if self.running_instance[old_item] is not None:
                 self.running_instance[old_item].stop()
@@ -441,7 +442,7 @@ class LucteriosMainForm(Tk):
             if not item in self.running_instance.keys():
                 self.running_instance[item] = None
 
-        instance_names = self.running_instance.keys()
+        instance_names = list(self.running_instance.keys())
         for old_item in instance_names:
             if not old_item in instance_list:
                 if self.running_instance[old_item] is not None:

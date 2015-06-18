@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-17 16:02+0000\n"
+"POT-Creation-Date: 2015-06-18 09:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -282,16 +282,16 @@ msgstr "Aucun modèle sélectionné"
 msgid "models"
 msgstr "modèles"
 
-#: parameters.py:94 parameters.py:107
+#: parameters.py:93 parameters.py:106
 #, python-format
 msgid ".%d"
 msgstr ".%d"
 
-#: parameters.py:103
+#: parameters.py:102
 msgid "Yes"
 msgstr "Oui"
 
-#: parameters.py:105
+#: parameters.py:104
 msgid "No"
 msgstr "Non"
 

@@ -172,7 +172,7 @@ class TestAdminSQLite(BaseTest):
 
         inst = LucteriosInstance("inst_e", self.path_dir)
         inst.read()
-        self.assertEqual({'DEBUG':True, 'ALLOWED_HOSTS':['localhost']}, inst.extra)
+        self.assertEqual({'DEBUG':True, '': {'mode': (0, 'Connexion toujours nécessaire')}, 'ALLOWED_HOSTS':['localhost']}, inst.extra)
 
     def test_archive(self):
         self.assertEqual([], self.luct_glo.listing())

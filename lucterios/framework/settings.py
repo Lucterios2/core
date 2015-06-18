@@ -102,36 +102,44 @@ DEFAULT_SETTINGS = {
     ),
 }
 
-def fill_appli_settings(appli_name, addon_modules=None, setting_module=None):
-    if setting_module is None:
-        last_frm = stack()[1]
-        setting_module = getmodule(last_frm[0])
-    extra = {}
-    for ext_item in dir(setting_module):
-        if ext_item == ext_item.upper() and not (ext_item in ['BASE_DIR', 'DATABASES', 'SECRET_KEY']):
-            extra[ext_item] = getattr(setting_module, ext_item)
-    setattr(setting_module, "EXTRA", extra)
-    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, setting_module.__name__)
-    for (key_name, setting_value) in DEFAULT_SETTINGS.items():
-        setattr(setting_module, key_name, setting_value)
-    setattr(setting_module, "BASE_DIR", dirname(dirname(setting_module.__file__)))
-    if isinstance(addon_modules, tuple):
-        setting_module.INSTALLED_APPS = setting_module.INSTALLED_APPS + addon_modules
-    setting_module.INSTALLED_APPS = setting_module.INSTALLED_APPS + (appli_name,)
-    if not hasattr(setting_module, "DEBUG"):
-        setting_module.DEBUG = False
-    appli_module = import_module(appli_name)
-    setattr(setting_module, 'APPLIS_MODULE', appli_module)
-    local_path = [join(import_module("lucterios.CORE").__path__[0], 'locale/'), join(appli_module.__path__[0], 'locale/')]
+def _get_locale_pathes(appli_name, addon_modules):
+    local_path = []
+    module_lang_list = ["lucterios.CORE", 'lucterios.framework', "lucterios.install", appli_name]
     if addon_modules is not None:
-        for addon_module in addon_modules:
-            local_path.append(join(import_module(addon_module).__path__[0], 'locale/'))
-    setattr(setting_module, 'LOCALE_PATHS', tuple(local_path))
+        module_lang_list.extend(addon_modules)
+    for module_lang_item in module_lang_list:
+        local_path.append(join(import_module(module_lang_item).__path__[0], 'locale/'))
+    return tuple(local_path)
+
+def _get_extra(module_to_setup):
+    extra = {}
+    for ext_item in dir(module_to_setup):
+        if ext_item == ext_item.upper() and not (ext_item in ['BASE_DIR', 'DATABASES', 'SECRET_KEY']):
+            extra[ext_item] = getattr(module_to_setup, ext_item)
+    return extra
+
+def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
+    if module_to_setup is None:
+        last_frm = stack()[1]
+        module_to_setup = getmodule(last_frm[0])
+    setattr(module_to_setup, "EXTRA", _get_extra(module_to_setup))
+    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
+    for (key_name, setting_value) in DEFAULT_SETTINGS.items():
+        setattr(module_to_setup, key_name, setting_value)
+    setattr(module_to_setup, "BASE_DIR", dirname(dirname(module_to_setup.__file__)))
+    if isinstance(addon_modules, tuple):
+        module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + addon_modules
+    module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + (appli_name,)
+    if not hasattr(module_to_setup, "DEBUG"):
+        module_to_setup.DEBUG = False
+    appli_module = import_module(appli_name)
+    setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
+    setattr(module_to_setup, 'LOCALE_PATHS', _get_locale_pathes(appli_name, addon_modules))
     setting_module = import_module("%s.appli_settings" % appli_name)
     for item in dir(setting_module):
         if item == item.upper():
-            setattr(setting_module, item, getattr(setting_module, item))
+            setattr(module_to_setup, item, getattr(setting_module, item))
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
-        setattr(setting_module, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
+        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
-        setattr(setting_module, 'APPLIS_LOGO', '')
+        setattr(module_to_setup, 'APPLIS_LOGO', '')
