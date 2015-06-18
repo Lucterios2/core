@@ -130,6 +130,7 @@
 			<arg value="run"/>
 			<arg value="--branch"/>
 			<arg value="--source=lucterios"/>
+			<arg value="--omit=lucterios/install/lucterios_gui.py"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>
 			<arg value="CORE"/>
@@ -141,6 +142,7 @@
 			<arg value="--append"/>
 			<arg value="--branch"/>
 			<arg value="--source=lucterios"/>
+			<arg value="--omit=lucterios/install/lucterios_gui.py"/>
 			<arg value="lucterios/install/admin_test.py"/>
 		</exec>
 		<exec executable="${testversion}">

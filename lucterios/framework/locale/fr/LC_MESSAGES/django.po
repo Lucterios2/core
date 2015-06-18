@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-18 09:34+0000\n"
+"POT-Creation-Date: 2015-06-18 09:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -117,7 +117,7 @@ msgstr "Modifier"
 
 #: xferadvance.py:130 xferprinting.py:106
 msgid "Print"
-msgstr "Impression"
+msgstr "Imprimer"
 
 #: xferadvance.py:145
 msgid "No model"
