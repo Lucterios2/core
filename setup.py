@@ -52,13 +52,13 @@ setup(
         'Topic :: Database :: Front-Ends',
     ],
     packages=["lucterios", "lucterios.CORE", "lucterios.framework", "lucterios.install"],
-    scripts=['lucterios/install/lucterios_admin.py', 'lucterios/install/lucterios_migration.py'],
+    scripts=['lucterios/install/lucterios_admin.py', 'lucterios/install/lucterios_gui.py', 'lucterios/install/lucterios_migration.py'],
     package_data={
        "lucterios.CORE.migrations":['*'],
        "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
        "lucterios.framework.migrations":['*'],
        "lucterios.framework":['locale/*/*/*'],
-       "lucterios.install":['*'],
+       "lucterios.install":['locale/*/*/*'],
     },
     install_requires=["Django ==1.7", "django_jux ==1.0", "lxml >=3.4", 'pycrypto >=2.6', 'reportlab >=3.1'],
 )
