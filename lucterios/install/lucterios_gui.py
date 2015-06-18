@@ -35,7 +35,6 @@ from traceback import print_exc
 from threading import Thread
 import os
 from lucterios.framework.settings import fill_appli_settings
-from PIL.ImageTk import PhotoImage
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():

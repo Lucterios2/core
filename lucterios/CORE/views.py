@@ -54,7 +54,7 @@ class Unlock(XferContainerAcknowledge):
     def fillresponse(self):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)
 
-signal_and_lock.unlocker_action_class = Unlock
+signal_and_lock.unlocker_view_class = Unlock
 
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
@@ -122,7 +122,7 @@ class ChangePassword(XferContainerCustom):
         pwd.set_location(2, 2, 1, 1)
         self.add_component(pwd)
 
-        self.add_action(ModifyPassword().get_changed(_('Ok'), 'images/ok.png'), {})
+        self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
         self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('')
@@ -162,7 +162,7 @@ class Configuration(XferContainerCustom):
         self.add_component(lab)
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
-        self.add_action(ParamEdit().get_changed(_('Modify'), 'images/edit.png'), {'close':0})
+        self.add_action(ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close':0})
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
@@ -180,7 +180,7 @@ class ParamEdit(XferContainerCustom):
         lab.set_value('{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Edition of parameters"))
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False)
-        self.add_action(ParamSave().get_changed(_('Ok'), 'images/ok.png'), {})
+        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
         self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
@@ -233,16 +233,16 @@ class PrintModelList(XferContainerCustom):
         model_sel.set_location(2, 1, 2)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_changed("", ""), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
+        model_sel.set_action(self.request, self.get_action("", ""), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
         self.add_component(model_sel)
 
         items = PrintModel.objects.filter(modelname=modelname)  # pylint: disable=no-member
         grid = XferCompGrid('print_model')
         grid.set_location(1, 2, 3)
         grid.set_model(items, ['name', 'kind'], self)
-        grid.add_action(self.request, PrintModelEdit().get_changed(_('edit'), 'images/edit.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelClone().get_changed(_('clone'), 'images/add.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelDelete().get_changed(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelEdit.get_action(_('edit'), 'images/edit.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelClone.get_action(_('clone'), 'images/add.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelDelete.get_action(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
         self.add_component(grid)
 
         self.add_action(StubAction(_('Close'), 'images/close.png'), {})
@@ -277,7 +277,7 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif self.item.kind == 2:
             self._fill_report_editor()
-        self.add_action(PrintModelSave().get_changed(_("ok"), "images/ok.png"), {})
+        self.add_action(PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
         self.add_action(StubAction(_('cancel'), 'images/cancel.png'), {})
 
     def _fill_listing_editor(self):

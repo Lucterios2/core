@@ -76,7 +76,7 @@ def menu_key_to_comp(menu_item):
 
 class ActionsManage(object):
 
-    _ACT_LIST = {}
+    _VIEW_LIST = {}
 
     _actlock = threading.RLock()
 
@@ -89,7 +89,7 @@ class ActionsManage(object):
                 action_types = arg_tuples[1:]
                 for action_type in action_types:
                     ident = "%s@%s" % (model_name, action_type)
-                    cls._ACT_LIST[ident] = item
+                    cls._VIEW_LIST[ident] = item
                 return item
             finally:
                 cls._actlock.release()
@@ -100,9 +100,9 @@ class ActionsManage(object):
         cls._actlock.acquire()
         try:
             ident = "%s@%s" % (model_name, action_type)
-            if ident in cls._ACT_LIST.keys():
-                act_class = cls._ACT_LIST[ident]
-                return act_class().get_changed(title, icon)
+            if ident in cls._VIEW_LIST.keys():
+                view_class = cls._VIEW_LIST[ident]
+                return view_class.get_action(title, icon)
             else:
                 return None
         finally:
@@ -134,20 +134,11 @@ class MenuManage(object):
         def wrapper(item):
             cls._menulock.acquire()
             try:
-                item.is_view_right = right
-                module_items = item.__module__.split('.')
-                if module_items[1] == 'CORE':
-                    module_items = module_items[1:]
-                if module_items[-1][:5] == 'views':
-                    module_items = module_items[:-1]
-                item.extension = ".".join(module_items)
-                item.modal = modal
-                item.action = item.__name__[0].lower() + item.__name__[1:]
-                item.url_text = r'%s/%s' % (item.extension, item.action)
+                item.initclass(right)
                 if menu_parent != None:
                     if menu_parent not in cls._MENU_LIST.keys():
                         cls._MENU_LIST[menu_parent] = []
-                    cls._MENU_LIST[menu_parent].append((item, menu_desc))
+                    cls._MENU_LIST[menu_parent].append((item.get_action(item.caption, item.icon, modal=modal), menu_desc))
                 return item
             finally:
                 cls._menulock.release()
@@ -210,6 +201,7 @@ def fill_param_xml(context, params):
         new_param.attrib['name'] = key
 
 def get_action_xml(item, option, desc='', tag='ACTION'):
+    assert isinstance(item, StubAction)
     actionxml = etree.Element(tag)
     actionxml.text = six.text_type(item.caption)
     actionxml.attrib['id'] = item.url_text

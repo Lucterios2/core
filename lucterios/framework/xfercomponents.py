@@ -194,6 +194,7 @@ class XferCompButton(XferComponent):
             self.is_mini = False
 
     def set_action(self, request, action, option):
+        assert (action is None) or isinstance(action, StubAction)
         if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
             self.action = (action, option)
 

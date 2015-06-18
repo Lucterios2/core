@@ -42,6 +42,7 @@ class GenericTest(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
+        self.xfer_class.url_text = "customer/details"
         self.xfer_class.is_view_right = ''
         LucteriosTest.setUp(self)
         self.value = False

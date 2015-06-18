@@ -68,18 +68,33 @@ class XferContainerAbstract(View):
         self.is_new = False
         self.has_changed = False
 
-    def get_changed(self, caption, icon, extension=None, action=None):
-        act_ret = StubAction(caption, icon, url_text=self.url_text)
-        act_ret.modal = self.modal
-        act_ret.is_view_right = self.is_view_right  # pylint: disable=no-member
+    @classmethod
+    def initclass(cls, right):
+        module_items = cls.__module__.split('.')
+        if module_items[1] == 'CORE':
+            module_items = module_items[1:]
+        if module_items[-1][:5] == 'views':
+            module_items = module_items[:-1]
+        extension = ".".join(module_items)
+        action = cls.__name__[0].lower() + cls.__name__[1:]
+        cls.is_view_right = right
+        cls.url_text = r'%s/%s' % (extension, action)
+
+    @classmethod
+    def get_action(cls, caption="", icon="", extension=None, action=None, modal=None):
+        act_ret = StubAction(caption, icon, url_text=cls.url_text)
+        act_ret.modal = cls.modal
+        act_ret.is_view_right = cls.is_view_right  # pylint: disable=no-member
         if extension is not None:
             act_ret.extension = extension
         elif act_ret.extension == '':
-            act_ret.extension = self.extension
+            act_ret.extension = cls.extension
         if action is not None:
             act_ret.action = action
         elif act_ret.action == '':
-            act_ret.action = self.action
+            act_ret.action = cls.action
+        if modal is not None:
+            act_ret.modal = modal
         return act_ret
 
     def getparam(self, key):
@@ -96,8 +111,8 @@ class XferContainerAbstract(View):
             if self.locked:
                 lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
                 self.params.update(lock_params)
-                if signal_and_lock.unlocker_action_class is not None:
-                    self.set_close_action(signal_and_lock.unlocker_action_class())
+                if signal_and_lock.unlocker_view_class is not None:
+                    self.set_close_action(signal_and_lock.unlocker_view_class.get_action())
         except ObjectDoesNotExist:
             raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
 
@@ -172,6 +187,7 @@ class XferContainerAbstract(View):
         self._search_model()
 
     def check_action_permission(self, action):
+        assert (action is None) or isinstance(action, StubAction)
         return (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, self.request)
 
     def set_close_action(self, action, **option):

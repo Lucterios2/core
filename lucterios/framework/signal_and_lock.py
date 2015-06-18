@@ -60,7 +60,7 @@ class Signal(object):
         finally:
             cls._signlock.release()
 
-unlocker_action_class = None  # pylint: disable=invalid-name
+unlocker_view_class = None  # pylint: disable=invalid-name
 
 class RecordLocker(object):
 

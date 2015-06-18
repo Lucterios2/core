@@ -94,7 +94,7 @@ class XferAddEditor(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, False)
-        self.add_action(self.get_changed(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
+        self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
         self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
 
     def get(self, request, *args, **kwargs):

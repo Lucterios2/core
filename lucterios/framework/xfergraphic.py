@@ -117,7 +117,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
-            btn.set_action(self.request, self.get_changed(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
+            btn.set_action(self.request, self.get_action(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
             dlg.add_action(StubAction(_("Cancel"), "images/cancel.png"), {})
@@ -133,7 +133,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.extension = self.extension
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-            dlg.add_action(self.get_changed(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
+            dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
             dlg.add_action(StubAction(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
@@ -151,8 +151,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
             if self.except_classact is not None:
                 except_action = self.except_classact()
-                if self.check_action_permission(except_action):
-                    dlg.add_action(except_action.get_changed(_("Retry"), ""), {})
+                if self.check_action_permission(except_action.get_action()):
+                    dlg.add_action(except_action.get_action(_("Retry"), ""), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
         elif self.traitment_data != None:

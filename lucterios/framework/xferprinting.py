@@ -103,7 +103,7 @@ class XferContainerPrint(XferContainerAbstract):
                 comp.set_location(1, row_idx)
                 gui.add_component(comp)
                 row_idx += 1
-        gui.add_action(self.get_changed(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
+        gui.add_action(self.get_action(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
         gui.add_action(StubAction(_("Close"), "images/close.png"), {})
         return gui
 

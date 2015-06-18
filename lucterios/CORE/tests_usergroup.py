@@ -41,7 +41,7 @@ class UserTest(LucteriosTest):
 
     def setUp(self):
         self.xfer_class = XferContainerAcknowledge
-        signal_and_lock.unlocker_action_class = Unlock
+        signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
         add_empty_user()
@@ -493,7 +493,7 @@ class GroupTest(LucteriosTest):
         tools.notfree_mode_connect = None
         self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
-        signal_and_lock.unlocker_action_class = Unlock
+        signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         add_empty_user()
 
