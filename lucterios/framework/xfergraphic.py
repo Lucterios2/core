@@ -435,7 +435,10 @@ class XferContainerCustom(XferContainerAbstract):
         # pylint: disable=protected-access
         current_desc_fields = desc_fields
         if desc_fields is None:
-            current_desc_fields = self.item.get_fields_names(readonly)
+            if readonly:
+                current_desc_fields = self.item.get_show_fields()
+            else:
+                current_desc_fields = self.item.get_edit_fields()
         if isinstance(current_desc_fields, list):
             current_desc_fields = {'':current_desc_fields}
         tab_keys = list(current_desc_fields.keys())

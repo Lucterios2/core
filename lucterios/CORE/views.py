@@ -257,7 +257,7 @@ class PrintModelEdit(XferContainerCustom):
     field_id = 'print_model'
 
     def fill_menu_memo(self, memo_comp):
-        for name, value in self.item.model_associated().get_print_fields():
+        for name, value in self.item.model_associated().get_all_print_fields():
             memo_comp.add_sub_menu(name, value)
 
     def fillresponse(self):

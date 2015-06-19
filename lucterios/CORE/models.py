@@ -47,14 +47,23 @@ class Parameter(LucteriosModel):
 
 class LucteriosUser(User, LucteriosModel):
 
-    lucteriosuser__editfields = {'':['username'], \
-                                 _('Informations'):['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'], \
-                                 _('Permissions'):['groups', 'user_permissions']}
+    @classmethod
+    def get_default_fields(cls):
+        return ['username', 'first_name', 'last_name', 'last_login']
 
-    lucteriosuser__showfields = ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
+    @classmethod
+    def get_edit_fields(cls):
+        return {'':['username'], \
+                _('Informations'):['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'], \
+                _('Permissions'):['groups', 'user_permissions']}
 
-    default_fields = ['username', 'first_name', 'last_name', 'last_login']
-    print_fields = ['username']
+    @classmethod
+    def get_show_fields(cls):
+        return ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
+
+    @classmethod
+    def get_print_fields(cls):
+        return ['username']
 
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
@@ -120,11 +129,15 @@ parent.get('password2').setEnabled(pwd_change);
 
 class LucteriosGroup(Group, LucteriosModel):
 
-    lucteriosgroup__editfields = ['name', 'permissions']
+    @classmethod
+    def get_edit_fields(cls):
+        return ['name', 'permissions']
 
     permissions__titles = [_("Available permissions"), _("Chosen permissions")]
 
-    default_fields = ['name']
+    @classmethod
+    def get_default_fields(cls):
+        return ['name']
 
     class Meta(object):
         # pylint: disable=no-init
@@ -150,10 +163,13 @@ class Label(LucteriosModel):
     def __str__(self):
         return self.name
 
-    label__showfields = ['name', ('columns', 'rows'), ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
-    label__editfields = ['name', ('columns', 'rows'), ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
-    label__searchfields = ["name", 'columns', 'rows']
-    default_fields = ["name", 'columns', 'rows']
+    @classmethod
+    def get_show_fields(cls):
+        return ['name', ('columns', 'rows'), ('page_width', 'page_height'), ('cell_width', 'cell_height'), ('left_marge', 'top_marge'), ('horizontal_space', 'vertical_space')]
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name", 'columns', 'rows']
 
     @classmethod
     def get_print_selector(cls):
@@ -182,10 +198,17 @@ class PrintModel(LucteriosModel):
     def __str__(self):
         return self.name
 
-    printmdodel__showfields = ['name', 'kind', 'modelname', 'value']
-    printmdodel__editfields = ['name', 'kind', 'modelname', 'value']
-    printmdodel__searchfields = ['name', 'kind', 'modelname', 'value']
-    default_fields = ["name"]
+    @classmethod
+    def get_show_fields(cls):
+        return ['name', 'kind', 'modelname', 'value']
+
+    @classmethod
+    def get_search_fields(cls):
+        return['name', 'kind', 'modelname', 'value']
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name"]
 
     def can_delete(self):
         items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname)  # pylint: disable=no-member

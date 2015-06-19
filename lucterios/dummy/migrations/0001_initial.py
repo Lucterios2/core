@@ -66,5 +66,19 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
+        migrations.CreateModel(
+            name='Other',
+            fields=[
+                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('text', models.CharField(max_length=75, unique=True)),
+                ('integer', models.IntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(20)])),
+                ('real', models.DecimalField(max_digits=6, decimal_places=2, validators=[django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)])),
+                ('bool', models.BooleanField(default=False)),
+            ],
+            bases=(models.Model,),
+            options={
+                'abstract': False,
+            },
+        ),
         migrations.RunPython(initial_values),
     ]

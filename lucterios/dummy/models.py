@@ -40,8 +40,24 @@ class Example(LucteriosModel):
     def __str__(self):
         return self.name
 
-    example__showfields = ['name', ('value', 'price'), ('date', 'time'), 'valid', 'comment']
-    example__editfields = ['name', ('value', 'price'), ('date', 'time'), 'valid', 'comment']
-    example__searchfields = ['name', 'value', 'price', 'date', 'time', 'valid', 'comment']
-    default_fields = ["name", 'value', 'price']
-    print_fields = ['name', 'value', 'price', 'date', 'time', 'valid', 'comment']
+    @classmethod
+    def get_show_fields(cls):
+        return ['name', ('value', 'price'), ('date', 'time'), 'valid', 'comment']
+
+    @classmethod
+    def get_search_fields(cls):
+        return ['name', 'value', 'price', 'date', 'time', 'valid', 'comment']
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["name", 'value', 'price']
+
+    @classmethod
+    def get_print_fields(cls):
+        return cls.get_search_fields()
+
+class Other(LucteriosModel):
+    text = models.CharField(max_length=75, unique=True)
+    integer = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(20)])
+    real = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
+    bool = models.BooleanField(default=False)

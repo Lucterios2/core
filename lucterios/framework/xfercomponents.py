@@ -561,10 +561,7 @@ class XferCompGrid(XferComponent):
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
         if fieldnames == None:
-            if hasattr(query_set.model, 'default_fields'):
-                fieldnames = list(getattr(query_set.model, 'default_fields'))
-            else:
-                fieldnames = []
+            fieldnames = query_set.model.get_default_fields()
         self._add_header_from_model(query_set, fieldnames)
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access

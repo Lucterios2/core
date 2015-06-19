@@ -34,7 +34,7 @@ from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, X
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
-from lucterios.dummy.models import Example
+from lucterios.dummy.models import Example, Other
 
 MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
@@ -298,3 +298,36 @@ class ExampleSearch(XferSearchEditor):
     icon = "9.png"
     model = Example
     field_id = 'example'
+
+@ActionsManage.affect('Other', 'list')
+@MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))
+class OtherList(XferListEditor):
+    icon = "10.png"
+    model = Other
+    field_id = 'other'
+    caption = _("others")
+
+@ActionsManage.affect('Other', 'edit', 'modify', 'add')
+@MenuManage.describ('dummy.add_other')
+class OtherAddModify(XferAddEditor):
+    icon = "10.png"
+    model = Other
+    field_id = 'other'
+    caption_add = _("Add other")
+    caption_modify = _("Modify other")
+
+@ActionsManage.affect('Other', 'show')
+@MenuManage.describ('dummy.change_other')
+class OtherShow(XferShowEditor):
+    icon = "10.png"
+    model = Other
+    field_id = 'other'
+    caption = _("Show other")
+
+@ActionsManage.affect('Other', 'delete')
+@MenuManage.describ('dummy.delete_other')
+class OtherDel(XferDelete):
+    icon = "10.png"
+    model = Other
+    field_id = 'other'
+    caption = _("Delete other")

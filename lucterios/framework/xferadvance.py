@@ -118,7 +118,7 @@ class XferShowEditor(XferContainerCustom):
     def fillresponse(self, action_list=None):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
-        img.set_location(0, 0, 1, 5)
+        img.set_location(0, 0, 1, 6)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
         lbl.set_value_as_title(self.caption)

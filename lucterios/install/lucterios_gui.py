@@ -176,8 +176,8 @@ class InstanceEditor(Toplevel):
 
         btnframe = Frame(self, bd=1)
         btnframe.grid(row=1, column=0, columnspan=1)
-        Button(btnframe, text=ugettext("Cancel"), width=10, command=self.destroy).grid(row=0, column=0, sticky=(N, S, W))
-        Button(btnframe, text=ugettext("OK"), width=10, command=self.apply).grid(row=0, column=1, sticky=(N, S, E))
+        Button(btnframe, text=ugettext("OK"), width=10, command=self.apply).grid(row=0, column=0, sticky=(N, S, E))
+        Button(btnframe, text=ugettext("Cancel"), width=10, command=self.destroy).grid(row=0, column=1, sticky=(N, S, W))
 
     def _database_tabs(self):
         Label(self.frm_database, text=ugettext("Type")).grid(row=0, column=0, sticky=(N, W), padx=5, pady=3)
@@ -599,7 +599,6 @@ class LucteriosMainForm(Tk):
 
     def execute(self):
         self.refresh()
-
         center(self, (700, 300))
         self.mainloop()
 

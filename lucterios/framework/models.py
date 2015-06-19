@@ -73,12 +73,33 @@ class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
 
-    default_fields = []
+    @classmethod
+    def get_default_fields(cls):
+        fields = cls._meta.get_all_field_names() # pylint: disable=no-member,protected-access
+        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields): # pylint: disable=no-member,protected-access
+            fields.remove(cls._meta.auto_field.attname) # pylint: disable=no-member,protected-access
+        return fields
 
     @classmethod
     def get_long_name(cls):
         instance = cls()
         return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)  # pylint: disable=no-member,protected-access
+
+    @classmethod
+    def get_edit_fields(cls):
+        return cls.get_show_fields()
+
+    @classmethod
+    def get_show_fields(cls):
+        return cls.get_default_fields()
+
+    @classmethod
+    def get_search_fields(cls):
+        return cls.get_default_fields()
+
+    @classmethod
+    def get_print_fields(cls):
+        return cls.get_default_fields()
 
     def evaluate(self, text):
         def eval_sublist(field_list, field_value):
@@ -117,62 +138,17 @@ class LucteriosModel(models.Model):
         return value
 
     @classmethod
-    def _get_list_fields_names(cls, current_desc, readonly):
-        res = []
-        for fieldname in current_desc:
-            if fieldname is None:
-                for subclass in cls.__bases__:
-                    if issubclass(subclass, LucteriosModel):
-                        res.extend(subclass.get_fields_names(readonly))
-            else:
-                res.append(fieldname)
-        return res
-
-    @classmethod
-    def get_fields_names(cls, readonly):
-        res = None
-        if readonly:
-            dataname = cls.__name__.lower() + '__showfields'
-        else:
-            dataname = cls.__name__.lower() + '__editfields'
-        if hasattr(cls, dataname):
-            current_desc = getattr(cls, dataname)
-            if isinstance(current_desc, list):
-                res = cls._get_list_fields_names(current_desc, readonly)
-            elif isinstance(current_desc, dict):
-                res = {}
-                for (key, value) in current_desc.items():
-                    res[key] = cls._get_list_fields_names(value, readonly)
-        return res
-
-    @classmethod
-    def _get_list_fields_for_search(cls, current_desc):
-        res = []
-        for fieldname in current_desc:
-            if fieldname is None:
-                for subclass in cls.__bases__:
-                    if issubclass(subclass, LucteriosModel):
-                        res.extend(subclass.get_fieldnames_for_search(False))
-            else:
-                res.append(fieldname)
-        return res
-
-    @classmethod
-    def get_print_fields(cls, with_plugin=True):
+    def get_all_print_fields(cls, with_plugin=True):
         def add_sub_field(field_name, field_title, model):
-            for sub_title, sub_name in model.get_print_fields(False):
+            for sub_title, sub_name in model.get_all_print_fields(False):
                 fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
         from django.db.models.fields.related import ForeignKey
         fields = []
         item = cls()
-        if hasattr(cls, "print_fields"):
-            dataname = "print_fields"
-        else:
-            dataname = "default_fields"
-        for field_name in getattr(cls, dataname):
+        for field_name in cls.get_print_fields():
             if PrintFieldsPlugIn.is_plugin(field_name):
                 if with_plugin:
-                    fields.extend(PrintFieldsPlugIn.get_plugin(field_name).get_print_fields())
+                    fields.extend(PrintFieldsPlugIn.get_plugin(field_name).get_all_print_fields())
             elif field_name[-4:] == '_set':
                 child = getattr(item, field_name)
                 field_title = child.model._meta.verbose_name  # pylint: disable=protected-access
@@ -185,17 +161,6 @@ class LucteriosModel(models.Model):
                 else:
                     add_sub_field(field_name, field_title, dep_field[0].rel.to)
         return fields
-
-    @classmethod
-    def get_fieldnames_for_search(cls, is_topleve=True):
-        # pylint: disable=unused-argument
-        res = []
-        dataname = cls.__name__.lower() + '__searchfields'
-        if hasattr(cls, dataname):
-            current_desc = getattr(cls, dataname)
-            if isinstance(current_desc, list):
-                res = cls._get_list_fields_for_search(current_desc)
-        return res
 
     def can_delete(self):
         # pylint: disable=unused-argument,no-self-use
@@ -223,7 +188,9 @@ class LucteriosModel(models.Model):
 
 class LucteriosSession(Session, LucteriosModel):
 
-    default_fields = [(_('username'), 'username'), 'expire_date']
+    @classmethod
+    def get_default_fields(cls):
+        return [(_('username'), 'username'), 'expire_date']
 
     @property
     def username(self):
@@ -263,7 +230,7 @@ class PrintFieldsPlugIn(object):
     def add_plugin(cls, pluginclass):
         cls._plug_ins[pluginclass.name] = pluginclass
 
-    def get_print_fields(self):
+    def get_all_print_fields(self):
         # pylint: disable=no-self-use
         return []
 

@@ -291,7 +291,7 @@ class FieldDescList(object):
 
     def initial(self, model):
         self.field_desc_list = []
-        for field_name in model.get_fieldnames_for_search():
+        for field_name in model.get_search_fields():
             new_field = FieldDescItem(field_name)
             if new_field.init(model):
                 self.field_desc_list.append(new_field)

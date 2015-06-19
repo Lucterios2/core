@@ -55,37 +55,40 @@ class GenForm(Tk):
     
     def __init__(self):
         Tk.__init__(self)
+        self.minsize(200, 250)
         self.result = None
         self._model_name = ''
         self._icon_name = ''
         self.title("Viewer generator")
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=1)
         self.resizable(True, True)        
-        Label(self, text='Model').grid(row=1, column=0, sticky=(N,E))
+        Label(self, text='Model').grid(row=0, column=0, sticky=(N, E))
         self.models = ttk.Combobox(self, textvariable=StringVar(), state='readonly')
-        self.models.grid(row=1, column=1, sticky=(N,W))
+        self.models.grid(row=0, column=1, sticky=(N, W, E, S), padx=3, pady=3)
         mainframe = Frame(self, bd=1, relief=SUNKEN)
-        mainframe.grid(row=2, column=0, columnspan=2, sticky=(N, S, E, W))
-        current_row = 2
+        mainframe.grid(row=1, column=0, columnspan=2, sticky=(N, S, E, W), padx=3, pady=3)
+        current_row = 0
         current_col = 0
         self.check = []
         for value in ('add', 'list', 'edit', 'search', 'modify', 'listing', 'show', 'label', 'delete', 'print'):
             chkbtn_val = IntVar()
             chkbtn = Checkbutton(mainframe, text=value, variable=chkbtn_val)
-            chkbtn.grid(row=current_row, column=current_col, sticky=W)
+            chkbtn.grid(row=current_row, column=current_col, sticky=W, padx=3, pady=3)
             self.check.append((value, chkbtn_val))
             current_col += 1
             if current_col == 2:
                 current_col = 0
                 current_row += 1
-        Label(mainframe, text='Icon').grid(row=(current_row + 1), column=0, sticky=E)
+        Label(mainframe, text='Icon').grid(row=(current_row + 1), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
         self.icons = ttk.Combobox(mainframe, textvariable=StringVar(), state='readonly')
-        self.icons.grid(row=(current_row + 1), column=1)
+        self.icons.grid(row=(current_row + 2), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
         btnframe = Frame(self, bd=1)
-        btnframe.grid(row=3, column=0, columnspan=2)
-        Button(btnframe, text="OK", command=self.cmd_ok).grid(row=1, column=0, sticky=(N, S, E, W))
-        Button(btnframe, text="Cancel", command=self.cmd_cancel).grid(row=1, column=1, sticky=(N, S, E, W))
+        btnframe.grid(row=2, column=0, columnspan=2)
+        Button(btnframe, text="OK", width=10, command=self.cmd_ok).grid(row=1, column=0, sticky=(N, S, E, W), padx=5, pady=3)
+        Button(btnframe, text="Cancel", width=10, command=self.cmd_cancel).grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
         
     def cmd_ok(self):
         self.result = {}
@@ -251,7 +254,7 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
                 self.writedata("""
 @ActionsManage.affect('%(modelname)s', %(actions)s)
 @MenuManage.describ('%(right)s'%(menuext)s)
-class Individual%(itemname)s(%(classname)s):
+class %(modelname)s%(itemname)s(%(classname)s):
     icon = "%(iconname)s"
     model = %(modelname)s
     field_id = '%(fieldidname)s'
