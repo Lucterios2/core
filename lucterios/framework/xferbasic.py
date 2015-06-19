@@ -33,8 +33,7 @@ from django.utils.log import getLogger
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import check_permission, raise_bad_permission, get_action_xml, \
-    fill_param_xml, StubAction
+from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.db.models.fields.related import ForeignKey
@@ -81,21 +80,30 @@ class XferContainerAbstract(View):
         cls.url_text = r'%s/%s' % (extension, action)
 
     @classmethod
-    def get_action(cls, caption="", icon="", extension=None, action=None, modal=None):
-        act_ret = StubAction(caption, icon, url_text=cls.url_text)
-        act_ret.modal = cls.modal
-        act_ret.is_view_right = cls.is_view_right  # pylint: disable=no-member
-        if extension is not None:
-            act_ret.extension = extension
-        elif act_ret.extension == '':
-            act_ret.extension = cls.extension
-        if action is not None:
-            act_ret.action = action
-        elif act_ret.action == '':
-            act_ret.action = cls.action
-        if modal is not None:
-            act_ret.modal = modal
-        return act_ret
+    def icon_path(cls):
+        res_icon_path = ""
+        if hasattr(cls, 'icon') and cls.icon != "":
+            if cls.url_text.find('/') != -1:
+                extension = cls.url_text.split('/')[0]
+            else:
+                extension = cls.extension
+            if (extension == '') or ('images/' in cls.icon):
+                res_icon_path = cls.icon
+            elif extension == 'CORE':
+                res_icon_path = "images/" + cls.icon
+            else:
+                res_icon_path = "%s/images/%s" % (extension, cls.icon)
+        return res_icon_path
+
+    @classmethod
+    def get_action(cls, caption=None, icon_path=None, modal=FORMTYPE_MODAL):
+        if caption is None:
+            caption = cls.caption
+        if icon_path is None:
+            icon_path = cls.icon_path()
+        ret_act = WrapAction(caption, icon_path, url_text=cls.url_text, is_view_right=cls.is_view_right)  # pylint: disable=no-member
+        ret_act.modal = modal
+        return ret_act
 
     def getparam(self, key):
         if key in self.params.keys():
@@ -172,7 +180,8 @@ class XferContainerAbstract(View):
         return self.has_changed
 
     def _initialize(self, request, *_, **kwargs):
-        raise_bad_permission(self, request)
+        if hasattr(self.__class__, 'is_view_right'):
+            self.get_action().raise_bad_permission(request)
         _, self.extension, self.action = request.path.split('/')
         self.request = request
         for key in kwargs.keys():
@@ -183,12 +192,11 @@ class XferContainerAbstract(View):
             self.params[key] = request.POST[key]
         self.language = translation.get_language_from_request(request)
         translation.activate(self.language)
-
         self._search_model()
 
     def check_action_permission(self, action):
-        assert (action is None) or isinstance(action, StubAction)
-        return (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, self.request)
+        assert (action is None) or isinstance(action, WrapAction)
+        return isinstance(action, WrapAction) and action.check_permission(self.request)
 
     def set_close_action(self, action, **option):
         if self.check_action_permission(action):
@@ -210,7 +218,7 @@ class XferContainerAbstract(View):
             fill_param_xml(context, self.params)
             self.responsexml.insert(1, context)
         if self.closeaction != None:
-            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(get_action_xml(self.closeaction[0], self.closeaction[1]))
+            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(self.closeaction[0].get_action_xml(self.closeaction[1]))
 
     def get_response(self):
         return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))

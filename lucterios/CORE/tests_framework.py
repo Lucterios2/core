@@ -27,7 +27,7 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING, \
     XferContainerCustom
 from django.utils.http import urlquote_plus
-from lucterios.framework.tools import StubAction
+from lucterios.framework.tools import WrapAction
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamSave
@@ -77,7 +77,7 @@ class GenericTest(LucteriosTest):
 
     def test_close(self):
         def fillresponse_close():
-            self.factory.xfer.set_close_action(StubAction("close", "", "customer", "list"))
+            self.factory.xfer.set_close_action(WrapAction("close", "", "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_close
         self.call('/customer/details', {}, False)
         self.assert_observer('Core.Acknowledge', 'customer', 'details')
@@ -88,7 +88,7 @@ class GenericTest(LucteriosTest):
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.factory.xfer.redirect_action(StubAction("redirect", "", "customer", "list"), {})
+            self.factory.xfer.redirect_action(WrapAction("redirect", "", "customer", "list"), {})
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.call('/customer/details', {}, False)
         self.assert_observer('Core.Acknowledge', 'customer', 'details')

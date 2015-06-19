@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, StubAction, \
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
     ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
 from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
@@ -123,7 +123,7 @@ class ChangePassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('')
 class ModifyPassword(XferContainerAcknowledge):
@@ -163,7 +163,7 @@ class Configuration(XferContainerCustom):
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
         self.add_action(ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close':0})
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamEdit(XferContainerCustom):
@@ -181,7 +181,7 @@ class ParamEdit(XferContainerCustom):
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False)
         self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamSave(XferContainerAcknowledge):
@@ -245,7 +245,7 @@ class PrintModelList(XferContainerCustom):
         grid.add_action(self.request, PrintModelDelete.get_action(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
         self.add_component(grid)
 
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelEdit(XferContainerCustom):
@@ -278,7 +278,7 @@ class PrintModelEdit(XferContainerCustom):
         elif self.item.kind == 2:
             self._fill_report_editor()
         self.add_action(PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
-        self.add_action(StubAction(_('cancel'), 'images/cancel.png'), {})
+        self.add_action(WrapAction(_('cancel'), 'images/cancel.png'), {})
 
     def _fill_listing_editor(self):
         lab = XferCompLabelForm('lbl_page_width')

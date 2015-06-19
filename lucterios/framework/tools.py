@@ -38,11 +38,14 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-class StubAction(object):
+notfree_mode_connect = None  # pylint: disable=invalid-name
+bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
+
+class WrapAction(object):
     # pylint: disable=too-few-public-methods
-    def __init__(self, caption, icon, extension='', action='', url_text='', pos=0, is_view_right=''):
+    def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
-        self.icon = icon
+        self.icon_path = icon_path
         self.modal = FORMTYPE_MODAL
         self.is_view_right = is_view_right
         self.url_text = url_text
@@ -53,26 +56,50 @@ class StubAction(object):
             self.action = action
         self.pos = pos
 
-def icon_path(item):
-    res_icon_path = ""
-    if hasattr(item, 'icon') and item.icon != "":
-        if item.url_text.find('/') != -1:
-            extension = item.url_text.split('/')[0]
-        else:
-            extension = item.extension
-        if (extension == '') or ('images/' in item.icon):
-            res_icon_path = item.icon
-        elif extension == 'CORE':
-            res_icon_path = "images/" + item.icon
-        else:
-            res_icon_path = "%s/images/%s" % (extension, item.icon)
-    return res_icon_path
+    def get_action_xml(self, option, desc='', tag='ACTION'):
+        actionxml = etree.Element(tag)
+        actionxml.text = six.text_type(self.caption)
+        actionxml.attrib['id'] = self.url_text
+        if self.icon_path != "":
+            actionxml.attrib['icon'] = six.text_type(self.icon_path)
+        if self.extension != "":
+            actionxml.attrib['extension'] = self.extension
+        if self.action != "":
+            actionxml.attrib['action'] = self.action
+        if desc != "":
+            etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
+        actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
+        actionxml.attrib['close'] = six.text_type(CLOSE_YES)
+        actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+        if isinstance(self.modal, int):
+            actionxml.attrib['modal'] = six.text_type(self.modal)
+        if 'params' in option:
+            fill_param_xml(actionxml, option['params'])
+            del option['params']
+        for key in option.keys():  # modal, close, unique
+            if isinstance(option[key], six.integer_types):
+                actionxml.attrib[key] = six.text_type(option[key])
+        return actionxml
 
-def menu_key_to_comp(menu_item):
-    try:
-        return menu_item[0].pos
-    except AttributeError:
-        return 0
+    def check_permission(self, request):
+        try:
+            if self.is_view_right == None:
+                return request.user.is_authenticated()
+            if notfree_mode_connect is None or notfree_mode_connect():
+                if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
+                    return False
+        except AttributeError:
+            pass
+        return True
+
+    def raise_bad_permission(self, request):
+        if not self.check_permission(request):
+            from lucterios.framework.error import LucteriosRedirectException
+            if request.user.is_authenticated():
+                username = request.user.username
+            else:
+                username = _("Anonymous user")
+            raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
 
 class ActionsManage(object):
 
@@ -125,7 +152,7 @@ class MenuManage(object):
                 if old_menu[0].url_text == ref:
                     add_new_menu = False
             if add_new_menu:
-                cls._MENU_LIST[parentref].append((StubAction(caption, icon, url_text=ref, pos=pos), desc))
+                cls._MENU_LIST[parentref].append((WrapAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
@@ -138,7 +165,7 @@ class MenuManage(object):
                 if menu_parent != None:
                     if menu_parent not in cls._MENU_LIST.keys():
                         cls._MENU_LIST[menu_parent] = []
-                    cls._MENU_LIST[menu_parent].append((item.get_action(item.caption, item.icon, modal=modal), menu_desc))
+                    cls._MENU_LIST[menu_parent].append((item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
                 return item
             finally:
                 cls._menulock.release()
@@ -146,47 +173,29 @@ class MenuManage(object):
 
     @classmethod
     def fill(cls, request, parentref, parentxml):
+        def menu_key_to_comp(menu_item):
+            try:
+                return menu_item[0].pos
+            except AttributeError:
+                return 0
         cls._menulock.acquire()
         try:
             if parentref in cls._MENU_LIST.keys():
                 sub_menus = cls._MENU_LIST[parentref]
                 sub_menus.sort(key=menu_key_to_comp)  # menu_comp)
                 for sub_menu_item in sub_menus:
-                    if check_permission(sub_menu_item[0], request):
-                        new_xml = get_action_xml(sub_menu_item[0], {}, sub_menu_item[1], "MENU")
+                    if sub_menu_item[0].check_permission(request):
+                        new_xml = sub_menu_item[0].get_action_xml({}, sub_menu_item[1], "MENU")
                         if new_xml != None:
                             parentxml.append(new_xml)
                             cls.fill(request, sub_menu_item[0].url_text, new_xml)
         finally:
             cls._menulock.release()
 
-notfree_mode_connect = None  # pylint: disable=invalid-name
-bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
-
-def check_permission(item, request):
-    try:
-        if item.is_view_right == None:
-            return request.user.is_authenticated()
-        if notfree_mode_connect is None or notfree_mode_connect():
-            if (item.is_view_right != '') and not request.user.has_perm(item.is_view_right):
-                return False
-    except AttributeError:
-        pass
-    return True
-
-def raise_bad_permission(item, request):
-    if not check_permission(item, request):
-        from lucterios.framework.error import LucteriosRedirectException
-        if request.user.is_authenticated():
-            username = request.user.username
-        else:
-            username = _("Anonymous user")
-        raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
-
 def get_actions_xml(actions):
     actionsxml = etree.Element("ACTIONS")
     for (action, options) in actions:
-        new_xml = get_action_xml(action, options)
+        new_xml = action.get_action_xml(options)
         if new_xml != None:
             actionsxml.append(new_xml)
     return actionsxml
@@ -199,33 +208,6 @@ def fill_param_xml(context, params):
         else:
             new_param.text = six.text_type(value)
         new_param.attrib['name'] = key
-
-def get_action_xml(item, option, desc='', tag='ACTION'):
-    assert isinstance(item, StubAction)
-    actionxml = etree.Element(tag)
-    actionxml.text = six.text_type(item.caption)
-    actionxml.attrib['id'] = item.url_text
-    if hasattr(item, 'icon') and item.icon != "":
-        actionxml.attrib['icon'] = six.text_type(icon_path(item))
-        # actionxml.attrib['sizeicon']=filesize(item.icon)
-    if item.extension != "":
-        actionxml.attrib['extension'] = item.extension
-    if item.action != "":
-        actionxml.attrib['action'] = item.action
-    if desc != "":
-        etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-    actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
-    actionxml.attrib['close'] = six.text_type(CLOSE_YES)
-    actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
-    if isinstance(item.modal, int):
-        actionxml.attrib['modal'] = six.text_type(item.modal)
-    if 'params' in option:
-        fill_param_xml(actionxml, option['params'])
-        del option['params']
-    for key in option.keys():  # modal, close, unique
-        if isinstance(option[key], six.integer_types):
-            actionxml.attrib[key] = six.text_type(option[key])
-    return actionxml
 
 def ifplural(count, test_singular, test_plural):
     if count == 1:

@@ -27,8 +27,7 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import icon_path, CLOSE_NO, StubAction, FORMTYPE_REFRESH, \
-    ActionsManage
+from lucterios.framework.tools import CLOSE_NO, WrapAction, FORMTYPE_REFRESH, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
@@ -499,7 +498,7 @@ if ((type=='list') || (type=='listmult')) {
         self.read_criteria_from_params()
 
         img = XferCompImage('img')
-        img.set_value(icon_path(self))
+        img.set_value(self.icon_path())
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -531,4 +530,4 @@ if ((type=='list') || (type=='listmult')) {
         for act_type, title, icon in action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
 
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

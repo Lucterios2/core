@@ -29,9 +29,8 @@ from django.utils import six
 from django.utils.translation import ugettext as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_action_xml, get_actions_xml, check_permission, StubAction, ActionsManage, SELECT_MULTI
+from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-from lucterios.framework.xferbasic import XferContainerAbstract
 import datetime
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
@@ -194,8 +193,8 @@ class XferCompButton(XferComponent):
             self.is_mini = False
 
     def set_action(self, request, action, option):
-        assert (action is None) or isinstance(action, StubAction)
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
+        assert (action is None) or isinstance(action, WrapAction)
+        if isinstance(action, WrapAction) and action.check_permission(request):
             self.action = (action, option)
 
     def _get_attribut(self, compxml):
@@ -207,7 +206,7 @@ class XferCompButton(XferComponent):
         compxml = XferComponent.get_reponse_xml(self)
         if self.action is not None:
             xml_acts = etree.SubElement(compxml, "ACTIONS")
-            new_xml = get_action_xml(self.action[0], self.action[1])
+            new_xml = self.action[0].get_action_xml(self.action[1])
             if new_xml != None:
                 xml_acts.append(new_xml)
         if self.java_script != "":
@@ -471,7 +470,7 @@ class XferCompGrid(XferComponent):
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
             option['close'] = CLOSE_NO
-        if (isinstance(action, XferContainerAbstract) or isinstance(action, StubAction)) and check_permission(action, request):
+        if isinstance(action, WrapAction) and action.check_permission(request):
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, option))
             else:

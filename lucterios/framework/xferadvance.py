@@ -28,8 +28,7 @@ from django.utils.translation import ugettext as _
 from django.db import IntegrityError
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
-from lucterios.framework.tools import icon_path, ifplural, CLOSE_NO, StubAction, \
-    ActionsManage, CLOSE_YES
+from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
@@ -52,7 +51,7 @@ class XferListEditor(XferContainerCustom):
     def fillresponse(self):
         # pylint: disable=not-callable
         img = XferCompImage('img')
-        img.set_value(icon_path(self))
+        img.set_value(self.icon_path())
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -76,7 +75,7 @@ class XferListEditor(XferContainerCustom):
         for act_type, title, icon in action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
 
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 class XferAddEditor(XferContainerCustom):
     caption_add = ''
@@ -90,12 +89,12 @@ class XferAddEditor(XferContainerCustom):
         else:
             self.caption = self.caption_modify
         img = XferCompImage('img')
-        img.set_value(icon_path(self))
+        img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
-        self.add_action(StubAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
@@ -118,7 +117,7 @@ class XferShowEditor(XferContainerCustom):
 
     def fillresponse(self, action_list=None):
         img = XferCompImage('img')
-        img.set_value(icon_path(self))
+        img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 5)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -130,7 +129,7 @@ class XferShowEditor(XferContainerCustom):
             action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
         for act_type, title, icon, close in action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':close})
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)

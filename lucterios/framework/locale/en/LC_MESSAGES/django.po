@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-18 12:09+0000\n"
+"POT-Creation-Date: 2015-06-19 08:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -59,28 +59,28 @@ msgstr "Unknown signal %s"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:192
+#: tools.py:183
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:193
+#: tools.py:184
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:265
+#: tools.py:257
 msgid "add"
 msgstr "add"
 
-#: tools.py:267
+#: tools.py:259
 msgid "view"
 msgstr "view"
 
-#: tools.py:269
+#: tools.py:261
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:270
+#: tools.py:262
 msgid "Can"
 msgstr "Can"
 
@@ -110,7 +110,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:130 xfercomponents.py:589
+#: xferadvance.py:130 xfercomponents.py:590
 msgid "Modify"
 msgstr "Modify"
 
@@ -140,7 +140,7 @@ msgstr "Do you want delete those %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:102
+#: xferbasic.py:117
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -148,15 +148,15 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:589
+#: xfercomponents.py:590
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:590
+#: xfercomponents.py:591
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:590
+#: xfercomponents.py:591
 msgid "Add"
 msgstr "Add"
 

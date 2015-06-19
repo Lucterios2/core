@@ -30,7 +30,7 @@ from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListE
 from lucterios.framework.xfergraphic import XferContainerCustom, XferContainerAcknowledge
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI, \
-    StubAction, ActionsManage, SELECT_NONE
+    WrapAction, ActionsManage, SELECT_NONE
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
@@ -115,7 +115,7 @@ class UsersList(XferContainerCustom):
         grid.add_action(self.request, UsersDelete.get_action(_("Delete"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
         self.add_component(grid)
 
-        self.add_action(StubAction(_('Close'), 'images/close.png'), {})
+        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 @ActionsManage.affect('LucteriosUser', 'del')
 @MenuManage.describ('auth.delete_user')

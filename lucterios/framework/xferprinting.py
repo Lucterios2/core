@@ -36,7 +36,7 @@ from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
     XferCompFloat
-from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, StubAction
+from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.reporting import transforme_xml2pdf
 from lucterios.framework.xfersearch import get_search_query
 
@@ -104,7 +104,7 @@ class XferContainerPrint(XferContainerAbstract):
                 gui.add_component(comp)
                 row_idx += 1
         gui.add_action(self.get_action(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
-        gui.add_action(StubAction(_("Close"), "images/close.png"), {})
+        gui.add_action(WrapAction(_("Close"), "images/close.png"), {})
         return gui
 
     def get(self, request, *args, **kwargs):
