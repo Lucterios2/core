@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$(id -u)" != "0" ]; then
-   echo "This script must be run as root" 1>&2
+   echo ">>> This script must be run as 'super user' <<<" 1>&2
    [ -z "$(which sudo)" ] && exit 1
    sudo -E $0 $@	
    exit $!
@@ -9,12 +9,13 @@ fi
 
 if [ "$1" = "del" ]
 then
+	echo "====== delete lucterios ======"
 	rm -f /usr/local/bin/launch_lucterios
 	rm -f /usr/local/bin/launch_lucterios_gui
 	rm -rf /var/lucterios2/
+	echo "============ END ============="
 	exit 0
 fi
-
 
 if [ ! -z "$1" ]
 then
@@ -24,6 +25,12 @@ then
 	echo "	${0##*/} del			Remove Lucterios"
 	exit 0
 fi
+
+echo "====== install lucterios ======"
+
+echo
+echo "------ check perquisite -------"
+echo
 
 if [ ! -z "$(which apt-get)" ]; then  # DEB linux like
 	apt-get install -y libxml2-dev libxslt-dev libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev
@@ -39,8 +46,12 @@ else if [ ! -z "$(which brew)" ]; then # Mac OS X
 	brew install python3
 	pip3 install --upgrade pip
 else
-	echo "Unix/Linux distribution not available for this script!"
+	echo "++++++ Unix/Linux distribution not available for this script! +++++++"
 fi; fi; fi
+
+echo
+echo "------ configure virtual environment ------"
+echo
 
 PIP_CMD=
 PYTHON_CMD=
@@ -55,7 +66,6 @@ done
 [ -z "$PIP_CMD" ] && echo "No pip found!" && exit 1
 
 set -e
-set -x
 
 PIP_OPTION=''
 if [ ! -z "$http_proxy" ]
@@ -67,9 +77,17 @@ $PIP_CMD install $PIP_OPTION virtualenv -U
 mkdir -p /var/lucterios2
 cd /var/lucterios2
 $PYTHON_CMD $(which virtualenv) virtual_for_lucterios
+
+echo
+echo "------ install lucterios ------"
+echo
+
 . /var/lucterios2/virtual_for_lucterios/bin/activate
 pip install $PIP_OPTION --extra-index-url http://v2.lucterios.org/simple --trusted-host v2.lucterios.org -U lucterios-standard
 
+echo
+echo "------ refresh shortcut ------"
+echo
 rm -rf /var/lucterios2/launch_lucterios.sh
 touch /var/lucterios2/launch_lucterios.sh
 echo "#!/bin/sh" >> /var/lucterios2/launch_lucterios.sh
@@ -92,3 +110,6 @@ chmod +x /var/lucterios2/launch_lucterios.sh
 
 ln -sf /var/lucterios2/launch_lucterios.sh /usr/local/bin/launch_lucterios
 ln -sf /var/lucterios2/launch_lucterios_gui.sh /usr/local/bin/launch_lucterios_gui
+
+echo "============ END ============="
+exit 0

@@ -48,10 +48,10 @@ try:
     from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
     from tkinter.messagebox import showerror, askokcancel
 except ImportError:
-    from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar # pylint: disable=import-error
-    from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED # pylint: disable=import-error
-    from tkMessageBox import showerror, askokcancel # pylint: disable=import-error
-    import ttk # pylint: disable=import-error
+    from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar  # pylint: disable=import-error
+    from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED  # pylint: disable=import-error
+    from tkMessageBox import showerror, askokcancel  # pylint: disable=import-error
+    import ttk  # pylint: disable=import-error
 
 class RunException(Exception):
     pass
@@ -152,6 +152,9 @@ class InstanceEditor(Toplevel):
     def __init__(self):
         # pylint: disable=super-init-not-called
         Toplevel.__init__(self)
+        self.focus_set()
+        self.grab_set()
+
         self.result = None
         self.module_data = None
         self.mod_applis = None
@@ -226,6 +229,16 @@ class InstanceEditor(Toplevel):
     def appli_selection(self, event):
         # pylint: disable=unused-argument
         appli_id = list(self.applis[VALUES]).index(self.applis.get())
+
+        luct_glo = LucteriosGlobal()
+        current_inst_names = luct_glo.listing()
+        appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
+        default_name_idx = 1
+        while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
+            default_name_idx += 1
+        self.name.delete(0, END)
+        self.name.insert(0, appli_root_name + six.text_type(default_name_idx))
+
         mod_depended = self.mod_applis[appli_id][2]
         self.modules.select_clear(0, self.modules.size())
         for mod_idx in range(len(self.module_data)):
@@ -245,7 +258,6 @@ class InstanceEditor(Toplevel):
     def apply(self):
         if self.name.get() != '':
             db_param = "%s:name=%s,user=%s,password=%s" % (self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
-
             security = "MODE=%s" % list(self.mode[VALUES]).index(self.mode.get())
             if self.password.get() != '':
                 security += ",PASSWORD=%s" % self.password.get()
@@ -396,7 +408,7 @@ class LucteriosMainForm(Tk):
         if widget is None:
             widget = self
         if isinstance(widget, Button) and (widget != self.btnupgrade):
-            if is_enabled:
+            if is_enabled and (not hasattr(widget, 'disabled') or not widget.disabled):
                 widget.config(state=NORMAL)
             else:
                 widget.config(state=DISABLED)
@@ -413,6 +425,8 @@ class LucteriosMainForm(Tk):
         self.set_select_instance_name(instance_name)
         if not self.has_checked:
             self._refresh_modules()
+            if self.instance_list.size() == 0:
+                self.after_idle(self.add_inst)
 
     def _refresh_modules(self):
         self.set_ugrade_state(False)
@@ -499,26 +513,31 @@ class LucteriosMainForm(Tk):
             self.instance_list.config(state=DISABLED)
             try:
                 instance_name = self.get_selected_instance_name()
-                if not instance_name in self.running_instance.keys():
-                    self.running_instance[instance_name] = None
-                inst = LucteriosInstance(instance_name)
-                inst.read()
-
                 self.instance_txt.configure(state=NORMAL)
                 self.instance_txt.delete("1.0", END)
-                self.instance_txt.insert(END, "\t\t\t%s\n\n" % inst.name)
-                self.instance_txt.insert(END, ugettext("Database\t\t%s\n") % inst.get_database_txt())
-                self.instance_txt.insert(END, ugettext("Appli\t\t%s\n") % inst.get_appli_txt())
-                self.instance_txt.insert(END, ugettext("Modules\t\t%s\n") % inst.get_module_txt())
-                self.instance_txt.insert(END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
-                self.instance_txt.insert(END, '\n')
-                if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
-                    self.instance_txt.insert(END, ugettext("=> Running in http://127.0.0.1:%s\n") % six.text_type(self.running_instance[instance_name].port))
-                    self.btninstframe.winfo_children()[0]["text"] = ugettext("Stop")
+                if instance_name != '':
+                    if not instance_name in self.running_instance.keys():
+                        self.running_instance[instance_name] = None
+                    inst = LucteriosInstance(instance_name)
+                    inst.read()
+                    self.instance_txt.insert(END, "\t\t\t%s\n\n" % inst.name)
+                    self.instance_txt.insert(END, ugettext("Database\t\t%s\n") % inst.get_database_txt())
+                    self.instance_txt.insert(END, ugettext("Appli\t\t%s\n") % inst.get_appli_txt())
+                    self.instance_txt.insert(END, ugettext("Modules\t\t%s\n") % inst.get_module_txt())
+                    self.instance_txt.insert(END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
+                    self.instance_txt.insert(END, '\n')
+                    if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
+                        self.instance_txt.insert(END, ugettext("=> Running in http://127.0.0.1:%s\n") % six.text_type(self.running_instance[instance_name].port))
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Stop")
+                    else:
+                        self.running_instance[instance_name] = None
+                        self.instance_txt.insert(END, ugettext("=> Stopped\n"))
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
                 else:
-                    self.running_instance[instance_name] = None
-                    self.instance_txt.insert(END, ugettext("=> Stopped\n"))
                     self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
+                self.btninstframe.winfo_children()[0].disabled = (instance_name == '')
+                self.btninstframe.winfo_children()[1].disabled = (instance_name == '')
+                self.btninstframe.winfo_children()[2].disabled = (instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
                 self.instance_list.config(state=NORMAL)
@@ -546,6 +565,7 @@ class LucteriosMainForm(Tk):
 
             ist_edt = InstanceEditor()
             ist_edt.execute()
+            ist_edt.transient(self)
             self.wait_window(ist_edt)
         finally:
             self.enabled(True)
@@ -559,6 +579,7 @@ class LucteriosMainForm(Tk):
 
             ist_edt = InstanceEditor()
             ist_edt.execute(self.get_selected_instance_name())
+            ist_edt.transient(self)
             self.wait_window(ist_edt)
         finally:
             self.enabled(True)
