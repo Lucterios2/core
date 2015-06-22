@@ -94,6 +94,7 @@ echo "#!/bin/sh" >> /var/lucterios2/launch_lucterios.sh
 echo  >> /var/lucterios2/launch_lucterios.sh
 echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
 echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
+echo "export extra_url='http://v2.lucterios.org/simple'" >> /var/lucterios2/launch_lucterios.sh
 
 rm -rf /var/lucterios2/launch_lucterios.sh
 touch /var/lucterios2/launch_lucterios.sh
