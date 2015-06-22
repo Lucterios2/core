@@ -36,9 +36,13 @@ if [ ! -z "$(which apt-get)" ]; then  # DEB linux like
 	apt-get install -y libxml2-dev libxslt-dev libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev
 	apt-get install -y python-pip python-dev
 	apt-get install -y python3-pip python3-dev
+	apt-get install -y python-tk python-imaging
+	apt-get install -y python3-tk python3-imaging
 else if [ ! -z "$(which yum)" ]; then # RPM unix/linux like
 	yum install -y python-devel libxml2-devel libxslt-devel libjpeg-devel
 	yum install -y libfreetype6 libfreetype6-devel
+	yum install -y tkinter 
+	yum install -y python-imaging	
 	easy_install pip
 else if [ ! -z "$(which brew)" ]; then # Mac OS X
 	brew install libxml2 libxslt
@@ -95,7 +99,10 @@ echo  >> /var/lucterios2/launch_lucterios.sh
 echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
 echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
 echo "export extra_url='http://v2.lucterios.org/simple'" >> /var/lucterios2/launch_lucterios.sh
-
+if [ -z "$LANG" -o "$LANG" == "C" ]
+then
+	echo "export LANG=en_US.UTF-8" >> /var/lucterios2/launch_lucterios.sh
+fi
 rm -rf /var/lucterios2/launch_lucterios.sh
 touch /var/lucterios2/launch_lucterios.sh
 echo "#!/bin/sh" >> /var/lucterios2/launch_lucterios.sh
@@ -108,6 +115,7 @@ chmod +x /var/lucterios2/launch_lucterios_gui.sh
 
 echo 'lucterios_admin.py $@' >> /var/lucterios2/launch_lucterios.sh
 chmod +x /var/lucterios2/launch_lucterios.sh
+chmod ogu+w /var/lucterios2
 
 ln -sf /var/lucterios2/launch_lucterios.sh /usr/local/bin/launch_lucterios
 ln -sf /var/lucterios2/launch_lucterios_gui.sh /usr/local/bin/launch_lucterios_gui
