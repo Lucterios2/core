@@ -52,25 +52,21 @@ def get_module_title(module_name):
 def get_package_list():
     def get_files(dist):
         paths = []
-        import pkg_resources
-        if isinstance(dist, pkg_resources.DistInfoDistribution):
-            # RECORDs should be part of .dist-info metadatas
-            if dist.has_metadata('RECORD'):
-                lines = dist.get_metadata_lines('RECORD')
-                paths = [l.split(',')[0] for l in lines]
-                paths = [os.path.join(dist.location, p) for p in paths]
-        else:
-            # Otherwise use pip's log for .egg-info's
-            if dist.has_metadata('installed-files.txt'):
-                paths = dist.get_metadata_lines('installed-files.txt')
-                paths = [os.path.join(dist.egg_info, p) for p in paths]
+        if dist.has_metadata('RECORD'):  # RECORDs should be part of .dist-info metadatas
+            lines = dist.get_metadata_lines('RECORD')
+            paths = [l.split(',')[0] for l in lines]
+            paths = [os.path.join(dist.location, p) for p in paths]
+        elif dist.has_metadata('installed-files.txt'):  # Otherwise use pip's log for .egg-info's
+            paths = dist.get_metadata_lines('installed-files.txt')
+            paths = [os.path.join(dist.egg_info, p) for p in paths]
         return [os.path.relpath(p, dist.location) for p in paths]
     def get_module_desc(modname):
         appmodule = import_module(modname)
         return (modname, appmodule.__version__)
     import pip
     package_list = {}
-    for dist in pip.get_installed_distributions():
+    dists = pip.get_installed_distributions()
+    for dist in dists:
         requires = [req.key for req in dist.requires()]
         if (dist.key == 'lucterios') or ('lucterios' in requires):
             current_applis = []
@@ -147,7 +143,7 @@ class LucteriosGlobal(LucteriosManage):
                 mod_applis.append(appli_item + (requires,))
             for module_item in module_list:
                 mod_modules.append(module_item + (requires,))
-        self.print_info_("Description:\n\t%s\t%s" % mod_lucterios)
+        self.print_info_("Description:\n\t%s\t\t[%s]" % mod_lucterios)
         self.print_info_("Applications:\n%s" % show_list(mod_applis))
         self.print_info_("Modules:\n%s" % show_list(mod_modules))
         return mod_lucterios, mod_applis, mod_modules
@@ -180,7 +176,7 @@ class LucteriosGlobal(LucteriosManage):
         from pip import get_installed_distributions
         from pip.commands import list as list_
         import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0 # pylint: disable=no-member, protected-access
+        pip.utils.logging._log_state.indentation = 0  # pylint: disable=no-member, protected-access
         check_list = {}
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -214,7 +210,7 @@ class LucteriosGlobal(LucteriosManage):
         from pip import get_installed_distributions
         from pip.commands import install
         import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0 # pylint: disable=no-member, protected-access
+        pip.utils.logging._log_state.indentation = 0  # pylint: disable=no-member, protected-access
         module_list = []
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -258,6 +254,7 @@ class LucteriosInstance(LucteriosManage):
         self.setting_path = join(self.instance_dir, 'settings.py')
         self.instance_conf = join(self.instance_path, "manage_%s.py" % name)
         self.appli_name = 'lucterios.standard'
+        self.databases = {}
         self.database = ('sqlite', {})
         self.modules = ()
         self.extra = {}
@@ -267,10 +264,11 @@ class LucteriosInstance(LucteriosManage):
             del sys.modules[self.setting_module_name]
 
     def set_appli(self, appli_name):
-        self.appli_name = appli_name
+        if appli_name is not None:
+            self.appli_name = appli_name
 
     def set_extra(self, extra):
-        self.extra = {'':extra}
+        self.extra[''] = extra
         for item in extra.split(','):
             if '=' in item:
                 key, value = item.split('=')[:2]
@@ -284,23 +282,25 @@ class LucteriosInstance(LucteriosManage):
                     self.extra[key] = value
 
     def set_database(self, database):
-        if ':' in database:
-            dbtype, info_text = database.split(':')
-            info = {'name':'default', 'user':'root', 'password':'', 'host':'localhost'}
-            for val in info_text.split(','):
-                if '=' in val:
-                    key, value = val.split('=')
-                    info[key] = value
-        else:
-            dbtype = database
-            info = {}
-        self.database = (dbtype, info)
+        if database is not None:
+            if ':' in database:
+                dbtype, info_text = database.split(':')
+                info = {'name':'default', 'user':'root', 'password':'', 'host':'localhost'}
+                for val in info_text.split(','):
+                    if '=' in val:
+                        key, value = val.split('=')
+                        info[key] = value
+            else:
+                dbtype = database
+                info = {}
+            self.database = (dbtype, info)
 
     def set_module(self, module):
-        if module != '':
-            self.modules = tuple(module.split(','))
-        else:
-            self.modules = ()
+        if module is not None:
+            if module != '':
+                self.modules = tuple(module.split(','))
+            else:
+                self.modules = ()
 
     def get_appli_txt(self):
         return get_module_title(self.appli_name)
@@ -345,23 +345,29 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('# Database\n')
             file_py.write('import os\n')
             file_py.write('BASE_DIR = os.path.dirname(__file__)\n')
-            db_info = {}
+            if not isinstance(self.databases, dict):
+                self.databases = {}
+            self.databases["default"] = {}
             if self.database[0].lower() == 'sqlite':
-                db_info["ENGINE"] = 'django.db.backends.sqlite3'
-                db_info["NAME"] = join(self.instance_dir, 'db.sqlite3')
+                self.databases["default"]["ENGINE"] = 'django.db.backends.sqlite3'
+                self.databases["default"]["NAME"] = join(self.instance_dir, 'db.sqlite3')
             elif self.database[0].lower() == 'mysql':
-                db_info = self.database[1]
-                db_info["ENGINE"] = 'mysql.connector.django'
+                self.databases["default"] = self.database[1]
+                self.databases["default"]["ENGINE"] = 'mysql.connector.django'
             elif self.database[0].lower() == 'postgresql':
-                db_info = self.database[1]
-                db_info["ENGINE"] = 'django.db.backends.postgresql_psycopg2'
+                self.databases["default"] = self.database[1]
+                self.databases["default"]["ENGINE"] = 'django.db.backends.postgresql_psycopg2'
             else:
                 raise AdminException("Database not supported!")
             file_py.write('DATABASES = {\n')
-            file_py.write('     "default": {\n')
-            for db_key, db_data in db_info.items():
-                file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
-            file_py.write('     }\n')
+            for db_ident, db_values in self.databases.items():
+                file_py.write('     "%s": {\n' % db_ident)
+                for db_key, db_data in db_values.items():
+                    if isinstance(db_data, six.string_types):
+                        file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
+                    else:
+                        file_py.write('         "%s": %s,\n' % (db_key.upper(), db_data))
+                file_py.write('     },\n')
             file_py.write('}\n')
             file_py.write('\n')
             file_py.write('# extra\n')
@@ -446,6 +452,10 @@ class LucteriosInstance(LucteriosManage):
                 info[key.lower()] = django.conf.settings.DATABASES['default'][key]
         return info
 
+    def read_before(self):
+        if self.name != '' and isdir(self.instance_dir) and isfile(self.instance_conf):
+            self.read()
+
     def read(self):
         self._clear_modules_()
         from django.utils import six
@@ -464,6 +474,7 @@ class LucteriosInstance(LucteriosManage):
         django.setup()
         self.secret_key = django.conf.settings.SECRET_KEY
         self.extra = django.conf.settings.EXTRA
+        self.databases = django.conf.settings.DATABASES
         self.database = django.conf.settings.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
             self.database = ('sqlite', {})
@@ -516,6 +527,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not precise!")
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
+        self.clear_info_()
         self.write_setting_()
         self.print_info_("Instance '%s' modified." % self.name)  # pylint: disable=superfluous-parens
         self.refresh()
@@ -642,15 +654,15 @@ def main():
                       help="Instance name")
     parser.add_option("-p", "--appli",
                       dest="appli",
-                      default="lucterios.standard",
+                      default=None,
                       help="Instance application",)
     parser.add_option("-d", "--database",
                       dest="database",
-                      default='sqlite',
+                      default=None,
                       help="Database configuration 'sqlite', 'MySQL:...' or 'PostGreSQL:...'")
     parser.add_option("-m", "--module",
                       dest="module",
-                      default="",
+                      default=None,
                       help="Modules to add (comma separator)",)
     parser.add_option("-e", "--extra",
                       dest="extra",
@@ -674,6 +686,8 @@ def main():
         elif hasattr(LucteriosInstance, args[0]):
             luct = LucteriosInstance(options.name, options.instance_path)
             luct.filename = options.filename
+            if args[0] == 'modif':
+                luct.read_before()
             luct.set_extra(options.extra)
             luct.set_appli(options.appli)
             luct.set_database(options.database)
