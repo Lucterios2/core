@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ "$(id -u)" != "0" ]; then
    echo ">>> This script must be run as 'super user' <<<" 1>&2
@@ -94,7 +94,7 @@ echo "------ refresh shortcut ------"
 echo
 rm -rf /var/lucterios2/launch_lucterios.sh
 touch /var/lucterios2/launch_lucterios.sh
-echo "#!/bin/sh" >> /var/lucterios2/launch_lucterios.sh
+echo "#!/usr/bin/env bash" >> /var/lucterios2/launch_lucterios.sh
 echo  >> /var/lucterios2/launch_lucterios.sh
 echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
 echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
@@ -119,6 +119,35 @@ chmod ogu+w /var/lucterios2
 
 ln -sf /var/lucterios2/launch_lucterios.sh /usr/local/bin/launch_lucterios
 ln -sf /var/lucterios2/launch_lucterios_gui.sh /usr/local/bin/launch_lucterios_gui
+
+if [ -d "/usr/share/applications" ]
+then
+	LAUNCHER="/usr/share/applications/lucterios.desktop"
+	echo "[Desktop Entry]" > $LAUNCHER
+	echo "Name=Lucterios" >> $LAUNCHER
+	echo "Comment=Lucterios installer" >> $LAUNCHER
+	echo "Exec=/var/lucterios2/launch_lucterios_gui.sh" >> $LAUNCHER
+	echo "Icon=/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/lucterios/install/lucterios.png" >> $LAUNCHER
+	echo "Terminal=false" >> $LAUNCHER
+	echo "Type=Application" >> $LAUNCHER
+	echo "Categories=Office" >> $LAUNCHER
+fi
+if [ "${OSTYPE:0:6}" == "darwin" ]
+then
+	app_dir="/application/Lucterios.app"	
+	mkdir -p "$app_dir/Contents/MacOS"
+	cp "/var/lucterios2/launch_lucterios_gui.sh" "$app_dir/Lucterios"
+	chmod +x "$app_dir/Contents/MacOS/Lucterios"
+	# change icon
+	icon="/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/lucterios/install/lucterios.png"
+	rm -rf $app_dir$'/Icon\r'
+	sips -i $icon >/dev/null
+	DeRez -only icns $icon > /tmp/icns.rsrc
+	Rez -append /tmp/icns.rsrc -o $app_dir$'/Icon\r'
+	SetFile -a C $app_dir
+	SetFile -a V $app_dir$'/Icon\r'
+	chmod ogu+r $app_dir
+fi
 
 echo "============ END ============="
 exit 0
