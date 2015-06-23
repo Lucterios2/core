@@ -103,19 +103,14 @@ if [ -z "$LANG" -o "$LANG" == "C" ]
 then
 	echo "export LANG=en_US.UTF-8" >> /var/lucterios2/launch_lucterios.sh
 fi
-rm -rf /var/lucterios2/launch_lucterios.sh
-touch /var/lucterios2/launch_lucterios.sh
-echo "#!/bin/sh" >> /var/lucterios2/launch_lucterios.sh
-echo  >> /var/lucterios2/launch_lucterios.sh
-echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
-echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
+
 cp /var/lucterios2/launch_lucterios.sh /var/lucterios2/launch_lucterios_gui.sh
 echo "lucterios_gui.py" >> /var/lucterios2/launch_lucterios_gui.sh
 chmod +x /var/lucterios2/launch_lucterios_gui.sh
 
 echo 'lucterios_admin.py $@' >> /var/lucterios2/launch_lucterios.sh
 chmod +x /var/lucterios2/launch_lucterios.sh
-chmod ogu+w /var/lucterios2
+chmod -R ogu+w /var/lucterios2
 
 ln -sf /var/lucterios2/launch_lucterios.sh /usr/local/bin/launch_lucterios
 ln -sf /var/lucterios2/launch_lucterios_gui.sh /usr/local/bin/launch_lucterios_gui
