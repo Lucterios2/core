@@ -35,6 +35,7 @@ from traceback import print_exc
 from threading import Thread
 import os
 from lucterios.framework.settings import fill_appli_settings
+from lucterios.install.lucterios_migration import MigrateFromV1
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -46,11 +47,13 @@ VALUES = 'values'
 try:
     from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
     from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
-    from tkinter.messagebox import showerror, askokcancel
+    from tkinter.messagebox import showerror, showinfo, askokcancel
+    from tkinter.filedialog import asksaveasfilename, askopenfilename
 except ImportError:
     from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar  # pylint: disable=import-error
     from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED  # pylint: disable=import-error
-    from tkMessageBox import showerror, askokcancel  # pylint: disable=import-error
+    from tkMessageBox import showerror, showinfo, askokcancel  # pylint: disable=import-error
+    from tkFileDialog import asksaveasfilename, askopenfilename
     import ttk  # pylint: disable=import-error
 
 class RunException(Exception):
@@ -336,6 +339,7 @@ class InstanceEditor(Toplevel):
         center(self)
 
 class LucteriosMainForm(Tk):
+    # pylint: disable=too-many-public-methods
 
     def __init__(self):
         # pylint: disable=super-init-not-called
@@ -388,10 +392,12 @@ class LucteriosMainForm(Tk):
         self.btninstframe = Frame(frm_inst, bd=1)
         self.btninstframe.grid(row=1, column=0, columnspan=1)
         self.btninstframe.grid_columnconfigure(0, weight=1)
-        Button(self.btninstframe, text=ugettext("Launch"), width=15, command=self.open_inst).grid(row=0, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Modify"), width=15, command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Delete"), width=15, command=self.delete_inst).grid(row=2, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Add"), width=15, command=self.add_inst).grid(row=3, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Launch"), width=20, command=self.open_inst).grid(row=0, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Modify"), width=20, command=self.modify_inst).grid(row=1, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Delete"), width=20, command=self.delete_inst).grid(row=2, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Save"), width=8, command=self.save_inst).grid(row=3, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Restore"), width=8, command=self.restore_inst).grid(row=3, column=1, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Add"), width=20, command=self.add_inst).grid(row=4, column=0, columnspan=2, sticky=(N, S))
 
         self.ntbk.add(frm_inst, text=ugettext('Instances'))
 
@@ -407,6 +413,11 @@ class LucteriosMainForm(Tk):
     def enabled(self, is_enabled, widget=None):
         if widget is None:
             widget = self
+        if is_enabled:
+            widget.config(cursor="")
+        else:
+
+            widget.config(cursor="watch")
         if isinstance(widget, Button) and (widget != self.btnupgrade):
             if is_enabled and (not hasattr(widget, 'disabled') or not widget.disabled):
                 widget.config(state=NORMAL)
@@ -538,6 +549,8 @@ class LucteriosMainForm(Tk):
                 self.btninstframe.winfo_children()[0].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[1].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[2].disabled = (instance_name == '')
+                self.btninstframe.winfo_children()[3].disabled = (instance_name == '')
+                self.btninstframe.winfo_children()[4].disabled = (instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
                 self.instance_list.config(state=NORMAL)
@@ -552,7 +565,6 @@ class LucteriosMainForm(Tk):
         if to_create:
             inst.add()
         else:
-
             inst.modif()
         inst = LucteriosInstance(result[0])
         inst.set_extra(result[3])
@@ -576,14 +588,12 @@ class LucteriosMainForm(Tk):
     def modify_inst(self):
         self.enabled(False)
         try:
-
             ist_edt = InstanceEditor()
             ist_edt.execute(self.get_selected_instance_name())
             ist_edt.transient(self)
             self.wait_window(ist_edt)
         finally:
             self.enabled(True)
-
         if ist_edt.result is not None:
             self.add_modif_inst_result(ist_edt.result, False)
 
@@ -591,7 +601,6 @@ class LucteriosMainForm(Tk):
     def delete_inst_name(self, instance_name):
         inst = LucteriosInstance(instance_name)
         inst.delete()
-
         self.refresh()
 
     def delete_inst(self):
@@ -602,21 +611,60 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def open_inst(self):
         instance_name = self.get_selected_instance_name()
-        try:
-            if not instance_name in self.running_instance.keys():
-                self.running_instance[instance_name] = None
-            if self.running_instance[instance_name] is None:
-                port = FIRST_HTTP_PORT
-                for inst_obj in self.running_instance.values():
-                    if (inst_obj is not None) and (inst_obj.port >= port):
-                        port = inst_obj.port + 1
-                self.running_instance[instance_name] = RunServer(instance_name, port)
-                self.running_instance[instance_name].start()
-            else:
-                self.running_instance[instance_name].stop()
-                self.running_instance[instance_name] = None
-        finally:
-            self.select_instance(None)
+        if instance_name != '':
+            try:
+                if not instance_name in self.running_instance.keys():
+                    self.running_instance[instance_name] = None
+                if self.running_instance[instance_name] is None:
+                    port = FIRST_HTTP_PORT
+                    for inst_obj in self.running_instance.values():
+                        if (inst_obj is not None) and (inst_obj.port >= port):
+                            port = inst_obj.port + 1
+                    self.running_instance[instance_name] = RunServer(instance_name, port)
+                    self.running_instance[instance_name].start()
+                else:
+                    self.running_instance[instance_name].stop()
+                    self.running_instance[instance_name] = None
+            finally:
+                self.set_select_instance_name(instance_name)
+
+    @ThreadRun
+    def save_instance(self, instance_name, file_name):
+        inst = LucteriosInstance(instance_name)
+        inst.filename = file_name
+        if inst.archive():
+            showinfo(ugettext("Lucterios installer"), ugettext("Instance saved to %s") % file_name)
+        else:
+            showerror(ugettext("Lucterios installer"), ugettext("Instance not saved!"))
+        self.refresh(instance_name)
+
+    def save_inst(self):
+        instance_name = self.get_selected_instance_name()
+        if instance_name != '':
+            file_name = asksaveasfilename(parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')])
+            if file_name != '':
+                self.save_instance(instance_name, file_name)
+
+    @ThreadRun
+    def restore_instance(self, instance_name, file_name):
+        if file_name[-4:] == '.bkf':
+            rest_inst = MigrateFromV1(instance_name)
+        else:
+            rest_inst = LucteriosInstance(instance_name)
+        rest_inst.filename = file_name
+        if rest_inst.restore():
+            showinfo(ugettext("Lucterios installer"), ugettext("Instance restore from %s") % file_name)
+        else:
+            showerror(ugettext("Lucterios installer"), ugettext("Instance not restored!"))
+
+        self.refresh(instance_name)
+
+    def restore_inst(self):
+        instance_name = self.get_selected_instance_name()
+        if instance_name != '':
+            file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')])
+            if file_name != '':
+                self.restore_instance(instance_name, file_name)
 
     def execute(self):
         self.refresh()

@@ -590,18 +590,14 @@ class LucteriosInstance(LucteriosManage):
         self.read()
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         output_filename = join(get_tmp_dir(), 'dump.json')
-
         from django.core.management import call_command
         with open(output_filename, 'w') as output:  # Point stdout at a file for dumping data to.
             call_command('dumpdata', stdout=output)
-
         import tarfile
         with tarfile.open(self.filename, "w:gz") as tar:
             tar.add(output_filename, arcname="dump.json")
-
             user_dir = get_user_dir()
             if isdir(user_dir):
-
                 tar.add(user_dir, arcname="usr")
         remove(output_filename)
         return isfile(self.filename)

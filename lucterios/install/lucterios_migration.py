@@ -60,12 +60,13 @@ def dict_factory(cursor, row):
 
 class MigrateFromV1(LucteriosInstance):
 
-    def __init__(self, name, instance_path, debug):
+    def __init__(self, name, instance_path=INSTANCE_PATH, debug=''):
         LucteriosInstance.__init__(self, name, instance_path)
         self.read()
         self.debug = debug
         self.old_db_path = ""
         self.tmp_path = ""
+        self.filename = ""
         self.con = None
 
     def print_log(self, msg, arg):
@@ -84,13 +85,13 @@ class MigrateFromV1(LucteriosInstance):
         self.clear()
         self.refresh()
 
-    def extract_archive(self, archive):
+    def extract_archive(self):
         import tarfile
         self.tmp_path = join(self.instance_path, self.name, 'tmp_resore')
         if isdir(self.tmp_path):
             rmtree(self.tmp_path)
         mkdir(self.tmp_path)
-        tar = tarfile.open(archive, 'r:gz')
+        tar = tarfile.open(self.filename, 'r:gz')
         for item in tar:
             tar.extract(item, self.tmp_path)
 
@@ -501,10 +502,10 @@ class MigrateFromV1(LucteriosInstance):
         folder_list = self._restore_document_folders(group_list)
         self._restore_document_docs(folder_list, user_list)
 
-    def restore(self, archive):
+    def restore(self):
         begin_time = time()
         self.initial_olddb()
-        self.extract_archive(archive)
+        self.extract_archive()
         if not isfile(self.old_db_path):
             for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql', 'data_org_lucterios_documents.sql']:
                 create_script, insert_script = self.read_sqlfile(filename)
@@ -519,8 +520,8 @@ class MigrateFromV1(LucteriosInstance):
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
         duration_sec = duration_sec - duration_min * 60
-
         self.print_log("Migration duration: %d min %d sec", (duration_min, duration_sec))
+        return True
 
 def main():
     from optparse import OptionParser
@@ -547,7 +548,8 @@ def main():
     if not isfile(options.archive):
         parser.error('Archive "%s" no found!' % options.archive)
     mirg = MigrateFromV1(options.name, options.instance_path, options.debug)
-    mirg.restore(options.archive)
+    mirg.filename = options.archive
+    mirg.restore()
 
 if __name__ == '__main__':
     main()

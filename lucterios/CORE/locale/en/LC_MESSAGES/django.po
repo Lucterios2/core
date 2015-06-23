@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-19 08:44+0000\n"
+"POT-Creation-Date: 2015-06-23 14:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -102,7 +102,7 @@ msgstr "Open in anonymous"
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:37 models.py:137 models.py:177
+#: models.py:37 models.py:150 models.py:193
 msgid "name"
 msgstr "name"
 
@@ -130,7 +130,7 @@ msgstr "Select"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:40 models.py:180
+#: models.py:40 models.py:196
 msgid "value"
 msgstr "value"
 
@@ -142,139 +142,139 @@ msgstr "parameter"
 msgid "parameters"
 msgstr "parameters"
 
-#: models.py:51
+#: models.py:57
 msgid "Informations"
 msgstr "Informations"
 
-#: models.py:52
+#: models.py:58
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:59
+#: models.py:68
 msgid "Available groups"
 msgstr "Available groups"
 
-#: models.py:59
+#: models.py:68
 msgid "Chosen groups"
 msgstr "Chosen groups"
 
-#: models.py:60 models.py:125
+#: models.py:69 models.py:136
 msgid "Available permissions"
 msgstr "Available permissions"
 
-#: models.py:60 models.py:125
+#: models.py:69 models.py:136
 msgid "Chosen permissions"
 msgstr "Chosen permissions"
 
-#: models.py:73
+#: models.py:82
 msgid "To change password?"
 msgstr "To change password."
 
-#: models.py:87
+#: models.py:96
 msgid "password"
 msgstr "password"
 
-#: models.py:91
+#: models.py:100
 msgid "password (again)"
 msgstr "password (again)"
 
-#: models.py:111 views.py:139
+#: models.py:120 views.py:139
 msgid "The passwords are differents!"
 msgstr "Passwords are differents!"
 
-#: models.py:133
+#: models.py:146
 msgid "group"
 msgstr "group"
 
-#: models.py:134
+#: models.py:147
 msgid "groups"
 msgstr "groups"
 
-#: models.py:139
+#: models.py:152
 msgid "page width"
 msgstr "page width (L)"
 
-#: models.py:140
+#: models.py:153
 msgid "page height"
 msgstr "page height (H)"
 
-#: models.py:141
+#: models.py:154
 msgid "cell width"
 msgstr "cell width (l)"
 
-#: models.py:142
+#: models.py:155
 msgid "cell height"
 msgstr "cell height (h)"
 
-#: models.py:143
+#: models.py:156
 msgid "number of columns"
 msgstr "number of columns"
 
-#: models.py:144
+#: models.py:157
 msgid "number of rows"
 msgstr "number of rows"
 
-#: models.py:145
+#: models.py:158
 msgid "left marge"
 msgstr "left marge (a)"
 
-#: models.py:146
+#: models.py:159
 msgid "top marge"
 msgstr "top marge (b)"
 
-#: models.py:147
+#: models.py:160
 msgid "horizontal space"
 msgstr "horizontal space (c)"
 
-#: models.py:148
+#: models.py:161
 msgid "vertical space"
 msgstr "vertical space (d)"
 
-#: models.py:163 models.py:173
+#: models.py:179 models.py:189
 msgid "label"
 msgstr "label"
 
-#: models.py:163
+#: models.py:179
 msgid "# of first label"
 msgstr "# of first label"
 
-#: models.py:174
+#: models.py:190
 msgid "labels"
 msgstr "labels"
 
-#: models.py:178
+#: models.py:194
 msgid "kind"
 msgstr "kind"
 
-#: models.py:178
+#: models.py:194
 msgid "Listing"
 msgstr "Listing"
 
-#: models.py:178
+#: models.py:194
 msgid "Label"
 msgstr "Label"
 
-#: models.py:178
+#: models.py:194
 msgid "Report"
 msgstr "Report"
 
-#: models.py:179 models.py:203 models.py:250 views.py:224
+#: models.py:195 models.py:226 models.py:273 views.py:224
 msgid "model"
 msgstr "model"
 
-#: models.py:193
+#: models.py:216
 msgid "Last model of this kind!"
 msgstr "Last model of this kind!"
 
-#: models.py:202
+#: models.py:225
 msgid "No model!"
 msgstr "No model!"
 
-#: models.py:211
+#: models.py:234
 msgid "No model selected!"
 msgstr "No model selected!"
 
-#: models.py:251
+#: models.py:274
 msgid "models"
 msgstr "models"
 

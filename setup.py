@@ -58,7 +58,7 @@ setup(
        "lucterios.CORE":['build', 'images/*', 'locale/*/*/*', 'help/*'],
        "lucterios.framework.migrations":['*'],
        "lucterios.framework":['locale/*/*/*'],
-       "lucterios.install":['locale/*/*/*'],
+       "lucterios.install":['lucterios.png', 'locale/*/*/*'],
     },
     install_requires=["Django ==1.7", "django_jux ==1.0", "lxml >=3.4", 'pycrypto >=2.6', 'reportlab >=3.1'],
 )

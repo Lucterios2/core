@@ -241,7 +241,8 @@ class TestAdminSQLite(BaseTest):
         inst.add()
         self.assertEqual(["inst_h"], self.luct_glo.listing())
         mirg = MigrateFromV1("inst_h", self.path_dir, "")
-        mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
+        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.restore()
 
 class TestAdminMySQL(BaseTest):
 
@@ -324,7 +325,8 @@ class TestAdminMySQL(BaseTest):
 #         inst.add()
 #         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
 #         mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
-#         mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
+#         mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+#         mirg.restore()
 
 class TestAdminPostGreSQL(BaseTest):
 
@@ -397,7 +399,8 @@ class TestAdminPostGreSQL(BaseTest):
         inst.add()
         self.assertEqual(["inst_psql"], self.luct_glo.listing())
         mirg = MigrateFromV1("inst_psql", self.path_dir, "")
-        mirg.restore(join(dirname(self.path_dir), 'data', 'archive_demo.bkf'))
+        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.restore()
 
 class XMLTestResult(JUXDTestResult):
 
