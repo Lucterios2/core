@@ -36,7 +36,6 @@ from threading import Thread
 import os
 from lucterios.framework.settings import fill_appli_settings
 from lucterios.install.lucterios_migration import MigrateFromV1
-from tkinter.ttk import Progressbar, Style
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -359,12 +358,12 @@ class LucteriosMainForm(Tk):
         self.create_instance_panel()
         self.create_module_panel()
 
-        stl = Style()
+        stl = ttk.Style()
         stl.theme_use("default")
         stl.configure("TProgressbar", thickness=5)
-        self.progress = Progressbar(self, style="TProgressbar", orient='horizontal', mode='indeterminate')
+        self.progress = ttk.Progressbar(self, style="TProgressbar", orient='horizontal', mode='indeterminate')
         self.progress.grid(row=1, column=0, sticky=(E, W))
-    
+
         self.btnframe = Frame(self, bd=1)
         self.btnframe.grid(row=2, column=0, columnspan=1)
         Button(self.btnframe, text=ugettext("Refresh"), width=15, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
@@ -530,7 +529,7 @@ class LucteriosMainForm(Tk):
             if lct_glob.update():
                 showinfo(ugettext("Lucterios installer"), ugettext("The application must restart"))
                 python = sys.executable
-                os.execl(python, python, *sys.argv)            
+                os.execl(python, python, *sys.argv)
         finally:
             self._refresh_modules()
             self.btnupgrade.config(state=NORMAL)
