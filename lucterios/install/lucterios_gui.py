@@ -530,7 +530,7 @@ class LucteriosMainForm(Tk):
             if lct_glob.update():
                 showinfo(ugettext("Lucterios installer"), ugettext("The application must restart"))
                 python = sys.executable
-                os.execl(python, python, * sys.argv)            
+                os.execl(python, python, *sys.argv)            
         finally:
             self._refresh_modules()
             self.btnupgrade.config(state=NORMAL)

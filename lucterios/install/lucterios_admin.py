@@ -223,10 +223,8 @@ class LucteriosGlobal(LucteriosManage):
             requirement_set = install_command.run(options, module_list)
             requirement_set.install(options)
             self.print_info_("Modules updated: %s" % ",".join(requirement_set.successfully_installed))
-            has_updated = len(requirement_set.successfully_installed) > 0
-            if has_updated:
-                self.refresh_all()
-            return has_updated
+            self.refresh_all()
+            return True
         else:
             self.print_info_("No modules to update")
             return False
