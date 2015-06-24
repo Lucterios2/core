@@ -441,10 +441,10 @@ class LucteriosMainForm(Tk):
 
     def _refresh_modules(self):
         self.set_ugrade_state(False)
+        self.module_txt.config(state=NORMAL)
         self.module_txt.delete("1.0", END)
         lct_glob = LucteriosGlobal()
         mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
-        self.module_txt.config(state=NORMAL)
         self.module_txt.insert(END, ugettext("Lucterios core\t\t%s\n") % mod_lucterios[1])
         self.module_txt.insert(END, '\n')
         self.module_txt.insert(END, ugettext("Application\n"))
@@ -511,9 +511,12 @@ class LucteriosMainForm(Tk):
         self.instance_list.config(state=DISABLED)
         try:
             lct_glob = LucteriosGlobal()
-            lct_glob.update()
-            self._refresh_modules()
+            if lct_glob.update():
+                showinfo(ugettext("Lucterios installer"), ugettext("The application must restart"))
+                python = sys.executable
+                os.execl(python, python, * sys.argv)            
         finally:
+            self._refresh_modules()
             self.btnupgrade.config(state=NORMAL)
             self.instance_list.config(state=NORMAL)
 
