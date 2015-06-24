@@ -129,19 +129,19 @@ then
 fi
 if [ "${OSTYPE:0:6}" == "darwin" ]
 then
-	app_dir="/application/Lucterios.app"	
-	mkdir -p "$app_dir/Contents/MacOS"
-	cp "/var/lucterios2/launch_lucterios_gui.sh" "$app_dir/Lucterios"
-	chmod +x "$app_dir/Contents/MacOS/Lucterios"
+	APPDIR="/Applications/Lucterios.app"
+	mkdir -p "$APPDIR/Contents/MacOS"
+	cp "/var/lucterios2/launch_lucterios_gui.sh" "$APPDIR/Contents/MacOS/Lucterios"
+	chmod ogu+rx "$APPDIR/Contents/MacOS/Lucterios"
 	# change icon
 	icon="/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/lucterios/install/lucterios.png"
-	rm -rf $app_dir$'/Icon\r'
+	rm -rf $APPDIR$'/Icon\r'
 	sips -i $icon >/dev/null
 	DeRez -only icns $icon > /tmp/icns.rsrc
-	Rez -append /tmp/icns.rsrc -o $app_dir$'/Icon\r'
-	SetFile -a C $app_dir
-	SetFile -a V $app_dir$'/Icon\r'
-	chmod ogu+r $app_dir
+	Rez -append /tmp/icns.rsrc -o $APPDIR$'/Icon\r'
+	SetFile -a C $APPDIR
+	SetFile -a V $APPDIR$'/Icon\r'
+	chmod -R ogu+r $APPDIR
 fi
 
 echo "============ END ============="
