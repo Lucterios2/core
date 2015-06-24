@@ -3,7 +3,8 @@
 if [ "$(id -u)" != "0" ]; then
    echo ">>> This script must be run as 'super user' <<<" 1>&2
    [ -z "$(which sudo)" ] && exit 1
-   sudo -E $0 $@	
+   sudo -E $0 $@
+   sudo chmod -R ogu+w ~/.cache/pip	
    exit $!
 fi
 
@@ -45,9 +46,12 @@ else if [ ! -z "$(which yum)" ]; then # RPM unix/linux like
 	yum install -y python-imaging	
 	easy_install pip
 else if [ ! -z "$(which brew)" ]; then # Mac OS X
+	brew_perm=`stat -c "%G:%U" $(which brew)`
+	chown root:wheel $(which brew)
 	brew install libxml2 libxslt
 	easy_install pip
 	brew install python3
+	chown $brew_perm $(which brew)
 	pip3 install --upgrade pip
 else
 	echo "++++++ Unix/Linux distribution not available for this script! +++++++"

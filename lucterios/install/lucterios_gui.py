@@ -36,6 +36,7 @@ from threading import Thread
 import os
 from lucterios.framework.settings import fill_appli_settings
 from lucterios.install.lucterios_migration import MigrateFromV1
+from tkinter.ttk import Progressbar, Style
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -358,8 +359,14 @@ class LucteriosMainForm(Tk):
         self.create_instance_panel()
         self.create_module_panel()
 
+        stl = Style()
+        stl.theme_use("default")
+        stl.configure("TProgressbar", thickness=5)
+        self.progress = Progressbar(self, style="TProgressbar", orient='horizontal', mode='indeterminate')
+        self.progress.grid(row=1, column=0, sticky=(E, W))
+    
         self.btnframe = Frame(self, bd=1)
-        self.btnframe.grid(row=1, column=0, columnspan=1)
+        self.btnframe.grid(row=2, column=0, columnspan=1)
         Button(self.btnframe, text=ugettext("Refresh"), width=15, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
         self.btnupgrade = Button(self.btnframe, text=ugettext("No upgrade"), width=15, command=self.upgrade)
         self.set_ugrade_state(False)
@@ -392,12 +399,12 @@ class LucteriosMainForm(Tk):
         self.btninstframe = Frame(frm_inst, bd=1)
         self.btninstframe.grid(row=1, column=0, columnspan=1)
         self.btninstframe.grid_columnconfigure(0, weight=1)
-        Button(self.btninstframe, text=ugettext("Launch"), width=20, command=self.open_inst).grid(row=0, column=0, columnspan=2, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Modify"), width=20, command=self.modify_inst).grid(row=1, column=0, columnspan=2, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Delete"), width=20, command=self.delete_inst).grid(row=2, column=0, columnspan=2, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Save"), width=8, command=self.save_inst).grid(row=3, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Restore"), width=8, command=self.restore_inst).grid(row=3, column=1, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Add"), width=20, command=self.add_inst).grid(row=4, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Launch"), width=25, command=self.open_inst).grid(row=0, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Modify"), width=10, command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Delete"), width=10, command=self.delete_inst).grid(row=1, column=1, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Save"), width=10, command=self.save_inst).grid(row=2, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Restore"), width=10, command=self.restore_inst).grid(row=2, column=1, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Add"), width=25, command=self.add_inst).grid(row=3, column=0, columnspan=2, sticky=(N, S))
 
         self.ntbk.add(frm_inst, text=ugettext('Instances'))
 
@@ -410,9 +417,18 @@ class LucteriosMainForm(Tk):
         self.module_txt.config(state=DISABLED)
         self.ntbk.add(frm_mod, text=ugettext('Modules'))
 
+    def do_progress(self, progressing):
+        if not progressing:
+            self.progress.stop()
+            self.progress.grid_remove()
+        else:
+            self.progress.start(25)
+            self.progress.grid(row=1, column=0, sticky=(E, W))
+
     def enabled(self, is_enabled, widget=None):
         if widget is None:
             widget = self
+            self.do_progress(not is_enabled)
         if is_enabled:
             widget.config(cursor="")
         else:
@@ -577,20 +593,20 @@ class LucteriosMainForm(Tk):
     def add_inst(self):
         self.enabled(False)
         try:
-
+            self.do_progress(False)
             ist_edt = InstanceEditor()
             ist_edt.execute()
             ist_edt.transient(self)
             self.wait_window(ist_edt)
         finally:
             self.enabled(True)
-
         if ist_edt.result is not None:
             self.add_modif_inst_result(ist_edt.result, True)
 
     def modify_inst(self):
         self.enabled(False)
         try:
+            self.do_progress(False)
             ist_edt = InstanceEditor()
             ist_edt.execute(self.get_selected_instance_name())
             ist_edt.transient(self)
