@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext_lazy
 from django.db import IntegrityError
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
@@ -43,7 +43,7 @@ def get_items_from_filter(model, filter_desc):
 
 class XferListEditor(XferContainerCustom):
     filter = None
-    action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
+    action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use

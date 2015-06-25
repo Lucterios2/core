@@ -53,7 +53,7 @@ except ImportError:
     from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar  # pylint: disable=import-error
     from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED  # pylint: disable=import-error
     from tkMessageBox import showerror, showinfo, askokcancel  # pylint: disable=import-error
-    from tkFileDialog import asksaveasfilename, askopenfilename
+    from tkFileDialog import asksaveasfilename, askopenfilename  # pylint: disable=import-error
     import ttk  # pylint: disable=import-error
 
 class RunException(Exception):
