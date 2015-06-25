@@ -58,6 +58,8 @@ def get_value_converted(value, bool_textual=False):
                 return six.text_type("0")
     elif value is None:
         return six.text_type("---")
+    elif isinstance(value, LucteriosModel):
+        return value.get_final_child()
     else:
         return value
 
@@ -75,9 +77,9 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_default_fields(cls):
-        fields = cls._meta.get_all_field_names() # pylint: disable=no-member,protected-access
-        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields): # pylint: disable=no-member,protected-access
-            fields.remove(cls._meta.auto_field.attname) # pylint: disable=no-member,protected-access
+        fields = cls._meta.get_all_field_names()  # pylint: disable=no-member,protected-access
+        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields):  # pylint: disable=no-member,protected-access
+            fields.remove(cls._meta.auto_field.attname)  # pylint: disable=no-member,protected-access
         return fields
 
     @classmethod
@@ -161,6 +163,17 @@ class LucteriosModel(models.Model):
                 else:
                     add_sub_field(field_name, field_title, dep_field[0].rel.to)
         return fields
+
+    def get_final_child(self):
+        final_child = self
+        rel_objs = self._meta.get_all_related_objects() # pylint: disable=no-member,protected-access
+        for rel_obj in rel_objs:
+            if (rel_obj.model != type(self)) and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
+                try:
+                    final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child()
+                except AttributeError:
+                    pass
+        return final_child
 
     def can_delete(self):
         # pylint: disable=unused-argument,no-self-use

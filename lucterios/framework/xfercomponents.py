@@ -546,6 +546,10 @@ class XferCompGrid(XferComponent):
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
+            elif fieldname[-4:] == '_set':  # field is one-to-many relation
+                dep_field = query_set.model._meta.get_field_by_name(fieldname[:-4])  # pylint: disable=protected-access
+                hfield = 'str'
+                verbose_name = dep_field[0].model._meta.verbose_name  # pylint: disable=protected-access
             else:
                 dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
                 if isinstance(dep_field[0], IntegerField):
@@ -560,6 +564,7 @@ class XferCompGrid(XferComponent):
             self.add_header(fieldname, verbose_name, hfield)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
+        # pylint: disable=too-many-locals
         if fieldnames == None:
             fieldnames = query_set.model.get_default_fields()
         self._add_header_from_model(query_set, fieldnames)
@@ -567,16 +572,24 @@ class XferCompGrid(XferComponent):
         primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
-            pk_id = getattr(value, primary_key_fieldname)
+            child = value.get_final_child()
+            pk_id = getattr(child, primary_key_fieldname)
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
-                resvalue = getattr(value, fieldname)
-                try:
-                    field_desc = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
-                    resvalue = get_value_if_choices(resvalue, field_desc)
-                except FieldDoesNotExist:
-                    pass
+                if fieldname[-4:] == '_set':  # field is one-to-many relation
+                    resvalue = []
+                    sub_items = getattr(child, fieldname).all()
+                    for sub_items_value in sub_items:
+                        resvalue.append(six.text_type(sub_items_value))
+                    resvalue = "{[br/]}".join(resvalue)
+                else:
+                    resvalue = getattr(child, fieldname)
+                    try:
+                        field_desc = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                        resvalue = get_value_if_choices(resvalue, field_desc)
+                    except FieldDoesNotExist:
+                        pass
                 self.set_value(pk_id, fieldname, resvalue)
 
     def add_actions(self, xfer_custom, model=None, action_list=None):

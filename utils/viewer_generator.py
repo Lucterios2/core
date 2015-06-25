@@ -45,7 +45,7 @@ except:
     import ttk
 
 LIST_VIEWER = {'0List':('XferListEditor', 'list'), '1AddModify':('XferAddEditor', 'edit', 'modify', 'add'), '2Show':('XferShowEditor', 'show'), \
-               '3Del':('XferDelete', 'delete'), '4Search':('XferSearchEditor', 'search'), '5Print':('XferPrintAction', 'print'), \
+               '3Del':('XferDelete', 'del'), '4Search':('XferSearchEditor', 'search'), '5Print':('XferPrintAction', 'print'), \
                '6Label':('XferPrintLabel', 'label'), '7Listing':('XferPrintListing', 'listing')}
 
 class GeneratorException(Exception):

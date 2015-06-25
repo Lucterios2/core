@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-23 14:59+0000\n"
+"POT-Creation-Date: 2015-06-24 14:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -18,572 +18,434 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: __init__.py:39
-msgid "Lucterios core"
-msgstr "Lucterios core"
-
-#: help/01_password.html:2
-msgid "01_password.html"
-msgstr "Password"
-
-#: help/01_password.html:4
-msgid "help-password-intro"
-msgstr ""
-"<p>The <i>General/Password</i> allows you to change the access password of "
-"the current user.</p>"
-
-#: help/01_password.html:8
-msgid "help-password-security"
-msgstr ""
-"<p>For more security, we recommend that you use a password consisting of "
-"letters and numbers and not being an understandable word.</p>"
-
-#: help/02_groups.html:2
-msgid "02_groups.html"
-msgstr "Groups"
-
-#: help/02_groups.html:4
-msgid "help-groups-intro"
-msgstr ""
-"<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify or "
-"delete a rights group.</p>"
-
-#: help/02_groups.html:8
-msgid "help-groups-detail"
-msgstr ""
-"<p> Rights group brings together a set of permissions to the actions of the "
-"application.</p>"
-
-#: help/03_users.html:2
-msgid "03_users.html"
-msgstr "Users"
-
-#: help/03_users.html:4
-msgid "help-users-intro"
-msgstr ""
-"<p>The <i>Management/Rights manage/Users</i> allows you to create, modify, "
-"or disable an application user. A user defines a connection right to the "
-"software.</p>"
-
-#: help/03_users.html:8
-msgid "help-users-ended"
-msgstr ""
-"<p>On this list, you can create or edit the user: his alias, his name and "
-"his password. You can add groups and additional permissions to define the "
-"access level to the software. You can also disable a user for him prohibit "
-"access to the application</p>"
-
-#: help/04_architecture.html:2
-msgid "04_architecture.html"
-msgstr "Architecture"
-
-#: help/04_architecture.html:4
-msgid "help-archi-intro"
-msgstr ""
-"<p>Since the beginning of this software, the developers wanted this "
-"application can have an open architecture allowing the widest devolution.</p>"
-
-#: migrations/0001_initial.py:45
-msgid "CORE-GUID"
-msgstr "Software serial number"
-
-#: migrations/0001_initial.py:51
-msgid "CORE-connectmode"
-msgstr "Connection mode"
-
-#: migrations/0001_initial.py:52
-msgid "CORE-connectmode.0"
-msgstr "Connection always needed"
-
-#: migrations/0001_initial.py:52
-msgid "CORE-connectmode.1"
-msgstr "Open in anonymous"
-
-#: migrations/0001_initial.py:52
-msgid "CORE-connectmode.2"
-msgstr "Free access"
-
-#: models.py:37 models.py:150 models.py:193
-msgid "name"
-msgstr "name"
-
-#: models.py:38
-msgid "String"
-msgstr "String"
-
-#: models.py:38
-msgid "Integer"
-msgstr "Integer"
-
-#: models.py:38
-msgid "Real"
-msgstr "Real"
-
-#: models.py:38
-msgid "Boolean"
-msgstr "Boolean"
-
-#: models.py:38
-msgid "Select"
-msgstr "Select"
-
-#: models.py:39
-msgid "arguments"
-msgstr "arguments"
-
-#: models.py:40 models.py:196
-msgid "value"
-msgstr "value"
-
-#: models.py:44
-msgid "parameter"
-msgstr "parameter"
-
-#: models.py:45
-msgid "parameters"
-msgstr "parameters"
-
-#: models.py:57
-msgid "Informations"
-msgstr "Informations"
-
-#: models.py:58
-msgid "Permissions"
-msgstr "Permissions"
-
-#: models.py:68
-msgid "Available groups"
-msgstr "Available groups"
-
-#: models.py:68
-msgid "Chosen groups"
-msgstr "Chosen groups"
-
-#: models.py:69 models.py:136
-msgid "Available permissions"
-msgstr "Available permissions"
-
-#: models.py:69 models.py:136
-msgid "Chosen permissions"
-msgstr "Chosen permissions"
-
-#: models.py:82
-msgid "To change password?"
-msgstr "To change password."
-
-#: models.py:96
-msgid "password"
-msgstr "password"
-
-#: models.py:100
-msgid "password (again)"
-msgstr "password (again)"
-
-#: models.py:120 views.py:139
-msgid "The passwords are differents!"
-msgstr "Passwords are differents!"
-
-#: models.py:146
-msgid "group"
-msgstr "group"
-
-#: models.py:147
-msgid "groups"
-msgstr "groups"
-
-#: models.py:152
-msgid "page width"
-msgstr "page width (L)"
-
-#: models.py:153
-msgid "page height"
-msgstr "page height (H)"
-
-#: models.py:154
-msgid "cell width"
-msgstr "cell width (l)"
-
-#: models.py:155
-msgid "cell height"
-msgstr "cell height (h)"
-
-#: models.py:156
-msgid "number of columns"
-msgstr "number of columns"
-
-#: models.py:157
-msgid "number of rows"
-msgstr "number of rows"
-
-#: models.py:158
-msgid "left marge"
-msgstr "left marge (a)"
-
-#: models.py:159
-msgid "top marge"
-msgstr "top marge (b)"
-
-#: models.py:160
-msgid "horizontal space"
-msgstr "horizontal space (c)"
-
-#: models.py:161
-msgid "vertical space"
-msgstr "vertical space (d)"
-
-#: models.py:179 models.py:189
-msgid "label"
-msgstr "label"
-
-#: models.py:179
-msgid "# of first label"
-msgstr "# of first label"
-
-#: models.py:190
-msgid "labels"
-msgstr "labels"
-
-#: models.py:194
-msgid "kind"
-msgstr "kind"
-
-#: models.py:194
-msgid "Listing"
-msgstr "Listing"
-
-#: models.py:194
-msgid "Label"
-msgstr "Label"
-
-#: models.py:194
-msgid "Report"
-msgstr "Report"
-
-#: models.py:195 models.py:226 models.py:273 views.py:224
-msgid "model"
-msgstr "model"
-
-#: models.py:216
-msgid "Last model of this kind!"
-msgstr "Last model of this kind!"
-
-#: models.py:225
-msgid "No model!"
-msgstr "No model!"
-
-#: models.py:234
-msgid "No model selected!"
-msgstr "No model selected!"
-
-#: models.py:274
-msgid "models"
-msgstr "models"
-
-#: parameters.py:93 parameters.py:106
-#, python-format
-msgid ".%d"
-msgstr ".%d"
-
-#: parameters.py:102
-msgid "Yes"
-msgstr "Yes"
-
-#: parameters.py:104
-msgid "No"
-msgstr "No"
-
-#: views.py:48
-msgid "General"
-msgstr "General"
-
-#: views.py:48
-msgid "Generality"
-msgstr "Generality"
-
-#: views.py:49
-msgid "Management"
-msgstr "Management"
-
-#: views.py:49
-msgid "Manage settings and configurations."
-msgstr "Manage settings and configurations."
-
-#: views.py:66
-msgid "File not found!"
+msgid "Diacamma accounting"
 msgstr ""
 
-#: views.py:90
-msgid "To Change your password."
-msgstr "Change your password."
-
-#: views.py:92 views.py:130
-msgid "_Password"
-msgstr "_Password"
-
-#: views.py:103
-msgid "old password"
-msgstr "old password"
-
-#: views.py:111
-msgid "new password"
-msgstr "new password"
-
-#: views.py:119
-msgid "new password (again)"
-msgstr "new password (again)"
-
-#: views.py:125 views.py:183
-msgid "Ok"
-msgstr "Ok"
-
-#: views.py:126 views.py:184
-msgid "Cancel"
-msgstr "Annuler"
-
-#: views.py:135
-msgid "Bad current password!"
-msgstr "Bad current password!"
-
-#: views.py:142
-msgid "Password modify"
-msgstr "Password modify"
-
-#: views.py:149
-msgid "To view and to modify main parameters."
-msgstr "View and modify main parameters."
-
-#: views.py:151
-msgid "Main configuration"
-msgstr "Main configuration"
-
-#: views.py:161
-msgid "Software configuration"
-msgstr "Software configuration"
-
-#: views.py:165 views_usergroup.py:94
-msgid "Modify"
-msgstr "Modify"
-
-#: views.py:166 views.py:248 views_usergroup.py:118
-msgid "Close"
-msgstr "Close"
-
-#: views.py:170 views.py:188
-msgid "Parameters"
-msgstr "Parameters"
-
-#: views.py:180
-msgid "Edition of parameters"
-msgstr "Edition of parameters"
-
-#: views.py:201
-msgid "_Extensions (conf.)"
-msgstr "_Modules (conf.)"
-
-#: views.py:201
-msgid "To manage of modules configurations."
-msgstr "Manage of modules configurations."
-
-#: views.py:203
-msgid "Report and print"
-msgstr "Report and print"
-
-#: views.py:203
-msgid "To manage reports and tools of printing."
-msgstr "Manage reports and tools of printing."
-
-#: views.py:205
-msgid "To Manage printing models."
-msgstr "Manage printing models."
-
-#: views.py:207 views.py:219 views.py:270
-msgid "Print models"
-msgstr "Print models"
-
-#: views.py:243
-msgid "edit"
-msgstr "edit"
-
-#: views.py:244
-msgid "clone"
-msgstr "clone"
-
-#: views.py:245
-msgid "delete"
-msgstr "delete"
-
-#: views.py:253 views.py:374
-msgid "Add a print model"
-msgstr "Add a print model"
-
-#: views.py:254
-msgid "Modify a print model"
-msgstr "Modify a print model"
-
-#: views.py:280
-msgid "ok"
-msgstr "ok"
-
-#: views.py:281
-msgid "cancel"
-msgstr "cancel"
-
-#: views.py:286
-msgid "list page width"
-msgstr "page width"
-
-#: views.py:294
-msgid "list page height"
-msgstr "page height"
-
-#: views.py:303
-msgid "size"
-msgstr "size"
-
-#: views.py:307
-msgid "title"
-msgstr "title"
-
-#: views.py:311
-msgid "text"
-msgstr "text"
-
-#: views.py:348
-msgid "print model"
-msgstr "print model"
-
-#: views.py:381
-#, python-format
-msgid "copy of %s"
-msgstr "copy of %s"
-
-#: views.py:390
-msgid "Delete print model"
-msgstr "Delete print model"
-
-#: views.py:401
-msgid "To manage boards of labels"
-msgstr "Manage boards of labels"
-
-#: views.py:403
-msgid "Labels"
-msgstr "Labels"
-
-#: views.py:412
-msgid "Add a label"
-msgstr "Add a label"
-
-#: views.py:413
-msgid "Modify a label"
-msgstr "Modify a label"
-
-#: views.py:421
-msgid "Delete label"
-msgstr "Delete label"
-
-#: views_auth.py:104
-msgid "Disconnect"
-msgstr "Disconnect"
-
-#: views_usergroup.py:38
-msgid "_Rights manage"
-msgstr "_Rights manage"
-
-#: views_usergroup.py:38
-msgid "To manage users, groups and permissions."
-msgstr "Manage users, groups and permissions."
-
-#: views_usergroup.py:44
-msgid "Add a group"
-msgstr "Add a group"
-
-#: views_usergroup.py:45
-msgid "Modify a group"
-msgstr "Modify a group"
-
-#: views_usergroup.py:54
-msgid "Delete group"
-msgstr "Delete group"
-
-#: views_usergroup.py:59
-msgid "To manage permissions groupes."
-msgstr "Manage permissions groups."
-
-#: views_usergroup.py:62
-msgid "Groups"
-msgstr "Groups"
-
-#: views_usergroup.py:67
-msgid "To manage users."
-msgstr "Manage users."
-
-#: views_usergroup.py:70
-msgid "_Users"
-msgstr "_Users"
-
-#: views_usergroup.py:81
-msgid "Users of the software"
-msgstr "Users of the software"
-
-#: views_usergroup.py:86
-msgid "List of active users"
-msgstr "List of active users"
-
-#: views_usergroup.py:95
-msgid "Disabled"
-msgstr "Disabled"
-
-#: views_usergroup.py:96 views_usergroup.py:115
-msgid "Delete"
-msgstr "Delete"
-
-#: views_usergroup.py:97
-msgid "Add"
-msgstr "Add"
-
-#: views_usergroup.py:106
-msgid "List of inactive users"
-msgstr "List of inactive users"
-
-#: views_usergroup.py:114
-msgid "Enabled"
-msgstr "Enabled"
-
-#: views_usergroup.py:123
-msgid "Delete users"
-msgstr "Delete users"
-
-#: views_usergroup.py:131
-msgid "You can delete yourself!"
-msgstr "You can't delete yourself!"
-
-#: views_usergroup.py:136
-msgid "Disabled an user"
-msgstr "Disabled an user"
-
-#: views_usergroup.py:143
-msgid "You can disabled yourself!"
-msgstr "You can't disabled yourself!"
-
-#: views_usergroup.py:149
-msgid "Enabled an user"
-msgstr "Enabled an user"
-
-#: views_usergroup.py:162
-msgid "Add an users"
-msgstr "Add an user"
-
-#: views_usergroup.py:163
-msgid "Modify an user"
-msgstr "Modify an user"
-
-#: views_usergroup.py:172
-msgid "Delete session"
-msgstr "Delete session"
-
-#: views_usergroup.py:177
-msgid "To manage session."
-msgstr "Manage session."
-
-#: views_usergroup.py:180
-msgid "Sessions"
-msgstr "Sessions"
+#~ msgid "Lucterios core"
+#~ msgstr "Lucterios core"
+
+#~ msgid "01_password.html"
+#~ msgstr "Password"
+
+#~ msgid "help-password-intro"
+#~ msgstr ""
+#~ "<p>The <i>General/Password</i> allows you to change the access password "
+#~ "of the current user.</p>"
+
+#~ msgid "help-password-security"
+#~ msgstr ""
+#~ "<p>For more security, we recommend that you use a password consisting of "
+#~ "letters and numbers and not being an understandable word.</p>"
+
+#~ msgid "02_groups.html"
+#~ msgstr "Groups"
+
+#~ msgid "help-groups-intro"
+#~ msgstr ""
+#~ "<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify "
+#~ "or delete a rights group.</p>"
+
+#~ msgid "help-groups-detail"
+#~ msgstr ""
+#~ "<p> Rights group brings together a set of permissions to the actions of "
+#~ "the application.</p>"
+
+#~ msgid "03_users.html"
+#~ msgstr "Users"
+
+#~ msgid "help-users-intro"
+#~ msgstr ""
+#~ "<p>The <i>Management/Rights manage/Users</i> allows you to create, "
+#~ "modify, or disable an application user. A user defines a connection right "
+#~ "to the software.</p>"
+
+#~ msgid "help-users-ended"
+#~ msgstr ""
+#~ "<p>On this list, you can create or edit the user: his alias, his name and "
+#~ "his password. You can add groups and additional permissions to define the "
+#~ "access level to the software. You can also disable a user for him "
+#~ "prohibit access to the application</p>"
+
+#~ msgid "04_architecture.html"
+#~ msgstr "Architecture"
+
+#~ msgid "help-archi-intro"
+#~ msgstr ""
+#~ "<p>Since the beginning of this software, the developers wanted this "
+#~ "application can have an open architecture allowing the widest devolution."
+#~ "</p>"
+
+#~ msgid "CORE-GUID"
+#~ msgstr "Software serial number"
+
+#~ msgid "CORE-connectmode"
+#~ msgstr "Connection mode"
+
+#~ msgid "CORE-connectmode.0"
+#~ msgstr "Connection always needed"
+
+#~ msgid "CORE-connectmode.1"
+#~ msgstr "Open in anonymous"
+
+#~ msgid "CORE-connectmode.2"
+#~ msgstr "Free access"
+
+#~ msgid "name"
+#~ msgstr "name"
+
+#~ msgid "String"
+#~ msgstr "String"
+
+#~ msgid "Integer"
+#~ msgstr "Integer"
+
+#~ msgid "Real"
+#~ msgstr "Real"
+
+#~ msgid "Boolean"
+#~ msgstr "Boolean"
+
+#~ msgid "Select"
+#~ msgstr "Select"
+
+#~ msgid "arguments"
+#~ msgstr "arguments"
+
+#~ msgid "value"
+#~ msgstr "value"
+
+#~ msgid "parameter"
+#~ msgstr "parameter"
+
+#~ msgid "parameters"
+#~ msgstr "parameters"
+
+#~ msgid "Informations"
+#~ msgstr "Informations"
+
+#~ msgid "Permissions"
+#~ msgstr "Permissions"
+
+#~ msgid "Available groups"
+#~ msgstr "Available groups"
+
+#~ msgid "Chosen groups"
+#~ msgstr "Chosen groups"
+
+#~ msgid "Available permissions"
+#~ msgstr "Available permissions"
+
+#~ msgid "Chosen permissions"
+#~ msgstr "Chosen permissions"
+
+#~ msgid "To change password?"
+#~ msgstr "To change password."
+
+#~ msgid "password"
+#~ msgstr "password"
+
+#~ msgid "password (again)"
+#~ msgstr "password (again)"
+
+#~ msgid "The passwords are differents!"
+#~ msgstr "Passwords are differents!"
+
+#~ msgid "group"
+#~ msgstr "group"
+
+#~ msgid "groups"
+#~ msgstr "groups"
+
+#~ msgid "page width"
+#~ msgstr "page width (L)"
+
+#~ msgid "page height"
+#~ msgstr "page height (H)"
+
+#~ msgid "cell width"
+#~ msgstr "cell width (l)"
+
+#~ msgid "cell height"
+#~ msgstr "cell height (h)"
+
+#~ msgid "number of columns"
+#~ msgstr "number of columns"
+
+#~ msgid "number of rows"
+#~ msgstr "number of rows"
+
+#~ msgid "left marge"
+#~ msgstr "left marge (a)"
+
+#~ msgid "top marge"
+#~ msgstr "top marge (b)"
+
+#~ msgid "horizontal space"
+#~ msgstr "horizontal space (c)"
+
+#~ msgid "vertical space"
+#~ msgstr "vertical space (d)"
+
+#~ msgid "label"
+#~ msgstr "label"
+
+#~ msgid "# of first label"
+#~ msgstr "# of first label"
+
+#~ msgid "labels"
+#~ msgstr "labels"
+
+#~ msgid "kind"
+#~ msgstr "kind"
+
+#~ msgid "Listing"
+#~ msgstr "Listing"
+
+#~ msgid "Label"
+#~ msgstr "Label"
+
+#~ msgid "Report"
+#~ msgstr "Report"
+
+#~ msgid "model"
+#~ msgstr "model"
+
+#~ msgid "Last model of this kind!"
+#~ msgstr "Last model of this kind!"
+
+#~ msgid "No model!"
+#~ msgstr "No model!"
+
+#~ msgid "No model selected!"
+#~ msgstr "No model selected!"
+
+#~ msgid "models"
+#~ msgstr "models"
+
+#~ msgid ".%d"
+#~ msgstr ".%d"
+
+#~ msgid "Yes"
+#~ msgstr "Yes"
+
+#~ msgid "No"
+#~ msgstr "No"
+
+#~ msgid "General"
+#~ msgstr "General"
+
+#~ msgid "Generality"
+#~ msgstr "Generality"
+
+#~ msgid "Management"
+#~ msgstr "Management"
+
+#~ msgid "Manage settings and configurations."
+#~ msgstr "Manage settings and configurations."
+
+#~ msgid "To Change your password."
+#~ msgstr "Change your password."
+
+#~ msgid "_Password"
+#~ msgstr "_Password"
+
+#~ msgid "old password"
+#~ msgstr "old password"
+
+#~ msgid "new password"
+#~ msgstr "new password"
+
+#~ msgid "new password (again)"
+#~ msgstr "new password (again)"
+
+#~ msgid "Ok"
+#~ msgstr "Ok"
+
+#~ msgid "Cancel"
+#~ msgstr "Annuler"
+
+#~ msgid "Bad current password!"
+#~ msgstr "Bad current password!"
+
+#~ msgid "Password modify"
+#~ msgstr "Password modify"
+
+#~ msgid "To view and to modify main parameters."
+#~ msgstr "View and modify main parameters."
+
+#~ msgid "Main configuration"
+#~ msgstr "Main configuration"
+
+#~ msgid "Software configuration"
+#~ msgstr "Software configuration"
+
+#~ msgid "Modify"
+#~ msgstr "Modify"
+
+#~ msgid "Close"
+#~ msgstr "Close"
+
+#~ msgid "Parameters"
+#~ msgstr "Parameters"
+
+#~ msgid "Edition of parameters"
+#~ msgstr "Edition of parameters"
+
+#~ msgid "_Extensions (conf.)"
+#~ msgstr "_Modules (conf.)"
+
+#~ msgid "To manage of modules configurations."
+#~ msgstr "Manage of modules configurations."
+
+#~ msgid "Report and print"
+#~ msgstr "Report and print"
+
+#~ msgid "To manage reports and tools of printing."
+#~ msgstr "Manage reports and tools of printing."
+
+#~ msgid "To Manage printing models."
+#~ msgstr "Manage printing models."
+
+#~ msgid "Print models"
+#~ msgstr "Print models"
+
+#~ msgid "edit"
+#~ msgstr "edit"
+
+#~ msgid "clone"
+#~ msgstr "clone"
+
+#~ msgid "delete"
+#~ msgstr "delete"
+
+#~ msgid "Add a print model"
+#~ msgstr "Add a print model"
+
+#~ msgid "Modify a print model"
+#~ msgstr "Modify a print model"
+
+#~ msgid "ok"
+#~ msgstr "ok"
+
+#~ msgid "cancel"
+#~ msgstr "cancel"
+
+#~ msgid "list page width"
+#~ msgstr "page width"
+
+#~ msgid "list page height"
+#~ msgstr "page height"
+
+#~ msgid "size"
+#~ msgstr "size"
+
+#~ msgid "title"
+#~ msgstr "title"
+
+#~ msgid "text"
+#~ msgstr "text"
+
+#~ msgid "print model"
+#~ msgstr "print model"
+
+#~ msgid "copy of %s"
+#~ msgstr "copy of %s"
+
+#~ msgid "Delete print model"
+#~ msgstr "Delete print model"
+
+#~ msgid "To manage boards of labels"
+#~ msgstr "Manage boards of labels"
+
+#~ msgid "Labels"
+#~ msgstr "Labels"
+
+#~ msgid "Add a label"
+#~ msgstr "Add a label"
+
+#~ msgid "Modify a label"
+#~ msgstr "Modify a label"
+
+#~ msgid "Delete label"
+#~ msgstr "Delete label"
+
+#~ msgid "Disconnect"
+#~ msgstr "Disconnect"
+
+#~ msgid "_Rights manage"
+#~ msgstr "_Rights manage"
+
+#~ msgid "To manage users, groups and permissions."
+#~ msgstr "Manage users, groups and permissions."
+
+#~ msgid "Add a group"
+#~ msgstr "Add a group"
+
+#~ msgid "Modify a group"
+#~ msgstr "Modify a group"
+
+#~ msgid "Delete group"
+#~ msgstr "Delete group"
+
+#~ msgid "To manage permissions groupes."
+#~ msgstr "Manage permissions groups."
+
+#~ msgid "Groups"
+#~ msgstr "Groups"
+
+#~ msgid "To manage users."
+#~ msgstr "Manage users."
+
+#~ msgid "_Users"
+#~ msgstr "_Users"
+
+#~ msgid "Users of the software"
+#~ msgstr "Users of the software"
+
+#~ msgid "List of active users"
+#~ msgstr "List of active users"
+
+#~ msgid "Disabled"
+#~ msgstr "Disabled"
+
+#~ msgid "Delete"
+#~ msgstr "Delete"
+
+#~ msgid "Add"
+#~ msgstr "Add"
+
+#~ msgid "List of inactive users"
+#~ msgstr "List of inactive users"
+
+#~ msgid "Enabled"
+#~ msgstr "Enabled"
+
+#~ msgid "Delete users"
+#~ msgstr "Delete users"
+
+#~ msgid "You can delete yourself!"
+#~ msgstr "You can't delete yourself!"
+
+#~ msgid "Disabled an user"
+#~ msgstr "Disabled an user"
+
+#~ msgid "You can disabled yourself!"
+#~ msgstr "You can't disabled yourself!"
+
+#~ msgid "Enabled an user"
+#~ msgstr "Enabled an user"
+
+#~ msgid "Add an users"
+#~ msgstr "Add an user"
+
+#~ msgid "Modify an user"
+#~ msgstr "Modify an user"
+
+#~ msgid "Delete session"
+#~ msgstr "Delete session"
+
+#~ msgid "To manage session."
+#~ msgstr "Manage session."
+
+#~ msgid "Sessions"
+#~ msgstr "Sessions"

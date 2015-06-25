@@ -113,7 +113,7 @@ class XferContainerAbstract(View):
 
     def _load_unique_record(self, itemid):
         try:
-            self.item = self.model.objects.get(id=itemid)
+            self.item = self.model.objects.get(id=itemid).get_final_child()
             self.fill_simple_fields()
             self.fill_manytomany_fields()
             if self.locked:

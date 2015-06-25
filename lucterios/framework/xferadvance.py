@@ -43,6 +43,7 @@ def get_items_from_filter(model, filter_desc):
 
 class XferListEditor(XferContainerCustom):
     filter = None
+    action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use
@@ -71,8 +72,7 @@ class XferListEditor(XferContainerCustom):
         lbl.set_location(0, row + 2, 2)
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
         self.add_component(lbl)
-        action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
-        for act_type, title, icon in action_list:
+        for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
 
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
@@ -158,14 +158,14 @@ class XferDelete(XferContainerAcknowledge):
     def fillresponse(self):
         # pylint: disable=protected-access
         for item in self.items:
-            cant_del_msg = item.can_delete()
+            cant_del_msg = item.get_final_child().can_delete()
             if cant_del_msg != '':
                 raise LucteriosException(IMPORTANT, cant_del_msg)
 
         if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name':self.model._meta.verbose_name}, \
                                     _("Do you want delete those %(nb)s %(name)s ?") % {'nb':len(self.items), 'name':self.model._meta.verbose_name_plural})):
             for item in self.items:
-                item.delete()
+                item.get_final_child().delete()
 
 class XferSave(XferContainerAcknowledge):
 

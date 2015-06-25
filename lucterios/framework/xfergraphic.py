@@ -391,6 +391,7 @@ class XferContainerCustom(XferContainerAbstract):
         return colspan
 
     def filltab_from_model(self, col, row, readonly, field_names):
+        # pylint: disable=too-many-locals,too-many-branches
         maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
@@ -412,12 +413,19 @@ class XferContainerCustom(XferContainerAbstract):
                     self.add_component(comp)
                     offset += 2
                 else:
+                    if isinstance(field_name, tuple):
+                        verbose_name, field_name = field_name
+                    else:
+                        verbose_name = None
                     dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
                     if dep_field[2]:  # field real in model
                         if not dep_field[3]:  # field not many-to-many
                             lbl = XferCompLabelForm('lbl_' + field_name)
                             lbl.set_location(col + offset, row, 1, 1)
-                            lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                            if verbose_name is None:
+                                lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                            else:
+                                lbl.set_value_as_name(six.text_type(verbose_name))
                             self.add_component(lbl)
                             if readonly:
                                 comp = self.get_reading_comp(field_name)

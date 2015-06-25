@@ -525,9 +525,7 @@ if ((type=='list') || (type=='listmult')) {
         lbl.set_location(0, row + 5, 4)
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
         self.add_component(lbl)
-
         action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
         for act_type, title, icon in action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
-
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
