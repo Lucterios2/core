@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-23 14:59+0000\n"
+"POT-Creation-Date: 2015-06-26 09:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -38,15 +38,15 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:193
+#: models.py:206
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:208
+#: models.py:221
 msgid "session"
 msgstr "session"
 
-#: models.py:209
+#: models.py:222
 msgid "sessions"
 msgstr "sessions"
 
@@ -85,21 +85,21 @@ msgstr "supprimer"
 msgid "Can"
 msgstr "Pouvoir"
 
-#: xferadvance.py:72 xfersearch.py:526
+#: xferadvance.py:46 xfersearch.py:528
+msgid "Listing"
+msgstr "Liste"
+
+#: xferadvance.py:46 xfersearch.py:528
+msgid "Label"
+msgstr "Etiquette"
+
+#: xferadvance.py:73 xfersearch.py:526
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:74 xfersearch.py:529
-msgid "Listing"
-msgstr "Liste"
-
-#: xferadvance.py:74 xfersearch.py:529
-msgid "Label"
-msgstr "Etiquette"
-
 #: xferadvance.py:78 xferadvance.py:132 xfergraphic.py:113 xferprinting.py:107
-#: xfersearch.py:533
+#: xfersearch.py:531
 msgid "Close"
 msgstr "Fermer"
 
@@ -111,7 +111,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:129 xfercomponents.py:586
+#: xferadvance.py:129 xfercomponents.py:599
 msgid "Modify"
 msgstr "Modifier"
 
@@ -149,15 +149,15 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:586
+#: xfercomponents.py:599
 msgid "Edit"
 msgstr "Editer"
 
-#: xfercomponents.py:587
+#: xfercomponents.py:600
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:587
+#: xfercomponents.py:600
 msgid "Add"
 msgstr "Ajouter"
 

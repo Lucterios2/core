@@ -366,11 +366,11 @@ class LucteriosMainForm(Tk):
 
         self.btnframe = Frame(self, bd=1)
         self.btnframe.grid(row=2, column=0, columnspan=1)
-        Button(self.btnframe, text=ugettext("Refresh"), width=15, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
-        self.btnupgrade = Button(self.btnframe, text=ugettext("No upgrade"), width=15, command=self.upgrade)
-        self.set_ugrade_state(False)
+        Button(self.btnframe, text=ugettext("Refresh"), width=20, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
+        self.btnupgrade = Button(self.btnframe, text=ugettext("Search upgrade"), width=20, command=self.upgrade)
+        self.btnupgrade.config(state=DISABLED)
         self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
-        Button(self.btnframe, text=ugettext("Close"), width=15, command=self.destroy).grid(row=0, column=2, padx=3, pady=3, sticky=(N, S))
+        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.destroy).grid(row=0, column=2, padx=3, pady=3, sticky=(N, S))
 
     def destroy(self):
         instance_names = list(self.running_instance.keys())
@@ -455,7 +455,7 @@ class LucteriosMainForm(Tk):
                 self.after_idle(self.add_inst)
 
     def _refresh_modules(self):
-        self.set_ugrade_state(False)
+        self.btnupgrade.config(state=DISABLED)
         self.module_txt.config(state=NORMAL)
         self.module_txt.delete("1.0", END)
         lct_glob = LucteriosGlobal()
