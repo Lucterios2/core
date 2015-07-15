@@ -45,6 +45,7 @@ def get_info_server():
 
 @MenuManage.describ('')
 class Authentification(XferContainerAbstract):
+    caption = 'info'
     observer_name = 'CORE.Auth'
 
     def fillresponse(self, username, password, info):
@@ -98,6 +99,7 @@ class Authentification(XferContainerAbstract):
 
 @MenuManage.describ('')
 class ExitConnection(XferContainerAcknowledge):
+    caption = 'exit'
 
     def fillresponse(self):
         from django.contrib.auth import logout

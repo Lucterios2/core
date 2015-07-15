@@ -45,11 +45,21 @@ import mimetypes, stat, os
 from django.http.response import StreamingHttpResponse
 from django.utils.http import http_date
 
+MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
 MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
 
+@MenuManage.describ('', FORMTYPE_MODAL, 'core.menu', _("Summary"))
+class StatusMenu(XferContainerCustom):
+    caption = _("Summary")
+    icon = "status.png"
+
+    def fillresponse(self):
+        signal_and_lock.Signal.call_signal("summary", self)
+
 @MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
+    caption = 'unlock'
 
     def fillresponse(self):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)
@@ -78,6 +88,7 @@ class Download(XferContainerAbstract):
 
 @MenuManage.describ('')
 class Menu(XferContainerMenu):
+    caption = 'menu'
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated() or not secure_mode_connect():

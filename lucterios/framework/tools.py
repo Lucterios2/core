@@ -88,6 +88,8 @@ class WrapAction(object):
             if notfree_mode_connect is None or notfree_mode_connect():
                 if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
                     return False
+                if (self.caption == '') and not request.user.is_authenticated():
+                    return False
         except AttributeError:
             pass
         return True
@@ -182,7 +184,7 @@ class MenuManage(object):
         try:
             if parentref in cls._MENU_LIST.keys():
                 sub_menus = cls._MENU_LIST[parentref]
-                sub_menus.sort(key=menu_key_to_comp)  # menu_comp)
+                sub_menus.sort(key=menu_key_to_comp)
                 for sub_menu_item in sub_menus:
                     if sub_menu_item[0].check_permission(request):
                         new_xml = sub_menu_item[0].get_action_xml({}, sub_menu_item[1], "MENU")

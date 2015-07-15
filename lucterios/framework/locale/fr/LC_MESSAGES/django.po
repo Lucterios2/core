@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-06-26 09:28+0000\n"
+"POT-Creation-Date: 2015-07-15 16:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -60,28 +60,28 @@ msgstr "Signal %s inconnu"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:101
+#: tools.py:103
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:102
+#: tools.py:104
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:239
+#: tools.py:241
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:241
+#: tools.py:243
 msgid "view"
 msgstr "voir"
 
-#: tools.py:243
+#: tools.py:245
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:244
+#: tools.py:246
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -111,7 +111,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:129 xfercomponents.py:599
+#: xferadvance.py:129 xfercomponents.py:602
 msgid "Modify"
 msgstr "Modifier"
 
@@ -149,15 +149,15 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:599
+#: xfercomponents.py:602
 msgid "Edit"
 msgstr "Editer"
 
-#: xfercomponents.py:600
+#: xfercomponents.py:603
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:600
+#: xfercomponents.py:603
 msgid "Add"
 msgstr "Ajouter"
 

@@ -25,7 +25,7 @@ var Menu = Class
 				this.submenu = [];
 
 				this.id = menu.getAttribute("id").replace(/[_\.()'\`\/]/g, "");
-				if (this.id !== "menusup") {
+				if (this.id !== "coremenu") {
 					this.id += '_' + createGuid();
 				}
 				this.shortcut = menu.getAttribute("shortcut");
@@ -197,7 +197,7 @@ var ObserverMenu = ObserverAbstract
 					menu = this.menu_xml.childNodes[iMen];
 					if (menu.tagName === "MENU") {
 						menu_item = new Menu(menu, 0, this);
-						if ((menu_item.id === "menusup")
+						if ((menu_item.id === "coremenu")
 								&& (menu_item.submenu.length > 0)) {
 							this.aside_menu = menu_item;
 						} else if (menu_item.submenu.length > 0) {
