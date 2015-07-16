@@ -45,18 +45,14 @@ test("Static", function() {
 	equal(new_http_transport.getSession(), "ABCDEF12345", "other session");
 });
 
-test(
-		"Actions",
-		function() {
+test("Actions", function() {
 			var xml_retour;
 			post_log('cookie before:' + document.cookie);
 			xml_retour = this.transport.transfertFileFromServerString(
 					'CORE/menu', new HashMap());
 			equal(
 					this.convertXML(xml_retour),
-					this
-							.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='CORE' source_action='menu'>NEEDAUTH</REPONSE></REPONSES>"),
-					"1er reponse");
+					this.convertXML("<?xml version='1.0' encoding='utf-8'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='CORE' source_action='menu'>NEEDAUTH<TITLE>info</TITLE></REPONSE></REPONSES>"), "1er reponse");
 
 			var params = new HashMap();
 			params.put(AUTH_PARAM_NAME[0], 'admin');
