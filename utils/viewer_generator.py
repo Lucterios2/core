@@ -45,7 +45,7 @@ except:
     import ttk
 
 LIST_VIEWER = {'0List':('XferListEditor', 'list'), '1AddModify':('XferAddEditor', 'edit', 'modify', 'add'), '2Show':('XferShowEditor', 'show'), \
-               '3Del':('XferDelete', 'del'), '4Search':('XferSearchEditor', 'search'), '5Print':('XferPrintAction', 'print'), \
+               '3Del':('XferDelete', 'delete'), '4Search':('XferSearchEditor', 'search'), '5Print':('XferPrintAction', 'print'), \
                '6Label':('XferPrintLabel', 'label'), '7Listing':('XferPrintListing', 'listing')}
 
 class GeneratorException(Exception):
@@ -241,7 +241,7 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
         return actions, caption, right, menuext
 
     def write_actions(self, model_name, icon_name, item_actions):
-        viewer_file = join(dirname(self.full_modulepath), 'viewer_%s.py' % model_name.lower())
+        viewer_file = join(dirname(self.full_modulepath), 'views_%s.py' % model_name.lower())
         is_new = not isfile(viewer_file)
         with open(viewer_file, 'wb') as self.viewfile:
             self._write_header(model_name, item_actions, is_new)
