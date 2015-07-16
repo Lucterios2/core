@@ -94,12 +94,13 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_count_equal("MENUS/MENU", 4)
         self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']", 'Gestion des droits')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU[@id='CORE/groupsList']", 'Les groupes')
+        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
@@ -117,7 +118,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_count_equal("MENUS/MENU", 4)
         self.assert_xml_equal("MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 1)
         self.assert_xml_equal("MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
@@ -125,6 +126,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
+        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
         self.call('/CORE/configuration', {})
         self.assert_observer('CORE.Exception', 'CORE', 'configuration')
@@ -180,12 +182,13 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/menu', {})
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 3)
+        self.assert_count_equal("MENUS/MENU", 4)
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 2)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 3)
+        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
     def test_menu_reconnected(self):
         self.call('/CORE/authentification', {'username':'admin', 'password':'admin'})
