@@ -47,10 +47,18 @@ PERMISSION_CODENAMES = {'add_label':('Impression', 'CORE'), 'change_label':('Imp
                         'add_session':('Consultation de session de connexion', 'CORE'), 'change_session':('Consultation de session de connexion', 'CORE'), 'delete_session':('Consultation de session de connexion', 'CORE'),
                         'add_user':('Ajouter/modifier un utilisateur', 'CORE'), 'change_user':('Ajouter/modifier un utilisateur', 'CORE'), 'delete_user':('Ajouter/modifier un utilisateur', 'CORE'), \
 
-                        'add_individual':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_individual':('Voir/Lister', 'org_lucterios_contacts'), 'delete_individual':('Suppression/Fusion', 'org_lucterios_contacts'), \
-                        'add_legalentity':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_legalentity':('Voir/Lister', 'org_lucterios_contacts'), 'delete_legalentity':('Suppression/Fusion', 'org_lucterios_contacts'), \
+                        'add_abstractcontact':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_abstractcontact':('Voir/Lister', 'org_lucterios_contacts'), 'delete_abstractcontact':('Suppression/Fusion', 'org_lucterios_contacts'), \
                         'add_postalcode':('Gestion des paramètres', 'org_lucterios_contacts'), 'change_postalcode':('Gestion des paramètres', 'org_lucterios_contacts'), \
-                        'add_responsability':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_responsability':('Voir/Lister', 'org_lucterios_contacts'), 'delete_responsability':('Suppression/Fusion', 'org_lucterios_contacts')}
+                        'add_responsability':('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_responsability':('Voir/Lister', 'org_lucterios_contacts'), 'delete_responsability':('Suppression/Fusion', 'org_lucterios_contacts'), \
+
+                        'add_folder':('Parametrages', 'org_lucterios_documents'), 'change_folder':('Parametrages', 'org_lucterios_documents'), 'delete_folder':('Parametrages', 'org_lucterios_documents'), \
+                        'add_document':('Ajout/modification', 'org_lucterios_documents'), 'change_document':('Visualisation', 'org_lucterios_documents'), 'delete_document':('Supression', 'org_lucterios_documents'), \
+                        
+                        'add_third':('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), 'change_third':('Voir/Consulter les tiers', 'fr_sdlibre_compta'), 'delete_third':('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), \
+                        'add_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), 'change_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), 'delete_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), \
+                        'add_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount':('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta')                        
+                        
+                        }
 
 def dict_factory(cursor, row):
     dictdb = {}
@@ -384,8 +392,7 @@ class MigrateFromV1(LucteriosInstance):
                 new_individual.user = user_list[individual_user]
             new_individual.save()
             individual_list[individualid] = new_individual
-            abstract_list[individual_super] = new_legalentity
-
+            abstract_list[individual_super] = new_individual
         return legalentity_list, individual_list, abstract_list
 
     def _restore_contact_relations(self, legalentity_list, individual_list, abstract_list, function_list, customfield_list):
@@ -434,6 +441,7 @@ class MigrateFromV1(LucteriosInstance):
             self._restore_contact_relations(legalentity_list, individual_list, abstract_list, function_list, customfield_list)
         finally:
             self.close_olddb()
+        return abstract_list
 
     def _restore_document_folders(self, group_list):
         # pylint: disable=too-many-locals
@@ -502,12 +510,84 @@ class MigrateFromV1(LucteriosInstance):
         folder_list = self._restore_document_folders(group_list)
         self._restore_document_docs(folder_list, user_list)
 
+    def _restore_accounting_thirds(self, abstract_list):
+        from django.apps import apps
+        third_mdl = apps.get_model("accounting", "Third")
+        third_mdl.objects.all().delete()
+        accountthird_mdl = apps.get_model("accounting", "AccountThird")
+        accountthird_mdl.objects.all().delete()
+        third_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id,contact,compteFournisseur,compteClient,compteSalarie,compteSocietaire,etat FROM fr_sdlibre_compta_Tiers")
+        for thirdid, abstractid, compte_fournisseur, compte_client, compte_salarie, compte_societaire, etat in cur.fetchall():
+            self.print_log("=> Third of %s", (abstract_list[abstractid],))
+            third_list[thirdid] = third_mdl.objects.create(contact=abstract_list[abstractid], status=etat)
+            if (compte_fournisseur is not None) and (compte_fournisseur != ''):
+                accountthird_mdl.objects.create(third=third_list[thirdid], code=compte_fournisseur)
+            if (compte_client is not None) and (compte_client != ''):
+                accountthird_mdl.objects.create(third=third_list[thirdid], code=compte_client)
+            if (compte_salarie is not None) and (compte_salarie != ''):
+                accountthird_mdl.objects.create(third=third_list[thirdid], code=compte_salarie)
+            if (compte_societaire is not None) and (compte_societaire != ''):
+                accountthird_mdl.objects.create(third=third_list[thirdid], code=compte_societaire)
+        return third_list
+    
+    def _restore_accounting_years(self):
+        from django.apps import apps
+        year_mdl = apps.get_model("accounting", "FiscalYear")
+        year_mdl.objects.all().delete()
+        year_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id, debut,fin,etat,actif,lastExercice  FROM fr_sdlibre_compta_Exercices ORDER BY fin")
+        for yearid, debut, fin, etat, actif, lastExercice in cur.fetchall():
+            self.print_log("=> Year of %s => %s", (debut, fin))
+            year_list[yearid] = year_mdl.objects.create(begin=debut, end=fin, status=etat, is_actif=(actif == 'o'))
+            if lastExercice is not None:
+                year_list[yearid].last_fiscalyear = year_list[lastExercice]
+                year_list[yearid].save()
+        return year_list
+    
+    def _restore_accounting_chartsaccount(self, year_list):
+        from django.apps import apps
+        chartsaccount_mdl = apps.get_model("accounting", "ChartsAccount")
+        chartsaccount_mdl.objects.all().delete()
+        chartsaccount_list = {}
+        cur = self.open_olddb()
+        cur.execute("SELECT id,numCpt,designation,exercice FROM fr_sdlibre_compta_Plan")
+        for chartsaccountid, num_cpt, designation, exercice in cur.fetchall():
+            self.print_log("=> charts of account %s - %d", (num_cpt,exercice))
+            chartsaccount_list[chartsaccountid] = chartsaccount_mdl.objects.create(code=num_cpt, name=designation, year=year_list[exercice])
+            if (num_cpt[0] == '1') or (num_cpt[0] == '2') or (num_cpt[0] == '3'):
+                chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset
+            if num_cpt[0] == '4':
+                chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability
+            if num_cpt[0] == '5': 
+                chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity
+            if num_cpt[0] == '7':
+                chartsaccount_list[chartsaccountid].type_of_account = 3  # Revenue
+            if num_cpt[0] == '6':
+                chartsaccount_list[chartsaccountid].type_of_account = 4  # Expense
+            if num_cpt[0] == '8':
+                chartsaccount_list[chartsaccountid].type_of_account = 5  # Contra-accounts
+            chartsaccount_list[chartsaccountid].save()
+
+    def restore_compta(self, abstract_list):
+        from django.apps import apps
+        try:
+            apps.get_app_config("accounting")
+        except LookupError:
+            self.print_log("=> No accounting module", ())
+            return
+        thirds = self._restore_accounting_thirds(abstract_list)
+        years = self._restore_accounting_years()
+        self._restore_accounting_chartsaccount(years)
+
     def restore(self):
         begin_time = time()
         self.initial_olddb()
         self.extract_archive()
         if not isfile(self.old_db_path):
-            for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql', 'data_org_lucterios_documents.sql']:
+            for filename in ['data_CORE.sql', 'data_org_lucterios_contacts.sql', 'data_org_lucterios_documents.sql', 'data_fr_sdlibre_compta.sql']:
                 create_script, insert_script = self.read_sqlfile(filename)
                 self.import_in_olddb(create_script, insert_script)
         self.clear_current()
@@ -515,7 +595,9 @@ class MigrateFromV1(LucteriosInstance):
         if isfile(join(self.tmp_path, 'data_org_lucterios_documents.sql')):
             self.restore_document(groups, users)
         if isfile(join(self.tmp_path, 'data_org_lucterios_contacts.sql')):
-            self.restore_contact(users)
+            abstracts = self.restore_contact(users)
+            if isfile(join(self.tmp_path, 'data_fr_sdlibre_compta.sql')):
+                self.restore_compta(abstracts)
         self.clear_old_archive()
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
