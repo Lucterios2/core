@@ -48,7 +48,7 @@ class GroupsEdit(XferAddEditor):
     field_id = 'group'
     locked = True
 
-@ActionsManage.affect('LucteriosGroup', 'del')
+@ActionsManage.affect('LucteriosGroup', 'delete')
 @MenuManage.describ('auth.delete_group')
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
@@ -117,7 +117,7 @@ class UsersList(XferContainerCustom):
 
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
-@ActionsManage.affect('LucteriosUser', 'del')
+@ActionsManage.affect('LucteriosUser', 'delete')
 @MenuManage.describ('auth.delete_user')
 class UsersDelete(XferDelete):
     caption = _("Delete users")
@@ -166,7 +166,7 @@ class UsersEdit(XferAddEditor):
     field_id = 'user_actif'
     locked = True
 
-@ActionsManage.affect('LucteriosSession', 'del')
+@ActionsManage.affect('LucteriosSession', 'delete')
 @MenuManage.describ('sessions.delete_session')
 class SessionDelete(XferDelete):
     caption = _("Delete session")

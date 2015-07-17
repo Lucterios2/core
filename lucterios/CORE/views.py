@@ -426,7 +426,7 @@ class LabelEdit(XferAddEditor):
     model = Label
     field_id = 'label'
 
-@ActionsManage.affect('Label', 'del')
+@ActionsManage.affect('Label', 'delete')
 @MenuManage.describ('CORE.delete_label')
 class LabelDelete(XferDelete):
     caption = _("Delete label")

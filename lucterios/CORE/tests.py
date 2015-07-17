@@ -295,7 +295,7 @@ class ConfigTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Edition de paramètres{[/u]}{[/b]}{[/center]}", (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (2, 1, 1, 1))
