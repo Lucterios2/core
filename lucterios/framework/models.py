@@ -66,7 +66,7 @@ def get_value_converted(value, bool_textual=False):
 def get_value_if_choices(value, dep_field):
     if hasattr(dep_field[0], 'choices') and (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
         for choices_key, choices_value in dep_field[0].choices:
-            if choices_key == value:
+            if choices_key == int(value):
                 value = six.text_type(choices_value)
                 break
     return value
@@ -166,7 +166,7 @@ class LucteriosModel(models.Model):
 
     def get_final_child(self):
         final_child = self
-        rel_objs = self._meta.get_all_related_objects() # pylint: disable=no-member,protected-access
+        rel_objs = self._meta.get_all_related_objects()  # pylint: disable=no-member,protected-access
         for rel_obj in rel_objs:
             if (rel_obj.model != type(self)) and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
                 try:
