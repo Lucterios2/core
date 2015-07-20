@@ -103,6 +103,16 @@ class LucteriosModel(models.Model):
     def get_print_fields(cls):
         return cls.get_default_fields()
 
+    @classmethod
+    def get_field_by_name(cls, fieldname):
+        fieldnames = fieldname.split('.')
+        current_meta = cls._meta  # pylint: disable=protected-access,no-member
+        for field_name in fieldnames:
+            dep_field = current_meta.get_field_by_name(field_name)
+            if hasattr(dep_field[0], 'rel') and (dep_field[0].rel is not None):
+                current_meta = dep_field[0].rel.to._meta  # pylint: disable=protected-access
+        return dep_field
+
     def evaluate(self, text):
         def eval_sublist(field_list, field_value):
             field_val = []

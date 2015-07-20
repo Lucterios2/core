@@ -550,11 +550,11 @@ class XferCompGrid(XferComponent):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
-                dep_field = query_set.model._meta.get_field_by_name(fieldname[:-4])  # pylint: disable=protected-access
+                dep_field = query_set.model.get_field_by_name(fieldname[:-4])  # pylint: disable=protected-access
                 hfield = 'str'
                 verbose_name = dep_field[0].model._meta.verbose_name  # pylint: disable=protected-access
             else:
-                dep_field = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                dep_field = query_set.model.get_field_by_name(fieldname)  # pylint: disable=protected-access
                 if isinstance(dep_field[0], IntegerField):
                     hfield = 'int'
                 elif isinstance(dep_field[0], FloatField):
@@ -587,9 +587,11 @@ class XferCompGrid(XferComponent):
                         resvalue.append(six.text_type(sub_items_value))
                     resvalue = "{[br/]}".join(resvalue)
                 else:
-                    resvalue = getattr(child, fieldname)
+                    resvalue = child
+                    for field_name in fieldname.split('.'):
+                        resvalue = getattr(resvalue, field_name)
                     try:
-                        field_desc = query_set.model._meta.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                        field_desc = query_set.model.get_field_by_name(fieldname)  # pylint: disable=protected-access
                         resvalue = get_value_if_choices(resvalue, field_desc)
                     except FieldDoesNotExist:
                         pass

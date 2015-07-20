@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import isfile, join, dirname
-from posix import unlink, system
+from os import unlink, system
 from reportlab.pdfgen import canvas
 from lxml import etree
 from django.utils import six
@@ -37,6 +37,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 import re
 from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
+
 
 def get_size(xmltext, name):
     try:

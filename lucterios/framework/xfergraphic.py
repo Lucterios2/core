@@ -307,8 +307,11 @@ class XferContainerCustom(XferContainerAbstract):
             self.tab = old_num
 
     def get_reading_comp(self, field_name):
-        value = get_value_converted(getattr(self.item, field_name), True)
-        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+        sub_value = self.item
+        for fieldname in field_name.split('.'):
+            sub_value = getattr(sub_value, fieldname)
+        value = get_value_converted(sub_value, True)
+        dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], EmailField):
             comp = XferCompLinkLabel(field_name)
             comp.set_link('mailto:' + value)
@@ -323,7 +326,7 @@ class XferContainerCustom(XferContainerAbstract):
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
         from django.db.models.fields.related import ForeignKey
         from django.core.exceptions import ObjectDoesNotExist
-        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+        dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
         if isinstance(dep_field[0], IntegerField):
             if (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
                 comp = XferCompSelect(field_name)
@@ -354,7 +357,9 @@ class XferContainerCustom(XferContainerAbstract):
         elif isinstance(dep_field[0], ForeignKey):
             comp = XferCompSelect(field_name)
             try:
-                value = getattr(self.item, field_name)
+                value = self.item
+                for fieldname in field_name.split('.'):
+                    value = getattr(value, fieldname)
             except ObjectDoesNotExist:
                 value = None
             if value is None:
@@ -417,7 +422,7 @@ class XferContainerCustom(XferContainerAbstract):
                         verbose_name, field_name = field_name
                     else:
                         verbose_name = None
-                    dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
+                    dep_field = self.item.get_field_by_name(field_name)
                     if dep_field[2]:  # field real in model
                         if not dep_field[3]:  # field not many-to-many
                             lbl = XferCompLabelForm('lbl_' + field_name)

@@ -568,6 +568,31 @@ class MigrateFromV1(LucteriosInstance):
             if num_cpt[0] == '8':
                 chartsaccount_list[chartsaccountid].type_of_account = 5  # Contra-accounts
             chartsaccount_list[chartsaccountid].save()
+        return chartsaccount_list
+
+    def _restore_accounting_entryaccount(self, year_list, third_list, account_list):
+        # pylint: disable=too-many-locals
+        from django.apps import apps
+        entryaccount_mdl = apps.get_model("accounting", "EntryAccount")
+        entryaccount_mdl.objects.all().delete()
+        entrylineaccount_mdl = apps.get_model("accounting", "EntryLineAccount")
+        entryaccount_list = {}
+        entrylineaccount_list = {}
+        cur_e = self.open_olddb()
+        cur_e.execute("SELECT id, num, dateEcr, datePiece, designation, exercice, valid, point, journal, opeRaproch, analytique FROM fr_sdlibre_compta_Operation")
+        for entryaccountid, num, date_ecr, date_piece, designation, exercice, valid, point, _, _, _ in cur_e.fetchall():
+            self.print_log("=> entry account %s - %d", (six.text_type(num), exercice))
+            entryaccount_list[entryaccountid] = entryaccount_mdl.objects.create(num=num, designation=designation, year=year_list[exercice], \
+                                                        date_entry=date_ecr, date_value=date_piece, valid=valid == 'o', close=point == 'o')
+        cur_l = self.open_olddb()
+        cur_l.execute("SELECT id,numCpt,montant,reference,operation,tiers  FROM fr_sdlibre_compta_Ecriture")
+        for entrylineaccountid, num_cpt, montant, reference, operation, tiers in cur_l.fetchall():
+            self.print_log("=> line entry account %f - %d", (montant, num_cpt))
+            entrylineaccount_list[entrylineaccountid] = entrylineaccount_mdl.objects.create(account=account_list[num_cpt], entry=entryaccount_list[operation], \
+                                                                                amount=montant, reference=reference)
+            if tiers is not None:
+                entrylineaccount_list[entrylineaccountid].third = third_list[tiers]
+                entrylineaccount_list[entrylineaccountid].save()
 
     def restore_compta(self, abstract_list):
         from django.apps import apps
@@ -576,9 +601,10 @@ class MigrateFromV1(LucteriosInstance):
         except LookupError:
             self.print_log("=> No accounting module", ())
             return
-        self._restore_accounting_thirds(abstract_list)
+        thirds = self._restore_accounting_thirds(abstract_list)
         years = self._restore_accounting_years()
-        self._restore_accounting_chartsaccount(years)
+        accounts = self._restore_accounting_chartsaccount(years)
+        self._restore_accounting_entryaccount(years, thirds, accounts)
 
     def restore(self):
         begin_time = time()

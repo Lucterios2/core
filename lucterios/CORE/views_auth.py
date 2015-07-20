@@ -38,7 +38,11 @@ def get_info_server():
     for appname in settings.INSTALLED_APPS:
         if not "django" in appname and "lucterios.framework" != appname:
             appmodule = import_module(appname)
-            res.append(six.text_type("%s=%s") % (appmodule.__title__(), appmodule.__version__))
+            try:
+                app_title = appmodule.__title__()
+            except TypeError:
+                app_title = six.text_type(appmodule.__title__)
+            res.append(six.text_type("%s=%s") % (app_title, appmodule.__version__))
     from platform import python_version, uname
     res.append(six.text_type("{[i]}Python %s - %s %s %s{[/i]}") % (python_version(), uname()[0], uname()[4], uname()[2]))
     return six.text_type("{[br/]}").join(res)
