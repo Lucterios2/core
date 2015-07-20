@@ -53,12 +53,10 @@ PERMISSION_CODENAMES = {'add_label':('Impression', 'CORE'), 'change_label':('Imp
 
                         'add_folder':('Parametrages', 'org_lucterios_documents'), 'change_folder':('Parametrages', 'org_lucterios_documents'), 'delete_folder':('Parametrages', 'org_lucterios_documents'), \
                         'add_document':('Ajout/modification', 'org_lucterios_documents'), 'change_document':('Visualisation', 'org_lucterios_documents'), 'delete_document':('Supression', 'org_lucterios_documents'), \
-                        
+
                         'add_third':('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), 'change_third':('Voir/Consulter les tiers', 'fr_sdlibre_compta'), 'delete_third':('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), \
                         'add_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), 'change_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), 'delete_fiscalyear':('Paramètrages', 'fr_sdlibre_compta'), \
-                        'add_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount':('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta')                        
-                        
-                        }
+                        'add_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount':('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount':('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta')}
 
 def dict_factory(cursor, row):
     dictdb = {}
@@ -531,7 +529,7 @@ class MigrateFromV1(LucteriosInstance):
             if (compte_societaire is not None) and (compte_societaire != ''):
                 accountthird_mdl.objects.create(third=third_list[thirdid], code=compte_societaire)
         return third_list
-    
+
     def _restore_accounting_years(self):
         from django.apps import apps
         year_mdl = apps.get_model("accounting", "FiscalYear")
@@ -546,7 +544,7 @@ class MigrateFromV1(LucteriosInstance):
                 year_list[yearid].last_fiscalyear = year_list[lastExercice]
                 year_list[yearid].save()
         return year_list
-    
+
     def _restore_accounting_chartsaccount(self, year_list):
         from django.apps import apps
         chartsaccount_mdl = apps.get_model("accounting", "ChartsAccount")
@@ -555,14 +553,14 @@ class MigrateFromV1(LucteriosInstance):
         cur = self.open_olddb()
         cur.execute("SELECT id,numCpt,designation,exercice FROM fr_sdlibre_compta_Plan")
         for chartsaccountid, num_cpt, designation, exercice in cur.fetchall():
-            self.print_log("=> charts of account %s - %d", (num_cpt,exercice))
+            self.print_log("=> charts of account %s - %d", (num_cpt, exercice))
             chartsaccount_list[chartsaccountid] = chartsaccount_mdl.objects.create(code=num_cpt, name=designation, year=year_list[exercice])
-            if (num_cpt[0] == '1') or (num_cpt[0] == '2') or (num_cpt[0] == '3'):
-                chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset
-            if num_cpt[0] == '4':
-                chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability
-            if num_cpt[0] == '5': 
-                chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity
+            if (num_cpt[0] == '2') or (num_cpt[0] == '3') or (num_cpt[0:1] == '41') or (num_cpt[0] == '5'):
+                chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset / 'actif'
+            if (num_cpt[0] == '4') and (num_cpt[0:1] != '41'):
+                chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability / 'passif'
+            if num_cpt[0] == '1':
+                chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity / 'capital'
             if num_cpt[0] == '7':
                 chartsaccount_list[chartsaccountid].type_of_account = 3  # Revenue
             if num_cpt[0] == '6':
@@ -578,7 +576,7 @@ class MigrateFromV1(LucteriosInstance):
         except LookupError:
             self.print_log("=> No accounting module", ())
             return
-        thirds = self._restore_accounting_thirds(abstract_list)
+        self._restore_accounting_thirds(abstract_list)
         years = self._restore_accounting_years()
         self._restore_accounting_chartsaccount(years)
 
