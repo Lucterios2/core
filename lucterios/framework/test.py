@@ -116,10 +116,7 @@ class LucteriosTest(TestCase):
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
-        test_res = []
-        for xml_value in xml_values:
-            test_res.append(etree.tostring(xml_value, xml_declaration=False, pretty_print=True, encoding='utf-8').decode())
-        self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d\n%s" % (xpath, len(xml_values), size, "".join(test_res)))
+        self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d" % (xpath, len(xml_values), size))
 
     def assert_xml_equal(self, xpath, value, txtrange=None):
         xml_value = self._get_first_xpath(xpath)
