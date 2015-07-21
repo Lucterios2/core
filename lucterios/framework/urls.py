@@ -23,17 +23,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from django.conf import settings
 from django.utils.module_loading import import_module
+from django.views.static import serve
 
-from os.path import join, dirname, isdir, isfile
+from os.path import join, dirname, isdir
 import logging, inspect, pkgutil
 from lucterios.framework.help import defaulthelp
-
-def defaultblank(_):
-    from django.http import HttpResponse
-    return HttpResponse('')
 
 def defaultview(_):
     from django.http import HttpResponseRedirect
@@ -42,15 +39,11 @@ def defaultview(_):
 def _init_url_patterns():
     from django.contrib import admin
     admin.autodiscover()
-    res = patterns('')
+    res = []
     web_path = join(dirname(dirname(__file__)), 'web')
-    if isdir(web_path) and isfile(join(web_path, 'index.html')):
-        res.append(url(r'^$', defaultview))
-        res.append(url(r'^web/$', defaultview))
-        res.append(url(r'^web/(?P<path>.*)$', 'django.views.static.serve', {'document_root':join(dirname(dirname(__file__)), 'web')}))
-    else:
-        res.append(url(r'^$', defaultblank))
-        res.append(url(r'^web/.*', defaultblank))
+    res.append(url(r'^$', defaultview))
+    res.append(url(r'^web/$', defaultview))
+    res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root':web_path}))
     res.append(url(r'^Help$', defaulthelp))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
@@ -59,12 +52,12 @@ def add_url_from_module(url_list, appmodule, lucterios_ext):
     extpath_img = join(dirname(appmodule.__file__), 'images')
     if isdir(extpath_img):
         if lucterios_ext == 'CORE':
-            url_list.append(url(r'^images/(?P<path>.*)$', 'django.views.static.serve', {'document_root':extpath_img}))
+            url_list.append(url(r'^images/(?P<path>.*)$', serve, {'document_root':extpath_img}))
         else:
-            url_list.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root':extpath_img}))
+            url_list.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, serve, {'document_root':extpath_img}))
     extpath_help = join(dirname(appmodule.__file__), 'help')
     if isdir(extpath_help):
-        url_list.append(url(r'^%s/help/(?P<path>.*)$' % lucterios_ext, 'django.views.static.serve', {'document_root':extpath_help}))
+        url_list.append(url(r'^%s/help/(?P<path>.*)$' % lucterios_ext, serve, {'document_root':extpath_help}))
 
 def get_url_patterns():
     res = _init_url_patterns()

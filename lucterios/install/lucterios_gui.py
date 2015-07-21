@@ -690,8 +690,8 @@ class LucteriosMainForm(Tk):
         self.mainloop()
 
 def main():
-    import imp
-    module = imp.new_module("default_setting")
+    import types
+    module = types.ModuleType("default_setting")
     setattr(module, '__file__', "")
     setattr(module, 'SECRET_KEY', "default_setting")
     fill_appli_settings("lucterios.standard", None, module)

@@ -40,10 +40,13 @@ def get_lan_ip():
         def get_interface_ip(ifname):
             scket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
-                if_name_short = six.binary_type(ifname[:15], 'utf-8')
-            except TypeError:
-                if_name_short = six.binary_type(ifname[:15])
-            return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack('256s', if_name_short))[20:24])
+                try:
+                    if_name_short = six.binary_type(ifname[:15], 'utf-8')
+                except TypeError:
+                    if_name_short = six.binary_type(ifname[:15])
+                return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack('256s', if_name_short))[20:24])
+            finally:
+                scket.close()
     ip_address = socket.gethostbyname(socket.gethostname())
     if ip_address.startswith("127.") and os.name != "nt":
         interfaces = ["eth0", "eth1", "eth2", "wlan0", "wlan1", "wifi0", "ath0", "ath1", "ppp0"]
@@ -76,6 +79,7 @@ DEFAULT_SETTINGS = {
         'lucterios.framework',
         'lucterios.CORE',
     ),
+    'TEMPLATES' : [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True, }, ],
     'TEMPLATE_LOADERS': (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
