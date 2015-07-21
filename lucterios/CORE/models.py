@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class Parameter(LucteriosModel):
 
@@ -110,6 +111,11 @@ parent.get('password2').setEnabled(pwd_change);
             xfer.change_to_readonly('last_name')
             xfer.change_to_readonly('email')
         return LucteriosModel.edit(self, xfer)
+
+    def before_save(self, xfer):
+        if self.id is None: # pylint: disable=no-member
+            self.last_login = timezone.now()
+        return
 
     def saving(self, xfer):
         password_change = xfer.getparam('password_change')

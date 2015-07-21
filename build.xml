@@ -143,8 +143,8 @@
 			<arg value="--omit=lucterios/install/lucterios_gui.py"/>
 			<arg value="./manage_${test.instance}.py"/>
 			<arg value="test"/>
-			<arg value="CORE"/>
-			<arg value="dummy"/>
+			<arg value="lucterios.CORE"/>
+			<arg value="lucterios.dummy"/>
 		</exec>	
 		<exec executable="${testversion}">
 			<env key="PYTHONPATH" value="${basedir}:${standard.path}:${env.PYTHONPATH}"/>

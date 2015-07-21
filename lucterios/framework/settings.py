@@ -94,7 +94,7 @@ DEFAULT_SETTINGS = {
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION' : 'lucterios.framework.wsgi.application',
     'STATIC_URL':'/static/',
-    'TEST_RUNNER':'juxd.JUXDTestSuiteRunner',
+    'TEST_RUNNER':'lucterios.framework.juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME':'./junit_py%d.xml' % sys.version_info[0],
     'LANGUAGES' : (
         ('en', six.text_type('English')),

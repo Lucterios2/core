@@ -26,13 +26,13 @@ from __future__ import unicode_literals
 from lxml import etree
 
 from django.test import TestCase, Client, RequestFactory
-from django.utils import six
+from django.utils import six, timezone
 
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
 
 def add_user(username):
-    user = LucteriosUser.objects.create_user(username=username, password=username)
+    user = LucteriosUser.objects.create_user(username=username, password=username, last_login=timezone.now())
     user.first_name = username
     user.last_name = username.upper()
     user.is_staff = False

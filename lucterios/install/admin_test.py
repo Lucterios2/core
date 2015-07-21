@@ -28,12 +28,11 @@ from shutil import rmtree
 from os import makedirs
 from unittest.suite import TestSuite
 from unittest.loader import TestLoader
-from unittest.runner import TextTestRunner
-from juxd import JUXDTestResult
 from os.path import join, dirname, isfile, isdir
 import os
 from lucterios.install.lucterios_migration import MigrateFromV1
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
+from lucterios.framework.juxd import XMLTestRunner
 
 class BaseTest(unittest.TestCase):
 
@@ -401,26 +400,6 @@ class TestAdminPostGreSQL(BaseTest):
         mirg = MigrateFromV1("inst_psql", self.path_dir, "")
         mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
         mirg.restore()
-
-class XMLTestResult(JUXDTestResult):
-
-    def stopTestRun(self):
-        from xml.etree import ElementTree as ET
-        import time
-        run_time_taken = time.time() - self.run_start_time
-        self.tree.set('name', 'Lucterios Functionnal Tests')
-        self.tree.set('errors', str(len(self.errors)))
-        self.tree.set('failures', str(len(self.failures)))
-        self.tree.set('skips', str(len(self.skipped)))
-        self.tree.set('tests', str(self.testsRun))
-        self.tree.set('time', "%.3f" % run_time_taken)
-
-        output = ET.ElementTree(self.tree)
-        output.write("results.xml", encoding="utf-8")
-        super(JUXDTestResult, self).stopTestRun()  # pylint: disable=bad-super-call
-
-class XMLTestRunner(TextTestRunner):
-    resultclass = XMLTestResult
 
 if __name__ == "__main__":
     suite = TestSuite()  # pylint: disable=invalid-name

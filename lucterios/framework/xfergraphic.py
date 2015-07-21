@@ -312,7 +312,7 @@ class XferContainerCustom(XferContainerAbstract):
             sub_value = getattr(sub_value, fieldname)
         value = get_value_converted(sub_value, True)
         dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
-        if isinstance(dep_field[0], EmailField):
+        if isinstance(dep_field, EmailField):
             comp = XferCompLinkLabel(field_name)
             comp.set_link('mailto:' + value)
         else:
@@ -327,34 +327,34 @@ class XferContainerCustom(XferContainerAbstract):
         from django.db.models.fields.related import ForeignKey
         from django.core.exceptions import ObjectDoesNotExist
         dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
-        if isinstance(dep_field[0], IntegerField):
-            if (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
+        if isinstance(dep_field, IntegerField):
+            if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                 comp = XferCompSelect(field_name)
-                comp.set_select(dict(dep_field[0].choices))
+                comp.set_select(dict(dep_field.choices))
             else:
-                min_value, max_value = get_range_value(dep_field[0])
+                min_value, max_value = get_range_value(dep_field)
                 comp = XferCompFloat(field_name, min_value, max_value, 0)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], DecimalField):
-            min_value, max_value = get_range_value(dep_field[0])
-            comp = XferCompFloat(field_name, min_value, max_value, dep_field[0].decimal_places)
+        elif isinstance(dep_field, DecimalField):
+            min_value, max_value = get_range_value(dep_field)
+            comp = XferCompFloat(field_name, min_value, max_value, dep_field.decimal_places)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], BooleanField):
+        elif isinstance(dep_field, BooleanField):
             comp = XferCompCheck(field_name)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], TextField):
+        elif isinstance(dep_field, TextField):
             comp = XferCompMemo(field_name)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], DateField):
+        elif isinstance(dep_field, DateField):
             comp = XferCompDate(field_name)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], TimeField):
+        elif isinstance(dep_field, TimeField):
             comp = XferCompTime(field_name)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], DateTimeField):
+        elif isinstance(dep_field, DateTimeField):
             comp = XferCompDateTime(field_name)
             comp.set_value(getattr(self.item, field_name))
-        elif isinstance(dep_field[0], ForeignKey):
+        elif isinstance(dep_field, ForeignKey):
             comp = XferCompSelect(field_name)
             try:
                 value = self.item
@@ -367,16 +367,16 @@ class XferContainerCustom(XferContainerAbstract):
             else:
                 comp.set_value(value.id)
             sel_list = []
-            if dep_field[0].null:
+            if dep_field.null:
                 sel_list.append((0, "---"))
-            for select_obj in dep_field[0].rel.to.objects.all():
+            for select_obj in dep_field.rel.to.objects.all():
                 sel_list.append((select_obj.id, six.text_type(select_obj)))
             comp.set_select(sel_list)
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(getattr(self.item, field_name))
-        comp.set_needed(dep_field[0].unique or not (dep_field[0].blank or dep_field[0].null))
-        comp.description = six.text_type(dep_field[0].verbose_name)
+        comp.set_needed(dep_field.unique or not (dep_field.blank or dep_field.null))
+        comp.description = six.text_type(dep_field.verbose_name)
         return comp
 
     def get_maxsize_of_lines(self, field_names):
@@ -423,12 +423,12 @@ class XferContainerCustom(XferContainerAbstract):
                     else:
                         verbose_name = None
                     dep_field = self.item.get_field_by_name(field_name)
-                    if dep_field[2]:  # field real in model
-                        if not dep_field[3]:  # field not many-to-many
+                    if not dep_field.auto_created or dep_field.concrete:  # field real in model
+                        if not (dep_field.is_relation and dep_field.many_to_many):  # field not many-to-many
                             lbl = XferCompLabelForm('lbl_' + field_name)
                             lbl.set_location(col + offset, row, 1, 1)
                             if verbose_name is None:
-                                lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+                                lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
                             else:
                                 lbl.set_value_as_name(six.text_type(verbose_name))
                             self.add_component(lbl)
@@ -519,18 +519,18 @@ class XferContainerCustom(XferContainerAbstract):
 
     def selector_from_model(self, col, row, field_name):
         # pylint: disable=too-many-locals
-        dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-        if dep_field[2] and dep_field[3]:
+        dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+        if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
             if hasattr(self.item, field_name + "__titles"):
                 title_available, title_chosen = getattr(self.item, field_name + "__titles")
             else:
                 title_available, title_chosen = ('', '')
-            availables = get_corrected_setquery(dep_field[0].rel.to.objects.all())
+            availables = get_corrected_setquery(dep_field.rel.to.objects.all())
             java_script_init, java_script_treat = self._get_scripts_for_selectors(field_name, availables)
 
             lbl = XferCompLabelForm('lbl_' + field_name)
             lbl.set_location(col, row, 1, 1)
-            lbl.set_value_as_name(six.text_type(dep_field[0].verbose_name))
+            lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
             self.add_component(lbl)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_available')

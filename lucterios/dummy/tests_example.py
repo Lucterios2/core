@@ -111,7 +111,7 @@ class ExampleTest(LucteriosTest):
             print_text += "#%s " % get_all_print_fields[1]
         self.assertEqual("#name #value #price #date #time #valid #comment ", print_text)
         example_obj = Example.objects.get(name='abc')  # pylint: disable=no-member
-        self.assertEqual("abc 12 1224.06 7 octobre 1997 21:43:00 Oui blablabla ", example_obj.evaluate(print_text))
+        self.assertEqual("abc 12 1224.06 7 octobre 1997 21:43 Oui blablabla ", example_obj.evaluate(print_text))
 
     def testprint(self):
         self.factory.xfer = ExamplePrint()

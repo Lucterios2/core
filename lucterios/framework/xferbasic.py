@@ -143,34 +143,34 @@ class XferContainerAbstract(View):
                 self.fill_simple_fields()
 
     def fill_simple_fields(self):
-        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
+        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
         for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-            if dep_field[2]:
+            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            if not dep_field.auto_created or dep_field.concrete:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    if not dep_field[3]:
+                    if not (dep_field.is_relation and dep_field.many_to_many):
                         from django.db.models.fields import BooleanField
-                        if isinstance(dep_field[0], BooleanField):
+                        if isinstance(dep_field, BooleanField):
                             new_value = new_value != '0' and new_value != 'n'
-                        if isinstance(dep_field[0], ForeignKey):
+                        if isinstance(dep_field, ForeignKey):
                             pk_id = int(new_value)
                             if pk_id == 0:
                                 new_value = None
                             else:
-                                new_value = dep_field[0].rel.to.objects.get(pk=pk_id)
+                                new_value = dep_field.rel.to.objects.get(pk=pk_id)
                         setattr(self.item, field_name, new_value)
                         self.has_changed = True
         return self.has_changed
 
     def fill_manytomany_fields(self):
-        field_names = self.item._meta.get_all_field_names()  # pylint: disable=protected-access
+        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
         for field_name in field_names:
-            dep_field = self.item._meta.get_field_by_name(field_name)  # pylint: disable=protected-access
-            if dep_field[2] and dep_field[3]:
+            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    relation_model = dep_field[0].rel.to
+                    relation_model = dep_field.rel.to
                     if new_value != '':
                         new_value = relation_model.objects.filter(id__in=new_value.split(';'))
                     else:
@@ -182,7 +182,8 @@ class XferContainerAbstract(View):
     def _initialize(self, request, *_, **kwargs):
         if hasattr(self.__class__, 'is_view_right'):
             self.get_action().raise_bad_permission(request)
-        _, self.extension, self.action = request.path.split('/')
+        path_list = request.path.split('/')
+        self.extension, self.action = path_list[-2:]
         self.request = request
         for key in kwargs.keys():
             self.params[key] = kwargs[key]

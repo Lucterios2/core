@@ -138,14 +138,14 @@ class FieldDescItem(object):
                 self.description = model._meta.verbose_name  # pylint: disable=protected-access
                 self.dbfield = getattr(model, self.sub_fieldnames[0])
             else:
-                dep_field = model._meta.get_field_by_name(self.sub_fieldnames[0])  # pylint: disable=protected-access
+                dep_field = model._meta.get_field(self.sub_fieldnames[0])  # pylint: disable=protected-access
                 self.dbfieldname = self.sub_fieldnames[0]
-                if dep_field[2]:  # field real in model
-                    if not dep_field[3]:  # field not many-to-many
-                        self.dbfield = dep_field[0]
+                if not dep_field.auto_created or dep_field.concrete:  # field real in model
+                    if not (dep_field.is_relation and dep_field.many_to_many):  # field not many-to-many
+                        self.dbfield = dep_field
                         self.description = self.dbfield.verbose_name
                     else:
-                        self.dbfield = dep_field[0]
+                        self.dbfield = dep_field
                         self.description = self.dbfield.verbose_name
         else:
             self.description = self.dbfield.verbose_name

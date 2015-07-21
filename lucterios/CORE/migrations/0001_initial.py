@@ -29,12 +29,12 @@ from django.utils.translation import ugettext_lazy as _
 import django.core.validators
 from django.db import models, migrations
 from django.contrib.auth.models import User
-from django.utils import six
+from django.utils import six, timezone
 from lucterios.CORE.models import Parameter, Label
 
 def initial_values(*args):
     # pylint: disable=unused-argument, no-member, expression-not-assigned
-    admin = User.objects.create_user(six.text_type('admin'), '', six.text_type('admin'))
+    admin = User.objects.create_user(six.text_type('admin'), '', six.text_type('admin'), last_login=timezone.now())
     admin.first_name = six.text_type('administrator')
     admin.last_name = six.text_type('ADMIN')
     admin.is_staff = True
@@ -120,16 +120,16 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, verbose_name='ID', primary_key=True, serialize=False)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='name')),
-                ('page_width', models.IntegerField(verbose_name='page width (L)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('page_height', models.IntegerField(verbose_name='page height (H)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('cell_width', models.IntegerField(verbose_name='cell width (l)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('cell_height', models.IntegerField(verbose_name='cell height (h)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('page_width', models.IntegerField(verbose_name='page width', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('page_height', models.IntegerField(verbose_name='page height', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('cell_width', models.IntegerField(verbose_name='cell width', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('cell_height', models.IntegerField(validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)], verbose_name='cell height')),
                 ('columns', models.IntegerField(verbose_name='number of columns', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(99)])),
                 ('rows', models.IntegerField(verbose_name='number of rows', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(99)])),
-                ('left_marge', models.IntegerField(verbose_name='left marge (a)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('top_marge', models.IntegerField(verbose_name='top marge (b)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('horizontal_space', models.IntegerField(verbose_name='horizontal space (c)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
-                ('vertical_space', models.IntegerField(verbose_name='vertical space (d)', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('left_marge', models.IntegerField(verbose_name='left marge', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('top_marge', models.IntegerField(verbose_name='top marge', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('horizontal_space', models.IntegerField(verbose_name='horizontal space', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
+                ('vertical_space', models.IntegerField(verbose_name='vertical space', validators=[django.core.validators.MinValueValidator(1), django.core.validators.MaxValueValidator(9999)])),
             ],
             options={
                 'verbose_name_plural': 'labels',

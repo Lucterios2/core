@@ -64,12 +64,16 @@ def get_value_converted(value, bool_textual=False):
         return value
 
 def get_value_if_choices(value, dep_field):
-    if hasattr(dep_field[0], 'choices') and (dep_field[0].choices is not None) and (len(dep_field[0].choices) > 0):
-        for choices_key, choices_value in dep_field[0].choices:
+    if hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+        for choices_key, choices_value in dep_field.choices:
             if choices_key == int(value):
                 value = six.text_type(choices_value)
                 break
     return value
+
+def is_simple_field(dep_field):
+    from django.db.models.fields.related import ForeignKey
+    return (not dep_field.auto_created or dep_field.concrete) and not (dep_field.is_relation and dep_field.many_to_many) and not isinstance(dep_field, ForeignKey)
 
 class LucteriosModel(models.Model):
 
@@ -77,9 +81,10 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_default_fields(cls):
-        fields = cls._meta.get_all_field_names()  # pylint: disable=no-member,protected-access
+        fields = [f.name for f in cls._meta.get_fields()]  # pylint: disable=no-member,protected-access
         if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields):  # pylint: disable=no-member,protected-access
             fields.remove(cls._meta.auto_field.attname)  # pylint: disable=no-member,protected-access
+        fields.sort()
         return fields
 
     @classmethod
@@ -108,9 +113,9 @@ class LucteriosModel(models.Model):
         fieldnames = fieldname.split('.')
         current_meta = cls._meta  # pylint: disable=protected-access,no-member
         for field_name in fieldnames:
-            dep_field = current_meta.get_field_by_name(field_name)
-            if hasattr(dep_field[0], 'rel') and (dep_field[0].rel is not None):
-                current_meta = dep_field[0].rel.to._meta  # pylint: disable=protected-access
+            dep_field = current_meta.get_field(field_name)
+            if hasattr(dep_field, 'rel') and (dep_field.rel is not None):
+                current_meta = dep_field.rel.to._meta  # pylint: disable=protected-access
         return dep_field
 
     def evaluate(self, text):
@@ -134,15 +139,15 @@ class LucteriosModel(models.Model):
                 field_val = eval_sublist(field_list, field_value)
             else:
                 try:
-                    dep_field = self._meta.get_field_by_name(field_list[0])  # pylint: disable=no-member,protected-access
+                    dep_field = self._meta.get_field(field_list[0])  # pylint: disable=no-member,protected-access
                 except FieldDoesNotExist:
                     dep_field = None
-                if (dep_field is None) or (dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey)):
+                if dep_field is None or is_simple_field(dep_field):
                     field_val = get_value_converted(field_value, True)
                 else:
                     if field_value is None:
                         field_val = ""
-                    elif isinstance(dep_field[0], ForeignKey):
+                    elif isinstance(dep_field, ForeignKey):
                         field_val = field_value.evaluate("#" + ".".join(field_list[1:]))  # pylint: disable=no-member
                     else:
                         field_val = eval_sublist(field_list, field_value)
@@ -154,7 +159,6 @@ class LucteriosModel(models.Model):
         def add_sub_field(field_name, field_title, model):
             for sub_title, sub_name in model.get_all_print_fields(False):
                 fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
-        from django.db.models.fields.related import ForeignKey
         fields = []
         item = cls()
         for field_name in cls.get_print_fields():
@@ -166,19 +170,19 @@ class LucteriosModel(models.Model):
                 field_title = child.model._meta.verbose_name  # pylint: disable=protected-access
                 add_sub_field(field_name, field_title, child.model)
             else:
-                dep_field = item._meta.get_field_by_name(field_name)  # pylint: disable=no-member,protected-access
-                field_title = dep_field[0].verbose_name
-                if dep_field[2] and not dep_field[3] and not isinstance(dep_field[0], ForeignKey):
+                dep_field = item._meta.get_field(field_name)  # pylint: disable=no-member,protected-access
+                field_title = dep_field.verbose_name
+                if is_simple_field(dep_field):
                     fields.append((field_title, field_name))
                 else:
-                    add_sub_field(field_name, field_title, dep_field[0].rel.to)
+                    add_sub_field(field_name, field_title, dep_field.rel.to)
         return fields
 
     def get_final_child(self):
         final_child = self
-        rel_objs = self._meta.get_all_related_objects()  # pylint: disable=no-member,protected-access
+        rel_objs = self._meta.get_fields()  # pylint: disable=no-member,protected-access
         for rel_obj in rel_objs:
-            if (rel_obj.model != type(self)) and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
+            if hasattr(rel_obj, 'field') and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
                 try:
                     final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child()
                 except AttributeError:

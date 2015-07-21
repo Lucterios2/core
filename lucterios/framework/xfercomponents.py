@@ -552,18 +552,18 @@ class XferCompGrid(XferComponent):
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(fieldname[:-4])  # pylint: disable=protected-access
                 hfield = 'str'
-                verbose_name = dep_field[0].model._meta.verbose_name  # pylint: disable=protected-access
+                verbose_name = dep_field.related_model._meta.verbose_name  # pylint: disable=protected-access
             else:
                 dep_field = query_set.model.get_field_by_name(fieldname)  # pylint: disable=protected-access
-                if isinstance(dep_field[0], IntegerField):
+                if isinstance(dep_field, IntegerField):
                     hfield = 'int'
-                elif isinstance(dep_field[0], FloatField):
+                elif isinstance(dep_field, FloatField):
                     hfield = 'float'
-                elif isinstance(dep_field[0], BooleanField):
+                elif isinstance(dep_field, BooleanField):
                     hfield = 'bool'
                 else:
                     hfield = 'str'
-                verbose_name = dep_field[0].verbose_name
+                verbose_name = dep_field.verbose_name
             self.add_header(fieldname, verbose_name, hfield)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):

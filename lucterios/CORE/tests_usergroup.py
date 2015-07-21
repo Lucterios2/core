@@ -368,6 +368,8 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="groups"]', '1')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_permissions"]', '7;9;11')
 
+        self.assertEqual(5, len(LucteriosUser.objects.all()))  # pylint: disable=no-member
+
         user = LucteriosUser.objects.get(id=5)  # pylint: disable=no-member
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'user_actif':'5'}, False)
