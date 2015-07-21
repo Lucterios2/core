@@ -180,6 +180,10 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/REALNAME', None)
         self.assert_xml_equal('CONNECTION/MODE', '2')
 
+        self.call('/CORE/configuration', {})
+        self.assert_observer('Core.Custom', 'CORE', 'configuration')
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Accès libre")
+
         self.call('/CORE/menu', {})
         self.print_xml('MENUS')
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
