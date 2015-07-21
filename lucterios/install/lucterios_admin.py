@@ -351,10 +351,13 @@ class LucteriosInstance(LucteriosManage):
                 self.databases["default"]["NAME"] = join(self.instance_dir, 'db.sqlite3')
             elif self.database[0].lower() == 'mysql':
                 self.databases["default"] = self.database[1]
-                self.databases["default"]["ENGINE"] = 'mysql.connector.django'
+                self.databases["default"]["ENGINE"] = 'django.db.backends.mysql'
             elif self.database[0].lower() == 'postgresql':
                 self.databases["default"] = self.database[1]
                 self.databases["default"]["ENGINE"] = 'django.db.backends.postgresql_psycopg2'
+            elif self.database[0].lower() == 'oracle':
+                self.databases["default"] = self.database[1]
+                self.databases["default"]["ENGINE"] = 'django.db.backends.oracle'
             else:
                 raise AdminException("Database not supported!")
             file_py.write('DATABASES = {\n')

@@ -5,15 +5,23 @@ Based on the junitxml plugin from the unittest2 plugin experiments:
 https://bitbucket.org/jpellerin/unittest2, unittest2.plugins.junitxml
 '''
 from __future__ import unicode_literals
-import time
-from xml.etree import ElementTree as ET
 
 from django.conf import settings
 from django.test.runner import DiscoverRunner
 from unittest.runner import TextTestRunner, TextTestResult
+from django.core.exceptions import ImproperlyConfigured
 
 class JUXDTestResult(TextTestResult):
+
+    def __init__(self, stream, descriptions, verbosity):
+        TextTestResult.__init__(self, stream, descriptions, verbosity)
+        try:
+            self.xml_filename = settings.JUXD_FILENAME
+        except ImproperlyConfigured:
+            self.xml_filename = "results.xml"
+
     def startTest(self, test):
+        import time
         self.case_start_time = time.time()  # pylint: disable=attribute-defined-outside-init
         super(JUXDTestResult, self).startTest(test)
 
@@ -22,41 +30,50 @@ class JUXDTestResult(TextTestResult):
         super(JUXDTestResult, self).addSuccess(test)
 
     def addFailure(self, test, err):
+        from xml.etree import ElementTree as ET
         testcase = self._make_testcase_element(test)
         test_result = ET.SubElement(testcase, 'failure')
         self._add_tb_to_test(test, test_result, err)
         super(JUXDTestResult, self).addFailure(test, err)
 
     def addError(self, test, err):
+        from xml.etree import ElementTree as ET
         testcase = self._make_testcase_element(test)
         test_result = ET.SubElement(testcase, 'error')
         self._add_tb_to_test(test, test_result, err)
         super(JUXDTestResult, self).addError(test, err)
 
     def addUnexpectedSuccess(self, test):
+        from xml.etree import ElementTree as ET
         testcase = self._make_testcase_element(test)
         test_result = ET.SubElement(testcase, 'skipped')
         test_result.set('message', 'Test Skipped: Unexpected Success')
         super(JUXDTestResult, self).addUnexpectedSuccess(test)
 
     def addSkip(self, test, reason):
+        from xml.etree import ElementTree as ET
         testcase = self._make_testcase_element(test)
         test_result = ET.SubElement(testcase, 'skipped')
         test_result.set('message', 'Test Skipped: %s' % reason)
         super(JUXDTestResult, self).addSkip(test, reason)
 
     def addExpectedFailure(self, test, err):
+        from xml.etree import ElementTree as ET
         testcase = self._make_testcase_element(test)
         test_result = ET.SubElement(testcase, 'skipped')
         self._add_tb_to_test(test, test_result, err)
         super(JUXDTestResult, self).addExpectedFailure(test, err)
 
     def startTestRun(self):
+        import time
+        from xml.etree import ElementTree as ET
         self.tree = ET.Element('testsuite')  # pylint: disable=attribute-defined-outside-init
         self.run_start_time = time.time()  # pylint: disable=attribute-defined-outside-init
         super(JUXDTestResult, self).startTestRun()
 
     def stopTestRun(self):
+        import time
+        from xml.etree import ElementTree as ET
         run_time_taken = time.time() - self.run_start_time
         self.tree.set('name', 'Django Project Tests')
         self.tree.set('errors', str(len(self.errors)))
@@ -66,10 +83,11 @@ class JUXDTestResult(TextTestResult):
         self.tree.set('time', "%.3f" % run_time_taken)
 
         output = ET.ElementTree(self.tree)
-        output.write(settings.JUXD_FILENAME, encoding="utf-8")
-        super(JUXDTestResult, self).stopTestRun()
+        output.write(self.xml_filename, encoding="utf-8")
 
     def _make_testcase_element(self, test):
+        import time
+        from xml.etree import ElementTree as ET
         time_taken = time.time() - self.case_start_time
         classname = ('%s.%s' % (test.__module__, test.__class__.__name__)).split('.')
         testcase = ET.SubElement(self.tree, 'testcase')
@@ -91,21 +109,3 @@ class JUXDTestRunner(TextTestRunner):
 
 class JUXDTestSuiteRunner(DiscoverRunner):
     test_runner = JUXDTestRunner
-
-class XMLTestResult(JUXDTestResult):
-
-    def stopTestRun(self):
-        run_time_taken = time.time() - self.run_start_time
-        self.tree.set('name', 'Lucterios Functionnal Tests')
-        self.tree.set('errors', str(len(self.errors)))
-        self.tree.set('failures', str(len(self.failures)))
-        self.tree.set('skips', str(len(self.skipped)))
-        self.tree.set('tests', str(self.testsRun))
-        self.tree.set('time', "%.3f" % run_time_taken)
-
-        output = ET.ElementTree(self.tree)
-        output.write("results.xml", encoding="utf-8")
-        super(JUXDTestResult, self).stopTestRun()  # pylint: disable=bad-super-call
-
-class XMLTestRunner(TextTestRunner):
-    resultclass = XMLTestResult

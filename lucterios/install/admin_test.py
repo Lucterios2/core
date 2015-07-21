@@ -32,7 +32,7 @@ from os.path import join, dirname, isfile, isdir
 import os
 from lucterios.install.lucterios_migration import MigrateFromV1
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
-from lucterios.framework.juxd import XMLTestRunner
+from lucterios.framework.juxd import JUXDTestRunner
 
 class BaseTest(unittest.TestCase):
 
@@ -315,17 +315,17 @@ class TestAdminMySQL(BaseTest):
         inst.add()
         inst.filename = join(self.path_dir, "inst_g.arc")
         self.assertEqual(True, inst.restore())
-#
-#     def test_migration(self):
-#         self.assertEqual([], self.luct_glo.listing())
-#
-#         inst = LucteriosInstance("inst_mysql", self.path_dir)
-#         inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
-#         inst.add()
-#         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
-#         mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
-#         mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
-#         mirg.restore()
+
+    def test_migration(self):
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_mysql", self.path_dir)
+        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.add()
+        self.assertEqual(["inst_mysql"], self.luct_glo.listing())
+        mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
+        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.restore()
 
 class TestAdminPostGreSQL(BaseTest):
 
@@ -390,16 +390,16 @@ class TestAdminPostGreSQL(BaseTest):
         inst.delete()
         self.assertEqual([], self.luct_glo.listing())
 
-    def test_migration(self):
-        self.assertEqual([], self.luct_glo.listing())
-
-        inst = LucteriosInstance("inst_psql", self.path_dir)
-        inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
-        inst.add()
-        self.assertEqual(["inst_psql"], self.luct_glo.listing())
-        mirg = MigrateFromV1("inst_psql", self.path_dir, "")
-        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
-        mirg.restore()
+#     def test_migration(self):
+#         self.assertEqual([], self.luct_glo.listing())
+#
+#         inst = LucteriosInstance("inst_psql", self.path_dir)
+#         inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
+#         inst.add()
+#         self.assertEqual(["inst_psql"], self.luct_glo.listing())
+#         mirg = MigrateFromV1("inst_psql", self.path_dir, "")
+#         mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+#         mirg.restore()
 
 if __name__ == "__main__":
     suite = TestSuite()  # pylint: disable=invalid-name
@@ -408,7 +408,7 @@ if __name__ == "__main__":
     suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
     # suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
-    XMLTestRunner(verbosity=1).run(suite)
+    JUXDTestRunner(verbosity=1).run(suite)
 else:
     import django
     django.setup()
