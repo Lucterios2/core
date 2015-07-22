@@ -101,7 +101,7 @@ class WrapAction(object):
                 username = request.user.username
             else:
                 username = _("Anonymous user")
-            raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
+            raise LucteriosRedirectException(_("Bad permission for '%s' (url:%s - right:%s)") % (username, self.url_text, self.is_view_right), bad_permission_redirect_classaction)
 
 class ActionsManage(object):
 

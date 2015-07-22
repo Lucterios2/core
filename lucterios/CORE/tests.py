@@ -29,9 +29,11 @@ from unittest.suite import TestSuite
 from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, LucteriosUser
 from lucterios.CORE.parameters import Params
-from lucterios.framework.tools import notfree_mode_connect
+from lucterios.framework.tools import notfree_mode_connect, WrapAction
+from django.test.client import RequestFactory
+from django.contrib.auth.models import AnonymousUser
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -131,7 +133,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/configuration', {})
         self.assert_observer('CORE.Exception', 'CORE', 'configuration')
-        self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
+        #self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
@@ -183,8 +185,10 @@ class AuthentificationTest(LucteriosTest):
 
         self.assertTrue(notfree_mode_connect is not None, "notfree_mode_connect is not None")
         self.assertTrue(not notfree_mode_connect(), "not notfree_mode_connect()")
-
-        self.assertTrue(Configuration().check_action_permission(Configuration.get_action()), 'check_action_permission Configuration')
+        request = RequestFactory().post('/')
+        request.user = AnonymousUser()
+        self.assertFalse(WrapAction('free', 'free', is_view_right=None).check_permission(request), 'check_permission None')
+        self.assertTrue(WrapAction('free', 'free', is_view_right='CORE.change_parameter').check_permission(request), 'check_permission CORE.change_parameter')
 
         self.call('/CORE/configuration', {})
         self.assert_observer('Core.Custom', 'CORE', 'configuration')
