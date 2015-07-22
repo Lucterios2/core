@@ -73,6 +73,7 @@ class XferContainerPrint(XferContainerAbstract):
         if not isinstance(self.selector, list) and (self.selector is not None):
             raise LucteriosException(GRAVE, "Error of print selector!")
         gui = XferContainerCustom()
+        gui.request = self.request
         gui.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init,no-member
         gui.caption = self.caption
         gui.extension = self.extension

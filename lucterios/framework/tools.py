@@ -82,16 +82,13 @@ class WrapAction(object):
         return actionxml
 
     def check_permission(self, request):
-        try:
-            if self.is_view_right == None:
-                return request.user.is_authenticated()
-            if notfree_mode_connect is None or notfree_mode_connect():
-                if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
-                    return False
-                if (self.caption == '') and not request.user.is_authenticated():
-                    return False
-        except AttributeError:
-            pass
+        if self.is_view_right == None:
+            return request.user.is_authenticated()
+        if notfree_mode_connect is None or notfree_mode_connect():
+            if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
+                return False
+            if (self.caption == '') and not request.user.is_authenticated():
+                return False
         return True
 
     def raise_bad_permission(self, request):

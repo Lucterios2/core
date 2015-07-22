@@ -127,6 +127,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.fillresponse(**self._get_params())
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
             dlg = XferContainerDialogBox()
+            dlg.request = self.request
             dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
             dlg.caption = "Confirmation"
             dlg.extension = self.extension
@@ -138,6 +139,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             return dlg.get(request, *args, **kwargs)
         elif self.msg != "":
             dlg = XferContainerDialogBox()
+            dlg.request = self.request
             dlg.caption = self.caption
             dlg.set_dialog(self.msg, self.typemsg)
             dlg.add_action(WrapAction(_("Ok"), "images/ok.png"), {})
@@ -145,6 +147,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             return dlg.get(request, *args, **kwargs)
         elif self.except_msg != "":
             dlg = XferContainerDialogBox()
+            dlg.request = self.request
             dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
             dlg.caption = self.caption
             dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
