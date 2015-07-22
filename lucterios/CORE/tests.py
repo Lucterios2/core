@@ -31,6 +31,7 @@ from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.models import Parameter
 from lucterios.CORE.parameters import Params
+from lucterios.framework.tools import notfree_mode_connect
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -179,6 +180,9 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/LOGIN', None)
         self.assert_xml_equal('CONNECTION/REALNAME', None)
         self.assert_xml_equal('CONNECTION/MODE', '2')
+
+        self.assertTrue(notfree_mode_connect is not None, "notfree_mode_connect is not None")
+        self.assertTrue(not notfree_mode_connect(), "not notfree_mode_connect()")
 
         self.call('/CORE/configuration', {})
         self.assert_observer('Core.Custom', 'CORE', 'configuration')
