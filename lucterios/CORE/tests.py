@@ -184,6 +184,8 @@ class AuthentificationTest(LucteriosTest):
         self.assertTrue(notfree_mode_connect is not None, "notfree_mode_connect is not None")
         self.assertTrue(not notfree_mode_connect(), "not notfree_mode_connect()")
 
+        self.assertTrue(Configuration().check_action_permission(Configuration.get_action()), 'check_action_permission Configuration')
+
         self.call('/CORE/configuration', {})
         self.assert_observer('Core.Custom', 'CORE', 'configuration')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Accès libre")

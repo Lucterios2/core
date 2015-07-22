@@ -43,6 +43,7 @@ def get_items_from_filter(model, filter_desc):
 
 class XferListEditor(XferContainerCustom):
     filter = None
+    fieldnames = None
     action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def fillresponse_header(self):
@@ -63,7 +64,7 @@ class XferListEditor(XferContainerCustom):
         row = self.get_max_row()
         items = get_items_from_filter(self.model, self.filter)
         grid = XferCompGrid(self.field_id)
-        grid.set_model(items, None, self)
+        grid.set_model(items, self.fieldnames, self)
         grid.add_actions(self)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
