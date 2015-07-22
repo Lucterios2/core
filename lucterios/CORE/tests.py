@@ -133,7 +133,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/configuration', {})
         self.assert_observer('CORE.Exception', 'CORE', 'configuration')
-        #self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
+        # self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
@@ -184,11 +184,16 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/MODE', '2')
 
         self.assertTrue(notfree_mode_connect is not None, "notfree_mode_connect is not None")
-        self.assertTrue(not notfree_mode_connect(), "not notfree_mode_connect()")
+        self.assertFalse(notfree_mode_connect(), "notfree_mode_connect()")
+        self.assertFalse(notfree_mode_connect is None or notfree_mode_connect(), "notfree_mode_connect is None or notfree_mode_connect()")
         request = RequestFactory().post('/')
         request.user = AnonymousUser()
-        self.assertFalse(WrapAction('free', 'free', is_view_right=None).check_permission(request), 'check_permission None')
-        self.assertTrue(WrapAction('free', 'free', is_view_right='CORE.change_parameter').check_permission(request), 'check_permission CORE.change_parameter')
+        act1 = WrapAction('free', 'free', is_view_right=None)
+        self.assertEqual(act1.is_view_right, None, 'act1.is_view_right')
+        self.assertFalse(act1.check_permission(request), 'check_permission None')
+        act2 = WrapAction('free', 'free', is_view_right='CORE.change_parameter')
+        self.assertEqual(act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
+        self.assertTrue(act2.check_permission(request), 'check_permission CORE.change_parameter')
 
         self.call('/CORE/configuration', {})
         self.assert_observer('Core.Custom', 'CORE', 'configuration')
