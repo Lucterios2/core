@@ -184,8 +184,8 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/MODE', '2')
 
         self.assertTrue(WrapAction.mode_connect_notfree is not None, "mode_connect_notfree is not None")
-        self.assertFalse(WrapAction.mode_connect_notfree(), "mode_connect_notfree()")
-        self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction.mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
+        self.assertFalse(WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree()")
+        self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
         request = RequestFactory().post('/')
         request.user = AnonymousUser()
         act1 = WrapAction('free', 'free', is_view_right=None)
