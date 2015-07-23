@@ -32,7 +32,11 @@ from os.path import join, dirname, isdir
 import logging, inspect, pkgutil
 from lucterios.framework.help import defaulthelp
 
-def defaultview(_):
+def defaultblank(*args):
+    from django.http import HttpResponse
+    return HttpResponse('')
+
+def defaultview(*args):
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect('/web/index.html')
 
@@ -43,6 +47,7 @@ def _init_url_patterns():
     web_path = join(dirname(dirname(__file__)), 'web')
     res.append(url(r'^$', defaultview))
     res.append(url(r'^web/$', defaultview))
+    res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root':web_path}))
     res.append(url(r'^Help$', defaulthelp))
     res.append(url(r'^admin/', include(admin.site.urls)))

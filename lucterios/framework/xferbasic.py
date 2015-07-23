@@ -107,7 +107,21 @@ class XferContainerAbstract(View):
 
     def getparam(self, key, default_value=None):
         if key in self.params.keys():
-            return self.params[key]
+            param_value=self.params[key]
+            try:
+                if isinstance(default_value, bool):
+                    param_value = (param_value != 'False') and (param_value != '0') and (param_value != '') and (param_value != 'n')
+                elif isinstance(default_value, int):
+                    param_value = int(param_value)
+                elif isinstance(default_value, float):
+                    param_value = float(param_value)
+                elif isinstance(default_value, tuple):
+                    param_value = tuple(param_value.split(';'))
+                elif isinstance(default_value, list):
+                    param_value = param_value.split(';')
+            except ValueError:
+                param_value=default_value
+            return param_value
         else:
             return default_value
 
@@ -228,26 +242,17 @@ class XferContainerAbstract(View):
         params = {}
         import inspect
         spec = inspect.getargspec(self.fillresponse)
-        for arg_name in spec.args[1:]:
-            params[arg_name] = self.getparam(arg_name)
-        if isinstance(spec.args, list) and isinstance(spec.defaults, tuple):
+        if isinstance(spec.defaults, tuple):
             diff = len(spec.args) - len(spec.defaults)
-            for arg_id in range(diff, len(spec.args)):
-                arg_name = spec.args[arg_id]
+        else:
+            diff = len(spec.args)
+        for arg_id in range(1, len(spec.args)):
+            arg_name = spec.args[arg_id]
+            if arg_id>=diff:
                 default_val = spec.defaults[arg_id - diff]
-                if params[arg_name] is None:
-                    params[arg_name] = default_val
-                else:
-                    if isinstance(default_val, bool):
-                        params[arg_name] = (params[arg_name] != 'False') and (params[arg_name] != '0') and (params[arg_name] != '') and (params[arg_name] != 'n')
-                    elif isinstance(default_val, int):
-                        params[arg_name] = int(params[arg_name])
-                    elif isinstance(default_val, float):
-                        params[arg_name] = float(params[arg_name])
-                    elif isinstance(default_val, tuple):
-                        params[arg_name] = tuple(params[arg_name].split(';'))
-                    elif isinstance(default_val, list):
-                        params[arg_name] = params[arg_name].split(';')
+            else:
+                default_val = None
+            params[arg_name] = self.getparam(arg_name, default_val)
         return params
 
     def get(self, request, *args, **kwargs):

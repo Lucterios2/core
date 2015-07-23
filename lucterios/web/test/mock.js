@@ -3,7 +3,7 @@ var HttpTransportStub = HttpTransportAbstract.extend({
 	XmlParam : null,
 
 	getIconUrl : function(icon) {
-		return 'URL_ROOT/' + icon;
+		return 'STUB/' + icon;
 	},
 
 	init : function() {

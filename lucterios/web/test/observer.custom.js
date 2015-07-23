@@ -160,8 +160,8 @@ test(
 			var comp = jcnt
 					.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > img");
 			equal(
-					comp.attr("src").substr(0, 71),
-					"URL_ROOT/extensions/org_lucterios_contacts/images/contactMoral.png?val=",
+					comp.attr("src").substr(0, 67),
+					"STUB/extensions/org_lucterios_contacts/images/contactMoral.png?val=",
 					"comp 1");
 
 			var comp = jcnt
@@ -515,8 +515,8 @@ test(
 			var comp = jcnt
 					.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > img");
 			equal(
-					comp.attr("src").substr(0, 59),
-					"URL_ROOT/extensions/org_lucterios_task/images/task.png?val=",
+					comp.attr("src").substr(0, 55),
+					"STUB/extensions/org_lucterios_task/images/task.png?val=",
 					"comp img");
 
 			var comp = jcnt
@@ -737,7 +737,7 @@ test(
 			var cell2 = table_content
 					.find("table:eq(0) > tbody > tr:eq(1) > td:eq(0) > img:eq(0)");
 			equal(cell2.attr("src"),
-					"URL_ROOT/usr/org_lucterios_contacts/Image_101.jpg",
+					"STUB/usr/org_lucterios_contacts/Image_101.jpg",
 					"cell 2");
 
 			var cell3 = table_content
