@@ -174,7 +174,8 @@ class Params(object):
         finally:
             cls._paramlock.release()
 
-def notfree_mode_connect():
+def notfree_mode_connect(*args):
+    # pylint: disable=unused-argument
     mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection != 2
 
@@ -182,4 +183,4 @@ def secure_mode_connect():
     mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection == 0
 
-tools.notfree_mode_connect = notfree_mode_connect
+tools.WrapAction.mode_connect_notfree = notfree_mode_connect

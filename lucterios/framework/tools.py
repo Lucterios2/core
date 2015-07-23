@@ -38,10 +38,12 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-notfree_mode_connect = None  # pylint: disable=invalid-name
 bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
 
 class WrapAction(object):
+
+    mode_connect_notfree = None  # pylint: disable=invalid-name
+
     # pylint: disable=too-few-public-methods
     def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
@@ -93,8 +95,8 @@ class WrapAction(object):
         if self.is_view_right == None:
             self._log('check_permission is_view_right == None')
             return request.user.is_authenticated()
-        if notfree_mode_connect is None or notfree_mode_connect():
-            self._log('check_permission notfree_mode_connect')
+        if self.mode_connect_notfree is None or self.mode_connect_notfree():
+            self._log('check_permission mode_connect_notfree=%s' % self.mode_connect_notfree)
             self._log('check_permission is_view_right=%s' % self.is_view_right)
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
                 self._log('check_permission no perm')

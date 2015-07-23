@@ -35,6 +35,7 @@ from django.contrib.auth.models import Permission
 from django.utils import six
 from lucterios.CORE.views import Unlock
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
+from lucterios.CORE import parameters
 
 class UserTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
@@ -492,12 +493,16 @@ class GroupTest(LucteriosTest):
     # pylint: disable=too-many-public-methods,too-many-statements
 
     def setUp(self):
-        tools.notfree_mode_connect = None
+        tools.WrapAction.mode_connect_notfree = None
         self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
         signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         add_empty_user()
+
+    def tearDown(self):
+        LucteriosTest.tearDown(self)
+        tools.WrapAction.mode_connect_notfree = parameters.notfree_mode_connect
 
     def test_grouplist(self):
         self.factory.xfer = GroupsList()

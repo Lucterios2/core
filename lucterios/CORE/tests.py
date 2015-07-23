@@ -30,7 +30,7 @@ from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.parameters import Params
-from lucterios.framework.tools import notfree_mode_connect, WrapAction
+from lucterios.framework.tools import WrapAction
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from lucterios.CORE.models import Parameter
@@ -183,9 +183,9 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/REALNAME', None)
         self.assert_xml_equal('CONNECTION/MODE', '2')
 
-        self.assertTrue(notfree_mode_connect is not None, "notfree_mode_connect is not None")
-        self.assertFalse(notfree_mode_connect(), "notfree_mode_connect()")
-        self.assertFalse(notfree_mode_connect is None or notfree_mode_connect(), "notfree_mode_connect is None or notfree_mode_connect()")
+        self.assertTrue(WrapAction.mode_connect_notfree is not None, "mode_connect_notfree is not None")
+        self.assertFalse(WrapAction.mode_connect_notfree(), "mode_connect_notfree()")
+        self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction.mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
         request = RequestFactory().post('/')
         request.user = AnonymousUser()
         act1 = WrapAction('free', 'free', is_view_right=None)
