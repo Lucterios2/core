@@ -555,9 +555,9 @@ class MigrateFromV1(LucteriosInstance):
         for chartsaccountid, num_cpt, designation, exercice in cur.fetchall():
             self.print_log("=> charts of account %s - %d", (num_cpt, exercice))
             chartsaccount_list[chartsaccountid] = chartsaccount_mdl.objects.create(code=num_cpt, name=designation, year=year_list[exercice])
-            if (num_cpt[0] == '2') or (num_cpt[0] == '3') or (num_cpt[0:1] == '41') or (num_cpt[0] == '5'):
+            if (num_cpt[0] == '2') or (num_cpt[0] == '3') or (num_cpt[0:2] == '41') or (num_cpt[0] == '5'):
                 chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset / 'actif'
-            if (num_cpt[0] == '4') and (num_cpt[0:1] != '41'):
+            if (num_cpt[0] == '4') and (num_cpt[0:2] != '41'):
                 chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability / 'passif'
             if num_cpt[0] == '1':
                 chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity / 'capital'
@@ -579,11 +579,11 @@ class MigrateFromV1(LucteriosInstance):
         entryaccount_list = {}
         entrylineaccount_list = {}
         cur_e = self.open_olddb()
-        cur_e.execute("SELECT id, num, dateEcr, datePiece, designation, exercice, valid, point, journal, opeRaproch, analytique FROM fr_sdlibre_compta_Operation")
-        for entryaccountid, num, date_ecr, date_piece, designation, exercice, valid, point, _, _, _ in cur_e.fetchall():
+        cur_e.execute("SELECT id, num, dateEcr, datePiece, designation, exercice, point, journal, opeRaproch, analytique FROM fr_sdlibre_compta_Operation")
+        for entryaccountid, num, date_ecr, date_piece, designation, exercice, point, _, _, _ in cur_e.fetchall():
             self.print_log("=> entry account %s - %d", (six.text_type(num), exercice))
             entryaccount_list[entryaccountid] = entryaccount_mdl.objects.create(num=num, designation=designation, year=year_list[exercice], \
-                                                        date_entry=date_ecr, date_value=date_piece, valid=valid == 'o', close=point == 'o')
+                                                        date_entry=date_ecr, date_value=date_piece, close=point == 'o')
         cur_l = self.open_olddb()
         cur_l.execute("SELECT id,numCpt,montant,reference,operation,tiers  FROM fr_sdlibre_compta_Ecriture")
         for entrylineaccountid, num_cpt, montant, reference, operation, tiers in cur_l.fetchall():
