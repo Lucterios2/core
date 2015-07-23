@@ -29,11 +29,11 @@ from unittest.suite import TestSuite
 from unittest import TestLoader
 from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
-from lucterios.CORE.models import Parameter, LucteriosUser
 from lucterios.CORE.parameters import Params
 from lucterios.framework.tools import notfree_mode_connect, WrapAction
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
+from lucterios.CORE.models import Parameter
 
 class AuthentificationTest(LucteriosTest):
     # pylint: disable=too-many-public-methods
@@ -192,6 +192,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(act1.is_view_right, None, 'act1.is_view_right')
         self.assertFalse(act1.check_permission(request), 'check_permission None')
         act2 = WrapAction('free', 'free', is_view_right='CORE.change_parameter')
+        act2.with_log = True
         self.assertEqual(act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
         self.assertTrue(act2.check_permission(request), 'check_permission CORE.change_parameter')
 

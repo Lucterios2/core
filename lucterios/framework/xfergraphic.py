@@ -96,6 +96,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _get_from_custom(self, request, *args, **kwargs):
         dlg = XferContainerCustom()
+        dlg.request = self.request
         dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
         dlg.caption = self.caption
         dlg.extension = self.extension

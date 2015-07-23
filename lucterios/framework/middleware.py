@@ -32,6 +32,7 @@ from lucterios.framework.error import LucteriosRedirectException
 class LucteriosErrorMiddleware(XferContainerException):
 
     def process_exception(self, request, exception):
+        self.request = request
         self.set_except(exception)
         self.closeaction = None
         if isinstance(exception, LucteriosRedirectException) and (exception.redirectclassview is not None):

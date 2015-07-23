@@ -165,6 +165,9 @@ class XferCompLabelForm(XferComponent):
     def set_value_center(self, value):
         self.set_value(six.text_type('{[center]}%s{[/center]}') % value)
 
+    def set_value_as_headername(self, value):
+        self.set_value(six.text_type('{[center]}{[b]}%s{[/b]}{[/center]}') % value)
+
 class XferCompLinkLabel(XferComponent):
 
     def __init__(self, name):

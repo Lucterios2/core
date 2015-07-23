@@ -105,11 +105,11 @@ class XferContainerAbstract(View):
         ret_act.modal = modal
         return ret_act
 
-    def getparam(self, key):
+    def getparam(self, key, default_value=None):
         if key in self.params.keys():
             return self.params[key]
         else:
-            return None
+            return default_value
 
     def _load_unique_record(self, itemid):
         try:
