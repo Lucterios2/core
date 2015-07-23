@@ -57,11 +57,6 @@ class WrapAction(object):
             self.extension = extension
             self.action = action
         self.pos = pos
-        self.with_log = False
-
-    def _log(self, text):
-        if self.with_log:
-            six.print_(text)
 
     def get_action_xml(self, option, desc='', tag='ACTION'):
         actionxml = etree.Element(tag)
@@ -89,22 +84,13 @@ class WrapAction(object):
         return actionxml
 
     def check_permission(self, request):
-        self._log('check_permission begin')
-        self._log('check_permission user=%s' % request.user)
-        self._log('check_permission user.is_authenticated=%s' % request.user.is_authenticated())
         if self.is_view_right == None:
-            self._log('check_permission is_view_right == None')
             return request.user.is_authenticated()
         if self.mode_connect_notfree is None or self.mode_connect_notfree():
-            self._log('check_permission mode_connect_notfree=%s' % self.mode_connect_notfree)
-            self._log('check_permission is_view_right=%s' % self.is_view_right)
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
-                self._log('check_permission no perm')
                 return False
             if (self.caption == '') and not request.user.is_authenticated():
-                self._log('check_permission caption empty')
                 return False
-        self._log('check_permission end')
         return True
 
     def raise_bad_permission(self, request):
@@ -114,7 +100,7 @@ class WrapAction(object):
                 username = request.user.username
             else:
                 username = _("Anonymous user")
-            raise LucteriosRedirectException(_("Bad permission for '%s' (url:%s - right:%s)") % (username, self.url_text, self.is_view_right), bad_permission_redirect_classaction)
+            raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
 
 class ActionsManage(object):
 

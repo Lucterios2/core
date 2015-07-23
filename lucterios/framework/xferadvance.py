@@ -153,7 +153,7 @@ class XferDelete(XferContainerAcknowledge):
             ids = self.getparam(self.field_id)
         if ids is None:
             raise LucteriosException(GRAVE, _("No selection"))
-        ids = ids.split(';')
+        ids = ids.split(';') # pylint: disable=no-member
         self.items = self.model.objects.filter(pk__in=ids)
 
     def fillresponse(self):

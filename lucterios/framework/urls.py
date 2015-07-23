@@ -33,10 +33,12 @@ import logging, inspect, pkgutil
 from lucterios.framework.help import defaulthelp
 
 def defaultblank(*args):
+    # pylint: disable=unused-argument
     from django.http import HttpResponse
     return HttpResponse('')
 
 def defaultview(*args):
+    # pylint: disable=unused-argument
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect('/web/index.html')
 

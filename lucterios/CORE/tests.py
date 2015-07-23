@@ -133,7 +133,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.call('/CORE/configuration', {})
         self.assert_observer('CORE.Exception', 'CORE', 'configuration')
-        # self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
 
         self.call('/CORE/exitConnection', {})
         self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')

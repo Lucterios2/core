@@ -107,7 +107,7 @@ class XferContainerAbstract(View):
 
     def getparam(self, key, default_value=None):
         if key in self.params.keys():
-            param_value=self.params[key]
+            param_value = self.params[key]
             try:
                 if isinstance(default_value, bool):
                     param_value = (param_value != 'False') and (param_value != '0') and (param_value != '') and (param_value != 'n')
@@ -120,7 +120,7 @@ class XferContainerAbstract(View):
                 elif isinstance(default_value, list):
                     param_value = param_value.split(';')
             except ValueError:
-                param_value=default_value
+                param_value = default_value
             return param_value
         else:
             return default_value
@@ -186,7 +186,7 @@ class XferContainerAbstract(View):
                 if new_value is not None:
                     relation_model = dep_field.rel.to
                     if new_value != '':
-                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';')) # pylint: disable=no-member
                     else:
                         new_value = relation_model.objects.filter(id__in=[])
                     setattr(self.item, field_name, new_value)
@@ -248,7 +248,7 @@ class XferContainerAbstract(View):
             diff = len(spec.args)
         for arg_id in range(1, len(spec.args)):
             arg_name = spec.args[arg_id]
-            if arg_id>=diff:
+            if arg_id >= diff:
                 default_val = spec.defaults[arg_id - diff]
             else:
                 default_val = None
