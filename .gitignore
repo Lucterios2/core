@@ -1,1 +1,12 @@
 *.pyc
+/dev/
+/junit_py2.xml
+/junit_py3.xml
+/manage_dev.py
+/manage_test.py
+/manage.py
+/results.xml
+.gitignore
+.project
+.pydevproject
+.settings
