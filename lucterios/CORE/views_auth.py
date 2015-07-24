@@ -33,6 +33,7 @@ from lucterios.CORE.parameters import Params, secure_mode_connect
 
 def get_info_server():
     res = []
+    from django import VERSION
     from django.conf import settings
     from django.utils.module_loading import import_module
     for appname in settings.INSTALLED_APPS:
@@ -43,8 +44,11 @@ def get_info_server():
             except TypeError:
                 app_title = six.text_type(appmodule.__title__)
             res.append(six.text_type("%s=%s") % (app_title, appmodule.__version__))
+    res.append("")
     from platform import python_version, uname
-    res.append(six.text_type("{[i]}Python %s - %s %s %s{[/i]}") % (python_version(), uname()[0], uname()[4], uname()[2]))
+    django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
+    os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])
+    res.append(six.text_type("{[i]}%s - Python %s - Django %s{[/i]}") % (os_version, python_version(), django_version))
     return six.text_type("{[br/]}").join(res)
 
 @MenuManage.describ('')
