@@ -334,7 +334,7 @@ class XferContainerCustom(XferContainerAbstract):
         if isinstance(dep_field, IntegerField):
             if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                 comp = XferCompSelect(field_name)
-                comp.set_select(dict(dep_field.choices))
+                comp.set_select(list(dep_field.choices))
             else:
                 min_value, max_value = get_range_value(dep_field)
                 comp = XferCompFloat(field_name, min_value, max_value, 0)

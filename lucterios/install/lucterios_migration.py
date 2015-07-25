@@ -576,14 +576,23 @@ class MigrateFromV1(LucteriosInstance):
         entryaccount_mdl = apps.get_model("accounting", "EntryAccount")
         entryaccount_mdl.objects.all().delete()
         entrylineaccount_mdl = apps.get_model("accounting", "EntryLineAccount")
+        entrylineaccount_mdl.objects.all().delete()
+        journal_mdl = apps.get_model("accounting", "Journal")
         entryaccount_list = {}
         entrylineaccount_list = {}
+        journal_list = {}
+        journal_list[1] = journal_mdl.objects.get(id=2) 
+        journal_list[2] = journal_mdl.objects.get(id=3)
+        journal_list[3] = journal_mdl.objects.get(id=4)
+        journal_list[4] = journal_mdl.objects.get(id=5)
+        journal_list[5] = journal_mdl.objects.get(id=1)
         cur_e = self.open_olddb()
         cur_e.execute("SELECT id, num, dateEcr, datePiece, designation, exercice, point, journal, opeRaproch, analytique FROM fr_sdlibre_compta_Operation")
-        for entryaccountid, num, date_ecr, date_piece, designation, exercice, point, _, _, _ in cur_e.fetchall():
+        for entryaccountid, num, date_ecr, date_piece, designation, exercice, point, journal, _, _ in cur_e.fetchall():
             self.print_log("=> entry account %s - %d", (six.text_type(num), exercice))
-            entryaccount_list[entryaccountid] = entryaccount_mdl.objects.create(num=num, designation=designation, year=year_list[exercice], \
-                                                        date_entry=date_ecr, date_value=date_piece, close=point == 'o')
+            entryaccount_list[entryaccountid] = entryaccount_mdl.objects.create(num=num, designation=designation, \
+                                                        year=year_list[exercice], date_entry=date_ecr, date_value=date_piece, \
+                                                        close=point == 'o', journal=journal_list[journal])
         cur_l = self.open_olddb()
         cur_l.execute("SELECT id,numCpt,montant,reference,operation,tiers  FROM fr_sdlibre_compta_Ecriture")
         for entrylineaccountid, num_cpt, montant, reference, operation, tiers in cur_l.fetchall():
