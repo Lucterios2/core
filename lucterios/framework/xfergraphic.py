@@ -427,8 +427,8 @@ class XferContainerCustom(XferContainerAbstract):
                     else:
                         verbose_name = None
                     dep_field = self.item.get_field_by_name(field_name)
-                    if not dep_field.auto_created or dep_field.concrete:  # field real in model
-                        if not (dep_field.is_relation and dep_field.many_to_many):  # field not many-to-many
+                    if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:  # field real in model
+                        if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):  # field not many-to-many
                             lbl = XferCompLabelForm('lbl_' + field_name)
                             lbl.set_location(col + offset, row, 1, 1)
                             if verbose_name is None:

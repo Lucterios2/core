@@ -484,14 +484,10 @@ class XferCompGrid(XferComponent):
 
     def define_page(self, xfer_custom=None):
         if xfer_custom is not None:
-            self.page_max = int(self.nb_lines / MAX_GRID_RECORD)
-            self.page_num = xfer_custom.getparam(GRID_PAGE + self.name)
-            if self.page_num is None:
+            self.page_max = int(self.nb_lines / MAX_GRID_RECORD) + 1
+            self.page_num = xfer_custom.getparam(GRID_PAGE + self.name, 0)
+            if self.page_max < self.page_num:
                 self.page_num = 0
-            else:
-                self.page_num = int(self.page_num)
-                if self.page_max < self.page_num:
-                    self.page_num = 0
             record_min = self.page_num * MAX_GRID_RECORD
             record_max = (self.page_num + 1) * MAX_GRID_RECORD
         else:

@@ -110,12 +110,16 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_field_by_name(cls, fieldname):
-        fieldnames = fieldname.split('.')
-        current_meta = cls._meta  # pylint: disable=protected-access,no-member
-        for field_name in fieldnames:
-            dep_field = current_meta.get_field(field_name)
-            if hasattr(dep_field, 'rel') and (dep_field.rel is not None):
-                current_meta = dep_field.rel.to._meta  # pylint: disable=protected-access
+        from django.db.models.fields import FieldDoesNotExist
+        try:
+            fieldnames = fieldname.split('.')
+            current_meta = cls._meta  # pylint: disable=protected-access,no-member
+            for field_name in fieldnames:
+                dep_field = current_meta.get_field(field_name)
+                if hasattr(dep_field, 'rel') and (dep_field.rel is not None):
+                    current_meta = dep_field.rel.to._meta  # pylint: disable=protected-access
+        except FieldDoesNotExist:
+            dep_field = None
         return dep_field
 
     def evaluate(self, text):

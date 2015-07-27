@@ -570,6 +570,25 @@ class MigrateFromV1(LucteriosInstance):
             chartsaccount_list[chartsaccountid].save()
         return chartsaccount_list
 
+
+    def _restore_accounting_extra(self):
+        from django.apps import apps
+        journal_mdl = apps.get_model("accounting", "Journal")
+        accountlink_mdl = apps.get_model("accounting", "AccountLink")
+        accountlink_mdl.objects.all().delete()
+        journal_list = {}
+        journal_list[1] = journal_mdl.objects.get(id=2)
+        journal_list[2] = journal_mdl.objects.get(id=3)
+        journal_list[3] = journal_mdl.objects.get(id=4)
+        journal_list[4] = journal_mdl.objects.get(id=5)
+        journal_list[5] = journal_mdl.objects.get(id=1)
+        accountlink_list = {}
+        cur_al = self.open_olddb()
+        cur_al.execute("SELECT id FROM fr_sdlibre_compta_raprochement ORDER BY id")
+        for (accountlinkid,) in cur_al.fetchall():
+            accountlink_list[accountlinkid] = accountlink_mdl.objects.create()
+        return journal_list, accountlink_list
+
     def _restore_accounting_entryaccount(self, year_list, third_list, account_list):
         # pylint: disable=too-many-locals
         from django.apps import apps
@@ -577,22 +596,19 @@ class MigrateFromV1(LucteriosInstance):
         entryaccount_mdl.objects.all().delete()
         entrylineaccount_mdl = apps.get_model("accounting", "EntryLineAccount")
         entrylineaccount_mdl.objects.all().delete()
-        journal_mdl = apps.get_model("accounting", "Journal")
         entryaccount_list = {}
         entrylineaccount_list = {}
-        journal_list = {}
-        journal_list[1] = journal_mdl.objects.get(id=2) 
-        journal_list[2] = journal_mdl.objects.get(id=3)
-        journal_list[3] = journal_mdl.objects.get(id=4)
-        journal_list[4] = journal_mdl.objects.get(id=5)
-        journal_list[5] = journal_mdl.objects.get(id=1)
+        journal_list, accountlink_list = self._restore_accounting_extra()
         cur_e = self.open_olddb()
         cur_e.execute("SELECT id, num, dateEcr, datePiece, designation, exercice, point, journal, opeRaproch, analytique FROM fr_sdlibre_compta_Operation")
-        for entryaccountid, num, date_ecr, date_piece, designation, exercice, point, journal, _, _ in cur_e.fetchall():
+        for entryaccountid, num, date_ecr, date_piece, designation, exercice, point, journal, operaproch, _ in cur_e.fetchall():
             self.print_log("=> entry account %s - %d", (six.text_type(num), exercice))
             entryaccount_list[entryaccountid] = entryaccount_mdl.objects.create(num=num, designation=designation, \
                                                         year=year_list[exercice], date_entry=date_ecr, date_value=date_piece, \
                                                         close=point == 'o', journal=journal_list[journal])
+            if operaproch is not None:
+                entryaccount_list[entryaccountid].link = accountlink_list[operaproch]
+                entryaccount_list[entryaccountid].save()
         cur_l = self.open_olddb()
         cur_l.execute("SELECT id,numCpt,montant,reference,operation,tiers  FROM fr_sdlibre_compta_Ecriture")
         for entrylineaccountid, num_cpt, montant, reference, operation, tiers in cur_l.fetchall():

@@ -44,11 +44,19 @@ def get_items_from_filter(model, filter_desc):
 class XferListEditor(XferContainerCustom):
     filter = None
     fieldnames = None
+    multi_page = True
     action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use
         return
+
+    def get_items_from_filter(self):
+        if isinstance(self.filter, list):
+            items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        else:
+            items = self.model.objects.all()  # pylint: disable=no-member
+        return items
 
     def fillresponse(self):
         # pylint: disable=not-callable
@@ -62,9 +70,13 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         self.fillresponse_header()
         row = self.get_max_row()
-        items = get_items_from_filter(self.model, self.filter)
+        items = self.get_items_from_filter()
         grid = XferCompGrid(self.field_id)
-        grid.set_model(items, self.fieldnames, self)
+        if self.multi_page:
+            xfer = self
+        else:
+            xfer = None
+        grid.set_model(items, self.fieldnames, xfer)
         grid.add_actions(self)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
