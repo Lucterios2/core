@@ -381,7 +381,7 @@ class MigrateFromV1(LucteriosInstance):
         individual_list = {}
         cur = self.open_olddb()
         cur.execute("SELECT id, superId, nom, prenom, sexe, user FROM org_lucterios_contacts_personnePhysique")
-        for individualid, individual_super, individual_firstname, individual_lastname, individual_sexe, individual_user in cur.fetchall():
+        for individualid, individual_super, individual_lastname, individual_firstname, individual_sexe, individual_user in cur.fetchall():
             self.print_log("=> Individual %s %s (user=%s)", (individual_firstname, individual_lastname, individual_user))
             new_individual = individual_mdl.objects.create(firstname=individual_firstname, lastname=individual_lastname)
             assign_abstact_values(new_individual, individual_super)

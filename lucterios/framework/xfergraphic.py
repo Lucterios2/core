@@ -415,7 +415,7 @@ class XferContainerCustom(XferContainerAbstract):
                     lbl.set_location(col + offset, row, 1, 1)
                     lbl.set_value_as_name(child.model._meta.verbose_name)  # pylint: disable=protected-access
                     self.add_component(lbl)
-                    comp = XferCompGrid(field_name)
+                    comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
                     comp.add_actions(self, model=child.model)
                     comp.set_location(col + 1 + offset, row, colspan, 1)
