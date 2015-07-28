@@ -117,7 +117,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExamplePrint()
         self.call('/lucterios.dummy/examplePrint', {'example':'2'}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'examplePrint')
-        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        pdf_value = b64decode(six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def testlabel(self):
@@ -140,7 +140,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleLabel()
         self.call('/lucterios.dummy/exampleLabel', {'PRINT_MODE':'3', 'LABEL':1, 'FIRSTLABEL':3, 'MODEL':2}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleLabel')
-        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        pdf_value = b64decode(six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def testlisting(self):
@@ -149,7 +149,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'4', 'MODEL':1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
-        csv_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text)).decode("utf-8")
+        csv_value = b64decode(six.text_type(self.get_first_xpath('PRINT').text)).decode("utf-8")
         content_csv = csv_value.split('\n')
         self.assertEqual(len(content_csv), 36, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"Example"')
@@ -161,7 +161,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing', {'PRINT_MODE':'3', 'MODEL':1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
-        pdf_value = b64decode(six.text_type(self._get_first_xpath('PRINT').text))
+        pdf_value = b64decode(six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
 
     def test_other_list(self):

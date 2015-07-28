@@ -102,7 +102,7 @@ class LucteriosTest(TestCase):
         self.assertEqual(contentxml.getchildren()[0].tag, 'REPONSE', "NOT REPONSE")
         self.response_xml = contentxml.getchildren()[0]
 
-    def _get_first_xpath(self, xpath):
+    def get_first_xpath(self, xpath):
         if xpath == '':
             return self.response_xml
         else:
@@ -111,7 +111,7 @@ class LucteriosTest(TestCase):
             return xml_values[0]
 
     def print_xml(self, xpath):
-        xml_value = self._get_first_xpath(xpath)
+        xml_value = self.get_first_xpath(xpath)
         six.print_(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def assert_count_equal(self, xpath, size):
@@ -119,7 +119,7 @@ class LucteriosTest(TestCase):
         self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d" % (xpath, len(xml_values), size))
 
     def assert_xml_equal(self, xpath, value, txtrange=None):
-        xml_value = self._get_first_xpath(xpath)
+        xml_value = self.get_first_xpath(xpath)
         txt_value = xml_value.text
         if isinstance(txtrange, tuple):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
@@ -128,7 +128,7 @@ class LucteriosTest(TestCase):
         self.assertEqual(txt_value, value, "%s: %s => %s" % (xpath, txt_value, value))
 
     def assert_attrib_equal(self, xpath, name, value):
-        xml_value = self._get_first_xpath(xpath)
+        xml_value = self.get_first_xpath(xpath)
         attr_value = xml_value.get(name)
         self.assertEqual(attr_value, value, "%s/@%s: %s => %s" % (xpath, name, attr_value, value))
 
@@ -138,11 +138,11 @@ class LucteriosTest(TestCase):
             self.assert_attrib_equal('', 'source_extension', extension)
             self.assert_attrib_equal('', 'source_action', action)
         except AssertionError:
-            if self._get_first_xpath('').get('observer') == 'CORE.Exception':
-                six.print_("Error:" + six.text_type(self._get_first_xpath('EXCEPTION/MESSAGE').text))
-                six.print_("Call-stack:" + six.text_type(self._get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
-            if self._get_first_xpath('').get('observer') == 'Core.DialogBox':
-                six.print_("Message:" + six.text_type(self._get_first_xpath('TEXT').text))
+            if self.get_first_xpath('').get('observer') == 'CORE.Exception':
+                six.print_("Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
+                six.print_("Call-stack:" + six.text_type(self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
+            if self.get_first_xpath('').get('observer') == 'Core.DialogBox':
+                six.print_("Message:" + six.text_type(self.get_first_xpath('TEXT').text))
             raise
 
     def assert_comp_equal(self, xpath, text, coord):
