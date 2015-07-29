@@ -169,11 +169,12 @@ class XferContainerAbstract(View):
                             new_value = new_value != '0' and new_value != 'n'
                         if isinstance(dep_field, ForeignKey):
                             pk_id = int(new_value)
-                            if pk_id == 0:
+                            if pk_id <= 0:
                                 new_value = None
                             else:
                                 new_value = dep_field.rel.to.objects.get(pk=pk_id)
-                        setattr(self.item, field_name, new_value)
+                        if dep_field.null or (new_value is not None):
+                            setattr(self.item, field_name, new_value)
                         self.has_changed = True
         return self.has_changed
 
