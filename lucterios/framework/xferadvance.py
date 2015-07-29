@@ -95,6 +95,7 @@ class XferAddEditor(XferContainerCustom):
     caption_modify = ''
     fieldnames = []
     redirect_to_show = True
+    locked = True
 
     def fillresponse(self):
         if self.is_new:
@@ -118,6 +119,7 @@ class XferAddEditor(XferContainerCustom):
         else:
             save = XferSave()
             save.is_view_right = self.is_view_right
+            save.locked = self.locked
             save.model = self.model
             save.field_id = self.field_id
             save.caption = self.caption
@@ -127,6 +129,8 @@ class XferAddEditor(XferContainerCustom):
             return save.get(request, *args, **kwargs)
 
 class XferShowEditor(XferContainerCustom):
+
+    locked = True
 
     def fillresponse(self, action_list=None):
         img = XferCompImage('img')
@@ -165,7 +169,7 @@ class XferDelete(XferContainerAcknowledge):
             ids = self.getparam(self.field_id)
         if ids is None:
             raise LucteriosException(GRAVE, _("No selection"))
-        ids = ids.split(';') # pylint: disable=no-member
+        ids = ids.split(';')  # pylint: disable=no-member
         self.items = self.model.objects.filter(pk__in=ids)
 
     def fillresponse(self):
