@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-15 16:20+0000\n"
+"POT-Creation-Date: 2015-07-29 16:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -106,179 +106,179 @@ msgstr "Ouvert en tant qu'anonyme"
 msgid "CORE-connectmode.2"
 msgstr "Accès libre"
 
-#: models.py:37 models.py:150 models.py:193
+#: models.py:38 models.py:156 models.py:199
 msgid "name"
 msgstr "nom"
 
-#: models.py:38
+#: models.py:39
 msgid "String"
 msgstr "Chaîne"
 
-#: models.py:38
+#: models.py:39
 msgid "Integer"
 msgstr "Entier"
 
-#: models.py:38
+#: models.py:39
 msgid "Real"
 msgstr "Réel"
 
-#: models.py:38
+#: models.py:39
 msgid "Boolean"
 msgstr "Booléen"
 
-#: models.py:38
+#: models.py:39
 msgid "Select"
 msgstr "Sélection"
 
-#: models.py:39
+#: models.py:40
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:40 models.py:196
+#: models.py:41 models.py:202
 msgid "value"
 msgstr "valeur"
 
-#: models.py:44
+#: models.py:45
 msgid "parameter"
 msgstr "paramètre"
 
-#: models.py:45
+#: models.py:46
 msgid "parameters"
 msgstr "paramètres"
 
-#: models.py:57
+#: models.py:58
 msgid "Informations"
 msgstr "Informations"
 
-#: models.py:58
+#: models.py:59
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:68
+#: models.py:69
 msgid "Available groups"
 msgstr "Groupes disponibles"
 
-#: models.py:68
+#: models.py:69
 msgid "Chosen groups"
 msgstr "Groupes choisis"
 
-#: models.py:69 models.py:136
+#: models.py:70 models.py:142
 msgid "Available permissions"
 msgstr "Permissions disponibles"
 
-#: models.py:69 models.py:136
+#: models.py:70 models.py:142
 msgid "Chosen permissions"
 msgstr "Permissions choisies"
 
-#: models.py:82
+#: models.py:83
 msgid "To change password?"
 msgstr "Changer le mot de passe ?"
 
-#: models.py:96
+#: models.py:97
 msgid "password"
 msgstr "mot de passe"
 
-#: models.py:100
+#: models.py:101
 msgid "password (again)"
 msgstr "re-mot de passe"
 
-#: models.py:120 views.py:150
+#: models.py:126 views.py:150
 msgid "The passwords are differents!"
 msgstr "Les mots de passes sont différents!"
 
-#: models.py:146
+#: models.py:152
 msgid "group"
 msgstr "groupe"
 
-#: models.py:147
+#: models.py:153
 msgid "groups"
 msgstr "groupes"
 
-#: models.py:152
+#: models.py:158
 msgid "page width"
 msgstr "largeur de page (L)"
 
-#: models.py:153
+#: models.py:159
 msgid "page height"
 msgstr "hauteur de page (H)"
 
-#: models.py:154
+#: models.py:160
 msgid "cell width"
 msgstr "largeur de vignette (l)"
 
-#: models.py:155
+#: models.py:161
 msgid "cell height"
 msgstr "hauteur de vignette (h)"
 
-#: models.py:156
+#: models.py:162
 msgid "number of columns"
 msgstr "nombre de colonnes"
 
-#: models.py:157
+#: models.py:163
 msgid "number of rows"
 msgstr "nombre de lignes"
 
-#: models.py:158
+#: models.py:164
 msgid "left marge"
 msgstr "marge gauche (a)"
 
-#: models.py:159
+#: models.py:165
 msgid "top marge"
 msgstr "marge haute (b)"
 
-#: models.py:160
+#: models.py:166
 msgid "horizontal space"
 msgstr "espace horizontal (c)"
 
-#: models.py:161
+#: models.py:167
 msgid "vertical space"
 msgstr "espace vertical (d)"
 
-#: models.py:179 models.py:189
+#: models.py:185 models.py:195
 msgid "label"
 msgstr "étiquette"
 
-#: models.py:179
+#: models.py:185
 msgid "# of first label"
 msgstr "N° première étiquette"
 
-#: models.py:190
+#: models.py:196
 msgid "labels"
 msgstr "étiquettes"
 
-#: models.py:194
+#: models.py:200
 msgid "kind"
 msgstr "type"
 
-#: models.py:194
+#: models.py:200
 msgid "Listing"
 msgstr "Liste"
 
-#: models.py:194
+#: models.py:200
 msgid "Label"
 msgstr "Etiquette"
 
-#: models.py:194
+#: models.py:200
 msgid "Report"
 msgstr "Rapport"
 
-#: models.py:195 models.py:226 models.py:273 views.py:235
+#: models.py:201 models.py:232 models.py:279 views.py:235
 msgid "model"
 msgstr "modèle"
 
-#: models.py:216
+#: models.py:222
 msgid "Last model of this kind!"
 msgstr "Dernier modèle de cette sorte !"
 
-#: models.py:225
+#: models.py:231
 msgid "No model!"
 msgstr "Pas de modèle !"
 
-#: models.py:234
+#: models.py:240
 msgid "No model selected!"
 msgstr "Aucun modèle sélectionné"
 
-#: models.py:274
+#: models.py:280
 msgid "models"
 msgstr "modèles"
 
@@ -488,7 +488,7 @@ msgstr "Modifier une étiquette"
 msgid "Delete label"
 msgstr "Supprimer une étiquette"
 
-#: views_auth.py:106
+#: views_auth.py:114
 msgid "Disconnect"
 msgstr "Déconnexion"
 

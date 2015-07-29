@@ -30,6 +30,8 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six, formats
+from lucterios.framework.error import LucteriosException, IMPORTANT
+from django.db.models.deletion import ProtectedError
 
 def get_value_converted(value, bool_textual=False):
     # pylint: disable=too-many-return-statements, too-many-branches
@@ -196,6 +198,12 @@ class LucteriosModel(models.Model):
     def can_delete(self):
         # pylint: disable=unused-argument,no-self-use
         return ''
+
+    def delete(self, using=None):
+        try:
+            models.Model.delete(self, using=using)
+        except ProtectedError:
+            raise LucteriosException(IMPORTANT, _('Cannot delete this record: there are associated with some sub-record'))
 
     def edit(self, xfer):
         # pylint: disable=unused-argument,no-self-use
