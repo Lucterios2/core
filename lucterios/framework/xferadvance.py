@@ -43,9 +43,12 @@ def get_items_from_filter(model, filter_desc):
 
 class XferListEditor(XferContainerCustom):
     filter = None
-    fieldnames = None
     multi_page = True
     action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
+
+    def __init__(self, **kwargs):
+        XferContainerCustom.__init__(self, **kwargs)
+        self.fieldnames = None
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use
@@ -93,7 +96,6 @@ class XferListEditor(XferContainerCustom):
 class XferAddEditor(XferContainerCustom):
     caption_add = ''
     caption_modify = ''
-    fieldnames = []
     redirect_to_show = True
     locked = True
 

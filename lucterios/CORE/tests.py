@@ -201,7 +201,6 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Accès libre")
 
         self.call('/CORE/menu', {})
-        self.print_xml('MENUS')
         self.assert_observer('CORE.Menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)

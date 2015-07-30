@@ -157,7 +157,7 @@ class XferCompLabelForm(XferComponent):
         self.set_value("{[b]{[u]%s{[/u]{[/b]" % value)
 
     def set_value_as_infocenter(self, value):
-        self.set_value("{[center]}{[b]}{[u]}%s{[/u]{[/b]{[/center]}" % value)
+        self.set_value("{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}" % value)
 
     def set_value_as_header(self, value):
         self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
