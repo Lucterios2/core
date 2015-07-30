@@ -25,9 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest, add_empty_user
 from django.utils import six
-from unittest.suite import TestSuite
-from unittest import TestLoader
-from lucterios.CORE import tests_framework, tests_usergroup
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.parameters import Params
 from lucterios.framework.tools import WrapAction
@@ -334,15 +331,3 @@ class ConfigTest(LucteriosTest):
 
         param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
         self.assertEqual("1", param.value)
-
-def suite():
-    # pylint: disable=redefined-outer-name
-    suite = TestSuite()
-    loader = TestLoader()
-    suite.addTest(loader.loadTestsFromTestCase(AuthentificationTest))
-    suite.addTest(loader.loadTestsFromTestCase(ConfigTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_framework.GenericTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.UserTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.GroupTest))
-    suite.addTest(loader.loadTestsFromTestCase(tests_usergroup.SessionTest))
-    return suite
