@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from django.utils.translation import ugettext as _
-from django.utils import six
+from django.utils import six, formats
 from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
@@ -265,6 +265,12 @@ class XferContainerCustom(XferContainerAbstract):
                     if value == key:
                         value = sel_val
                         break
+        elif isinstance(old_obj, XferCompDate):
+            value = formats.date_format(value, "DATE_FORMAT")
+        elif isinstance(old_obj, XferCompDateTime):
+            value = formats.date_format(value, "DATETIME_FORMAT")
+        elif isinstance(old_obj, XferCompTime):
+            value = formats.date_format(value, "TIME_FORMAT")
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
         new_lbl = XferCompLabelForm(cmp_name)

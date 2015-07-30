@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
-# -*- coding: utf-8 -*-
 '''
 Migration tools to import old Lucterios backup
 
@@ -63,6 +62,13 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         dictdb[col[0]] = row[idx]
     return dictdb
+
+def decode_html(data):
+    import re
+    def _callback(matches):
+        match_id = matches.group(1)
+        return six.unichr(int(match_id))
+    return re.sub(r"&#(\d+)(;|(?=\s))", _callback, data)
 
 class MigrateFromV1(LucteriosInstance):
 
@@ -619,13 +625,32 @@ class MigrateFromV1(LucteriosInstance):
                 entrylineaccount_list[entrylineaccountid].third = third_list[tiers]
                 entrylineaccount_list[entrylineaccountid].save()
 
-    def restore_compta(self, abstract_list):
+    def _restor_accounting_params(self):
+        from lucterios.CORE.models import Parameter
+        Parameter.change_value('accounting-system', 'diacamma.accounting.system.french.FrenchSystemAcounting')
+        cur_p = self.open_olddb()
+        cur_p.execute("SELECT paramName,value FROM CORE_extension_params WHERE extensionId LIKE 'fr_sdlibre_compta' and paramName in ('Devise','DeviseOff','PrecDevise')")
+        for param_name, param_value in cur_p.fetchall():
+            pname = ''
+            if param_name == 'Devise':
+                pname = 'accounting-devise'
+                param_value = decode_html(param_value)
+            elif param_name == 'DeviseOff':
+                pname = 'accounting-devise-iso'
+            elif param_name == 'PrecDevise':
+                pname = 'accounting-devise-prec'
+            if pname != '':
+                self.print_log("=> parameter of account %s - %s", (pname, param_value))
+                Parameter.change_value(pname, param_value)
+
+    def restore_accounting(self, abstract_list):
         from django.apps import apps
         try:
             apps.get_app_config("accounting")
         except LookupError:
             self.print_log("=> No accounting module", ())
             return
+        self._restor_accounting_params()
         thirds = self._restore_accounting_thirds(abstract_list)
         years = self._restore_accounting_years()
         accounts = self._restore_accounting_chartsaccount(years)
@@ -646,7 +671,7 @@ class MigrateFromV1(LucteriosInstance):
         if isfile(join(self.tmp_path, 'data_org_lucterios_contacts.sql')):
             abstracts = self.restore_contact(users)
             if isfile(join(self.tmp_path, 'data_fr_sdlibre_compta.sql')):
-                self.restore_compta(abstracts)
+                self.restore_accounting(abstracts)
         self.clear_old_archive()
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)

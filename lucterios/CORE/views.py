@@ -201,12 +201,8 @@ class ParamSave(XferContainerAcknowledge):
 
     def fillresponse(self, params=()):
         for pname in params:
-            db_param = Parameter.objects.get(name=pname)  # pylint: disable=no-member
-            if db_param.typeparam == 3:
-                db_param.value = six.text_type(self.getparam(pname) == '1')
-            else:
-                db_param.value = self.getparam(pname)
-            db_param.save()
+            pvalue = self.getparam(pname)
+            Parameter.change_value(pname, pvalue)
         Params.clear()
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)

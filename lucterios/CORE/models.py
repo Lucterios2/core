@@ -31,7 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django.utils import timezone
+from django.utils import timezone, six
 
 class Parameter(LucteriosModel):
 
@@ -39,6 +39,15 @@ class Parameter(LucteriosModel):
     typeparam = models.IntegerField(choices=((0, _('String')), (1, _('Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
+
+    @classmethod
+    def change_value(cls, pname, pvalue):
+        db_param = cls.objects.get(name=pname)  # pylint: disable=no-member
+        if db_param.typeparam == 3:
+            db_param.value = six.text_type(pvalue == '1')
+        else:
+            db_param.value = pvalue
+        db_param.save()
 
     class Meta(object):
         # pylint: disable=no-init
