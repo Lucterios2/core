@@ -1,4 +1,4 @@
-/*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,createTable,createTab*/
+/*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
 /*global compImage,compLabelForm,compEdit,compFloat,compMemo,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
 
 var ObserverCustom = ObserverGUI
@@ -48,31 +48,25 @@ var ObserverCustom = ObserverGUI
 
 			},
 
-			checkCompoundEmpty : function() {
-				var cmp = null, cmp_idx = 0, msg_text;
-				while ((cmp === null) && (cmp_idx < this.mCompList.size())) {
-					cmp = this.mCompList.val(cmp_idx);
-					if (!cmp.isEmpty()) {
-						cmp_idx++;
-						cmp = null;
+			checkCompoundValid : function() {
+				var cmp, comp_idx;
+				try {
+					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
+						cmp = this.mCompList.val(comp_idx);
+						cmp.checkValid();
 					}
-				}
-				if (cmp !== null) {
-					msg_text = "Ce champ est obligatoire!";
-					if (cmp.description.length > 0) {
-						msg_text = "Le champ '{0}' est obligatoire!"
-								.format(decodeURIComponent(cmp.description
-										.replace(/\+/g, ' ')));
+				} catch(lctept) {
+					if (cmp!==null) {
+						cmp.getGUIComp().focus();
 					}
-					cmp.getGUIComp().focus();
-					showMessageDialog(msg_text, this.getTitle());
+					showMessageDialog(lctept.message, this.getTitle());
 					return false;
 				}
 				return true;
 			},
 
 			getParameters : function(aCheckNull) {
-				if (!aCheckNull || this.checkCompoundEmpty()) {
+				if (!aCheckNull || this.checkCompoundValid()) {
 					var params = new HashMap(), comp_idx;
 					params.putAll(this.mContext);
 					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
@@ -296,9 +290,16 @@ var compGeneric = compBasic
 				return html;
 			},
 
-			isEmpty : function() {
-				return (this.needed && ((this.getValue() === null) || (this
-						.getValue() === '')));
+			checkValid : function() {
+				var msg_text;
+				if (this.needed && ((this.getValue() === null) || (this.getValue() === ''))) {
+					msg_text = Singleton().getTranslate("This field is needed!");
+					if (this.description.length > 0) {
+						msg_text = Singleton().getTranslate("The field '{0}' is needed!").format(decodeURIComponent(this.description.replace(/\+/g, ' ')));
+					}
+					throw new LucteriosException(MINOR, msg_text);
+				}
+				return;
 			},
 
 			fillValue : function(params) {

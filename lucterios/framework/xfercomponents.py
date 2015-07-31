@@ -224,6 +224,13 @@ class XferCompEdit(XferCompButton):
     def __init__(self, name):
         XferCompButton.__init__(self, name)
         self._component_ident = "EDIT"
+        self.mask = ""
+
+    def get_reponse_xml(self):
+        compxml = XferCompButton.get_reponse_xml(self)
+        if self.mask != '':
+            etree.SubElement(compxml, "REG_EXPR").text = six.text_type(self.mask)
+        return compxml
 
 class XferCompFloat(XferCompButton):
 

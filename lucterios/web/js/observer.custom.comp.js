@@ -20,8 +20,8 @@ var compImage = compGeneric.extend({
 		this.tag = 'img';
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	getHtml : function() {
@@ -56,8 +56,8 @@ var compLabelForm = compGeneric.extend({
 		this.tag = 'span';
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	getHtml : function() {
@@ -163,8 +163,8 @@ var compButton = compAbstractEvent.extend({
 		this.addActionEx(1);
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	getHtml : function() {
@@ -249,8 +249,8 @@ var compCheck = compAbstractEvent.extend({
 		return this.checked;
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	fillValue : function(params) {
@@ -279,8 +279,8 @@ var compLink = compGeneric.extend({
 		this.tag = 'a';
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	getHtml : function() {
@@ -293,10 +293,16 @@ var compLink = compGeneric.extend({
 
 var compEdit = compAbstractEvent.extend({
 	value : "",
+	mask : null,
 
 	initial : function(component) {
+		var regex;
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
+		regex = component.getCDataOfFirstTag("REG_EXPR");
+		if (regex !== '') {
+			this.mask = new RegExp(regex, 'i');
+		}
 		this.tag = 'input';
 	},
 
@@ -312,8 +318,31 @@ var compEdit = compAbstractEvent.extend({
 		return this.value;
 	},
 
+	checkValid : function() {
+		var msg_text, inputVal;
+		this._super();
+		if (this.mask !== null) {
+			inputVal = this.getGUIComp().val();
+			if (!this.mask.test(inputVal)) {
+				msg_text = Singleton().getTranslate("Invalid format!");
+				throw new LucteriosException(MINOR, msg_text);
+			}
+		}
+		return;
+	},
+	
 	addAction : function() {
 		this.addActionEx(0);
+		if (this.mask !== null) {
+			this.getGUIComp().keyup($.proxy(function() {
+				var inputVal = this.getGUIComp().val();
+				if (!this.mask.test(inputVal)) {
+					this.getGUIComp().css({'background-color' : 'red'});
+				} else {
+					this.getGUIComp().css({'background-color' : 'white'});
+				}
+			}, this));
+		}
 	}
 
 });
@@ -945,8 +974,8 @@ var compdownload = compGeneric.extend({
 		this.tag = 'button';
 	},
 
-	isEmpty : function() {
-		return false;
+	checkValid : function() {
+		return;
 	},
 
 	getHtml : function() {

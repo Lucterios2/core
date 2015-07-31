@@ -165,11 +165,7 @@ var ActionAbstract = Class
 				} else {
 					param = new HashMap();
 				}
-				if ((this.mExtraParam !== null)
-						&& (this.mExtraParam.size() > 0)) {
-					if (param === null) {
-						param = new HashMap();
-					}
+				if ((param !== null)&& (this.mExtraParam !== null) && (this.mExtraParam.size() > 0)) {
 					param.putAll(this.mExtraParam);
 				}
 				return param;

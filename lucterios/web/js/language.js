@@ -51,6 +51,10 @@ g_translation.fr.put("Connection", "Connexion");
 g_translation.fr.put("Login", "Alias");
 g_translation.fr.put("Password", "Mot de passe");
 g_translation.fr.put("Close", "Fermer");
+g_translation.fr.put("This field is needed!", "Ce champ est obligatoire!");
+g_translation.fr.put("The field '{0}' is needed!",
+		"Le champ '{0}' est obligatoire!");
+g_translation.fr.put("Invalid format!", "Format invalide!");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -97,3 +101,7 @@ g_translation.en.put("Connection", "Connection");
 g_translation.en.put("Login", "Login");
 g_translation.en.put("Password", "Password");
 g_translation.en.put("Close", "Close");
+g_translation.en.put("This field is needed!", "This field is needed!");
+g_translation.en
+		.put("The field '{0}' is needed!", "The field '{0}' is needed!");
+g_translation.en.put("Invalid format!", "Invalid format!");
