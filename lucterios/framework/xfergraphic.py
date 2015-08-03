@@ -63,8 +63,16 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.except_classact = None
         self.custom = None
 
-    def set_custom(self, custom):
-        self.custom = custom
+    def create_custom(self):
+        self.custom = XferContainerCustom()
+        self.custom.request = self.request
+        self.custom.request = self.request
+        self.custom.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
+        self.custom.caption = self.caption
+        self.custom.extension = self.extension
+        self.custom.action = self.action
+        self.custom.closeaction = self.closeaction
+        return self.custom
 
     def confirme(self, title):
         self.title = title
@@ -131,12 +139,6 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self._initialize(request, *args, **kwargs)
         self.fillresponse(**self._get_params())
         if self.custom is not None:
-            self.custom.request = self.request
-            self.custom.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
-            self.custom.caption = self.caption
-            self.custom.extension = self.extension
-            self.custom.action = self.action
-            self.custom.closeaction = self.closeaction
             return self.custom.get(request, *args, **kwargs)
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
             dlg = XferContainerDialogBox()
