@@ -354,8 +354,14 @@ class XferCompSelect(XferCompButton):
             list_of_select = list(self.select_list.items())
         else:
             list_of_select = list(self.select_list)
-        if self.value is None and (len(list_of_select) > 0) and (len(list_of_select[0]) > 0):
-            self.value = list_of_select[0][0]
+        if len(list_of_select) > 0:
+            value_found = False
+            for select_item in list_of_select:
+                if select_item[0] == self.value:
+
+                    value_found = True
+            if not value_found:
+                self.value = list_of_select[0][0]
         compxml = XferCompButton.get_reponse_xml(self)
         for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
