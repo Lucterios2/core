@@ -559,23 +559,28 @@ class MigrateFromV1(LucteriosInstance):
         cur = self.open_olddb()
         cur.execute("SELECT id,numCpt,designation,exercice FROM fr_sdlibre_compta_Plan")
         for chartsaccountid, num_cpt, designation, exercice in cur.fetchall():
-            self.print_log("=> charts of account %s - %d", (num_cpt, exercice))
-            chartsaccount_list[chartsaccountid] = chartsaccount_mdl.objects.create(code=num_cpt, name=designation, year=year_list[exercice])
-            if (num_cpt[0] == '2') or (num_cpt[0] == '3') or (num_cpt[0:2] == '41') or (num_cpt[0] == '5'):
-                chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset / 'actif'
-            if (num_cpt[0] == '4') and (num_cpt[0:2] != '41'):
-                chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability / 'passif'
-            if num_cpt[0] == '1':
-                chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity / 'capital'
-            if num_cpt[0] == '7':
-                chartsaccount_list[chartsaccountid].type_of_account = 3  # Revenue
-            if num_cpt[0] == '6':
-                chartsaccount_list[chartsaccountid].type_of_account = 4  # Expense
-            if num_cpt[0] == '8':
-                chartsaccount_list[chartsaccountid].type_of_account = 5  # Contra-accounts
-            chartsaccount_list[chartsaccountid].save()
+            while (len(num_cpt)>3) and (num_cpt[-1] == '0'):
+                num_cpt = num_cpt[:-1]
+            if len(num_cpt) > 1:
+                self.print_log("=> charts of account %s - %d", (num_cpt, exercice))
+                chartsaccount_list[chartsaccountid] = chartsaccount_mdl.objects.create(code=num_cpt, name=designation, year=year_list[exercice])
+                if (num_cpt[0] == '2') or (num_cpt[0] == '3') or (num_cpt[0:2] == '41') or (num_cpt[0] == '5'):
+                    chartsaccount_list[chartsaccountid].type_of_account = 0  # Asset / 'actif'
+                if (num_cpt[0] == '4') and (num_cpt[0:2] != '41'):
+                    chartsaccount_list[chartsaccountid].type_of_account = 1  # Liability / 'passif'
+                if num_cpt[0] == '1':
+                    chartsaccount_list[chartsaccountid].type_of_account = 2  # Equity / 'capital'
+                if num_cpt[0] == '7':
+                    chartsaccount_list[chartsaccountid].type_of_account = 3  # Revenue
+                if num_cpt[0] == '6':
+                    chartsaccount_list[chartsaccountid].type_of_account = 4  # Expense
+                if num_cpt[0] == '8':
+                    chartsaccount_list[chartsaccountid].type_of_account = 5  # Contra-accounts
+                chartsaccount_list[chartsaccountid].save()
+            else:
+                self.print_log("=> charts of account %s - XXX", (num_cpt,))
+                chartsaccount_list[chartsaccountid] = None
         return chartsaccount_list
-
 
     def _restore_accounting_extra(self):
         from django.apps import apps
@@ -618,12 +623,13 @@ class MigrateFromV1(LucteriosInstance):
         cur_l = self.open_olddb()
         cur_l.execute("SELECT id,numCpt,montant,reference,operation,tiers  FROM fr_sdlibre_compta_Ecriture")
         for entrylineaccountid, num_cpt, montant, reference, operation, tiers in cur_l.fetchall():
-            self.print_log("=> line entry account %f - %d", (montant, num_cpt))
-            entrylineaccount_list[entrylineaccountid] = entrylineaccount_mdl.objects.create(account=account_list[num_cpt], entry=entryaccount_list[operation], \
-                                                                                amount=montant, reference=reference)
-            if tiers is not None:
-                entrylineaccount_list[entrylineaccountid].third = third_list[tiers]
-                entrylineaccount_list[entrylineaccountid].save()
+            if account_list[num_cpt] is not None:
+                self.print_log("=> line entry account %f - %d", (montant, num_cpt))
+                entrylineaccount_list[entrylineaccountid] = entrylineaccount_mdl.objects.create(account=account_list[num_cpt], entry=entryaccount_list[operation], \
+                                                                                    amount=montant, reference=reference)
+                if tiers is not None:
+                    entrylineaccount_list[entrylineaccountid].third = third_list[tiers]
+                    entrylineaccount_list[entrylineaccountid].save()
 
     def _restor_accounting_params(self):
         from lucterios.CORE.models import Parameter
