@@ -30,7 +30,6 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompLABEL, \
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
-from lucterios.framework.xferadvance import get_items_from_filter
 from django.utils import six
 from lucterios.framework.models import get_value_converted
 
@@ -411,14 +410,30 @@ class ActionGenerator(ReportGenerator):
             self.body.append(item.get_xml())
             self.last_top = item.top + item.height
 
-class ListingGenerator(ReportGenerator):
+class ReportModelGenerator(ReportGenerator):
 
     def __init__(self, model):
         ReportGenerator.__init__(self)
-        self.header_height = 12
-        self.columns = []
         self.model = model
         self.filter = None
+        self.filter_callback = None
+
+    def get_items_filtered(self):
+        if isinstance(self.filter, list):
+            item_list = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        else:
+            item_list = self.model.objects.all()  # pylint: disable=no-member
+        if self.filter_callback is None:
+            return item_list
+        else:
+            return self.filter_callback(item_list) # pylint: disable=not-callable
+
+class ListingGenerator(ReportModelGenerator):
+
+    def __init__(self, model):
+        ReportModelGenerator.__init__(self, model)
+        self.header_height = 12
+        self.columns = []
 
     def add_page(self):
         ReportGenerator.add_page(self)
@@ -445,19 +460,16 @@ class ListingGenerator(ReportGenerator):
             xml_text.attrib['line_height'] = "10"
             xml_text.attrib['text_align'] = "center"
             new_col.append(xml_text)
-        items = get_items_from_filter(self.model, self.filter)
-        for item in items:
+        for item in self.get_items_filtered():
             new_row = etree.SubElement(xml_table, "rows")
             for column in self.columns:
                 xml_text = convert_to_html('cell', item.evaluate(column[2]), "sans-serif", 9, 10, "start")
                 new_row.append(xml_text)
 
-class LabelGenerator(ReportGenerator):
+class LabelGenerator(ReportModelGenerator):
 
     def __init__(self, model, first_label):
-        ReportGenerator.__init__(self)
-        self.model = model
-        self.filter = None
+        ReportModelGenerator.__init__(self, model)
         self.first_label = first_label
         self.label_text = ""
         self.label_size = {'page_width':210, 'page_height':297, 'cell_width':105, 'cell_height':70, 'columns':2, 'rows':4, \
@@ -471,8 +483,7 @@ class LabelGenerator(ReportGenerator):
         label_values = []
         for _ in range(1, self.first_label):
             label_values.append("")
-        items = get_items_from_filter(self.model, self.filter)
-        for item in items:
+        for item in self.get_items_filtered():
             label_values.append(item.evaluate(self.label_text))
         index = 0
         for labelval in label_values:

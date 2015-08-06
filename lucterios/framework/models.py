@@ -132,6 +132,8 @@ class LucteriosModel(models.Model):
             return  "{[br/]}".join(field_val)
         from django.db.models.fields import FieldDoesNotExist
         from django.db.models.fields.related import ForeignKey
+        if text == '#':
+            return six.text_type(self)
         value = text
         for field in self.TO_EVAL_FIELD.findall(text):
             field_list = field[1:].split('.')
@@ -175,6 +177,8 @@ class LucteriosModel(models.Model):
                 child = getattr(item, field_name)
                 field_title = child.model._meta.verbose_name  # pylint: disable=protected-access
                 add_sub_field(field_name, field_title, child.model)
+            elif isinstance(field_name, tuple):
+                fields.append(field_name)
             else:
                 dep_field = item._meta.get_field(field_name)  # pylint: disable=no-member,protected-access
                 field_title = dep_field.verbose_name

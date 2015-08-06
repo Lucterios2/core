@@ -32,15 +32,6 @@ from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsMan
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
-def get_items_from_filter(model, filter_desc):
-    if isinstance(filter_desc, dict):
-        items = model.objects.filter(**filter_desc)  # pylint: disable=no-member
-    elif isinstance(filter_desc, list):
-        items = model.objects.filter(*filter_desc)  # pylint: disable=no-member
-    else:
-        items = model.objects.all()  # pylint: disable=no-member
-    return items
-
 class XferListEditor(XferContainerCustom):
     filter = None
     multi_page = True

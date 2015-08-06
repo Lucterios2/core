@@ -45,10 +45,15 @@ class XferPrintListing(XferContainerPrint):
         XferContainerPrint.__init__(self)
         self.selector = PrintModel.get_print_selector(0, self.model)
 
+    def filter_callback(self, items):
+        # pylint: disable=no-self-use
+        return items
+
     def get_report_generator(self):
         dbmodel = PrintModel.get_model_selected(self)
         gen = ListingGenerator(self.model)
         gen.filter = self.get_filter()
+        gen.filter_callback = self.filter_callback
         gen.page_height = dbmodel.page_height
         gen.page_width = dbmodel.page_width
         gen.columns = dbmodel.columns
@@ -63,11 +68,16 @@ class XferPrintLabel(XferContainerPrint):
         self.selector = Label.get_print_selector()
         self.selector.extend(PrintModel.get_print_selector(1, self.model))
 
+    def filter_callback(self, items):
+        # pylint: disable=no-self-use
+        return items
+
     def get_report_generator(self):
         dblbl, first_label = Label.get_label_selected(self)
         model_value = PrintModel.get_model_selected(self)
         gen = LabelGenerator(self.model, first_label)
         gen.filter = self.get_filter()
+        gen.filter_callback = self.filter_callback
         gen.label_text = model_value.value
         for lblkey in gen.label_size.keys():
             gen.label_size[lblkey] = getattr(dblbl, lblkey)
