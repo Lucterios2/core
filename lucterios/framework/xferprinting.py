@@ -126,10 +126,12 @@ class XferContainerPrint(XferContainerAbstract):
             xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
             if not isfile(xsl_file):
                 raise LucteriosException(GRAVE, "Error:no csv xsl file!")
-            rep_content = self.report_content
             with open(xsl_file, 'rb') as xsl_file:
                 csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
-            content = six.text_type(csv_transform(etree.XML(rep_content))).encode('utf-8')
+            xml_rep_content = etree.XML(self.report_content)
+            for xml_br in xml_rep_content.xpath("//br"):
+                xml_br.text = ' '
+            content = six.text_type(csv_transform(xml_rep_content)).encode('utf-8')
         else:
             content = transforme_xml2pdf(self.report_content)
         if len(content) > 0:
