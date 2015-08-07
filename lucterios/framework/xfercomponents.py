@@ -340,11 +340,16 @@ class XferCompSelect(XferCompButton):
     def __init__(self, name):
         XferCompButton.__init__(self, name)
         self._component_ident = "SELECT"
-        self.select_list = {}
+        self.select_list = []
         self.value = None
 
     def set_select(self, select_list):
         self.select_list = select_list
+
+    def set_select_query(self, query):
+        self.select_list = []
+        for item in query:
+            self.select_list.append((item.id, six.text_type(item)))
 
     def set_value(self, value):
         self.value = value
