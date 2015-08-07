@@ -354,16 +354,26 @@ class XferCompSelect(XferCompButton):
     def set_value(self, value):
         self.value = value
 
+    def get_value_text(self):
+        if isinstance(self.select_list, dict):
+            return self.select_list[self.value]
+        else:
+            value_found = False
+            for select_item in self.select_list:
+                if select_item[0] == self.value:
+                    return select_item[1]
+            if not value_found:
+                return  self.select_list[0][1]
+
     def get_reponse_xml(self):
         if isinstance(self.select_list, dict):
-            list_of_select = list(self.select_list.items())
+            list_of_select = list(self.select_list.items()) # pylint: disable=no-member
         else:
             list_of_select = list(self.select_list)
         if len(list_of_select) > 0:
             value_found = False
             for select_item in list_of_select:
                 if select_item[0] == self.value:
-
                     value_found = True
             if not value_found:
                 self.value = list_of_select[0][0]

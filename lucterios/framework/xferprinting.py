@@ -146,7 +146,8 @@ class XferContainerPrint(XferContainerAbstract):
         if self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
-                report_generator.title = self.caption
+                if report_generator.title == '':
+                    report_generator.title = self.caption
                 self.report_content = report_generator.generate(self.request)
 
     def _finalize(self):

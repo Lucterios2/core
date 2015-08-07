@@ -26,12 +26,15 @@ from __future__ import unicode_literals
 from lxml import etree
 
 from lucterios.framework.xfercomponents import XferCompTab, XferCompLABEL, \
-    XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid
+    XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
+    XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from django.utils import six
 from lucterios.framework.models import get_value_converted
+import datetime
+import re
 
 def remove_format(xml_text):
     xml_text = xml_text.replace('<b>', '')
@@ -238,11 +241,22 @@ class PrintLabel(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        self.size_x, size_y = get_text_size(get_value_converted(self.comp.value, True))
+        if isinstance(self.comp, XferCompDate):
+            self.value = datetime.date(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:3]])
+        elif isinstance(self.comp, XferCompDateTime):
+            self.value = datetime.datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)])
+        elif isinstance(self.comp, XferCompTime):
+            self.value = datetime.time(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:2]])
+        elif isinstance(self.comp, XferCompSelect):
+            self.value = self.comp.get_value_text()
+        else:
+            self.value = self.comp.value
+        self.value = get_value_converted(self.value, True)
+        self.size_x, size_y = get_text_size(self.value)
         self.height = 4.8 * size_y
 
     def get_xml(self):
-        xml_text = convert_to_html('text', get_value_converted(self.comp.value, True))
+        xml_text = convert_to_html('text', self.value)
         self.fill_attrib(xml_text)
         return xml_text
 
@@ -348,7 +362,8 @@ class ActionGenerator(ReportGenerator):
                 new_item = PrintTable(comp, self)
             elif isinstance(comp, XferCompTab):
                 new_item = PrintTab(comp, self)
-            elif isinstance(comp, XferCompLABEL) or isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm):
+            elif isinstance(comp, XferCompLABEL) or isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
+                        isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) or isinstance(comp, XferCompTime) or  isinstance(comp, XferCompSelect):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
                 if not new_item.tab in col_size.keys():
@@ -426,7 +441,7 @@ class ReportModelGenerator(ReportGenerator):
         if self.filter_callback is None:
             return item_list
         else:
-            return self.filter_callback(item_list) # pylint: disable=not-callable
+            return self.filter_callback(item_list)  # pylint: disable=not-callable
 
 class ListingGenerator(ReportModelGenerator):
 
