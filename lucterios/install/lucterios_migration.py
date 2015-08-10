@@ -219,11 +219,8 @@ class MigrateFromV1(LucteriosInstance):
             class_name = class_name[0].upper() + class_name[1:]
             migrate_class = getattr(appmodule, class_name)
             migrate_class(self.old_db).run()
-            return
-
         except (LookupError, ImportError, AttributeError):
-            pass
-        six.print_("=> No module %s" % module_name)
+            six.print_("=> No module %s" % module_name)
 
     def restore(self):
         begin_time = time()

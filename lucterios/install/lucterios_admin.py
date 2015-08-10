@@ -32,6 +32,7 @@ from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
 import shutil
+from django.utils import six
 try:
     from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
 except ImportError:
@@ -45,9 +46,11 @@ SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
 
 def get_module_title(module_name):
-    from django.utils import six
-    current_mod = import_module(module_name)
-    return six.text_type(getattr(current_mod, '__title__')())
+    try:
+        current_mod = import_module(module_name)
+        return six.text_type(getattr(current_mod, '__title__')())
+    except AttributeError:
+        return "??? (%s)" % module_name
 
 def get_package_list():
     def get_files(dist):
@@ -59,10 +62,15 @@ def get_package_list():
         elif dist.has_metadata('installed-files.txt'):  # Otherwise use pip's log for .egg-info's
             paths = dist.get_metadata_lines('installed-files.txt')
             paths = [os.path.join(dist.egg_info, p) for p in paths]
+        elif os.path.join(dist.location, '__init__.py'):
+            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(dist.location) for file_item in dir_desc[2] if (file_item[-3:] == '.py')]
         return [os.path.relpath(p, dist.location) for p in paths]
     def get_module_desc(modname):
         appmodule = import_module(modname)
-        return (modname, appmodule.__version__)
+        if hasattr(appmodule, 'link'):
+            return (modname, appmodule.__version__, appmodule.link())
+        else:
+            return (modname, appmodule.__version__, [])
     import pip
     package_list = {}
     dists = pip.get_installed_distributions()
@@ -80,6 +88,8 @@ def get_package_list():
                         current_modules.append(get_module_desc(py_mod_name))
                 except:  # pylint: disable=bare-except
                     pass
+            current_applis.sort()
+            current_modules.sort()
             package_list[dist.key] = (dist.version, current_applis, current_modules, requires)
     return package_list
 
@@ -125,24 +135,16 @@ class LucteriosGlobal(LucteriosManage):
                 res.append("\t%s\t[%s]\t%s" % (item[0], item[1], ",".join(item[2])))
             return "\n".join(res)
         package_list = get_package_list()
-        mod_lucterios = ('lucterios', package_list['lucterios'][0] if ('lucterios' in package_list.keys()) else '???')
         if 'lucterios' in package_list.keys():
             mod_lucterios = ('lucterios', package_list['lucterios'][0])
-            del package_list['lucterios']
+            del package_list['lucterios'][2][0]
         else:
             mod_lucterios = ('lucterios', '???')
         mod_applis = []
         mod_modules = []
-        for _, appli_list, module_list, require_list in package_list.values():
-            requires = []
-            for require_item in require_list:
-                if require_item in package_list.keys():
-                    for sub_item in package_list[require_item][2]:
-                        requires.append(sub_item[0])
-            for appli_item in appli_list:
-                mod_applis.append(appli_item + (requires,))
-            for module_item in module_list:
-                mod_modules.append(module_item + (requires,))
+        for _, appli_list, module_list, _ in package_list.values():
+            mod_applis.extend(appli_list)
+            mod_modules.extend(module_list)
         self.print_info_("Description:\n\t%s\t\t[%s]" % mod_lucterios)
         self.print_info_("Applications:\n%s" % show_list(mod_applis))
         self.print_info_("Modules:\n%s" % show_list(mod_modules))
@@ -331,8 +333,19 @@ class LucteriosInstance(LucteriosManage):
             mod_list.append(get_module_title(module))
         return ', '.join(mod_list)
 
+    def _add_dependancy_modules(self):
+        glob = LucteriosGlobal(self.instance_path)
+        checked_modules = []
+        _, _, mod_modules = glob.installed()
+        for mod_item in mod_modules:
+            if mod_item[0] in self.modules:
+                checked_modules.extend(mod_item[2])
+        for mod_name in checked_modules:
+            if not mod_name in self.modules:
+                self.modules += (mod_name,)
+
     def write_setting_(self):
-        from django.utils import six
+        self._add_dependancy_modules()
         with open(self.setting_path, "w") as file_py:
             file_py.write('#!/usr/bin/env python\n')
             file_py.write('# -*- coding: utf8 -*-\n')
@@ -377,7 +390,11 @@ class LucteriosInstance(LucteriosManage):
                     file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
             file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
-            file_py.write('fill_appli_settings("%s", %s) \n' % (self.appli_name, six.text_type(self.modules)))
+            modules_text = ''
+            for module_item in self.modules:
+                modules_text += '"%s"' % six.text_type(module_item)
+                modules_text += ','
+            file_py.write('fill_appli_settings("%s", (%s)) \n' % (self.appli_name, modules_text))
             file_py.write('\n')
 
     def clear(self, only_delete=False):
