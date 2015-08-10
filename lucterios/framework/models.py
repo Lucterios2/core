@@ -26,12 +26,15 @@ from __future__ import unicode_literals
 import re
 
 from django.db import models
+from django.db.models.deletion import ProtectedError
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
 from django.utils import six, formats
+from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_module
+
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from django.db.models.deletion import ProtectedError
+from lucterios.framework.editors import LucteriosEditor
 
 def get_value_converted(value, bool_textual=False):
     # pylint: disable=too-many-return-statements, too-many-branches
@@ -209,21 +212,16 @@ class LucteriosModel(models.Model):
         except ProtectedError:
             raise LucteriosException(IMPORTANT, _('Cannot delete this record: there are associated with some sub-record'))
 
-    def edit(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
-        return
-
-    def show(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
-        return
-
-    def before_save(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
-        return
-
-    def saving(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
-        return
+    @property
+    def editor(self):
+        try:
+            root_module_name = ".".join(self.__module__.split('.')[:-1])
+            module_editor = import_module(root_module_name + ".editors")
+            class_name = self.__class__.__name__ + "Editor"
+            class_editor = getattr(module_editor, class_name)
+            return class_editor(self)
+        except (ImportError, AttributeError):
+            return LucteriosEditor(self)
 
     class Meta(object):
         # pylint: disable=no-init

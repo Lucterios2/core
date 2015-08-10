@@ -488,9 +488,9 @@ class XferContainerCustom(XferContainerAbstract):
             self.filltab_from_model(0, 0, readonly, current_desc_fields[tab_key])
         if desc_fields is None:
             if readonly:
-                self.item.show(self)
+                self.item.editor.show(self)
             else:
-                self.item.edit(self)
+                self.item.editor.edit(self)
 
     def _get_scripts_for_selectors(self, field_name, availables):
         sela = get_dico_from_setquery(availables)

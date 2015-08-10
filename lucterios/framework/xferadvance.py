@@ -184,7 +184,7 @@ class XferSave(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.has_changed:
-            self.item.before_save(self)
+            self.item.editor.before_save(self)
             try:
                 self.item.save()
                 self.has_changed = False
@@ -193,6 +193,6 @@ class XferSave(XferContainerAcknowledge):
             except IntegrityError:
                 self.raise_except(_("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
-            self.item.saving(self)
+            self.item.editor.saving(self)
         if self.redirect_to_show:
             self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {'params':{self.field_id:self.item.id}})

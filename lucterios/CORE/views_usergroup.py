@@ -164,7 +164,6 @@ class UsersEdit(XferAddEditor):
     icon = "user.png"
     model = LucteriosUser
     field_id = 'user_actif'
-    locked = True
 
 @ActionsManage.affect('LucteriosSession', 'delete')
 @MenuManage.describ('sessions.delete_session')

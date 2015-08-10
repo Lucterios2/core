@@ -63,7 +63,7 @@ def get_package_list():
             paths = dist.get_metadata_lines('installed-files.txt')
             paths = [os.path.join(dist.egg_info, p) for p in paths]
         elif os.path.join(dist.location, '__init__.py'):
-            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(dist.location) for file_item in dir_desc[2] if (file_item[-3:] == '.py')]
+            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
         return [os.path.relpath(p, dist.location) for p in paths]
     def get_module_desc(modname):
         appmodule = import_module(modname)
@@ -109,7 +109,6 @@ class LucteriosManage(object):
         self.msg_list.append(msg)
 
     def show_info_(self):
-        from django.utils import six
         six.print_("\n".join(self.msg_list))
 
 class LucteriosGlobal(LucteriosManage):
@@ -344,6 +343,25 @@ class LucteriosInstance(LucteriosManage):
             if not mod_name in self.modules:
                 self.modules += (mod_name,)
 
+    def _get_module_text(self):
+        modules_text = ''
+        for module_item in self.modules:
+            modules_text += '"%s"' % six.text_type(module_item)
+            modules_text += ','
+        return modules_text
+
+    def _write_db_params(self, file_py):
+        file_py.write('DATABASES = {\n')
+        for db_ident, db_values in self.databases.items():
+            file_py.write('     "%s": {\n' % db_ident)
+            for db_key, db_data in db_values.items():
+                if isinstance(db_data, six.string_types):
+                    file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
+                else:
+                    file_py.write('         "%s": %s,\n' % (db_key.upper(), db_data))
+            file_py.write('     },\n')
+        file_py.write('}\n')
+
     def write_setting_(self):
         self._add_dependancy_modules()
         with open(self.setting_path, "w") as file_py:
@@ -373,16 +391,7 @@ class LucteriosInstance(LucteriosManage):
                 self.databases["default"]["ENGINE"] = 'django.db.backends.oracle'
             else:
                 raise AdminException("Database not supported!")
-            file_py.write('DATABASES = {\n')
-            for db_ident, db_values in self.databases.items():
-                file_py.write('     "%s": {\n' % db_ident)
-                for db_key, db_data in db_values.items():
-                    if isinstance(db_data, six.string_types):
-                        file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
-                    else:
-                        file_py.write('         "%s": %s,\n' % (db_key.upper(), db_data))
-                file_py.write('     },\n')
-            file_py.write('}\n')
+            self._write_db_params(file_py)
             file_py.write('\n')
             file_py.write('# extra\n')
             for key, value in self.extra.items():
@@ -390,11 +399,7 @@ class LucteriosInstance(LucteriosManage):
                     file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
             file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
-            modules_text = ''
-            for module_item in self.modules:
-                modules_text += '"%s"' % six.text_type(module_item)
-                modules_text += ','
-            file_py.write('fill_appli_settings("%s", (%s)) \n' % (self.appli_name, modules_text))
+            file_py.write('fill_appli_settings("%s", (%s)) \n' % (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
     def clear(self, only_delete=False):
@@ -476,7 +481,6 @@ class LucteriosInstance(LucteriosManage):
 
     def read(self):
         self._clear_modules_()
-        from django.utils import six
         import django.conf
         if self.name == '':
             raise AdminException("Instance not precise!")
@@ -578,7 +582,6 @@ class LucteriosInstance(LucteriosManage):
             adm_user.save()
             self.print_info_("Admin password change in '%s'." % self.name)  # pylint: disable=superfluous-parens
         if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
-            from django.utils import six
             from lucterios.CORE.models import Parameter
             from lucterios.CORE.parameters import Params
             db_param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
@@ -713,7 +716,6 @@ def main():
         else:
             parser.print_help()
     except AdminException as error:
-        from django.utils import six
         parser.error(six.text_type(error))
 
 if __name__ == '__main__':
