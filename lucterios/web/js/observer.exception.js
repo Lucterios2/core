@@ -22,7 +22,7 @@ var ObserverException = ObserverAbstract
 						.convertLuctoriosFormatToHtml();
 				this.code = parseInt(
 						"0" + xml_error.getCDataOfFirstTag("CODE"), 10);
-				this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO").convertLuctoriosFormatToHtml();
+				this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO").replace(/\{\[br\/\]\}/g, "{[newline]}");
 				this.type = xml_error.getCDataOfFirstTag("TYPE");
 
 				this.requette = decodeURIComponent(xml_error

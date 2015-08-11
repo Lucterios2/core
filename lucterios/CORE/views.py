@@ -57,6 +57,11 @@ class StatusMenu(XferContainerCustom):
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("summary", self)
 
+@signal_and_lock.Signal.decorate('summary')
+def summary_core(xfer):
+    # pylint: disable=unused-argument
+    pass
+
 @MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
     caption = 'unlock'
