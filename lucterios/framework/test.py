@@ -30,6 +30,7 @@ from django.utils import six, timezone
 
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
+from lucterios.CORE.parameters import notfree_mode_connect, Params
 
 def add_user(username):
     user = LucteriosUser.objects.create_user(username=username, password=username, last_login=timezone.now())
@@ -91,6 +92,8 @@ class LucteriosTest(TestCase):
         self.factory = XmlRequestFactory(self.xfer_class, self.language)
         self.client = XmlClient(self.language)
         self.response_xml = None
+        Params.clear()
+        notfree_mode_connect()
 
     def call(self, path, data, is_client=True):
         if is_client:

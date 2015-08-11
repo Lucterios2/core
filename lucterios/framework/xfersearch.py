@@ -510,13 +510,13 @@ if ((type=='list') || (type=='listmult')) {
         self.fillresponse_show_criteria()
         row = self.get_max_row()
         if isinstance(self.filter, dict):
-            items = self.model.objects.filter(**self.filter)  # pylint: disable=no-member
+            self.items = self.model.objects.filter(**self.filter)  # pylint: disable=no-member
         elif isinstance(self.filter, list):
-            items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+            self.items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
         else:
-            items = self.model.objects.all()  # pylint: disable=no-member
+            self.items = self.model.objects.all()  # pylint: disable=no-member
         grid = XferCompGrid(self.field_id)
-        grid.set_model(items, None, self)
+        grid.set_model(self.items, None, self)
         grid.add_actions(self)
         grid.set_location(0, row + 4, 4)
         grid.set_size(200, 500)

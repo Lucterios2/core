@@ -64,13 +64,13 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         self.fillresponse_header()
         row = self.get_max_row()
-        items = self.get_items_from_filter()
+        self.items = self.get_items_from_filter()
         grid = XferCompGrid(self.field_id)
         if self.multi_page:
             xfer = self
         else:
             xfer = None
-        grid.set_model(items, self.fieldnames, xfer)
+        grid.set_model(self.items, self.fieldnames, xfer)
         grid.add_actions(self)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)

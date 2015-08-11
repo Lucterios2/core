@@ -129,7 +129,7 @@ class Params(object):
 
     @classmethod
     def _get(cls, name):
-        if not name is cls._PARAM_CACHE_LIST.keys():
+        if not name in cls._PARAM_CACHE_LIST.keys():
             try:
                 cls._PARAM_CACHE_LIST[name] = ParamCache(name)
             except ObjectDoesNotExist:

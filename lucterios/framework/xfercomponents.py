@@ -168,10 +168,10 @@ class XferCompLabelForm(XferComponent):
     def set_value_as_headername(self, value):
         self.set_value(six.text_type('{[center]}{[b]}%s{[/b]}{[/center]}') % value)
 
-class XferCompLinkLabel(XferComponent):
+class XferCompLinkLabel(XferCompLabelForm):
 
     def __init__(self, name):
-        XferComponent.__init__(self, name)
+        XferCompLabelForm.__init__(self, name)
         self._component_ident = "LINK"
         self.link = ''
 
@@ -179,7 +179,7 @@ class XferCompLinkLabel(XferComponent):
         self.link = link.strip()
 
     def get_reponse_xml(self):
-        compxml = XferComponent.get_reponse_xml(self)
+        compxml = XferCompLabelForm.get_reponse_xml(self)
         etree.SubElement(compxml, "LINK").text = six.text_type(self.link)
         return compxml
 
@@ -367,7 +367,7 @@ class XferCompSelect(XferCompButton):
 
     def get_reponse_xml(self):
         if isinstance(self.select_list, dict):
-            list_of_select = list(self.select_list.items()) # pylint: disable=no-member
+            list_of_select = list(self.select_list.items())  # pylint: disable=no-member
         else:
             list_of_select = list(self.select_list)
         if len(list_of_select) > 0:
