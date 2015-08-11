@@ -38,7 +38,7 @@ echo "------ install lucterios ------"
 echo
 
 c:/lucterios2/virtual_for_lucterios/Scripts/activate
-pip install --extra-index-url http://v2.lucterios.org/simple --trusted-host v2.lucterios.org -U lucterios-standard
+pip install --extra-index-url http://pypi.lucterios.org/simple --trusted-host pypi.lucterios.org -U lucterios-standard
 
 echo
 echo "------ refresh shortcut ------"

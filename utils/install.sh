@@ -91,7 +91,7 @@ echo "------ install lucterios ------"
 echo
 
 . /var/lucterios2/virtual_for_lucterios/bin/activate
-pip install $PIP_OPTION --extra-index-url http://v2.lucterios.org/simple --trusted-host v2.lucterios.org -U lucterios-standard
+pip install $PIP_OPTION --extra-index-url http://pypi.lucterios.org/simple --trusted-host pypi.lucterios.org -U lucterios-standard
 
 echo
 echo "------ refresh shortcut ------"
@@ -102,7 +102,7 @@ echo "#!/usr/bin/env bash" >> /var/lucterios2/launch_lucterios.sh
 echo  >> /var/lucterios2/launch_lucterios.sh
 echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
 echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
-echo "export extra_url='http://v2.lucterios.org/simple'" >> /var/lucterios2/launch_lucterios.sh
+echo "export extra_url='http://pypi.lucterios.org/simple'" >> /var/lucterios2/launch_lucterios.sh
 if [ -z "$LANG" -o "$LANG" == "C" ]
 then
 	echo "export LANG=en_US.UTF-8" >> /var/lucterios2/launch_lucterios.sh
