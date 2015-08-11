@@ -24,6 +24,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lxml import etree
+import datetime
+import re
+
+from django.utils import six
+from django.db.models import Q
 
 from lucterios.framework.xfercomponents import XferCompTab, XferCompLABEL, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
@@ -31,10 +36,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompLABEL, \
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
-from django.utils import six
 from lucterios.framework.models import get_value_converted
-import datetime
-import re
 
 def remove_format(xml_text):
     xml_text = xml_text.replace('<b>', '')
@@ -434,8 +436,8 @@ class ReportModelGenerator(ReportGenerator):
         self.filter_callback = None
 
     def get_items_filtered(self):
-        if isinstance(self.filter, list):
-            item_list = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
+            item_list = self.model.objects.filter(self.filter)  # pylint: disable=no-member
         else:
             item_list = self.model.objects.all()  # pylint: disable=no-member
         if self.filter_callback is None:

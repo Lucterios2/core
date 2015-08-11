@@ -332,12 +332,12 @@ class FieldDescList(object):
         return filter_result, criteria_desc
 
 class XferSearchEditor(XferContainerCustom):
-    filter = None
 
     def __init__(self):
         XferContainerCustom.__init__(self)
         self.fields_desc = FieldDescList()
         self.criteria_list = []
+        self.filter = None
 
     def read_criteria_from_params(self):
         criteria = self.getparam('CRITERIA')
@@ -366,7 +366,7 @@ class XferSearchEditor(XferContainerCustom):
     def get_text_search(self):
         filter_result, criteria_desc = self.fields_desc.get_query_from_criterialist(self.criteria_list)
         if len(filter_result.children) > 0:
-            self.filter = [filter_result]
+            self.filter = filter_result
         else:
             self.filter = None
         return criteria_desc
@@ -509,10 +509,8 @@ if ((type=='list') || (type=='listmult')) {
         self.fillresponse_search_values()
         self.fillresponse_show_criteria()
         row = self.get_max_row()
-        if isinstance(self.filter, dict):
-            self.items = self.model.objects.filter(**self.filter)  # pylint: disable=no-member
-        elif isinstance(self.filter, list):
-            self.items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
+            self.items = self.model.objects.filter(self.filter)  # pylint: disable=no-member
         else:
             self.items = self.model.objects.all()  # pylint: disable=no-member
         grid = XferCompGrid(self.field_id)

@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.db import IntegrityError
+from django.db.models import Q
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
@@ -33,21 +34,23 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
 class XferListEditor(XferContainerCustom):
-    filter = None
     multi_page = True
     action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.fieldnames = None
+        self.action_list = self.__class__.action_list
+        self.action_grid = None
+        self.filter = None
 
     def fillresponse_header(self):
         # pylint: disable=unused-argument,no-self-use
         return
 
     def get_items_from_filter(self):
-        if isinstance(self.filter, list):
-            items = self.model.objects.filter(*self.filter)  # pylint: disable=no-member
+        if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
+            items = self.model.objects.filter(self.filter)  # pylint: disable=no-member
         else:
             items = self.model.objects.all()  # pylint: disable=no-member
         return items
@@ -71,7 +74,7 @@ class XferListEditor(XferContainerCustom):
         else:
             xfer = None
         grid.set_model(self.items, self.fieldnames, xfer)
-        grid.add_actions(self)
+        grid.add_actions(self, action_list=self.action_grid)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
@@ -81,7 +84,6 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
-
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 class XferAddEditor(XferContainerCustom):
@@ -100,8 +102,9 @@ class XferAddEditor(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, False)
-        self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+        if len(self.actions) == 0:
+            self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
+            self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
