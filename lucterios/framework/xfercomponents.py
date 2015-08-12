@@ -348,6 +348,8 @@ class XferCompSelect(XferCompButton):
 
     def set_select_query(self, query):
         self.select_list = []
+        if not self.needed:
+            self.select_list.append((0, '---'))
         for item in query:
             self.select_list.append((item.id, six.text_type(item)))
 
