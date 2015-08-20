@@ -23,7 +23,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import isfile, join
+import mimetypes, stat, os
+
 from django.utils.translation import ugettext_lazy as _
+from django.utils.http import http_date
+from django.utils import six
+from django.http.response import StreamingHttpResponse
+from django.conf import settings
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
     ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
@@ -32,19 +39,12 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.filetools import get_user_dir
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel
-from django.utils import six
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
-from lucterios.framework.filetools import get_user_dir
-
-from os.path import isfile, join
-import mimetypes, stat, os
-from django.http.response import StreamingHttpResponse
-from django.utils.http import http_date
-from django.conf import settings
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
@@ -104,12 +104,12 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-def rigth_of_changepassword(request):
+def right_changepassword(request):
     if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
         return False
     return request.user.is_authenticated()
 
-@MenuManage.describ(rigth_of_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
+@MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"

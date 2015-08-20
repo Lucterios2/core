@@ -28,7 +28,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
 import threading
-from inspect import isfunction
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -85,8 +84,9 @@ class WrapAction(object):
         return actionxml
 
     def check_permission(self, request):
-        if isfunction(self.is_view_right):
-            return self.is_view_right(request)
+        if isinstance(self.is_view_right, tuple):
+            view_right_fct = self.is_view_right[0]
+            return view_right_fct(request)
         if self.is_view_right == None:
             return request.user.is_authenticated()
         if self.mode_connect_notfree is None or self.mode_connect_notfree():

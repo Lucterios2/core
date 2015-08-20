@@ -22,9 +22,9 @@ You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
 from __future__ import unicode_literals
 from lxml import etree
+from inspect import isfunction
 
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
@@ -32,11 +32,11 @@ from django.utils import translation, six
 from django.utils.log import getLogger
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.fields.related import ForeignKey
 
 from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
-from django.db.models.fields.related import ForeignKey
 
 class XferContainerAbstract(View):
     # pylint: disable=too-many-instance-attributes
@@ -77,7 +77,10 @@ class XferContainerAbstract(View):
             module_items = module_items[:-1]
         extension = ".".join(module_items)
         action = cls.__name__[0].lower() + cls.__name__[1:]
-        cls.is_view_right = right
+        if isfunction(right):
+            cls.is_view_right = (right,)
+        else:
+            cls.is_view_right = right
         cls.url_text = r'%s/%s' % (extension, action)
 
     @classmethod
