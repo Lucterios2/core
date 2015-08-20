@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
 from __future__ import unicode_literals
 from django.utils.translation import ugettext as _
 from django.utils import six, formats
@@ -223,7 +222,7 @@ class XferContainerDialogBox(XferContainerAbstract):
 class XferContainerCustom(XferContainerAbstract):
     # pylint: disable=too-many-public-methods
 
-    observer_name = "Core.Custom"   
+    observer_name = "Core.Custom"
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
@@ -410,7 +409,6 @@ class XferContainerCustom(XferContainerAbstract):
             if isinstance(line_field_name, tuple):
                 maxsize_of_lines = max((maxsize_of_lines, len(line_field_name)))
         return maxsize_of_lines
-
 
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
         # pylint: disable=no-self-use

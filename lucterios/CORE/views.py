@@ -44,6 +44,7 @@ from os.path import isfile, join
 import mimetypes, stat, os
 from django.http.response import StreamingHttpResponse
 from django.utils.http import http_date
+from django.conf import settings
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
@@ -103,7 +104,12 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
-@MenuManage.describ(None, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
+def rigth_of_changepassword(request):
+    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
+        return False
+    return request.user.is_authenticated()
+
+@MenuManage.describ(rigth_of_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("_Password")
     icon = "passwd.png"

@@ -89,7 +89,6 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="valid"]', "Non")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="comment"]', None)
         self.assert_count_equal('CONTEXT/PARAM', 1)
-        
 
     def testsearch(self):
         self.factory.xfer = ExampleSearch()
