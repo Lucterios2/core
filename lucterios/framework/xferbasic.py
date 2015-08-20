@@ -54,6 +54,7 @@ class XferContainerAbstract(View):
     model = None
     field_id = ''
     locked = False
+    readonly = False
 
     def __init__(self, **kwargs):
         View.__init__(self, **kwargs)
@@ -128,8 +129,11 @@ class XferContainerAbstract(View):
     def _load_unique_record(self, itemid):
         try:
             self.item = self.model.objects.get(id=itemid).get_final_child()
-            self.fill_simple_fields()
-            self.fill_manytomany_fields()
+            if not self.readonly:
+                self.fill_simple_fields()
+                self.fill_manytomany_fields()
+            else:
+                self.clear_fields_in_params()
             if self.locked:
                 lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
                 self.params.update(lock_params)
@@ -155,6 +159,14 @@ class XferContainerAbstract(View):
                 self.item = self.model()  # pylint: disable=not-callable
                 self.is_new = True
                 self.fill_simple_fields()
+
+    def clear_fields_in_params(self):
+        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
+        for field_name in field_names:
+            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            if not dep_field.auto_created or dep_field.concrete:
+                if field_name in self.params.keys():
+                    del self.params[field_name]
 
     def fill_simple_fields(self):
         field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
@@ -187,7 +199,7 @@ class XferContainerAbstract(View):
                 if new_value is not None:
                     relation_model = dep_field.rel.to
                     if new_value != '':
-                        new_value = relation_model.objects.filter(id__in=new_value.split(';')) # pylint: disable=no-member
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))  # pylint: disable=no-member
                     else:
                         new_value = relation_model.objects.filter(id__in=[])
                     setattr(self.item, field_name, new_value)

@@ -223,7 +223,7 @@ class XferContainerDialogBox(XferContainerAbstract):
 class XferContainerCustom(XferContainerAbstract):
     # pylint: disable=too-many-public-methods
 
-    observer_name = "Core.Custom"
+    observer_name = "Core.Custom"   
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)

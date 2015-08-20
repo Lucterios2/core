@@ -68,6 +68,28 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleShow()
         self.call('/lucterios.dummy/exampleShow', {'example':'2'}, False)
         self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleShow')
+        self.assert_count_equal('COMPONENTS/*', 15)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="name"]', "zzzz")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="value"]', "7")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="price"]', "714.03")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="date"]', "21 mars 2008")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="time"]', "15:21")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="valid"]', "Non")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="comment"]', None)
+
+        self.factory.xfer = ExampleShow()
+        self.call('/lucterios.dummy/exampleShow', {'example':'2', 'name':'truc', 'value':'37', 'valid':'1'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleShow')
+        self.assert_count_equal('COMPONENTS/*', 15)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="name"]', "zzzz")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="value"]', "7")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="price"]', "714.03")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="date"]', "21 mars 2008")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="time"]', "15:21")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="valid"]', "Non")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="comment"]', None)
+        self.assert_count_equal('CONTEXT/PARAM', 1)
+        
 
     def testsearch(self):
         self.factory.xfer = ExampleSearch()

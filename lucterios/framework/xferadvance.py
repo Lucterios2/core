@@ -127,16 +127,13 @@ class XferAddEditor(XferContainerCustom):
 class XferShowEditor(XferContainerCustom):
 
     locked = True
+    readonly = True
 
     def fillresponse(self, action_list=None):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
-        lbl = XferCompLabelForm('title')
-        lbl.set_value_as_title(self.caption)
-        lbl.set_location(1, 0)
-        self.add_component(lbl)
         self.fill_from_model(1, 0, True)
         if action_list is None:
             action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
