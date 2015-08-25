@@ -31,6 +31,7 @@ from os.path import dirname, join, isdir
 from os import listdir
 from lucterios import CORE
 
+
 def find_help(module):
     help_file = []
     help_dico = {}
@@ -40,12 +41,14 @@ def find_help(module):
             if hfile.endswith(".html"):
                 help_dico[hfile] = ugettext(hfile)
         for hfile in sorted(help_dico.keys()):
-            help_file.append(("%s-%s" % (module.__name__, hfile), help_dico[hfile]))
+            help_file.append(
+                ("%s-%s" % (module.__name__, hfile), help_dico[hfile]))
         if hasattr(module, '__title__'):
             return (module.__name__, six.text_type(module.__title__()), help_file)
         else:
             return (module.__name__, module.__name__, help_file)
     return None
+
 
 def defaulthelp(request):
     from django.shortcuts import render_to_response
@@ -59,7 +62,7 @@ def defaulthelp(request):
         dictionary['menus'] = []
         dictionary['menus'].append(find_help(settings.APPLIS_MODULE))
         for appname in settings.INSTALLED_APPS:
-            if (not "django" in appname) and (not "lucterios.CORE" in appname) and (settings.APPLIS_MODULE.__name__ != appname):
+            if ("django" not in appname) and ("lucterios.CORE" not in appname) and (settings.APPLIS_MODULE.__name__ != appname):
                 help_item = find_help(import_module(appname))
                 if help_item is not None:
                     dictionary['menus'].append(help_item)

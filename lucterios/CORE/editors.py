@@ -31,13 +31,15 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPasswo
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT
 
+
 class LucteriosUserEditor(LucteriosEditor):
 
     def edit(self, xfer):
-        if self.item.id is not None:  # pylint: disable=no-member
+        if self.item.id is not None:
             xfer.change_to_readonly('username')
             obj_username = xfer.get_components('username')
-            xfer.filltab_from_model(obj_username.col - 1, obj_username.row + 1, True, ['date_joined', 'last_login'])
+            xfer.filltab_from_model(
+                obj_username.col - 1, obj_username.row + 1, True, ['date_joined', 'last_login'])
         obj_email = xfer.get_components('email')
         xfer.tab = obj_email.tab
         new_row = obj_email.row
@@ -76,7 +78,7 @@ parent.get('password2').setEnabled(pwd_change);
         return LucteriosEditor.edit(self, xfer)
 
     def before_save(self, xfer):
-        if self.item.id is None:  # pylint: disable=no-member
+        if self.item.id is None:
             self.item.last_login = timezone.now()
         return
 
@@ -86,7 +88,8 @@ parent.get('password2').setEnabled(pwd_change);
             password1 = xfer.getparam('password1')
             password2 = xfer.getparam('password2')
             if password1 != password2:
-                raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+                raise LucteriosException(
+                    IMPORTANT, _("The passwords are differents!"))
             if password1 is not None:
                 self.item.set_password(password1)
                 self.item.save()

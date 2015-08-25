@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=invalid-name
+
 '''
 GUI tool to manage Lucterios instance
 
@@ -50,23 +50,26 @@ try:
     from tkinter.messagebox import showerror, showinfo, askokcancel
     from tkinter.filedialog import asksaveasfilename, askopenfilename
 except ImportError:
-    from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar  # pylint: disable=import-error
-    from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED  # pylint: disable=import-error
-    from tkMessageBox import showerror, showinfo, askokcancel  # pylint: disable=import-error
-    from tkFileDialog import asksaveasfilename, askopenfilename  # pylint: disable=import-error
-    import ttk  # pylint: disable=import-error
+    from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar
+    from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
+    from tkMessageBox import showerror, showinfo, askokcancel
+    from tkFileDialog import asksaveasfilename, askopenfilename
+    import ttk
+
 
 class RunException(Exception):
     pass
+
 
 def ProvideException(func):
     def wrapper(*args):
         try:
             return func(*args)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             print_exc()
             showerror(ugettext("Lucterios installer"), e)
     return wrapper
+
 
 def ThreadRun(func):
     def wrapper(*args):
@@ -80,6 +83,7 @@ def ThreadRun(func):
         Thread(target=sub_fct).start()
     return wrapper
 
+
 class RunServer(object):
 
     def __init__(self, instance_name, port):
@@ -90,7 +94,8 @@ class RunServer(object):
 
     def start(self):
         self.stop()
-        cmd = [sys.executable, 'manage_%s.py' % self.instance_name, 'runserver', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
+        cmd = [sys.executable, 'manage_%s.py' % self.instance_name,
+               'runserver', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
         self.process = Popen(cmd, stdout=PIPE, stderr=STDOUT)
         sleep(3.0)
         if self.process.poll() is not None:
@@ -100,8 +105,9 @@ class RunServer(object):
         self.open_url()
 
     def _search_browser_from_nix(self):
-        # pylint: disable=no-self-use
-        browsers = ["xdg-open", "firefox", "chromium-browser", "mozilla", "konqueror", "opera", "epiphany", "netscape"]
+
+        browsers = ["xdg-open", "firefox", "chromium-browser",
+                    "mozilla", "konqueror", "opera", "epiphany", "netscape"]
         browser = None
         try:
             for browser_iter in browsers:
@@ -139,6 +145,7 @@ class RunServer(object):
     def is_running(self):
         return (self.process is not None) and (self.process.poll() is None)
 
+
 def center(root, size=None):
     root.update_idletasks()
     width = root.winfo_screenwidth()
@@ -149,11 +156,11 @@ def center(root, size=None):
     pos_y = int(height / 2 - size[1] / 2)
     root.geometry("%dx%d+%d+%d" % (size + (pos_x, pos_y)))
 
+
 class InstanceEditor(Toplevel):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
-        # pylint: disable=super-init-not-called
+
         Toplevel.__init__(self)
         self.focus_set()
         self.grab_set()
@@ -182,46 +189,61 @@ class InstanceEditor(Toplevel):
 
         btnframe = Frame(self, bd=1)
         btnframe.grid(row=1, column=0, columnspan=1)
-        Button(btnframe, text=ugettext("OK"), width=10, command=self.apply).grid(row=0, column=0, sticky=(N, S, E))
-        Button(btnframe, text=ugettext("Cancel"), width=10, command=self.destroy).grid(row=0, column=1, sticky=(N, S, W))
+        Button(btnframe, text=ugettext("OK"), width=10, command=self.apply).grid(
+            row=0, column=0, sticky=(N, S, E))
+        Button(btnframe, text=ugettext("Cancel"), width=10, command=self.destroy).grid(
+            row=0, column=1, sticky=(N, S, W))
 
     def _database_tabs(self):
-        Label(self.frm_database, text=ugettext("Type")).grid(row=0, column=0, sticky=(N, W), padx=5, pady=3)
-        self.typedb = ttk.Combobox(self.frm_database, textvariable=StringVar(), state=READLONY)
+        Label(self.frm_database, text=ugettext("Type")).grid(
+            row=0, column=0, sticky=(N, W), padx=5, pady=3)
+        self.typedb = ttk.Combobox(
+            self.frm_database, textvariable=StringVar(), state=READLONY)
         self.typedb.bind("<<ComboboxSelected>>", self.typedb_selection)
         self.typedb.grid(row=0, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("Name")).grid(row=1, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_database, text=ugettext("Name")).grid(
+            row=1, column=0, sticky=(N, W), padx=5, pady=3)
         self.namedb = Entry(self.frm_database)
         self.namedb.grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("User")).grid(row=2, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_database, text=ugettext("User")).grid(
+            row=2, column=0, sticky=(N, W), padx=5, pady=3)
         self.userdb = Entry(self.frm_database)
         self.userdb.grid(row=2, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("Password")).grid(row=3, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_database, text=ugettext("Password")).grid(
+            row=3, column=0, sticky=(N, W), padx=5, pady=3)
         self.pwddb = Entry(self.frm_database)
         self.pwddb.grid(row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
 
     def _general_tabs(self):
-        Label(self.frm_general, text=ugettext("Name")).grid(row=0, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_general, text=ugettext("Name")).grid(
+            row=0, column=0, sticky=(N, W), padx=5, pady=3)
         self.name = Entry(self.frm_general)
         self.name.grid(row=0, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Appli")).grid(row=1, column=0, sticky=(N, W), padx=5, pady=3)
-        self.applis = ttk.Combobox(self.frm_general, textvariable=StringVar(), state=READLONY)
+        Label(self.frm_general, text=ugettext("Appli")).grid(
+            row=1, column=0, sticky=(N, W), padx=5, pady=3)
+        self.applis = ttk.Combobox(
+            self.frm_general, textvariable=StringVar(), state=READLONY)
         self.applis.bind("<<ComboboxSelected>>", self.appli_selection)
         self.applis.grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Modules")).grid(row=2, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_general, text=ugettext("Modules")).grid(
+            row=2, column=0, sticky=(N, W), padx=5, pady=3)
         self.modules = Listbox(self.frm_general, selectmode=EXTENDED)
         self.modules.configure(exportselection=False)
         self.modules.grid(row=2, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("CORE-connectmode")).grid(row=3, column=0, sticky=(N, W), padx=5, pady=3)
-        self.mode = ttk.Combobox(self.frm_general, textvariable=StringVar(), state=READLONY)
+        Label(self.frm_general, text=ugettext("CORE-connectmode")
+              ).grid(row=3, column=0, sticky=(N, W), padx=5, pady=3)
+        self.mode = ttk.Combobox(
+            self.frm_general, textvariable=StringVar(), state=READLONY)
         self.mode.bind("<<ComboboxSelected>>", self.mode_selection)
         self.mode.grid(row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Password")).grid(row=4, column=0, sticky=(N, W), padx=5, pady=3)
+        Label(self.frm_general, text=ugettext("Password")).grid(
+            row=4, column=0, sticky=(N, W), padx=5, pady=3)
         self.password = Entry(self.frm_general, show="*")
-        self.password.grid(row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+        self.password.grid(
+            row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
 
     def typedb_selection(self, event):
-        # pylint: disable=unused-argument
+
         visible = list(self.typedb[VALUES]).index(self.typedb.get()) != 0
         for child_cmp in self.frm_database.winfo_children()[2:]:
             if visible:
@@ -230,7 +252,7 @@ class InstanceEditor(Toplevel):
                 child_cmp.config(state=DISABLED)
 
     def appli_selection(self, event):
-        # pylint: disable=unused-argument
+
         appli_id = list(self.applis[VALUES]).index(self.applis.get())
 
         luct_glo = LucteriosGlobal()
@@ -250,7 +272,7 @@ class InstanceEditor(Toplevel):
                 self.modules.selection_set(mod_idx)
 
     def mode_selection(self, event):
-        # pylint: disable=unused-argument
+
         visible = list(self.mode[VALUES]).index(self.mode.get()) != 2
         for child_cmp in self.frm_general.winfo_children()[-2:]:
             if visible:
@@ -260,14 +282,18 @@ class InstanceEditor(Toplevel):
 
     def apply(self):
         if self.name.get() != '':
-            db_param = "%s:name=%s,user=%s,password=%s" % (self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
-            security = "MODE=%s" % list(self.mode[VALUES]).index(self.mode.get())
+            db_param = "%s:name=%s,user=%s,password=%s" % (
+                self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
+            security = "MODE=%s" % list(
+                self.mode[VALUES]).index(self.mode.get())
             if self.password.get() != '':
                 security += ",PASSWORD=%s" % self.password.get()
-            module_list = [self.module_data[int(item)] for item in self.modules.curselection()]
+            module_list = [
+                self.module_data[int(item)] for item in self.modules.curselection()]
             appli_id = list(self.applis[VALUES]).index(self.applis.get())
 
-            self.result = (self.name.get(), self.mod_applis[appli_id][0], ",".join(module_list), security, db_param)
+            self.result = (self.name.get(), self.mod_applis[appli_id][
+                           0], ",".join(module_list), security, db_param)
             self.destroy()
         else:
             showerror(ugettext("Instance editor"), ugettext("Name empty!"))
@@ -313,7 +339,8 @@ class InstanceEditor(Toplevel):
                 self.modules.select_set(mod_idx)
 
     def execute(self, instance_name=None):
-        self.mode[VALUES] = [ugettext("CORE-connectmode.0"), ugettext("CORE-connectmode.1"), ugettext("CORE-connectmode.2")]
+        self.mode[VALUES] = [ugettext(
+            "CORE-connectmode.0"), ugettext("CORE-connectmode.1"), ugettext("CORE-connectmode.2")]
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
         _, self.mod_applis, mod_modules = lct_glob.installed()
@@ -338,11 +365,11 @@ class InstanceEditor(Toplevel):
             self.typedb_selection(None)
         center(self)
 
+
 class LucteriosMainForm(Tk):
-    # pylint: disable=too-many-public-methods
 
     def __init__(self):
-        # pylint: disable=super-init-not-called
+
         Tk.__init__(self)
         self.has_checked = False
         self.title(ugettext("Lucterios installer"))
@@ -361,16 +388,20 @@ class LucteriosMainForm(Tk):
         stl = ttk.Style()
         stl.theme_use("default")
         stl.configure("TProgressbar", thickness=5)
-        self.progress = ttk.Progressbar(self, style="TProgressbar", orient='horizontal', mode='indeterminate')
+        self.progress = ttk.Progressbar(
+            self, style="TProgressbar", orient='horizontal', mode='indeterminate')
         self.progress.grid(row=1, column=0, sticky=(E, W))
 
         self.btnframe = Frame(self, bd=1)
         self.btnframe.grid(row=2, column=0, columnspan=1)
-        Button(self.btnframe, text=ugettext("Refresh"), width=20, command=self.refresh).grid(row=0, column=0, padx=3, pady=3, sticky=(N, S))
-        self.btnupgrade = Button(self.btnframe, text=ugettext("Search upgrade"), width=20, command=self.upgrade)
+        Button(self.btnframe, text=ugettext("Refresh"), width=20, command=self.refresh).grid(
+            row=0, column=0, padx=3, pady=3, sticky=(N, S))
+        self.btnupgrade = Button(
+            self.btnframe, text=ugettext("Search upgrade"), width=20, command=self.upgrade)
         self.btnupgrade.config(state=DISABLED)
         self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
-        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.destroy).grid(row=0, column=2, padx=3, pady=3, sticky=(N, S))
+        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.destroy).grid(
+            row=0, column=2, padx=3, pady=3, sticky=(N, S))
 
     def destroy(self):
         instance_names = list(self.running_instance.keys())
@@ -398,12 +429,18 @@ class LucteriosMainForm(Tk):
         self.btninstframe = Frame(frm_inst, bd=1)
         self.btninstframe.grid(row=1, column=0, columnspan=1)
         self.btninstframe.grid_columnconfigure(0, weight=1)
-        Button(self.btninstframe, text=ugettext("Launch"), width=25, command=self.open_inst).grid(row=0, column=0, columnspan=2, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Modify"), width=10, command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Delete"), width=10, command=self.delete_inst).grid(row=1, column=1, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Save"), width=10, command=self.save_inst).grid(row=2, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Restore"), width=10, command=self.restore_inst).grid(row=2, column=1, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Add"), width=25, command=self.add_inst).grid(row=3, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Launch"), width=25, command=self.open_inst).grid(
+            row=0, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Modify"), width=10,
+               command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Delete"), width=10,
+               command=self.delete_inst).grid(row=1, column=1, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Save"), width=10,
+               command=self.save_inst).grid(row=2, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Restore"), width=10,
+               command=self.restore_inst).grid(row=2, column=1, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Add"), width=25, command=self.add_inst).grid(
+            row=3, column=0, columnspan=2, sticky=(N, S))
 
         self.ntbk.add(frm_inst, text=ugettext('Instances'))
 
@@ -460,14 +497,17 @@ class LucteriosMainForm(Tk):
         self.module_txt.delete("1.0", END)
         lct_glob = LucteriosGlobal()
         mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
-        self.module_txt.insert(END, ugettext("Lucterios core\t\t%s\n") % mod_lucterios[1])
+        self.module_txt.insert(
+            END, ugettext("Lucterios core\t\t%s\n") % mod_lucterios[1])
         self.module_txt.insert(END, '\n')
         self.module_txt.insert(END, ugettext("Application\n"))
         for appli_item in mod_applis:
-            self.module_txt.insert(END, "\t%s\t%s\n" % (appli_item[0].ljust(30), appli_item[1]))
+            self.module_txt.insert(
+                END, "\t%s\t%s\n" % (appli_item[0].ljust(30), appli_item[1]))
         self.module_txt.insert(END, ugettext("Modules\n"))
         for module_item in mod_modules:
-            self.module_txt.insert(END, "\t%s\t%s\n" % (module_item[0].ljust(30), module_item[1]))
+            self.module_txt.insert(
+                END, "\t%s\t%s\n" % (module_item[0].ljust(30), module_item[1]))
         self.module_txt.config(state=DISABLED)
         self.has_checked = True
 
@@ -479,12 +519,12 @@ class LucteriosMainForm(Tk):
         instance_list = luct_glo.listing()
         for item in instance_list:
             self.instance_list.insert(END, item)
-            if not item in self.running_instance.keys():
+            if item not in self.running_instance.keys():
                 self.running_instance[item] = None
 
         instance_names = list(self.running_instance.keys())
         for old_item in instance_names:
-            if not old_item in instance_list:
+            if old_item not in instance_list:
                 if self.running_instance[old_item] is not None:
                     self.running_instance[old_item].stop()
                 del self.running_instance[old_item]
@@ -527,7 +567,8 @@ class LucteriosMainForm(Tk):
         try:
             lct_glob = LucteriosGlobal()
             if lct_glob.update():
-                showinfo(ugettext("Lucterios installer"), ugettext("The application must restart"))
+                showinfo(ugettext("Lucterios installer"), ugettext(
+                    "The application must restart"))
                 python = sys.executable
                 os.execl(python, python, *sys.argv)
         finally:
@@ -537,7 +578,7 @@ class LucteriosMainForm(Tk):
 
     @ThreadRun
     def select_instance(self, evt):
-        # pylint: disable=unused-argument
+
         if self.instance_list['state'] == NORMAL:
             self.instance_list.config(state=DISABLED)
             try:
@@ -545,30 +586,43 @@ class LucteriosMainForm(Tk):
                 self.instance_txt.configure(state=NORMAL)
                 self.instance_txt.delete("1.0", END)
                 if instance_name != '':
-                    if not instance_name in self.running_instance.keys():
+                    if instance_name not in self.running_instance.keys():
                         self.running_instance[instance_name] = None
                     inst = LucteriosInstance(instance_name)
                     inst.read()
                     self.instance_txt.insert(END, "\t\t\t%s\n\n" % inst.name)
-                    self.instance_txt.insert(END, ugettext("Database\t\t%s\n") % inst.get_database_txt())
-                    self.instance_txt.insert(END, ugettext("Appli\t\t%s\n") % inst.get_appli_txt())
-                    self.instance_txt.insert(END, ugettext("Modules\t\t%s\n") % inst.get_module_txt())
-                    self.instance_txt.insert(END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
+                    self.instance_txt.insert(
+                        END, ugettext("Database\t\t%s\n") % inst.get_database_txt())
+                    self.instance_txt.insert(
+                        END, ugettext("Appli\t\t%s\n") % inst.get_appli_txt())
+                    self.instance_txt.insert(
+                        END, ugettext("Modules\t\t%s\n") % inst.get_module_txt())
+                    self.instance_txt.insert(
+                        END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
-                        self.instance_txt.insert(END, ugettext("=> Running in http://127.0.0.1:%s\n") % six.text_type(self.running_instance[instance_name].port))
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Stop")
+                        self.instance_txt.insert(END, ugettext(
+                            "=> Running in http://127.0.0.1:%s\n") % six.text_type(self.running_instance[instance_name].port))
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                            "Stop")
                     else:
                         self.running_instance[instance_name] = None
                         self.instance_txt.insert(END, ugettext("=> Stopped\n"))
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                            "Launch")
                 else:
-                    self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
-                self.btninstframe.winfo_children()[0].disabled = (instance_name == '')
-                self.btninstframe.winfo_children()[1].disabled = (instance_name == '')
-                self.btninstframe.winfo_children()[2].disabled = (instance_name == '')
-                self.btninstframe.winfo_children()[3].disabled = (instance_name == '')
-                self.btninstframe.winfo_children()[4].disabled = (instance_name == '')
+                    self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                        "Launch")
+                self.btninstframe.winfo_children()[0].disabled = (
+                    instance_name == '')
+                self.btninstframe.winfo_children()[1].disabled = (
+                    instance_name == '')
+                self.btninstframe.winfo_children()[2].disabled = (
+                    instance_name == '')
+                self.btninstframe.winfo_children()[3].disabled = (
+                    instance_name == '')
+                self.btninstframe.winfo_children()[4].disabled = (
+                    instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
                 self.instance_list.config(state=NORMAL)
@@ -631,14 +685,15 @@ class LucteriosMainForm(Tk):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
             try:
-                if not instance_name in self.running_instance.keys():
+                if instance_name not in self.running_instance.keys():
                     self.running_instance[instance_name] = None
                 if self.running_instance[instance_name] is None:
                     port = FIRST_HTTP_PORT
                     for inst_obj in self.running_instance.values():
                         if (inst_obj is not None) and (inst_obj.port >= port):
                             port = inst_obj.port + 1
-                    self.running_instance[instance_name] = RunServer(instance_name, port)
+                    self.running_instance[instance_name] = RunServer(
+                        instance_name, port)
                     self.running_instance[instance_name].start()
                 else:
                     self.running_instance[instance_name].stop()
@@ -651,15 +706,18 @@ class LucteriosMainForm(Tk):
         inst = LucteriosInstance(instance_name)
         inst.filename = file_name
         if inst.archive():
-            showinfo(ugettext("Lucterios installer"), ugettext("Instance saved to %s") % file_name)
+            showinfo(ugettext("Lucterios installer"), ugettext(
+                "Instance saved to %s") % file_name)
         else:
-            showerror(ugettext("Lucterios installer"), ugettext("Instance not saved!"))
+            showerror(
+                ugettext("Lucterios installer"), ugettext("Instance not saved!"))
         self.refresh(instance_name)
 
     def save_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = asksaveasfilename(parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')])
+            file_name = asksaveasfilename(
+                parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')])
             if file_name != '':
                 self.save_instance(instance_name, file_name)
 
@@ -671,16 +729,19 @@ class LucteriosMainForm(Tk):
             rest_inst = LucteriosInstance(instance_name)
         rest_inst.filename = file_name
         if rest_inst.restore():
-            showinfo(ugettext("Lucterios installer"), ugettext("Instance restore from %s") % file_name)
+            showinfo(ugettext("Lucterios installer"), ugettext(
+                "Instance restore from %s") % file_name)
         else:
-            showerror(ugettext("Lucterios installer"), ugettext("Instance not restored!"))
+            showerror(
+                ugettext("Lucterios installer"), ugettext("Instance not restored!"))
 
         self.refresh(instance_name)
 
     def restore_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')])
+            file_name = askopenfilename(
+                parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')])
             if file_name != '':
                 self.restore_instance(instance_name, file_name)
 
@@ -688,6 +749,7 @@ class LucteriosMainForm(Tk):
         self.refresh()
         center(self, (700, 300))
         self.mainloop()
+
 
 def main():
     import types

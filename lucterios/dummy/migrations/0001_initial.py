@@ -31,16 +31,20 @@ from django.utils import six
 from lucterios.CORE.models import PrintModel
 from lucterios.dummy.models import Example
 
+
 def initial_values(*args):
     # pylint: disable=unused-argument, no-member, expression-not-assigned
-    prtmdl = PrintModel.objects.create(name="listing", kind=0, modelname=Example.get_long_name())
-    prtmdl.change_listing(210, 297, [(10, 'Name', '#name'), \
-                                     (20, 'value + price', '#value/#price'), \
+    prtmdl = PrintModel.objects.create(
+        name="listing", kind=0, modelname=Example.get_long_name())
+    prtmdl.change_listing(210, 297, [(10, 'Name', '#name'),
+                                     (20, 'value + price', '#value/#price'),
                                      (20, 'date + time', '#date{[newline]}#time')])
     prtmdl.save()
-    prtmdl = PrintModel.objects.create(name="label", kind=1, modelname=Example.get_long_name())
+    prtmdl = PrintModel.objects.create(
+        name="label", kind=1, modelname=Example.get_long_name())
     prtmdl.value = "#name{[newline]}#value:#price{[newline]}#date #time"
     prtmdl.save()
+
 
 class Migration(migrations.Migration):
 
@@ -52,10 +56,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Example',
             fields=[
-                ('id', models.AutoField(serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(
+                    serialize=False, primary_key=True, verbose_name='ID', auto_created=True)),
                 ('name', models.CharField(max_length=75, unique=True)),
-                ('value', models.IntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(20)])),
-                ('price', models.DecimalField(validators=[django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)], decimal_places=2, max_digits=6)),
+                ('value', models.IntegerField(validators=[django.core.validators.MinValueValidator(
+                    0), django.core.validators.MaxValueValidator(20)])),
+                ('price', models.DecimalField(validators=[django.core.validators.MinValueValidator(
+                    -5000.0), django.core.validators.MaxValueValidator(5000.0)], decimal_places=2, max_digits=6)),
                 ('date', models.DateField()),
                 ('time', models.TimeField()),
                 ('valid', models.BooleanField(default=False)),
@@ -69,10 +76,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Other',
             fields=[
-                ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
+                ('id', models.AutoField(
+                    primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
                 ('text', models.CharField(max_length=75, unique=True)),
-                ('integer', models.IntegerField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(20)])),
-                ('real', models.DecimalField(max_digits=6, decimal_places=2, validators=[django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)])),
+                ('integer', models.IntegerField(validators=[django.core.validators.MinValueValidator(
+                    0), django.core.validators.MaxValueValidator(20)])),
+                ('real', models.DecimalField(max_digits=6, decimal_places=2, validators=[
+                 django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)])),
                 ('bool', models.BooleanField(default=False)),
             ],
             bases=(models.Model,),

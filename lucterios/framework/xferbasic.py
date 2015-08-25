@@ -38,8 +38,8 @@ from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 
+
 class XferContainerAbstract(View):
-    # pylint: disable=too-many-instance-attributes
 
     observer_name = ''
     extension = ""
@@ -105,7 +105,8 @@ class XferContainerAbstract(View):
             caption = cls.caption
         if icon_path is None:
             icon_path = cls.icon_path()
-        ret_act = WrapAction(caption, icon_path, url_text=cls.url_text, is_view_right=cls.is_view_right)  # pylint: disable=no-member
+        ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
+                             is_view_right=cls.is_view_right)
         ret_act.modal = modal
         return ret_act
 
@@ -114,7 +115,8 @@ class XferContainerAbstract(View):
             param_value = self.params[key]
             try:
                 if isinstance(default_value, bool):
-                    param_value = (param_value != 'False') and (param_value != '0') and (param_value != '') and (param_value != 'n')
+                    param_value = (param_value != 'False') and (param_value != '0') and (
+                        param_value != '') and (param_value != 'n')
                 elif isinstance(default_value, int):
                     param_value = int(param_value)
                 elif isinstance(default_value, float):
@@ -138,12 +140,15 @@ class XferContainerAbstract(View):
             else:
                 self.clear_fields_in_params()
             if self.locked:
-                lock_params = signal_and_lock.RecordLocker.lock(self.request, self.item)
+                lock_params = signal_and_lock.RecordLocker.lock(
+                    self.request, self.item)
                 self.params.update(lock_params)
                 if signal_and_lock.unlocker_view_class is not None:
-                    self.set_close_action(signal_and_lock.unlocker_view_class.get_action())
+                    self.set_close_action(
+                        signal_and_lock.unlocker_view_class.get_action())
         except ObjectDoesNotExist:
-            raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
+            raise LucteriosException(
+                IMPORTANT, _("This record not exist!\nRefresh your application."))
 
     def _search_model(self):
         self.has_changed = False
@@ -159,22 +164,26 @@ class XferContainerAbstract(View):
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
-                self.item = self.model()  # pylint: disable=not-callable
+                self.item = self.model()
                 self.is_new = True
                 self.fill_simple_fields()
 
     def clear_fields_in_params(self):
-        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
+        field_names = [
+            f.name for f in self.item._meta.get_fields()]
         for field_name in field_names:
-            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            dep_field = self.item._meta.get_field(
+                field_name)
             if not dep_field.auto_created or dep_field.concrete:
                 if field_name in self.params.keys():
                     del self.params[field_name]
 
     def fill_simple_fields(self):
-        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
+        field_names = [
+            f.name for f in self.item._meta.get_fields()]
         for field_name in field_names:
-            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            dep_field = self.item._meta.get_field(
+                field_name)
             if not dep_field.auto_created or dep_field.concrete:
                 new_value = self.getparam(field_name)
                 if new_value is not None:
@@ -187,22 +196,26 @@ class XferContainerAbstract(View):
                             if pk_id <= 0:
                                 new_value = None
                             else:
-                                new_value = dep_field.rel.to.objects.get(pk=pk_id)
+                                new_value = dep_field.rel.to.objects.get(
+                                    pk=pk_id)
                         if dep_field.null or (new_value is not None):
                             setattr(self.item, field_name, new_value)
                         self.has_changed = True
         return self.has_changed
 
     def fill_manytomany_fields(self):
-        field_names = [f.name for f in self.item._meta.get_fields()]  # pylint: disable=protected-access
+        field_names = [
+            f.name for f in self.item._meta.get_fields()]
         for field_name in field_names:
-            dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+            dep_field = self.item._meta.get_field(
+                field_name)
             if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
                 new_value = self.getparam(field_name)
                 if new_value is not None:
                     relation_model = dep_field.rel.to
                     if new_value != '':
-                        new_value = relation_model.objects.filter(id__in=new_value.split(';'))  # pylint: disable=no-member
+                        new_value = relation_model.objects.filter(
+                            id__in=new_value.split(';'))
                     else:
                         new_value = relation_model.objects.filter(id__in=[])
                     setattr(self.item, field_name, new_value)
@@ -248,8 +261,9 @@ class XferContainerAbstract(View):
             context = etree.Element("CONTEXT")
             fill_param_xml(context, self.params)
             self.responsexml.insert(1, context)
-        if self.closeaction != None:
-            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(self.closeaction[0].get_action_xml(self.closeaction[1]))
+        if self.closeaction is not None:
+            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(
+                self.closeaction[0].get_action_xml(self.closeaction[1]))
 
     def get_response(self):
         return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
@@ -280,6 +294,7 @@ class XferContainerAbstract(View):
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)
 
+
 class XferContainerMenu(XferContainerAbstract):
 
     observer_name = 'CORE.Menu'
@@ -288,6 +303,7 @@ class XferContainerMenu(XferContainerAbstract):
         from lucterios.framework.tools import MenuManage
         main_menu = etree.SubElement(self.responsexml, "MENUS")
         MenuManage.fill(self.request, None, main_menu)
+
 
 class XferContainerException(XferContainerAbstract):
 
@@ -307,7 +323,8 @@ class XferContainerException(XferContainerAbstract):
         expt = etree.SubElement(self.responsexml, "EXCEPTION")
         etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
         if isinstance(self.exception, LucteriosException):
-            etree.SubElement(expt, 'CODE').text = six.text_type(self.exception.code)
+            etree.SubElement(expt, 'CODE').text = six.text_type(
+                self.exception.code)
         else:
             etree.SubElement(expt, 'CODE').text = '0'
         etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()

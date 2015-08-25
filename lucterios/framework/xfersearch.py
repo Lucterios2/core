@@ -27,11 +27,13 @@ from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import CLOSE_NO, WrapAction, FORMTYPE_REFRESH, ActionsManage
+from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
+from lucterios.framework.tools import WrapAction, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
+from lucterios.framework.xfergraphic import XferContainerCustom, \
+    get_range_value
 from django.utils import six
 from django.db.models.fields.related import ManyToManyField
 from django.db.models import Q
@@ -55,28 +57,32 @@ OP_STARTBY = ('6', _("starts with"), '__startswith')
 OP_ENDBY = ('7', _("ends with"), '__endswith')
 OP_OR = ('8', _("or"), '__in')
 OP_AND = ('9', _("and"), '__id')
-OP_LIST = [OP_NULL, OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE, OP_CONTAINS, OP_STARTBY, OP_ENDBY, OP_OR, OP_AND]
+OP_LIST = [OP_NULL, OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,
+           OP_CONTAINS, OP_STARTBY, OP_ENDBY, OP_OR, OP_AND]
 
 LIST_OP_BY_TYPE = {
-    TYPE_FLOAT:(OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
-    TYPE_STR:(OP_EQUAL, OP_DIFFERENT, OP_CONTAINS, OP_STARTBY, OP_ENDBY),
-    TYPE_BOOL:(OP_EQUAL,),
-    TYPE_DATE:(OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
-    TYPE_TIME:(OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
-    TYPE_DATETIME:(OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
-    TYPE_LIST:(OP_OR,),
-    TYPE_LISTMULT:(OP_OR, OP_AND,),
+    TYPE_FLOAT: (OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
+    TYPE_STR: (OP_EQUAL, OP_DIFFERENT, OP_CONTAINS, OP_STARTBY, OP_ENDBY),
+    TYPE_BOOL: (OP_EQUAL,),
+    TYPE_DATE: (OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
+    TYPE_TIME: (OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
+    TYPE_DATETIME: (OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,),
+    TYPE_LIST: (OP_OR,),
+    TYPE_LISTMULT: (OP_OR, OP_AND,),
 }
+
 
 def get_script_for_operator():
     script = "var new_operator='';\n"
     for current_type, op_list in LIST_OP_BY_TYPE.items():
-        script += "if (type=='%(type)s') {\n" % {'type':current_type}
-        for op_id, op_title, __op_q  in op_list:  # pylint: disable=unused-variable
-            script += "    new_operator+='<CASE id=\"%(op_id)s\">%(op_title)s</CASE>';\n" % {'op_id':op_id, 'op_title':op_title}
+        script += "if (type=='%(type)s') {\n" % {'type': current_type}
+        for op_id, op_title, __op_q in op_list:
+            script += "    new_operator+='<CASE id=\"%(op_id)s\">%(op_title)s</CASE>';\n" % {
+                'op_id': op_id, 'op_title': op_title}
         script += "}\n"
     script += "parent.get('searchOperator').setValue('<SELECT>'+new_operator+'</SELECT>');\n"
     return script
+
 
 def get_criteria_list(criteria):
     criteria_list = []
@@ -85,15 +91,18 @@ def get_criteria_list(criteria):
         criteria_list.append(criteriaval)
     return criteria_list
 
+
 def get_search_query_from_criteria(criteria, model):
     criteria_list = get_criteria_list(criteria)
     fields_desc = FieldDescList()
     fields_desc.initial(model)
     return fields_desc.get_query_from_criterialist(criteria_list)
 
+
 def get_search_query(criteria, model):
     filter_result, _ = get_search_query_from_criteria(criteria, model)
     return [filter_result]
+
 
 class FieldDescItem(object):
 
@@ -120,13 +129,16 @@ class FieldDescItem(object):
                 self.field_type = TYPE_LIST
             self.field_list = []
             for select_obj in sub_model.objects.all():
-                self.field_list.append((six.text_type(select_obj.id), six.text_type(select_obj)))
+                self.field_list.append(
+                    (six.text_type(select_obj.id), six.text_type(select_obj)))
         else:
             sub_fied_desc = FieldDescItem(".".join(self.sub_fieldnames[1:]))
             if not sub_fied_desc.init(sub_model):
                 return False
-            self.description = "%s > %s" % (self.description, sub_fied_desc.description)
-            self.dbfieldname = "%s__%s" % (self.dbfieldname, sub_fied_desc.dbfieldname)
+            self.description = "%s > %s" % (
+                self.description, sub_fied_desc.description)
+            self.dbfieldname = "%s__%s" % (
+                self.dbfieldname, sub_fied_desc.dbfieldname)
             self.field_type = sub_fied_desc.field_type
             self.field_list = sub_fied_desc.field_list
         return True
@@ -135,13 +147,16 @@ class FieldDescItem(object):
         if self.dbfield is None:
             if self.sub_fieldnames[0][-4:] == '_set':
                 self.dbfieldname = self.sub_fieldnames[0][:-4]
-                self.description = model._meta.verbose_name  # pylint: disable=protected-access
+                self.description = model._meta.verbose_name
                 self.dbfield = getattr(model, self.sub_fieldnames[0])
             else:
-                dep_field = model._meta.get_field(self.sub_fieldnames[0])  # pylint: disable=protected-access
+                dep_field = model._meta.get_field(
+                    self.sub_fieldnames[0])
                 self.dbfieldname = self.sub_fieldnames[0]
-                if not dep_field.auto_created or dep_field.concrete:  # field real in model
-                    if not (dep_field.is_relation and dep_field.many_to_many):  # field not many-to-many
+                # field real in model
+                if not dep_field.auto_created or dep_field.concrete:
+                    # field not many-to-many
+                    if not (dep_field.is_relation and dep_field.many_to_many):
                         self.dbfield = dep_field
                         self.description = self.dbfield.verbose_name
                     else:
@@ -155,14 +170,16 @@ class FieldDescItem(object):
             self.field_type = TYPE_LIST
             self.field_list = []
             for choice_id, choice_val in dbfield.choices:
-                self.field_list.append((six.text_type(choice_id), six.text_type(choice_val)))
+                self.field_list.append(
+                    (six.text_type(choice_id), six.text_type(choice_val)))
         else:
             self.field_type = TYPE_FLOAT
             min_value, max_value = get_range_value(dbfield)
-            self.field_list = [(six.text_type(min_value), six.text_type(max_value), '0')]
+            self.field_list = [
+                (six.text_type(min_value), six.text_type(max_value), '0')]
 
     def init(self, model):
-        # pylint: disable=too-many-branches
+
         self.init_field_from_name(model)
         if self.dbfield is not None:
             from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
@@ -172,7 +189,8 @@ class FieldDescItem(object):
             elif isinstance(self.dbfield, DecimalField):
                 self.field_type = TYPE_FLOAT
                 min_value, max_value = get_range_value(self.dbfield)
-                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(self.dbfield.decimal_places))]
+                self.field_list = [(six.text_type(min_value), six.text_type(
+                    max_value), six.text_type(self.dbfield.decimal_places))]
             elif isinstance(self.dbfield, BooleanField):
                 self.field_type = TYPE_BOOL
             elif isinstance(self.dbfield, TextField):
@@ -203,10 +221,12 @@ class FieldDescItem(object):
         return ";".join(res)
 
     def add_from_script(self):
-        script_ref = "findFields['" + self.fieldname + "']='" + self.field_type + "';\n"
+        script_ref = "findFields['" + self.fieldname + \
+            "']='" + self.field_type + "';\n"
         if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) \
-            or (self.field_type == TYPE_FLOAT):
-            script_ref += "findLists['" + self.fieldname + "']='" + self.get_list() + "';\n"
+                or (self.field_type == TYPE_FLOAT):
+            script_ref += "findLists['" + self.fieldname + \
+                "']='" + self.get_list() + "';\n"
         return script_ref
 
     def get_value(self, value, operation):
@@ -243,22 +263,22 @@ class FieldDescItem(object):
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
             if value == 'o':
-                query_res = query_res & Q(**{self.dbfieldname:True})
+                query_res = query_res & Q(**{self.dbfieldname: True})
             else:
-                query_res = query_res & Q(**{self.dbfieldname:False})
+                query_res = query_res & Q(**{self.dbfieldname: False})
         elif self.field_type == TYPE_LIST:
-            query_res = query_res & Q(**{field_with_op:get_int_list(value)})
+            query_res = query_res & Q(**{field_with_op: get_int_list(value)})
         elif self.field_type == TYPE_LISTMULT:
             val_ids = get_int_list(value)
             if operation == int(OP_OR[0]):
-                query_res = query_res & Q(**{field_with_op:val_ids})
+                query_res = query_res & Q(**{field_with_op: val_ids})
             else:
                 query_res = self.initial_q
 
                 for value_item in val_ids:
-                    query_res = query_res & Q(**{field_with_op:value_item})
+                    query_res = query_res & Q(**{field_with_op: value_item})
         else:
-            query_res = self.initial_q & Q(**{field_with_op:value})
+            query_res = self.initial_q & Q(**{field_with_op: value})
         return query_res
 
     def get_new_criteria(self, params):
@@ -277,12 +297,14 @@ class FieldDescItem(object):
             if new_type == TYPE_TIME:
                 new_val = params['searchValueTime']
             if new_type == TYPE_DATETIME:
-                new_val = params['searchValueDate'] + ' ' + params['searchValueTime']
+                new_val = params['searchValueDate'] + \
+                    ' ' + params['searchValueTime']
             if (new_type == TYPE_LIST) or (new_type == TYPE_LISTMULT):
                 new_val = params['searchValueList']
             if (new_val != '') or ((new_type == TYPE_STR) and (operation == OP_EQUAL[0])) or ((new_type == TYPE_STR) and (operation == OP_DIFFERENT[0])):
                 return [self.fieldname, operation, new_val]
         return None
+
 
 class FieldDescList(object):
 
@@ -301,7 +323,8 @@ class FieldDescList(object):
         script_ref = "findFields=new Array();\n"
         script_ref += "findLists=new Array();\n"
         for field_desc_item in self.field_desc_list:
-            selector.append((field_desc_item.fieldname, field_desc_item.description))
+            selector.append(
+                (field_desc_item.fieldname, field_desc_item.description))
             script_ref += field_desc_item.add_from_script()
         return selector, script_ref
 
@@ -322,14 +345,17 @@ class FieldDescList(object):
                 new_val = criteria_item[2]
                 field_desc_item = self.get(new_name)
                 new_val_txt = field_desc_item.get_value(new_val, new_op)
-                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
+                filter_result = filter_result & field_desc_item.get_query(
+                    new_val, new_op)
                 if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
                     sep_criteria = OP_EQUAL[1]
                 else:
                     sep_criteria = OP_LIST[new_op][1]
-                criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (field_desc_item.description, sep_criteria, new_val_txt)
+                criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (
+                    field_desc_item.description, sep_criteria, new_val_txt)
                 crit_index += 1
         return filter_result, criteria_desc
+
 
 class XferSearchEditor(XferContainerCustom):
 
@@ -346,7 +372,8 @@ class XferSearchEditor(XferContainerCustom):
         act_param = self.getparam('ACT')
         if act_param == 'ADD':
             new_name = self.getparam('searchSelector')
-            new_criteria = self.fields_desc.get(new_name).get_new_criteria(self.params)
+            new_criteria = self.fields_desc.get(
+                new_name).get_new_criteria(self.params)
             if new_criteria is not None:
                 self.criteria_list.append(new_criteria)
         elif act_param is not None:
@@ -364,7 +391,8 @@ class XferSearchEditor(XferContainerCustom):
                 del self.params[ctx_key]
 
     def get_text_search(self):
-        filter_result, criteria_desc = self.fields_desc.get_query_from_criterialist(self.criteria_list)
+        filter_result, criteria_desc = self.fields_desc.get_query_from_criterialist(
+            self.criteria_list)
         if len(filter_result.children) > 0:
             self.filter = filter_result
         else:
@@ -434,7 +462,8 @@ if ((type=='list') || (type=='listmult')) {
         comp = XferCompButton("searchButtonAdd")
         comp.set_is_mini(True)
         comp.set_location(4, 1, 1, 7)
-        comp.set_action(self.request, self.get_action("", "images/add.png"), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO, 'params':{'ACT':'ADD'}})
+        comp.set_action(self.request, self.get_action("", "images/add.png"),
+                        {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'params': {'ACT': 'ADD'}})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
@@ -488,12 +517,13 @@ if ((type=='list') || (type=='listmult')) {
             comp = XferCompButton("searchButtonDel_" + criteria_id)
             comp.set_is_mini(True)
             comp.set_location(4, row)
-            comp.set_action(self.request, self.get_action("", "images/delete.png"), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO, 'params':{'ACT':criteria_id}})
+            comp.set_action(self.request, self.get_action("", "images/delete.png"), {
+                            'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'params': {'ACT': criteria_id}})
             self.add_component(comp)
             row += 1
 
     def fillresponse(self):
-        # pylint: disable=not-callable
+
         self.fields_desc.initial(self.item)
         self.read_criteria_from_params()
 
@@ -510,9 +540,10 @@ if ((type=='list') || (type=='listmult')) {
         self.fillresponse_show_criteria()
         row = self.get_max_row()
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            self.items = self.model.objects.filter(self.filter)  # pylint: disable=no-member
+            self.items = self.model.objects.filter(
+                self.filter)
         else:
-            self.items = self.model.objects.all()  # pylint: disable=no-member
+            self.items = self.model.objects.all()
         grid = XferCompGrid(self.field_id)
         grid.set_model(self.items, None, self)
         grid.add_actions(self)
@@ -521,9 +552,12 @@ if ((type=='list') || (type=='listmult')) {
         self.add_component(grid)
         lbl = XferCompLabelForm("nb")
         lbl.set_location(0, row + 5, 4)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
+        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
+                      'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
-        action_list = [('listing', _("Listing"), "images/print.png"), ('label', _("Label"), "images/print.png")]
+        action_list = [('listing', _("Listing"), "images/print.png"),
+                       ('label', _("Label"), "images/print.png")]
         for act_type, title, icon in action_list:
-            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
+            self.add_action(ActionsManage.get_act_changed(
+                self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

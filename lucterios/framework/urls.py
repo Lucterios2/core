@@ -29,18 +29,23 @@ from django.utils.module_loading import import_module
 from django.views.static import serve
 
 from os.path import join, dirname, isdir
-import logging, inspect, pkgutil
+import logging
+import inspect
+import pkgutil
 from lucterios.framework.help import defaulthelp
 
+
 def defaultblank(*args):
-    # pylint: disable=unused-argument
+
     from django.http import HttpResponse
     return HttpResponse('')
 
+
 def defaultview(*args):
-    # pylint: disable=unused-argument
+
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect('/web/index.html')
+
 
 def _init_url_patterns():
     from django.contrib import admin
@@ -50,26 +55,31 @@ def _init_url_patterns():
     res.append(url(r'^$', defaultview))
     res.append(url(r'^web/$', defaultview))
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
-    res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root':web_path}))
+    res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
     res.append(url(r'^Help$', defaulthelp))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
+
 
 def add_url_from_module(url_list, appmodule, lucterios_ext):
     extpath_img = join(dirname(appmodule.__file__), 'images')
     if isdir(extpath_img):
         if lucterios_ext == 'CORE':
-            url_list.append(url(r'^images/(?P<path>.*)$', serve, {'document_root':extpath_img}))
+            url_list.append(
+                url(r'^images/(?P<path>.*)$', serve, {'document_root': extpath_img}))
         else:
-            url_list.append(url(r'^%s/images/(?P<path>.*)$' % lucterios_ext, serve, {'document_root':extpath_img}))
+            url_list.append(url(r'^%s/images/(?P<path>.*)$' %
+                                lucterios_ext, serve, {'document_root': extpath_img}))
     extpath_help = join(dirname(appmodule.__file__), 'help')
     if isdir(extpath_help):
-        url_list.append(url(r'^%s/help/(?P<path>.*)$' % lucterios_ext, serve, {'document_root':extpath_help}))
+        url_list.append(url(r'^%s/help/(?P<path>.*)$' %
+                            lucterios_ext, serve, {'document_root': extpath_help}))
+
 
 def get_url_patterns():
     res = _init_url_patterns()
     for appname in settings.INSTALLED_APPS:
-        if not "django" in appname:
+        if "django" not in appname:
             appmodule = import_module(appname)
             module_items = appname.split('.')
             if (len(module_items) > 1) and (module_items[1] == 'CORE'):
@@ -83,7 +93,8 @@ def get_url_patterns():
                             if obj[1].url_text != '':
                                 if inspect.isclass(obj[1]):
                                     as_view_meth = getattr(obj[1], "as_view")
-                                    res.append(url(r"^%s$" % obj[1].url_text, as_view_meth()))
+                                    res.append(
+                                        url(r"^%s$" % obj[1].url_text, as_view_meth()))
                         except AttributeError:
                             pass
             if lucterios_ext is not None:
@@ -91,5 +102,5 @@ def get_url_patterns():
     logging.getLogger(__name__).debug("Urls:" + str(res))
     return res
 
-# pylint: disable=invalid-name
+
 urlpatterns = get_url_patterns()

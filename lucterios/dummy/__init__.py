@@ -25,9 +25,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 __version__ = "0.1"
+
+
 def __title__():
     from django.utils.translation import ugettext_lazy as _
     return _("My Dummy")
 
+
 def link():
-    return ["lucterios.contacts"]
+    return []

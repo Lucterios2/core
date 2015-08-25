@@ -24,4 +24,4 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from django.core.wsgi import get_wsgi_application
-application = get_wsgi_application() # pylint: disable=invalid-name
+application = get_wsgi_application()

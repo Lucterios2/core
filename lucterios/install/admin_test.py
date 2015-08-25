@@ -34,6 +34,7 @@ from lucterios.install.lucterios_migration import MigrateFromV1
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
 from lucterios.framework.juxd import JUXDTestRunner
 
+
 class BaseTest(unittest.TestCase):
 
     def setUp(self):
@@ -44,6 +45,7 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         rmtree(self.path_dir, True)
+
 
 class TestGlobal(BaseTest):
 
@@ -71,6 +73,7 @@ class TestGlobal(BaseTest):
     def test_refresh_all(self):
         self.assertEqual([], self.luct_glo.refresh_all())
 
+
 class TestAdminSQLite(BaseTest):
 
     def run_sqlite_cmd(self, instancename, cmd):
@@ -95,11 +98,12 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions', \
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', \
+        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
+                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
                          'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
         waiting_table.sort()
-        table_list = list(self.run_sqlite_cmd("inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
+        table_list = list(self.run_sqlite_cmd(
+            "inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
         if "sqlite_sequence" in table_list:
             table_list.remove("sqlite_sequence")
         table_list.sort()
@@ -108,7 +112,8 @@ class TestAdminSQLite(BaseTest):
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.clear()
 
-        table_list = list(self.run_sqlite_cmd("inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
+        table_list = list(self.run_sqlite_cmd(
+            "inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
         if "sqlite_sequence" in table_list:
             table_list.remove("sqlite_sequence")
         table_list.sort()
@@ -171,7 +176,8 @@ class TestAdminSQLite(BaseTest):
 
         inst = LucteriosInstance("inst_e", self.path_dir)
         inst.read()
-        self.assertEqual({'DEBUG':True, '': {'mode': (0, 'Connexion toujours nécessaire')}, 'ALLOWED_HOSTS':['localhost']}, inst.extra)
+        self.assertEqual({'DEBUG': True, '': {'mode': (
+            0, 'Connexion toujours nécessaire')}, 'ALLOWED_HOSTS': ['localhost']}, inst.extra)
 
     def test_archive(self):
         self.assertEqual([], self.luct_glo.listing())
@@ -191,15 +197,18 @@ class TestAdminSQLite(BaseTest):
             for tarinfo in tar:
                 list_file.append(tarinfo.name)
         list_file.sort()
-        self.assertEqual(['dump.json', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
+        self.assertEqual(
+            ['dump.json', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
 
         inst = LucteriosInstance("inst_f", self.path_dir)
         inst.add()
         inst.filename = join(self.path_dir, "inst_e.arc")
         self.assertEqual(True, inst.restore())
         self.assertEqual(True, isdir(join(self.path_dir, 'inst_f', 'usr')))
-        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f', 'usr', 'foo')))
-        self.assertEqual(True, isfile(join(self.path_dir, 'inst_f', 'usr', 'foo', 'myfile')))
+        self.assertEqual(
+            True, isdir(join(self.path_dir, 'inst_f', 'usr', 'foo')))
+        self.assertEqual(
+            True, isfile(join(self.path_dir, 'inst_f', 'usr', 'foo', 'myfile')))
 
     def test_security(self):
         from django.contrib.auth import authenticate
@@ -209,29 +218,39 @@ class TestAdminSQLite(BaseTest):
         inst.add()
         self.assertEqual(["inst_g"], self.luct_glo.listing())
 
-        self.assertEqual(["0"], list(self.run_sqlite_cmd("inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
-        self.assertEqual(authenticate(username='admin', password='admin').username, 'admin')
+        self.assertEqual(["0"], list(self.run_sqlite_cmd(
+            "inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
+        self.assertEqual(
+            authenticate(username='admin', password='admin').username, 'admin')
 
         inst = LucteriosInstance("inst_g", self.path_dir)
         inst.set_extra("PASSWORD=abc123,MODE=2")
         inst.security()
 
-        self.assertEqual(["Admin password change in 'inst_g'.", "Security mode change in 'inst_g'."], inst.msg_list)
-        self.assertEqual(["2"], list(self.run_sqlite_cmd("inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
-        self.assertEqual(authenticate(username='admin', password='admin'), None)
-        self.assertEqual(authenticate(username='admin', password='abc123').username, 'admin')
+        self.assertEqual(["Admin password change in 'inst_g'.",
+                          "Security mode change in 'inst_g'."], inst.msg_list)
+        self.assertEqual(["2"], list(self.run_sqlite_cmd(
+            "inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
+        self.assertEqual(
+            authenticate(username='admin', password='admin'), None)
+        self.assertEqual(
+            authenticate(username='admin', password='abc123').username, 'admin')
 
         inst = LucteriosInstance("inst_g", self.path_dir)
         inst.set_extra("MODE=1,PASSWORD=abc,123;ABC=789,3333")
         inst.security()
-        self.assertEqual(authenticate(username='admin', password='admin'), None)
-        self.assertEqual(authenticate(username='admin', password='abc123'), None)
-        self.assertEqual(authenticate(username='admin', password='abc,123;ABC=789,3333').username, 'admin')
+        self.assertEqual(
+            authenticate(username='admin', password='admin'), None)
+        self.assertEqual(
+            authenticate(username='admin', password='abc123'), None)
+        self.assertEqual(authenticate(
+            username='admin', password='abc,123;ABC=789,3333').username, 'admin')
 
         inst = LucteriosInstance("inst_g", self.path_dir)
         inst.set_extra("PASSWORD=ppooi=jjhg,fdd,MODE=0")
         inst.security()
-        self.assertEqual(authenticate(username='admin', password='ppooi=jjhg,fdd').username, 'admin')
+        self.assertEqual(
+            authenticate(username='admin', password='ppooi=jjhg,fdd').username, 'admin')
 
     def test_migration(self):
         self.assertEqual([], self.luct_glo.listing())
@@ -240,27 +259,33 @@ class TestAdminSQLite(BaseTest):
         inst.add()
         self.assertEqual(["inst_h"], self.luct_glo.listing())
         mirg = MigrateFromV1("inst_h", self.path_dir, "")
-        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.filename = join(
+            dirname(self.path_dir), 'data', 'archive_demo.bkf')
         mirg.restore()
+
 
 class TestAdminMySQL(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        self.data = {'dbname':'testv2', 'username':'myuser', 'passwd':'123456', 'server':'localhost'}
-        for cmd in ("CREATE DATABASE %(dbname)s", \
-                    "GRANT all ON %(dbname)s.* TO %(username)s@'%(server)s' IDENTIFIED BY '%(passwd)s'", \
+        self.data = {'dbname': 'testv2', 'username': 'myuser',
+                     'passwd': '123456', 'server': 'localhost'}
+        for cmd in ("CREATE DATABASE %(dbname)s",
+                    "GRANT all ON %(dbname)s.* TO %(username)s@'%(server)s' IDENTIFIED BY '%(passwd)s'",
                     "GRANT all ON %(dbname)s.* TO %(username)s@'127.0.0.1' IDENTIFIED BY '%(passwd)s'"):
-            complete_cmd = 'echo "%s;" | mysql -u root -pabc123' % (cmd % self.data)
+            complete_cmd = 'echo "%s;" | mysql -u root -pabc123' % (
+                cmd % self.data)
             os.system(complete_cmd)
 
     def tearDown(self):
-        os.system('echo "DROP DATABASE %(dbname)s;" | mysql -u root -pabc123' % self.data)
+        os.system(
+            'echo "DROP DATABASE %(dbname)s;" | mysql -u root -pabc123' % self.data)
         BaseTest.tearDown(self)
 
     def run_mysql_cmd(self, cmd):
         mysqlres = join(self.path_dir, 'out.txt')
-        complete_cmd = 'echo "%s;" | mysql -u root -pabc123 > %s' % (cmd % self.data, mysqlres)
+        complete_cmd = 'echo "%s;" | mysql -u root -pabc123 > %s' % (
+            cmd % self.data, mysqlres)
         os.system(complete_cmd)
         with open(mysqlres, 'r') as res_file:
             for line in res_file.readlines():
@@ -270,7 +295,8 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
-        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.set_database(
+            "mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
 
@@ -284,8 +310,8 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions', \
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', \
+        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
+                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
                          'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
         waiting_table.sort()
         table_list = list(self.run_mysql_cmd("use testv2;show tables;"))
@@ -311,7 +337,8 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual(True, inst.archive())
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
-        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.set_database(
+            "mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         inst.filename = join(self.path_dir, "inst_g.arc")
         self.assertEqual(True, inst.restore())
@@ -320,21 +347,25 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
-        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.set_database(
+            "mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
         mirg = MigrateFromV1("inst_mysql", self.path_dir, "")
-        mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.filename = join(
+            dirname(self.path_dir), 'data', 'archive_demo.bkf')
         mirg.restore()
+
 
 class TestAdminPostGreSQL(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        self.data = {'dbname':'testv2', 'username':'puser', 'passwd':'123456', 'server':'localhost'}
-        for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;", \
-                    "CREATE USER %(username)s;", \
-                    "CREATE DATABASE %(dbname)s OWNER %(username)s;", \
+        self.data = {'dbname': 'testv2', 'username': 'puser',
+                     'passwd': '123456', 'server': 'localhost'}
+        for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;",
+                    "CREATE USER %(username)s;",
+                    "CREATE DATABASE %(dbname)s OWNER %(username)s;",
                     "ALTER USER %(username)s WITH ENCRYPTED PASSWORD '%(passwd)s';"):
             complete_cmd = 'sudo -u postgres psql -c "%s"' % (cmd % self.data)
             os.system(complete_cmd)
@@ -347,7 +378,8 @@ class TestAdminPostGreSQL(BaseTest):
 
     def run_psql_cmd(self, cmd):
         psqlres = join(self.path_dir, 'out.txt')
-        complete_cmd = 'sudo -u postgres psql -d "%s" -c "%s" > %s' % (self.data['dbname'], cmd, psqlres)
+        complete_cmd = 'sudo -u postgres psql -d "%s" -c "%s" > %s' % (
+            self.data['dbname'], cmd, psqlres)
         os.system(complete_cmd)
         with open(psqlres, 'r') as res_file:
             for line in res_file.readlines():
@@ -357,7 +389,8 @@ class TestAdminPostGreSQL(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
-        inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
+        inst.set_database(
+            "postgresql:name=testv2,user=puser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_psql"], self.luct_glo.listing())
 
@@ -371,11 +404,12 @@ class TestAdminPostGreSQL(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions', \
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions', \
+        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
+                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
                          'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
         waiting_table.sort()
-        table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
+        table_list = list(self.run_psql_cmd(
+            "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
         table_list = table_list[2:-2]
         table_list.sort()
         self.assertEqual(waiting_table, table_list)
@@ -402,8 +436,8 @@ class TestAdminPostGreSQL(BaseTest):
 #         mirg.restore()
 
 if __name__ == "__main__":
-    suite = TestSuite()  # pylint: disable=invalid-name
-    loader = TestLoader()  # pylint: disable=invalid-name
+    suite = TestSuite()
+    loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))

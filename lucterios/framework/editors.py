@@ -24,23 +24,24 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
+
 class LucteriosEditor(object):
 
     def __init__(self, model):
         self.item = model
 
     def edit(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
+
         return
 
     def show(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
+
         return
 
     def before_save(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
+
         return
 
     def saving(self, xfer):
-        # pylint: disable=unused-argument,no-self-use
+
         return

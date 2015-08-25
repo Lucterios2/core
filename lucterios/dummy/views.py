@@ -36,7 +36,9 @@ from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
 from lucterios.dummy.models import Example, Other
 
-MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
+MenuManage.add_sub(
+    'dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
+
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
@@ -51,13 +53,16 @@ class Bidule(XferContainerAcknowledge):
         else:
             raise AttributeError("Other error:" + error)
 
+
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
 class Truc(XferContainerAcknowledge):
     caption = _("_Truc")
     icon = "2.png"
 
     def fillresponse(self, val1, val2=4):
-        self.message("Hello world (%s,%s)!" % (str(val1), str(val2)), XFER_DBOX_INFORMATION)
+        self.message("Hello world (%s,%s)!" %
+                     (str(val1), str(val2)), XFER_DBOX_INFORMATION)
+
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
 class Multi(XferContainerAcknowledge):
@@ -70,16 +75,19 @@ class Multi(XferContainerAcknowledge):
                 import time
                 time.sleep(3)
 
+
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
 class TestComposants(XferContainerCustom):
-    # pylint: disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value,too-many-public-methods
+    # pylint:
+    # disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value,too-many-public-methods
 
     caption = _("_Test of composants")
     icon = "4.png"
 
-    def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00', \
+    def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
                      ck1=False, slct1='1', flt2=5, cl1=['1', '2'], stm1='2008-07-12 23:47:31'):
-        act_modif = (self.get_action('Modify', ''), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO, 'unique':SELECT_NONE})
+        act_modif = (self.get_action('Modify', ''), {
+                     'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_NONE})
 
         lbl = XferCompLabelForm('Lbl2')
         lbl.set_value('editor=' + six.text_type(edt1))
@@ -162,11 +170,11 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         slct = XferCompSelect('slct1')
         if flt2 < 2:
-            slct.set_select({'1':'abc', '2':'def'})
+            slct.set_select({'1': 'abc', '2': 'def'})
         elif flt2 < 10:
-            slct.set_select({'1':'abc', '2':'def', '3':'ghij'})
+            slct.set_select({'1': 'abc', '2': 'def', '3': 'ghij'})
         else:
-            slct.set_select({'1':'abc', '2':'def', '3':'ghij', '4':'klmn'})
+            slct.set_select({'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})
         slct.set_value(slct1)
         slct.set_action(self.request, act_modif[0], act_modif[1])
         slct.set_location(1, 8)
@@ -187,7 +195,8 @@ class TestComposants(XferContainerCustom):
         lbl.set_location(0, 10)
         self.add_component(lbl)
         checklist = XferCompCheckList('cl1')
-        checklist.set_select({'1':'abc', '2':'def', '3':'ghij', '4':'klmn'})
+        checklist.set_select(
+            {'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})
         checklist.set_value(cl1)
         checklist.set_action(self.request, act_modif[0], act_modif[1])
         checklist.set_location(1, 10)
@@ -202,14 +211,14 @@ class TestComposants(XferContainerCustom):
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(WrapAction('Fin', 'images/close.png'), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'unique':SELECT_NONE})
+        self.add_action(WrapAction('Fin', 'images/close.png'),
+                        {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'unique': SELECT_NONE})
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
+
 @MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
 class SimpleGrid(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
-
     caption = _("_Test of grid")
     icon = "5.png"
 
@@ -236,12 +245,14 @@ class SimpleGrid(XferContainerCustom):
         # grid.add_action(self.get_action('Reopen', ''),-1, {'modal':FORMTYPE_REFRESH})
         self.add_component(grid)
 
+
 @MenuManage.describ('dummy.change_example', FORMTYPE_MODAL, 'dummy.foo', _("List of example."))
 class ExampleList(XferListEditor):
     caption = _("List of example")
     icon = "9.png"
     model = Example
     field_id = 'example'
+
 
 @ActionsManage.affect('Example', 'show')
 @MenuManage.describ('dummy.change_example')
@@ -251,6 +262,7 @@ class ExampleShow(XferShowEditor):
     model = Example
     field_id = 'example'
 
+
 @ActionsManage.affect('Example', 'add', 'modify', 'edit')
 @MenuManage.describ('dummy.add_example')
 class ExampleAddModify(XferAddEditor):
@@ -259,6 +271,7 @@ class ExampleAddModify(XferAddEditor):
     model = Example
     field_id = 'example'
 
+
 @ActionsManage.affect('Example', 'del')
 @MenuManage.describ('dummy.delete_example')
 class ExampleDel(XferDelete):
@@ -266,6 +279,7 @@ class ExampleDel(XferDelete):
     icon = "9.png"
     model = Example
     field_id = 'example'
+
 
 @ActionsManage.affect('Example', 'print')
 @MenuManage.describ('dummy.change_example')
@@ -276,6 +290,7 @@ class ExamplePrint(XferPrintAction):
     field_id = 'example'
     action_class = ExampleShow
 
+
 @ActionsManage.affect('Example', 'listing')
 @MenuManage.describ('dummy.change_example')
 class ExampleListing(XferPrintListing):
@@ -283,6 +298,7 @@ class ExampleListing(XferPrintListing):
     icon = "9.png"
     model = Example
     field_id = 'example'
+
 
 @ActionsManage.affect('Example', 'label')
 @MenuManage.describ('dummy.change_example')
@@ -292,12 +308,14 @@ class ExampleLabel(XferPrintLabel):
     model = Example
     field_id = 'example'
 
+
 @MenuManage.describ('dummy.change_example', FORMTYPE_NOMODAL, 'dummy.foo', _("Find example."))
 class ExampleSearch(XferSearchEditor):
     caption = _("Example")
     icon = "9.png"
     model = Example
     field_id = 'example'
+
 
 @ActionsManage.affect('Other', 'list')
 @MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))
@@ -306,6 +324,7 @@ class OtherList(XferListEditor):
     model = Other
     field_id = 'other'
     caption = _("others")
+
 
 @ActionsManage.affect('Other', 'edit', 'modify', 'add')
 @MenuManage.describ('dummy.add_other')
@@ -316,6 +335,7 @@ class OtherAddModify(XferAddEditor):
     caption_add = _("Add other")
     caption_modify = _("Modify other")
 
+
 @ActionsManage.affect('Other', 'show')
 @MenuManage.describ('dummy.change_other')
 class OtherShow(XferShowEditor):
@@ -323,6 +343,7 @@ class OtherShow(XferShowEditor):
     model = Other
     field_id = 'other'
     caption = _("Show other")
+
 
 @ActionsManage.affect('Other', 'delete')
 @MenuManage.describ('dummy.delete_other')

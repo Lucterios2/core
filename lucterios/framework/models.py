@@ -36,8 +36,9 @@ from django.utils.module_loading import import_module
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
 
+
 def get_value_converted(value, bool_textual=False):
-    # pylint: disable=too-many-return-statements, too-many-branches
+
     import datetime
     if hasattr(value, 'all'):
         values = []
@@ -68,6 +69,7 @@ def get_value_converted(value, bool_textual=False):
     else:
         return value
 
+
 def get_value_if_choices(value, dep_field):
     if hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
         for choices_key, choices_value in dep_field.choices:
@@ -76,9 +78,11 @@ def get_value_if_choices(value, dep_field):
                 break
     return value
 
+
 def is_simple_field(dep_field):
     from django.db.models.fields.related import ForeignKey
     return (not dep_field.auto_created or dep_field.concrete) and not (dep_field.is_relation and dep_field.many_to_many) and not isinstance(dep_field, ForeignKey)
+
 
 class LucteriosModel(models.Model):
 
@@ -86,16 +90,18 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_default_fields(cls):
-        fields = [f.name for f in cls._meta.get_fields()]  # pylint: disable=no-member,protected-access
-        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields):  # pylint: disable=no-member,protected-access
-            fields.remove(cls._meta.auto_field.attname)  # pylint: disable=no-member,protected-access
+        fields = [f.name for f in cls._meta.get_fields(
+        )]
+        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields):
+            fields.remove(
+                cls._meta.auto_field.attname)
         fields.sort()
         return fields
 
     @classmethod
     def get_long_name(cls):
         instance = cls()
-        return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)  # pylint: disable=no-member,protected-access
+        return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)
 
     @classmethod
     def get_edit_fields(cls):
@@ -118,11 +124,11 @@ class LucteriosModel(models.Model):
         from django.db.models.fields import FieldDoesNotExist
         try:
             fieldnames = fieldname.split('.')
-            current_meta = cls._meta  # pylint: disable=protected-access,no-member
+            current_meta = cls._meta
             for field_name in fieldnames:
                 dep_field = current_meta.get_field(field_name)
                 if hasattr(dep_field, 'rel') and (dep_field.rel is not None):
-                    current_meta = dep_field.rel.to._meta  # pylint: disable=protected-access
+                    current_meta = dep_field.rel.to._meta
         except FieldDoesNotExist:
             dep_field = None
         return dep_field
@@ -131,8 +137,9 @@ class LucteriosModel(models.Model):
         def eval_sublist(field_list, field_value):
             field_val = []
             for sub_model in field_value.all():
-                field_val.append(sub_model.evaluate("#" + ".".join(field_list[1:])))
-            return  "{[br/]}".join(field_val)
+                field_val.append(
+                    sub_model.evaluate("#" + ".".join(field_list[1:])))
+            return "{[br/]}".join(field_val)
         from django.db.models.fields import FieldDoesNotExist
         from django.db.models.fields.related import ForeignKey
         if text == '#':
@@ -145,12 +152,14 @@ class LucteriosModel(models.Model):
             else:
                 field_value = ""
             if PrintFieldsPlugIn.is_plugin(field_list[0]):
-                field_val = PrintFieldsPlugIn.get_plugin(field_list[0]).evaluate("#" + ".".join(field_list[1:]))
+                field_val = PrintFieldsPlugIn.get_plugin(
+                    field_list[0]).evaluate("#" + ".".join(field_list[1:]))
             elif field_list[0][-4:] == '_set':
                 field_val = eval_sublist(field_list, field_value)
             else:
                 try:
-                    dep_field = self._meta.get_field(field_list[0])  # pylint: disable=no-member,protected-access
+                    dep_field = self._meta.get_field(
+                        field_list[0])
                 except FieldDoesNotExist:
                     dep_field = None
                 if dep_field is None or is_simple_field(dep_field):
@@ -159,7 +168,8 @@ class LucteriosModel(models.Model):
                     if field_value is None:
                         field_val = ""
                     elif isinstance(dep_field, ForeignKey):
-                        field_val = field_value.evaluate("#" + ".".join(field_list[1:]))  # pylint: disable=no-member
+                        field_val = field_value.evaluate(
+                            "#" + ".".join(field_list[1:]))
                     else:
                         field_val = eval_sublist(field_list, field_value)
             value = value.replace(field, six.text_type(field_val))
@@ -169,21 +179,24 @@ class LucteriosModel(models.Model):
     def get_all_print_fields(cls, with_plugin=True):
         def add_sub_field(field_name, field_title, model):
             for sub_title, sub_name in model.get_all_print_fields(False):
-                fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
+                fields.append(
+                    ("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
         fields = []
         item = cls()
         for field_name in cls.get_print_fields():
             if PrintFieldsPlugIn.is_plugin(field_name):
                 if with_plugin:
-                    fields.extend(PrintFieldsPlugIn.get_plugin(field_name).get_all_print_fields())
+                    fields.extend(
+                        PrintFieldsPlugIn.get_plugin(field_name).get_all_print_fields())
             elif field_name[-4:] == '_set':
                 child = getattr(item, field_name)
-                field_title = child.model._meta.verbose_name  # pylint: disable=protected-access
+                field_title = child.model._meta.verbose_name
                 add_sub_field(field_name, field_title, child.model)
             elif isinstance(field_name, tuple):
                 fields.append(field_name)
             else:
-                dep_field = item._meta.get_field(field_name)  # pylint: disable=no-member,protected-access
+                dep_field = item._meta.get_field(
+                    field_name)
                 field_title = dep_field.verbose_name
                 if is_simple_field(dep_field):
                     fields.append((field_title, field_name))
@@ -193,24 +206,27 @@ class LucteriosModel(models.Model):
 
     def get_final_child(self):
         final_child = self
-        rel_objs = self._meta.get_fields()  # pylint: disable=no-member,protected-access
+        rel_objs = self._meta.get_fields(
+        )
         for rel_obj in rel_objs:
             if hasattr(rel_obj, 'field') and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
                 try:
-                    final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child()
+                    final_child = getattr(
+                        self, rel_obj.get_accessor_name()).get_final_child()
                 except AttributeError:
                     pass
         return final_child
 
     def can_delete(self):
-        # pylint: disable=unused-argument,no-self-use
+
         return ''
 
     def delete(self, using=None):
         try:
             models.Model.delete(self, using=using)
         except ProtectedError:
-            raise LucteriosException(IMPORTANT, _('Cannot delete this record: there are associated with some sub-record'))
+            raise LucteriosException(IMPORTANT, _(
+                'Cannot delete this record: there are associated with some sub-record'))
 
     @property
     def editor(self):
@@ -224,8 +240,9 @@ class LucteriosModel(models.Model):
             return LucteriosEditor(self)
 
     class Meta(object):
-        # pylint: disable=no-init
+
         abstract = True
+
 
 class LucteriosSession(Session, LucteriosModel):
 
@@ -240,14 +257,15 @@ class LucteriosSession(Session, LucteriosModel):
         if user_id is None:
             return "---"
         else:
-            return User.objects.get(id=user_id).username  # pylint: disable=no-member
+            return User.objects.get(id=user_id).username
 
     class Meta(object):
-        # pylint: disable=no-init
+
         proxy = True
         default_permissions = []
         verbose_name = _('session')
         verbose_name_plural = _('sessions')
+
 
 class PrintFieldsPlugIn(object):
 
@@ -272,9 +290,9 @@ class PrintFieldsPlugIn(object):
         cls._plug_ins[pluginclass.name] = pluginclass
 
     def get_all_print_fields(self):
-        # pylint: disable=no-self-use
+
         return []
 
     def evaluate(self, text_to_evaluate):
-        # pylint: disable=unused-argument,no-self-use
+
         return ""

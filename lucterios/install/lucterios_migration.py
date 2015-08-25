@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=invalid-name
+
 '''
 Migration tools to import old Lucterios backup
 
@@ -37,16 +37,20 @@ from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
 
-MODULE_LINKS = [('data_CORE.sql', 'lucterios.CORE'), ('data_org_lucterios_documents.sql', 'lucterios.documents'), \
-                ('data_org_lucterios_contacts.sql', 'lucterios.contacts'), ('data_fr_sdlibre_compta.sql', 'diacamma.accounting'), \
-                ('data_fr_sdlibre_facture.sql', 'diacamma.invoice'), ('data_fr_sdlibre_membres.sql', 'diacamma.members'), \
+MODULE_LINKS = [('data_CORE.sql', 'lucterios.CORE'), ('data_org_lucterios_documents.sql', 'lucterios.documents'),
+                ('data_org_lucterios_contacts.sql',
+                 'lucterios.contacts'), ('data_fr_sdlibre_compta.sql', 'diacamma.accounting'),
+                ('data_fr_sdlibre_facture.sql',
+                 'diacamma.invoice'), ('data_fr_sdlibre_membres.sql', 'diacamma.members'),
                 ('data_fr_sdlibre_copropriete.sql', 'diacamma.condominium'), ('data_fr_sdlibre_FormationSport.sql', 'diacamma.sportexamination')]
+
 
 def dict_factory(cursor, row):
     dictdb = {}
     for idx, col in enumerate(cursor.description):
         dictdb[col[0]] = row[idx]
     return dictdb
+
 
 class OldDataBase(object):
 
@@ -89,7 +93,7 @@ class OldDataBase(object):
         self.con = None
 
     def read_sqlfile(self, sql_file_path):
-        # pylint: disable=too-many-branches, too-many-statements
+
         import re
         import codecs
         rigth_insert_script = []
@@ -108,7 +112,8 @@ class OldDataBase(object):
                     if new_insert_script is not None:
                         if line[-1:] == ";":
                             new_insert_script.append(six.text_type(line))
-                            insert_script.append(six.text_type("\n").join(new_insert_script))
+                            insert_script.append(
+                                six.text_type("\n").join(new_insert_script))
                             if 'CORE_extension_rights' in six.text_type("\n").join(new_insert_script):
                                 rigth_insert_script.append(new_insert_script)
                             new_insert_script = None
@@ -123,15 +128,19 @@ class OldDataBase(object):
                             create_script.append(new_script)
                             new_create_script = None
                         elif (line[:11] != 'PRIMARY KEY') and (line[:3] != 'KEY') and (line[:10] != 'UNIQUE KEY'):
-                            line = re.sub(r'int\([0-9]+\) unsigned', 'NUMERIC', line)
-                            line = re.sub(r'tinyint\([0-9]+\)', 'NUMERIC', line)
+                            line = re.sub(
+                                r'int\([0-9]+\) unsigned', 'NUMERIC', line)
+                            line = re.sub(
+                                r'tinyint\([0-9]+\)', 'NUMERIC', line)
                             line = re.sub(r'int\([0-9]+\)', 'NUMERIC', line)
                             line = re.sub(r'varchar\([0-9]+\)', 'TEXT', line)
                             line = re.sub(r'longtext', 'TEXT', line)
                             line = re.sub(r'enum\(.*\)', 'TEXT', line)
-                            line = re.sub(r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
+                            line = re.sub(
+                                r' AUTO_INCREMENT,', ' PRIMARY KEY,', line)
                             if (line.find('NOT NULL') != -1) and (line.find('DEFAULT') == -1):
-                                line = re.sub(' NOT NULL,', ' NOT NULL DEFAULT "",', line)
+                                line = re.sub(
+                                    ' NOT NULL,', ' NOT NULL DEFAULT "",', line)
                             new_create_script.append(line)
                     elif line[:12] == 'CREATE TABLE':
                         new_create_script = []
@@ -170,13 +179,14 @@ class OldDataBase(object):
             self.con.commit()
             self.close()
 
+
 class MigrateAbstract(object):
 
     def __init__(self, old_db):
         self.old_db = old_db
 
     def print_log(self, msg, arg):
-        # pylint: disable=no-self-use
+
         try:
             six.print_(six.text_type(msg) % arg)
         except UnicodeEncodeError:
@@ -189,6 +199,7 @@ class MigrateAbstract(object):
 
     def run(self):
         pass
+
 
 class MigrateFromV1(LucteriosInstance):
 
@@ -237,8 +248,10 @@ class MigrateFromV1(LucteriosInstance):
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
         duration_sec = duration_sec - duration_min * 60
-        six.print_("Migration duration: %d min %d sec" % (duration_min, duration_sec))
+        six.print_("Migration duration: %d min %d sec" %
+                   (duration_min, duration_sec))
         return True
+
 
 def main():
     from optparse import OptionParser

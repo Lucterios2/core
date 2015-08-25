@@ -31,11 +31,13 @@ GRAVE = 2
 IMPORTANT = 3
 MINOR = 4
 
+
 class LucteriosException(Exception):
 
     def __init__(self, code, msg):
         Exception.__init__(self, msg)
         self.code = code
+
 
 class LucteriosRedirectException(LucteriosException):
 
@@ -43,8 +45,10 @@ class LucteriosRedirectException(LucteriosException):
         LucteriosException.__init__(self, IMPORTANT, msg)
         self.redirectclassview = redirectclassaction
 
+
 def get_error_trace():
-    import sys, traceback
+    import sys
+    import traceback
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
     res = six.text_type('')
     for item in trace:

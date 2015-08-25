@@ -31,25 +31,29 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.parameters import Params, secure_mode_connect
 
+
 def get_info_server():
     res = []
     from django import VERSION
     from django.conf import settings
     from django.utils.module_loading import import_module
     for appname in settings.INSTALLED_APPS:
-        if not "django" in appname and "lucterios.framework" != appname:
+        if "django" not in appname and "lucterios.framework" != appname:
             appmodule = import_module(appname)
             try:
                 app_title = appmodule.__title__()
             except TypeError:
                 app_title = six.text_type(appmodule.__title__)
-            res.append(six.text_type("%s=%s") % (app_title, appmodule.__version__))
+            res.append(six.text_type("%s=%s") %
+                       (app_title, appmodule.__version__))
     res.append("")
     from platform import python_version, uname
     django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
     os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])
-    res.append(six.text_type("{[i]}%s - Python %s - Django %s{[/i]}") % (os_version, python_version(), django_version))
+    res.append(six.text_type("{[i]}%s - Python %s - Django %s{[/i]}") %
+               (os_version, python_version(), django_version))
     return six.text_type("{[br/]}").join(res)
+
 
 @MenuManage.describ('')
 class Authentification(XferContainerAbstract):
@@ -88,22 +92,32 @@ class Authentification(XferContainerAbstract):
         from django.conf import settings
         import lucterios.CORE
         connextion = etree.SubElement(self.responsexml, "CONNECTION")
-        etree.SubElement(connextion, 'TITLE').text = six.text_type(settings.APPLIS_NAME)
-        etree.SubElement(connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
-        etree.SubElement(connextion, 'VERSION').text = six.text_type(settings.APPLIS_VERSION)
-        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.CORE.__version__)
-        etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(settings.APPLIS_COPYRIGHT)
+        etree.SubElement(connextion, 'TITLE').text = six.text_type(
+            settings.APPLIS_NAME)
+        etree.SubElement(
+            connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
+        etree.SubElement(connextion, 'VERSION').text = six.text_type(
+            settings.APPLIS_VERSION)
+        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(
+            lucterios.CORE.__version__)
+        etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(
+            settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
-        etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)
+        etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(
+            settings.APPLI_EMAIL)
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
-        etree.SubElement(connextion, 'MODE').text = six.text_type(Params.getvalue("CORE-connectmode"))
+        etree.SubElement(connextion, 'MODE').text = six.text_type(
+            Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
-            etree.SubElement(connextion, 'LOGIN').text = self.request.user.username
-            etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
+            etree.SubElement(
+                connextion, 'LOGIN').text = self.request.user.username
+            etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (
+                self.request.user.first_name, self.request.user.last_name)
         else:
             etree.SubElement(connextion, 'LOGIN').text = ''
             etree.SubElement(connextion, 'REALNAME').text = ''
         self.responsexml.text = "OK"
+
 
 @MenuManage.describ('')
 class ExitConnection(XferContainerAcknowledge):

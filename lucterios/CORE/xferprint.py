@@ -29,13 +29,15 @@ from lucterios.framework.printgenerators import ActionGenerator, \
 from lucterios.framework.xferprinting import XferContainerPrint
 from lucterios.CORE.models import PrintModel, Label
 
+
 class XferPrintAction(XferContainerPrint):
 
     action_class = None
 
     def get_report_generator(self):
         if self.action_class is not None:
-            return ActionGenerator(self.action_class())  # pylint: disable=not-callable
+            return ActionGenerator(self.action_class())
+
 
 class XferPrintListing(XferContainerPrint):
 
@@ -46,7 +48,7 @@ class XferPrintListing(XferContainerPrint):
         self.selector = PrintModel.get_print_selector(0, self.model)
 
     def filter_callback(self, items):
-        # pylint: disable=no-self-use
+
         return items
 
     def get_report_generator(self):
@@ -59,6 +61,7 @@ class XferPrintListing(XferContainerPrint):
         gen.columns = dbmodel.columns
         return gen
 
+
 class XferPrintLabel(XferContainerPrint):
 
     with_text_export = False
@@ -69,7 +72,7 @@ class XferPrintLabel(XferContainerPrint):
         self.selector.extend(PrintModel.get_print_selector(1, self.model))
 
     def filter_callback(self, items):
-        # pylint: disable=no-self-use
+
         return items
 
     def get_report_generator(self):

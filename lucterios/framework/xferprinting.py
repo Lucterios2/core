@@ -43,6 +43,7 @@ from lucterios.framework.xfersearch import get_search_query
 PRINT_PDF_FILE = 3
 PRINT_CSV_FILE = 4
 
+
 class XferContainerPrint(XferContainerAbstract):
 
     observer_name = "Core.Print"
@@ -63,7 +64,7 @@ class XferContainerPrint(XferContainerAbstract):
         return new_filter
 
     def get_report_generator(self):
-        # pylint: disable=no-self-use
+
         return None
 
     def show_selector(self):
@@ -74,7 +75,7 @@ class XferContainerPrint(XferContainerAbstract):
             raise LucteriosException(GRAVE, "Error of print selector!")
         gui = XferContainerCustom()
         gui.request = self.request
-        gui.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init,no-member
+        gui.is_view_right = self.is_view_right
         gui.caption = self.caption
         gui.extension = self.extension
         gui.action = self.action
@@ -99,12 +100,14 @@ class XferContainerPrint(XferContainerAbstract):
                     comp.set_select(option_selector)
                     comp.set_value(None)
                 elif isinstance(option_selector, tuple):
-                    comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
+                    comp = XferCompFloat(
+                        name_selector, option_selector[0], option_selector[1], option_selector[2])
                     comp.set_value(option_selector[0])
                 comp.set_location(1, row_idx)
                 gui.add_component(comp)
                 row_idx += 1
-        gui.add_action(self.get_action(_("Print"), "images/print.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES})
+        gui.add_action(self.get_action(
+            _("Print"), "images/print.png"), {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES})
         gui.add_action(WrapAction(_("Close"), "images/close.png"), {})
         return gui
 
@@ -131,7 +134,8 @@ class XferContainerPrint(XferContainerAbstract):
             xml_rep_content = etree.XML(self.report_content)
             for xml_br in xml_rep_content.xpath("//br"):
                 xml_br.text = ' '
-            content = six.text_type(csv_transform(xml_rep_content)).encode('utf-8')
+            content = six.text_type(
+                csv_transform(xml_rep_content)).encode('utf-8')
         else:
             content = transforme_xml2pdf(self.report_content)
         if len(content) > 0:
@@ -152,7 +156,8 @@ class XferContainerPrint(XferContainerAbstract):
 
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")
-        printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV
+        printxml.attrib['mode'] = six.text_type(
+            self.report_mode)  # 3=PDF - 4=CSV
         printxml.text = self.get_body_content()
         etree.SubElement(printxml, "TITLE").text = six.text_type(self.caption)
         XferContainerAbstract._finalize(self)

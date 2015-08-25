@@ -28,7 +28,9 @@ from os.path import isfile, join, isdir, dirname, basename
 from lxml import etree
 from django.utils.module_loading import import_module
 
-import sys, os, inspect
+import sys
+import os
+import inspect
 from glob import glob
 from django.utils import six
 try:
@@ -44,15 +46,17 @@ except:
     from tkMessageBox import showerror, showinfo
     import ttk
 
-LIST_VIEWER = {'0List':('XferListEditor', 'list'), '1AddModify':('XferAddEditor', 'edit', 'modify', 'add'), '2Show':('XferShowEditor', 'show'), \
-               '3Del':('XferDelete', 'delete'), '4Search':('XferSearchEditor', 'search'), '5Print':('XferPrintAction', 'print'), \
-               '6Label':('XferPrintLabel', 'label'), '7Listing':('XferPrintListing', 'listing')}
+LIST_VIEWER = {'0List': ('XferListEditor', 'list'), '1AddModify': ('XferAddEditor', 'edit', 'modify', 'add'), '2Show': ('XferShowEditor', 'show'),
+               '3Del': ('XferDelete', 'delete'), '4Search': ('XferSearchEditor', 'search'), '5Print': ('XferPrintAction', 'print'),
+               '6Label': ('XferPrintLabel', 'label'), '7Listing': ('XferPrintListing', 'listing')}
+
 
 class GeneratorException(Exception):
     pass
 
+
 class GenForm(Tk):
-    
+
     def __init__(self):
         Tk.__init__(self)
         self.minsize(200, 250)
@@ -64,32 +68,40 @@ class GenForm(Tk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=0)
         self.grid_rowconfigure(1, weight=1)
-        self.resizable(True, True)        
+        self.resizable(True, True)
         Label(self, text='Model').grid(row=0, column=0, sticky=(N, E))
-        self.models = ttk.Combobox(self, textvariable=StringVar(), state='readonly')
+        self.models = ttk.Combobox(
+            self, textvariable=StringVar(), state='readonly')
         self.models.grid(row=0, column=1, sticky=(N, W, E, S), padx=3, pady=3)
         mainframe = Frame(self, bd=1, relief=SUNKEN)
-        mainframe.grid(row=1, column=0, columnspan=2, sticky=(N, S, E, W), padx=3, pady=3)
+        mainframe.grid(
+            row=1, column=0, columnspan=2, sticky=(N, S, E, W), padx=3, pady=3)
         current_row = 0
         current_col = 0
         self.check = []
         for value in ('add', 'list', 'edit', 'search', 'modify', 'listing', 'show', 'label', 'delete', 'print'):
             chkbtn_val = IntVar()
             chkbtn = Checkbutton(mainframe, text=value, variable=chkbtn_val)
-            chkbtn.grid(row=current_row, column=current_col, sticky=W, padx=3, pady=3)
+            chkbtn.grid(
+                row=current_row, column=current_col, sticky=W, padx=3, pady=3)
             self.check.append((value, chkbtn_val))
             current_col += 1
             if current_col == 2:
                 current_col = 0
                 current_row += 1
-        Label(mainframe, text='Icon').grid(row=(current_row + 1), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
-        self.icons = ttk.Combobox(mainframe, textvariable=StringVar(), state='readonly')
-        self.icons.grid(row=(current_row + 2), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
+        Label(mainframe, text='Icon').grid(
+            row=(current_row + 1), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
+        self.icons = ttk.Combobox(
+            mainframe, textvariable=StringVar(), state='readonly')
+        self.icons.grid(
+            row=(current_row + 2), column=0, columnspan=2, sticky=(N, W, E, S), padx=3)
         btnframe = Frame(self, bd=1)
         btnframe.grid(row=2, column=0, columnspan=2)
-        Button(btnframe, text="OK", width=10, command=self.cmd_ok).grid(row=1, column=0, sticky=(N, S, E, W), padx=5, pady=3)
-        Button(btnframe, text="Cancel", width=10, command=self.cmd_cancel).grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        
+        Button(btnframe, text="OK", width=10, command=self.cmd_ok).grid(
+            row=1, column=0, sticky=(N, S, E, W), padx=5, pady=3)
+        Button(btnframe, text="Cancel", width=10, command=self.cmd_cancel).grid(
+            row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+
     def cmd_ok(self):
         self.result = {}
         chk_res = {}
@@ -115,13 +127,13 @@ class GenForm(Tk):
 
     def get_model_name(self):
         return self._model_name
-        
-    def get_icon_name(self):        
+
+    def get_icon_name(self):
         return self._icon_name
 
     def cmd_cancel(self):
         self.destroy()
-        
+
     def load(self, model_list, icon_list):
         self.models['values'] = model_list
         self.models.current(0)
@@ -133,8 +145,9 @@ class GenForm(Tk):
         size = tuple(int(_) for _ in self.geometry().split('+')[0].split('x'))
         x = w / 4 - size[0] / 2
         y = h / 2 - size[1] / 2
-        self.geometry("%dx%d+%d+%d" % (size + (x, y)))          
+        self.geometry("%dx%d+%d+%d" % (size + (x, y)))
         self.mainloop()
+
 
 class Generator(object):
 
@@ -149,9 +162,10 @@ class Generator(object):
         self.module_name = ''
         self.module_obj = None
         self.root_module = basename(dirname(full_modulepath))
-        self.module_name = os.path.relpath(self.full_modulepath, self.project_path).replace('.py', '').replace(os.path.sep, '.')
+        self.module_name = os.path.relpath(self.full_modulepath, self.project_path).replace(
+            '.py', '').replace(os.path.sep, '.')
         self._init_django()
-        self._load_model_classes()   
+        self._load_model_classes()
 
     def _init_django(self):
         with open(join(self.project_path, '.pydevproject'), 'rb') as flb:
@@ -178,7 +192,7 @@ class Generator(object):
         for obj in inspect.getmembers(self.module_obj):
             try:
                 if inspect.isclass(obj[1]) and issubclass(obj[1], LucteriosModel) and  \
-                not (hasattr(obj[1]._meta, 'abstract') and obj[1]._meta.abstract) and (obj[1].__module__ == self.module_obj.__name__):
+                        not (hasattr(obj[1]._meta, 'abstract') and obj[1]._meta.abstract) and (obj[1].__module__ == self.module_obj.__name__):
                     self.class_model.append(obj[1].__name__)
             except AttributeError:
                 pass
@@ -202,27 +216,35 @@ class Generator(object):
 
     def _write_header(self, model_name, item_actions, is_new):
         if is_new:
-            self.writedata("# -*- coding: utf-8 -*-\nfrom __future__ import unicode_literals\n")
+            self.writedata(
+                "# -*- coding: utf-8 -*-\nfrom __future__ import unicode_literals\n")
         self.writedata("""
 from django.utils.translation import ugettext_lazy as _\n\n""")
-        self.writedata("from %s import %s\n\n" % (self.module_name, model_name))
+        self.writedata("from %s import %s\n\n" %
+                       (self.module_name, model_name))
         for item_name in sorted(list(item_actions.keys())):
             if item_name == '4Search':
-                self.writedata("from lucterios.framework.xfersearch import %s\n" % LIST_VIEWER[item_name][0])
+                self.writedata(
+                    "from lucterios.framework.xfersearch import %s\n" % LIST_VIEWER[item_name][0])
             elif item_name == '5Print' or item_name == '6Label' or item_name == '7Listing':
-                self.writedata("from lucterios.CORE.xferprint import %s\n" % LIST_VIEWER[item_name][0])
+                self.writedata(
+                    "from lucterios.CORE.xferprint import %s\n" % LIST_VIEWER[item_name][0])
             else:
-                self.writedata("from lucterios.framework.xferadvance import %s\n" % LIST_VIEWER[item_name][0])
-        if '0List' in item_actions.keys() or '4Search' in item_actions.keys(): 
-            self.writedata("from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage\n")
+                self.writedata(
+                    "from lucterios.framework.xferadvance import %s\n" % LIST_VIEWER[item_name][0])
+        if '0List' in item_actions.keys() or '4Search' in item_actions.keys():
+            self.writedata(
+                "from lucterios.framework.tools import FORMTYPE_NOMODAL, ActionsManage, MenuManage\n")
         else:
-            self.writedata("from lucterios.framework.tools import ActionsManage, MenuManage\n")
+            self.writedata(
+                "from lucterios.framework.tools import ActionsManage, MenuManage\n")
 
     def _define_params(self, model_name, item_name, acts, verbose_name, verbose_name_plural):
         if item_name == '1AddModify':
-            caption = 'caption_add = _("Add %(name)s")\n    caption_modify = _("Modify %(name)s")' % {'name':verbose_name.lower()}
+            caption = 'caption_add = _("Add %(name)s")\n    caption_modify = _("Modify %(name)s")' % {
+                'name': verbose_name.lower()}
         elif item_name == '0List':
-            caption = 'caption = _("%(name)s")' % {'name':verbose_name_plural}
+            caption = 'caption = _("%(name)s")' % {'name': verbose_name_plural}
         else:
             name = LIST_VIEWER[item_name][1]
             name = name[0:1].upper() + name[1:].lower()
@@ -235,22 +257,26 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
         else:
             right = '%s.change_%s' % (self.root_module, model_name.lower())
         if item_name == '0List' or item_name == '4Search':
-            menuext = ", FORMTYPE_NOMODAL, 'core.general', _('menu %s')" % LIST_VIEWER[item_name][1]
+            menuext = ", FORMTYPE_NOMODAL, 'core.general', _('menu %s')" % LIST_VIEWER[
+                item_name][1]
         else:
             menuext = ''
         return actions, caption, right, menuext
 
     def write_actions(self, model_name, icon_name, item_actions):
-        viewer_file = join(dirname(self.full_modulepath), 'views_%s.py' % model_name.lower())
+        viewer_file = join(
+            dirname(self.full_modulepath), 'views_%s.py' % model_name.lower())
         is_new = not isfile(viewer_file)
         with open(viewer_file, 'wb') as self.viewfile:
             self._write_header(model_name, item_actions, is_new)
             class_inst = getattr(self.module_obj, model_name)
             verbose_name = six.text_type(class_inst._meta.verbose_name)
-            verbose_name_plural = six.text_type(class_inst._meta.verbose_name_plural)                
+            verbose_name_plural = six.text_type(
+                class_inst._meta.verbose_name_plural)
             for item_name in sorted(list(item_actions.keys())):
                 acts = item_actions[item_name]
-                actions, caption, right, menuext = self._define_params(model_name, item_name, acts, verbose_name, verbose_name_plural)
+                actions, caption, right, menuext = self._define_params(
+                    model_name, item_name, acts, verbose_name, verbose_name_plural)
                 self.writedata("""
 @ActionsManage.affect('%(modelname)s', %(actions)s)
 @MenuManage.describ('%(right)s'%(menuext)s)
@@ -259,9 +285,11 @@ class %(modelname)s%(itemname)s(%(classname)s):
     model = %(modelname)s
     field_id = '%(fieldidname)s'
     %(caption)s
-""" % {'modelname':model_name, 'iconname':icon_name, 'fieldidname':model_name.lower(), 'itemname':item_name[1:], \
-       'classname':LIST_VIEWER[item_name][0], 'actions': actions, 'caption':caption, 'right':right, 'menuext':menuext})
-        showinfo("View generator", "Views generated in %s" % os.path.relpath(viewer_file, self.project_path))
+""" % {'modelname': model_name, 'iconname': icon_name, 'fieldidname': model_name.lower(), 'itemname': item_name[1:],
+                    'classname': LIST_VIEWER[item_name][0], 'actions': actions, 'caption': caption, 'right': right, 'menuext': menuext})
+        showinfo("View generator", "Views generated in %s" %
+                 os.path.relpath(viewer_file, self.project_path))
+
 
 def main():
     if len(sys.argv) == 2:
@@ -270,10 +298,12 @@ def main():
         gen_form = GenForm()
         gen_form.load(gen.class_model, gen.extract_icons())
         if gen_form.result is not None:
-            gen.write_actions(gen_form.get_model_name(), gen_form.get_icon_name(), gen_form.result)                      
+            gen.write_actions(
+                gen_form.get_model_name(), gen_form.get_icon_name(), gen_form.result)
     else:
-        raise GeneratorException("Bad argument: %s <model module file>" % basename(sys.argv[0]))
-    
+        raise GeneratorException(
+            "Bad argument: %s <model module file>" % basename(sys.argv[0]))
+
 if __name__ == '__main__':
     try:
         main()

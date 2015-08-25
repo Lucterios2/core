@@ -11,6 +11,7 @@ from django.test.runner import DiscoverRunner
 from unittest.runner import TextTestRunner, TextTestResult
 from django.core.exceptions import ImproperlyConfigured
 
+
 class JUXDTestResult(TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity):
@@ -22,7 +23,8 @@ class JUXDTestResult(TextTestResult):
 
     def startTest(self, test):
         import time
-        self.case_start_time = time.time()  # pylint: disable=attribute-defined-outside-init
+        self.case_start_time = time.time(
+        )
         super(JUXDTestResult, self).startTest(test)
 
     def addSuccess(self, test):
@@ -67,8 +69,10 @@ class JUXDTestResult(TextTestResult):
     def startTestRun(self):
         import time
         from xml.etree import ElementTree as ET
-        self.tree = ET.Element('testsuite')  # pylint: disable=attribute-defined-outside-init
-        self.run_start_time = time.time()  # pylint: disable=attribute-defined-outside-init
+        self.tree = ET.Element(
+            'testsuite')
+        self.run_start_time = time.time(
+        )
         super(JUXDTestResult, self).startTestRun()
 
     def stopTestRun(self):
@@ -89,23 +93,28 @@ class JUXDTestResult(TextTestResult):
         import time
         from xml.etree import ElementTree as ET
         time_taken = time.time() - self.case_start_time
-        classname = ('%s.%s' % (test.__module__, test.__class__.__name__)).split('.')
+        classname = ('%s.%s' %
+                     (test.__module__, test.__class__.__name__)).split('.')
         testcase = ET.SubElement(self.tree, 'testcase')
         testcase.set('time', "%.6f" % time_taken)
         testcase.set('classname', '.'.join(classname))
-        testcase.set('name', test._testMethodName)  # pylint: disable=protected-access
+        testcase.set(
+            'name', test._testMethodName)
         return testcase
 
     def _add_tb_to_test(self, test, test_result, err):
         '''Add a traceback to the test result element'''
         exc_class, exc_value, _ = err
         tb_str = self._exc_info_to_string(err, test)
-        test_result.set('type', '%s.%s' % (exc_class.__module__, exc_class.__name__))
+        test_result.set('type', '%s.%s' %
+                        (exc_class.__module__, exc_class.__name__))
         test_result.set('message', str(exc_value))
         test_result.text = tb_str
 
+
 class JUXDTestRunner(TextTestRunner):
     resultclass = JUXDTestResult
+
 
 class JUXDTestSuiteRunner(DiscoverRunner):
     test_runner = JUXDTestRunner

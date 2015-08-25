@@ -33,21 +33,26 @@ from _io import BytesIO
 
 BASE64_PREFIX = 'data:image/*;base64,'
 
+
 def get_tmp_dir():
     from django.conf import settings
     if not environ.get("DJANGO_SETTINGS_MODULE"):
         tmp_path = '/tmp'
     else:
-        setting_path = join(settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
+        setting_path = join(
+            settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
         tmp_path = join(setting_path, 'tmp')
     if not exists(tmp_path):
         makedirs(tmp_path)
     return tmp_path
 
+
 def get_user_dir():
     from django.conf import settings
-    setting_path = join(settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
+    setting_path = join(
+        settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
     return join(setting_path, 'usr')
+
 
 def get_user_path(rootpath, filename):
     root_path = join(get_user_dir(), rootpath)
@@ -55,12 +60,14 @@ def get_user_path(rootpath, filename):
         makedirs(root_path)
     return join(root_path, filename)
 
+
 def readimage_to_base64(file_path, with_prefix=True):
     with open(file_path, "rb") as image_file:
         if with_prefix:
             return get_binay(BASE64_PREFIX) + b64encode(image_file.read())
         else:
             return b64encode(image_file.read())
+
 
 def save_from_base64(base64stream):
     if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
@@ -74,12 +81,14 @@ def save_from_base64(base64stream):
         image_tmp.write(b64decode(stream))
     return file_path
 
+
 def open_from_base64(base64stream):
     if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
         stream = base64stream[len(BASE64_PREFIX):]
     else:
         _, stream = base64stream.split(";")
     return BytesIO(b64decode(stream))
+
 
 def open_image_resize(filep, max_width, max_height):
     from PIL import Image
@@ -97,6 +106,7 @@ def open_image_resize(filep, max_width, max_height):
         image = image.resize((tn_width, tn_height))
     return image
 
+
 def get_image_absolutepath(icon_path):
     if isfile(icon_path):
         return icon_path
@@ -113,6 +123,7 @@ def get_image_absolutepath(icon_path):
         return join(dirname(module.__file__), *sub_path)
     except ImportError:
         return icon_path
+
 
 def get_image_size(image_path):
     from PIL import Image

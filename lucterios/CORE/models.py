@@ -33,16 +33,18 @@ from django.utils import six
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 
+
 class Parameter(LucteriosModel):
 
     name = models.CharField(_('name'), max_length=100, unique=True)
-    typeparam = models.IntegerField(choices=((0, _('String')), (1, _('Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
+    typeparam = models.IntegerField(choices=((0, _('String')), (1, _(
+        'Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
 
     @classmethod
     def change_value(cls, pname, pvalue):
-        db_param = cls.objects.get(name=pname)  # pylint: disable=no-member
+        db_param = cls.objects.get(name=pname)
         if db_param.typeparam == 3:
             db_param.value = six.text_type(pvalue == '1')
         else:
@@ -50,10 +52,11 @@ class Parameter(LucteriosModel):
         db_param.save()
 
     class Meta(object):
-        # pylint: disable=no-init
+
         verbose_name = _('parameter')
         verbose_name_plural = _('parameters')
         default_permissions = ['add', 'change']
+
 
 class LucteriosUser(User, LucteriosModel):
 
@@ -63,9 +66,9 @@ class LucteriosUser(User, LucteriosModel):
 
     @classmethod
     def get_edit_fields(cls):
-        return {'':['username'], \
-                _('Informations'):['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'], \
-                _('Permissions'):['groups', 'user_permissions']}
+        return {'': ['username'],
+                _('Informations'): ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'],
+                _('Permissions'): ['groups', 'user_permissions']}
 
     @classmethod
     def get_show_fields(cls):
@@ -76,12 +79,14 @@ class LucteriosUser(User, LucteriosModel):
         return ['username']
 
     groups__titles = [_("Available groups"), _("Chosen groups")]
-    user_permissions__titles = [_("Available permissions"), _("Chosen permissions")]
+    user_permissions__titles = [
+        _("Available permissions"), _("Chosen permissions")]
 
     class Meta(User.Meta):
-        # pylint: disable=no-init
+
         proxy = True
         default_permissions = []
+
 
 class LucteriosGroup(Group, LucteriosModel):
 
@@ -96,25 +101,36 @@ class LucteriosGroup(Group, LucteriosModel):
         return ['name']
 
     class Meta(object):
-        # pylint: disable=no-init
+
         proxy = True
         default_permissions = []
         verbose_name = _('group')
         verbose_name_plural = _('groups')
 
+
 class Label(LucteriosModel):
     name = models.CharField(_('name'), max_length=100, unique=True)
 
-    page_width = models.IntegerField(_('page width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    page_height = models.IntegerField(_('page height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    cell_width = models.IntegerField(_('cell width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    cell_height = models.IntegerField(_('cell height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    columns = models.IntegerField(_('number of columns'), validators=[MinValueValidator(1), MaxValueValidator(99)])
-    rows = models.IntegerField(_('number of rows'), validators=[MinValueValidator(1), MaxValueValidator(99)])
-    left_marge = models.IntegerField(_('left marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    top_marge = models.IntegerField(_('top marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    horizontal_space = models.IntegerField(_('horizontal space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
-    vertical_space = models.IntegerField(_('vertical space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    page_width = models.IntegerField(
+        _('page width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    page_height = models.IntegerField(
+        _('page height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    cell_width = models.IntegerField(
+        _('cell width'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    cell_height = models.IntegerField(
+        _('cell height'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    columns = models.IntegerField(
+        _('number of columns'), validators=[MinValueValidator(1), MaxValueValidator(99)])
+    rows = models.IntegerField(
+        _('number of rows'), validators=[MinValueValidator(1), MaxValueValidator(99)])
+    left_marge = models.IntegerField(
+        _('left marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    top_marge = models.IntegerField(
+        _('top marge'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    horizontal_space = models.IntegerField(
+        _('horizontal space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
+    vertical_space = models.IntegerField(
+        _('vertical space'), validators=[MinValueValidator(1), MaxValueValidator(9999)])
 
     def __str__(self):
         return self.name
@@ -130,7 +146,7 @@ class Label(LucteriosModel):
     @classmethod
     def get_print_selector(cls):
         selection = []
-        for dblbl in cls.objects.all():  # pylint: disable=no-member
+        for dblbl in cls.objects.all():
             selection.append((dblbl.id, dblbl.name))
         return [('LABEL', _('label'), selection), ('FIRSTLABEL', _('# of first label'), (1, 100, 0))]
 
@@ -138,16 +154,18 @@ class Label(LucteriosModel):
     def get_label_selected(cls, xfer):
         label_id = xfer.getparam('LABEL')
         first_label = xfer.getparam('FIRSTLABEL')
-        return cls.objects.get(id=label_id), int(first_label)  # pylint: disable=no-member
+        return cls.objects.get(id=label_id), int(first_label)
 
     class Meta(object):
-        # pylint: disable=no-init
+
         verbose_name = _('label')
         verbose_name_plural = _('labels')
 
+
 class PrintModel(LucteriosModel):
     name = models.CharField(_('name'), max_length=100, unique=False)
-    kind = models.IntegerField(_('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
+    kind = models.IntegerField(
+        _('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
     modelname = models.CharField(_('model'), max_length=100)
     value = models.TextField(_('value'), blank=True)
 
@@ -167,7 +185,8 @@ class PrintModel(LucteriosModel):
         return ["name"]
 
     def can_delete(self):
-        items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname)  # pylint: disable=no-member
+        items = PrintModel.objects.filter(
+            kind=self.kind, modelname=self.modelname)
         if len(items) <= 1:
             return _('Last model of this kind!')
         return ''
@@ -175,7 +194,7 @@ class PrintModel(LucteriosModel):
     @classmethod
     def get_print_selector(cls, kind, model):
         selection = []
-        for dblbl in cls.objects.filter(kind=kind, modelname=model.get_long_name()):  # pylint: disable=no-member
+        for dblbl in cls.objects.filter(kind=kind, modelname=model.get_long_name()):
             selection.append((dblbl.id, dblbl.name))
         if len(selection) == 0:
             raise LucteriosException(IMPORTANT, _('No model!'))
@@ -185,7 +204,7 @@ class PrintModel(LucteriosModel):
     def get_model_selected(cls, xfer):
         try:
             model_id = xfer.getparam('MODEL')
-            return cls.objects.get(id=model_id)  # pylint: disable=no-member
+            return cls.objects.get(id=model_id)
         except ValueError:
             raise LucteriosException(IMPORTANT, _('No model selected!'))
 
@@ -194,7 +213,7 @@ class PrintModel(LucteriosModel):
         return apps.get_model(self.modelname)
 
     def model_associated_title(self):
-        return self.model_associated()._meta.verbose_name.title()  # pylint: disable=protected-access
+        return self.model_associated()._meta.verbose_name.title()
 
     @property
     def page_width(self):
@@ -225,6 +244,6 @@ class PrintModel(LucteriosModel):
             self.value += "%d//%s//%s\n" % column
 
     class Meta(object):
-        # pylint: disable=no-init
+
         verbose_name = _('model')
         verbose_name_plural = _('models')

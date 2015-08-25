@@ -35,30 +35,31 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, 
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools
 
+
 class ParamCache(object):
 
     def __init__(self, name):
-        param = Parameter.objects.get(name=name)  # pylint: disable=no-member
+        param = Parameter.objects.get(name=name)
         self.name = param.name
         self.type = param.typeparam
         if self.type == 0:  # String
             self.value = six.text_type(param.value)
-            self.args = {'Multi':False}
+            self.args = {'Multi': False}
         elif self.type == 1:  # Integer
-            self.args = {'Min':0, 'Max':10000000}
+            self.args = {'Min': 0, 'Max': 10000000}
             self.value = int(param.value)
         elif self.type == 2:  # Real
             self.value = float(param.value)
-            self.args = {'Min':0, 'Max':10000000, 'Prec':2}
+            self.args = {'Min': 0, 'Max': 10000000, 'Prec': 2}
         elif self.type == 3:  # Boolean
             self.value = (param.value == 'True')
             self.args = {}
         elif self.type == 4:  # Select
             self.value = int(param.value)
-            self.args = {'Enum':0}
+            self.args = {'Enum': 0}
         try:
-            current_args = eval(param.args)  # pylint: disable=eval-used
-        except Exception as expt:  # pylint: disable=broad-except
+            current_args = eval(param.args)
+        except Exception as expt:
             getLogger(__name__).exception(expt)
             current_args = {}
         for arg_key in self.args.keys():
@@ -78,10 +79,12 @@ class ParamCache(object):
                 param_cmp = XferCompEdit(self.name)
             param_cmp.set_value(self.value)
         elif self.type == 1:  # Integer
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
+            param_cmp = XferCompFloat(
+                self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
             param_cmp.set_value(self.value)
         elif self.type == 2:  # Real
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=self.args['Prec'])
+            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args[
+                                      'Max'], precval=self.args['Prec'])
             param_cmp.set_value(self.value)
         elif self.type == 3:  # Boolean
             param_cmp = XferCompCheck(self.name)
@@ -113,6 +116,7 @@ class ParamCache(object):
         param_cmp.set_value(self.get_read_text())
         return param_cmp
 
+
 class Params(object):
 
     _PARAM_CACHE_LIST = {}
@@ -129,13 +133,14 @@ class Params(object):
 
     @classmethod
     def _get(cls, name):
-        if not name in cls._PARAM_CACHE_LIST.keys():
+        if name not in cls._PARAM_CACHE_LIST.keys():
             try:
                 cls._PARAM_CACHE_LIST[name] = ParamCache(name)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
             except Exception:
-                raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
+                raise LucteriosException(
+                    GRAVE, "Parameter %s not found!" % name)
         return cls._PARAM_CACHE_LIST[name]
 
     @classmethod
@@ -174,10 +179,12 @@ class Params(object):
         finally:
             cls._paramlock.release()
 
+
 def notfree_mode_connect(*args):
-    # pylint: disable=unused-argument
+
     mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection != 2
+
 
 def secure_mode_connect():
     mode_connection = Params.getvalue("CORE-connectmode")

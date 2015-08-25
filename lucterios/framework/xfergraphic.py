@@ -37,6 +37,7 @@ from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CL
 from django.db.models.fields import EmailField
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 
+
 def get_range_value(model_field):
     from django.core.validators import MaxValueValidator, MinValueValidator
     min_value, max_value = 0, 10000
@@ -46,6 +47,7 @@ def get_range_value(model_field):
         if isinstance(valid, MaxValueValidator):
             max_value = valid.limit_value
     return min_value, max_value
+
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
@@ -66,7 +68,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.custom = XferContainerCustom()
         self.custom.request = self.request
         self.custom.request = self.request
-        self.custom.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
+        self.custom.is_view_right = self.is_view_right
         self.custom.caption = self.caption
         self.custom.extension = self.extension
         self.custom.action = self.action
@@ -108,7 +110,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
     def _get_from_custom(self, request, *args, **kwargs):
         dlg = XferContainerCustom()
         dlg.request = self.request
-        dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
+        dlg.is_view_right = self.is_view_right
         dlg.caption = self.caption
         dlg.extension = self.extension
         dlg.action = self.action
@@ -121,14 +123,17 @@ class XferContainerAcknowledge(XferContainerAbstract):
         lbl.set_location(1, 0)
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
-            lbl.set_value("{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
+            lbl.set_value(
+                "{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
             dlg.add_action(WrapAction(_("Close"), "images/close.png"), {})
         else:
-            lbl.set_value("{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
+            lbl.set_value(
+                "{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
-            btn.set_action(self.request, self.get_action(_('Traitment...'), ""), {'params':{"RELOAD": "YES"}})
+            btn.set_action(self.request, self.get_action(
+                _('Traitment...'), ""), {'params': {"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
             dlg.add_component(btn)
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
@@ -142,12 +147,13 @@ class XferContainerAcknowledge(XferContainerAbstract):
         if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
             dlg = XferContainerDialogBox()
             dlg.request = self.request
-            dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
+            dlg.is_view_right = self.is_view_right
             dlg.caption = "Confirmation"
             dlg.extension = self.extension
             dlg.action = self.action
             dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-            dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'close':CLOSE_YES, 'params':{"CONFIRME": "YES"}})
+            dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {
+                           'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'params': {"CONFIRME": "YES"}})
             dlg.add_action(WrapAction(_("No"), "images/cancel.png"), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
@@ -162,23 +168,24 @@ class XferContainerAcknowledge(XferContainerAbstract):
         elif self.except_msg != "":
             dlg = XferContainerDialogBox()
             dlg.request = self.request
-            dlg.is_view_right = self.is_view_right  # pylint: disable=attribute-defined-outside-init
+            dlg.is_view_right = self.is_view_right
             dlg.caption = self.caption
             dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
             if self.except_classact is not None:
                 except_action = self.except_classact()
                 if self.check_action_permission(except_action.get_action()):
-                    dlg.add_action(except_action.get_action(_("Retry"), ""), {})
+                    dlg.add_action(
+                        except_action.get_action(_("Retry"), ""), {})
             dlg.closeaction = self.closeaction
             return dlg.get(request, *args, **kwargs)
-        elif self.traitment_data != None:
+        elif self.traitment_data is not None:
             return self._get_from_custom(request, *args, **kwargs)
         else:
             self._finalize()
             return self.get_response()
 
     def _finalize(self):
-        if self.redirect_act != None:
+        if self.redirect_act is not None:
             act_xml = self.redirect_act[0].get_action_xml(self.redirect_act[1])
             if act_xml is not None:
                 self.responsexml.append(act_xml)
@@ -188,6 +195,7 @@ XFER_DBOX_INFORMATION = 1
 XFER_DBOX_CONFIRMATION = 2
 XFER_DBOX_WARNING = 3
 XFER_DBOX_ERROR = 4
+
 
 class XferContainerDialogBox(XferContainerAbstract):
 
@@ -219,8 +227,8 @@ class XferContainerDialogBox(XferContainerAbstract):
             self.responsexml.append(get_actions_xml(self.actions))
         XferContainerAbstract._finalize(self)
 
+
 class XferContainerCustom(XferContainerAbstract):
-    # pylint: disable=too-many-public-methods
 
     observer_name = "Core.Custom"
 
@@ -334,7 +342,8 @@ class XferContainerCustom(XferContainerAbstract):
         for fieldname in field_name.split('.'):
             sub_value = getattr(sub_value, fieldname)
         value = get_value_converted(sub_value, True)
-        dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
+        dep_field = self.item.get_field_by_name(
+            field_name)
         if isinstance(dep_field, EmailField):
             comp = XferCompLinkLabel(field_name)
             comp.set_link('mailto:' + value)
@@ -345,11 +354,12 @@ class XferContainerCustom(XferContainerAbstract):
         return comp
 
     def get_writing_comp(self, field_name):
-        # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
         from django.db.models.fields.related import ForeignKey
         from django.core.exceptions import ObjectDoesNotExist
-        dep_field = self.item.get_field_by_name(field_name)  # pylint: disable=protected-access
+        dep_field = self.item.get_field_by_name(
+            field_name)
         if isinstance(dep_field, IntegerField):
             if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                 comp = XferCompSelect(field_name)
@@ -360,7 +370,8 @@ class XferContainerCustom(XferContainerAbstract):
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field, DecimalField):
             min_value, max_value = get_range_value(dep_field)
-            comp = XferCompFloat(field_name, min_value, max_value, dep_field.decimal_places)
+            comp = XferCompFloat(
+                field_name, min_value, max_value, dep_field.decimal_places)
             comp.set_value(getattr(self.item, field_name))
         elif isinstance(dep_field, BooleanField):
             comp = XferCompCheck(field_name)
@@ -398,27 +409,29 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(getattr(self.item, field_name))
-        comp.set_needed(dep_field.unique or not (dep_field.blank or dep_field.null))
+        comp.set_needed(
+            dep_field.unique or not (dep_field.blank or dep_field.null))
         comp.description = six.text_type(dep_field.verbose_name)
         return comp
 
     def get_maxsize_of_lines(self, field_names):
-        # pylint: disable=no-self-use
+
         maxsize_of_lines = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
-                maxsize_of_lines = max((maxsize_of_lines, len(line_field_name)))
+                maxsize_of_lines = max(
+                    (maxsize_of_lines, len(line_field_name)))
         return maxsize_of_lines
 
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
-        # pylint: disable=no-self-use
+
         colspan = 1
         if offset == (line_field_size - 1):
             colspan = 2 * maxsize_of_lines - (1 + offset)
         return colspan
 
     def filltab_from_model(self, col, row, readonly, field_names):
-        # pylint: disable=too-many-locals,too-many-branches
+
         maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
@@ -426,12 +439,14 @@ class XferContainerCustom(XferContainerAbstract):
             offset = 0
             height = 1
             for field_name in line_field_name:
-                colspan = self.get_current_offset(maxsize_of_lines, len(line_field_name), offset)
+                colspan = self.get_current_offset(
+                    maxsize_of_lines, len(line_field_name), offset)
                 if field_name[-4:] == '_set':  # field is one-to-many relation
                     child = getattr(self.item, field_name).all()
                     lbl = XferCompLabelForm('lbl_' + field_name)
                     lbl.set_location(col + offset, row, 1, 1)
-                    lbl.set_value_as_name(child.model._meta.verbose_name)  # pylint: disable=protected-access
+                    lbl.set_value_as_name(
+                        child.model._meta.verbose_name)
                     self.add_component(lbl)
                     comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
@@ -445,29 +460,35 @@ class XferContainerCustom(XferContainerAbstract):
                     else:
                         verbose_name = None
                     dep_field = self.item.get_field_by_name(field_name)
-                    if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:  # field real in model
-                        if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):  # field not many-to-many
+                    # field real in model
+                    if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:
+                        # field not many-to-many
+                        if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):
                             lbl = XferCompLabelForm('lbl_' + field_name)
                             lbl.set_location(col + offset, row, 1, 1)
                             if verbose_name is None:
-                                lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
+                                lbl.set_value_as_name(
+                                    six.text_type(dep_field.verbose_name))
                             else:
-                                lbl.set_value_as_name(six.text_type(verbose_name))
+                                lbl.set_value_as_name(
+                                    six.text_type(verbose_name))
                             self.add_component(lbl)
                             if readonly:
                                 comp = self.get_reading_comp(field_name)
                             else:
                                 comp = self.get_writing_comp(field_name)
-                            comp.set_location(col + 1 + offset, row, colspan, 1)
+                            comp.set_location(
+                                col + 1 + offset, row, colspan, 1)
                             self.add_component(comp)
                         else:  # field many-to-many
-                            self.selector_from_model(col + offset, row, field_name)
+                            self.selector_from_model(
+                                col + offset, row, field_name)
                             height = 5
                         offset += 2
             row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
-        # pylint: disable=protected-access
+
         current_desc_fields = desc_fields
         if desc_fields is None:
             if readonly:
@@ -475,15 +496,17 @@ class XferContainerCustom(XferContainerAbstract):
             else:
                 current_desc_fields = self.item.get_edit_fields()
         if isinstance(current_desc_fields, list):
-            current_desc_fields = {'':current_desc_fields}
+            current_desc_fields = {'': current_desc_fields}
         tab_keys = list(current_desc_fields.keys())
         if '' in tab_keys:
-            self.filltab_from_model(col, row, readonly, current_desc_fields[''])
+            self.filltab_from_model(
+                col, row, readonly, current_desc_fields[''])
             tab_keys.remove('')
         tab_keys.sort()
         for tab_key in tab_keys:
             self.new_tab(tab_key[tab_key.find('@') + 1:])
-            self.filltab_from_model(0, 0, readonly, current_desc_fields[tab_key])
+            self.filltab_from_model(
+                0, 0, readonly, current_desc_fields[tab_key])
         if desc_fields is None:
             if readonly:
                 self.item.editor.show(self)
@@ -505,8 +528,9 @@ class XferContainerCustom(XferContainerAbstract):
     if (%(comp)s_current !== null) {
         %(comp)s_valid = %(comp)s_current;
     }
-    """ % {'comp':field_name, 'sela':six.text_type(sela), 'selc':";".join(selval)}
-        java_script_init = java_script_init.replace("u'", "'").replace('u"', '"')
+    """ % {'comp': field_name, 'sela': six.text_type(sela), 'selc': ";".join(selval)}
+        java_script_init = java_script_init.replace(
+            "u'", "'").replace('u"', '"')
         java_script_treat = """
     var valid_list = %(comp)s_valid.split(";")
     var %(comp)s_xml_available = "<SELECT>";
@@ -536,19 +560,22 @@ class XferContainerCustom(XferContainerAbstract):
              parent.mContext.put('%(comp)s_cpt',tmp_cpt);
         }
     }
-    """ % {'comp':field_name}
+    """ % {'comp': field_name}
         return java_script_init, java_script_treat
 
     def selector_from_model(self, col, row, field_name):
-        # pylint: disable=too-many-locals
-        dep_field = self.item._meta.get_field(field_name)  # pylint: disable=protected-access
+
+        dep_field = self.item._meta.get_field(
+            field_name)
         if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
             if hasattr(self.item, field_name + "__titles"):
-                title_available, title_chosen = getattr(self.item, field_name + "__titles")
+                title_available, title_chosen = getattr(
+                    self.item, field_name + "__titles")
             else:
                 title_available, title_chosen = ('', '')
             availables = get_corrected_setquery(dep_field.rel.to.objects.all())
-            java_script_init, java_script_treat = self._get_scripts_for_selectors(field_name, availables)
+            java_script_init, java_script_treat = self._get_scripts_for_selectors(
+                field_name, availables)
 
             lbl = XferCompLabelForm('lbl_' + field_name)
             lbl.set_location(col, row, 1, 1)
@@ -614,10 +641,12 @@ if (%(comp)s_current !== null) {
 }
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(self.request, WrapAction(button_title, ""), {'close':CLOSE_NO})
+                btn.set_action(
+                    self.request, WrapAction(button_title, ""), {'close': CLOSE_NO})
                 btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
-                btn.java_script = java_script_init + button_script % {'comp':field_name} + java_script_treat
+                btn.java_script = java_script_init + \
+                    button_script % {'comp': field_name} + java_script_treat
                 self.add_component(btn)
                 btn_idx += 1
 

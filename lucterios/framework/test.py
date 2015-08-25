@@ -32,8 +32,10 @@ from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 
+
 def add_user(username):
-    user = LucteriosUser.objects.create_user(username=username, password=username, last_login=timezone.now())
+    user = LucteriosUser.objects.create_user(
+        username=username, password=username, last_login=timezone.now())
     user.first_name = username
     user.last_name = username.upper()
     user.is_staff = False
@@ -41,11 +43,13 @@ def add_user(username):
     user.save()
     return user
 
+
 def add_empty_user():
     user = add_user('empty')
     user.last_name = 'NOFULL'
     user.save()
     return user
+
 
 class XmlClient(Client):
 
@@ -55,6 +59,7 @@ class XmlClient(Client):
 
     def call(self, path, data):
         return self.post(path, data, HTTP_ACCEPT_LANGUAGE=self.language)
+
 
 class XmlRequestFactory(RequestFactory):
 
@@ -75,12 +80,12 @@ class XmlRequestFactory(RequestFactory):
             request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
             request.user = self.user
             return self.xfer.get(request)
-        except Exception as expt:  # pylint: disable=broad-except
+        except Exception as expt:
             err = LucteriosErrorMiddleware()
             return err.process_exception(request, expt)
 
+
 class LucteriosTest(TestCase):
-    # pylint: disable=too-many-public-methods
 
     language = 'fr'
 
@@ -100,9 +105,11 @@ class LucteriosTest(TestCase):
             response = self.client.call(path, data)
         else:
             response = self.factory.call(path, data)
-        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
+        self.assertEqual(
+            response.status_code, 200, "HTTP error:" + str(response.status_code))
         contentxml = etree.fromstring(response.content)
-        self.assertEqual(contentxml.getchildren()[0].tag, 'REPONSE', "NOT REPONSE")
+        self.assertEqual(
+            contentxml.getchildren()[0].tag, 'REPONSE', "NOT REPONSE")
         self.response_xml = contentxml.getchildren()[0]
 
     def get_first_xpath(self, xpath):
@@ -115,11 +122,13 @@ class LucteriosTest(TestCase):
 
     def print_xml(self, xpath):
         xml_value = self.get_first_xpath(xpath)
-        six.print_(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+        six.print_(etree.tostring(
+            xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
-        self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d" % (xpath, len(xml_values), size))
+        self.assertEqual(len(xml_values), size, "size of %s different: %d=>%d" % (
+            xpath, len(xml_values), size))
 
     def assert_xml_equal(self, xpath, value, txtrange=None):
         xml_value = self.get_first_xpath(xpath)
@@ -128,12 +137,14 @@ class LucteriosTest(TestCase):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
-        self.assertEqual(txt_value, value, "%s: %s => %s" % (xpath, txt_value, value))
+        self.assertEqual(txt_value, value, "%s: %s => %s" %
+                         (xpath, txt_value, value))
 
     def assert_attrib_equal(self, xpath, name, value):
         xml_value = self.get_first_xpath(xpath)
         attr_value = xml_value.get(name)
-        self.assertEqual(attr_value, value, "%s/@%s: %s => %s" % (xpath, name, attr_value, value))
+        self.assertEqual(attr_value, value, "%s/@%s: %s => %s" %
+                         (xpath, name, attr_value, value))
 
     def assert_observer(self, obsname, extension, action):
         try:
@@ -142,10 +153,13 @@ class LucteriosTest(TestCase):
             self.assert_attrib_equal('', 'source_action', action)
         except AssertionError:
             if self.get_first_xpath('').get('observer') == 'CORE.Exception':
-                six.print_("Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
-                six.print_("Call-stack:" + six.text_type(self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
+                six.print_(
+                    "Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
+                six.print_("Call-stack:" + six.text_type(
+                    self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
             if self.get_first_xpath('').get('observer') == 'Core.DialogBox':
-                six.print_("Message:" + six.text_type(self.get_first_xpath('TEXT').text))
+                six.print_(
+                    "Message:" + six.text_type(self.get_first_xpath('TEXT').text))
             raise
 
     def assert_comp_equal(self, xpath, text, coord):
@@ -166,12 +180,16 @@ class LucteriosTest(TestCase):
         if len(act_desc) > 2:
             self.assert_attrib_equal(xpath, "extension", act_desc[2])
             self.assert_attrib_equal(xpath, "action", act_desc[3])
-            self.assert_attrib_equal(xpath, "close", six.text_type(act_desc[4]))
-            self.assert_attrib_equal(xpath, "modal", six.text_type(act_desc[5]))
-            self.assert_attrib_equal(xpath, "unique", six.text_type(act_desc[6]))
+            self.assert_attrib_equal(
+                xpath, "close", six.text_type(act_desc[4]))
+            self.assert_attrib_equal(
+                xpath, "modal", six.text_type(act_desc[5]))
+            self.assert_attrib_equal(
+                xpath, "unique", six.text_type(act_desc[6]))
             if len(act_desc) > 7:
                 for key, value in act_desc[7].items():
-                    self.assert_xml_equal("%s/PARAM[@name='%s']" % (xpath, key), value)
+                    self.assert_xml_equal(
+                        "%s/PARAM[@name='%s']" % (xpath, key), value)
         else:
             self.assert_attrib_equal(xpath, "extension", None)
             self.assert_attrib_equal(xpath, "action", None)

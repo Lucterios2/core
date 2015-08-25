@@ -45,6 +45,7 @@ def get_size(xmltext, name):
     except TypeError:
         return 0
 
+
 def extract_text(xmltext):
     def add_sub_text(xmltext, sub_text):
         for item in xmltext:
@@ -80,8 +81,8 @@ TABLE_STYLE = TableStyle([
     ('BOX', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0))
 ])
 
+
 class LucteriosPDF(object):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         self.pdf = canvas.Canvas("lucterios.pdf")
@@ -100,11 +101,15 @@ class LucteriosPDF(object):
         self.position_y = 0
         self.current_page = None
         font_dir_path = join(dirname(__file__), 'fonts')
-        pdfmetrics.registerFont(TTFont('sans-serif', join(font_dir_path, 'FreeSans.ttf')))
-        pdfmetrics.registerFont(TTFont('sans-serif-bold', join(font_dir_path, 'FreeSansBold.ttf')))
-        pdfmetrics.registerFont(TTFont('sans-serif-italic', join(font_dir_path, 'FreeSansOblique.ttf')))
-        pdfmetrics.registerFont(TTFont('sans-serif-bolditalic', join(font_dir_path, 'FreeSansBoldOblique.ttf')))
-        pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold", \
+        pdfmetrics.registerFont(
+            TTFont('sans-serif', join(font_dir_path, 'FreeSans.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-bold', join(font_dir_path, 'FreeSansBold.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-italic', join(font_dir_path, 'FreeSansOblique.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-bolditalic', join(font_dir_path, 'FreeSansBoldOblique.ttf')))
+        pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold",
                                       italic="sans-serif-italic", boldItalic="sans-serif-bolditalic")
 
     def _init(self):
@@ -143,7 +148,7 @@ class LucteriosPDF(object):
         else:
             alignment = TA_RIGHT
         font_size = float(xmltext.get('font_size')) - offset_font_size
-        style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size, \
+        style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size,
                                alignment=alignment, leading=int(xmltext.get('line_height')))
         # six.print_("%s:%s" % (xmltext.tag, para_text))
         text = Paragraph(para_text, style=style)
@@ -158,24 +163,29 @@ class LucteriosPDF(object):
             current_w = get_size(xmlcolumn, 'width')
             width_columns.append(current_w)
             cells = xmlcolumn.xpath('cell')
-            text, _, new_current_h = self.create_para(cells[0], current_w, 0, 0.85)
+            text, _, new_current_h = self.create_para(
+                cells[0], current_w, 0, 0.85)
             max_current_h = max(max_current_h, new_current_h)
             cellcolumns.append(text)
         return cellcolumns, width_columns, max_current_h
 
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
-        # pylint: disable=too-many-locals
+
         def get_table_heigth(current_data, current_width_columns):
-            table = Table(current_data, style=TABLE_STYLE, colWidths=current_width_columns)
+            table = Table(
+                current_data, style=TABLE_STYLE, colWidths=current_width_columns)
             _, table_h = table.wrapOn(self.pdf, current_w, current_h)
             return table_h
+
         def draw_table(width_columns, data):
             table = Table(data, style=TABLE_STYLE, colWidths=width_columns)
             _, new_current_h = table.wrapOn(self.pdf, current_w, current_h)
-            table.drawOn(self.pdf, current_x, self.height - current_y - new_current_h)
+            table.drawOn(
+                self.pdf, current_x, self.height - current_y - new_current_h)
             self.position_y = current_y + max(new_current_h, current_h)
             return
-        cellcolumns, width_columns, _ = self.extract_columns_for_table(xmltable.xpath('columns'))
+        cellcolumns, width_columns, _ = self.extract_columns_for_table(
+            xmltable.xpath('columns'))
         data = []
         data.append(cellcolumns)
         for row in xmltable.xpath('rows'):
@@ -207,18 +217,21 @@ class LucteriosPDF(object):
             img.drawHeight = current_h
             img.drawWidth = current_w
             _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
-            img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
+            img.drawOn(
+                self.pdf, current_x, self.height - current_y - current_h)
             self.position_y = current_y + max(new_current_h, current_h)
         finally:
             if img_file is not None:
                 img_file.close()
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
-        text, style, new_current_h = self.create_para(xmltext, current_w, current_h)
+        text, style, new_current_h = self.create_para(
+            xmltext, current_w, current_h)
         if new_current_h == 0:
             new_current_h = style.leading
         new_current_h += style.leading * 0.40
-        text.drawOn(self.pdf, current_x, self.height - current_y - new_current_h)
+        text.drawOn(
+            self.pdf, current_x, self.height - current_y - new_current_h)
         self.position_y = current_y + max(new_current_h, current_h)
 
     def _parse_comp(self, comp, y_offset):
@@ -254,7 +267,8 @@ class LucteriosPDF(object):
 
     def draw_footer(self):
         bottom = self.current_page.xpath('bottom')
-        self._parse_comp(bottom[0], self.height - self.b_margin - self.bottom_h)
+        self._parse_comp(
+            bottom[0], self.height - self.b_margin - self.bottom_h)
 
     def execute(self, xml_content):
         self.xml = etree.fromstring(xml_content)
@@ -269,10 +283,12 @@ class LucteriosPDF(object):
     def output(self):
         return self.pdf.getpdfdata()
 
+
 def transforme_xml2pdf(xml_content):
     lpdf = LucteriosPDF()
     lpdf.execute(xml_content)
     return lpdf.output()
+
 
 def transform_file_xml2pdf(xml_filename, pdf_filename):
     with open(xml_filename, 'rb') as flb:
@@ -283,6 +299,7 @@ def transform_file_xml2pdf(xml_filename, pdf_filename):
         with open(pdf_filename, 'wb') as flb:
             flb.write(pdf_content)
     return isfile(pdf_filename)
+
 
 def main():
     import sys

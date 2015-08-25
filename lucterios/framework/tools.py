@@ -38,13 +38,13 @@ SELECT_NONE = 1
 SELECT_SINGLE = 0
 SELECT_MULTI = 2
 
-bad_permission_redirect_classaction = None  # pylint: disable=invalid-name
+bad_permission_redirect_classaction = None
+
 
 class WrapAction(object):
 
-    mode_connect_notfree = None  # pylint: disable=invalid-name
+    mode_connect_notfree = None
 
-    # pylint: disable=too-few-public-methods
     def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon_path = icon_path
@@ -87,7 +87,7 @@ class WrapAction(object):
         if isinstance(self.is_view_right, tuple):
             view_right_fct = self.is_view_right[0]
             return view_right_fct(request)
-        if self.is_view_right == None:
+        if self.is_view_right is None:
             return request.user.is_authenticated()
         if self.mode_connect_notfree is None or self.mode_connect_notfree():
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
@@ -103,7 +103,9 @@ class WrapAction(object):
                 username = request.user.username
             else:
                 username = _("Anonymous user")
-            raise LucteriosRedirectException(_("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
+            raise LucteriosRedirectException(
+                _("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
+
 
 class ActionsManage(object):
 
@@ -139,6 +141,7 @@ class ActionsManage(object):
         finally:
             cls._actlock.release()
 
+
 class MenuManage(object):
 
     _MENU_LIST = {}
@@ -156,7 +159,8 @@ class MenuManage(object):
                 if old_menu[0].url_text == ref:
                     add_new_menu = False
             if add_new_menu:
-                cls._MENU_LIST[parentref].append((WrapAction(caption, icon, url_text=ref, pos=pos), desc))
+                cls._MENU_LIST[parentref].append(
+                    (WrapAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
@@ -166,10 +170,11 @@ class MenuManage(object):
             cls._menulock.acquire()
             try:
                 item.initclass(right)
-                if menu_parent != None:
+                if menu_parent is not None:
                     if menu_parent not in cls._MENU_LIST.keys():
                         cls._MENU_LIST[menu_parent] = []
-                    cls._MENU_LIST[menu_parent].append((item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
+                    cls._MENU_LIST[menu_parent].append(
+                        (item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
                 return item
             finally:
                 cls._menulock.release()
@@ -189,20 +194,24 @@ class MenuManage(object):
                 sub_menus.sort(key=menu_key_to_comp)
                 for sub_menu_item in sub_menus:
                     if sub_menu_item[0].check_permission(request):
-                        new_xml = sub_menu_item[0].get_action_xml({}, sub_menu_item[1], "MENU")
-                        if new_xml != None:
+                        new_xml = sub_menu_item[0].get_action_xml(
+                            {}, sub_menu_item[1], "MENU")
+                        if new_xml is not None:
                             parentxml.append(new_xml)
-                            cls.fill(request, sub_menu_item[0].url_text, new_xml)
+                            cls.fill(
+                                request, sub_menu_item[0].url_text, new_xml)
         finally:
             cls._menulock.release()
+
 
 def get_actions_xml(actions):
     actionsxml = etree.Element("ACTIONS")
     for (action, options) in actions:
         new_xml = action.get_action_xml(options)
-        if new_xml != None:
+        if new_xml is not None:
             actionsxml.append(new_xml)
     return actionsxml
+
 
 def fill_param_xml(context, params):
     for key, value in params.items():
@@ -213,25 +222,32 @@ def fill_param_xml(context, params):
             new_param.text = six.text_type(value)
         new_param.attrib['name'] = key
 
+
 def ifplural(count, test_singular, test_plural):
     if count == 1:
         return test_singular
     else:
         return test_plural
 
+
 def get_corrected_setquery(setquery):
     from django.contrib.auth.models import Permission
     from django.contrib.contenttypes.models import ContentType
     if setquery.model == Permission:
-        ctypes = ContentType.objects.all()  # pylint: disable=no-member
+        ctypes = ContentType.objects.all()
         for ctype in ctypes:
             if ctype.model in ('contenttype', 'logentry', 'permission'):
-                setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
-                setquery = setquery.exclude(content_type=ctype, codename__startswith='change_')
-                setquery = setquery.exclude(content_type=ctype, codename__startswith='delete_')
+                setquery = setquery.exclude(
+                    content_type=ctype, codename__startswith='add_')
+                setquery = setquery.exclude(
+                    content_type=ctype, codename__startswith='change_')
+                setquery = setquery.exclude(
+                    content_type=ctype, codename__startswith='delete_')
             if ctype.model in ('session',):
-                setquery = setquery.exclude(content_type=ctype, codename__startswith='add_')
+                setquery = setquery.exclude(
+                    content_type=ctype, codename__startswith='add_')
     return setquery
+
 
 def get_dico_from_setquery(setquery):
     from django.contrib.auth.models import Permission
@@ -245,11 +261,13 @@ def get_dico_from_setquery(setquery):
                 rigth_name = _('view')
             if rigths[1] == 'delete':
                 rigth_name = _('delete')
-            res_dico[six.text_type(record.id)] = "%s | %s %s" % (six.text_type(record.content_type), _("Can"), rigth_name)
+            res_dico[six.text_type(record.id)] = "%s | %s %s" % (
+                six.text_type(record.content_type), _("Can"), rigth_name)
     else:
         for record in setquery:
             res_dico[six.text_type(record.id)] = six.text_type(record)
     return res_dico
+
 
 def get_binay(text):
     if six.PY2:

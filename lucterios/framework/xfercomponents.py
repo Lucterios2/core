@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lxml import etree
+from collections import namedtuple
 
 from django.utils import six
 from django.utils.translation import ugettext as _
@@ -35,8 +36,8 @@ import datetime
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 
+
 class XferComponent(object):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, name):
         self.name = name
@@ -91,13 +92,15 @@ class XferComponent(object):
             compxml.attrib['VMin'] = six.text_type(self.vmin)
         if isinstance(self.hmin, six.integer_types):
             compxml.attrib['HMin'] = six.text_type(self.hmin)
-        compxml.attrib['needed'] = six.text_type(1) if self.needed else six.text_type(0)
+        compxml.attrib['needed'] = six.text_type(
+            1) if self.needed else six.text_type(0)
 
     def get_reponse_xml(self):
         compxml = etree.Element(self._component_ident)
         self._get_attribut(compxml)
         compxml.text = six.text_type(self._get_content())
         return compxml
+
 
 class XferCompTab(XferComponent):
 
@@ -108,6 +111,7 @@ class XferCompTab(XferComponent):
     def set_value(self, value):
         self.value = value.strip()
 
+
 class XferCompLABEL(XferComponent):
 
     def __init__(self, name):
@@ -117,11 +121,13 @@ class XferCompLABEL(XferComponent):
     def set_value(self, value):
         self.value = value.strip()
 
+
 class XferCompPassword(XferComponent):
 
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "PASSWD"
+
 
 class XferCompImage(XferComponent):
 
@@ -141,6 +147,7 @@ class XferCompImage(XferComponent):
         if self.type != '':
             compxml.attrib['type'] = six.text_type(self.type)
 
+
 class XferCompLabelForm(XferComponent):
 
     def __init__(self, name):
@@ -148,7 +155,8 @@ class XferCompLabelForm(XferComponent):
         self._component_ident = "LABELFORM"
 
     def set_value_as_title(self, value):
-        self.set_value(six.text_type('{[br/]}{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}') % value)
+        self.set_value(
+            six.text_type('{[br/]}{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}') % value)
 
     def set_value_as_name(self, value):
         self.set_value(six.text_type('{[b]}%s{[/b]}') % value)
@@ -160,13 +168,16 @@ class XferCompLabelForm(XferComponent):
         self.set_value("{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}" % value)
 
     def set_value_as_header(self, value):
-        self.set_value(six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
+        self.set_value(
+            six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
 
     def set_value_center(self, value):
         self.set_value(six.text_type('{[center]}%s{[/center]}') % value)
 
     def set_value_as_headername(self, value):
-        self.set_value(six.text_type('{[center]}{[b]}%s{[/b]}{[/center]}') % value)
+        self.set_value(
+            six.text_type('{[center]}{[b]}%s{[/b]}{[/center]}') % value)
+
 
 class XferCompLinkLabel(XferCompLabelForm):
 
@@ -182,6 +193,7 @@ class XferCompLinkLabel(XferCompLabelForm):
         compxml = XferCompLabelForm.get_reponse_xml(self)
         etree.SubElement(compxml, "LINK").text = six.text_type(self.link)
         return compxml
+
 
 class XferCompButton(XferComponent):
 
@@ -213,11 +225,13 @@ class XferCompButton(XferComponent):
         if self.action is not None:
             xml_acts = etree.SubElement(compxml, "ACTIONS")
             new_xml = self.action[0].get_action_xml(self.action[1])
-            if new_xml != None:
+            if new_xml is not None:
                 xml_acts.append(new_xml)
         if self.java_script != "":
-            etree.SubElement(compxml, "JavaScript").text = six.text_type(urlquote_plus(self.java_script))
+            etree.SubElement(compxml, "JavaScript").text = six.text_type(
+                urlquote_plus(self.java_script))
         return compxml
+
 
 class XferCompEdit(XferCompButton):
 
@@ -229,8 +243,10 @@ class XferCompEdit(XferCompButton):
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
         if self.mask != '':
-            etree.SubElement(compxml, "REG_EXPR").text = six.text_type(self.mask)
+            etree.SubElement(
+                compxml, "REG_EXPR").text = six.text_type(self.mask)
         return compxml
+
 
 class XferCompFloat(XferCompButton):
 
@@ -258,6 +274,7 @@ class XferCompFloat(XferCompButton):
         compxml.attrib['max'] = six.text_type(self.max)
         compxml.attrib['prec'] = six.text_type(self.prec)
 
+
 class XferCompMemo(XferCompButton):
 
     def __init__(self, name):
@@ -282,9 +299,12 @@ class XferCompMemo(XferCompButton):
         compxml = XferCompButton.get_reponse_xml(self)
         for sub_menu in self.sub_menu:
             xml_menu = etree.SubElement(compxml, "SUBMENU")
-            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
-            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
+            etree.SubElement(
+                xml_menu, "NAME").text = six.text_type(sub_menu[0])
+            etree.SubElement(
+                xml_menu, "VALUE").text = six.text_type(sub_menu[1])
         return compxml
+
 
 class XferCompDate(XferCompButton):
 
@@ -298,6 +318,7 @@ class XferCompDate(XferCompButton):
         else:
             self.value = value
 
+
 class XferCompTime(XferCompButton):
 
     def __init__(self, name):
@@ -309,6 +330,7 @@ class XferCompTime(XferCompButton):
             self.value = datetime.time()
         else:
             self.value = value
+
 
 class XferCompDateTime(XferCompButton):
 
@@ -322,6 +344,7 @@ class XferCompDateTime(XferCompButton):
         else:
             self.value = value
 
+
 class XferCompCheck(XferCompButton):
 
     def __init__(self, name):
@@ -334,6 +357,7 @@ class XferCompCheck(XferCompButton):
             self.value = 0
         else:
             self.value = 1
+
 
 class XferCompSelect(XferCompButton):
 
@@ -365,11 +389,12 @@ class XferCompSelect(XferCompButton):
                 if select_item[0] == self.value:
                     return select_item[1]
             if not value_found:
-                return  self.select_list[0][1]
+                return self.select_list[0][1]
 
     def get_reponse_xml(self):
         if isinstance(self.select_list, dict):
-            list_of_select = list(self.select_list.items())  # pylint: disable=no-member
+            list_of_select = list(
+                self.select_list.items())
         else:
             list_of_select = list(self.select_list)
         if len(list_of_select) > 0:
@@ -385,6 +410,7 @@ class XferCompSelect(XferCompButton):
             xml_case.attrib['id'] = six.text_type(key)
             xml_case.text = six.text_type(val)
         return compxml
+
 
 class XferCompCheckList(XferCompButton):
 
@@ -428,6 +454,7 @@ class XferCompCheckList(XferCompButton):
             xml_case.text = six.text_type(val)
         return compxml
 
+
 class XferCompUpLoad(XferComponent):
 
     def __init__(self, name):
@@ -452,8 +479,10 @@ class XferCompUpLoad(XferComponent):
     def get_reponse_xml(self):
         compxml = XferComponent.get_reponse_xml(self)
         for filte_item in self.fitre:
-            etree.SubElement(compxml, "FILTER").text = six.text_type(filte_item)
+            etree.SubElement(
+                compxml, "FILTER").text = six.text_type(filte_item)
         return compxml
+
 
 class XferCompDownLoad(XferCompButton):
 
@@ -484,8 +513,8 @@ class XferCompDownLoad(XferCompButton):
 MAX_GRID_RECORD = 25
 GRID_PAGE = 'GRID_PAGE%'
 
-from collections import namedtuple
 XferCompHeader = namedtuple('XferCompHeader', 'name descript type')
+
 
 class XferCompGrid(XferComponent):
 
@@ -528,7 +557,7 @@ class XferCompGrid(XferComponent):
         return (record_min, record_max)
 
     def _new_record(self, compid):
-        if not compid in self.records.keys():
+        if compid not in self.records.keys():
             new_record = {}
             for header in self.headers:
                 if header.type == 'int':
@@ -567,7 +596,8 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 xml_value = etree.SubElement(xml_record, "VALUE")
                 xml_value.attrib['name'] = six.text_type(header.name)
-                xml_value.text = six.text_type(get_value_converted(record[header.name]))
+                xml_value.text = six.text_type(
+                    get_value_converted(record[header.name]))
         if len(self.actions) != 0:
             compxml.append(get_actions_xml(self.actions))
         return compxml
@@ -579,11 +609,13 @@ class XferCompGrid(XferComponent):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
-                dep_field = query_set.model.get_field_by_name(fieldname[:-4])  # pylint: disable=protected-access
+                dep_field = query_set.model.get_field_by_name(
+                    fieldname[:-4])
                 hfield = 'str'
-                verbose_name = dep_field.related_model._meta.verbose_name  # pylint: disable=protected-access
+                verbose_name = dep_field.related_model._meta.verbose_name
             else:
-                dep_field = query_set.model.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                dep_field = query_set.model.get_field_by_name(
+                    fieldname)
                 if isinstance(dep_field, IntegerField):
                     hfield = 'int'
                 elif isinstance(dep_field, FloatField):
@@ -596,12 +628,12 @@ class XferCompGrid(XferComponent):
             self.add_header(fieldname, verbose_name, hfield)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
-        # pylint: disable=too-many-locals
-        if fieldnames == None:
+
+        if fieldnames is None:
             fieldnames = query_set.model.get_default_fields()
         self._add_header_from_model(query_set, fieldnames)
         self.nb_lines = len(query_set)
-        primary_key_fieldname = query_set.model._meta.pk.attname  # pylint: disable=protected-access
+        primary_key_fieldname = query_set.model._meta.pk.attname
         record_min, record_max = self.define_page(xfer_custom)
         for value in query_set[record_min:record_max]:
             child = value.get_final_child()
@@ -620,7 +652,8 @@ class XferCompGrid(XferComponent):
                     for field_name in fieldname.split('.'):
                         resvalue = getattr(resvalue, field_name)
                     try:
-                        field_desc = query_set.model.get_field_by_name(fieldname)  # pylint: disable=protected-access
+                        field_desc = query_set.model.get_field_by_name(
+                            fieldname)
                         resvalue = get_value_if_choices(resvalue, field_desc)
                     except FieldDoesNotExist:
                         pass
@@ -630,7 +663,8 @@ class XferCompGrid(XferComponent):
         if model is None:
             model = xfer_custom.model
         if action_list is None:
-            action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE), \
-                         ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+            action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
+                           ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
         for act_type, title, icon, unique in action_list:
-            self.add_action(xfer_custom.request, ActionsManage.get_act_changed(model.__name__, act_type, title, icon), {'modal':FORMTYPE_MODAL, 'unique':unique})
+            self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
+                model.__name__, act_type, title, icon), {'modal': FORMTYPE_MODAL, 'unique': unique})

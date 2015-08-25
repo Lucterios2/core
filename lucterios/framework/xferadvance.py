@@ -33,9 +33,11 @@ from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsMan
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
+
 class XferListEditor(XferContainerCustom):
     multi_page = True
-    action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"), ('label', ugettext_lazy("Label"), "images/print.png")]
+    action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"),
+                   ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
@@ -45,18 +47,19 @@ class XferListEditor(XferContainerCustom):
         self.filter = None
 
     def fillresponse_header(self):
-        # pylint: disable=unused-argument,no-self-use
+
         return
 
     def get_items_from_filter(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            items = self.model.objects.filter(self.filter)  # pylint: disable=no-member
+            items = self.model.objects.filter(
+                self.filter)
         else:
-            items = self.model.objects.all()  # pylint: disable=no-member
+            items = self.model.objects.all()
         return items
 
     def fillresponse(self):
-        # pylint: disable=not-callable
+
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0)
@@ -80,11 +83,14 @@ class XferListEditor(XferContainerCustom):
         self.add_component(grid)
         lbl = XferCompLabelForm("nb")
         lbl.set_location(0, row + 2, 2)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':self.model._meta.verbose_name_plural, 'count':grid.nb_lines})  # pylint: disable=protected-access
+        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
+                      'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
         for act_type, title, icon in self.action_list:
-            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':CLOSE_NO})
+            self.add_action(ActionsManage.get_act_changed(
+                self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+
 
 class XferAddEditor(XferContainerCustom):
     caption_add = ''
@@ -103,7 +109,8 @@ class XferAddEditor(XferContainerCustom):
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         if len(self.actions) == 0:
-            self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params':{"SAVE":"YES"}})
+            self.add_action(
+                self.get_action(_('Ok'), 'images/ok.png'), {'params': {"SAVE": "YES"}})
             self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
     def get(self, request, *args, **kwargs):
@@ -124,6 +131,7 @@ class XferAddEditor(XferContainerCustom):
             save.redirect_to_show = self.redirect_to_show
             return save.get(request, *args, **kwargs)
 
+
 class XferShowEditor(XferContainerCustom):
 
     locked = True
@@ -136,9 +144,11 @@ class XferShowEditor(XferContainerCustom):
         self.add_component(img)
         self.fill_from_model(1, 0, True)
         if action_list is None:
-            action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES), ('print', _("Print"), "images/print.png", CLOSE_NO)]
+            action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
+                           ('print', _("Print"), "images/print.png", CLOSE_NO)]
         for act_type, title, icon, close in action_list:
-            self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), {'close':close})
+            self.add_action(ActionsManage.get_act_changed(
+                self.model.__name__, act_type, title, icon), {'close': close})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
     def get(self, request, *args, **kwargs):
@@ -146,6 +156,7 @@ class XferShowEditor(XferContainerCustom):
         self.fillresponse()
         self._finalize()
         return self.get_response()
+
 
 class XferDelete(XferContainerAcknowledge):
 
@@ -162,20 +173,21 @@ class XferDelete(XferContainerAcknowledge):
             ids = self.getparam(self.field_id)
         if ids is None:
             raise LucteriosException(GRAVE, _("No selection"))
-        ids = ids.split(';')  # pylint: disable=no-member
+        ids = ids.split(';')
         self.items = self.model.objects.filter(pk__in=ids)
 
     def fillresponse(self):
-        # pylint: disable=protected-access
+
         for item in self.items:
             cant_del_msg = item.get_final_child().can_delete()
             if cant_del_msg != '':
                 raise LucteriosException(IMPORTANT, cant_del_msg)
 
-        if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name':self.model._meta.verbose_name}, \
-                                    _("Do you want delete those %(nb)s %(name)s ?") % {'nb':len(self.items), 'name':self.model._meta.verbose_name_plural})):
+        if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name': self.model._meta.verbose_name},
+                                  _("Do you want delete those %(nb)s %(name)s ?") % {'nb': len(self.items), 'name': self.model._meta.verbose_name_plural})):
             for item in self.items:
                 item.get_final_child().delete()
+
 
 class XferSave(XferContainerAcknowledge):
 
@@ -191,8 +203,10 @@ class XferSave(XferContainerAcknowledge):
                 if self.fill_manytomany_fields():
                     self.item.save()
             except IntegrityError:
-                self.raise_except(_("This record exists yet!"), self.raise_except_class)
+                self.raise_except(
+                    _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
             self.item.editor.saving(self)
         if self.redirect_to_show:
-            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {'params':{self.field_id:self.item.id}})
+            self.redirect_action(ActionsManage.get_act_changed(
+                self.model.__name__, 'show', '', ''), {'params': {self.field_id: self.item.id}})

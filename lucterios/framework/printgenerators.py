@@ -38,6 +38,7 @@ from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath,
     get_image_size
 from lucterios.framework.models import get_value_converted
 
+
 def remove_format(xml_text):
     xml_text = xml_text.replace('<b>', '')
     xml_text = xml_text.replace('<i>', '')
@@ -54,11 +55,13 @@ def remove_format(xml_text):
     xml_text = xml_text.replace('{[/underline]}', '')
     return xml_text
 
+
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
     text = six.text_type(text).replace('{[newline]}', '<br/>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
-    xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname':tagname, 'text':text})
+    xml_text = etree.XML(
+        "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': text})
     xml_text.attrib['font_family'] = font_family
     xml_text.attrib['font_size'] = "%d" % font_size
     xml_text.attrib['line_height'] = "%d" % line_height
@@ -67,17 +70,19 @@ def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_h
     xml_text.attrib['spacing'] = "0.0"
     return xml_text
 
+
 def get_text_size(text):
     size_x = 0
     size_y = 0
-    text = six.text_type(text).replace('{[newline]}', "\n").replace('{[br/]}', "\n")
+    text = six.text_type(text).replace(
+        '{[newline]}', "\n").replace('{[br/]}', "\n")
     for line in text.split('\n'):
         size_x = max(size_x, len(remove_format(line)))
         size_y = size_y + 1
     return (size_x, size_y)
 
+
 class PrintItem(object):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, comp, owner):
         self.comp = comp
@@ -109,6 +114,7 @@ class PrintItem(object):
         for col_idx in range(self.col, self.col + self.colspan):
             self.width = self.width + self.owner.col_width[self.tab][col_idx]
 
+
 class PrintImage(PrintItem):
 
     DPI = 0.34
@@ -135,6 +141,7 @@ class PrintImage(PrintItem):
             self.height = int(self.width * self.img_size[1] / self.img_size[0])
         self.fill_attrib(xml_img)
         return xml_img
+
 
 class PrintTable(PrintItem):
 
@@ -168,7 +175,8 @@ class PrintTable(PrintItem):
                 else:
                     size_x, size_y = get_text_size(value)
                 self.rows[row_idx].append(six.text_type(value))
-                self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
+                self.size_rows[
+                    row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
                 column[1] = max(column[1], size_x)
                 row_idx += 1
             self.columns.append(column)
@@ -187,7 +195,8 @@ class PrintTable(PrintItem):
             size_col = int(self.width * column[1] / size_x)
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
-            xml_text = convert_to_html('cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", 9, 10, "center")
+            xml_text = convert_to_html(
+                'cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", 9, 10, "center")
             xml_text.attrib['font_family'] = "sans-serif"
             xml_text.attrib['font_size'] = "9"
             xml_text.attrib['line_height'] = "10"
@@ -199,7 +208,8 @@ class PrintTable(PrintItem):
         for row in self.rows:
             new_row = etree.SubElement(xml_table, "rows")
             for value in row:
-                xml_text = convert_to_html('cell', value, "sans-serif", 9, 10, "start")
+                xml_text = convert_to_html(
+                    'cell', value, "sans-serif", 9, 10, "start")
                 if value[:len(BASE64_PREFIX)] == BASE64_PREFIX:
                     xml_text.attrib['image'] = "1"
                 new_row.append(xml_text)
@@ -218,6 +228,7 @@ class PrintTable(PrintItem):
         self.write_rows(xml_table)
         return xml_table
 
+
 class PrintTab(PrintItem):
 
     SEP_HEIGHT = 5
@@ -231,7 +242,8 @@ class PrintTab(PrintItem):
         self.left = 10
         self.owner.top = self.owner.top + self.SEP_HEIGHT
         self.top = self.owner.top
-        self.width = self.owner.page_width - 2 * self.owner.horizontal_marge - self.left
+        self.width = self.owner.page_width - 2 * \
+            self.owner.horizontal_marge - self.left
 
     def get_xml(self):
         xml_text = convert_to_html('text', "{[u]}%s{[/u]}" % self.comp.value)
@@ -239,16 +251,20 @@ class PrintTab(PrintItem):
         self.fill_attrib(xml_text)
         return xml_text
 
+
 class PrintLabel(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
         if isinstance(self.comp, XferCompDate):
-            self.value = datetime.date(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:3]])
+            self.value = datetime.date(
+                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:3]])
         elif isinstance(self.comp, XferCompDateTime):
-            self.value = datetime.datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)])
+            self.value = datetime.datetime(
+                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)])
         elif isinstance(self.comp, XferCompTime):
-            self.value = datetime.time(*[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:2]])
+            self.value = datetime.time(
+                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:2]])
         elif isinstance(self.comp, XferCompSelect):
             self.value = self.comp.get_value_text()
         else:
@@ -262,8 +278,8 @@ class PrintLabel(PrintItem):
         self.fill_attrib(xml_text)
         return xml_text
 
+
 class ReportGenerator(object):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self):
         self.title = ''
@@ -287,7 +303,8 @@ class ReportGenerator(object):
         self.body = etree.SubElement(page, "body")
 
     def get_text_from_title(self):
-        xml_text = convert_to_html('text', "<b><u>%s</u></b>" % self.title, text_align='center')
+        xml_text = convert_to_html(
+            'text', "<b><u>%s</u></b>" % self.title, text_align='center')
         xml_text.attrib['height'] = "%d.0" % 12
         xml_text.attrib['width'] = "%d.0" % self.content_width
         xml_text.attrib['top'] = "0.0"
@@ -313,6 +330,7 @@ class ReportGenerator(object):
         self.fill_content(request)
         self.fill_attrib()
         return etree.tostring(self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+
 
 class ActionGenerator(ReportGenerator):
 
@@ -365,20 +383,22 @@ class ActionGenerator(ReportGenerator):
             elif isinstance(comp, XferCompTab):
                 new_item = PrintTab(comp, self)
             elif isinstance(comp, XferCompLABEL) or isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
-                        isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) or isinstance(comp, XferCompTime) or  isinstance(comp, XferCompSelect):
+                    isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
-                if not new_item.tab in col_size.keys():
+                if new_item.tab not in col_size.keys():
                     col_size[new_item.tab] = []
-                if not new_item.tab in max_col.keys():
+                if new_item.tab not in max_col.keys():
                     max_col[new_item.tab] = 0
                 new_size_x = new_item.size_x / new_item.colspan
                 for item_idx in range(0, new_item.col + new_item.colspan):
                     while len(col_size[new_item.tab]) <= item_idx:
                         col_size[new_item.tab].append(0)
                     if item_idx >= new_item.col:
-                        col_size[new_item.tab][item_idx] = max(col_size[new_item.tab][item_idx], new_size_x)
-                max_col[new_item.tab] = max(max_col[new_item.tab], new_item.col + new_item.colspan)
+                        col_size[new_item.tab][item_idx] = max(
+                            col_size[new_item.tab][item_idx], new_size_x)
+                max_col[new_item.tab] = max(
+                    max_col[new_item.tab], new_item.col + new_item.colspan)
                 self.print_items.append(new_item)
         return max_col, col_size
 
@@ -391,13 +411,15 @@ class ActionGenerator(ReportGenerator):
             if total_size == 0:
                 new_col_size = 0
             else:
-                new_col_size = int(self.content_width * col_size[col_idx] / total_size)
+                new_col_size = int(
+                    self.content_width * col_size[col_idx] / total_size)
             self.col_width[tab_id].append(new_col_size)
 
     def fill_content(self, request):
-        self.action._initialize(request)  # pylint: disable=protected-access
-        self.action.fillresponse(**self.action._get_params())  # pylint: disable=protected-access
-        self.action._finalize()  # pylint: disable=protected-access
+        self.action._initialize(request)
+        self.action.fillresponse(
+            **self.action._get_params())
+        self.action._finalize()
         self.print_items = []
         self.col_width = {}
         max_col, col_size = self.compute_components()
@@ -414,7 +436,8 @@ class ActionGenerator(ReportGenerator):
                 if item.rowspan == 1:
                     current_height = max(current_height, item.height)
                 else:
-                    current_height = max(current_height, self.get_height_of_rowspan(item))
+                    current_height = max(
+                        current_height, self.get_height_of_rowspan(item))
             else:
                 self.top = self.top + current_height
                 self.change_page()
@@ -427,6 +450,7 @@ class ActionGenerator(ReportGenerator):
             self.body.append(item.get_xml())
             self.last_top = item.top + item.height
 
+
 class ReportModelGenerator(ReportGenerator):
 
     def __init__(self, model):
@@ -437,13 +461,15 @@ class ReportModelGenerator(ReportGenerator):
 
     def get_items_filtered(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            item_list = self.model.objects.filter(self.filter)  # pylint: disable=no-member
+            item_list = self.model.objects.filter(
+                self.filter)
         else:
-            item_list = self.model.objects.all()  # pylint: disable=no-member
+            item_list = self.model.objects.all()
         if self.filter_callback is None:
             return item_list
         else:
-            return self.filter_callback(item_list)  # pylint: disable=not-callable
+            return self.filter_callback(item_list)
+
 
 class ListingGenerator(ReportModelGenerator):
 
@@ -459,7 +485,8 @@ class ListingGenerator(ReportModelGenerator):
     def fill_content(self, _):
         xml_table = etree.Element('table')
         self.body.append(xml_table)
-        xml_table.attrib['height'] = "%d.0" % (self.page_height - 2 * self.vertical_marge)
+        xml_table.attrib['height'] = "%d.0" % (
+            self.page_height - 2 * self.vertical_marge)
         xml_table.attrib['width'] = "%d.0" % self.content_width
         xml_table.attrib['top'] = "0.0"
         xml_table.attrib['left'] = "0.0"
@@ -471,7 +498,8 @@ class ListingGenerator(ReportModelGenerator):
             size_col = int(self.content_width * int(column[0]) / size_x)
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
-            xml_text = convert_to_html('cell', column[1], "sans-serif", 9, 10, "center")
+            xml_text = convert_to_html(
+                'cell', column[1], "sans-serif", 9, 10, "center")
             xml_text.attrib['font_family'] = "sans-serif"
             xml_text.attrib['font_size'] = "9"
             xml_text.attrib['line_height'] = "10"
@@ -480,8 +508,10 @@ class ListingGenerator(ReportModelGenerator):
         for item in self.get_items_filtered():
             new_row = etree.SubElement(xml_table, "rows")
             for column in self.columns:
-                xml_text = convert_to_html('cell', item.evaluate(column[2]), "sans-serif", 9, 10, "start")
+                xml_text = convert_to_html(
+                    'cell', item.evaluate(column[2]), "sans-serif", 9, 10, "start")
                 new_row.append(xml_text)
+
 
 class LabelGenerator(ReportModelGenerator):
 
@@ -489,8 +519,8 @@ class LabelGenerator(ReportModelGenerator):
         ReportModelGenerator.__init__(self, model)
         self.first_label = first_label
         self.label_text = ""
-        self.label_size = {'page_width':210, 'page_height':297, 'cell_width':105, 'cell_height':70, 'columns':2, 'rows':4, \
-                           'left_marge':0, 'top_marge':8, 'horizontal_space':105, 'vertical_space':70}
+        self.label_size = {'page_width': 210, 'page_height': 297, 'cell_width': 105, 'cell_height': 70, 'columns': 2, 'rows': 4,
+                           'left_marge': 0, 'top_marge': 8, 'horizontal_space': 105, 'vertical_space': 70}
 
     def fill_content(self, _):
         self.horizontal_marge = self.label_size['left_marge']
@@ -511,7 +541,8 @@ class LabelGenerator(ReportModelGenerator):
             row_num = int(index / self.label_size['columns'])
             left = col_num * self.label_size['horizontal_space']
             top = row_num * self.label_size['vertical_space']
-            xml_text = convert_to_html('text', labelval, "sans-serif", 9, 10, "center")
+            xml_text = convert_to_html(
+                'text', labelval, "sans-serif", 9, 10, "center")
             xml_text.attrib['height'] = "%d.0" % self.label_size['cell_height']
             xml_text.attrib['width'] = "%d.0" % self.label_size['cell_width']
             xml_text.attrib['top'] = "%d.0" % top

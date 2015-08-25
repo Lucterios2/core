@@ -24,7 +24,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import isfile, join
-import mimetypes, stat, os
+import mimetypes
+import stat
+import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import http_date
@@ -47,8 +49,11 @@ from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
-MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
-MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
+MenuManage.add_sub(
+    'core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
+MenuManage.add_sub('core.admin', None, 'images/admin.png',
+                   _('Management'), _('Manage settings and configurations.'), 100)
+
 
 @MenuManage.describ('', FORMTYPE_MODAL, 'core.menu', _("Summary"))
 class StatusMenu(XferContainerCustom):
@@ -58,10 +63,12 @@ class StatusMenu(XferContainerCustom):
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("summary", self)
 
+
 @signal_and_lock.Signal.decorate('summary')
 def summary_core(xfer):
-    # pylint: disable=unused-argument
+
     pass
+
 
 @MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
@@ -72,12 +79,14 @@ class Unlock(XferContainerAcknowledge):
 
 signal_and_lock.unlocker_view_class = Unlock
 
+
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
-        full_path = join(get_user_dir(), six.text_type(self.getparam('filename')))
+        full_path = join(
+            get_user_dir(), six.text_type(self.getparam('filename')))
         if not isfile(full_path):
             raise LucteriosException(IMPORTANT, _("File not found!"))
         content_type, encoding = mimetypes.guess_type(full_path)
@@ -92,6 +101,7 @@ class Download(XferContainerAbstract):
             response["Content-Encoding"] = encoding
         return response
 
+
 @MenuManage.describ('')
 class Menu(XferContainerMenu):
     caption = 'menu'
@@ -104,10 +114,12 @@ class Menu(XferContainerMenu):
             auth = Authentification()
             return auth.get(request, *args, **kwargs)
 
+
 def right_changepassword(request):
     if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
         return False
     return request.user.is_authenticated()
+
 
 @MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
@@ -144,8 +156,10 @@ class ChangePassword(XferContainerCustom):
         pwd.set_location(2, 2, 1, 1)
         self.add_component(pwd)
 
-        self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
+        self.add_action(
+            ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+
 
 @MenuManage.describ('')
 class ModifyPassword(XferContainerAcknowledge):
@@ -158,15 +172,18 @@ class ModifyPassword(XferContainerAcknowledge):
 
         if newpass1 != newpass2:
 
-            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
+            raise LucteriosException(
+                IMPORTANT, _("The passwords are differents!"))
         self.request.user.set_password(newpass1)
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
+
 
 @signal_and_lock.Signal.decorate('config')
 def config_core(xfer):
     Params.fill(xfer, ['CORE-connectmode'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
+
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerCustom):
@@ -180,12 +197,15 @@ class Configuration(XferContainerCustom):
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
-        lab.set_value('{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Software configuration"))
+        lab.set_value(
+            '{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Software configuration"))
         self.add_component(lab)
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
-        self.add_action(ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close':0})
+        self.add_action(
+            ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close': 0})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamEdit(XferContainerCustom):
@@ -205,6 +225,7 @@ class ParamEdit(XferContainerCustom):
         self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
+
 @MenuManage.describ('CORE.add_parameter')
 class ParamSave(XferContainerAcknowledge):
     caption = _("Parameters")
@@ -216,9 +237,12 @@ class ParamSave(XferContainerAcknowledge):
             Parameter.change_value(pname, pvalue)
         Params.clear()
 
-MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
+MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
+                   _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
-MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("Report and print"), _("To manage reports and tools of printing."), 30)
+MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png",
+                   _("Report and print"), _("To manage reports and tools of printing."), 30)
+
 
 @MenuManage.describ('CORE.change_printmodel', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
 class PrintModelList(XferContainerCustom):
@@ -242,32 +266,39 @@ class PrintModelList(XferContainerCustom):
         lab.set_value_as_name(_('model'))
         self.add_component(lab)
         model_list = {}
-        for print_model in PrintModel.objects.all():  # pylint: disable=no-member
-            if not print_model.modelname in model_list.keys():
-                model_list[print_model.modelname] = print_model.model_associated_title()
+        for print_model in PrintModel.objects.all():
+            if print_model.modelname not in model_list.keys():
+                model_list[
+                    print_model.modelname] = print_model.model_associated_title()
                 if modelname == '':
                     modelname = print_model.modelname
         model_sel = XferCompSelect('modelname')
         model_sel.set_location(2, 1, 2)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_action("", ""), {'modal':FORMTYPE_REFRESH, 'close':CLOSE_NO})
+        model_sel.set_action(self.request, self.get_action(
+            "", ""), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
         self.add_component(model_sel)
 
-        items = PrintModel.objects.filter(modelname=modelname)  # pylint: disable=no-member
+        items = PrintModel.objects.filter(
+            modelname=modelname)
         grid = XferCompGrid('print_model')
         grid.set_location(1, 2, 3)
         grid.set_model(items, ['name', 'kind'], self)
-        grid.add_action(self.request, PrintModelEdit.get_action(_('edit'), 'images/edit.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelClone.get_action(_('clone'), 'images/add.png'), {'unique':SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelDelete.get_action(_('delete'), 'images/delete.png'), {'unique':SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelEdit.get_action(
+            _('edit'), 'images/edit.png'), {'unique': SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelClone.get_action(
+            _('clone'), 'images/add.png'), {'unique': SELECT_SINGLE})
+        grid.add_action(self.request, PrintModelDelete.get_action(
+            _('delete'), 'images/delete.png'), {'unique': SELECT_SINGLE})
         self.add_component(grid)
 
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
+
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelEdit(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
+
     caption_add = _("Add a print model")
     caption_modify = _("Modify a print model")
     icon = "PrintReportModel.png"
@@ -295,7 +326,8 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif self.item.kind == 2:
             self._fill_report_editor()
-        self.add_action(PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
+        self.add_action(
+            PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
         self.add_action(WrapAction(_('cancel'), 'images/cancel.png'), {})
 
     def _fill_listing_editor(self):
@@ -361,6 +393,7 @@ class PrintModelEdit(XferContainerCustom):
     def _fill_report_editor(self):
         pass
 
+
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelSave(XferSave):
     caption = _("print model")
@@ -386,9 +419,10 @@ class PrintModelSave(XferSave):
         else:
             XferSave.fillresponse(self)
 
+
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelClone(XferContainerAcknowledge):
-    # pylint: disable=too-many-public-methods
+
     caption = _("Add a print model")
     icon = "PrintReportModel.png"
     model = PrintModel
@@ -403,6 +437,7 @@ class PrintModelClone(XferContainerAcknowledge):
         new_model.value = self.item.value
         new_model.save()
 
+
 @MenuManage.describ('CORE.delete_printmodel')
 class PrintModelDelete(XferDelete):
     caption = _("Delete print model")
@@ -416,6 +451,7 @@ class PrintModelDelete(XferDelete):
 #     icon = "PrintReportSave.png"
 #
 
+
 @MenuManage.describ('CORE.change_label', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
 class LabelList(XferListEditor):
     caption = _("Labels")
@@ -423,15 +459,17 @@ class LabelList(XferListEditor):
     model = Label
     field_id = 'label'
 
+
 @ActionsManage.affect('Label', 'edit', 'add')
 @MenuManage.describ('CORE.add_label')
 class LabelEdit(XferAddEditor):
-    # pylint: disable=too-many-public-methods
+
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
     icon = "label_help.png"
     model = Label
     field_id = 'label'
+
 
 @ActionsManage.affect('Label', 'delete')
 @MenuManage.describ('CORE.delete_label')

@@ -24,7 +24,10 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from inspect import stack, getmodule
-import logging, sys, os, socket
+import logging
+import sys
+import os
+import socket
 from os.path import dirname, join
 from locale import getdefaultlocale
 
@@ -33,10 +36,12 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.filetools import readimage_to_base64
 
+
 def get_lan_ip():
     if os.name != "nt":
         import fcntl
         import struct
+
         def get_interface_ip(ifname):
             scket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
@@ -49,7 +54,8 @@ def get_lan_ip():
                 scket.close()
     ip_address = socket.gethostbyname(socket.gethostname())
     if ip_address.startswith("127.") and os.name != "nt":
-        interfaces = ["eth0", "eth1", "eth2", "wlan0", "wlan1", "wifi0", "ath0", "ath1", "ppp0"]
+        interfaces = ["eth0", "eth1", "eth2", "wlan0",
+                      "wlan1", "wifi0", "ath0", "ath1", "ppp0"]
         for ifname in interfaces:
             try:
                 ip_address = get_interface_ip(ifname)
@@ -69,7 +75,7 @@ DEFAULT_SETTINGS = {
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'lucterios.framework.middleware.LucteriosErrorMiddleware',
     ),
-    'INSTALLED_APPS' : (
+    'INSTALLED_APPS': (
         'django.contrib.admin',
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -79,7 +85,7 @@ DEFAULT_SETTINGS = {
         'lucterios.framework',
         'lucterios.CORE',
     ),
-    'TEMPLATES' : [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True, }, ],
+    'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True, }, ],
     'TEMPLATE_LOADERS': (
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
@@ -96,24 +102,28 @@ DEFAULT_SETTINGS = {
     'USE_TZ': True,
     'TEMPLATE_DEBUG': False,
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
-    'WSGI_APPLICATION' : 'lucterios.framework.wsgi.application',
-    'STATIC_URL':'/static/',
-    'TEST_RUNNER':'lucterios.framework.juxd.JUXDTestSuiteRunner',
-    'JUXD_FILENAME':'./junit_py%d.xml' % sys.version_info[0],
-    'LANGUAGES' : (
+    'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
+    'STATIC_URL': '/static/',
+    'TEST_RUNNER': 'lucterios.framework.juxd.JUXDTestSuiteRunner',
+    'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
+    'LANGUAGES': (
         ('en', six.text_type('English')),
         ('fr', six.text_type('Français')),
     ),
 }
 
+
 def _get_locale_pathes(appli_name, addon_modules):
     local_path = []
-    module_lang_list = ["lucterios.CORE", 'lucterios.framework', "lucterios.install", appli_name]
+    module_lang_list = [
+        "lucterios.CORE", 'lucterios.framework', "lucterios.install", appli_name]
     if addon_modules is not None:
         module_lang_list.extend(addon_modules)
     for module_lang_item in module_lang_list:
-        local_path.append(join(import_module(module_lang_item).__path__[0], 'locale/'))
+        local_path.append(
+            join(import_module(module_lang_item).__path__[0], 'locale/'))
     return tuple(local_path)
+
 
 def _get_extra(module_to_setup):
     extra = {}
@@ -122,28 +132,35 @@ def _get_extra(module_to_setup):
             extra[ext_item] = getattr(module_to_setup, ext_item)
     return extra
 
+
 def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     if module_to_setup is None:
         last_frm = stack()[1]
         module_to_setup = getmodule(last_frm[0])
     setattr(module_to_setup, "EXTRA", _get_extra(module_to_setup))
-    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
+    logging.getLogger(__name__).debug(
+        "Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(module_to_setup, key_name, setting_value)
-    setattr(module_to_setup, "BASE_DIR", dirname(dirname(module_to_setup.__file__)))
+    setattr(module_to_setup, "BASE_DIR", dirname(
+        dirname(module_to_setup.__file__)))
     if isinstance(addon_modules, tuple):
-        module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + addon_modules
-    module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + (appli_name,)
+        module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
+            addon_modules
+    module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
+        (appli_name,)
     if not hasattr(module_to_setup, "DEBUG"):
         module_to_setup.DEBUG = False
     appli_module = import_module(appli_name)
     setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
-    setattr(module_to_setup, 'LOCALE_PATHS', _get_locale_pathes(appli_name, addon_modules))
+    setattr(module_to_setup, 'LOCALE_PATHS',
+            _get_locale_pathes(appli_name, addon_modules))
     setting_module = import_module("%s.appli_settings" % appli_name)
     for item in dir(setting_module):
         if item == item.upper():
             setattr(module_to_setup, item, getattr(setting_module, item))
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
+        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(
+            setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(module_to_setup, 'APPLIS_LOGO', '')

@@ -35,18 +35,21 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 
-MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
+MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png",
+                   _("_Rights manage"), _("To manage users, groups and permissions."), 40)
+
 
 @ActionsManage.affect('LucteriosGroup', 'edit', 'add')
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
-    # pylint: disable=too-many-public-methods
+
     caption_add = _("Add a group")
     caption_modify = _("Modify a group")
     icon = "group.png"
     model = LucteriosGroup
     field_id = 'group'
     locked = True
+
 
 @ActionsManage.affect('LucteriosGroup', 'delete')
 @MenuManage.describ('auth.delete_group')
@@ -56,17 +59,19 @@ class GroupsDelete(XferDelete):
     model = LucteriosGroup
     field_id = 'group'
 
+
 @MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupsList(XferListEditor):
-    # pylint: disable=too-many-public-methods
+
     caption = _("Groups")
     icon = "group.png"
     model = LucteriosGroup
     field_id = 'group'
 
+
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
-    # pylint: disable=too-many-public-methods
+
     caption = _("_Users")
     icon = "user.png"
     model = LucteriosUser
@@ -87,14 +92,19 @@ class UsersList(XferContainerCustom):
         lbl.set_location(0, 1, 2)
         self.add_component(lbl)
 
-        users = LucteriosUser.objects.filter(is_active=True)  # pylint: disable=no-member
+        users = LucteriosUser.objects.filter(
+            is_active=True)
         grid = XferCompGrid('user_actif')
         grid.set_location(0, 2, 2)
         grid.set_model(users, None)
-        grid.add_action(self.request, UsersEdit.get_action(_("Modify"), "images/edit.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDisabled.get_action(_("Disabled"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDelete.get_action(_("Delete"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
-        grid.add_action(self.request, UsersEdit.get_action(_("Add"), "images/add.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_NONE})
+        grid.add_action(self.request, UsersEdit.get_action(
+            _("Modify"), "images/edit.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_SINGLE})
+        grid.add_action(self.request, UsersDisabled.get_action(
+            _("Disabled"), "images/delete.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_SINGLE})
+        grid.add_action(self.request, UsersDelete.get_action(
+            _("Delete"), "images/delete.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_MULTI})
+        grid.add_action(self.request, UsersEdit.get_action(
+            _("Add"), "images/add.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_NONE})
         self.add_component(grid)
 
         lbl = XferCompLabelForm('separator')
@@ -107,15 +117,19 @@ class UsersList(XferContainerCustom):
         lbl.set_location(0, 4, 2)
         self.add_component(lbl)
 
-        users = LucteriosUser.objects.filter(is_active=False)  # pylint: disable=no-member
+        users = LucteriosUser.objects.filter(
+            is_active=False)
         grid = XferCompGrid('user_inactif')
         grid.set_location(0, 5, 2)
         grid.set_model(users, ['username', 'first_name', 'last_name'])
-        grid.add_action(self.request, UsersEnabled.get_action(_("Enabled"), "images/ok.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_SINGLE})
-        grid.add_action(self.request, UsersDelete.get_action(_("Delete"), "images/delete.png"), {'modal':FORMTYPE_MODAL, 'unique':SELECT_MULTI})
+        grid.add_action(self.request, UsersEnabled.get_action(
+            _("Enabled"), "images/ok.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_SINGLE})
+        grid.add_action(self.request, UsersDelete.get_action(
+            _("Delete"), "images/delete.png"), {'modal': FORMTYPE_MODAL, 'unique': SELECT_MULTI})
         self.add_component(grid)
 
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+
 
 @ActionsManage.affect('LucteriosUser', 'delete')
 @MenuManage.describ('auth.delete_user')
@@ -128,8 +142,10 @@ class UsersDelete(XferDelete):
     def fillresponse(self):
         for item in self.items:
             if item == self.request.user:
-                raise LucteriosException(IMPORTANT, _("You can delete yourself!"))
+                raise LucteriosException(
+                    IMPORTANT, _("You can delete yourself!"))
         XferDelete.fillresponse(self)
+
 
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
@@ -140,9 +156,11 @@ class UsersDisabled(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.item == self.request.user:
-            raise LucteriosException(IMPORTANT, _("You can disabled yourself!"))
+            raise LucteriosException(
+                IMPORTANT, _("You can disabled yourself!"))
         self.item.is_active = False
         self.item.save()
+
 
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
@@ -155,15 +173,17 @@ class UsersEnabled(XferContainerAcknowledge):
         self.item.is_active = True
         self.item.save()
 
+
 @ActionsManage.affect('LucteriosUser', 'add', 'edit')
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
-    # pylint: disable=too-many-public-methods
+
     caption_add = _("Add an users")
     caption_modify = _("Modify an user")
     icon = "user.png"
     model = LucteriosUser
     field_id = 'user_actif'
+
 
 @ActionsManage.affect('LucteriosSession', 'delete')
 @MenuManage.describ('sessions.delete_session')
@@ -173,9 +193,10 @@ class SessionDelete(XferDelete):
     model = LucteriosSession
     field_id = 'session'
 
+
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
 class SessionList(XferListEditor):
-    # pylint: disable=too-many-public-methods
+
     caption = _("Sessions")
     icon = "session.png"
     model = LucteriosSession

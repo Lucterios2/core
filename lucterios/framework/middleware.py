@@ -29,6 +29,7 @@ from lxml import etree
 from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
 
+
 class LucteriosErrorMiddleware(XferContainerException):
 
     def process_exception(self, request, exception):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# pylint: disable=invalid-name
+
 '''
 Admin tool to manage Lucterios instance
 
@@ -34,16 +34,18 @@ from importlib import import_module
 import shutil
 from django.utils import six
 try:
-    from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
+    from importlib import reload
 except ImportError:
     pass
-import sys, os
+import sys
+import os
 
 INSTANCE_PATH = '.'
 
 SECURITY_PASSWD = 'PASSWORD'
 SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
+
 
 def get_module_title(module_name):
     try:
@@ -52,19 +54,24 @@ def get_module_title(module_name):
     except AttributeError:
         return "??? (%s)" % module_name
 
+
 def get_package_list():
     def get_files(dist):
         paths = []
-        if dist.has_metadata('RECORD'):  # RECORDs should be part of .dist-info metadatas
+        # RECORDs should be part of .dist-info metadatas
+        if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
             paths = [l.split(',')[0] for l in lines]
             paths = [os.path.join(dist.location, p) for p in paths]
-        elif dist.has_metadata('installed-files.txt'):  # Otherwise use pip's log for .egg-info's
+        # Otherwise use pip's log for .egg-info's
+        elif dist.has_metadata('installed-files.txt'):
             paths = dist.get_metadata_lines('installed-files.txt')
             paths = [os.path.join(dist.egg_info, p) for p in paths]
         elif os.path.join(dist.location, '__init__.py'):
-            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
+            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(
+                dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
         return [os.path.relpath(p, dist.location) for p in paths]
+
     def get_module_desc(modname):
         appmodule = import_module(modname)
         if hasattr(appmodule, 'link'):
@@ -86,15 +93,18 @@ def get_package_list():
                         current_applis.append(get_module_desc(py_mod_name))
                     elif file_item.endswith('models.py'):
                         current_modules.append(get_module_desc(py_mod_name))
-                except:  # pylint: disable=bare-except
+                except:
                     pass
             current_applis.sort()
             current_modules.sort()
-            package_list[dist.key] = (dist.version, current_applis, current_modules, requires)
+            package_list[dist.key] = (
+                dist.version, current_applis, current_modules, requires)
     return package_list
+
 
 class AdminException(Exception):
     pass
+
 
 class LucteriosManage(object):
 
@@ -110,6 +120,7 @@ class LucteriosManage(object):
 
     def show_info_(self):
         six.print_("\n".join(self.msg_list))
+
 
 class LucteriosGlobal(LucteriosManage):
 
@@ -131,7 +142,8 @@ class LucteriosGlobal(LucteriosManage):
         def show_list(modlist):
             res = []
             for item in modlist:
-                res.append("\t%s\t[%s]\t%s" % (item[0], item[1], ",".join(item[2])))
+                res.append("\t%s\t[%s]\t%s" %
+                           (item[0], item[1], ",".join(item[2])))
             return "\n".join(res)
         package_list = get_package_list()
         if 'lucterios' in package_list.keys():
@@ -150,7 +162,7 @@ class LucteriosGlobal(LucteriosManage):
         return mod_lucterios, mod_applis, mod_modules
 
     def get_default_args_(self, other_args):
-        # pylint: disable=no-self-use
+
         import logging
         logging.captureWarnings(True)
         args = ['--quiet']
@@ -164,7 +176,8 @@ class LucteriosGlobal(LucteriosManage):
             for extra_url in extra_urls.split(','):
                 if extra_url.startswith('http://'):
                     import re
-                    url_parse = re.compile(r'^(([^:/?#]+):)?//(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?')
+                    url_parse = re.compile(
+                        r'^(([^:/?#]+):)?//(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?')
                     url_sep = url_parse.search(os.environ['extra_url'])
                     if url_sep:
                         trusted_host.append(url_sep.groups()[2])
@@ -173,11 +186,11 @@ class LucteriosGlobal(LucteriosManage):
         return args
 
     def check(self):
-        # pylint: disable=too-many-locals
+
         from pip import get_installed_distributions
         from pip.commands import list as list_
         import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0  # pylint: disable=no-member, protected-access
+        pip.utils.logging._log_state.indentation = 0
         check_list = {}
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -186,12 +199,15 @@ class LucteriosGlobal(LucteriosManage):
         list_command = list_.ListCommand()
         options, _ = list_command.parse_args(self.get_default_args_([]))
         try:
-            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latest_versions(options)]  # pylint: disable=no-member
+            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latest_versions(
+                options)]
         except AttributeError:
-            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latests_versions(options)]  # pylint: disable=no-member
+            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latests_versions(
+                options)]
         for dist, remote_version_parsed in packages:
             if dist.project_name in check_list.keys():
-                check_list[dist.project_name] = (dist.version, remote_version_parsed.public, remote_version_parsed > dist.parsed_version)
+                check_list[dist.project_name] = (
+                    dist.version, remote_version_parsed.public, remote_version_parsed > dist.parsed_version)
         must_upgrade = False
         self.print_info_("check list:")
         for project_name, versions in check_list.items():
@@ -200,7 +216,8 @@ class LucteriosGlobal(LucteriosManage):
                 text_version = 'to upgrade'
             else:
                 text_version = ''
-            self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (project_name, versions[0], versions[1], text_version))
+            self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (
+                project_name, versions[0], versions[1], text_version))
         if must_upgrade:
             self.print_info_("\t\t=> Must upgrade")
         else:
@@ -211,7 +228,7 @@ class LucteriosGlobal(LucteriosManage):
         from pip import get_installed_distributions
         from pip.commands import install
         import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0  # pylint: disable=no-member, protected-access
+        pip.utils.logging._log_state.indentation = 0
         module_list = []
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -220,10 +237,12 @@ class LucteriosGlobal(LucteriosManage):
         if len(module_list) > 0:
             self.print_info_("Modules to update: %s" % ",".join(module_list))
             install_command = install.InstallCommand()
-            options, _ = install_command.parse_args(self.get_default_args_(['-U']))
+            options, _ = install_command.parse_args(
+                self.get_default_args_(['-U']))
             requirement_set = install_command.run(options, module_list)
             requirement_set.install(options)
-            self.print_info_("Modules updated: %s" % ",".join(requirement_set.successfully_installed))
+            self.print_info_("Modules updated: %s" %
+                             ",".join(requirement_set.successfully_installed))
             self.refresh_all()
             return True
         else:
@@ -239,13 +258,14 @@ class LucteriosGlobal(LucteriosManage):
             self.print_info_("Refresh %s" % instance)
         return instances
 
+
 class LucteriosInstance(LucteriosManage):
-    # pylint: disable=too-many-instance-attributes
 
     def __init__(self, name, instance_path=INSTANCE_PATH):
         LucteriosManage.__init__(self, instance_path)
         import random
-        self.secret_key = ''.join([random.SystemRandom().choice('abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
+        self.secret_key = ''.join([random.SystemRandom().choice(
+            'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)') for _ in range(50)])
         self.name = name
         self.filename = ""
         self.setting_module_name = "%s.settings" % self.name
@@ -284,7 +304,8 @@ class LucteriosInstance(LucteriosManage):
         if database is not None:
             if ':' in database:
                 dbtype, info_text = database.split(':')
-                info = {'name':'default', 'user':'root', 'password':'', 'host':'localhost'}
+                info = {'name': 'default', 'user': 'root',
+                        'password': '', 'host': 'localhost'}
                 for val in info_text.split(','):
                     if '=' in val:
                         key, value = val.split('=')
@@ -340,7 +361,7 @@ class LucteriosInstance(LucteriosManage):
             if mod_item[0] in self.modules:
                 checked_modules.extend(mod_item[2])
         for mod_name in checked_modules:
-            if not mod_name in self.modules:
+            if mod_name not in self.modules:
                 self.modules += (mod_name,)
 
     def _get_module_text(self):
@@ -356,9 +377,11 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('     "%s": {\n' % db_ident)
             for db_key, db_data in db_values.items():
                 if isinstance(db_data, six.string_types):
-                    file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
+                    file_py.write('         "%s": "%s",\n' %
+                                  (db_key.upper(), db_data))
                 else:
-                    file_py.write('         "%s": %s,\n' % (db_key.upper(), db_data))
+                    file_py.write('         "%s": %s,\n' %
+                                  (db_key.upper(), db_data))
             file_py.write('     },\n')
         file_py.write('}\n')
 
@@ -378,17 +401,22 @@ class LucteriosInstance(LucteriosManage):
                 self.databases = {}
             self.databases["default"] = {}
             if self.database[0].lower() == 'sqlite':
-                self.databases["default"]["ENGINE"] = 'django.db.backends.sqlite3'
-                self.databases["default"]["NAME"] = join(self.instance_dir, 'db.sqlite3')
+                self.databases["default"][
+                    "ENGINE"] = 'django.db.backends.sqlite3'
+                self.databases["default"]["NAME"] = join(
+                    self.instance_dir, 'db.sqlite3')
             elif self.database[0].lower() == 'mysql':
                 self.databases["default"] = self.database[1]
-                self.databases["default"]["ENGINE"] = 'django.db.backends.mysql'
+                self.databases["default"][
+                    "ENGINE"] = 'django.db.backends.mysql'
             elif self.database[0].lower() == 'postgresql':
                 self.databases["default"] = self.database[1]
-                self.databases["default"]["ENGINE"] = 'django.db.backends.postgresql_psycopg2'
+                self.databases["default"][
+                    "ENGINE"] = 'django.db.backends.postgresql_psycopg2'
             elif self.database[0].lower() == 'oracle':
                 self.databases["default"] = self.database[1]
-                self.databases["default"]["ENGINE"] = 'django.db.backends.oracle'
+                self.databases["default"][
+                    "ENGINE"] = 'django.db.backends.oracle'
             else:
                 raise AdminException("Database not supported!")
             self._write_db_params(file_py)
@@ -398,12 +426,14 @@ class LucteriosInstance(LucteriosManage):
                 if key != '':
                     file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
-            file_py.write('from lucterios.framework.settings import fill_appli_settings\n')
-            file_py.write('fill_appli_settings("%s", (%s)) \n' % (self.appli_name, self._get_module_text()))
+            file_py.write(
+                'from lucterios.framework.settings import fill_appli_settings\n')
+            file_py.write('fill_appli_settings("%s", (%s)) \n' %
+                          (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
     def clear(self, only_delete=False):
-        # pylint: disable=no-self-use
+
         self.read()
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
@@ -412,38 +442,44 @@ class LucteriosInstance(LucteriosManage):
         try:
             connection.cursor().execute('SET foreign_key_checks = 0;')
             option = ''
-        except:  # pylint: disable=bare-except
+        except:
             option = 'CASCADE'
         for table in tables:
             try:
                 if only_delete:
-                    connection.cursor().execute('DELETE FROM %s %s;' % (table, option))
+                    connection.cursor().execute(
+                        'DELETE FROM %s %s;' % (table, option))
                 else:
-                    connection.cursor().execute('DROP TABLE IF EXISTS %s %s;' % (table, option))
-            except:  # pylint: disable=bare-except
+                    connection.cursor().execute(
+                        'DROP TABLE IF EXISTS %s %s;' % (table, option))
+            except:
                 option = ''
                 if only_delete:
-                    connection.cursor().execute('DELETE FROM %s %s;' % (table, option))
+                    connection.cursor().execute(
+                        'DELETE FROM %s %s;' % (table, option))
                 else:
-                    connection.cursor().execute('DROP TABLE IF EXISTS %s %s;' % (table, option))
+                    connection.cursor().execute(
+                        'DROP TABLE IF EXISTS %s %s;' % (table, option))
         try:
             connection.cursor().execute('SET foreign_key_checks = 1;')
-        except:  # pylint: disable=bare-except
+        except:
             pass
         user_path = get_user_dir()
         if not only_delete and isdir(user_path):
             rmtree(user_path)
-        self.print_info_("Instance '%s' clear." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' clear." %
+                         self.name)
 
     def delete(self):
         if isdir(self.instance_dir):
             rmtree(self.instance_dir)
         if isfile(self.instance_conf):
             remove(self.instance_conf)
-        self.print_info_("Instance '%s' deleted." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' deleted." %
+                         self.name)
 
     def _clear_modules_(self):
-        # pylint: disable=no-self-use
+
         framework_classes = ()
         import django.conf
         if django.conf.ENVIRONMENT_VARIABLE in os.environ:
@@ -465,14 +501,15 @@ class LucteriosInstance(LucteriosManage):
                 del sys.modules[module_item]
 
     def _get_db_info_(self):
-        # pylint: disable=no-self-use
+
         import django.conf
         info = {}
         key_list = list(django.conf.settings.DATABASES['default'].keys())
         key_list.sort()
         for key in key_list:
             if key != 'ENGINE':
-                info[key.lower()] = django.conf.settings.DATABASES['default'][key]
+                info[key.lower()] = django.conf.settings.DATABASES[
+                    'default'][key]
         return info
 
     def read_before(self):
@@ -507,12 +544,13 @@ class LucteriosInstance(LucteriosManage):
         self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
         self.modules = ()
         for appname in django.conf.settings.INSTALLED_APPS:
-            if (not "django" in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
+            if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
                 self.modules = self.modules + (six.text_type(appname),)
         from lucterios.CORE.parameters import Params
         from lucterios.framework.error import LucteriosException
         try:
-            self.extra[''] = {'mode':(Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
+            self.extra[''] = {'mode': (
+                Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
         except LucteriosException:
             self.extra[''] = {'mode': None}
         self.print_info_("""Instance %s:
@@ -535,13 +573,17 @@ class LucteriosInstance(LucteriosManage):
         self.write_setting_()
         with open(self.instance_conf, "w") as file_py:
             file_py.write('#!/usr/bin/env python\n')
-            file_py.write('import os, sys\n')
+            file_py.write('import os\n')
+            file_py.write('import sys\n')
             file_py.write('if __name__ == "__main__":\n')
             file_py.write('    sys.path.append(os.path.dirname(__file__))\n')
-            file_py.write('    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings")\n' % self.name)
-            file_py.write('    from django.core.management import execute_from_command_line\n')
+            file_py.write(
+                '    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings")\n' % self.name)
+            file_py.write(
+                '    from django.core.management import execute_from_command_line\n')
             file_py.write('    execute_from_command_line(sys.argv)\n')
-        self.print_info_("Instance '%s' created." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' created." %
+                         self.name)
         self.refresh()
 
     def modif(self):
@@ -551,7 +593,8 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         self.clear_info_()
         self.write_setting_()
-        self.print_info_("Instance '%s' modified." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' modified." %
+                         self.name)
         self.refresh()
 
     def security(self):
@@ -574,22 +617,27 @@ class LucteriosInstance(LucteriosManage):
                     else:
                         item_idx = passwd.find(item_str)
                         if item_idx != -1:
-                            passwd = passwd[:item_idx] + passwd[item_idx + len(item_str):]
+                            passwd = passwd[:item_idx] + \
+                                passwd[item_idx + len(item_str):]
             passwd = passwd[len(SECURITY_PASSWD) + 1:]
             from lucterios.CORE.models import LucteriosUser
-            adm_user = LucteriosUser.objects.get(username='admin')  # pylint: disable=no-member
+            adm_user = LucteriosUser.objects.get(
+                username='admin')
             adm_user.set_password(passwd)
             adm_user.save()
-            self.print_info_("Admin password change in '%s'." % self.name)  # pylint: disable=superfluous-parens
+            self.print_info_("Admin password change in '%s'." %
+                             self.name)
         if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
             from lucterios.CORE.models import Parameter
             from lucterios.CORE.parameters import Params
-            db_param = Parameter.objects.get(name='CORE-connectmode')  # pylint: disable=no-member
+            db_param = Parameter.objects.get(
+                name='CORE-connectmode')
             db_param.value = six.text_type(security_param[SECURITY_MODE])
             db_param.save()
             Params.clear()
 
-            self.print_info_("Security mode change in '%s'." % self.name)  # pylint: disable=superfluous-parens
+            self.print_info_("Security mode change in '%s'." %
+                             self.name)
 
     def refresh(self):
         if self.name == '':
@@ -597,7 +645,8 @@ class LucteriosInstance(LucteriosManage):
         if not isdir(self.instance_dir) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         self.read()
-        self.print_info_("Instance '%s' refreshed." % self.name)  # pylint: disable=superfluous-parens
+        self.print_info_("Instance '%s' refreshed." %
+                         self.name)
         from django.core.management import call_command
         call_command('migrate', stdout=sys.stdout)
 
@@ -612,7 +661,8 @@ class LucteriosInstance(LucteriosManage):
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         output_filename = join(get_tmp_dir(), 'dump.json')
         from django.core.management import call_command
-        with open(output_filename, 'w') as output:  # Point stdout at a file for dumping data to.
+        # Point stdout at a file for dumping data to.
+        with open(output_filename, 'w') as output:
             call_command('dumpdata', stdout=output)
         import tarfile
         with tarfile.open(self.filename, "w:gz") as tar:
@@ -653,6 +703,7 @@ class LucteriosInstance(LucteriosManage):
             rmtree(tmp_path)
         return success
 
+
 def list_method(from_class):
     import inspect
     res = []
@@ -661,6 +712,7 @@ def list_method(from_class):
         if (name[-1] != '_') and not name.startswith('set_') and (inspect.ismethod(item[1]) or inspect.isfunction(item[1])):
             res.append(name)
     return "|".join(res)
+
 
 def main():
     parser = OptionParser(usage="\n\t%%prog <%s>\n\t%%prog <%s> [option]" % (list_method(LucteriosGlobal), list_method(LucteriosInstance)),
