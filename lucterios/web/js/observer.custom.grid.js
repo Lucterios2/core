@@ -16,7 +16,8 @@ var compGridHeader = Class.extend({
 	},
 
 	getid : function() {
-		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name);
+		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name.replace(
+				'.', '__'));
 	},
 
 	getHtml : function() {
@@ -32,7 +33,7 @@ var compGridHeader = Class.extend({
 		if (this.orderable === 1) {
 			var current_comp = $("#" + this.getid());
 			current_comp.click($.proxy(function() {
-				this.grid.order_col(this.name);
+				this.grid.order_col(this.name.replace('.', '__'));
 			}, this));
 		}
 	}

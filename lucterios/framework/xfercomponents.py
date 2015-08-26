@@ -649,8 +649,7 @@ class XferCompGrid(XferComponent):
                 verbose_name = dep_field.verbose_name
                 if has_xfer:
                     horderable = 1
-            self.add_header(
-                fieldname.replace('.', '__'), verbose_name, hfield, horderable)
+            self.add_header(fieldname, verbose_name, hfield, horderable)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
         if fieldnames is None:
@@ -684,7 +683,7 @@ class XferCompGrid(XferComponent):
                         resvalue = get_value_if_choices(resvalue, field_desc)
                     except FieldDoesNotExist:
                         pass
-                self.set_value(pk_id, fieldname.replace('.', '__'), resvalue)
+                self.set_value(pk_id, fieldname, resvalue)
 
     def add_actions(self, xfer_custom, model=None, action_list=None):
         if model is None:
