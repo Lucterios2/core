@@ -169,9 +169,9 @@ class TestComposants(XferContainerCustom):
         lbl.set_location(0, 8)
         self.add_component(lbl)
         slct = XferCompSelect('slct1')
-        if flt2 < 2:
+        if (flt2 is not None) and (flt2 < 2):
             slct.set_select({'1': 'abc', '2': 'def'})
-        elif flt2 < 10:
+        elif (flt2 is not None) and (flt2 < 10):
             slct.set_select({'1': 'abc', '2': 'def', '3': 'ghij'})
         else:
             slct.set_select({'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})

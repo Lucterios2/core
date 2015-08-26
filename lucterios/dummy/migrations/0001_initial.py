@@ -62,8 +62,8 @@ class Migration(migrations.Migration):
                 ('value', models.IntegerField(validators=[django.core.validators.MinValueValidator(
                     0), django.core.validators.MaxValueValidator(20)])),
                 ('price', models.DecimalField(validators=[django.core.validators.MinValueValidator(
-                    -5000.0), django.core.validators.MaxValueValidator(5000.0)], decimal_places=2, max_digits=6)),
-                ('date', models.DateField()),
+                    -5000.0), django.core.validators.MaxValueValidator(5000.0)], decimal_places=2, max_digits=6, default=100.0)),
+                ('date', models.DateField(null=True)),
                 ('time', models.TimeField()),
                 ('valid', models.BooleanField(default=False)),
                 ('comment', models.TextField(blank=True)),

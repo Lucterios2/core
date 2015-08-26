@@ -34,8 +34,9 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompDateTime
 from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
-from django.db.models.fields import EmailField
+from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
+import datetime
 
 
 def get_range_value(model_field):
@@ -354,40 +355,49 @@ class XferContainerCustom(XferContainerAbstract):
         return comp
 
     def get_writing_comp(self, field_name):
-
+        def get_value_from_field(default):
+            val = getattr(self.item, field_name)
+            if val is None:
+                if is_needed:
+                    if dep_field.default != NOT_PROVIDED:
+                        val = dep_field.default
+                    else:
+                        val = default
+            return val
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
         from django.db.models.fields.related import ForeignKey
         from django.core.exceptions import ObjectDoesNotExist
-        dep_field = self.item.get_field_by_name(
-            field_name)
+        dep_field = self.item.get_field_by_name(field_name)
+        is_needed = dep_field.unique or not (dep_field.blank or dep_field.null)
         if isinstance(dep_field, IntegerField):
             if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                 comp = XferCompSelect(field_name)
                 comp.set_select(list(dep_field.choices))
+                min_value = 0
             else:
                 min_value, max_value = get_range_value(dep_field)
                 comp = XferCompFloat(field_name, min_value, max_value, 0)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(min_value))
         elif isinstance(dep_field, DecimalField):
             min_value, max_value = get_range_value(dep_field)
             comp = XferCompFloat(
                 field_name, min_value, max_value, dep_field.decimal_places)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(min_value))
         elif isinstance(dep_field, BooleanField):
             comp = XferCompCheck(field_name)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(False))
         elif isinstance(dep_field, TextField):
             comp = XferCompMemo(field_name)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(""))
         elif isinstance(dep_field, DateField):
             comp = XferCompDate(field_name)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(datetime.date.today()))
         elif isinstance(dep_field, TimeField):
             comp = XferCompTime(field_name)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(datetime.time()))
         elif isinstance(dep_field, DateTimeField):
             comp = XferCompDateTime(field_name)
-            comp.set_value(getattr(self.item, field_name))
+            comp.set_value(get_value_from_field(datetime.datetime.now()))
         elif isinstance(dep_field, ForeignKey):
             comp = XferCompSelect(field_name)
             try:
@@ -408,9 +418,8 @@ class XferContainerCustom(XferContainerAbstract):
             comp.set_select(sel_list)
         else:
             comp = XferCompEdit(field_name)
-            comp.set_value(getattr(self.item, field_name))
-        comp.set_needed(
-            dep_field.unique or not (dep_field.blank or dep_field.null))
+            comp.set_value(get_value_from_field(""))
+        comp.set_needed(is_needed)
         comp.description = six.text_type(dep_field.verbose_name)
         return comp
 

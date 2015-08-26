@@ -1,4 +1,4 @@
-/*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,unusedVariables*/
+/*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
 
 // image
 var compImage = compGeneric.extend({
@@ -66,75 +66,121 @@ var compLabelForm = compGeneric.extend({
 });
 
 // event
-var compAbstractEvent = compGeneric.extend({
-	action : null,
-	java_script_content : null,
+var compAbstractEvent = compGeneric
+		.extend({
+			action : null,
+			java_script_content : null,
 
-	initial : function(component) {
-		this._super(component);
-		var acts = component.getElementsByTagName("ACTIONS"), act;
-		if (acts.length > 0) {
-			act = acts[0].getElementsByTagName("ACTION");
-			if (act.length > 0) {
-				this.action = Singleton().CreateAction();
-				this.action.initialize(this.owner, Singleton().Factory(),
-						act[0]);
-				this.action.setCheckNull(false);
-			}
-		}
-		this.java_script_content = decodeURIComponent(component
-				.getCDataOfFirstTag('JavaScript').replace(/\+/g, " "));
-	},
-
-	addAction : function() {
-		return undefined;
-	},
-
-	get_act_function : function() {
-		var act_function = null, adder = null;
-		if ((this.java_script_content !== '') || (this.action !== null)) {
-			post_log("java script :" + this.java_script_content);
-			act_function = function() {
-				if (this.java_script_content !== '') {
-					adder = new Function("current", "parent",
-							this.java_script_content); /* jshint -W054 */
-					adder(this, this.owner);
-				}
-				if (this.action !== null) {
-					if (this.getValue() !== this.initialVal()) {
-						this.action.actionPerformed();
+			initial : function(component) {
+				this._super(component);
+				var acts = component.getElementsByTagName("ACTIONS"), act;
+				if (acts.length > 0) {
+					act = acts[0].getElementsByTagName("ACTION");
+					if (act.length > 0) {
+						this.action = Singleton().CreateAction();
+						this.action.initialize(this.owner, Singleton()
+								.Factory(), act[0]);
+						this.action.setCheckNull(false);
 					}
 				}
-			};
-			if (this.java_script_content !== '') {
-				adder = new Function("current", "parent",
-						this.java_script_content); /* jshint -W054 */
-				adder(this, this.owner);
-			}
-		}
-		return act_function;
-	},
+				this.java_script_content = decodeURIComponent(component
+						.getCDataOfFirstTag('JavaScript').replace(/\+/g, " "));
+			},
 
-	addActionEx : function(typeAct) {
-		var act_function = this.get_act_function(), gui_comp;
-		if (act_function !== null) {
-			gui_comp = this.getGUIComp();
-			switch (typeAct) {
-			case 0: // focus
-				gui_comp.focusout($.proxy(act_function, this));
-				break;
-			case 1: // click
-				gui_comp.click($.proxy(act_function, this));
-				break;
-			case 2: // change
-				gui_comp.change($.proxy(act_function, this));
-				break;
-			default:
-				throw new LucteriosException(CRITIC, "Bad type!");
+			addAction : function() {
+				return undefined;
+			},
+
+			get_act_function : function() {
+				var act_function = null, adder = null, init_val;
+				if ((this.java_script_content !== '') || (this.action !== null)) {
+					post_log("java script :" + this.java_script_content);
+					act_function = function() {
+						if (this.java_script_content !== '') {
+							adder = new Function("current", "parent",
+									this.java_script_content); /* jshint -W054 */
+							adder(this, this.owner);
+						}
+						if (this.action !== null) {
+							if (this.is_null === true) {
+								init_val = NULL_VALUE;
+							} else {
+								init_val = this.initialVal();
+							}
+							if (this.getValue() !== init_val) {
+								this.action.actionPerformed();
+							}
+						}
+					};
+					if (this.java_script_content !== '') {
+						adder = new Function("current", "parent",
+								this.java_script_content); /* jshint -W054 */
+						adder(this, this.owner);
+					}
+				}
+				return act_function;
+			},
+
+			addActionEx : function(typeAct) {
+				var act_function = this.get_act_function(), gui_comp;
+				if (act_function !== null) {
+					gui_comp = this.getGUIComp();
+					switch (typeAct) {
+					case 0: // focus
+						gui_comp.focusout($.proxy(act_function, this));
+						break;
+					case 1: // click
+						gui_comp.click($.proxy(act_function, this));
+						break;
+					case 2: // change
+						gui_comp.change($.proxy(act_function, this));
+						break;
+					default:
+						throw new LucteriosException(CRITIC, "Bad type!");
+					}
+				}
+				this.addActionNull(act_function);
+			},
+
+			addActionNull : function(act_function) {
+				var nullcheck;
+				if (this.needed === false) {
+					nullcheck = $("#" + this.owner.getId()).find(
+							"input[name='nullcheck_{0}']:eq(0)"
+									.format(this.name));
+					nullcheck.change($.proxy(function() {
+						if (act_function !== null) {
+							$.proxy(act_function, this)();
+						}
+						this.setEnabled(!nullcheck[0].checked);
+					}, this));
+					this.setEnabled(!this.is_null);
+				}
+			},
+
+			addnullcheck : function() {
+				var res = '', valcheck = '';
+				if (this.needed === false) {
+					if (this.is_null === true) {
+						valcheck = 'checked = "checked"';
+					}
+					res = '<input class="class_checknull" type="checkbox" name="nullcheck_{0}" {1}/>'
+							.format(this.name, valcheck);
+				}
+				return res;
+			},
+
+			is_return_null : function() {
+				var res = false, nullcheck;
+				if (this.needed === false) {
+					nullcheck = $("#" + this.owner.getId()).find(
+							"input[name='nullcheck_{0}']:eq(0)"
+									.format(this.name));
+					res = nullcheck[0].checked;
+				}
+				return res;
 			}
-		}
-	}
-});
+		});
 
 // bouton
 var compButton = compAbstractEvent.extend({
@@ -330,16 +376,20 @@ var compEdit = compAbstractEvent.extend({
 		}
 		return;
 	},
-	
+
 	addAction : function() {
 		this.addActionEx(0);
 		if (this.mask !== null) {
 			this.getGUIComp().keyup($.proxy(function() {
 				var inputVal = this.getGUIComp().val();
 				if (!this.mask.test(inputVal)) {
-					this.getGUIComp().css({'background-color' : 'red'});
+					this.getGUIComp().css({
+						'background-color' : 'red'
+					});
 				} else {
-					this.getGUIComp().css({'background-color' : 'white'});
+					this.getGUIComp().css({
+						'background-color' : 'white'
+					});
 				}
 			}, this));
 		}
@@ -347,59 +397,76 @@ var compEdit = compAbstractEvent.extend({
 
 });
 
-var compFloat = compAbstractEvent.extend({
-	value : "",
-	min : 0,
-	max : 1000,
-	prec : 1,
+var compFloat = compAbstractEvent
+		.extend({
+			value : "",
+			min : 0,
+			max : 1000,
+			prec : 1,
 
-	initial : function(component) {
-		this._super(component);
-		var text_value = component.getTextFromXmlNode(), nb_dec = component
-				.getXMLAttributInt('prec', 0), dec_i;
-		if (text_value === '') {
-			text_value = '0';
-		}
-		this.value = parseFloat(text_value);
-		this.min = component.getXMLAttributInt('min', 0);
-		this.max = component.getXMLAttributInt('max', 1000);
-		this.prec = 1;
-		for (dec_i = 0; dec_i < nb_dec; dec_i++) {
-			this.prec = this.prec / 10;
-		}
-		this.tag = 'input';
-	},
+			initial : function(component) {
+				this._super(component);
+				var text_value = '', nb_dec = component.getXMLAttributInt(
+						'prec', 0), dec_i;
+				if (this.is_null === false) {
+					text_value = component.getTextFromXmlNode();
+				}
+				if (text_value === '') {
+					text_value = '0';
+				}
+				this.value = parseFloat(text_value);
+				this.min = component.getXMLAttributInt('min', 0);
+				this.max = component.getXMLAttributInt('max', 1000);
+				this.prec = 1;
+				for (dec_i = 0; dec_i < nb_dec; dec_i++) {
+					this.prec = this.prec / 10;
+				}
+				this.tag = 'input';
+			},
 
-	getHtml : function() {
-		var args = {
-			'type' : "text"
-		};
-		args.value = this.initialVal();
-		return this.getBuildHtml(args, true, true);
-	},
+			getHtml : function() {
+				var args = {
+					'type' : "text"
+				};
+				args.value = this.initialVal();
+				return this.addnullcheck()
+						+ this.getBuildHtml(args, true, true);
+			},
 
-	getValue : function() {
-		var val_num = this.getGUIComp().val();
-		val_num = Math.max(val_num, this.min);
-		val_num = Math.min(val_num, this.max);
-		return "{0}".format(val_num);
-	},
+			getValue : function() {
+				var val_num;
+				if (this.is_return_null() === true) {
+					return NULL_VALUE;
+				} 
+				val_num = this.getGUIComp().val();
+				val_num = Math.max(val_num, this.min);
+				val_num = Math.min(val_num, this.max);
+				return "{0}".format(val_num);
+			},
 
-	initialVal : function() {
-		return this.value;
-	},
+			initialVal : function() {
+				return this.value;
+			},
 
-	addAction : function() {
-		this.addActionEx(0);
+			setEnabled : function(isEnabled) {
+				if (isEnabled === true) {
+					this.getGUIComp().spinner("enable");
+				} else {
+					this.getGUIComp().spinner("disable");
+				}
+			},
 
-		this.getGUIComp().spinner({
-			step : this.prec,
-			min : this.min,
-			max : this.max,
-			numberFormat : "n"
+			addAction : function() {
+				this.getGUIComp().spinner({
+					step : this.prec,
+					min : this.min,
+					max : this.max,
+					numberFormat : "n"
+				});
+				this.addActionEx(0);
+			}
+
 		});
-	}
-});
 
 var compMemo = compAbstractEvent
 		.extend({
@@ -570,7 +637,9 @@ var compDate = compAbstractEvent
 
 			initial : function(component) {
 				this._super(component);
-				this.value = component.getTextFromXmlNode();
+				if (this.is_null === false) {
+					this.value = component.getTextFromXmlNode();
+				}
 				if (this.value === '') {
 					var today = new Date();
 					this.value = "{0}-{1}-{2}".format(today.getFullYear(),
@@ -584,15 +653,23 @@ var compDate = compAbstractEvent
 				var args = {
 					'type' : "text",
 					'class' : "datepicker",
-					'style' : "width:80%;margin:5px;"
+					'style' : "width:80%;margin:5px 0px 5px 5px;"
 				}, date_nums = this.initialVal().split('-');
 				args.value = "{0}/{1}/{2}".format(date_nums[2], date_nums[1],
 						date_nums[0]);
-				return this.getBuildHtml(args, false, true);
+				if (this.needed === false) {
+					args.style = "width:70%;margin:5px 0px 5px 0px;";
+				}
+				return this.addnullcheck()
+						+ this.getBuildHtml(args, false, true);
 			},
 
 			getValue : function() {
-				var date_nums = this.getGUIComp().val().split('/');
+				var date_nums;
+				if (this.is_return_null() === true) {
+					return NULL_VALUE;
+				} 
+				date_nums = this.getGUIComp().val().split('/');
 				return "{0}-{1}-{2}".format(date_nums[2], date_nums[1],
 						date_nums[0]);
 			},
@@ -621,7 +698,9 @@ var compTime = compAbstractEvent.extend({
 
 	initial : function(component) {
 		this._super(component);
-		this.value = component.getTextFromXmlNode();
+		if (this.is_null === false) {
+			this.value = component.getTextFromXmlNode();
+		}
 		if (this.value === '') {
 			var today = new Date();
 			this.value = "{0}:{1}".format(today.getHours().toString().lpad('0',
@@ -630,13 +709,28 @@ var compTime = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
+	getValue : function() {
+		if (this.is_return_null() === true) {
+			return NULL_VALUE;
+		}
+		return this._super();
+	},
+
 	getHtml : function() {
 		var args = {
 			'type' : "text",
 			'class' : "timespinner"
 		};
 		args.value = this.initialVal();
-		return this.getBuildHtml(args, true, true);
+		return this.addnullcheck() + this.getBuildHtml(args, true, true);
+	},
+
+	setEnabled : function(isEnabled) {
+		if (isEnabled === true) {
+			this.getGUIComp().timespinner("enable");
+		} else {
+			this.getGUIComp().timespinner("disable");
+		}
 	},
 
 	initialVal : function() {
@@ -656,7 +750,17 @@ var compDateTime = compAbstractEvent
 
 			initial : function(component) {
 				this._super(component);
-				this.value = component.getTextFromXmlNode();
+				if (this.is_null === false) {
+					this.value = component.getTextFromXmlNode();
+				}
+				if (this.value === '') {
+					var today = new Date();
+					this.value = "{0}-{1}-{2} {3}:{4}".format(today
+							.getFullYear(), (today.getMonth() + 1).toString()
+							.lpad('0', 2), today.getDate().toString().lpad('0',
+							2), today.getHours().toString().lpad('0', 2), today
+							.getMinutes().toString().lpad('0', 2));
+				}
 				this.tag = 'input';
 			},
 
@@ -679,7 +783,8 @@ var compDateTime = compAbstractEvent
 				args_dt.value = "{0}/{1}/{2}".format(date_nums[2],
 						date_nums[1], date_nums[0]);
 				args_tm.value = date_time[1];
-				return this.getBuildHtml(args_dt, false, true)
+				return this.addnullcheck()
+						+ this.getBuildHtml(args_dt, false, true)
 						+ this.getBuildHtml(args_tm, false, true);
 			},
 
@@ -688,9 +793,22 @@ var compDateTime = compAbstractEvent
 			},
 
 			getValue : function() {
-				var date_nums = this.getGUIComp().val().split('/');
+				var date_nums;
+				if (this.is_return_null() === true) {
+					return NULL_VALUE;
+				}
+				date_nums = this.getGUIComp().val().split('/');
 				return "{0}-{1}-{2} {3}".format(date_nums[2], date_nums[1],
 						date_nums[0], this.getGUICompTime().val());
+			},
+
+			setEnabled : function(isEnabled) {
+				this.getGUIComp().prop("disabled", !isEnabled);
+				if (isEnabled === true) {
+					this.getGUICompTime().timespinner("enable");
+				} else {
+					this.getGUICompTime().timespinner("disable");
+				}
 			},
 
 			setValue : function(xmlValue) {
@@ -709,6 +827,7 @@ var compDateTime = compAbstractEvent
 					this.getGUIComp().focusout($.proxy(act_function, this));
 					this.getGUICompTime().focusout($.proxy(act_function, this));
 				}
+				this.addActionNull(act_function);
 			}
 
 		});

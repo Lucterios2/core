@@ -1,6 +1,8 @@
 /*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
 /*global compImage,compLabelForm,compEdit,compFloat,compMemo,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
 
+var NULL_VALUE = 'NULL';
+
 var ObserverCustom = ObserverGUI
 		.extend({
 
@@ -55,8 +57,8 @@ var ObserverCustom = ObserverGUI
 						cmp = this.mCompList.val(comp_idx);
 						cmp.checkValid();
 					}
-				} catch(lctept) {
-					if (cmp!==null) {
+				} catch (lctept) {
+					if (cmp !== null) {
 						cmp.getGUIComp().focus();
 					}
 					showMessageDialog(lctept.message, this.getTitle());
@@ -257,6 +259,8 @@ var compGeneric = compBasic
 					this.colspan = component.getAttribute("colspan");
 					this.rowspan = component.getAttribute("rowspan");
 					this.needed = component.getXMLAttributInt("needed", 0) === 1;
+					this.is_null = !this.needed
+							&& (component.getTextFromXmlNode() === NULL_VALUE);
 				}
 			},
 
@@ -292,10 +296,15 @@ var compGeneric = compBasic
 
 			checkValid : function() {
 				var msg_text;
-				if (this.needed && ((this.getValue() === null) || (this.getValue() === ''))) {
-					msg_text = Singleton().getTranslate("This field is needed!");
+				if (this.needed
+						&& ((this.getValue() === null) || (this.getValue() === ''))) {
+					msg_text = Singleton()
+							.getTranslate("This field is needed!");
 					if (this.description.length > 0) {
-						msg_text = Singleton().getTranslate("The field '{0}' is needed!").format(decodeURIComponent(this.description.replace(/\+/g, ' ')));
+						msg_text = Singleton().getTranslate(
+								"The field '{0}' is needed!").format(
+								decodeURIComponent(this.description.replace(
+										/\+/g, ' ')));
 					}
 					throw new LucteriosException(MINOR, msg_text);
 				}

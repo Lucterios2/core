@@ -587,7 +587,7 @@ test(
 			equal(comp.html(), "<b>Date Heure RDV</b>", "comp 14");
 
 			var comp15a = jcnt
-					.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > input");
+					.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > input:eq(1)");
 			equal(comp15a.val(), "12/07/2008", "comp 15a");
 			var comp15b = jcnt
 					.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > span > input");

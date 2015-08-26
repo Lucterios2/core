@@ -78,6 +78,14 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/exampleAddModify', {}, False)
         self.assert_observer(
             'Core.Custom', 'lucterios.dummy', 'exampleAddModify')
+        self.assert_count_equal('COMPONENTS/*', 15)
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="name"]', None)
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="value"]', "0")
+        self.assert_xml_equal('COMPONENTS/FLOAT[@name="price"]', "100.00")
+        self.assert_xml_equal('COMPONENTS/DATE[@name="date"]', "NULL")
+        self.assert_xml_equal('COMPONENTS/TIME[@name="time"]', "00:00:00")
+        self.assert_xml_equal('COMPONENTS/CHECK[@name="valid"]', "0")
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="comment"]', None)
 
     def testshow(self):
         self.factory.xfer = ExampleShow()

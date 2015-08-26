@@ -32,9 +32,9 @@ from django.utils.http import urlquote_plus
 
 from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-import datetime
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
+from lucterios.framework.xferbasic import NULL_VALUE
 
 
 class XferComponent(object):
@@ -98,7 +98,10 @@ class XferComponent(object):
     def get_reponse_xml(self):
         compxml = etree.Element(self._component_ident)
         self._get_attribut(compxml)
-        compxml.text = six.text_type(self._get_content())
+        if self._get_content() is None:
+            compxml.text = NULL_VALUE
+        else:
+            compxml.text = six.text_type(self._get_content())
         return compxml
 
 
@@ -260,13 +263,16 @@ class XferCompFloat(XferCompButton):
 
     def set_value(self, value):
         if value is None:
-            self.value = self.min
+            self.value = None
         else:
             self.value = float(value)
 
     def _get_content(self):
-        value_format = "%%.%df" % self.prec
-        return value_format % self.value
+        if self.value is None:
+            return NULL_VALUE
+        else:
+            value_format = "%%.%df" % self.prec
+            return value_format % self.value
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
@@ -314,7 +320,7 @@ class XferCompDate(XferCompButton):
 
     def set_value(self, value):
         if value is None:
-            self.value = datetime.date.today()
+            self.value = None
         else:
             self.value = value
 
@@ -327,7 +333,7 @@ class XferCompTime(XferCompButton):
 
     def set_value(self, value):
         if value is None:
-            self.value = datetime.time()
+            self.value = None
         else:
             self.value = value
 
@@ -340,7 +346,7 @@ class XferCompDateTime(XferCompButton):
 
     def set_value(self, value):
         if value is None:
-            self.value = datetime.datetime.now()
+            self.value = None
         else:
             self.value = value
 
@@ -352,11 +358,14 @@ class XferCompCheck(XferCompButton):
         self._component_ident = "CHECK"
 
     def set_value(self, value):
-        value = six.text_type(value)
-        if (value == 'False') or (value == '0') or (value == '') or (value == 'n'):
-            self.value = 0
+        if value is None:
+            self.value = None
         else:
-            self.value = 1
+            value = six.text_type(value)
+            if (value == 'False') or (value == '0') or (value == '') or (value == 'n'):
+                self.value = 0
+            else:
+                self.value = 1
 
 
 class XferCompSelect(XferCompButton):

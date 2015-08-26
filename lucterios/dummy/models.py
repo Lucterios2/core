@@ -33,9 +33,9 @@ class Example(LucteriosModel):
     name = models.CharField(max_length=75, unique=True)
     value = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(20)])
-    price = models.DecimalField(max_digits=6, decimal_places=2, validators=[
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=100.0, validators=[
                                 MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
-    date = models.DateField()
+    date = models.DateField(null=True)
     time = models.TimeField()
     valid = models.BooleanField(default=False)
     comment = models.TextField(blank=True)

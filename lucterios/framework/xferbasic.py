@@ -38,6 +38,8 @@ from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 
+NULL_VALUE = 'NULL'
+
 
 class XferContainerAbstract(View):
 
@@ -118,9 +120,15 @@ class XferContainerAbstract(View):
                     param_value = (param_value != 'False') and (param_value != '0') and (
                         param_value != '') and (param_value != 'n')
                 elif isinstance(default_value, int):
-                    param_value = int(param_value)
+                    if param_value == NULL_VALUE:
+                        param_value = None
+                    else:
+                        param_value = int(param_value)
                 elif isinstance(default_value, float):
-                    param_value = float(param_value)
+                    if param_value == NULL_VALUE:
+                        param_value = None
+                    else:
+                        param_value = float(param_value)
                 elif isinstance(default_value, tuple):
                     param_value = tuple(param_value.split(';'))
                 elif isinstance(default_value, list):
@@ -189,6 +197,8 @@ class XferContainerAbstract(View):
                 if new_value is not None:
                     if not (dep_field.is_relation and dep_field.many_to_many):
                         from django.db.models.fields import BooleanField
+                        if new_value == NULL_VALUE:
+                            new_value = None
                         if isinstance(dep_field, BooleanField):
                             new_value = new_value != '0' and new_value != 'n'
                         if isinstance(dep_field, ForeignKey):
