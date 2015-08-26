@@ -151,9 +151,9 @@
 			<env key="PYTHONPATH" value="${project.pythonpath}"/>
 			<arg value="run"/>
 			<arg value="--branch"/>
-			<arg value="--source=lucterios,${core.path}/lucterios"/>
-			<arg value="--omit=${core.path}/lucterios/install/*"/>
-			<arg value="--include=${core.path}/lucterios/CORE/*.py,${core.path}/lucterios/framework/*.py"/>
+			<arg value="--source=${project.test.source}"/>
+			<arg value="--omit=${project.test.omit}"/>
+			<arg value="--include=${project.test.include}"/>
 			<arg value="${basedir}/manage_${project.test.instance}.py"/>
 			<arg value="test"/>
 			<arg value="${project.packagename}"/>
@@ -166,7 +166,7 @@
 		</exec>		
 		<move file="coverage.xml" tofile="${testversion}.xml"/>
 		<replaceregexp file="${testversion}.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
-		<replace file="${testversion}.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />
+		<replace file="${testversion}.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
 		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 	</target>
 
