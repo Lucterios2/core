@@ -29,8 +29,9 @@ var compGridHeader = Class.extend({
 	},
 
 	addAction : function() {
-		if ((this.orderable === 1) && ($("#" + this.getid()).length)) {
-			$("#" + this.getid()).click($.proxy(function() {
+		if (this.orderable === 1) {
+			var current_comp = $("#" + this.getid());
+			current_comp.click($.proxy(function() {
 				this.grid.order_col(this.name);
 			}, this));
 		}

@@ -623,19 +623,18 @@ class XferCompGrid(XferComponent):
             compxml.append(get_actions_xml(self.actions))
         return compxml
 
-    def _add_header_from_model(self, query_set, fieldnames):
+    def _add_header_from_model(self, query_set, fieldnames, has_xfer):
         from django.db.models.fields import IntegerField, FloatField, BooleanField
         for fieldname in fieldnames:
+            horderable = 0
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
-                horderable = 0
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(
                     fieldname[:-4])
                 hfield = 'str'
                 verbose_name = dep_field.related_model._meta.verbose_name
-                horderable = 0
             else:
                 dep_field = query_set.model.get_field_by_name(
                     fieldname)
@@ -648,13 +647,16 @@ class XferCompGrid(XferComponent):
                 else:
                     hfield = 'str'
                 verbose_name = dep_field.verbose_name
-                horderable = 1
-            self.add_header(fieldname, verbose_name, hfield, horderable)
+                if has_xfer:
+                    horderable = 1
+            self.add_header(
+                fieldname.replace('.', '__'), verbose_name, hfield, horderable)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
         if fieldnames is None:
             fieldnames = query_set.model.get_default_fields()
-        self._add_header_from_model(query_set, fieldnames)
+        self._add_header_from_model(
+            query_set, fieldnames, xfer_custom is not None)
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname
         record_min, record_max = self.define_page(xfer_custom)
@@ -682,7 +684,7 @@ class XferCompGrid(XferComponent):
                         resvalue = get_value_if_choices(resvalue, field_desc)
                     except FieldDoesNotExist:
                         pass
-                self.set_value(pk_id, fieldname, resvalue)
+                self.set_value(pk_id, fieldname.replace('.', '__'), resvalue)
 
     def add_actions(self, xfer_custom, model=None, action_list=None):
         if model is None:
