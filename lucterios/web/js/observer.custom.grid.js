@@ -3,53 +3,76 @@
 var compGridHeader = Class.extend({
 	name : "",
 	type : "",
+	orderable : 0,
 	label : "",
+	grid : null,
 
-	initial : function(component) {
+	initial : function(component, grid) {
 		this.name = component.getAttribute("name");
 		this.type = component.getAttribute("type");
+		this.orderable = component.getXMLAttributInt("orderable", 0);
 		this.label = component.getTextFromXmlNode();
+		this.grid = grid;
+	},
+
+	getid : function() {
+		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name);
 	},
 
 	getHtml : function() {
-		return '<th>{0}</th>'.format(this.label);
+		var extra = '';
+		if (this.orderable === 1) {
+			extra = "class='class_header'";
+		}
+		return '<th id="{0}" {1}>{2}</th>'.format(this.getid(), extra,
+				this.label);
+	},
+
+	addAction : function() {
+		if ((this.orderable === 1) && ($("#" + this.getid()).length)) {
+			$("#" + this.getid()).click($.proxy(function() {
+				this.grid.order_col(this.name);
+			}, this));
+		}
 	}
 });
 
-var compGridValue = Class.extend({
-	name : "",
-	value : "",
-	parentGrid : "",
+var compGridValue = Class
+		.extend({
+			name : "",
+			value : "",
+			parentGrid : "",
 
-	initial : function(component) {
-		this.name = component.getAttribute("name");
-		this.value = component.getTextFromXmlNode();
-	},
+			initial : function(component) {
+				this.name = component.getAttribute("name");
+				this.value = component.getTextFromXmlNode();
+			},
 
-	setParentGrid : function(grid) {
-		this.parentGrid = grid;
-	},
+			setParentGrid : function(grid) {
+				this.parentGrid = grid;
+			},
 
-	getHtml : function() {
-		if (this.value === "") {
-			return '<td></td>';
-		}
-		switch (this.parentGrid.getValueType(this.name)) {
-		case 'icon':
-			return '<td><img src="{0}"></td>'.format(Singleton().Transport()
-					.getIconUrl(this.value));
-		case 'bool':
-			if ((this.value === '0') || (this.value.toLowerCase() === 'false')
-					|| (this.value === 'n')) {
-				return '<td><input type="checkbox" disabled="1" ></input></td>';
+			getHtml : function() {
+				if (this.value === "") {
+					return '<td></td>';
+				}
+				switch (this.parentGrid.getValueType(this.name)) {
+				case 'icon':
+					return '<td><img src="{0}"></td>'.format(Singleton()
+							.Transport().getIconUrl(this.value));
+				case 'bool':
+					if ((this.value === '0')
+							|| (this.value.toLowerCase() === 'false')
+							|| (this.value === 'n')) {
+						return '<td><input type="checkbox" disabled="1" ></input></td>';
+					}
+					return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
+				default:
+					return '<td>{0}</td>'.format(this.value
+							.convertLuctoriosFormatToHtml());
+				}
 			}
-			return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
-		default:
-			return '<td>{0}</td>'.format(this.value
-					.convertLuctoriosFormatToHtml());
-		}
-	}
-});
+		});
 
 var compGridRow = Class
 		.extend({
@@ -132,6 +155,7 @@ var compGrid = compGeneric
 
 			initial : function(component) {
 				this._super(component);
+				this.order = component.getXMLAttributStr('order', '');
 				this.page_max = component.getXMLAttributInt('PageMax', 1);
 				this.page_num = component.getXMLAttributInt('PageNum', 0);
 				var heads = component.getElementsByTagName("HEADER"), rows = component
@@ -141,7 +165,7 @@ var compGrid = compGeneric
 				this.gridHeaders = [];
 				for (iChild = 0; iChild < heads.length; iChild++) {
 					header = new compGridHeader();
-					header.initial(heads[iChild]);
+					header.initial(heads[iChild], this);
 					this.gridHeaders[this.gridHeaders.length] = header;
 				}
 
@@ -271,7 +295,10 @@ var compGrid = compGeneric
 			},
 
 			addAction : function() {
-				var iRow, iBtn, select_name;
+				var iCol, iRow, iBtn, select_name;
+				for (iCol = 0; iCol < this.gridHeaders.length; iCol++) {
+					this.gridHeaders[iCol].addAction();
+				}
 				for (iRow = 0; iRow < this.gridRows.length; iRow++) {
 					this.gridRows[iRow].addAction();
 				}
@@ -285,14 +312,30 @@ var compGrid = compGeneric
 							$.proxy(function() {
 								var page_val = $("#" + select_name).val();
 								this.owner.getContext().put(
-										'GRID_PAGE%25{0}'.format(this.name),
-										page_val);
-								this.owner.getContext().put(
 										'GRID_PAGE%{0}'.format(this.name),
 										page_val);
 								this.owner.refresh();
 							}, this));
 				}
+			},
+
+			order_col : function(colname) {
+				var order_txt, order_list = this.order.split(',');
+				if (order_list.indexOf(colname) !== -1) {
+					order_list.splice(order_list.indexOf(colname), 1);
+					colname = '-' + colname;
+				} else if (order_list.indexOf('-' + colname) !== -1) {
+					order_list.splice(order_list.indexOf('-' + colname), 1);
+				}
+				order_txt = order_list.join();
+				if (order_txt !== '') {
+					order_txt = colname + ',' + order_txt;
+				} else {
+					order_txt = colname;
+				}
+				this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name),
+						order_txt);
+				this.owner.refresh();
 			},
 
 			dbclick : function() {

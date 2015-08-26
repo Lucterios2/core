@@ -73,6 +73,40 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[@id=5]/VALUE[@name="name"]', 'boom')
 
+    def testlist_order1(self):
+        self.factory.xfer = ExampleList()
+        self.call('/lucterios.dummy/exampleList',
+                  {'GRID_ORDER%example': 'valid,-value'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 5)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[1]/VALUE[@name="name"]', 'blabla')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[2]/VALUE[@name="name"]', 'zzzz')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[3]/VALUE[@name="name"]', 'abc')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[4]/VALUE[@name="name"]', 'uvw')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[5]/VALUE[@name="name"]', 'boom')
+
+    def testlist_order2(self):
+        self.factory.xfer = ExampleList()
+        self.call('/lucterios.dummy/exampleList',
+                  {'GRID_ORDER%example': 'name'}, False)
+        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 5)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[1]/VALUE[@name="name"]', 'abc')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[2]/VALUE[@name="name"]', 'blabla')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[3]/VALUE[@name="name"]', 'boom')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[4]/VALUE[@name="name"]', 'uvw')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="example"]/RECORD[5]/VALUE[@name="name"]', 'zzzz')
+
     def testadd(self):
         self.factory.xfer = ExampleAddModify()
         self.call('/lucterios.dummy/exampleAddModify', {}, False)

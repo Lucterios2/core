@@ -521,8 +521,9 @@ class XferCompDownLoad(XferCompButton):
 
 MAX_GRID_RECORD = 25
 GRID_PAGE = 'GRID_PAGE%'
+GRID_ORDER = 'GRID_ORDER%'
 
-XferCompHeader = namedtuple('XferCompHeader', 'name descript type')
+XferCompHeader = namedtuple('XferCompHeader', 'name descript type orderable')
 
 
 class XferCompGrid(XferComponent):
@@ -530,6 +531,7 @@ class XferCompGrid(XferComponent):
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "GRID"
+        self.max_grid_record = MAX_GRID_RECORD
         self.headers = []
         self.record_ids = []
         self.records = {}
@@ -537,9 +539,10 @@ class XferCompGrid(XferComponent):
         self.page_max = 0
         self.page_num = 0
         self.nb_lines = 0
+        self.order_list = None
 
-    def add_header(self, name, descript, htype=""):
-        self.headers.append(XferCompHeader(name, descript, htype))
+    def add_header(self, name, descript, htype="", horderable=0):
+        self.headers.append(XferCompHeader(name, descript, htype, horderable))
 
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
@@ -552,15 +555,21 @@ class XferCompGrid(XferComponent):
 
     def define_page(self, xfer_custom=None):
         if xfer_custom is not None:
-            self.page_max = int(self.nb_lines / MAX_GRID_RECORD) + 1
+            order_txt = xfer_custom.getparam(GRID_ORDER + self.name, '')
+            if order_txt == '':
+                self.order_list = None
+            else:
+                self.order_list = order_txt.split(',')
+            self.page_max = int(self.nb_lines / self.max_grid_record) + 1
             self.page_num = xfer_custom.getparam(GRID_PAGE + self.name, 0)
             if self.page_max < self.page_num:
                 self.page_num = 0
-            record_min = self.page_num * MAX_GRID_RECORD
-            record_max = (self.page_num + 1) * MAX_GRID_RECORD
+            record_min = self.page_num * self.max_grid_record
+            record_max = (self.page_num + 1) * self.max_grid_record
         else:
             record_min = 0
             record_max = self.nb_lines
+            self.order_list = None
             self.page_max = 1
             self.page_num = 0
         return (record_min, record_max)
@@ -589,6 +598,8 @@ class XferCompGrid(XferComponent):
         if isinstance(self.page_max, six.integer_types) and (self.page_max > 1):
             compxml.attrib['PageMax'] = six.text_type(self.page_max)
             compxml.attrib['PageNum'] = six.text_type(self.page_num)
+        if self.order_list is not None:
+            compxml.attrib['order'] = ",".join(self.order_list)
 
     def get_reponse_xml(self):
         compxml = XferComponent.get_reponse_xml(self)
@@ -597,6 +608,7 @@ class XferCompGrid(XferComponent):
             xml_header.attrib['name'] = six.text_type(header.name)
             if header.type != "":
                 xml_header.attrib['type'] = six.text_type(header.type)
+            xml_header.attrib['orderable'] = six.text_type(header.orderable)
             xml_header.text = six.text_type(header.descript)
         for key in self.record_ids:
             record = self.records[key]
@@ -617,11 +629,13 @@ class XferCompGrid(XferComponent):
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
+                horderable = 0
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(
                     fieldname[:-4])
                 hfield = 'str'
                 verbose_name = dep_field.related_model._meta.verbose_name
+                horderable = 0
             else:
                 dep_field = query_set.model.get_field_by_name(
                     fieldname)
@@ -634,16 +648,18 @@ class XferCompGrid(XferComponent):
                 else:
                     hfield = 'str'
                 verbose_name = dep_field.verbose_name
-            self.add_header(fieldname, verbose_name, hfield)
+                horderable = 1
+            self.add_header(fieldname, verbose_name, hfield, horderable)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
-
         if fieldnames is None:
             fieldnames = query_set.model.get_default_fields()
         self._add_header_from_model(query_set, fieldnames)
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname
         record_min, record_max = self.define_page(xfer_custom)
+        if self.order_list is not None:
+            query_set = query_set.order_by(*self.order_list)
         for value in query_set[record_min:record_max]:
             child = value.get_final_child()
             pk_id = getattr(child, primary_key_fieldname)
