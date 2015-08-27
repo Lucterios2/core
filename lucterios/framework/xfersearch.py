@@ -361,6 +361,8 @@ class XferSearchEditor(XferContainerCustom):
 
     def __init__(self):
         XferContainerCustom.__init__(self)
+        self.action_grid = None
+        self.fieldnames = None
         self.fields_desc = FieldDescList()
         self.criteria_list = []
         self.filter = None
@@ -467,10 +469,12 @@ if ((type=='list') || (type=='listmult')) {
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
+        comp.set_needed(True)
         comp.set_location(3, 2)
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompFloat("searchValueFloat")
+        comp.set_needed(True)
         comp.set_location(3, 3)
         comp.set_size(20, 200)
         self.add_component(comp)
@@ -487,6 +491,7 @@ if ((type=='list') || (type=='listmult')) {
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompTime("searchValueTime")
+        comp.set_needed(True)
         comp.set_location(3, 7)
         comp.set_size(20, 200)
         self.add_component(comp)
@@ -545,8 +550,8 @@ if ((type=='list') || (type=='listmult')) {
         else:
             self.items = self.model.objects.all()
         grid = XferCompGrid(self.field_id)
-        grid.set_model(self.items, None, self)
-        grid.add_actions(self)
+        grid.set_model(self.items, self.fieldnames, self)
+        grid.add_actions(self, action_list=self.action_grid)
         grid.set_location(0, row + 4, 4)
         grid.set_size(200, 500)
         self.add_component(grid)

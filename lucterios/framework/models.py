@@ -26,7 +26,9 @@ from __future__ import unicode_literals
 import re
 
 from django.db import models
+from django.db.models import Transform
 from django.db.models.deletion import ProtectedError
+from django.db.models.lookups import RegisterLookupMixin
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats
@@ -35,6 +37,16 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
+
+
+class AbsoluteValue(Transform):
+    lookup_name = 'abs'
+
+    def as_sql(self, compiler, connection):
+        lhs, params = compiler.compile(self.lhs)
+        return "ABS(%s)" % lhs, params
+
+RegisterLookupMixin.register_lookup(AbsoluteValue)
 
 
 def get_value_converted(value, bool_textual=False):
