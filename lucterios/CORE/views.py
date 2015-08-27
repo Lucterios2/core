@@ -39,7 +39,7 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, 
 from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
-from lucterios.framework.xfercomponents import XferCompLABEL, XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
+from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -132,25 +132,25 @@ class ChangePassword(XferContainerCustom):
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
 
-        lbl = XferCompLABEL('lbl_oldpass')
+        lbl = XferCompLabelForm('lbl_oldpass')
         lbl.set_location(1, 0, 1, 1)
-        lbl.set_value(_("old password"))
+        lbl.set_value_as_name(_("old password"))
         self.add_component(lbl)
         pwd = XferCompPassword('oldpass')
         pwd.set_location(2, 0, 1, 1)
         self.add_component(pwd)
 
-        lbl = XferCompLABEL('lbl_newpass1')
+        lbl = XferCompLabelForm('lbl_newpass1')
         lbl.set_location(1, 1, 1, 1)
-        lbl.set_value(_("new password"))
+        lbl.set_value_as_name(_("new password"))
         self.add_component(lbl)
         pwd = XferCompPassword('newpass1')
         pwd.set_location(2, 1, 1, 1)
         self.add_component(pwd)
 
-        lbl = XferCompLABEL('lbl_newpass2')
+        lbl = XferCompLabelForm('lbl_newpass2')
         lbl.set_location(1, 2, 1, 1)
-        lbl.set_value(_("new password (again)"))
+        lbl.set_value_as_name(_("new password (again)"))
         self.add_component(lbl)
         pwd = XferCompPassword('newpass2')
         pwd.set_location(2, 2, 1, 1)

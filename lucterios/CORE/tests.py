@@ -279,11 +279,11 @@ class AuthentificationTest(LucteriosTest):
         self.assert_comp_equal(
             'COMPONENTS/IMAGE[@name="img"]', 'images/passwd.png', ('0', '0', '1', '3'))
         self.assert_comp_equal(
-            'COMPONENTS/LABEL[@name="lbl_oldpass"]', 'ancien mot de passe', ('1', '0', '1', '1'))
+            'COMPONENTS/LABELFORM[@name="lbl_oldpass"]', '{[b]}ancien mot de passe{[/b]}', ('1', '0', '1', '1'))
         self.assert_comp_equal(
-            'COMPONENTS/LABEL[@name="lbl_newpass1"]', 'nouveau mot de passe', ('1', '1', '1', '1'))
+            'COMPONENTS/LABELFORM[@name="lbl_newpass1"]', '{[b]}nouveau mot de passe{[/b]}', ('1', '1', '1', '1'))
         self.assert_comp_equal(
-            'COMPONENTS/LABEL[@name="lbl_newpass2"]', 're-nouveau mot de passe', ('1', '2', '1', '1'))
+            'COMPONENTS/LABELFORM[@name="lbl_newpass2"]', '{[b]}re-nouveau mot de passe{[/b]}', ('1', '2', '1', '1'))
         self.assert_comp_equal(
             'COMPONENTS/PASSWD[@name="oldpass"]', None, ('2', '0', '1', '1'))
         self.assert_comp_equal(

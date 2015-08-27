@@ -23,6 +23,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from datetime import datetime
+
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
@@ -35,6 +37,7 @@ from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferS
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
 from lucterios.dummy.models import Example, Other
+from lucterios.framework import signal_and_lock
 
 MenuManage.add_sub(
     'dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
@@ -352,3 +355,18 @@ class OtherDel(XferDelete):
     model = Other
     field_id = 'other'
     caption = _("Delete other")
+
+
+@signal_and_lock.Signal.decorate('summary')
+def summary_dummy(xfer):
+    row = xfer.get_max_row() + 1
+    lab = XferCompLabelForm('dummytitle')
+    lab.set_value_as_infocenter("Dummy")
+    lab.set_location(0, row, 4)
+    xfer.add_component(lab)
+    lbl = XferCompLabelForm('dummy_time')
+    lbl.set_color('blue')
+    lbl.set_location(0, row + 1, 4)
+    lbl.set_centered()
+    lbl.set_value(datetime.now().ctime())
+    xfer.add_component(lbl)

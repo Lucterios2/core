@@ -115,16 +115,6 @@ class XferCompTab(XferComponent):
         self.value = value.strip()
 
 
-class XferCompLABEL(XferComponent):
-
-    def __init__(self, name):
-        XferComponent.__init__(self, name)
-        self._component_ident = "LABEL"
-
-    def set_value(self, value):
-        self.value = value.strip()
-
-
 class XferCompPassword(XferComponent):
 
     def __init__(self, name):
@@ -156,30 +146,82 @@ class XferCompLabelForm(XferComponent):
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "LABELFORM"
+        self._centered = False
+        self._italic = False
+        self._bold = False
+        self._underline = False
+        self._blank_line_before = False
+        self._color = 'black'
 
     def set_value_as_title(self, value):
-        self.set_value(
-            six.text_type('{[br/]}{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}') % value)
+        self._blank_line_before = True
+        self._centered = True
+        self._underline = True
+        self._bold = True
+        self.set_value(six.text_type(value))
 
     def set_value_as_name(self, value):
-        self.set_value(six.text_type('{[b]}%s{[/b]}') % value)
+        self._bold = True
+        self.set_value(six.text_type(value))
 
     def set_value_as_info(self, value):
-        self.set_value("{[b]{[u]%s{[/u]{[/b]" % value)
+        self._bold = True
+        self._underline = True
+        self.set_value(six.text_type(value))
 
     def set_value_as_infocenter(self, value):
-        self.set_value("{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}" % value)
+        self._centered = True
+        self._underline = True
+        self._bold = True
+        self.set_value(six.text_type(value))
 
     def set_value_as_header(self, value):
-        self.set_value(
-            six.text_type('{[center]}{[i]}%s{[/i]}{[/center]}') % value)
+        self._centered = True
+        self._italic = True
+        self.set_value(six.text_type(value))
 
     def set_value_center(self, value):
-        self.set_value(six.text_type('{[center]}%s{[/center]}') % value)
+        self._centered = True
+        self.set_value(six.text_type(value))
 
     def set_value_as_headername(self, value):
-        self.set_value(
-            six.text_type('{[center]}{[b]}%s{[/b]}{[/center]}') % value)
+        self._centered = True
+        self._bold = True
+        self.set_value(six.text_type(value))
+
+    def set_centered(self):
+        self._centered = True
+
+    def set_bold(self):
+        self._bold = True
+
+    def set_underlined(self):
+        self._underline = True
+
+    def set_italic(self):
+        self._italic = True
+
+    def set_color(self, color):
+        self._color = color
+
+    def add_blank_line_before(self):
+        self._blank_line_before = True
+
+    def get_reponse_xml(self):
+        if self._color != 'black':
+            self.set_value('{[font color="%s"]}%s{[/font]}' %
+                           (self._color, self.value))
+        if self._bold:
+            self.set_value('{[b]}%s{[/b]}' % self.value)
+        if self._italic:
+            self.set_value('{[i]}%s{[/i]}' % self.value)
+        if self._underline:
+            self.set_value('{[u]}%s{[/u]}' % self.value)
+        if self._centered:
+            self.set_value('{[center]}%s{[/center]}' % self.value)
+        if self._blank_line_before:
+            self.set_value('{[br/]}%s' % self.value)
+        return XferComponent.get_reponse_xml(self)
 
 
 class XferCompLinkLabel(XferCompLabelForm):

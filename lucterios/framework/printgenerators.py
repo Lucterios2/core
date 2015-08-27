@@ -30,7 +30,7 @@ import re
 from django.utils import six
 from django.db.models import Q
 
-from lucterios.framework.xfercomponents import XferCompTab, XferCompLABEL, \
+from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -382,7 +382,7 @@ class ActionGenerator(ReportGenerator):
                 new_item = PrintTable(comp, self)
             elif isinstance(comp, XferCompTab):
                 new_item = PrintTab(comp, self)
-            elif isinstance(comp, XferCompLABEL) or isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
+            elif isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
                     isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
