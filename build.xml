@@ -1,6 +1,7 @@
 <project name="Lucterios2" default="all" basedir=".">
 	<property name="standard.path" value="${basedir}/../lct-standard" />
-	<property name="project.package" value="lucterios/CORE" />
+	<property name="project.packagepath" value="lucterios/CORE" />
+	<property name="project.packagename" value="lucterios.CORE" />
 	<property name="project.name" value="lucterios" />
 	<property name="project.pythonpath" value="${standard.path}:${env.PYTHONPATH}" />
 	<property name="project.modules" value="lucterios.dummy" />
@@ -32,6 +33,7 @@
 		<antcall target="i18n_comp">
 			<param name="sub_path" value="lucterios/install" />
 		</antcall>
+		<antcall target="i18n_build"/>
 	</target>
 
 	<target name="test">

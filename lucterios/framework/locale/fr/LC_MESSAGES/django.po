@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-25 12:40+0000\n"
+"POT-Creation-Date: 2015-08-28 09:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,29 +30,29 @@ msgstr "Sommaire"
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:57 xfergraphic.py:155
+#: models.py:69 xfergraphic.py:156
 msgid "Yes"
 msgstr "Oui"
 
-#: models.py:59 xfergraphic.py:157
+#: models.py:71 xfergraphic.py:158
 msgid "No"
 msgstr "Non"
 
-#: models.py:229
+#: models.py:241
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:251
+#: models.py:263
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:266
+#: models.py:278
 msgid "session"
 msgstr "session"
 
-#: models.py:267
+#: models.py:279
 msgid "sessions"
 msgstr "sessions"
 
@@ -66,58 +66,58 @@ msgstr "Signal %s inconnu"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:106
+#: tools.py:105
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:108
+#: tools.py:107
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:260
+#: tools.py:259
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:262
+#: tools.py:261
 msgid "view"
 msgstr "voir"
 
-#: tools.py:264
+#: tools.py:263
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:266
+#: tools.py:265
 msgid "Can"
 msgstr "Pouvoir"
 
-#: xferadvance.py:39 xfersearch.py:558
+#: xferadvance.py:39 xfersearch.py:563
 msgid "Listing"
 msgstr "Liste"
 
-#: xferadvance.py:40 xfersearch.py:559
+#: xferadvance.py:40 xfersearch.py:564
 msgid "Label"
 msgstr "Etiquette"
 
-#: xferadvance.py:86 xfersearch.py:555
+#: xferadvance.py:86 xfersearch.py:560
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:92 xferadvance.py:152 xfergraphic.py:128 xferprinting.py:111
-#: xfersearch.py:563
+#: xferadvance.py:92 xferadvance.py:152 xfergraphic.py:129 xferprinting.py:111
+#: xfersearch.py:568
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:113 xfergraphic.py:165
+#: xferadvance.py:113 xfergraphic.py:166
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:114 xfergraphic.py:139
+#: xferadvance.py:114 xfergraphic.py:140
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:147 xfercomponents.py:667
+#: xferadvance.py:147 xfercomponents.py:734
 msgid "Modify"
 msgstr "Modifier"
 
@@ -147,7 +147,7 @@ msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferbasic.py:152
+#: xferbasic.py:159
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -155,23 +155,23 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:667
+#: xfercomponents.py:734
 msgid "Edit"
 msgstr "Editer"
 
-#: xfercomponents.py:668
+#: xfercomponents.py:735
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:668
+#: xfercomponents.py:735
 msgid "Add"
 msgstr "Ajouter"
 
-#: xfergraphic.py:136
+#: xfergraphic.py:137
 msgid "Traitment..."
 msgstr "Traitement..."
 
-#: xfergraphic.py:178
+#: xfergraphic.py:179
 msgid "Retry"
 msgstr "Recommencer"
 

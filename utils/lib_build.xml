@@ -102,9 +102,11 @@
 			<arg value="-l" />
 			<arg value="en" />
 		</exec>
+	</target>		
 
-		<echo message="-- compile ${sub_path} --" />
-		<exec executable="python" dir="${sub_path}">
+	<target name="i18n_build">
+		<echo message="-- compile --" />
+		<exec executable="python" dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="compilemessages" />
@@ -115,6 +117,7 @@
 		<antcall target="i18n_comp">
 			<param name="sub_path" value="${basedir}/${project.packagepath}" />
 		</antcall>
+		<antcall target="i18n_build"/>
 	</target>
 
 	<target name="add_instance">
