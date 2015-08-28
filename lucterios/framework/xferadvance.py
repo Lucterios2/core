@@ -137,16 +137,18 @@ class XferShowEditor(XferContainerCustom):
     locked = True
     readonly = True
 
-    def fillresponse(self, action_list=None):
+    def __init__(self, **kwargs):
+        XferContainerCustom.__init__(self, **kwargs)
+        self.action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
+                            ('print', _("Print"), "images/print.png", CLOSE_NO)]
+
+    def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, True)
-        if action_list is None:
-            action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
-                           ('print', _("Print"), "images/print.png", CLOSE_NO)]
-        for act_type, title, icon, close in action_list:
+        for act_type, title, icon, close in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': close})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

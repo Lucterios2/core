@@ -24,14 +24,30 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
+from lxml import etree, objectify
+from lxml.etree import XMLSyntaxError
 from base64 import b64encode, b64decode
 from os.path import join, exists, dirname, isfile
 from os import makedirs, environ
 from Crypto.Hash.MD5 import MD5Hash
-from lucterios.framework.tools import get_binay
 from _io import BytesIO
+import io
+
+from django.utils import six
+
+from lucterios.framework.tools import get_binay
 
 BASE64_PREFIX = 'data:image/*;base64,'
+
+
+def read_file(filepath):
+    with io.open(filepath, mode='rb') as openfile:
+        return openfile.read()
+
+
+def save_file(file_path, data):
+    with open(file_path, "w") as savefile:
+        savefile.write(data)
 
 
 def get_tmp_dir():
@@ -139,3 +155,13 @@ def get_image_size(image_path):
         if filep is not None:
             filep.close()
     return width, height
+
+
+def xml_validator(some_xml_string, xsd_file):
+    try:
+        schema = etree.XMLSchema(file=xsd_file)
+        parser = objectify.makeparser(schema=schema)
+        objectify.fromstring(some_xml_string, parser)
+        return None
+    except XMLSyntaxError as xml_error:
+        return six.text_type(xml_error)
