@@ -47,7 +47,10 @@ def read_file(filepath):
 
 def save_file(file_path, data):
     with open(file_path, "w") as savefile:
-        savefile.write(data)
+        try:
+            savefile.write(data.encode('utf-8'))
+        except TypeError:
+            savefile.write(data)
 
 
 def get_tmp_dir():
