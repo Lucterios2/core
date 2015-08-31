@@ -34,7 +34,6 @@ from _io import BytesIO
 import io
 
 from django.utils import six
-from django.utils.encoding import smart_str
 
 from lucterios.framework.tools import get_binay
 
@@ -50,7 +49,7 @@ def save_file(file_path, data):
     with open(file_path, "w") as savefile:
         try:
             savefile.write(data.encode('utf-8'))
-        except TypeError:
+        except:
             savefile.write(data)
 
 
