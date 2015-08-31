@@ -46,7 +46,8 @@ def read_file(filepath):
 
 
 def save_file(file_path, data):
-    with open(file_path, "w") as savefile:
+    six.print_(type(data))
+    with io.open(file_path, mode="w", encoding='utf-8') as savefile:
         try:
             savefile.write(data.encode('utf-8'))
         except:
