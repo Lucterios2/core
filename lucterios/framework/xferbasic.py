@@ -37,6 +37,7 @@ from django.db.models.fields.related import ForeignKey
 from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
+import logging
 
 NULL_VALUE = 'NULL'
 
@@ -330,12 +331,16 @@ class XferContainerException(XferContainerAbstract):
         self.exception = exception
 
     def fillresponse(self):
-        expt = etree.SubElement(self.responsexml, "EXCEPTION")
-        etree.SubElement(expt, 'MESSAGE').text = six.text_type(self.exception)
+        type_text = self.exception.__class__.__name__
+        msg_text = six.text_type(self.exception)
         if isinstance(self.exception, LucteriosException):
-            etree.SubElement(expt, 'CODE').text = six.text_type(
-                self.exception.code)
+            code_text = six.text_type(self.exception.code)
         else:
-            etree.SubElement(expt, 'CODE').text = '0'
+            code_text = '0'
+        expt = etree.SubElement(self.responsexml, "EXCEPTION")
+        etree.SubElement(expt, 'MESSAGE').text = msg_text
+        etree.SubElement(expt, 'CODE').text = code_text
         etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
-        etree.SubElement(expt, 'TYPE').text = self.exception.__class__.__name__
+        etree.SubElement(expt, 'TYPE').text = type_text
+        logging.getLogger("lucterios.core.exception").warning(
+            "type %s: code=%s - message=%s", type_text, code_text, msg_text)

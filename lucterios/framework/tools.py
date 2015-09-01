@@ -28,6 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from lxml import etree
 import threading
+import logging
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -84,17 +85,20 @@ class WrapAction(object):
         return actionxml
 
     def check_permission(self, request):
+        right_result = True
         if isinstance(self.is_view_right, tuple):
             view_right_fct = self.is_view_right[0]
-            return view_right_fct(request)
-        if self.is_view_right is None:
-            return request.user.is_authenticated()
-        if self.mode_connect_notfree is None or self.mode_connect_notfree():
+            right_result = view_right_fct(request)
+        elif self.is_view_right is None:
+            right_result = request.user.is_authenticated()
+        elif self.mode_connect_notfree is None or self.mode_connect_notfree():
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
-                return False
+                right_result = False
             if (self.caption == '') and not request.user.is_authenticated():
-                return False
-        return True
+                right_result = False
+        logging.getLogger("lucterios.core.right").info(
+            "check_permission for '%s' : is_view_right='%s' user='%s' => '%s'", self.url_text, self.is_view_right, request.user, right_result)
+        return right_result
 
     def raise_bad_permission(self, request):
         if not self.check_permission(request):
@@ -123,6 +127,8 @@ class ActionsManage(object):
                 for action_type in action_types:
                     ident = "%s@%s" % (model_name, action_type)
                     cls._VIEW_LIST[ident] = item
+                    logging.getLogger("lucterios.core.action").debug(
+                        "new affection: %s", ident)
                 return item
             finally:
                 cls._actlock.release()
@@ -159,6 +165,8 @@ class MenuManage(object):
                 if old_menu[0].url_text == ref:
                     add_new_menu = False
             if add_new_menu:
+                logging.getLogger("lucterios.core.menu").debug(
+                    "new sub-menu: caption=%s ref=%s", caption, ref)
                 cls._MENU_LIST[parentref].append(
                     (WrapAction(caption, icon, url_text=ref, pos=pos), desc))
         finally:
@@ -173,6 +181,8 @@ class MenuManage(object):
                 if menu_parent is not None:
                     if menu_parent not in cls._MENU_LIST.keys():
                         cls._MENU_LIST[menu_parent] = []
+                    logging.getLogger("lucterios.core.menu").debug(
+                        "new menu: caption=%s ref=%s", item.caption, item.url_text)
                     cls._MENU_LIST[menu_parent].append(
                         (item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
                 return item

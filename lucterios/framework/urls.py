@@ -36,13 +36,11 @@ from lucterios.framework.help import defaulthelp
 
 
 def defaultblank(*args):
-
     from django.http import HttpResponse
     return HttpResponse('')
 
 
 def defaultview(*args):
-
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect('/web/index.html')
 
@@ -99,7 +97,7 @@ def get_url_patterns():
                             pass
             if lucterios_ext is not None:
                 add_url_from_module(res, appmodule, lucterios_ext)
-    logging.getLogger(__name__).debug("Urls:" + str(res))
+    logging.getLogger('lucterios.core.init').debug("Urls:" + str(res))
     return res
 
 
