@@ -61,12 +61,12 @@ def get_package_list():
         # RECORDs should be part of .dist-info metadatas
         if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
-            paths = [l.split(',')[0] for l in lines]
+            paths = [l.split(',')[0].replace('/', os.sep) for l in lines]
             paths = [os.path.join(dist.location, p) for p in paths]
         # Otherwise use pip's log for .egg-info's
         elif dist.has_metadata('installed-files.txt'):
             paths = dist.get_metadata_lines('installed-files.txt')
-            paths = [os.path.join(dist.egg_info, p) for p in paths]
+            paths = [os.path.join(dist.egg_info, p.replace('/', os.sep)) for p in paths]
         elif os.path.join(dist.location, '__init__.py'):
             paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(
                 dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
@@ -88,7 +88,7 @@ def get_package_list():
             current_modules = []
             for file_item in get_files(dist):
                 try:
-                    py_mod_name = ".".join(file_item.split('/')[:-1])
+                    py_mod_name = ".".join(file_item.split(os.sep)[:-1])
                     if file_item.endswith('appli_settings.py'):
                         current_applis.append(get_module_desc(py_mod_name))
                     elif file_item.endswith('models.py'):
