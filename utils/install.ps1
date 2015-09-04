@@ -12,7 +12,7 @@ if ((Test-Admin) -eq $false)  {
 
 echo "====== install lucterios ======"
 
-$lucterios_path="c:/lucterios2"
+$lucterios_path="c:\lucterios2"
 if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") {
     $url_python = "https://www.python.org/ftp/python/3.4.3/python-3.4.3.amd64.msi"    
     $url_lxml = "https://raw.githubusercontent.com/Lucterios2/core/master/packages/lxml-3.4.4-cp34-none-win_amd64.whl"
@@ -70,7 +70,7 @@ echo "------ configure virtual environment ------"
 echo ""
 
 if (!(Test-Path $lucterios_path)) {
-    mkdir -p $lucterios_path
+    mkdir $lucterios_path
 }
 cd $lucterios_path
 virtualenv virtual_for_lucterios
