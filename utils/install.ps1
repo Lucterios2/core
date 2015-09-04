@@ -107,6 +107,7 @@ echo "`$env:TCL_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_luct
 echo "`$env:TK_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:extra_url='http://pypi.lucterios.org/simple'" >> $lucterios_path\launch_lucterios.ps1
 echo "python virtual_for_lucterios\Scripts\lucterios_gui.py" >> $lucterios_path\launch_lucterios.ps1
+echo "exit" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
 
 if (Test-Path $env:Public\Desktop\Lucterios.lnk) {
@@ -115,8 +116,10 @@ if (Test-Path $env:Public\Desktop\Lucterios.lnk) {
 
 $WshShell = New-Object -ComObject WScript.shell
 $Shortcut = $WshShell.CreateShortcut("$env:Public\Desktop\Lucterios.lnk")
-$Shortcut.TargetPath = "PowerShell.exe -ExecutionPolicy Bypass -File $lucterios_path\launch_lucterios.ps1"
+$Shortcut.TargetPath = "PowerShell.exe"
+$Shortcut.Arguments = "-ExecutionPolicy Bypass -File $lucterios_path\launch_lucterios.ps1"
 $Shortcut.IconLocation = "$lucterios_path\virtual_for_lucterios\Lib\site-packages\lucterios\install\lucterios.ico"
+$Shortcut.WindowStyle = 7
 $Shortcut.Save()
 
 echo "============ END ============="
