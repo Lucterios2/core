@@ -105,6 +105,7 @@ echo "" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:Path=`"`$env:Path;c:\Python34;c:\Python34\DLLs`"" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TCL_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TK_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
+echo "`$env:extra_url='http://pypi.lucterios.org/simple'" >> $lucterios_path\launch_lucterios.ps1
 echo "python virtual_for_lucterios\Scripts\lucterios_gui.py" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
 
