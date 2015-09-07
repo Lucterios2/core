@@ -96,7 +96,7 @@ echo ""
 if (Test-Path $lucterios_path\launch_lucterios.ps1) {
     del $lucterios_path\launch_lucterios.ps1
 }
-echo "#requires -version 4.0" >> $lucterios_path\launch_lucterios.ps1
+echo "#requires -version 2.0" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
 echo "echo 'Lucterios GUI launcher'" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
@@ -122,21 +122,6 @@ $Shortcut.Arguments = "-ExecutionPolicy Bypass -File $lucterios_path\launch_luct
 $Shortcut.IconLocation = "$lucterios_path\virtual_for_lucterios\Lib\site-packages\lucterios\install\lucterios.ico"
 $Shortcut.WindowStyle = 7
 $Shortcut.Save()
-
-echo ""
-echo "------ permission ------"
-echo ""
-
-$Folders = Get-childItem "$lucterios_path"
-$InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
-$PropagationFlag = [System.Security.AccessControl.PropagationFlags]::None
-$objType = [System.Security.AccessControl.AccessControlType]::Allow 
-
-$acl = Get-Acl $Folder
-$permission = "domain\user", "Modify", $InheritanceFlag, $PropagationFlag, $objType
-$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule $permission
-$acl.SetAccessRule($accessRule)
-Set-Acl $Folder $acl
 
 echo "============ END ============="
 exit 0
