@@ -40,9 +40,7 @@ if (!(Test-Path "c:\Python34")) {
     if (!(Test-Path $python_install)) {
         echo "**** Dowload python failed! *****"
         exit 1
-    }
-
-    echo ""
+    }echo ""
     echo "------ install python -------"
     echo ""
 
@@ -124,6 +122,21 @@ $Shortcut.Arguments = "-ExecutionPolicy Bypass -File $lucterios_path\launch_luct
 $Shortcut.IconLocation = "$lucterios_path\virtual_for_lucterios\Lib\site-packages\lucterios\install\lucterios.ico"
 $Shortcut.WindowStyle = 7
 $Shortcut.Save()
+
+echo ""
+echo "------ permission ------"
+echo ""
+
+$Folders = Get-childItem "$lucterios_path"
+$InheritanceFlag = [System.Security.AccessControl.InheritanceFlags]::ContainerInherit -bor [System.Security.AccessControl.InheritanceFlags]::ObjectInherit
+$PropagationFlag = [System.Security.AccessControl.PropagationFlags]::None
+$objType = [System.Security.AccessControl.AccessControlType]::Allow 
+
+$acl = Get-Acl $Folder
+$permission = "domain\user", "Modify", $InheritanceFlag, $PropagationFlag, $objType
+$accessRule = New-Object System.Security.AccessControl.FileSystemAccessRule $permission
+$acl.SetAccessRule($accessRule)
+Set-Acl $Folder $acl
 
 echo "============ END ============="
 exit 0
