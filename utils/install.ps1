@@ -17,14 +17,16 @@ if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") {
     $url_python = "https://www.python.org/ftp/python/3.4.3/python-3.4.3.amd64.msi"    
     $url_lxml = "https://raw.githubusercontent.com/Lucterios2/core/master/packages/lxml-3.4.4-cp34-none-win_amd64.whl"
     $url_pycrypto = "https://raw.githubusercontent.com/Lucterios2/core/master/packages/pycrypto-2.6.1-cp34-none-win_amd64.whl"
+    $lxml_install = "$env:temp\lxml-3.4.4-cp34-none-win_amd64.whl"
+    $pycrypto_install = "$env:temp\pycrypto-2.6.1-cp34-none-win_amd64.whl"
 } else {
     $url_python = "https://www.python.org/ftp/python/3.4.3/python-3.4.3.msi"
     $url_lxml = "https://raw.githubusercontent.com/Lucterios2/core/master/packages/lxml-3.4.4-cp34-none-win32.whl"
     $url_pycrypto = "https://raw.githubusercontent.com/Lucterios2/core/master/packages/pycrypto-2.6.1-cp34-none-win32.whl"
+    $lxml_install = "$env:temp\lxml-3.4.4-cp34-none-win32.whl"
+    $pycrypto_install = "$env:temp\pycrypto-2.6.1-cp34-none-win32.whl"
 }
 $python_install = "$env:temp\python.msi"
-$lxml_install = "$env:temp\" + (Split-Path $url_lxml -Leaf)
-$pycrypto_install = "$env:temp\" + (Split-Path $url_pycrypto -Leaf)
 
 Import-Module BitsTransfer
 
