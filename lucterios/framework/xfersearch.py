@@ -401,6 +401,16 @@ class XferSearchEditor(XferContainerCustom):
             self.filter = None
         return criteria_desc
 
+    def fillresponse_add_title(self):
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0)
+        self.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+
     def fillresponse_search_select(self):
         selector, script_ref = self.fields_desc.get_select_and_script()
         script_ref += """
@@ -444,12 +454,12 @@ if ((type=='list') || (type=='listmult')) {
 """
         label = XferCompLabelForm('labelsearchSelector')
         label.set_value("{[bold]Nouveau critere{[/bold]")
-        label.set_location(0, 1, 1, 7)
+        label.set_location(0, 10, 1, 7)
         self.add_component(label)
         comp = XferCompSelect("searchSelector")
         comp.set_select(selector)
         comp.set_value("")
-        comp.set_location(1, 1, 1, 7)
+        comp.set_location(1, 10, 1, 7)
         comp.set_size(20, 200)
         comp.java_script = script_ref
         self.add_component(comp)
@@ -457,49 +467,49 @@ if ((type=='list') || (type=='listmult')) {
         comp.set_select({})
         comp.set_value("")
         comp.set_size(20, 200)
-        comp.set_location(2, 1, 1, 7)
+        comp.set_location(2, 10, 1, 7)
         self.add_component(comp)
 
     def fillresponse_search_values(self):
         comp = XferCompButton("searchButtonAdd")
         comp.set_is_mini(True)
-        comp.set_location(4, 1, 1, 7)
+        comp.set_location(4, 10, 1, 7)
         comp.set_action(self.request, self.get_action("", "images/add.png"),
                         {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'params': {'ACT': 'ADD'}})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
         comp.set_needed(True)
-        comp.set_location(3, 2)
+        comp.set_location(3, 11)
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompFloat("searchValueFloat")
         comp.set_needed(True)
-        comp.set_location(3, 3)
+        comp.set_location(3, 12)
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompEdit("searchValueStr")
-        comp.set_location(3, 4)
+        comp.set_location(3, 13)
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompCheckList("searchValueList")
-        comp.set_location(3, 5)
+        comp.set_location(3, 14)
         comp.set_size(80, 200)
         self.add_component(comp)
         comp = XferCompCheck("searchValueBool")
-        comp.set_location(3, 6)
+        comp.set_location(3, 15)
         comp.set_size(20, 200)
         self.add_component(comp)
         comp = XferCompTime("searchValueTime")
         comp.set_needed(True)
-        comp.set_location(3, 7)
+        comp.set_location(3, 16)
         comp.set_size(20, 200)
         self.add_component(comp)
 
         label = XferCompLabelForm('labelsearchSep')
         label.set_value("")
         label.set_size(1, 200)
-        label.set_location(3, 8)
+        label.set_location(3, 17)
         self.add_component(label)
 
     def fillresponse_show_criteria(self):
@@ -507,13 +517,13 @@ if ((type=='list') || (type=='listmult')) {
         label = XferCompLabelForm('labelsearchDescTitle')
         if len(criteria_text_list) > 0:
             label.set_value_as_info("Your criteria of search")
-            label.set_location(0, 8, 2, 4)
+            label.set_location(0, 17, 2, 4)
         else:
             label.set_value_as_infocenter("No criteria of search")
-            label.set_location(0, 8, 4)
+            label.set_location(0, 17, 4)
         self.add_component(label)
 
-        row = 8
+        row = 17
         for criteria_id, criteria_text in criteria_text_list.items():
             label = XferCompLabelForm('labelSearchText_' + criteria_id)
             label.set_value(criteria_text)
@@ -528,18 +538,9 @@ if ((type=='list') || (type=='listmult')) {
             row += 1
 
     def fillresponse(self):
-
         self.fields_desc.initial(self.item)
         self.read_criteria_from_params()
-
-        img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_location(0, 0)
-        self.add_component(img)
-        lbl = XferCompLabelForm('title')
-        lbl.set_value_as_title(self.caption)
-        lbl.set_location(1, 0)
-        self.add_component(lbl)
+        self.fillresponse_add_title()
         self.fillresponse_search_select()
         self.fillresponse_search_values()
         self.fillresponse_show_criteria()

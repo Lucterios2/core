@@ -38,6 +38,8 @@ from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
 from lucterios.dummy.models import Example, Other
 from lucterios.framework import signal_and_lock
+from lucterios.CORE.editors import SavedCriteriaEditor,\
+    XferSavedCriteriaSearchEditor
 
 MenuManage.add_sub(
     'dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
@@ -313,7 +315,7 @@ class ExampleLabel(XferPrintLabel):
 
 
 @MenuManage.describ('dummy.change_example', FORMTYPE_NOMODAL, 'dummy.foo', _("Find example."))
-class ExampleSearch(XferSearchEditor):
+class ExampleSearch(XferSavedCriteriaSearchEditor):
     caption = _("Example")
     icon = "9.png"
     model = Example

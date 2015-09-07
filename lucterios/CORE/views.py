@@ -41,12 +41,13 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave,\
+    XferShowEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub(
@@ -239,6 +240,35 @@ class ParamSave(XferContainerAcknowledge):
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
                    _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
+
+
+@ActionsManage.affect('SavedCriteria', 'list')
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
+class SavedCriteriaList(XferListEditor):
+    icon = "config.png"
+    model = SavedCriteria
+    field_id = 'savedcriteria'
+    caption = _("Saved criterias")
+
+
+@ActionsManage.affect('SavedCriteria', 'insert')
+@MenuManage.describ('CORE.add_parameter')
+class SavedCriteriaAddModify(XferAddEditor):
+    icon = "config.png"
+    model = SavedCriteria
+    field_id = 'savedcriteria'
+    caption_add = _("Add saved criteria")
+    caption_modify = _("Modify saved criteria")
+
+
+@ActionsManage.affect('SavedCriteria', 'delete')
+@MenuManage.describ('CORE.add_parameter')
+class SavedCriteriaDel(XferDelete):
+    icon = "config.png"
+    model = SavedCriteria
+    field_id = 'savedcriteria'
+    caption = _("Delete Saved criteria")
+
 
 MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png",
                    _("Report and print"), _("To manage reports and tools of printing."), 30)

@@ -27,9 +27,13 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword, XferCompCheck
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword, XferCompCheck,\
+    XferCompSelect, XferCompButton
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.CORE.models import SavedCriteria
+from lucterios.framework.tools import CLOSE_NO, ActionsManage, FORMTYPE_REFRESH
+from lucterios.framework.xfersearch import XferSearchEditor
 
 
 class LucteriosUserEditor(LucteriosEditor):
@@ -93,3 +97,51 @@ parent.get('password2').setEnabled(pwd_change);
             if password1 is not None:
                 self.item.set_password(password1)
                 self.item.save()
+
+
+class SavedCriteriaEditor(LucteriosEditor):
+
+    def saving(self, xfer):
+        saved_list = SavedCriteria.objects.filter(
+            modelname=self.item.modelname, name=self.item.name)
+        for saved_item in saved_list:
+            if saved_item.id != self.item.id:
+                saved_item.delete()
+
+    def edit(self, xfer):
+        xfer.change_to_readonly('modelname')
+        xfer.change_to_readonly('criteria')
+        xfer.get_components('modelname').set_value(self.item.model_title)
+        xfer.get_components('criteria').set_value(self.item.criteria_desc)
+
+
+class XferSavedCriteriaSearchEditor(XferSearchEditor):
+
+    def fillresponse_add_title(self):
+        XferSearchEditor.fillresponse_add_title(self)
+        modelname = self.model.get_long_name()
+        saved_list = SavedCriteria.objects.filter(modelname=modelname)
+        new_row = self.get_max_row()
+        lbl = XferCompLabelForm('lbl_saved_criteria')
+        lbl.set_location(1, new_row + 1)
+        lbl.set_value_as_name(_("saved criteria"))
+        self.add_component(lbl)
+        sel = XferCompSelect('saved_criteria')
+        sel.set_location(2, new_row + 1, 2)
+        sel.set_needed(False)
+        sel.set_select_query(saved_list)
+        sel.set_action(self.request, self.get_action(),
+                       {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        self.add_component(sel)
+        if len(self.criteria_list) > 0:
+            btn = XferCompButton('btn_saved_criteria')
+            btn.set_location(4, new_row + 1, 2)
+            btn.set_is_mini(True)
+            btn.set_action(self.request, ActionsManage.get_act_changed(
+                SavedCriteria.__name__, "insert", "+", ""), {'close': CLOSE_NO, 'params': {'modelname': modelname, 'criteria': self.getparam('CRITERIA', '')}})
+            self.add_component(btn)
+        if self.getparam('saved_criteria', 0) != 0:
+            saved_item = SavedCriteria.objects.get(
+                id=self.getparam('saved_criteria', 0))
+            self.params['CRITERIA'] = saved_item.criteria
+            self.read_criteria_from_params()

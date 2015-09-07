@@ -32,6 +32,7 @@ from django.utils import six
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.xfersearch import get_search_query_from_criteria
 
 
 class Parameter(LucteriosModel):
@@ -244,6 +245,43 @@ class PrintModel(LucteriosModel):
             self.value += "%d//%s//%s\n" % column
 
     class Meta(object):
-
         verbose_name = _('model')
         verbose_name_plural = _('models')
+
+
+class SavedCriteria(LucteriosModel):
+    name = models.CharField(_('name'), max_length=100, unique=False)
+    modelname = models.CharField(_('model'), max_length=100)
+    criteria = models.TextField(_('criteria'), blank=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def model_title(self):
+        from django.apps import apps
+        return apps.get_model(self.modelname)._meta.verbose_name.title()
+
+    @property
+    def criteria_desc(self):
+        from django.apps import apps
+        result_criteria = get_search_query_from_criteria(
+            self.criteria, apps.get_model(self.modelname))
+        return "{[br/]}".join(tuple(result_criteria[1].values()))
+
+    @classmethod
+    def get_show_fields(cls):
+        return ['modelname', 'name', 'criteria']
+
+    @classmethod
+    def get_edit_fields(cls):
+        return ['modelname', 'name', 'criteria']
+
+    @classmethod
+    def get_default_fields(cls):
+        return ['name', (_('model'), 'model_title'), (_('criteria'), 'criteria_desc')]
+
+    class Meta(object):
+        verbose_name = _('Saved criteria')
+        verbose_name_plural = _('Saved criterias')
+        default_permissions = []
