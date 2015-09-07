@@ -1,4 +1,4 @@
-#requires -version 4.0
+#requires -version 2.0
 
 function Test-Admin {
   $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -26,6 +26,7 @@ $python_install = "$env:temp\python.msi"
 $lxml_install = "$env:temp\" + (Split-Path $url_lxml -Leaf)
 $pycrypto_install = "$env:temp\" + (Split-Path $url_pycrypto -Leaf)
 
+Import-Module BitsTransfer
 
 if (!(Test-Path "c:\Python34")) {
 
@@ -33,7 +34,7 @@ if (!(Test-Path "c:\Python34")) {
     echo "------ download python -------"
     echo ""
 
-    Invoke-WebRequest -Uri $url_python -OutFile $python_install
+    Start-BitsTransfer -Source $url_python -Destination $python_install
     if (!(Test-Path $python_install)) {
         echo "**** Dowload python failed! *****"
         exit 1
@@ -50,13 +51,13 @@ echo ""
 echo "------ download and install python tools -------"
 echo ""
 
-Invoke-WebRequest -Uri $url_lxml -OutFile $lxml_install
+Start-BitsTransfer -Source $url_lxml -Destination $lxml_install
 if (!(Test-Path $lxml_install)) {
     echo "**** Dowload lxml failed! *****"
     exit 1
 }
 
-Invoke-WebRequest -Uri $url_pycrypto -OutFile $pycrypto_install
+Start-BitsTransfer -Source $url_pycrypto -Destination $pycrypto_install
 if (!(Test-Path $pycrypto_install)) {
     echo "**** Dowload pycrypto failed! *****"
     exit 1
