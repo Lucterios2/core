@@ -64,7 +64,7 @@ if (!(Test-Path $pycrypto_install)) {
 }
 
 $env:Path="$env:Path;c:\Python34;c:\Python34\Scripts\"
-pip install -U pip virtualenv
+pip install -U virtualenv
 
 echo ""
 echo "------ configure virtual environment ------"
