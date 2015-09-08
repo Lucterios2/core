@@ -31,7 +31,7 @@ from unittest.loader import TestLoader
 from os.path import join, dirname, isfile, isdir
 import os
 from lucterios.install.lucterios_migration import MigrateFromV1
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none
 from lucterios.framework.juxd import JUXDTestRunner
 
 
@@ -42,6 +42,10 @@ class BaseTest(unittest.TestCase):
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
         self.luct_glo = LucteriosGlobal(self.path_dir)
+        self.waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'CORE_savedcriteria', 'auth_group', 'auth_group_permissions',
+                              'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
+                              'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
+        self.waiting_table.sort()
 
     def tearDown(self):
         rmtree(self.path_dir, True)
@@ -51,7 +55,7 @@ class TestGlobal(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        os.environ['extra_url'] = "http://v2.lucterios.org/simple"
+        os.environ['extra_url'] = "http://pypi.lucterios.org/simple"
 
     def test_installed(self):
         val = self.luct_glo.installed()
@@ -98,16 +102,12 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                         'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
-        waiting_table.sort()
         table_list = list(self.run_sqlite_cmd(
             "inst_a", "SELECT name FROM sqlite_master WHERE type='table';"))
         if "sqlite_sequence" in table_list:
             table_list.remove("sqlite_sequence")
         table_list.sort()
-        self.assertEqual(waiting_table, table_list)
+        self.assertEqual(self.waiting_table, table_list)
 
         inst = LucteriosInstance("inst_a", self.path_dir)
         inst.clear()
@@ -310,15 +310,11 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                         'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
-        waiting_table.sort()
         table_list = list(self.run_mysql_cmd("use testv2;show tables;"))
         if "Tables_in_testv2" in table_list:
             table_list.remove("Tables_in_testv2")
         table_list.sort()
-        self.assertEqual(waiting_table, table_list)
+        self.assertEqual(self.waiting_table, table_list)
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
         inst.clear()
@@ -404,15 +400,11 @@ class TestAdminPostGreSQL(BaseTest):
         self.assertEqual("lucterios.standard", inst.appli_name)
         self.assertEqual((), inst.modules)
 
-        waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'auth_group', 'auth_group_permissions',
-                         'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                         'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
-        waiting_table.sort()
         table_list = list(self.run_psql_cmd(
             "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
         table_list = table_list[2:-2]
         table_list.sort()
-        self.assertEqual(waiting_table, table_list)
+        self.assertEqual(self.waiting_table, table_list)
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.clear()
@@ -444,5 +436,4 @@ if __name__ == "__main__":
     # suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     JUXDTestRunner(verbosity=1).run(suite)
 else:
-    import django
-    django.setup()
+    setup_from_none()

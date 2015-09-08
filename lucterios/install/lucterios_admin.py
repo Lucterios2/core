@@ -66,7 +66,8 @@ def get_package_list():
         # Otherwise use pip's log for .egg-info's
         elif dist.has_metadata('installed-files.txt'):
             paths = dist.get_metadata_lines('installed-files.txt')
-            paths = [os.path.join(dist.egg_info, p.replace('/', os.sep)) for p in paths]
+            paths = [
+                os.path.join(dist.egg_info, p.replace('/', os.sep)) for p in paths]
         elif os.path.join(dist.location, '__init__.py'):
             paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(
                 dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
@@ -769,6 +770,19 @@ def main():
             parser.print_help()
     except AdminException as error:
         parser.error(six.text_type(error))
+
+
+def setup_from_none():
+    from lucterios.framework.settings import fill_appli_settings
+    import types
+    module = types.ModuleType("default_setting")
+    setattr(module, '__file__', "")
+    setattr(module, 'SECRET_KEY', "default_setting")
+    fill_appli_settings("lucterios.standard", None, module)
+    sys.modules["default_setting"] = module
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
+    import django
+    django.setup()
 
 if __name__ == '__main__':
     main()

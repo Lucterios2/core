@@ -25,7 +25,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
+    setup_from_none
 from django.utils import six
 from django.utils.translation import ugettext
 from subprocess import Popen, PIPE, STDOUT, check_output, CalledProcessError
@@ -752,15 +753,7 @@ class LucteriosMainForm(Tk):
 
 
 def main():
-    import types
-    module = types.ModuleType("default_setting")
-    setattr(module, '__file__', "")
-    setattr(module, 'SECRET_KEY', "default_setting")
-    fill_appli_settings("lucterios.standard", None, module)
-    sys.modules["default_setting"] = module
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
-    import django
-    django.setup()
+    setup_from_none()
     lct_form = LucteriosMainForm()
     lct_form.execute()
 
