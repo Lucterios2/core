@@ -245,7 +245,7 @@ MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
 @ActionsManage.affect('SavedCriteria', 'list')
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
 class SavedCriteriaList(XferListEditor):
-    icon = "config.png"
+    icon = "config_search.png"
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption = _("Saved criterias")
@@ -254,7 +254,7 @@ class SavedCriteriaList(XferListEditor):
 @ActionsManage.affect('SavedCriteria', 'insert')
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaAddModify(XferAddEditor):
-    icon = "config.png"
+    icon = "config_search.png"
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption_add = _("Add saved criteria")
@@ -264,7 +264,7 @@ class SavedCriteriaAddModify(XferAddEditor):
 @ActionsManage.affect('SavedCriteria', 'delete')
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaDel(XferDelete):
-    icon = "config.png"
+    icon = "config_search.png"
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption = _("Delete Saved criteria")
