@@ -31,7 +31,8 @@ from django.utils.log import getLogger
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.CORE.models import Parameter
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect,\
+    XferCompPassword
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools
 
@@ -57,6 +58,9 @@ class ParamCache(object):
         elif self.type == 4:  # Select
             self.value = int(param.value)
             self.args = {'Enum': 0}
+        elif self.type == 5:  # password
+            self.value = six.text_type(param.value)
+            self.args = {}
         try:
             current_args = eval(param.args)
         except Exception as expt:
@@ -82,13 +86,16 @@ class ParamCache(object):
             param_cmp = XferCompFloat(
                 self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
             param_cmp.set_value(self.value)
+            param_cmp.set_needed(True)
         elif self.type == 2:  # Real
             param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args[
                                       'Max'], precval=self.args['Prec'])
             param_cmp.set_value(self.value)
+            param_cmp.set_needed(True)
         elif self.type == 3:  # Boolean
             param_cmp = XferCompCheck(self.name)
             param_cmp.set_value(six.text_type(self.value))
+            param_cmp.set_needed(True)
         elif self.type == 4:  # Select
             param_cmp = XferCompSelect(self.name)
             selection = {}
@@ -96,6 +103,10 @@ class ParamCache(object):
                 selection[sel_idx] = ugettext_lazy(self.name + ".%d" % sel_idx)
             param_cmp.set_select(selection)
             param_cmp.set_value(self.value)
+            param_cmp.set_needed(True)
+        elif self.type == 5:  # password
+            param_cmp = XferCompPassword(self.name)
+            param_cmp.set_value('')
         return param_cmp
 
     def get_read_text(self):
@@ -113,7 +124,10 @@ class ParamCache(object):
 
     def get_read_comp(self):
         param_cmp = XferCompLabelForm(self.name)
-        param_cmp.set_value(self.get_read_text())
+        if self.type == 5:  # password
+            param_cmp.set_value(''.ljust(len(self.value), '*'))
+        else:
+            param_cmp.set_value(self.get_read_text())
         return param_cmp
 
 
