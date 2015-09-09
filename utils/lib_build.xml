@@ -161,26 +161,22 @@
 		</exec>
 	</target>
 
-	<target name="test_addon">
-	</target>
-	
 	<target name="test">
 		<echo message="-- test with ${testversion} --" />
 		<delete file=".converage" />
 		<delete file="converage.xml" />
 		<delete file="${testversion}.xml" />
-		<exec executable="${testversion}">
+		<exec executable="${testversion}"  dir="${basedir}">
 			<arg value="erase" />
 		</exec>
-		<exec executable="${testversion}">
+		<exec executable="${testversion}"  dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg line="run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
-		<antcall target="test_addon" />
-		<exec executable="${testversion}">
+		<exec executable="${testversion}" dir="${basedir}">
 			<arg value="report" />
 		</exec>
-		<exec executable="${testversion}">
+		<exec executable="${testversion}" dir="${basedir}">
 			<arg value="xml" />
 		</exec>
 		<move file="coverage.xml" tofile="${testversion}.xml" />
