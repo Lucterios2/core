@@ -1,11 +1,12 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
-	<property name="core.path" value="${basedir}/../lct-core"/>
-	<property name="project.test.source" value=""/>
-	<property name="project.test.omit" value=""/>
-	<property name="project.test.include" value=""/>
+	<property name="core.path" value="${basedir}/../lct-core" />
+	<property name="project.test.source" value="" />
+	<property name="project.test.omit" value="" />
+	<property name="project.test.include" value="" />
 	<property name="project.test.instance" value="test" />
 	<property name="project.packagepath" value="" />
 	<property name="project.packagename" value="" />
+	<property name="project.packname" value="" />
 	<property name="project.name" value="" />
 	<property name="project.pythonpath" value="${env.PYTHONPATH}" />
 	<property name="project.modules" value="" />
@@ -15,6 +16,12 @@
 	<available file="/usr/local/bin/coverage2" property="python2.present" />
 	<available file="/usr/local/bin/coverage3" property="python3.present" />
 
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+	  <classpath>
+	    <pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar"/>
+	  </classpath>
+	</taskdef>
+	
 	<target name="all">
 		<antcall target="clear" />
 		<antcall target="init" />
@@ -43,6 +50,9 @@
 		<delete dir="*/__pycache__" />
 	</target>
 
+	<target name="init_addon">
+	</target>
+
 	<target name="init">
 		<exec executable="git" outputproperty="build.hnum" failifexecutionfails="false" errorproperty="">
 			<arg value="describe" />
@@ -58,8 +68,13 @@
 			<format property="build.time" pattern="yyMMddhh" unit="hour" />
 		</tstamp>
 		<property name="projet.version.build" value="${build.time}" />
-		<echo message="${projet.version.build}" file="${basedir}/${project.packagepath}/build" append="false" />
+		<for param="packageitem" list="${project.packagepath}">
+			<sequential>
+				<echo message="${projet.version.build}" file="${basedir}/@{packageitem}/build" append="false" />
+			</sequential>
+		</for>
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py0.xml" append="false" />
+		<antcall target="init_addon" />
 	</target>
 
 	<target name="pylint">
@@ -102,7 +117,7 @@
 			<arg value="-l" />
 			<arg value="en" />
 		</exec>
-	</target>		
+	</target>
 
 	<target name="i18n_build">
 		<echo message="-- compile --" />
@@ -114,10 +129,14 @@
 	</target>
 
 	<target name="i18n">
-		<antcall target="i18n_comp">
-			<param name="sub_path" value="${basedir}/${project.packagepath}" />
-		</antcall>
-		<antcall target="i18n_build"/>
+		<for param="packageitem" list="${project.packagepath}">
+			<sequential>
+				<antcall target="i18n_comp">
+					<param name="sub_path" value="${basedir}/@{packageitem}" />
+				</antcall>
+			</sequential>
+		</for>
+		<antcall target="i18n_build" />
 	</target>
 
 	<target name="add_instance">
@@ -142,32 +161,29 @@
 		</exec>
 	</target>
 
+	<target name="test_addon">
+	</target>
+	
 	<target name="test">
-		<echo message="-- test with ${testversion} --"/>
-		<delete file=".converage"/>
-		<delete file="converage.xml"/>
-		<delete file="${testversion}.xml"/>
+		<echo message="-- test with ${testversion} --" />
+		<delete file=".converage" />
+		<delete file="converage.xml" />
+		<delete file="${testversion}.xml" />
 		<exec executable="${testversion}">
-			<arg value="erase"/> 
-		</exec>	
+			<arg value="erase" />
+		</exec>
 		<exec executable="${testversion}">
-			<env key="PYTHONPATH" value="${project.pythonpath}"/>
-			<arg value="run"/>
-			<arg value="--branch"/>
-			<arg value="--source=${project.test.source}"/>
-			<arg value="--omit=${project.test.omit}"/>
-			<arg value="--include=${project.test.include}"/>
-			<arg value="${basedir}/manage_${project.test.instance}.py"/>
-			<arg value="test"/>
-			<arg value="${project.packagename}"/>
-		</exec>	
+			<env key="PYTHONPATH" value="${project.pythonpath}" />
+			<arg line="run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
+		</exec>
+		<antcall target="test_addon" />
 		<exec executable="${testversion}">
-			<arg value="report"/>
-		</exec>	
+			<arg value="report" />
+		</exec>
 		<exec executable="${testversion}">
-			<arg value="xml"/>
-		</exec>		
-		<move file="coverage.xml" tofile="${testversion}.xml"/>
+			<arg value="xml" />
+		</exec>
+		<move file="coverage.xml" tofile="${testversion}.xml" />
 		<replaceregexp file="${testversion}.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
 		<replace file="${testversion}.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
 		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
@@ -195,6 +211,7 @@
 	</target>
 
 	<target name="package_del">
+		<delete dir="${project.packname}" />
 	</target>
 
 	<target name="package">

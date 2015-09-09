@@ -1,94 +1,20 @@
 <project name="Lucterios2" default="all" basedir=".">
 	<property name="standard.path" value="${basedir}/../lct-standard" />
-	<property name="project.packagepath" value="lucterios/CORE" />
-	<property name="project.packagename" value="lucterios.CORE" />
+	<property name="project.packagepath" value="lucterios/CORE,lucterios/framework,lucterios/install" />
+	<property name="project.packagename" value="lucterios.CORE lucterios.dummy" />
 	<property name="project.name" value="lucterios" />
 	<property name="project.pythonpath" value="${standard.path}:${env.PYTHONPATH}" />
+	<property name="project.packname" value="lucterios.egg-info" />
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
 	<property name="web.version" value="0.9.8" />
-    <import file="${basedir}/utils/lib_build.xml"/>
+	<import file="${basedir}/utils/lib_build.xml" />
 
 	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="lucterios/web/jslint/jslint4java-2.0.5.jar" />
 
-	<target name="all">
-		<antcall target="clear" />
-		<antcall target="init" />
-		<antcall target="pep8" />
-		<antcall target="add_instance" />
-		<antcall target="i18n" />
-		<antcall target="web" />
-		<antcall target="package" />
-		<antcall target="tests" />
-		<antcall target="del_instance" />
-	</target>
-
-	<target name="i18n">
-		<antcall target="i18n_comp">
-			<param name="sub_path" value="lucterios/CORE" />
-		</antcall>
-		<antcall target="i18n_comp">
-			<param name="sub_path" value="lucterios/framework" />
-		</antcall>
-		<antcall target="i18n_comp">
-			<param name="sub_path" value="lucterios/install" />
-		</antcall>
-		<antcall target="i18n_build"/>
-	</target>
-
-	<target name="test">
-		<echo message="-- test with ${testversion} --" />
-		<delete file=".converage" />
-		<delete file="converage.xml" />
-		<delete file="${testversion}.xml" />
-		<exec executable="${testversion}">
-			<arg value="erase" />
-		</exec>
-		<exec executable="${testversion}">
-			<env key="PYTHONPATH" value="${project.pythonpath}" />
-			<arg value="run" />
-			<arg value="--branch" />
-			<arg value="--source=lucterios" />
-			<arg value="--omit=lucterios/install/lucterios_gui.py" />
-			<arg value="./manage_${project.test.instance}.py" />
-			<arg value="test" />
-			<arg value="lucterios.CORE" />
-			<arg value="lucterios.dummy" />
-		</exec>
-		<exec executable="${testversion}">
-			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
-			<arg value="run" />
-			<arg value="--append" />
-			<arg value="--branch" />
-			<arg value="--source=lucterios" />
-			<arg value="--omit=lucterios/install/lucterios_gui.py" />
-			<arg value="lucterios/install/admin_test.py" />
-		</exec>
-		<exec executable="${testversion}">
-			<arg value="report" />
-		</exec>
-		<exec executable="${testversion}">
-			<arg value="xml" />
-		</exec>
-		<move file="coverage.xml" tofile="${testversion}.xml" />
-		<replace file="${testversion}.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />
-		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
-	</target>
-	
-	<target name="tests">
-		<antcall target="test_py2" />
-		<antcall target="test_py3" />
-		<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
-		<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
-	</target>
-
-	<target name="web" depends="init">
+	<target name="init_addon">
 		<copy file="lucterios/web/deployed/conf_template.js" tofile="lucterios/web/conf/conf.js" />
 		<replace file="lucterios/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${projet.version.build}';" />
-		<antcall target="jslint" />
-	</target>
-
-	<target name="jslint">
 		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
 			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
 			<formatter type="xml" destfile="jslint_results.xml" />
@@ -96,8 +22,26 @@
 		</jslint>
 	</target>
 
-	<target name="package_del">
-		<delete dir="lucterios.egg-info" />
+	<target name="test_addon">
+		<if>
+			<equals arg1="${testversion}" arg2="coverage3" />
+			<then>
+				<exec executable="${testversion}">
+					<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
+					<arg value="run" />
+					<arg value="--append" />
+					<arg value="--branch" />
+					<arg value="--source=lucterios" />
+					<arg value="--omit=lucterios/install/lucterios_gui.py" />
+					<arg value="lucterios/install/admin_test.py" />
+				</exec>
+				<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
+				<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
+			</then>
+			<else>
+				<echo message="not addon test" />
+			</else>
+		</if>
 	</target>
 
 </project>
