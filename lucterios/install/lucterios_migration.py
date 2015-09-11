@@ -37,12 +37,15 @@ from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
 
-MODULE_LINKS = [('data_CORE.sql', 'lucterios.CORE'), ('data_org_lucterios_documents.sql', 'lucterios.documents'),
+MODULE_LINKS = [('data_CORE.sql', ('lucterios.CORE',)),
+                ('data_org_lucterios_documents.sql', ('lucterios.documents',)),
                 ('data_org_lucterios_contacts.sql',
-                 'lucterios.contacts'), ('data_fr_sdlibre_compta.sql', 'diacamma.accounting'),
-                ('data_fr_sdlibre_facture.sql',
-                 'diacamma.invoice'), ('data_fr_sdlibre_membres.sql', 'diacamma.members'),
-                ('data_fr_sdlibre_copropriete.sql', 'diacamma.condominium'), ('data_fr_sdlibre_FormationSport.sql', 'diacamma.sportexamination')]
+                 ('lucterios.contacts', 'lucterios.mailing')),
+                ('data_fr_sdlibre_compta.sql', ('diacamma.accounting',)),
+                ('data_fr_sdlibre_facture.sql', ('diacamma.invoice',)),
+                ('data_fr_sdlibre_membres.sql', ('diacamma.members',)),
+                ('data_fr_sdlibre_copropriete.sql', ('diacamma.condominium',)),
+                ('data_fr_sdlibre_FormationSport.sql', ('diacamma.sportexamination',))]
 
 
 def dict_factory(cursor, row):
@@ -238,12 +241,13 @@ class MigrateFromV1(LucteriosInstance):
         self.old_db.initial(join(self.instance_path, self.name))
         self.extract_archive()
         if not self.old_db.is_exist():
-            for filename, modulename in MODULE_LINKS:
+            for filename, modulenames in MODULE_LINKS:
                 self.old_db.importsql(filename)
         self.clear_current()
-        for filename, modulename in MODULE_LINKS:
+        for filename, modulenames in MODULE_LINKS:
             if isfile(join(self.old_db.tmp_path, filename)):
-                self.run_module_migrate(modulename)
+                for modulename in modulenames:
+                    self.run_module_migrate(modulename)
         self.old_db.clear()
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
