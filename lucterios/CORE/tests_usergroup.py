@@ -428,6 +428,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Ajouter un utilisateur')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_count_equal('COMPONENTS/*', 39)
         self.assert_action_equal(
             'ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersEdit', 1, 1, 1, {'SAVE': 'YES'}))
         self.assert_action_equal(

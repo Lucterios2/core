@@ -372,3 +372,4 @@ def summary_dummy(xfer):
     lbl.set_centered()
     lbl.set_value(datetime.now().ctime())
     xfer.add_component(lbl)
+    return True

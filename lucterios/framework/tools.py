@@ -264,15 +264,19 @@ def get_dico_from_setquery(setquery):
     res_dico = {}
     if setquery.model == Permission:
         for record in setquery:
-            rigths = six.text_type(record.name).split(" ")
-            if rigths[1] == 'add':
-                rigth_name = _('add')
-            if rigths[1] == 'change':
-                rigth_name = _('view')
-            if rigths[1] == 'delete':
-                rigth_name = _('delete')
-            res_dico[six.text_type(record.id)] = "%s | %s %s" % (
-                six.text_type(record.content_type), _("Can"), rigth_name)
+            rigths = six.text_type(record.codename).split("_")
+            if rigths[0] not in ['add', 'change', 'delete']:
+                res_dico[six.text_type(record.id)] = six.text_type(
+                    _(record.name))
+            else:
+                if rigths[0] == 'add':
+                    rigth_name = _('add')
+                elif rigths[0] == 'change':
+                    rigth_name = _('view')
+                elif rigths[0] == 'delete':
+                    rigth_name = _('delete')
+                res_dico[six.text_type(record.id)] = "%s | %s %s" % (
+                    six.text_type(record.content_type), _("Can"), rigth_name)
     else:
         for record in setquery:
             res_dico[six.text_type(record.id)] = six.text_type(record)

@@ -52,14 +52,16 @@ class Signal(object):
 
     @classmethod
     def call_signal(cls, name, *args):
+        nb_call = 0
         cls._signlock.acquire()
         try:
-            if name not in cls._SIGNAL_LIST.keys():
-                raise LucteriosException(GRAVE, _("Unknown signal %s") % name)
-            for sign_fct in cls._SIGNAL_LIST[name]:
-                sign_fct(*args)
+            if name in cls._SIGNAL_LIST.keys():
+                for sign_fct in cls._SIGNAL_LIST[name]:
+                    if sign_fct(*args):
+                        nb_call += 1
         finally:
             cls._signlock.release()
+        return nb_call
 
 unlocker_view_class = None
 

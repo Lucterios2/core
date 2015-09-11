@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-09 10:09+0000\n"
+"POT-Creation-Date: 2015-09-11 15:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -53,12 +53,7 @@ msgstr "session"
 msgid "sessions"
 msgstr "sessions"
 
-#: signal_and_lock.py:58
-#, python-format
-msgid "Unknown signal %s"
-msgstr "Unknown signal %s"
-
-#: signal_and_lock.py:99
+#: signal_and_lock.py:101
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
@@ -72,19 +67,19 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:269
+#: tools.py:273
 msgid "add"
 msgstr "add"
 
-#: tools.py:271
+#: tools.py:275
 msgid "view"
 msgstr "view"
 
-#: tools.py:273
+#: tools.py:277
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:275
+#: tools.py:279
 msgid "Can"
 msgstr "Can"
 
@@ -219,3 +214,6 @@ msgstr "or"
 #: xfersearch.py:59
 msgid "and"
 msgstr "and"
+
+#~ msgid "Unknown signal %s"
+#~ msgstr "Unknown signal %s"

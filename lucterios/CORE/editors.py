@@ -34,6 +34,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.CORE.models import SavedCriteria
 from lucterios.framework.tools import CLOSE_NO, ActionsManage, FORMTYPE_REFRESH
 from lucterios.framework.xfersearch import XferSearchEditor
+from lucterios.framework.signal_and_lock import Signal
 
 
 class LucteriosUserEditor(LucteriosEditor):
@@ -75,6 +76,21 @@ parent.get('password2').setEnabled(pwd_change);
         pwd2 = XferCompPassword('password2')
         pwd2.set_location(1, new_row + 3, 1, 1)
         xfer.add_component(pwd2)
+        if Signal.call_signal("send_connection", None, None, None) > 0:
+            lbl3 = XferCompLabelForm('lbl_password_generate')
+            lbl3.set_location(0, new_row + 4)
+            lbl3.set_value_as_name(_("Generate new password?"))
+            xfer.add_component(lbl3)
+            ckkg = XferCompCheck('password_generate')
+            ckkg.set_location(1, new_row + 4)
+            ckkg.set_value(False)
+            ckkg.java_script = """
+    var pwd_change=current.getValue();
+    parent.get('password_change').setEnabled(!pwd_change);
+    parent.get('password1').setEnabled(!pwd_change);
+    parent.get('password2').setEnabled(!pwd_change);
+    """
+            xfer.add_component(ckkg)
         if xfer.getparam("IDENT_READ") is not None:
             xfer.change_to_readonly('first_name')
             xfer.change_to_readonly('last_name')
@@ -87,16 +103,26 @@ parent.get('password2').setEnabled(pwd_change);
         return
 
     def saving(self, xfer):
-        password_change = xfer.getparam('password_change')
-        if password_change == 'o':
-            password1 = xfer.getparam('password1')
-            password2 = xfer.getparam('password2')
-            if password1 != password2:
-                raise LucteriosException(
-                    IMPORTANT, _("The passwords are differents!"))
-            if password1 is not None:
-                self.item.set_password(password1)
-                self.item.save()
+        password = None
+        password_generate = xfer.getparam('password_generate')
+        if password_generate == 'o':
+            import random
+            letter_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*+='
+            password = ''.join(random.choice(letter_string)
+                               for _ in range(random.randint(8, 12)))
+            if Signal.call_signal("send_connection", self.item.email, self.item.username, password) > 0:
+                password = None
+        else:
+            password_change = xfer.getparam('password_change')
+            if password_change == 'o':
+                password = xfer.getparam('password1')
+                password_again = xfer.getparam('password2')
+                if password != password_again:
+                    raise LucteriosException(
+                        IMPORTANT, _("The passwords are differents!"))
+        if password is not None:
+            self.item.set_password(password)
+            self.item.save()
 
 
 class SavedCriteriaEditor(LucteriosEditor):
