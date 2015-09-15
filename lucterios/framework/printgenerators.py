@@ -38,6 +38,7 @@ from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.models import get_value_converted
+from copy import deepcopy
 
 
 def remove_format(xml_text):
@@ -548,3 +549,81 @@ class LabelGenerator(ReportModelGenerator):
             xml_text.attrib['spacing'] = "0.0"
             self.body.append(xml_text)
             index += 1
+
+
+class ReportingGenerator(ReportModelGenerator):
+
+    def __init__(self, model):
+        ReportModelGenerator.__init__(self, model)
+        self.model_xml = None
+        self.current_item = None
+
+    @property
+    def model_text(self):
+        if self.model_xml is None:
+            return ""
+        else:
+            return etree.tostring(self.model_xml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+
+    @model_text.setter
+    def model_text(self, value):
+        self.model_xml = etree.fromstring(value)
+        self.horizontal_marge = float(self.model_xml.get('hmargin'))
+        self.vertical_marge = float(self.model_xml.get('vmargin'))
+        self.page_width = float(self.model_xml.get('page_width'))
+        self.page_height = float(self.model_xml.get('page_height'))
+        self.header_height = float(
+            self.model_xml.xpath('header')[0].get('extent'))
+        self.bottom_height = float(
+            self.model_xml.xpath('bottom')[0].get('extent'))
+
+    def copy_attribs(self, source_node, target_node):
+        for att_name in source_node.keys():
+            target_node.attrib[att_name] = source_node.get(att_name)
+
+    def add_convert_model(self, node, partname):
+        for item in self.model_xml.xpath(partname)[0]:
+            if item.tag == 'text':
+                new_item = convert_to_html(
+                    'text', self.current_item.evaluate(item.text))
+                self.copy_attribs(item, new_item)
+            elif item.tag == 'table':
+                new_item = etree.Element('table')
+                self.copy_attribs(item, new_item)
+                for column in item.xpath('columns'):
+                    new_column = etree.SubElement(new_item, 'columns')
+                    new_column.attrib['width'] = column.get('width')
+                    new_cell = convert_to_html(
+                        'cell', self.current_item.evaluate(column.text))
+                    self.copy_attribs(column, new_cell)
+                    new_column.append(new_cell)
+                for row in item.xpath('rows'):
+                    sub_values = [self.current_item]
+                    data = row.get('data')
+                    if hasattr(self.current_item, six.text_type(data)):
+                        new_value = getattr(self.current_item, data)
+                        if data[-4:] == '_set':
+                            sub_values = new_value.all()
+                        elif hasattr(new_value, "evaluate"):
+                            sub_values = [new_value]
+                    for sub_value in sub_values:
+                        new_row = etree.SubElement(new_item, 'rows')
+                        for cell in row.xpath('cell'):
+                            new_cell = convert_to_html(
+                                'cell', sub_value.evaluate(cell.text))
+                            self.copy_attribs(cell, new_cell)
+                            new_row.append(new_cell)
+            else:
+                new_item = deepcopy(item)
+            node.append(new_item)
+
+    def add_page(self):
+        if self.current_item is not None:
+            ReportGenerator.add_page(self)
+            self.add_convert_model(self.header, 'header')
+            self.add_convert_model(self.bottom, 'bottom')
+
+    def fill_content(self, _):
+        for self.current_item in self.get_items_filtered():
+            self.add_page()
+            self.add_convert_model(self.body, 'body')

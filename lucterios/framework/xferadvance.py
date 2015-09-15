@@ -38,13 +38,12 @@ import logging
 
 class XferListEditor(XferContainerCustom):
     multi_page = True
-    action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"),
-                   ('label', ugettext_lazy("Label"), "images/print.png")]
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.fieldnames = None
-        self.action_list = self.__class__.action_list
+        self.action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"),
+                            ('label', ugettext_lazy("Label"), "images/print.png")]
         self.action_grid = None
         self.filter = None
 

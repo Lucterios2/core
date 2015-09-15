@@ -54,7 +54,7 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/HEADER[@name="kind"]', "type")
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 2)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
@@ -63,6 +63,10 @@ class PrintTest(LucteriosTest):
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="kind"]', 'Etiquette')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Rapport')
 
         self.factory.xfer = PrintModelList()
         self.call(
@@ -71,7 +75,7 @@ class PrintTest(LucteriosTest):
         self.assert_comp_equal(
             'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 2)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
 
     def testedit_listing(self):
         self.factory.xfer = PrintModelEdit()
@@ -205,7 +209,7 @@ class PrintTest(LucteriosTest):
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'printModelList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 4)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
@@ -215,24 +219,30 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="kind"]', 'Etiquette')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'copie de listing')
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Liste')
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Rapport')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="name"]', 'copie de listing')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="kind"]', 'Liste')
 
         self.factory.xfer = PrintModelDelete()
         self.call(
-            '/CORE/printModelDelete', {'print_model': 3, 'CONFIRME': 'YES'}, False)
+            '/CORE/printModelDelete', {'print_model': 4, 'CONFIRME': 'YES'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'printModelDelete')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'printModelList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 2)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
 
     def testclonedel_label(self):
         self.factory.xfer = PrintModelClone()
@@ -243,7 +253,7 @@ class PrintTest(LucteriosTest):
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'printModelList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 4)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
@@ -253,21 +263,27 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="kind"]', 'Etiquette')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'copie de label')
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
         self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Etiquette')
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Rapport')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="name"]', 'copie de label')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="kind"]', 'Etiquette')
 
         self.factory.xfer = PrintModelDelete()
         self.call(
-            '/CORE/printModelDelete', {'print_model': 3, 'CONFIRME': 'YES'}, False)
+            '/CORE/printModelDelete', {'print_model': 4, 'CONFIRME': 'YES'}, False)
         self.assert_observer('Core.Acknowledge', 'CORE', 'printModelDelete')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('Core.Custom', 'CORE', 'printModelList')
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/RECORD', 2)
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')

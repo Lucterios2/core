@@ -415,7 +415,13 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
     def _fill_report_editor(self):
-        pass
+        edit = XferCompMemo('value')
+        edit.set_value(self.item.value)
+        edit.set_location(1, 3, 2)
+        edit.set_size(400, 700)
+        edit.with_hypertext = True
+        self.fill_menu_memo(edit)
+        self.add_component(edit)
 
 
 @MenuManage.describ('CORE.add_printmodel')

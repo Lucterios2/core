@@ -157,34 +157,35 @@ class LucteriosModel(models.Model):
         if text == '#':
             return six.text_type(self)
         value = text
-        for field in self.TO_EVAL_FIELD.findall(text):
-            field_list = field[1:].split('.')
-            if hasattr(self, field_list[0]):
-                field_value = getattr(self, field_list[0])
-            else:
-                field_value = ""
-            if PrintFieldsPlugIn.is_plugin(field_list[0]):
-                field_val = PrintFieldsPlugIn.get_plugin(
-                    field_list[0]).evaluate("#" + ".".join(field_list[1:]))
-            elif field_list[0][-4:] == '_set':
-                field_val = eval_sublist(field_list, field_value)
-            else:
-                try:
-                    dep_field = self._meta.get_field(
-                        field_list[0])
-                except FieldDoesNotExist:
-                    dep_field = None
-                if dep_field is None or is_simple_field(dep_field):
-                    field_val = get_value_converted(field_value, True)
+        if text is not None:
+            for field in self.TO_EVAL_FIELD.findall(text):
+                field_list = field[1:].split('.')
+                if hasattr(self, field_list[0]):
+                    field_value = getattr(self, field_list[0])
                 else:
-                    if field_value is None:
-                        field_val = ""
-                    elif isinstance(dep_field, ForeignKey):
-                        field_val = field_value.evaluate(
-                            "#" + ".".join(field_list[1:]))
+                    field_value = ""
+                if PrintFieldsPlugIn.is_plugin(field_list[0]):
+                    field_val = PrintFieldsPlugIn.get_plugin(
+                        field_list[0]).evaluate("#" + ".".join(field_list[1:]))
+                elif field_list[0][-4:] == '_set':
+                    field_val = eval_sublist(field_list, field_value)
+                else:
+                    try:
+                        dep_field = self._meta.get_field(
+                            field_list[0])
+                    except FieldDoesNotExist:
+                        dep_field = None
+                    if dep_field is None or is_simple_field(dep_field):
+                        field_val = get_value_converted(field_value, True)
                     else:
-                        field_val = eval_sublist(field_list, field_value)
-            value = value.replace(field, six.text_type(field_val))
+                        if field_value is None:
+                            field_val = ""
+                        elif isinstance(dep_field, ForeignKey):
+                            field_val = field_value.evaluate(
+                                "#" + ".".join(field_list[1:]))
+                        else:
+                            field_val = eval_sublist(field_list, field_value)
+                value = value.replace(field, six.text_type(field_val))
         return value
 
     @classmethod

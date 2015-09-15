@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lucterios.framework.printgenerators import ActionGenerator, \
-    ListingGenerator, LabelGenerator
+    ListingGenerator, LabelGenerator, ReportingGenerator
 from lucterios.framework.xferprinting import XferContainerPrint
 from lucterios.CORE.models import PrintModel, Label
 
@@ -48,7 +48,6 @@ class XferPrintListing(XferContainerPrint):
         self.selector = PrintModel.get_print_selector(0, self.model)
 
     def filter_callback(self, items):
-
         return items
 
     def get_report_generator(self):
@@ -72,7 +71,6 @@ class XferPrintLabel(XferContainerPrint):
         self.selector.extend(PrintModel.get_print_selector(1, self.model))
 
     def filter_callback(self, items):
-
         return items
 
     def get_report_generator(self):
@@ -84,4 +82,24 @@ class XferPrintLabel(XferContainerPrint):
         gen.label_text = model_value.value
         for lblkey in gen.label_size.keys():
             gen.label_size[lblkey] = getattr(dblbl, lblkey)
+        return gen
+
+
+class XferPrintReporting(XferContainerPrint):
+
+    with_text_export = False
+
+    def __init__(self):
+        XferContainerPrint.__init__(self)
+        self.selector = PrintModel.get_print_selector(2, self.model)
+
+    def filter_callback(self, items):
+        return items
+
+    def get_report_generator(self):
+        model_value = PrintModel.get_model_selected(self)
+        gen = ReportingGenerator(self.model)
+        gen.filter = self.get_filter()
+        gen.filter_callback = self.filter_callback
+        gen.model_text = model_value.value
         return gen

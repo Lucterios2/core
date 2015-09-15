@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
-    OtherAddModify, OtherShow
+    OtherAddModify, OtherShow, ExampleReporting
 from lucterios.dummy.models import Example
 from base64 import b64decode
 from django.utils import six
@@ -265,7 +265,7 @@ class ExampleTest(LucteriosTest):
         csv_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text)).decode("utf-8")
         content_csv = csv_value.split('\n')
-        self.assertEqual(len(content_csv), 36, str(content_csv))
+        self.assertEqual(len(content_csv), 37, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"Example"')
         self.assertEqual(
             content_csv[3].strip(), '"Name";"value + price";"date + time";')
@@ -278,6 +278,34 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/exampleListing',
                   {'PRINT_MODE': '3', 'MODEL': 1}, False)
         self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
+        pdf_value = b64decode(
+            six.text_type(self.get_first_xpath('PRINT').text))
+        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+
+    def testreporting(self):
+        for item_idx in range(0, 25):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
+                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+        self.factory.xfer = ExampleReporting()
+        self.call('/lucterios.dummy/exampleReporting',
+                  {'PRINT_MODE': '4', 'MODEL': 3}, False)
+        self.assert_observer(
+            'Core.Print', 'lucterios.dummy', 'exampleReporting')
+        csv_value = b64decode(
+            six.text_type(self.get_first_xpath('PRINT').text)).decode("utf-8")
+        content_csv = csv_value.split('\n')
+        self.assertEqual(len(content_csv), 10 * 30 + 1, str(content_csv))
+        self.assertEqual(content_csv[3].strip(), '"A abc"')
+
+    def testreporting_pdf(self):
+        for item_idx in range(0, 150):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
+                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+        self.factory.xfer = ExampleReporting()
+        self.call('/lucterios.dummy/exampleReporting',
+                  {'PRINT_MODE': '3', 'MODEL': 3}, False)
+        self.assert_observer(
+            'Core.Print', 'lucterios.dummy', 'exampleReporting')
         pdf_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))

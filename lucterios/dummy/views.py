@@ -35,7 +35,8 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, 
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete
 from lucterios.framework.xfersearch import XferSearchEditor
-from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel
+from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel,\
+    XferPrintReporting
 from lucterios.dummy.models import Example, Other
 from lucterios.framework import signal_and_lock
 from lucterios.CORE.editors import SavedCriteriaEditor,\
@@ -258,6 +259,10 @@ class ExampleList(XferListEditor):
     model = Example
     field_id = 'example'
 
+    def __init__(self, **kwargs):
+        XferListEditor.__init__(self, **kwargs)
+        self.action_list.append(('reporting', "Reporting", "images/print.png"))
+
 
 @ActionsManage.affect('Example', 'show')
 @MenuManage.describ('dummy.change_example')
@@ -301,6 +306,16 @@ class ExamplePrint(XferPrintAction):
 class ExampleListing(XferPrintListing):
     caption = _("Example")
     icon = "9.png"
+    model = Example
+    field_id = 'example'
+
+
+@ActionsManage.affect('Example', 'reporting')
+@MenuManage.describ('dummy.change_example')
+class ExampleReporting(XferPrintReporting):
+    with_text_export = True
+    caption = _("Example")
+    icon = "10.png"
     model = Example
     field_id = 'example'
 

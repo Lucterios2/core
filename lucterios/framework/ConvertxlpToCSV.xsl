@@ -22,14 +22,8 @@
 
 	<xsl:template match="bottom">
 		<xsl:apply-templates/>
-	</xsl:template>
-
-	<xsl:template match="left">
-		<xsl:apply-templates/>
-	</xsl:template>
-
-	<xsl:template match="rigth">
-		<xsl:apply-templates/>
+<xsl:text>
+</xsl:text>
 	</xsl:template>
 
 	<xsl:template match="text">

@@ -45,6 +45,45 @@ def initial_values(*args):
     prtmdl.value = "#name{[newline]}#value:#price{[newline]}#date #time"
     prtmdl.save()
 
+    prtmdl = PrintModel.objects.create(
+        name="reporting", kind=2, modelname=Example.get_long_name())
+    prtmdl.value = """
+<model hmargin="10.0" vmargin="10.0" page_width="210.0" page_height="297.0">
+<header extent="25.0">
+<text height="20.0" width="120.0" top="5.0" left="70.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="20" font_family="sans-serif" font_weight="" font_size="20">
+{[b]}title{[/b]}
+</text>
+</header>
+<bottom extent="10.0">
+<text height="10.0" width="190.0" top="00.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="8" font_family="sans-serif" font_weight="" font_size="8">
+{[i]}footer{[/i]}
+</text>
+</bottom>
+<body>
+<text height="8.0" width="190.0" top="0.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2" text_align="center" line_height="15" font_family="sans-serif" font_weight="" font_size="15">
+{[b]}A{[/b]} #name
+</text>
+<table height="100.0" width="190.0" top="55.0" left="0.0" padding="1.0" spacing="0.0" border_color="black" border_style="" border_width="0.2">
+<columns width="20.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+{[b]}B{[/b]}
+</columns>
+<columns width="100.0" display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="center" line_height="10" font_family="sans-serif" font_weight="" font_size="9">
+{[b]}C{[/b]}
+</columns>
+<rows data="">
+<cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="start" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#value
+</cell>
+<cell display_align="center" border_color="black" border_style="solid" border_width="0.2" text_align="end" line_height="7" font_family="sans-serif" font_weight="" font_size="7">
+#price
+</cell>
+</rows>
+</table>
+</body>
+</model>
+"""
+    prtmdl.save()
+
 
 class Migration(migrations.Migration):
 
