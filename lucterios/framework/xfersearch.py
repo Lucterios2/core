@@ -366,6 +366,8 @@ class XferSearchEditor(XferContainerCustom):
         self.fields_desc = FieldDescList()
         self.criteria_list = []
         self.filter = None
+        self.action_list = [('listing', _("Listing"), "images/print.png"),
+                            ('label', _("Label"), "images/print.png")]
 
     def read_criteria_from_params(self):
         criteria = self.getparam('CRITERIA')
@@ -561,9 +563,7 @@ if ((type=='list') || (type=='listmult')) {
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {
                       'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
-        action_list = [('listing', _("Listing"), "images/print.png"),
-                       ('label', _("Label"), "images/print.png")]
-        for act_type, title, icon in action_list:
+        for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

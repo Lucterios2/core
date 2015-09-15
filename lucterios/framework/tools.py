@@ -288,3 +288,10 @@ def get_binay(text):
         return six.binary_type(text)
     else:
         return six.binary_type(text, 'ascii')
+
+
+def toHtml(text):
+    text = six.text_type(text).replace('{[newline]}', '<br/>')
+    text = text.replace('{[', '<')
+    text = text.replace(']}', '>')
+    return text

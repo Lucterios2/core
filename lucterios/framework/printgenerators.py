@@ -34,6 +34,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.models import get_value_converted
@@ -57,11 +58,8 @@ def remove_format(xml_text):
 
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
-    text = six.text_type(text).replace('{[newline]}', '<br/>')
-    text = text.replace('{[', '<')
-    text = text.replace(']}', '>')
     xml_text = etree.XML(
-        "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': text})
+        "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': toHtml(text)})
     xml_text.attrib['font_family'] = font_family
     xml_text.attrib['font_size'] = "%d" % font_size
     xml_text.attrib['line_height'] = "%d" % line_height

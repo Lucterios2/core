@@ -32,6 +32,8 @@ from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
+from django.utils import six
+import logging
 
 
 class XferListEditor(XferContainerCustom):
@@ -204,7 +206,8 @@ class XferSave(XferContainerAcknowledge):
                 self.has_changed = False
                 if self.fill_manytomany_fields():
                     self.item.save()
-            except IntegrityError:
+            except IntegrityError as err:
+                logging.getLogger("lucterios.core.container").info("%s", err)
                 self.raise_except(
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':

@@ -251,6 +251,16 @@ class XferContainerCustom(XferContainerAbstract):
                 comp_res = comp
         return comp_res
 
+    def move_components(self, cmp_name, col_offset, row_offset):
+        new_components = {}
+        for comp in self.components.values():
+            if comp.name == cmp_name:
+                comp.col += col_offset
+                comp.row += row_offset
+            comp_id = comp.get_id()
+            new_components[comp_id] = comp
+        self.components = new_components
+
     def move(self, tab, col_offset, row_offset):
         new_components = {}
         for comp in self.components.values():
