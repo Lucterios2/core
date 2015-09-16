@@ -446,6 +446,10 @@ class PrintModelSave(XferSave):
                 col_index += 1
             self.item.change_listing(page_width, page_heigth, columns)
             self.item.save()
+        elif self.item.kind == 2:
+            from lxml import etree
+            etree.fromstring(self.item.value)
+            self.item.save()
         else:
             XferSave.fillresponse(self)
 

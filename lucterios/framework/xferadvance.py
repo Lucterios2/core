@@ -32,7 +32,6 @@ from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
-from django.utils import six
 import logging
 
 
@@ -48,7 +47,6 @@ class XferListEditor(XferContainerCustom):
         self.filter = None
 
     def fillresponse_header(self):
-
         return
 
     def get_items_from_filter(self):
@@ -60,7 +58,6 @@ class XferListEditor(XferContainerCustom):
         return items
 
     def fillresponse(self):
-
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0)

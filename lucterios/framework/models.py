@@ -37,6 +37,7 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
+from django.core.exceptions import FieldDoesNotExist
 
 
 class AbsoluteValue(Transform):
@@ -152,7 +153,6 @@ class LucteriosModel(models.Model):
                 field_val.append(
                     sub_model.evaluate("#" + ".".join(field_list[1:])))
             return "{[br/]}".join(field_val)
-        from django.db.models.fields import FieldDoesNotExist
         from django.db.models.fields.related import ForeignKey
         if text == '#':
             return six.text_type(self)
@@ -208,13 +208,18 @@ class LucteriosModel(models.Model):
             elif isinstance(field_name, tuple):
                 fields.append(field_name)
             else:
-                dep_field = item._meta.get_field(
-                    field_name)
-                field_title = dep_field.verbose_name
-                if is_simple_field(dep_field):
-                    fields.append((field_title, field_name))
-                else:
-                    add_sub_field(field_name, field_title, dep_field.rel.to)
+                try:
+                    dep_field = item._meta.get_field(
+                        field_name)
+                    field_title = dep_field.verbose_name
+                    if is_simple_field(dep_field):
+                        fields.append((field_title, field_name))
+                    else:
+                        add_sub_field(
+                            field_name, field_title, dep_field.rel.to)
+                except FieldDoesNotExist:
+                    if hasattr(item, field_name):
+                        fields.append((field_name, field_name))
         return fields
 
     def get_final_child(self):

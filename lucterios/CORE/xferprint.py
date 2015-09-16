@@ -94,7 +94,7 @@ class XferPrintReporting(XferContainerPrint):
         self.selector = PrintModel.get_print_selector(2, self.model)
 
     def filter_callback(self, items):
-        return items
+        return [self.item]
 
     def get_report_generator(self):
         model_value = PrintModel.get_model_selected(self)

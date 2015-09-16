@@ -613,6 +613,9 @@ class ReportingGenerator(ReportModelGenerator):
                                 'cell', sub_value.evaluate(cell.text))
                             self.copy_attribs(cell, new_cell)
                             new_row.append(new_cell)
+            elif item.tag == 'image':
+                new_item = deepcopy(item)
+                new_item.text = self.current_item.evaluate(item.text)
             else:
                 new_item = deepcopy(item)
             node.append(new_item)
