@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.conf.urls import url, include
+from django.conf.urls import url, include, patterns
 from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve
@@ -77,27 +77,40 @@ def add_url_from_module(url_list, appmodule, lucterios_ext):
 def get_url_patterns():
     res = _init_url_patterns()
     for appname in settings.INSTALLED_APPS:
-        if "django" not in appname:
-            appmodule = import_module(appname)
-            module_items = appname.split('.')
-            if (len(module_items) > 1) and (module_items[1] == 'CORE'):
-                module_items = module_items[1:]
-            lucterios_ext = ".".join(module_items)
-            for _, modname, ispkg in pkgutil.iter_modules(appmodule.__path__):
-                if (modname[:5] == 'views') and not ispkg:
-                    view = import_module(appname + '.' + modname)
-                    for obj in inspect.getmembers(view):
-                        try:
-                            if obj[1].url_text != '':
-                                if inspect.isclass(obj[1]):
-                                    as_view_meth = getattr(obj[1], "as_view")
-                                    res.append(
-                                        url(r"^%s$" % obj[1].url_text, as_view_meth()))
-                        except AttributeError:
-                            pass
-            if lucterios_ext is not None:
-                add_url_from_module(res, appmodule, lucterios_ext)
-    logging.getLogger('lucterios.core.init').debug("Urls:" + str(res))
+        appmodule = import_module(appname)
+        module_items = appname.split('.')
+        if (len(module_items) > 1) and (module_items[1] == 'CORE'):
+            module_items = module_items[1:]
+        is_lucterios_ext = False
+        lucterios_ext = ".".join(module_items)
+        for _, modname, ispkg in pkgutil.iter_modules(appmodule.__path__):
+            if (modname[:5] == 'views') and not ispkg:
+                view = import_module(appname + '.' + modname)
+                for obj in inspect.getmembers(view):
+                    try:
+                        if obj[1].url_text != '':
+                            if inspect.isclass(obj[1]):
+                                is_lucterios_ext = True
+                                as_view_meth = getattr(obj[1], "as_view")
+                                res.append(
+                                    url(r"^%s$" % obj[1].url_text, as_view_meth()))
+                    except AttributeError:
+                        pass
+        if is_lucterios_ext:
+            add_url_from_module(res, appmodule, lucterios_ext)
+        else:
+            try:
+                patterns = getattr(
+                    import_module('%s.urls' % appname), 'urlpatterns', None)
+                if isinstance(patterns, (list, tuple)):
+                    for url_pattern in patterns:
+                        res.append(url(r"^%s/%s" % (module_items[-1], url_pattern._regex[1:]),
+                                       url_pattern._callback or url_pattern._callback_str,
+                                       url_pattern.default_args, url_pattern.name))
+            except ImportError:
+                pass
+    logging.getLogger('lucterios.core.init').debug(
+        "Urls:" + '\n'.join(str(res_item) for res_item in res))
     return res
 
 

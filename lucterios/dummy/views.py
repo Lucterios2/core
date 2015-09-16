@@ -319,6 +319,9 @@ class ExampleReporting(XferPrintReporting):
     model = Example
     field_id = 'example'
 
+    def items_callback(self):
+        return self.model.objects.all()
+
 
 @ActionsManage.affect('Example', 'label')
 @MenuManage.describ('dummy.change_example')

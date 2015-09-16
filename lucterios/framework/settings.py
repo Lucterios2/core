@@ -104,6 +104,7 @@ DEFAULT_SETTINGS = {
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',
+    'ADMIN_MEDIA_PREFIX': '/static/admin/',
     'TEST_RUNNER': 'lucterios.framework.juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
     'LANGUAGES': (
@@ -155,6 +156,10 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
     setattr(module_to_setup, 'LOCALE_PATHS',
             _get_locale_pathes(appli_name, addon_modules))
+    setattr(module_to_setup, 'STATIC_ROOT', join(
+        dirname(module_to_setup.__file__), 'static'))
+    setattr(module_to_setup, 'STATICFILES_DIRS',
+            (dirname(module_to_setup.__file__), ))
     setting_module = import_module("%s.appli_settings" % appli_name)
     for item in dir(setting_module):
         if item == item.upper():

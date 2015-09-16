@@ -551,38 +551,39 @@ class LabelGenerator(ReportModelGenerator):
             index += 1
 
 
-class ReportingGenerator(ReportModelGenerator):
+class ReportingGenerator(ReportGenerator):
 
-    def __init__(self, model):
-        ReportModelGenerator.__init__(self, model)
-        self.model_xml = None
+    def __init__(self):
+        ReportGenerator.__init__(self)
+        self.report_xml = None
         self.current_item = None
+        self.items_callback = None
 
     @property
     def model_text(self):
-        if self.model_xml is None:
+        if self.report_xml is None:
             return ""
         else:
-            return etree.tostring(self.model_xml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+            return etree.tostring(self.report_xml, xml_declaration=True, pretty_print=True, encoding='utf-8')
 
     @model_text.setter
     def model_text(self, value):
-        self.model_xml = etree.fromstring(value)
-        self.horizontal_marge = float(self.model_xml.get('hmargin'))
-        self.vertical_marge = float(self.model_xml.get('vmargin'))
-        self.page_width = float(self.model_xml.get('page_width'))
-        self.page_height = float(self.model_xml.get('page_height'))
+        self.report_xml = etree.fromstring(value)
+        self.horizontal_marge = float(self.report_xml.get('hmargin'))
+        self.vertical_marge = float(self.report_xml.get('vmargin'))
+        self.page_width = float(self.report_xml.get('page_width'))
+        self.page_height = float(self.report_xml.get('page_height'))
         self.header_height = float(
-            self.model_xml.xpath('header')[0].get('extent'))
+            self.report_xml.xpath('header')[0].get('extent'))
         self.bottom_height = float(
-            self.model_xml.xpath('bottom')[0].get('extent'))
+            self.report_xml.xpath('bottom')[0].get('extent'))
 
     def copy_attribs(self, source_node, target_node):
         for att_name in source_node.keys():
             target_node.attrib[att_name] = source_node.get(att_name)
 
     def add_convert_model(self, node, partname):
-        for item in self.model_xml.xpath(partname)[0]:
+        for item in self.report_xml.xpath(partname)[0]:
             if item.tag == 'text':
                 new_item = convert_to_html(
                     'text', self.current_item.evaluate(item.text))
@@ -626,7 +627,13 @@ class ReportingGenerator(ReportModelGenerator):
             self.add_convert_model(self.header, 'header')
             self.add_convert_model(self.bottom, 'bottom')
 
+    def get_items(self):
+        if self.items_callback is None:
+            return []
+        else:
+            return self.items_callback()
+
     def fill_content(self, _):
-        for self.current_item in self.get_items_filtered():
+        for self.current_item in self.get_items():
             self.add_page()
             self.add_convert_model(self.body, 'body')

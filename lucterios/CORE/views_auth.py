@@ -38,14 +38,15 @@ def get_info_server():
     from django.conf import settings
     from django.utils.module_loading import import_module
     for appname in settings.INSTALLED_APPS:
-        if "django" not in appname and "lucterios.framework" != appname:
+        if ("django" not in appname) and ("lucterios.framework" != appname):
             appmodule = import_module(appname)
-            try:
-                app_title = appmodule.__title__()
-            except TypeError:
-                app_title = six.text_type(appmodule.__title__)
-            res.append(six.text_type("%s=%s") %
-                       (app_title, appmodule.__version__))
+            if hasattr(appmodule, '__title__'):
+                try:
+                    app_title = appmodule.__title__()
+                except TypeError:
+                    app_title = six.text_type(appmodule.__title__)
+                res.append(six.text_type("%s=%s") %
+                           (app_title, appmodule.__version__))
     res.append("")
     from platform import python_version, uname
     django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
