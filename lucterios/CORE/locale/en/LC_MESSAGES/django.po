@@ -9,13 +9,14 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-11 15:00+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Lucterios <support@lucterios.org>\n"
+"PO-Revision-Date: 2015-09-17 15:53+0000\n"
+"Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
-"Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"X-Translated-Using: django-rosetta 0.7.6\n"
 
 #: __init__.py:41
 msgid "Lucterios core"
@@ -23,7 +24,7 @@ msgstr "Lucterios core"
 
 #: editors.py:53
 msgid "To change password?"
-msgstr "To change password."
+msgstr "To change password?"
 
 #: editors.py:67
 msgid "password"
@@ -68,8 +69,8 @@ msgstr "Groups"
 #: help/02_groups.html:4
 msgid "help-groups-intro"
 msgstr ""
-"<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify or "
-"delete a rights group.</p>"
+"<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify or"
+" delete a rights group.</p>"
 
 #: help/02_groups.html:8
 msgid "help-groups-detail"
@@ -104,7 +105,8 @@ msgstr "Architecture"
 msgid "help-archi-intro"
 msgstr ""
 "<p>Since the beginning of this software, the developers wanted this "
-"application can have an open architecture allowing the widest devolution.</p>"
+"application can have an open architecture allowing the widest "
+"devolution.</p>"
 
 #: migrations/0001_initial.py:48
 msgid "CORE-GUID"
