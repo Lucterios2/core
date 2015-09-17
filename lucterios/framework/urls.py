@@ -104,9 +104,12 @@ def get_url_patterns():
                     import_module('%s.urls' % appname), 'urlpatterns', None)
                 if isinstance(patterns, (list, tuple)):
                     for url_pattern in patterns:
-                        res.append(url(r"^%s/%s" % (module_items[-1], url_pattern._regex[1:]),
-                                       url_pattern._callback or url_pattern._callback_str,
-                                       url_pattern.default_args, url_pattern.name))
+                        if module_items[0] == 'django':
+                            res.append(url_pattern)
+                        else:
+                            res.append(url(r"^%s/%s" % (module_items[-1], url_pattern._regex[1:]),
+                                           url_pattern._callback or url_pattern._callback_str,
+                                           url_pattern.default_args, url_pattern.name))
             except ImportError:
                 pass
     logging.getLogger('lucterios.core.init').debug(

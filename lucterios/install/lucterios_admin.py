@@ -330,10 +330,10 @@ class LucteriosInstance(LucteriosManage):
         extra_txt = ''
         for key, val in self.extra.items():
             if key != '':
-                extra_txt += '%s=%s ' % (key, val)
+                extra_txt += '\n\t\t%s=%s ' % (key, val)
             else:
                 if ('mode' in val.keys()) and (val['mode'] is not None):
-                    extra_txt += 'mode=%s ' % val['mode'][1]
+                    extra_txt += '\n\t\tmode=%s ' % val['mode'][1]
         return extra_txt
 
     def get_database_txt(self):
@@ -392,11 +392,14 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('#!/usr/bin/env python\n')
             file_py.write('# -*- coding: utf8 -*-\n')
             file_py.write('\n')
+            file_py.write('import os\n')
+            file_py.write(
+                'from lucterios.framework.settings import fill_appli_settings\n')
+            file_py.write('\n')
             file_py.write('# Initial constant\n')
             file_py.write('SECRET_KEY = "%s"\n' % self.secret_key)
             file_py.write('\n')
             file_py.write('# Database\n')
-            file_py.write('import os\n')
             file_py.write('BASE_DIR = os.path.dirname(__file__)\n')
             if not isinstance(self.databases, dict):
                 self.databases = {}
@@ -427,8 +430,6 @@ class LucteriosInstance(LucteriosManage):
                 if key != '':
                     file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
-            file_py.write(
-                'from lucterios.framework.settings import fill_appli_settings\n')
             file_py.write('fill_appli_settings("%s", (%s)) \n' %
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
@@ -710,7 +711,7 @@ def list_method(from_class):
     res = []
     for item in inspect.getmembers(from_class):
         name = item[0]
-        if (name[-1] != '_') and not name.startswith('set_') and (inspect.ismethod(item[1]) or inspect.isfunction(item[1])):
+        if ('_' not in name) and not name.startswith('get_') and not name.startswith('set_') and (inspect.ismethod(item[1]) or inspect.isfunction(item[1])):
             res.append(name)
     return "|".join(res)
 

@@ -41,8 +41,7 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave,\
-    XferShowEditor
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework import signal_and_lock, tools

@@ -93,6 +93,7 @@ DEFAULT_SETTINGS = {
     'TEMPLATE_CONTEXT_PROCESSOR': (
         'django.core.context_processors.i18n',
     ),
+    'LOGIN_URL': '/admin/login/',
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': getdefaultlocale()[0],
     'TIME_ZONE': 'UTC',
