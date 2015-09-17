@@ -41,6 +41,7 @@ def initial_values(*args):
     admin.last_name = six.text_type('ADMIN')
     admin.is_staff = True
     admin.is_superuser = True
+    admin.is_active = True
     admin.save()
 
     param = Parameter.objects.create(
