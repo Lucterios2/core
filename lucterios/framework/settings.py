@@ -35,6 +35,7 @@ from django.utils import six
 from django.utils.module_loading import import_module
 
 from lucterios.framework.filetools import readimage_to_base64
+from django.core.urlresolvers import reverse_lazy
 
 
 def get_lan_ip():
@@ -93,7 +94,6 @@ DEFAULT_SETTINGS = {
     'TEMPLATE_CONTEXT_PROCESSOR': (
         'django.core.context_processors.i18n',
     ),
-    'LOGIN_URL': '/admin/login/',
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': getdefaultlocale()[0],
     'TIME_ZONE': 'UTC',

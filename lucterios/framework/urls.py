@@ -112,6 +112,11 @@ def get_url_patterns():
                                            url_pattern.default_args, url_pattern.name))
             except ImportError:
                 pass
+    try:
+        from django.contrib.admin.sites import site
+        res.append(url(r'^accounts/login/$', site.login))
+    except ImportError:
+        pass
     logging.getLogger('lucterios.core.init').debug(
         "Urls:" + '\n'.join(str(res_item) for res_item in res))
     return res
