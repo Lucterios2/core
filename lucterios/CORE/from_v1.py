@@ -124,6 +124,7 @@ class CoreMigrate(MigrateAbstract):
                     new_user.last_name = ''.join(real_name.split(' ')[1:])
                     new_user.is_active = actif == 'o'
                     new_user.is_superuser = login == 'admin'
+                    new_user.is_staff = login == 'admin'
                     if group_id in self.group_list.keys():
                         new_user.groups = Group.objects.filter(
                             id__in=[self.group_list[group_id].pk])
