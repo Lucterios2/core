@@ -42,7 +42,10 @@ def defaultblank(*args):
 
 def defaultview(*args):
     from django.http import HttpResponseRedirect
-    return HttpResponseRedirect('/web/index.html')
+    web_page = '/web/index.html'
+    if settings.USE_X_FORWARDED_HOST:
+        web_page = settings.FORCE_SCRIPT_NAME + web_page
+    return HttpResponseRedirect(web_page)
 
 
 def _init_url_patterns():
