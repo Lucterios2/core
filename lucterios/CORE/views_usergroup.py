@@ -42,7 +42,6 @@ MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png",
 @ActionsManage.affect('LucteriosGroup', 'edit', 'add')
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
-
     caption_add = _("Add a group")
     caption_modify = _("Modify a group")
     icon = "group.png"
@@ -62,7 +61,6 @@ class GroupsDelete(XferDelete):
 
 @MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupsList(XferListEditor):
-
     caption = _("Groups")
     icon = "group.png"
     model = LucteriosGroup
@@ -71,7 +69,6 @@ class GroupsList(XferListEditor):
 
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferContainerCustom):
-
     caption = _("_Users")
     icon = "user.png"
     model = LucteriosUser
@@ -177,7 +174,6 @@ class UsersEnabled(XferContainerAcknowledge):
 @ActionsManage.affect('LucteriosUser', 'add', 'edit')
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
-
     caption_add = _("Add an users")
     caption_modify = _("Modify an user")
     icon = "user.png"
@@ -196,7 +192,6 @@ class SessionDelete(XferDelete):
 
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
 class SessionList(XferListEditor):
-
     caption = _("Sessions")
     icon = "session.png"
     model = LucteriosSession

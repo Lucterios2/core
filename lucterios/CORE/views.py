@@ -311,7 +311,7 @@ class PrintModelList(XferContainerCustom):
         grid.add_action(self.request, PrintModelEdit.get_action(
             _('edit'), 'images/edit.png'), {'unique': SELECT_SINGLE})
         grid.add_action(self.request, PrintModelClone.get_action(
-            _('clone'), 'images/add.png'), {'unique': SELECT_SINGLE})
+            _('clone'), 'images/clone.png'), {'unique': SELECT_SINGLE})
         grid.add_action(self.request, PrintModelDelete.get_action(
             _('delete'), 'images/delete.png'), {'unique': SELECT_SINGLE})
         self.add_component(grid)
@@ -478,12 +478,6 @@ class PrintModelDelete(XferDelete):
     model = PrintModel
     field_id = 'print_model'
 
-# @MenuManage.describ('', FORMTYPE_NOMODAL, 'core.print', _("To print old saved report."))
-# class FinalreportList(XferContainerAcknowledge):
-#     caption = _("_Saved reports")
-#     icon = "PrintReportSave.png"
-#
-
 
 @MenuManage.describ('CORE.change_label', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))
 class LabelList(XferListEditor):
@@ -496,7 +490,6 @@ class LabelList(XferListEditor):
 @ActionsManage.affect('Label', 'edit', 'add')
 @MenuManage.describ('CORE.add_label')
 class LabelEdit(XferAddEditor):
-
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
     icon = "label_help.png"

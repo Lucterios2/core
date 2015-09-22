@@ -243,7 +243,7 @@ var GUIManage = GUIBasic
 				$(".datepicker").each(function() {
 					$(this).datepicker({
 						showOn : "button",
-						buttonImage : "images/calendar.jpg",
+						buttonImage : "images/calendar.png",
 						buttonImageOnly : true,
 						changeMonth : true,
 						changeYear : true,

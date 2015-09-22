@@ -731,7 +731,7 @@ class XferCompGrid(XferComponent):
         if model is None:
             model = xfer_custom.model
         if action_list is None:
-            action_list = [('show', _("Edit"), "images/edit.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
+            action_list = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
                            ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
         for act_type, title, icon, unique in action_list:
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
