@@ -99,7 +99,7 @@ asyncTest("File", function() {
 
 		setTimeout(function() {
 			start();
-			equal(transp_test.mFileContent.length, 487, 'size');
+			equal(transp_test.mFileContent.length, 1415, 'size');
 			equal(transp_test.mFileContent.substr(1, 3), "PNG")
 		}, 300);
 	} else {
