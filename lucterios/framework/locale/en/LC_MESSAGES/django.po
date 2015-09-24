@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-11 15:00+0000\n"
+"POT-Creation-Date: 2015-09-24 14:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -29,27 +29,27 @@ msgstr "Table of content"
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:69 xfergraphic.py:156
+#: models.py:70 xfergraphic.py:156
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:71 xfergraphic.py:158
+#: models.py:72 xfergraphic.py:158
 msgid "No"
 msgstr "No"
 
-#: models.py:241
+#: models.py:247
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:263
+#: models.py:269
 msgid "username"
 msgstr "username"
 
-#: models.py:278
+#: models.py:284
 msgid "session"
 msgstr "session"
 
-#: models.py:279
+#: models.py:285
 msgid "sessions"
 msgstr "sessions"
 
@@ -83,59 +83,59 @@ msgstr "delete"
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:39 xfersearch.py:564
+#: xferadvance.py:44 xfersearch.py:369
 msgid "Listing"
 msgstr "Listing"
 
-#: xferadvance.py:40 xfersearch.py:565
+#: xferadvance.py:45 xfersearch.py:370
 msgid "Label"
 msgstr "Label"
 
-#: xferadvance.py:86 xfersearch.py:561
+#: xferadvance.py:84 xfersearch.py:563
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:92 xferadvance.py:154 xfergraphic.py:129 xferprinting.py:111
+#: xferadvance.py:90 xferadvance.py:152 xfergraphic.py:129 xferprinting.py:111
 #: xfersearch.py:569
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:113 xfergraphic.py:166
+#: xferadvance.py:111 xfergraphic.py:166
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:114 xfergraphic.py:140
+#: xferadvance.py:112 xfergraphic.py:140
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:142 xfercomponents.py:734
+#: xferadvance.py:140 xfercomponents.py:734
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:143 xferprinting.py:110
+#: xferadvance.py:141 xferprinting.py:110
 msgid "Print"
 msgstr "Print"
 
-#: xferadvance.py:167
+#: xferadvance.py:165
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:177
+#: xferadvance.py:175
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:188
+#: xferadvance.py:186
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:189
+#: xferadvance.py:187
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:209
+#: xferadvance.py:208
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
