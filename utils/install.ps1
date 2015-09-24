@@ -32,7 +32,8 @@ if ($help) {
 
 
 if ($extra_url -ne '') {
-	$PIP_OPTION = " --extra-index-url $extra_url --trusted-host pypi.lucterios.org"
+	$extra_host = ([System.Uri]$extra_url).Host
+	$PIP_OPTION = " --extra-index-url $extra_url --trusted-host $extra_host"
 }
 else {
 	$PIP_OPTION = ""
