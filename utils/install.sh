@@ -8,26 +8,56 @@ if [ "$(id -u)" != "0" ]; then
    exit $!
 fi
 
-if [ "$1" = "del" ]
-then
-	echo "====== delete lucterios ======"
-	rm -f /usr/local/bin/launch_lucterios
-	rm -f /usr/local/bin/launch_lucterios_gui
-	rm -rf /var/lucterios2/
-	echo "============ END ============="
-	exit 0
-fi
+EXTRA_URL="http://pypi.lucterios.org/simple"
+PACKAGES="lucterios-standard"
+ICON_PATH="lucterios/install/lucterios.png"
+APP_NAME="Lucterios"
 
-if [ ! -z "$1" ]
-then
+function usage
+{
 	echo "${0##*/}: installation for Lucterios"
+	echo "	${0##*/} -h"
+	echo "	${0##*/} [-e <extra_url>] [-p <packages>] [-i <icon_path>] [-n <application_name>]"
 	echo "option:"
-	echo "	${0##*/} help			This help"
-	echo "	${0##*/} del			Remove Lucterios"
+	echo " -h: show this help"
+	echo " -e: define a extra url of pypi server (default: '$EXTRA_URL')"
+	echo " -p: define the packages list to install (default: '$PACKAGES')"
+	echo " -i: define the icon path for shortcut (default: '$ICON_PATH')"
+	echo " -n: define the application name for shortcut (default: '$APP_NAME')"
 	exit 0
+}
+
+while getopts "e:i:p:n:h" opt ; do
+    case $opt in
+    e) EXTRA_URL="$OPTARG"
+       ;;
+    i) ICON_PATH="$OPTARG"
+       ;;
+    p) PACKAGES="$OPTARG"
+       ;;
+    n) APP_NAME="$OPTARG"
+       ;;
+    h) usage $0
+       exit 0
+       ;;
+   \?) echo "Unrecognized parameter -$OPTARG" >&2
+       exit 1
+       ;;
+    :) echo "Option -$OPTARG requires an argument." >&2
+       exit 1
+       ;;
+    esac
+done
+
+PIP_OPTION="--extra-index-url $EXTRA_URL --trusted-host $(echo $EXTRA_URL | awk -F/ '{print $3}')"
+if [ ! -z "$http_proxy" ]
+then
+	PIP_OPTION="$PIP_OPTION --proxy=$http_proxy"
 fi
 
 echo "====== install lucterios ======"
+
+echo "install: extra_url=$EXTRA_URL packages=$PACKAGES icon_path=$ICON_PATH application_name=$APP_NAME"
 
 echo
 echo "------ check perquisite -------"
@@ -75,11 +105,6 @@ done
 
 set -e
 
-PIP_OPTION=''
-if [ ! -z "$http_proxy" ]
-then
-	PIP_OPTION="--proxy=$http_proxy"
-fi
 $PIP_CMD install $PIP_OPTION virtualenv -U	
 
 mkdir -p /var/lucterios2
@@ -91,7 +116,7 @@ echo "------ install lucterios ------"
 echo
 
 . /var/lucterios2/virtual_for_lucterios/bin/activate
-pip install $PIP_OPTION --extra-index-url http://pypi.lucterios.org/simple --trusted-host pypi.lucterios.org -U lucterios-standard
+pip install $PIP_OPTION -U $PACKAGES
 
 echo
 echo "------ refresh shortcut ------"
@@ -102,7 +127,10 @@ echo "#!/usr/bin/env bash" >> /var/lucterios2/launch_lucterios.sh
 echo  >> /var/lucterios2/launch_lucterios.sh
 echo ". /var/lucterios2/virtual_for_lucterios/bin/activate" >> /var/lucterios2/launch_lucterios.sh
 echo "cd /var/lucterios2/" >> /var/lucterios2/launch_lucterios.sh
-echo "export extra_url='http://pypi.lucterios.org/simple'" >> /var/lucterios2/launch_lucterios.sh
+if [ ! -z "$EXTRA_URL" ]
+then
+	echo "export extra_url='$EXTRA_URL'" >> /var/lucterios2/launch_lucterios.sh
+fi
 if [ -z "$LANG" -o "$LANG" == "C" ]
 then
 	echo "export LANG=en_US.UTF-8" >> /var/lucterios2/launch_lucterios.sh
@@ -123,22 +151,22 @@ if [ -d "/usr/share/applications" ]
 then
 	LAUNCHER="/usr/share/applications/lucterios.desktop"
 	echo "[Desktop Entry]" > $LAUNCHER
-	echo "Name=Lucterios" >> $LAUNCHER
-	echo "Comment=Lucterios installer" >> $LAUNCHER
+	echo "Name=$APP_NAME" >> $LAUNCHER
+	echo "Comment=$APP_NAME installer" >> $LAUNCHER
 	echo "Exec=/var/lucterios2/launch_lucterios_gui.sh" >> $LAUNCHER
-	echo "Icon=/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/lucterios/install/lucterios.png" >> $LAUNCHER
+	echo "Icon=/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/$ICON_PATH" >> $LAUNCHER
 	echo "Terminal=false" >> $LAUNCHER
 	echo "Type=Application" >> $LAUNCHER
 	echo "Categories=Office" >> $LAUNCHER
 fi
 if [ "${OSTYPE:0:6}" == "darwin" ]
 then
-	APPDIR="/Applications/Lucterios.app"
+	APPDIR="/Applications/$APP_NAME.app"
 	mkdir -p "$APPDIR/Contents/MacOS"
-	cp "/var/lucterios2/launch_lucterios_gui.sh" "$APPDIR/Contents/MacOS/Lucterios"
-	chmod ogu+rx "$APPDIR/Contents/MacOS/Lucterios"
+	cp "/var/lucterios2/launch_lucterios_gui.sh" "$APPDIR/Contents/MacOS/$APP_NAME"
+	chmod ogu+rx "$APPDIR/Contents/MacOS/$APP_NAME"
 	# change icon
-	icon="/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/lucterios/install/lucterios.png"
+	icon="/var/lucterios2/virtual_for_lucterios/lib/python3.4/site-packages/$ICON_PATH"
 	rm -rf $APPDIR$'/Icon\r'
 	sips -i $icon >/dev/null
 	DeRez -only icns $icon > /tmp/icns.rsrc

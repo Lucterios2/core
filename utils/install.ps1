@@ -1,4 +1,11 @@
 #requires -version 2.0
+param (
+    [string]$extra_url = "http://pypi.lucterios.org/simple",
+    [string]$packages = "lucterios-standard"
+    [string]$icon_path = "lucterios/install/lucterios.ico"
+    [string]$app_name = "Lucterios"
+    [switch]$help = $false
+)
 
 function Test-Admin {
   $currentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())
@@ -8,6 +15,27 @@ function Test-Admin {
 if ((Test-Admin) -eq $false)  {
     Start-Process powershell.exe -Verb RunAs -ArgumentList ('-executionpolicy Bypass -noprofile -noexit -file "{0}" -elevated' -f ($myinvocation.MyCommand.Definition))
     exit
+}
+
+if ($help) {
+	echo "install.ps1: installation for Lucterios"
+	echo "	install.ps1 -help"
+	echo "	install.ps1 [-extra_url <extra_url>] [-packages <packages>] [-icon_path <icon_path>] [-app_name <application_name>]"
+	echo "option:"
+	echo " -help: show this help"
+	echo " -extra_url: define a extra url of pypi server (default: '$extra_url')"
+	echo " -packages: define the packages list to install (default: '$packages')"
+	echo " -icon_path: define the icon path for shortcut (default: '$icon_path')"
+	echo " -app_name: define the application name for shortcut (default: '$app_name')"
+	exit 0
+}
+
+
+if ($extra_url != '') {
+	$PIP_OPTION = " --extra-index-url $extra_url --trusted-host pypi.lucterios.org"
+}
+else {
+	$PIP_OPTION = ""
 }
 
 echo "====== install lucterios ======"
@@ -87,7 +115,7 @@ echo ""
 
 .\virtual_for_lucterios\Scripts\activate
 pip install -U $lxml_install $pycrypto_install
-pip install --extra-index-url http://pypi.lucterios.org/simple --trusted-host pypi.lucterios.org -U lucterios-standard
+pip install $PIP_OPTION -U $packages
 
 echo ""
 echo "------ refresh shortcut ------"
@@ -98,7 +126,7 @@ if (Test-Path $lucterios_path\launch_lucterios.ps1) {
 }
 echo "#requires -version 2.0" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
-echo "echo 'Lucterios GUI launcher'" >> $lucterios_path\launch_lucterios.ps1
+echo "echo '$app_name GUI launcher'" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
 echo "cd $lucterios_path" >> $lucterios_path\launch_lucterios.ps1
 echo "virtual_for_lucterios\Scripts\activate" >> $lucterios_path\launch_lucterios.ps1
@@ -106,20 +134,22 @@ echo "" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:Path=`"`$env:Path;c:\Python34;c:\Python34\DLLs`"" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TCL_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TK_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
-echo "`$env:extra_url='http://pypi.lucterios.org/simple'" >> $lucterios_path\launch_lucterios.ps1
+if ( $extra_url != '') {
+	echo "`$env:extra_url='$extra_url'" >> $lucterios_path\launch_lucterios.ps1
+}
 echo "python virtual_for_lucterios\Scripts\lucterios_gui.py" >> $lucterios_path\launch_lucterios.ps1
 echo "exit" >> $lucterios_path\launch_lucterios.ps1
 echo "" >> $lucterios_path\launch_lucterios.ps1
 
-if (Test-Path $env:Public\Desktop\Lucterios.lnk) {
-    del $env:Public\Desktop\Lucterios.lnk
+if (Test-Path $env:Public\Desktop\$app_name.lnk) {
+    del $env:Public\Desktop\$app_name.lnk
 }
 
 $WshShell = New-Object -ComObject WScript.shell
-$Shortcut = $WshShell.CreateShortcut("$env:Public\Desktop\Lucterios.lnk")
+$Shortcut = $WshShell.CreateShortcut("$env:Public\Desktop\$app_name.lnk")
 $Shortcut.TargetPath = "PowerShell.exe"
 $Shortcut.Arguments = "-ExecutionPolicy Bypass -File $lucterios_path\launch_lucterios.ps1"
-$Shortcut.IconLocation = "$lucterios_path\virtual_for_lucterios\Lib\site-packages\lucterios\install\lucterios.ico"
+$Shortcut.IconLocation = "$lucterios_path\virtual_for_lucterios\Lib\site-packages\$icon_path"
 $Shortcut.WindowStyle = 7
 $Shortcut.Save()
 

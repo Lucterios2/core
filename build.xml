@@ -72,4 +72,49 @@
 	</target>
 
 
+	<available file="/usr/bin/wine" property="wine.present" />
+	<available file="/usr/bin/hdiutil" property="mac.present" />
+
+	<target name="installer_tar">
+		<exec executable="tar" dir="${basedir}/utils">
+			<arg line="-czf ../bin/lucterios_setup.tar.gz install.sh uninstall.sh License.txt" />
+		</exec>
+	</target>
+
+	<target name="installer_win" if="wine.present">
+		<echo message='user.dir=${user.dir} - basedir=${basedir}' />
+		<exec executable="/usr/bin/wine" dir="${basedir}/bin">
+			<env key="WINEPREFIX" value="/home/ubuntu/.wine" />
+			<env key="DISPLAY" value=":0.0" />
+			<arg value="C:/NSIS/makensis.exe" />
+			<arg value="z:${basedir}/utils/setup.nsi" />
+		</exec>
+	</target>
+
+	<target name="installer_mac" if="mac.present">
+		<delete dir="${basedir}/tmp" />
+		<mkdir dir="${basedir}/tmp" />
+		<delete file="${basedir}/lucterios_setup.dmg" />
+		<copy file="${basedir}/utils/install.sh" todir="${basedir}/tmp" />
+		<copy file="${basedir}/utils/uninstall.sh" todir="${basedir}/tmp" />
+		<copy file="${basedir}/utils/License.txt" todir="${basedir}/tmp" />
+		<exec executable="/usr/bin/hdiutil" dir="${basedir}">
+			<arg line="create -ov -srcfolder tmp -volname Lucterios lucterios_setup.dmg" />
+		</exec>
+		<exec executable="/usr/bin/hdiutil" dir="${basedir}">
+			<arg line="internet-enable -yes lucterios_setup.dmg" />
+		</exec>
+		<move file="${basedir}/lucterios_setup.dmg" todir="${basedir}/bin" />
+		<delete dir="${basedir}/tmp" />
+	</target>
+
+	<target name="installers">
+		<delete dir="${basedir}/bin" />
+		<mkdir dir="${basedir}/bin" />
+		<copy file="${basedir}/LICENSE" tofile="${basedir}/utils/License.txt" />
+		<antcall target="installer_tar" />
+		<antcall target="installer_win" />
+		<antcall target="installer_mac" />
+	</target>
+
 </project>
