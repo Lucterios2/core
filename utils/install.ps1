@@ -1,9 +1,9 @@
 #requires -version 2.0
 param (
     [string]$extra_url = "http://pypi.lucterios.org/simple",
-    [string]$packages = "lucterios-standard"
-    [string]$icon_path = "lucterios/install/lucterios.ico"
-    [string]$app_name = "Lucterios"
+    [string]$packages = "lucterios-standard",
+    [string]$icon_path = "lucterios/install/lucterios.ico",
+    [string]$app_name = "Lucterios",
     [switch]$help = $false
 )
 
@@ -31,7 +31,7 @@ if ($help) {
 }
 
 
-if ($extra_url != '') {
+if ($extra_url -ne '') {
 	$PIP_OPTION = " --extra-index-url $extra_url --trusted-host pypi.lucterios.org"
 }
 else {
@@ -134,7 +134,7 @@ echo "" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:Path=`"`$env:Path;c:\Python34;c:\Python34\DLLs`"" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TCL_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
 echo "`$env:TK_LIBRARY='c:\Python34\tcl\tcl8.6'" >> $lucterios_path\launch_lucterios.ps1
-if ( $extra_url != '') {
+if ( $extra_url -ne '') {
 	echo "`$env:extra_url='$extra_url'" >> $lucterios_path\launch_lucterios.ps1
 }
 echo "python virtual_for_lucterios\Scripts\lucterios_gui.py" >> $lucterios_path\launch_lucterios.ps1
