@@ -354,6 +354,29 @@ class XferCompMemo(XferCompButton):
         return compxml
 
 
+class XferCompTemplate(XferCompButton):
+
+    def __init__(self, name):
+        XferCompButton.__init__(self, name)
+        self._component_ident = "TEMPLATE"
+        self.sub_menu = []
+        self.hmin = 200
+        self.vmin = 50
+
+    def add_sub_menu(self, name, value):
+        self.sub_menu.append((name, value))
+
+    def get_reponse_xml(self):
+        compxml = XferCompButton.get_reponse_xml(self)
+        for sub_menu in self.sub_menu:
+            xml_menu = etree.SubElement(compxml, "SUBMENU")
+            etree.SubElement(
+                xml_menu, "NAME").text = six.text_type(sub_menu[0])
+            etree.SubElement(
+                xml_menu, "VALUE").text = six.text_type(sub_menu[1])
+        return compxml
+
+
 class XferCompDate(XferCompButton):
 
     def __init__(self, name):

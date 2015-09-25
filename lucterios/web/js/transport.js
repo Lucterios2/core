@@ -1,4 +1,4 @@
-/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,AUTH_PARAM_NAME*/
+/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log*/
 
 var ENCODE = "utf-8";
 var MANAGER_FILE = "coreIndex.php";
@@ -67,8 +67,7 @@ var HttpTransportAbstract = Class
 			},
 
 			transfertXMLFromServer : function(aParams) {
-				var AUTH_REQUETE = "<REQUETE extension='" + AUTH_PARAM_NAME[4]
-						+ "' action='authentification'>", xml_param = "<?xml version='1.0' encoding='"
+				var AUTH_REQUETE = "<REQUETE extension='CORE' action='authentification'>", xml_param = "<?xml version='1.0' encoding='"
 						+ ENCODE + "'?>", post_xml, data, reponse;
 				xml_param = xml_param + "<REQUETES>\n";
 				post_xml = '';

@@ -22,7 +22,7 @@ var ObserverAcknowledge = ObserverAbstract.extend({
 	},
 
 	getObserverName : function() {
-		return "Core.Acknowledge";
+		return "core.acknowledge";
 	},
 
 	getParameters : function(aCheckNull) {

@@ -49,31 +49,31 @@ class AuthentificationTest(LucteriosTest):
     def test_menu_noconnect(self):
 
         self.call('/CORE/menu', {})
-        self.assert_observer('CORE.Auth', 'CORE', 'menu')
+        self.assert_observer('core.auth', 'CORE', 'menu')
         self.assert_xml_equal('', 'NEEDAUTH')
         self.assert_count_equal('CONNECTION', 0)
 
     def test_badconnect(self):
         self.call('/CORE/authentification', {})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'NEEDAUTH')
         self.assert_count_equal('CONNECTION', 0)
 
         self.call('/CORE/authentification', {'username': '', 'password': ''})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
         self.assert_count_equal('CONNECTION', 0)
 
         self.call(
             '/CORE/authentification', {'username': 'aaa', 'password': 'bbb'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
         self.assert_count_equal('CONNECTION', 0)
 
     def test_connect(self):
         self.call(
             '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
         self.assert_xml_equal('CONNECTION/TITLE', 'Lucterios standard')
         self.assert_xml_equal(
@@ -90,7 +90,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/MODE', '0')
 
         self.call('/CORE/exitConnection', {})
-        self.assert_observer('Core.Acknowledge', 'CORE', 'exitConnection')
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_menu_connected(self):
         self.call(
@@ -98,7 +98,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/menu', {})
-        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_observer('core.menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU", 4)
         self.assert_xml_equal(
             "MENUS/MENU[@id='core.general']", six.text_type('Général'))
@@ -112,10 +112,10 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
         self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
 
         self.call('/CORE/menu', {})
-        self.assert_attrib_equal('', 'observer', 'CORE.Auth')
+        self.assert_attrib_equal('', 'observer', 'core.auth')
         self.assert_xml_equal('', 'NEEDAUTH')
 
     def test_menu_connected_with_empty(self):
@@ -127,7 +127,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/MODE', '0')
 
         self.call('/CORE/menu', {})
-        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_observer('core.menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU", 4)
         self.assert_xml_equal(
             "MENUS/MENU[@id='core.general']", six.text_type('Général'))
@@ -144,17 +144,17 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
         self.call('/CORE/configuration', {})
-        self.assert_observer('CORE.Exception', 'CORE', 'configuration')
+        self.assert_observer('core.exception', 'CORE', 'configuration')
         self.assert_xml_equal(
             "EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
 
         self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
 
     def test_connect_anonymous(self):
         Params.clear()
         self.call('/CORE/authentification', {'username': '', 'password': ''})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
 
         param = Parameter.objects.get(
@@ -164,14 +164,14 @@ class AuthentificationTest(LucteriosTest):
         Params.clear()
 
         self.call('/CORE/authentification', {'username': '', 'password': ''})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
         self.assert_xml_equal('CONNECTION/LOGIN', None)
         self.assert_xml_equal('CONNECTION/REALNAME', None)
         self.assert_xml_equal('CONNECTION/MODE', '1')
 
         self.call('/CORE/menu', {})
-        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_observer('core.menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU", 3)
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
@@ -185,7 +185,7 @@ class AuthentificationTest(LucteriosTest):
     def test_connect_free(self):
         Params.clear()
         self.call('/CORE/authentification', {'username': '', 'password': ''})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
 
         param = Parameter.objects.get(
@@ -195,7 +195,7 @@ class AuthentificationTest(LucteriosTest):
         Params.clear()
 
         self.call('/CORE/authentification', {'username': '', 'password': ''})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
         self.assert_xml_equal('CONNECTION/LOGIN', None)
         self.assert_xml_equal('CONNECTION/REALNAME', None)
@@ -222,12 +222,12 @@ class AuthentificationTest(LucteriosTest):
             act2.check_permission(request), 'check_permission CORE.change_parameter')
 
         self.call('/CORE/configuration', {})
-        self.assert_observer('Core.Custom', 'CORE', 'configuration')
+        self.assert_observer('core.custom', 'CORE', 'configuration')
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Accès libre")
 
         self.call('/CORE/menu', {})
-        self.assert_observer('CORE.Menu', 'CORE', 'menu')
+        self.assert_observer('core.menu', 'CORE', 'menu')
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)
         self.assert_count_equal(
@@ -259,15 +259,15 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/REALNAME', 'empty NOFULL')
 
         self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
 
     def test_password(self):
         self.call(
             '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
 
         self.call('/CORE/changePassword', {})
-        self.assert_observer('Core.Custom', 'CORE', 'changePassword')
+        self.assert_observer('core.custom', 'CORE', 'changePassword')
         self.assert_xml_equal('TITLE', 'Mot de passe')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
@@ -294,37 +294,37 @@ class AuthentificationTest(LucteriosTest):
     def test_changepassword(self):
         self.call(
             '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/modifyPassword',
                   {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
-        self.assert_observer('CORE.Exception', 'CORE', 'modifyPassword')
+        self.assert_observer('core.exception', 'CORE', 'modifyPassword')
         self.assert_xml_equal(
             'EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel erroné!'))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
         self.call('/CORE/modifyPassword',
                   {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
-        self.assert_observer('CORE.Exception', 'CORE', 'modifyPassword')
+        self.assert_observer('core.exception', 'CORE', 'modifyPassword')
         self.assert_xml_equal(
             'EXCEPTION/MESSAGE', six.text_type('Les mots de passes sont différents!'))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
         self.call('/CORE/modifyPassword',
                   {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
-        self.assert_observer('Core.DialogBox', 'CORE', 'modifyPassword')
+        self.assert_observer('core.dialogbox', 'CORE', 'modifyPassword')
         # self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
         self.assert_attrib_equal('TEXT', 'type', '1')
 
         self.call(
             '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
 
         self.call(
             '/CORE/authentification', {'username': 'empty', 'password': '123'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
 
@@ -337,7 +337,7 @@ class ConfigTest(LucteriosTest):
     def test_config(self):
         self.factory.xfer = Configuration()
         self.call('/CORE/configuration', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'configuration')
+        self.assert_observer('core.custom', 'CORE', 'configuration')
         self.assert_xml_equal('TITLE', 'Configuration générale')
         self.assert_count_equal('CONTEXT/PARAM', 1)
         self.assert_xml_equal(
@@ -361,7 +361,7 @@ class ConfigTest(LucteriosTest):
     def test_config_edit(self):
         self.factory.xfer = ParamEdit()
         self.call('/CORE/paramEdit', {'params': 'CORE-connectmode'}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'paramEdit')
+        self.assert_observer('core.custom', 'CORE', 'paramEdit')
 
         self.assert_xml_equal('TITLE', 'Paramètres')
         self.assert_count_equal('CONTEXT/PARAM', 1)
@@ -399,7 +399,7 @@ class ConfigTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'CORE-connectmode', 'CORE-connectmode': '1'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
 
         param = Parameter.objects.get(
             name='CORE-connectmode')

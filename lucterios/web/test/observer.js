@@ -38,9 +38,7 @@ test(
 		"Authentification 1",
 		function() {
 			Singleton().Transport().setSession("");
-			var xml_receive = "<REPONSE observer='CORE.Auth' source_extension='"
-					+ AUTH_PARAM_NAME[4]
-					+ "' source_action='authentification'>"
+			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
 					+ "<CONNECTION>"
 					+ "	<TITLE>Lucterios standard</TITLE><SUBTITLE>Application générique de gestion</SUBTITLE>"
 					+ "	<VERSION>1.4.2.5</VERSION><SERVERVERSION>1.2.5.606</SERVERVERSION>"
@@ -86,93 +84,106 @@ test(
 					"session");
 		});
 
-test("Authentification 2", function() {
-	var xml_receive = "<REPONSE observer='CORE.Auth' source_extension='"
-			+ AUTH_PARAM_NAME[4] + "' source_action='authentification'>"
-			+ "<![CDATA[BADAUTH]]>" + "</REPONSE>";
+test(
+		"Authentification 2",
+		function() {
+			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
+					+ "<![CDATA[BADAUTH]]>" + "</REPONSE>";
 
-	var parse = xml_receive.parseXML();
-	var obs = new ObserverAuthentification();
-	obs.setSource(AUTH_PARAM_NAME[4], "authentification");
-	obs.setContent(parse);
-	obs.show("Connexion");
+			var parse = xml_receive.parseXML();
+			var obs = new ObserverAuthentification();
+			obs.setSource('CORE', "authentification");
+			obs.setContent(parse);
+			obs.show("Connexion");
 
-	var gui = obs.getGUI();
-	ok(gui != null, "getGUI");
-	ok(gui.isExist(), "GUI exist");
+			var gui = obs.getGUI();
+			ok(gui != null, "getGUI");
+			ok(gui.isExist(), "GUI exist");
 
-	var jcnt = gui.getHtmlDom();
+			var jcnt = gui.getHtmlDom();
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label");
-	equal(lbl.text(), "Alias ou Mot de passe incorrect!", 'text 1');
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label");
+			equal(lbl.text(), "Alias ou Mot de passe incorrect!", 'text 1');
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(0) > span");
-	equal(lbl.html(), "<b>Alias</b>", 'text 2');
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(1) > td:eq(0) > span");
+			equal(lbl.html(), "<b>Alias</b>", 'text 2');
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input");
-	equal(lbl.val(), "", 'alias');
-	lbl.val('machin')
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input");
+			equal(lbl.val(), "", 'alias');
+			lbl.val('machin')
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > span");
-	equal(lbl.html(), "<b>Mot de passe</b>", 'text 3');
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > span");
+			equal(lbl.html(), "<b>Mot de passe</b>", 'text 3');
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input");
-	equal(lbl.val(), "", 'MdP');
-	lbl.val('coucou')
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input");
+			equal(lbl.val(), "", 'MdP');
+			lbl.val('coucou')
 
-	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
-	equal(btn1.text(), 'Ok', 'btn 1');
-	var btn2 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(1)");
-	equal(btn2.text(), 'Annuler', 'btn 2');
+			var btn1 = jcnt.parent().find(
+					"div:eq(2) > div:eq(0) > button:eq(0)");
+			equal(btn1.text(), 'Ok', 'btn 1');
+			var btn2 = jcnt.parent().find(
+					"div:eq(2) > div:eq(0) > button:eq(1)");
+			equal(btn2.text(), 'Annuler', 'btn 2');
 
-	equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
+			equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
 
-	btn1.click();
+			btn1.click();
 
-	ok(!gui.isExist(), "GUI exist again");
-	equal(this.mObsFactory.CallList.size(), 1, "Call B Nb");
-	equal(this.mObsFactory.CallList.get(0), AUTH_PARAM_NAME[4]
-			+ "->authentification(" + AUTH_PARAM_NAME[0] + "='machin',"
-			+ AUTH_PARAM_NAME[1] + "='coucou',)", "Call #1");
-});
+			ok(!gui.isExist(), "GUI exist again");
+			equal(this.mObsFactory.CallList.size(), 1, "Call B Nb");
+			equal(
+					this.mObsFactory.CallList.get(0),
+					"CORE->authentification(username='machin',password='coucou',)",
+					"Call #1");
+		});
 
-test("Authentification 3", function() {
-	var xml_receive = "<REPONSE observer='CORE.Auth' source_extension='"
-			+ AUTH_PARAM_NAME[4] + "' source_action='authentification'>"
-			+ "<![CDATA[BADSESS]]>" + "</REPONSE>";
+test(
+		"Authentification 3",
+		function() {
+			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
+					+ "<![CDATA[BADSESS]]>" + "</REPONSE>";
 
-	var parse = xml_receive.parseXML();
-	var obs = new ObserverAuthentification();
-	obs.setSource(AUTH_PARAM_NAME[4], "authentification");
-	obs.setContent(parse);
-	obs.show("Connexion");
+			var parse = xml_receive.parseXML();
+			var obs = new ObserverAuthentification();
+			obs.setSource('CORE', "authentification");
+			obs.setContent(parse);
+			obs.show("Connexion");
 
-	var gui = obs.getGUI();
-	ok(gui != null, "getGUI");
-	ok(gui.isExist(), "GUI exist");
+			var gui = obs.getGUI();
+			ok(gui != null, "getGUI");
+			ok(gui.isExist(), "GUI exist");
 
-	var jcnt = gui.getHtmlDom();
+			var jcnt = gui.getHtmlDom();
 
-	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label");
-	equal(lbl.text(), "Session expirée !", 'text 1');
+			var lbl = jcnt
+					.find("table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label");
+			equal(lbl.text(), "Session expirée !", 'text 1');
 
-	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
-	equal(btn1.text(), 'Ok', 'btn 1');
-	var btn2 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(1)");
-	equal(btn2.text(), 'Annuler', 'btn 2');
+			var btn1 = jcnt.parent().find(
+					"div:eq(2) > div:eq(0) > button:eq(0)");
+			equal(btn1.text(), 'Ok', 'btn 1');
+			var btn2 = jcnt.parent().find(
+					"div:eq(2) > div:eq(0) > button:eq(1)");
+			equal(btn2.text(), 'Annuler', 'btn 2');
 
-	Singleton().mDesc = 0;
-	equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
-	equal(this.mCalled, 0, "Called B");
+			Singleton().mDesc = 0;
+			equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
+			equal(this.mCalled, 0, "Called B");
 
-	btn2.click();
+			btn2.click();
 
-	ok(!gui.isExist(), "GUI exist again");
-	equal(this.mObsFactory.CallList.size(), 0, "Call B Nb");
+			ok(!gui.isExist(), "GUI exist again");
+			equal(this.mObsFactory.CallList.size(), 0, "Call B Nb");
 
-	equal(this.mCalled, 1, "Called B");
-	equal(Singleton().mDesc, null, 'Desc null');
-});
+			equal(this.mCalled, 1, "Called B");
+			equal(Singleton().mDesc, null, 'Desc null');
+		});
 
 test(
 		"Acknowledge",

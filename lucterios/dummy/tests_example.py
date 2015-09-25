@@ -52,7 +52,7 @@ class ExampleTest(LucteriosTest):
     def testlist(self):
         self.factory.xfer = ExampleList()
         self.call('/lucterios.dummy/exampleList', {}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleList')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleList')
 
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/HEADER', 3)
         self.assert_xml_equal(
@@ -77,7 +77,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleList()
         self.call('/lucterios.dummy/exampleList',
                   {'GRID_ORDER%example': 'valid,-value'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleList')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleList')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 5)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[1]/VALUE[@name="name"]', 'blabla')
@@ -94,7 +94,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleList()
         self.call('/lucterios.dummy/exampleList',
                   {'GRID_ORDER%example': 'name'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleList')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleList')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 5)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[1]/VALUE[@name="name"]', 'abc')
@@ -111,7 +111,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleAddModify()
         self.call('/lucterios.dummy/exampleAddModify', {}, False)
         self.assert_observer(
-            'Core.Custom', 'lucterios.dummy', 'exampleAddModify')
+            'core.custom', 'lucterios.dummy', 'exampleAddModify')
         self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_xml_equal('COMPONENTS/EDIT[@name="name"]', None)
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="value"]', "0")
@@ -124,7 +124,7 @@ class ExampleTest(LucteriosTest):
     def testshow(self):
         self.factory.xfer = ExampleShow()
         self.call('/lucterios.dummy/exampleShow', {'example': '2'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleShow')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleShow')
         self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="name"]', "zzzz")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="value"]', "7")
@@ -138,7 +138,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleShow()
         self.call('/lucterios.dummy/exampleShow',
                   {'example': '2', 'name': 'truc', 'value': '37', 'valid': '1'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleShow')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleShow')
         self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="name"]', "zzzz")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="value"]', "7")
@@ -153,12 +153,12 @@ class ExampleTest(LucteriosTest):
     def testsearch(self):
         self.factory.xfer = ExampleSearch()
         self.call('/lucterios.dummy/exampleSearch', {}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
 
         self.factory.xfer = ExampleSearch()
         self.call('/lucterios.dummy/exampleSearch',
                   {'CRITERIA': 'value||3||10'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
@@ -170,7 +170,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleSearch()
         self.call('/lucterios.dummy/exampleSearch',
                   {'CRITERIA': 'price||4||700.0'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 4)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[@id=1]/VALUE[@name="name"]', 'abc')
@@ -184,7 +184,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleSearch()
         self.call('/lucterios.dummy/exampleSearch',
                   {'CRITERIA': 'date||3||2010-12-31//date||4||2000-01-01'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 2)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
@@ -194,7 +194,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleSearch()
         self.call('/lucterios.dummy/exampleSearch',
                   {'CRITERIA': 'time||4||06:00:00//time||3||18:00:00'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD', 2)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="example"]/RECORD[@id=2]/VALUE[@name="name"]', 'zzzz')
@@ -215,7 +215,7 @@ class ExampleTest(LucteriosTest):
     def testprint(self):
         self.factory.xfer = ExamplePrint()
         self.call('/lucterios.dummy/examplePrint', {'example': '2'}, False)
-        self.assert_observer('Core.Print', 'lucterios.dummy', 'examplePrint')
+        self.assert_observer('core.print', 'lucterios.dummy', 'examplePrint')
         pdf_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
@@ -223,7 +223,7 @@ class ExampleTest(LucteriosTest):
     def testlabel(self):
         self.factory.xfer = ExampleLabel()
         self.call('/lucterios.dummy/exampleLabel', {}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'exampleLabel')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleLabel')
         self.assert_count_equal('COMPONENTS/*', 8)
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="lblPrintMode"]', "{[b]}Type de rapport{[/b]}", (0, 0, 1, 1))
@@ -249,7 +249,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleLabel()
         self.call('/lucterios.dummy/exampleLabel',
                   {'PRINT_MODE': '3', 'LABEL': 1, 'FIRSTLABEL': 3, 'MODEL': 2}, False)
-        self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleLabel')
+        self.assert_observer('core.print', 'lucterios.dummy', 'exampleLabel')
         pdf_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
@@ -261,7 +261,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing',
                   {'PRINT_MODE': '4', 'MODEL': 1}, False)
-        self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
+        self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
         csv_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text)).decode("utf-8")
         content_csv = csv_value.split('\n')
@@ -277,7 +277,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.call('/lucterios.dummy/exampleListing',
                   {'PRINT_MODE': '3', 'MODEL': 1}, False)
-        self.assert_observer('Core.Print', 'lucterios.dummy', 'exampleListing')
+        self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
         pdf_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
@@ -290,7 +290,7 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/exampleReporting',
                   {'PRINT_MODE': '4', 'MODEL': 3}, False)
         self.assert_observer(
-            'Core.Print', 'lucterios.dummy', 'exampleReporting')
+            'core.print', 'lucterios.dummy', 'exampleReporting')
         csv_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text)).decode("utf-8")
         content_csv = csv_value.split('\n')
@@ -305,7 +305,7 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/exampleReporting',
                   {'PRINT_MODE': '3', 'MODEL': 3}, False)
         self.assert_observer(
-            'Core.Print', 'lucterios.dummy', 'exampleReporting')
+            'core.print', 'lucterios.dummy', 'exampleReporting')
         pdf_value = b64decode(
             six.text_type(self.get_first_xpath('PRINT').text))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
@@ -313,7 +313,7 @@ class ExampleTest(LucteriosTest):
     def test_other_list(self):
         self.factory.xfer = OtherList()
         self.call('/lucterios.dummy/otherList', {}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'otherList')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherList')
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_count_equal('COMPONENTS/GRID[@name="other"]/HEADER', 4)
         self.assert_xml_equal(
@@ -330,7 +330,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = OtherAddModify()
         self.call('/lucterios.dummy/otherAddModify', {}, False)
         self.assert_observer(
-            'Core.Custom', 'lucterios.dummy', 'otherAddModify')
+            'core.custom', 'lucterios.dummy', 'otherAddModify')
         self.assert_count_equal('COMPONENTS/*', 9)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_action_equal(
@@ -361,11 +361,11 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/otherAddModify',
                   {'SAVE': 'YES', 'text': 'abc', 'bool': '1', 'real': '-159.37', 'integer': '13'}, False)
         self.assert_observer(
-            'Core.Acknowledge', 'lucterios.dummy', 'otherAddModify')
+            'core.acknowledge', 'lucterios.dummy', 'otherAddModify')
 
         self.factory.xfer = OtherShow()
         self.call('/lucterios.dummy/otherShow', {'other': '1'}, False)
-        self.assert_observer('Core.Custom', 'lucterios.dummy', 'otherShow')
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
         self.assert_count_equal('COMPONENTS/*', 9)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_action_equal(

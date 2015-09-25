@@ -33,7 +33,7 @@ class DummyTest(LucteriosTest):
 
     def test_bidule1(self):
         self.call('/lucterios.dummy/bidule', {})
-        self.assert_attrib_equal('', 'observer', 'CORE.Exception')
+        self.assert_attrib_equal('', 'observer', 'core.exception')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Error of bidule')
@@ -44,7 +44,7 @@ class DummyTest(LucteriosTest):
 
     def test_bidule2(self):
         self.call('/lucterios.dummy/bidule', {'error': 'big'})
-        self.assert_attrib_equal('', 'observer', 'CORE.Exception')
+        self.assert_attrib_equal('', 'observer', 'core.exception')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'bidule')
         self.assert_xml_equal('EXCEPTION/MESSAGE', 'Other error:big')
@@ -55,7 +55,7 @@ class DummyTest(LucteriosTest):
 
     def test_truc(self):
         self.call('/lucterios.dummy/truc', {})
-        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'observer', 'core.dialogbox')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'truc')
         self.assert_count_equal('CONTEXT', 0)
@@ -70,14 +70,14 @@ class DummyTest(LucteriosTest):
 
     def test_multi(self):
         self.call('/lucterios.dummy/multi', {})
-        self.assert_attrib_equal('', 'observer', 'Core.DialogBox')
+        self.assert_attrib_equal('', 'observer', 'core.dialogbox')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_attrib_equal('TEXT', 'type', '2')
         self.assert_xml_equal('TEXT', 'Do you want?')
 
         self.call('/lucterios.dummy/multi', {'CONFIRME': 'YES'})
-        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'observer', 'core.custom')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_xml_equal(
@@ -85,7 +85,7 @@ class DummyTest(LucteriosTest):
 
         self.call(
             '/lucterios.dummy/multi', {'CONFIRME': 'YES', 'RELOAD': 'YES'})
-        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'observer', 'core.custom')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'multi')
         self.assert_xml_equal(
@@ -94,7 +94,7 @@ class DummyTest(LucteriosTest):
     def test_testcomposants(self):
 
         self.call('/lucterios.dummy/testComposants', {})
-        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'observer', 'core.custom')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'testComposants')
         self.assert_count_equal('COMPONENTS/*', 22)
@@ -198,7 +198,7 @@ class DummyTest(LucteriosTest):
 
         self.call('/lucterios.dummy/testComposants', {'edt1': 'bbb', 'flt1': '7.896666', 'mm1': 'qwerty', 'dt1': '2015-02-22', 'tm1': '21:05:00',
                                                       'ck1': 'o', 'slct1': '2', 'flt2': '27', 'cl1': '2;4', 'stm1': '2015-03-30 10:00:00'})
-        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'observer', 'core.custom')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'testComposants')
         self.assert_count_equal('COMPONENTS/*', 22)
@@ -238,7 +238,7 @@ class DummyTest(LucteriosTest):
 
     def test_simplegrid(self):
         self.call('/lucterios.dummy/simpleGrid', {})
-        self.assert_attrib_equal('', 'observer', 'Core.Custom')
+        self.assert_attrib_equal('', 'observer', 'core.custom')
         self.assert_attrib_equal('', 'source_extension', 'lucterios.dummy')
         self.assert_attrib_equal('', 'source_action', 'simpleGrid')
 

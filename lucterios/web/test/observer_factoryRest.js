@@ -7,10 +7,10 @@ module('ObserverFactoryRest', {
 		this.mObserverFactory.setHttpTransport(this.mHttpTransport);
 		this.mObserverFactory.clearObserverList();
 
-		this.mObserverFactory.AddObserver("CORE.Auth", ObserverStub);
+		this.mObserverFactory.AddObserver("core.auth", ObserverStub);
 		this.mObserverFactory.AddObserver("Core.Menu", ObserverStub);
-		this.mObserverFactory.AddObserver("Core.DialogBox", ObserverStub);
-		this.mObserverFactory.AddObserver("Core.Custom", ObserverStub);
+		this.mObserverFactory.AddObserver("core.dialogbox", ObserverStub);
+		this.mObserverFactory.AddObserver("core.custom", ObserverStub);
 	},
 	teardown : function() {
 		this.mHttpTransport.close();
@@ -22,7 +22,7 @@ module('ObserverFactoryRest', {
 test(
 		"CallAction",
 		function() {
-			this.mHttpTransport.XmlReceved = "<REPONSES><REPONSE observer='Core.DialogBox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TITLE>Réinitialisation de modele</TITLE><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION action='printmodelReinit' extension='CORE' icon='images/ok.png'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
+			this.mHttpTransport.XmlReceved = "<REPONSES><REPONSE observer='core.dialogbox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TITLE>Réinitialisation de modele</TITLE><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION action='printmodelReinit' extension='CORE' icon='images/ok.png'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
 
 			var current_params = new HashMap();
 			var obs = this.mObserverFactory.callAction("CORE",
@@ -48,8 +48,8 @@ test(
 test(
 		"Refresh",
 		function() {
-			ObserverStub.ObserverName = "Core.DialogBox";
-			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='Core.DialogBox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TITLE>Réinitialisation</TITLE><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION icon='images/ok.png' extension='CORE' action='printmodelReinit'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
+			ObserverStub.ObserverName = "core.dialogbox";
+			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='core.dialogbox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TITLE>Réinitialisation</TITLE><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION icon='images/ok.png' extension='CORE' action='printmodelReinit'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
 
 			var obs = new ObserverStub();
 			obs.setSource("CORE", "printmodelReinit");
@@ -83,7 +83,7 @@ test(
 test(
 		"CallActionWithParam",
 		function() {
-			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='Core.DialogBox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION icon='images/ok.png' extension='CORE' action='printmodelReinit'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
+			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='core.dialogbox' source_extension='CORE' source_action='printmodelReinit'><CONTEXT><PARAM name='print_model'><![CDATA[107]]></PARAM><PARAM name='CONFIRME'><![CDATA[YES]]></PARAM></CONTEXT><TEXT type='2'><![CDATA[Etes-vous sure de reinitialiser ce modele?]]></TEXT><ACTIONS><ACTION icon='images/ok.png' extension='CORE' action='printmodelReinit'><![CDATA[Oui]]></ACTION><ACTION icon='images/cancel.png'><![CDATA[Non]]></ACTION></ACTIONS></REPONSE></REPONSES>";
 
 			var params = new HashMap();
 			params.put("print_model", "107");
@@ -141,35 +141,27 @@ test(
 test(
 		"Authentification",
 		function() {
-			ObserverStub.ObserverName = "CORE.Auth";
+			ObserverStub.ObserverName = "core.auth";
 
-			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='"
-					+ AUTH_PARAM_NAME[4]
-					+ "' source_action='authentification'><![CDATA[NEEDAUTH]]></REPONSE></REPONSES>";
+			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'><![CDATA[NEEDAUTH]]></REPONSE></REPONSES>";
 			ok(!this.mObserverFactory.setAuthentification("abc", "123"), "Bad");
 			equal(this.mHttpTransport.getSession(), "", "Session Bad");
 
 			equal(this.mHttpTransport.XmlParam.size(), 3, 'XmlParam size');
-			equal(this.mHttpTransport.XmlParam['WebFile'], AUTH_PARAM_NAME[4]
-					+ "/authentification", 'WebFile');
-			equal(this.mHttpTransport.XmlParam[AUTH_PARAM_NAME[0]], "abc",
-					AUTH_PARAM_NAME[0]);
-			equal(this.mHttpTransport.XmlParam[AUTH_PARAM_NAME[1]], "123",
-					AUTH_PARAM_NAME[1]);
+			equal(this.mHttpTransport.XmlParam['WebFile'],
+					"CORE/authentification", 'WebFile');
+			equal(this.mHttpTransport.XmlParam["username"], "abc", "username");
+			equal(this.mHttpTransport.XmlParam["password"], "123", "password");
 
-			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='CORE.Auth' source_extension='"
-					+ AUTH_PARAM_NAME[4]
-					+ "' source_action='authentification'><CONNECTION></CONNECTION><PARAM name='ses' type='str'>admin1176588477</PARAM><![CDATA[OK]]></REPONSE></REPONSES>";
+			this.mHttpTransport.XmlReceved = "<?xml version='1.0' encoding='ISO-8859-1'?><REPONSES><REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'><CONNECTION></CONNECTION><PARAM name='ses' type='str'>admin1176588477</PARAM><![CDATA[OK]]></REPONSE></REPONSES>";
 			ok(this.mObserverFactory.setAuthentification("admin", "admin"),
 					"auth OK");
 			equal(this.mHttpTransport.getSession(), "admin1176588477",
 					"Session OK");
 
 			equal(this.mHttpTransport.XmlParam.size(), 3, 'XmlParam size');
-			equal(this.mHttpTransport.XmlParam['WebFile'], AUTH_PARAM_NAME[4]
-					+ "/authentification", 'WebFile');
-			equal(this.mHttpTransport.XmlParam[AUTH_PARAM_NAME[0]], "admin",
-					AUTH_PARAM_NAME[0]);
-			equal(this.mHttpTransport.XmlParam[AUTH_PARAM_NAME[1]], "admin",
-					AUTH_PARAM_NAME[1]);
+			equal(this.mHttpTransport.XmlParam['WebFile'],
+					"CORE/authentification", 'WebFile');
+			equal(this.mHttpTransport.XmlParam["username"], "admin", "username");
+			equal(this.mHttpTransport.XmlParam["password"], "admin", "password");
 		});

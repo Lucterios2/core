@@ -40,7 +40,7 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat
+    XferCompMemo, XferCompFloat, XferCompTemplate
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir
@@ -414,7 +414,7 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
     def _fill_report_editor(self):
-        edit = XferCompMemo('value')
+        edit = XferCompTemplate('value')
         edit.set_value(self.item.value)
         edit.set_location(1, 3, 2)
         edit.set_size(400, 700)

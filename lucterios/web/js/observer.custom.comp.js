@@ -437,7 +437,7 @@ var compFloat = compAbstractEvent
 				var val_num;
 				if (this.is_return_null() === true) {
 					return NULL_VALUE;
-				} 
+				}
 				val_num = this.getGUIComp().val();
 				val_num = Math.max(val_num, this.min);
 				val_num = Math.min(val_num, this.max);
@@ -605,6 +605,18 @@ var compMemo = compAbstractEvent
 
 		});
 
+var compTemplate = compMemo.extend({
+	initial : function(component) {
+		this._super(component);
+		this.with_hypertext = 1;
+		this.value = component.getTextFromXmlNode();
+	},
+	fillValue : function(params) {
+		var val = this.getValue();
+		params.put(this.name, val);
+	}
+});
+
 var compPassword = compAbstractEvent.extend({
 	value : "",
 
@@ -668,7 +680,7 @@ var compDate = compAbstractEvent
 				var date_nums;
 				if (this.is_return_null() === true) {
 					return NULL_VALUE;
-				} 
+				}
 				date_nums = this.getGUIComp().val().split('/');
 				return "{0}-{1}-{2}".format(date_nums[2], date_nums[1],
 						date_nums[0]);

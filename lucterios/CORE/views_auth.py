@@ -59,7 +59,7 @@ def get_info_server():
 @MenuManage.describ('')
 class Authentification(XferContainerAbstract):
     caption = 'info'
-    observer_name = 'CORE.Auth'
+    observer_name = 'core.auth'
 
     def fillresponse(self, username, password, info):
         from django.contrib.auth import authenticate, login, logout
@@ -104,6 +104,7 @@ class Authentification(XferContainerAbstract):
         etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(
             settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
+        etree.SubElement(connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(
             settings.APPLI_EMAIL)
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()

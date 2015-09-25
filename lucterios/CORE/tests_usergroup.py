@@ -50,7 +50,7 @@ class UserTest(LucteriosTest):
     def test_userlist(self):
         self.factory.xfer = UsersList()
         self.call('/CORE/usersList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'usersList')
+        self.assert_observer('core.custom', 'CORE', 'usersList')
         self.assert_xml_equal('TITLE', 'Utilisateurs')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -158,7 +158,7 @@ class UserTest(LucteriosTest):
 
         self.factory.xfer = UsersDelete()
         self.call('/CORE/usersDelete', {'user_actif': '3;4'}, False)
-        self.assert_observer('Core.DialogBox', 'CORE', 'usersDelete')
+        self.assert_observer('core.dialogbox', 'CORE', 'usersDelete')
         self.assert_count_equal('CONTEXT/PARAM', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3;4')
         self.assert_attrib_equal('TEXT', 'type', '2')
@@ -179,7 +179,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersDelete()
         self.call(
             '/CORE/usersDelete', {'user_actif': '3;4', 'CONFIRME': 'YES'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersDelete')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersDelete')
         self.assert_count_equal('CONTEXT', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="CONFIRME"]', 'YES')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3;4')
@@ -199,12 +199,12 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/usersDelete', {'user_actif': '1'})
-        self.assert_observer('CORE.Exception', 'CORE', 'usersDelete')
+        self.assert_observer('core.exception', 'CORE', 'usersDelete')
         self.assert_xml_equal(
             "EXCEPTION/MESSAGE", "Vous ne pouvez vous supprimer!")
 
         self.call('/CORE/usersDisabled', {'user_actif': '1'})
-        self.assert_observer('CORE.Exception', 'CORE', 'usersDisabled')
+        self.assert_observer('core.exception', 'CORE', 'usersDisabled')
         self.assert_xml_equal(
             "EXCEPTION/MESSAGE", "Vous ne pouvez vous désactiver!")
 
@@ -227,7 +227,7 @@ class UserTest(LucteriosTest):
 
         self.factory.xfer = UsersDisabled()
         self.call('/CORE/usersDisabled', {'user_actif': '3'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersDisabled')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersDisabled')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
 
         self.factory.xfer = UsersList()
@@ -245,7 +245,7 @@ class UserTest(LucteriosTest):
 
         self.factory.xfer = UsersEnabled()
         self.call('/CORE/usersEnabled', {'user_inactif': '3'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEnabled')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEnabled')
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_inactif"]', '3')
 
         self.factory.xfer = UsersList()
@@ -265,7 +265,7 @@ class UserTest(LucteriosTest):
         add_user("user1")
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'user_actif': '3'}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assert_xml_equal('TITLE', 'Modifier un utilisateur')
         self.assert_count_equal('CONTEXT', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
@@ -403,7 +403,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3', "is_staff": '1',
                                       "is_superuser": 'o', "first_name": 'foo', "last_name": 'SUPER', "email": 'foo@super.com'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
         self.assert_count_equal('CONTEXT/PARAM', 7)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '1')
@@ -424,7 +424,7 @@ class UserTest(LucteriosTest):
     def test_useradd(self):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assert_xml_equal('TITLE', 'Ajouter un utilisateur')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
@@ -521,7 +521,7 @@ class UserTest(LucteriosTest):
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'newuser', "is_staff": '0', "is_superuser": '1', "first_name": 'my', "last_name": 'BIG',
                                       "email": 'my@big.org', 'groups': '1', 'user_permissions': '7;9;11'}, False)
 
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
         self.assert_count_equal('CONTEXT/PARAM', 9)
         self.assert_xml_equal('CONTEXT/PARAM[@name="username"]', 'newuser')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '0')
@@ -573,7 +573,7 @@ class UserTest(LucteriosTest):
 
         self.factory.xfer = UsersDelete()
         self.call('/CORE/usersDelete', {'user_inactif': '3'}, False)
-        self.assert_observer('Core.DialogBox', 'CORE', 'usersDelete')
+        self.assert_observer('core.dialogbox', 'CORE', 'usersDelete')
         self.assert_xml_equal(
             'TEXT', "Voulez-vous supprimer cet enregistrement de 'utilisateur'?")
         self.assert_count_equal('CONTEXT/PARAM', 1)
@@ -582,7 +582,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersDelete()
         self.call(
             '/CORE/usersDelete', {'user_inactif': '3', "CONFIRME": 'YES'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersDelete')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersDelete')
 
         self.factory.xfer = UsersList()
         self.call('/CORE/usersList', {}, False)
@@ -602,7 +602,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3',
                                       'password_change': 'o', 'password1': 'abc', 'password2': '132'}, False)
-        self.assert_observer('CORE.Exception', 'CORE', 'usersEdit')
+        self.assert_observer('core.exception', 'CORE', 'usersEdit')
         self.assert_xml_equal(
             'EXCEPTION/MESSAGE', 'Les mots de passes sont différents!')
         self.assert_xml_equal('EXCEPTION/CODE', '3')
@@ -613,14 +613,14 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3',
                                       'password_change': 'n', 'password1': '', 'password2': ''}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
         user = LucteriosUser.objects.get(id=3)
         self.assertTrue(user.check_password('user'), 'after empty')
 
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3',
                                       'password_change': 'o', 'password1': 'abc', 'password2': 'abc'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
         user = LucteriosUser.objects.get(id=3)
         self.assertTrue(user.check_password('abc'), 'success after change')
         self.assertFalse(user.check_password('user'), 'wrong after change')
@@ -628,7 +628,7 @@ class UserTest(LucteriosTest):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3',
                                       'password_change': 'o', 'password1': '', 'password2': ''}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'usersEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
         user = LucteriosUser.objects.get(id=3)
         self.assertTrue(user.check_password(''), 'success after change')
         self.assertFalse(user.check_password('abc'), 'wrong1 after change')
@@ -641,11 +641,11 @@ class UserTest(LucteriosTest):
 
         self.call(
             '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/usersEdit', {'user_actif': '3'})
-        self.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
         self.assert_action_equal(
             'CLOSE_ACTION/ACTION', ('unlock', None, "CORE", "unlock", 1, 1, 1))
@@ -658,21 +658,21 @@ class UserTest(LucteriosTest):
         new_test.setUp()
         new_test.call(
             '/CORE/authentification', {'username': 'user1', 'password': 'user1'})
-        new_test.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        new_test.assert_observer('core.auth', 'CORE', 'authentification')
         new_test.assert_xml_equal('', 'OK')
 
         new_test.call('/CORE/usersEdit', {'user_actif': '3'})
-        new_test.assert_observer('CORE.Exception', 'CORE', 'usersEdit')
+        new_test.assert_observer('core.exception', 'CORE', 'usersEdit')
         new_test.assert_xml_equal(
             'EXCEPTION/MESSAGE', six.text_type("Enregistrement verrouillé par 'admin'!"))
         new_test.assert_xml_equal('EXCEPTION/CODE', '3')
 
         self.call(
             '/CORE/unlock', {'user_actif': '3', "LOCK_IDENT": 'lucterios.CORE.models-LucteriosUser-3'})
-        self.assert_observer('Core.Acknowledge', 'CORE', 'unlock')
+        self.assert_observer('core.acknowledge', 'CORE', 'unlock')
 
         new_test.call('/CORE/usersEdit', {'user_actif': '3'})
-        new_test.assert_observer('Core.Custom', 'CORE', 'usersEdit')
+        new_test.assert_observer('core.custom', 'CORE', 'usersEdit')
 
 
 class GroupTest(LucteriosTest):
@@ -692,7 +692,7 @@ class GroupTest(LucteriosTest):
     def test_grouplist(self):
         self.factory.xfer = GroupsList()
         self.call('/CORE/groupsList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'groupsList')
+        self.assert_observer('core.custom', 'CORE', 'groupsList')
         self.assert_xml_equal('TITLE', 'Les groupes')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -723,7 +723,7 @@ class GroupTest(LucteriosTest):
     def test_groupadd(self):
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_xml_equal('TITLE', 'Ajouter un groupe')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
@@ -776,7 +776,7 @@ class GroupTest(LucteriosTest):
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit',
                   {'SAVE': 'YES', 'name': 'newgroup', "permissions": '1;3;5;7'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'groupsEdit')
+        self.assert_observer('core.acknowledge', 'CORE', 'groupsEdit')
         self.assert_count_equal('CONTEXT/PARAM', 3)
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
@@ -801,7 +801,7 @@ class GroupTest(LucteriosTest):
 
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit', {'group': '1'}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_xml_equal('TITLE', 'Modifier un groupe')
 
         self.assert_comp_equal(
@@ -812,7 +812,7 @@ class GroupTest(LucteriosTest):
     def test_groupedit_notexist(self):
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit', {'group': '50'}, False)
-        self.assert_observer('CORE.Exception', 'CORE', 'groupsEdit')
+        self.assert_observer('core.exception', 'CORE', 'groupsEdit')
         self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type(
             "Cet enregistrment n'existe pas!\nVeuillez rafraichir votre application."))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
@@ -825,7 +825,7 @@ class GroupTest(LucteriosTest):
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit',
                   {'SAVE': 'YES', 'name': 'mygroup', "permissions": '1;3;5;7'}, False)
-        self.assert_observer('Core.DialogBox', 'CORE', 'groupsEdit')
+        self.assert_observer('core.dialogbox', 'CORE', 'groupsEdit')
         self.assert_count_equal('CONTEXT/PARAM', 3)
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'mygroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
@@ -861,11 +861,11 @@ class GroupTest(LucteriosTest):
 
         self.call(
             '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/groupsEdit', {'group': '1'})
-        self.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
         self.assert_action_equal(
             'CLOSE_ACTION/ACTION', ('unlock', None, "CORE", "unlock", 1, 1, 1))
@@ -878,11 +878,11 @@ class GroupTest(LucteriosTest):
         new_test.setUp()
         new_test.call(
             '/CORE/authentification', {'username': 'user1', 'password': 'user1'})
-        new_test.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        new_test.assert_observer('core.auth', 'CORE', 'authentification')
         new_test.assert_xml_equal('', 'OK')
 
         new_test.call('/CORE/groupsEdit', {'group': '1'})
-        new_test.assert_observer('CORE.Exception', 'CORE', 'groupsEdit')
+        new_test.assert_observer('core.exception', 'CORE', 'groupsEdit')
         new_test.assert_xml_equal(
             'EXCEPTION/MESSAGE', six.text_type("Enregistrement verrouillé par 'admin'!"))
         new_test.assert_xml_equal('EXCEPTION/CODE', '3')
@@ -890,7 +890,7 @@ class GroupTest(LucteriosTest):
         self.call('/CORE/exitConnection', {})
 
         new_test.call('/CORE/groupsEdit', {'group': '1'})
-        new_test.assert_observer('Core.Custom', 'CORE', 'groupsEdit')
+        new_test.assert_observer('core.custom', 'CORE', 'groupsEdit')
 
 
 class SessionTest(LucteriosTest):
@@ -903,11 +903,11 @@ class SessionTest(LucteriosTest):
     def test_sessionlist(self):
         self.call(
             '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/sessionList', {})
-        self.assert_observer('Core.Custom', 'CORE', 'sessionList')
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
         self.assert_xml_equal('TITLE', 'Sessions')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -940,7 +940,7 @@ class SessionTest(LucteriosTest):
     def test_sessiondel(self):
         self.call(
             '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_observer('CORE.Auth', 'CORE', 'authentification')
+        self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/sessionList', {})
@@ -950,10 +950,10 @@ class SessionTest(LucteriosTest):
 
         self.call(
             '/CORE/sessionDelete', {'session': session_id, 'CONFIRME': 'YES'})
-        self.assert_observer('Core.Acknowledge', 'CORE', 'sessionDelete')
+        self.assert_observer('core.acknowledge', 'CORE', 'sessionDelete')
 
         self.call('/CORE/sessionList', {})
-        self.assert_observer('CORE.Exception', 'CORE', 'sessionList')
+        self.assert_observer('core.exception', 'CORE', 'sessionList')
         self.assert_xml_equal(
             "EXCEPTION/MESSAGE", six.text_type("Mauvaise permission pour 'Utilisateur anonyme'"))
         self.assert_count_equal('CLOSE_ACTION/ACTION', 1)

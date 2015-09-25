@@ -1,11 +1,10 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,g_InitialCallBack,G_Version,refreshCurrentAcideMenu,AUTH_PARAM_NAME*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,g_InitialCallBack,G_Version,refreshCurrentAcideMenu*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 
 function refresh_function() {
 	$("#lucteriosClient").html('<div class="waiting"/>');
 	var act = Singleton().CreateAction();
-	act.initializeEx(null, Singleton().Factory(), '', AUTH_PARAM_NAME[4],
-			'authentification');
+	act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'authentification');
 	act.getParameters = function() {
 		var param = new HashMap();
 		param.put('info', 'true');
@@ -41,14 +40,13 @@ function standard_initial() {
 
 	Singleton().Factory().clearObserverList();
 
-	Singleton().Factory().AddObserver("CORE.Auth", ObserverAuthentification);
-	Singleton().Factory().AddObserver("CORE.Menu", ObserverMenu);
-	Singleton().Factory().AddObserver("Core.DialogBox", ObserverDialogBox);
-	Singleton().Factory().AddObserver("Core.Custom", ObserverCustom);
-	Singleton().Factory().AddObserver("Core.Acknowledge", ObserverAcknowledge);
-	Singleton().Factory().AddObserver("CORE.Exception", ObserverException);
-	Singleton().Factory().AddObserver("Core.Print", ObserverPrint);
-	// Singleton().Factory().AddObserver("Core.Template", ObserverTemplate);
+	Singleton().Factory().AddObserver("core.auth", ObserverAuthentification);
+	Singleton().Factory().AddObserver("core.menu", ObserverMenu);
+	Singleton().Factory().AddObserver("core.dialogbox", ObserverDialogBox);
+	Singleton().Factory().AddObserver("core.custom", ObserverCustom);
+	Singleton().Factory().AddObserver("core.acknowledge", ObserverAcknowledge);
+	Singleton().Factory().AddObserver("core.exception", ObserverException);
+	Singleton().Factory().AddObserver("core.print", ObserverPrint);
 }
 
 function disconnect_function() {
@@ -183,6 +181,7 @@ function initial_function() {
 			act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'menu');
 			act.actionPerformed();
 		}
+		$('body').css('background', '#EEE url('+Singleton().mDesc.mBackground+') repeat');
 	}
 }
 

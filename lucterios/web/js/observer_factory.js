@@ -1,4 +1,4 @@
-/*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,AUTH_PARAM_NAME,post_log*/
+/*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,post_log*/
 
 var ObserverFactoryAbstract = Class
 		.extend({
@@ -35,16 +35,16 @@ var ObserverFactoryAbstract = Class
 			setAuthentification : function(aLogin, aPassWord) {
 				var res = false, param = new HashMap(), aut, xml_aut, xml_params, session;
 				if ((aLogin === null)) {
-					param.put(AUTH_PARAM_NAME[2], aPassWord);
-					param.put(AUTH_PARAM_NAME[3], "1");
+					param.put('ses', aPassWord);
+					param.put('info', "1");
 				} else {
-					param.put(AUTH_PARAM_NAME[0], aLogin);
-					param.put(AUTH_PARAM_NAME[1], aPassWord);
+					param.put('username', aLogin);
+					param.put('password', aPassWord);
 					this.mTransport.setLastLogin(aLogin);
 				}
-				aut = this.callAction(AUTH_PARAM_NAME[4], "authentification",
+				aut = this.callAction('CORE', "authentification",
 						param, null);
-				if (aut.getObserverName() === "CORE.Auth") {
+				if (aut.getObserverName() === "core.auth") {
 					xml_aut = aut.getContent();
 					xml_params = xml_aut.getElementsByTagName("PARAM");
 					if (xml_params.length > 0) {
@@ -121,8 +121,8 @@ var ObserverFactoryImpl = ObserverFactoryAbstract
 							if ((res_obs.getObserverName() !== observer_name)
 									|| (source_action === "")
 									|| (source_extension === "")) {
-								if ((observer_name === "CORE.Auth")
-										|| (observer_name === "CORE.Exception")) {
+								if ((observer_name === "core.auth")
+										|| (observer_name === "core.exception")) {
 									res_obs = this.factoryObserver(
 											observer_name,
 											this.m_XMLParameters, xml_text);

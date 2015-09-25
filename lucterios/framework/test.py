@@ -152,12 +152,12 @@ class LucteriosTest(TestCase):
             self.assert_attrib_equal('', 'source_extension', extension)
             self.assert_attrib_equal('', 'source_action', action)
         except AssertionError:
-            if self.get_first_xpath('').get('observer') == 'CORE.Exception':
+            if self.get_first_xpath('').get('observer') == 'core.exception':
                 six.print_(
                     "Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
                 six.print_("Call-stack:" + six.text_type(
                     self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
-            if self.get_first_xpath('').get('observer') == 'Core.DialogBox':
+            if self.get_first_xpath('').get('observer') == 'core.dialogbox':
                 six.print_(
                     "Message:" + six.text_type(self.get_first_xpath('TEXT').text))
             raise

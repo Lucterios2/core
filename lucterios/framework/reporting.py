@@ -120,10 +120,11 @@ class LucteriosPDF(object):
         self.t_margin = get_size(self.xml, 'margin_top')
         self.r_margin = get_size(self.xml, 'margin_right')
         self.b_margin = get_size(self.xml, 'margin_bottom')
-        header = self.pages[0].xpath('header')
-        bottom = self.pages[0].xpath('bottom')
-        self.header_h = get_size(header[0], 'extent')
-        self.bottom_h = get_size(bottom[0], 'extent')
+        if len(self.pages) > 0:
+            header = self.pages[0].xpath('header')
+            bottom = self.pages[0].xpath('bottom')
+            self.header_h = get_size(header[0], 'extent')
+            self.bottom_h = get_size(bottom[0], 'extent')
         self.pdf.setPageSize((self.width, self.height))
 
     def get_top_component(self, xmlitem):

@@ -40,7 +40,7 @@ class PrintTest(LucteriosTest):
     def testlist(self):
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_count_equal('COMPONENTS/*', 5)
         self.assert_comp_equal(
             'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
@@ -71,7 +71,7 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelList()
         self.call(
             '/CORE/printModelList', {"modelname": "dummy.Example"}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_comp_equal(
             'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
         self.assert_count_equal(
@@ -80,7 +80,7 @@ class PrintTest(LucteriosTest):
     def testedit_listing(self):
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 1}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelEdit')
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_count_equal('COMPONENTS/*', 6 + 7 + 6 * 3)
         self.assert_comp_equal(
             'COMPONENTS/EDIT[@name="name"]', "listing", (2, 1, 1, 1))
@@ -140,11 +140,11 @@ class PrintTest(LucteriosTest):
         params["col_title_5"] = ""
         params["col_text_5"] = ""
         self.call('/CORE/printModelSave', params, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelSave')
 
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 1}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelEdit')
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_comp_equal(
             'COMPONENTS/FLOAT[@name="page_width"]', "297", (2, 3, 2, 1))
         self.assert_comp_equal(
@@ -178,7 +178,7 @@ class PrintTest(LucteriosTest):
     def testedit_label(self):
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 2}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelEdit')
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_count_equal('COMPONENTS/*', 6 + 1)
         self.assert_comp_equal(
             'COMPONENTS/EDIT[@name="name"]', "label", (2, 1, 1, 1))
@@ -192,22 +192,22 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelSave()
         self.call('/CORE/printModelSave', {'print_model': 2, 'value':
                                            "#name{[newline]}#date #time{[newline]}#value:#price"}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelSave')
 
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 2}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelEdit')
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_comp_equal(
             'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#date #time{[newline]}#value:#price", (1, 3, 2, 1))
 
     def testclonedel_listing(self):
         self.factory.xfer = PrintModelClone()
         self.call('/CORE/printModelClone', {'print_model': 1}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelClone')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelClone')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 4)
         self.assert_xml_equal(
@@ -230,11 +230,11 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelDelete()
         self.call(
             '/CORE/printModelDelete', {'print_model': 4, 'CONFIRME': 'YES'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelDelete')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelDelete')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(
@@ -247,11 +247,11 @@ class PrintTest(LucteriosTest):
     def testclonedel_label(self):
         self.factory.xfer = PrintModelClone()
         self.call('/CORE/printModelClone', {'print_model': 2}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelClone')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelClone')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 4)
         self.assert_xml_equal(
@@ -274,11 +274,11 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelDelete()
         self.call(
             '/CORE/printModelDelete', {'print_model': 4, 'CONFIRME': 'YES'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'printModelDelete')
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelDelete')
 
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
-        self.assert_observer('Core.Custom', 'CORE', 'printModelList')
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(

@@ -73,7 +73,7 @@ class GenericTest(LucteriosTest):
 
     def test_simple(self):
         self.call('/customer/details', {'id': 12, 'value': 'abc'}, False)
-        self.assert_observer('Core.Acknowledge', 'customer', 'details')
+        self.assert_observer('core.acknowledge', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 1)
         self.assert_count_equal('CONTEXT/PARAM', 2)
         self.assert_xml_equal('CONTEXT/PARAM[@name="id"]', '12')
@@ -86,7 +86,7 @@ class GenericTest(LucteriosTest):
                 WrapAction("close", "", "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_close
         self.call('/customer/details', {}, False)
-        self.assert_observer('Core.Acknowledge', 'customer', 'details')
+        self.assert_observer('core.acknowledge', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTION', 0)
         self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
@@ -99,7 +99,7 @@ class GenericTest(LucteriosTest):
                 WrapAction("redirect", "", "customer", "list"), {})
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.call('/customer/details', {}, False)
-        self.assert_observer('Core.Acknowledge', 'customer', 'details')
+        self.assert_observer('core.acknowledge', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTION', 1)
         self.assert_action_equal(
@@ -114,7 +114,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer.fillresponse = fillresponse_confirme
         self.call('/customer/details', {}, False)
         self.assertEqual(self.value, False)
-        self.assert_observer('Core.DialogBox', 'customer', 'details')
+        self.assert_observer('core.dialogbox', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_attrib_equal('TEXT', 'type', '2')
         self.assert_xml_equal('TEXT', 'Do you want?')
@@ -126,14 +126,14 @@ class GenericTest(LucteriosTest):
 
         self.call('/customer/details', {'CONFIRME': 'YES'}, False)
         self.assertEqual(self.value, True)
-        self.assert_attrib_equal('', 'observer', 'Core.Acknowledge')
+        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
 
     def test_message(self):
         def fillresponse_message():
             self.factory.xfer.message("Finished!", XFER_DBOX_WARNING)
         self.factory.xfer.fillresponse = fillresponse_message
         self.call('/customer/details', {}, False)
-        self.assert_observer('Core.DialogBox', 'customer', 'details')
+        self.assert_observer('core.dialogbox', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_attrib_equal('TEXT', 'type', '3')
         self.assert_xml_equal('TEXT', 'Finished!')
@@ -149,7 +149,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer.fillresponse = fillresponse_traitment
         self.call('/customer/details', {}, False)
         self.assertEqual(self.value, False)
-        self.assert_observer('Core.Custom', 'customer', 'details')
+        self.assert_observer('core.custom', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_xml_equal(
@@ -166,7 +166,7 @@ class GenericTest(LucteriosTest):
 
         self.call('/customer/details', {'RELOAD': 'YES'}, False)
         self.assertEqual(self.value, True)
-        self.assert_observer('Core.Custom', 'customer', 'details')
+        self.assert_observer('core.custom', 'customer', 'details')
         self.assert_count_equal('CONTEXT', 1)
         self.assert_attrib_equal('CONTEXT/PARAM', 'name', 'RELOAD')
         self.assert_xml_equal('CONTEXT/PARAM', 'YES')
@@ -198,7 +198,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_text', 'param_text': 'new value'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_text'), 'new value')
 
     def test_parameters_memo(self):
@@ -221,7 +221,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_memo', 'param_memo': 'new special value'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_memo'), 'new special value')
 
     def test_parameters_int(self):
@@ -249,7 +249,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_int', 'param_int': '13'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_int'), 13)
 
     def test_parameters_float(self):
@@ -277,7 +277,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_float', 'param_float': '26.87'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_float'), 26.87)
 
     def test_parameters_bool(self):
@@ -299,7 +299,7 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_bool', 'param_bool': '1'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_bool'), True)
 
     def test_parameters_select(self):
@@ -323,5 +323,5 @@ class GenericTest(LucteriosTest):
         self.factory.xfer = ParamSave()
         self.call(
             '/CORE/paramSave', {'params': 'param_select', 'param_select': '1'}, False)
-        self.assert_observer('Core.Acknowledge', 'CORE', 'paramSave')
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_select'), 1)

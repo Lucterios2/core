@@ -11,7 +11,7 @@ var ObserverException = ObserverAbstract
 			stack_text : "",
 
 			getObserverName : function() {
-				return "CORE.Exception";
+				return "core.exception";
 			},
 
 			setContent : function(aDomXmlContent) {

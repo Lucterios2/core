@@ -317,8 +317,10 @@ class ReportGenerator(object):
         self.modelxml.attrib['margin_left'] = "%d.0" % self.horizontal_marge
         self.modelxml.attrib['margin_bottom'] = "%d.0" % self.vertical_marge
         self.modelxml.attrib['margin_top'] = "%d.0" % self.vertical_marge
-        self.header.attrib['extent'] = "%d.0" % self.header_height
-        self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
+        if self.header:
+            self.header.attrib['extent'] = "%d.0" % self.header_height
+        if self.bottom:
+            self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
 
     def fill_content(self, _):
         pass

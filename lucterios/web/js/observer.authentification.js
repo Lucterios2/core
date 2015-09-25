@@ -1,4 +1,4 @@
-/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,AUTH_PARAM_NAME */
+/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl */
 
 var ApplicationDescription = Class
 		.extend({
@@ -8,6 +8,7 @@ var ApplicationDescription = Class
 			mServerVersion : '',
 			mCopyRigth : '',
 			mLogoIconName : '',
+			mBackground : '',
 			mLogin : '',
 			mInfoServer : '',
 			mSupportEmail : '',
@@ -15,17 +16,20 @@ var ApplicationDescription = Class
 			mRealName : '',
 			mMode : 0,
 
-			init : function(aTitle, aCopyRigth, aLogoName, aAppliVersion,
+			init : function(aTitle, aCopyRigth, aAppliVersion,
 					aServerVersion) {
 				this.mTitle = aTitle;
 				this.mApplisVersion = aAppliVersion;
 				this.mServerVersion = aServerVersion;
 				this.mCopyRigth = aCopyRigth;
-				this.setLogoIconName(aLogoName);
 			},
 
 			setLogoIconName : function(aLogoIconName) {
 				this.mLogoIconName = aLogoIconName;
+			},
+			
+			setBackground : function(aBackground) {
+				this.mBackground = aBackground;
 			},
 
 			getTitle : function() {
@@ -190,7 +194,7 @@ var ObserverAuthentification = ObserverAbstract
 			acts : null,
 
 			getObserverName : function() {
-				return "CORE.Auth";
+				return "core.auth";
 			},
 
 			setContent : function(aDomXmlContent) {
@@ -203,8 +207,8 @@ var ObserverAuthentification = ObserverAbstract
 								function(aParams) {
 									if (this.mGUI !== null) {
 										var login = aParams
-												.get(AUTH_PARAM_NAME[0]), pass = aParams
-												.get(AUTH_PARAM_NAME[1]);
+												.get('username'), pass = aParams
+												.get('password');
 										Singleton().Factory()
 												.setAuthentification(login,
 														pass);
@@ -231,9 +235,10 @@ var ObserverAuthentification = ObserverAbstract
 					desc = new ApplicationDescription(xml_connection
 							.getCDataOfFirstTag("TITLE"), xml_connection
 							.getCDataOfFirstTag("COPYRIGHT"), xml_connection
-							.getCDataOfFirstTag("LOGONAME"), xml_connection
 							.getCDataOfFirstTag("VERSION"), xml_connection
 							.getCDataOfFirstTag("SERVERVERSION"));
+					desc.setLogoIconName(xml_connection.getCDataOfFirstTag("LOGONAME"));
+					desc.setBackground(xml_connection.getCDataOfFirstTag("BACKGROUND"));
 					desc.setSupportEmail(xml_connection
 							.getCDataOfFirstTag("SUPPORT_EMAIL"));
 					desc.setInfoServer(xml_connection
@@ -264,10 +269,10 @@ var ObserverAuthentification = ObserverAbstract
 					jcnt = this.mGUI.getHtmlDom();
 					login = jcnt
 							.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input");
-					requete.put(AUTH_PARAM_NAME[0], login.val());
+					requete.put('username', login.val());
 					pass = jcnt
 							.find("table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input");
-					requete.put(AUTH_PARAM_NAME[1], pass.val());
+					requete.put('password', pass.val());
 					$('#frm_' + this.mGUI.mId).submit();
 				}
 				return requete;

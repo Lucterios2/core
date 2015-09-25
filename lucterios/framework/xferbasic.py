@@ -308,7 +308,7 @@ class XferContainerAbstract(View):
 
 class XferContainerMenu(XferContainerAbstract):
 
-    observer_name = 'CORE.Menu'
+    observer_name = 'core.menu'
 
     def fillresponse(self):
         from lucterios.framework.tools import MenuManage
@@ -318,7 +318,7 @@ class XferContainerMenu(XferContainerAbstract):
 
 class XferContainerException(XferContainerAbstract):
 
-    observer_name = 'CORE.Exception'
+    observer_name = 'core.exception'
     exception = None
 
     def __init__(self):

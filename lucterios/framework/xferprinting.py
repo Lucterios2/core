@@ -46,7 +46,7 @@ PRINT_CSV_FILE = 4
 
 class XferContainerPrint(XferContainerAbstract):
 
-    observer_name = "Core.Print"
+    observer_name = "core.print"
     with_text_export = False
 
     def __init__(self):

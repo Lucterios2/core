@@ -21,7 +21,7 @@ module('ObserverMenu', {
 test(
 		"Menu_Simple",
 		function() {
-			var xml_receive = "<REPONSE observer='CORE.Menu' source_extension='CORE' source_action='menu'>"
+			var xml_receive = "<REPONSE observer='core.menu' source_extension='CORE' source_action='menu'>"
 					+ "<TITLE><![CDATA[Menu de l application]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
 					+ "<MENUS>"
@@ -90,7 +90,7 @@ test(
 test(
 		"Menu_Status",
 		function() {
-			var xml_receive = "<REPONSE observer='CORE.Menu' source_extension='CORE' source_action='menu'>"
+			var xml_receive = "<REPONSE observer='core.menu' source_extension='CORE' source_action='menu'>"
 					+ "<TITLE><![CDATA[Menu de l application]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
 					+ "<MENUS>"

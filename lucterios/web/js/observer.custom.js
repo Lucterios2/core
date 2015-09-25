@@ -1,5 +1,5 @@
 /*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
-/*global compImage,compLabelForm,compEdit,compFloat,compMemo,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
+/*global compImage,compLabelForm,compEdit,compFloat,compMemo,compTemplate,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
 
 var NULL_VALUE = 'NULL';
 
@@ -13,7 +13,7 @@ var ObserverCustom = ObserverGUI
 			},
 
 			getObserverName : function() {
-				return "Core.Custom";
+				return "core.custom";
 			},
 
 			setContent : function(aDomXmlContent) {
@@ -106,6 +106,9 @@ var ObserverCustom = ObserverGUI
 								break;
 							case "MEMO":
 								comp = new compMemo(this);
+								break;
+							case "TEMPLATE":
+								comp = new compTemplate(this);
 								break;
 							case "CHECK":
 								comp = new compCheck(this);

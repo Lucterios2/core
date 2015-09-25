@@ -110,7 +110,7 @@ test(
 test(
 		"Custom_EditMemo",
 		function() {
-			var xml_receive = "<REPONSE observer='Core.Custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
+			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Modifier une personne morale]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM><PARAM name='ORIGINE'><![CDATA[personneMorale_APAS_AddModify]]></PARAM><PARAM name='TABLE_NAME'><![CDATA[org_lucterios_contacts_personneMorale]]></PARAM><PARAM name='RECORD_ID'><![CDATA[1]]></PARAM></CONTEXT>"
 					+ "<COMPONENTS>"
@@ -317,7 +317,7 @@ test(
 asyncTest(
 		"Custom_Upload",
 		function() {
-			var xml_receive = "<REPONSE observer='Core.Custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
+			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Modifier une personne morale]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM></CONTEXT>"
 					+ "<COMPONENTS>"
@@ -455,7 +455,7 @@ asyncTest(
 test(
 		"Custom_advance",
 		function() {
-			var xml_receive = "<REPONSE observer='Core.Custom' source_extension='org_lucterios_task' source_action='Tasks_APAS_AddModify'>"
+			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_task' source_action='Tasks_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Ajouter une tâche]]></TITLE>"
 					+ "<CONTEXT><PARAM name='isTerminate'><![CDATA[n]]></PARAM><PARAM name='task'><![CDATA[1]]></PARAM></CONTEXT>"
 					+ "<COMPONENTS>	<IMAGE name='img' description=''  tab='0' x='0' y='0' colspan='1' rowspan='9' size='3027' height='64' width='64' ><TYPE><![CDATA[]]></TYPE><![CDATA[extensions/org_lucterios_task/images/task.png]]></IMAGE>"
@@ -630,7 +630,7 @@ test(
 test(
 		"Custom_grid",
 		function() {
-			var xml_receive = "<REPONSE observer='Core.Custom' source_extension='org_lucterios_contacts' source_action='StructureLocal'>"
+			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='StructureLocal'>"
 					+ "<TITLE><![CDATA[Nos coordonnées]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM></CONTEXT>"
 					+ "<COMPONENTS>	<IMAGE name='img' description=''  tab='0' x='0' y='1' colspan='1' rowspan='1' size='5544' height='64' width='64' ><TYPE><![CDATA[]]></TYPE><![CDATA[extensions/org_lucterios_contacts/images/nousContact.png]]></IMAGE>"
@@ -828,7 +828,7 @@ test(
 test(
 		"Custom_need",
 		function() {
-			var xml_receive = "<REPONSE observer='Core.Custom' source_extension='org_lucterios_contacts' source_action='personnePhysique_APAS_AddModify'>"
+			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personnePhysique_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Ajouter une personne physique]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
 					+ "<COMPONENTS>	<IMAGE name='img' description=''  tab='0' x='1' y='0' colspan='1' rowspan='3' size='3618' height='64' width='64' ><TYPE><![CDATA[]]></TYPE><![CDATA[extensions/org_lucterios_contacts/images/contactPhyique.png]]></IMAGE>"

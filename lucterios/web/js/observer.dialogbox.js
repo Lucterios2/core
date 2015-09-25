@@ -3,7 +3,7 @@
 var ObserverDialogBox = ObserverGUI.extend({
 
 	getObserverName : function() {
-		return "Core.DialogBox";
+		return "core.dialogbox";
 	},
 
 	setContent : function(aDomXmlContent) {

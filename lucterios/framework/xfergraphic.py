@@ -52,7 +52,7 @@ def get_range_value(model_field):
 
 class XferContainerAcknowledge(XferContainerAbstract):
 
-    observer_name = 'Core.Acknowledge'
+    observer_name = 'core.acknowledge'
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
@@ -200,7 +200,7 @@ XFER_DBOX_ERROR = 4
 
 class XferContainerDialogBox(XferContainerAbstract):
 
-    observer_name = "Core.DialogBox"
+    observer_name = "core.dialogbox"
 
     msgtype = XFER_DBOX_INFORMATION
     msgtext = ""
@@ -231,7 +231,7 @@ class XferContainerDialogBox(XferContainerAbstract):
 
 class XferContainerCustom(XferContainerAbstract):
 
-    observer_name = "Core.Custom"
+    observer_name = "core.custom"
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
