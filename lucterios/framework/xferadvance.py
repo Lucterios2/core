@@ -190,11 +190,12 @@ class XferDelete(XferContainerAcknowledge):
 
 
 class XferSave(XferContainerAcknowledge):
-
     raise_except_class = None
     redirect_to_show = True
 
     def fillresponse(self):
+        if "SAVE" in self.params.keys():
+            del self.params["SAVE"]
         if self.has_changed:
             self.item.editor.before_save(self)
             try:
