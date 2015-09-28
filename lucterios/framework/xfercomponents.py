@@ -209,7 +209,7 @@ class XferCompLabelForm(XferComponent):
 
     def get_reponse_xml(self):
         if self._color != 'black':
-            self.set_value('{[font color="%s"]}%s{[/font]}' % 
+            self.set_value('{[font color="%s"]}%s{[/font]}' %
                            (self._color, self.value))
         if self._bold:
             self.set_value('{[b]}%s{[/b]}' % self.value)
@@ -588,8 +588,8 @@ MAX_GRID_RECORD = 25
 GRID_PAGE = 'GRID_PAGE%'
 GRID_ORDER = 'GRID_ORDER%'
 
-DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
-                           ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png",
+                                                                               SELECT_SINGLE), ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
 
 XferCompHeader = namedtuple('XferCompHeader', 'name descript type orderable')
 

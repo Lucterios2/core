@@ -404,7 +404,7 @@ class UserTest(LucteriosTest):
         self.call('/CORE/usersEdit', {'SAVE': 'YES', 'user_actif': '3', "is_staff": '1',
                                       "is_superuser": 'o', "first_name": 'foo', "last_name": 'SUPER', "email": 'foo@super.com'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
-        self.assert_count_equal('CONTEXT/PARAM', 7)
+        self.assert_count_equal('CONTEXT/PARAM', 6)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '1')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', 'o')
@@ -522,7 +522,7 @@ class UserTest(LucteriosTest):
                                       "email": 'my@big.org', 'groups': '1', 'user_permissions': '7;9;11'}, False)
 
         self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
-        self.assert_count_equal('CONTEXT/PARAM', 9)
+        self.assert_count_equal('CONTEXT/PARAM', 8)
         self.assert_xml_equal('CONTEXT/PARAM[@name="username"]', 'newuser')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_staff"]', '0')
         self.assert_xml_equal('CONTEXT/PARAM[@name="is_superuser"]', '1')
@@ -777,7 +777,7 @@ class GroupTest(LucteriosTest):
         self.call('/CORE/groupsEdit',
                   {'SAVE': 'YES', 'name': 'newgroup', "permissions": '1;3;5;7'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'groupsEdit')
-        self.assert_count_equal('CONTEXT/PARAM', 3)
+        self.assert_count_equal('CONTEXT/PARAM', 2)
         self.assert_xml_equal('CONTEXT/PARAM[@name="name"]', 'newgroup')
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
 
