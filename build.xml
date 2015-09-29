@@ -95,9 +95,11 @@
 		<delete dir="${basedir}/tmp" />
 		<mkdir dir="${basedir}/tmp" />
 		<delete file="${basedir}/lucterios_setup.dmg" />
-		<copy file="${basedir}/utils/install.sh" todir="${basedir}/tmp" />
-		<copy file="${basedir}/utils/uninstall.sh" todir="${basedir}/tmp" />
+		<copy file="${basedir}/utils/install.sh" tofile="${basedir}/tmp/install_lucterios.command" />
+		<copy file="${basedir}/utils/uninstall.sh" tofile="${basedir}/tmp/uninstall_lucterios.command" />
 		<copy file="${basedir}/utils/License.txt" todir="${basedir}/tmp" />
+        <chmod file="${basedir}/tmp/install_lucterios.command" perm="ugo+rx"/>
+        <chmod file="${basedir}/tmp/uninstall_lucterios.command" perm="ugo+rx"/>
 		<exec executable="/usr/bin/hdiutil" dir="${basedir}">
 			<arg line="create -ov -srcfolder tmp -volname Lucterios lucterios_setup.dmg" />
 		</exec>
@@ -112,6 +114,8 @@
 		<delete dir="${basedir}/bin" />
 		<mkdir dir="${basedir}/bin" />
 		<copy file="${basedir}/LICENSE" tofile="${basedir}/utils/License.txt" />
+        <chmod file="${basedir}/utils/install.sh" perm="ugo+rx"/>
+        <chmod file="${basedir}/utils/uninstall.sh" perm="ugo+rx"/>
 		<antcall target="installer_tar" />
 		<antcall target="installer_win" />
 		<antcall target="installer_mac" />
