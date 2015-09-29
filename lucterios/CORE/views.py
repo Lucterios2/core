@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import isfile, join
+from os.path import isfile, join, dirname
 import mimetypes
 import stat
 import os
@@ -40,10 +40,10 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompTemplate
+    XferCompMemo, XferCompFloat, XferCompXML
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.filetools import get_user_dir
+from lucterios.framework.filetools import get_user_dir, xml_validator, read_file
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
@@ -414,8 +414,10 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
     def _fill_report_editor(self):
-        edit = XferCompTemplate('value')
+        edit = XferCompXML('value')
         edit.set_value(self.item.value)
+        edit.schema = read_file(
+            join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
         edit.set_location(1, 3, 2)
         edit.set_size(400, 700)
         edit.with_hypertext = True
@@ -446,8 +448,10 @@ class PrintModelSave(XferSave):
             self.item.change_listing(page_width, page_heigth, columns)
             self.item.save()
         elif self.item.kind == 2:
-            from lxml import etree
-            etree.fromstring(self.item.value)
+            error = xml_validator(
+                self.item.value, join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
+            if error is not None:
+                raise LucteriosException(IMPORTANT, error)
             self.item.save()
         else:
             XferSave.fillresponse(self)

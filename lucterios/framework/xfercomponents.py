@@ -354,11 +354,12 @@ class XferCompMemo(XferCompButton):
         return compxml
 
 
-class XferCompTemplate(XferCompButton):
+class XferCompXML(XferCompButton):
 
     def __init__(self, name):
         XferCompButton.__init__(self, name)
-        self._component_ident = "TEMPLATE"
+        self._component_ident = "XML"
+        self.schema = ""
         self.sub_menu = []
         self.hmin = 200
         self.vmin = 50
@@ -368,6 +369,7 @@ class XferCompTemplate(XferCompButton):
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
+        etree.SubElement(compxml, "SCHEMA").text = self.schema
         for sub_menu in self.sub_menu:
             xml_menu = etree.SubElement(compxml, "SUBMENU")
             etree.SubElement(

@@ -1,5 +1,5 @@
 /*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
-/*global compImage,compLabelForm,compEdit,compFloat,compMemo,compTemplate,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
+/*global compImage,compLabelForm,compEdit,compFloat,compMemo,compXML,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
 
 var NULL_VALUE = 'NULL';
 
@@ -107,8 +107,8 @@ var ObserverCustom = ObserverGUI
 							case "MEMO":
 								comp = new compMemo(this);
 								break;
-							case "TEMPLATE":
-								comp = new compTemplate(this);
+							case "XML":
+								comp = new compXML(this);
 								break;
 							case "CHECK":
 								comp = new compCheck(this);
@@ -267,7 +267,7 @@ var compGeneric = compBasic
 				}
 			},
 
-			getBuildHtml : function(args, isJustify, isClose) {
+			getAttribHtml : function(args, isJustify) {
 				args.name = this.name;
 				args.description = this.description;
 				if (args.cssclass === undefined) {
@@ -283,13 +283,18 @@ var compGeneric = compBasic
 				if (this.vmin !== -1) {
 					args.style += "min-height: {0}px;".format(this.vmin);
 				}
-				var html = "<" + this.tag, element;
+				var html = "", element;
 				for (element in args) {
 					if (args.hasOwnProperty(element)) {
 						html += ' {0}="{1}"'.format(element.replace('cssclass',
 								'class'), args[element]);
 					}
 				}
+				return html;
+			},
+			
+			getBuildHtml : function(args, isJustify, isClose) {
+				var html = "<" + this.tag+this.getAttribHtml(args, isJustify);
 				if (isClose) {
 					html += '/';
 				}

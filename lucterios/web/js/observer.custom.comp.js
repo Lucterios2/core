@@ -468,30 +468,29 @@ var compFloat = compAbstractEvent
 
 		});
 
-var compMemo = compAbstractEvent
+var editorHypertext = Class
 		.extend({
-			value : "",
-
-			initial : function(component) {
-				this._super(component);
+			name : '',
+			with_hypertext : false,
+			sub_menus : [],
+			init : function(aOwnerId, aName, aWith_hypertext, aSub_menu_xml) {
+				this.ownerId = aOwnerId;
+				this.name = aName;
+				this.with_hypertext = aWith_hypertext;
 				this.sub_menus = [];
-				this.with_hypertext = component.getXMLAttributInt(
-						'with_hypertext', 0);
-				this.value = component.getTextFromXmlNode().replace(
-						/\{\[newline\]\}/g, "\n");
-				var sub_menu_xml = component.getElementsByTagName("SUBMENU"), isub_menu, sub_menu, sub_menu_name, sub_menu_value;
-				for (isub_menu = 0; isub_menu < sub_menu_xml.length; isub_menu++) {
-					sub_menu = sub_menu_xml[isub_menu];
+				for (isub_menu = 0; isub_menu < aSub_menu_xml.length; isub_menu++) {
+					sub_menu = aSub_menu_xml[isub_menu];
 					sub_menu_name = sub_menu.getCDataOfFirstTag("NAME");
 					sub_menu_value = sub_menu.getCDataOfFirstTag("VALUE");
 					this.sub_menus[this.sub_menus.length] = [ sub_menu_name,
 							sub_menu_value ];
 				}
-
-				this.tag = 'textarea';
 			},
-
-			getHtml : function() {
+			getGUIComp : function() {
+				return $("#" + this.ownerId).find(
+						"textarea[name='{0}']:eq(0)".format(this.name));
+			},
+			getHtml : function(attribut, value) {
 				var html = "", imenu, sub_menu;
 				html += '<ul id="menu_{0}" class="contextMenu">'
 						.format(this.name);
@@ -519,24 +518,12 @@ var compMemo = compAbstractEvent
 							.format(this.name);
 					html += '</div>';
 				}
-				html += this.getBuildHtml({}, true, false) + this.initialVal()
-						+ '</textarea>';
+				html += '<textarea ' + attribut + '>' + value + '</textarea>';
 				return html;
 			},
-
-			initialVal : function() {
-				return this.value;
-			},
-
-			fillValue : function(params) {
-				var val = this.getValue();
-				params.put(this.name, val.replace(/\n/g, '{[newline]}'));
-			},
-
-			addAction : function() {
+			addEditorAction : function() {
 				var menu_name = "menu_{0}".format(this.name), area_name = "textarea[name='{0}']"
 						.format(this.name), self = this;
-				this.addActionEx(0);
 				if (this.sub_menus.length > 0) {
 					$(area_name)
 							.contextMenu(
@@ -605,15 +592,67 @@ var compMemo = compAbstractEvent
 
 		});
 
-var compTemplate = compMemo.extend({
+var compMemo = compAbstractEvent.extend({
+	value : "",
+
 	initial : function(component) {
 		this._super(component);
-		this.with_hypertext = 1;
-		this.value = component.getTextFromXmlNode();
+		this.value = component.getTextFromXmlNode().replace(/\{\[newline\]\}/g,
+				"\n");
+		this.editor = new editorHypertext(this.owner.getId(), this.name,
+				component.getXMLAttributInt('with_hypertext', 0), component
+						.getElementsByTagName("SUBMENU"))
+		this.tag = 'textarea';
 	},
+
+	getHtml : function() {
+		return this.editor.getHtml(this.getAttribHtml({}, true), this
+				.initialVal())
+	},
+
+	initialVal : function() {
+		return this.value;
+	},
+
+	fillValue : function(params) {
+		var val = this.getValue();
+		params.put(this.name, val.replace(/\n/g, '{[newline]}'));
+	},
+
+	addAction : function() {
+		this.addActionEx(0);
+		this.editor.addEditorAction();
+	}
+});
+
+var compXML = compAbstractEvent.extend({
+	value : "",
+
+	initial : function(component) {
+		this._super(component);
+		this.value = component.getTextFromXmlNode();
+		this.editor = new editorHypertext(this.owner.getId(), this.name, 1,
+				component.getElementsByTagName("SUBMENU"))
+		this.tag = 'textarea';
+	},
+
+	getHtml : function() {
+		return this.editor.getHtml(this.getAttribHtml({}, true), this
+				.initialVal())
+	},
+
+	initialVal : function() {
+		return this.value;
+	},
+
 	fillValue : function(params) {
 		var val = this.getValue();
 		params.put(this.name, val);
+	},
+
+	addAction : function() {
+		this.addActionEx(0);
+		this.editor.addEditorAction();
 	}
 });
 
