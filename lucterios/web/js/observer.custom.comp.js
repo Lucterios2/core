@@ -474,6 +474,7 @@ var editorHypertext = Class
 			with_hypertext : false,
 			sub_menus : [],
 			init : function(aOwnerId, aName, aWith_hypertext, aSub_menu_xml) {
+				var isub_menu, sub_menu, sub_menu_name, sub_menu_value;
 				this.ownerId = aOwnerId;
 				this.name = aName;
 				this.with_hypertext = aWith_hypertext;
@@ -601,13 +602,13 @@ var compMemo = compAbstractEvent.extend({
 				"\n");
 		this.editor = new editorHypertext(this.owner.getId(), this.name,
 				component.getXMLAttributInt('with_hypertext', 0), component
-						.getElementsByTagName("SUBMENU"))
+						.getElementsByTagName("SUBMENU"));
 		this.tag = 'textarea';
 	},
 
 	getHtml : function() {
 		return this.editor.getHtml(this.getAttribHtml({}, true), this
-				.initialVal())
+				.initialVal());
 	},
 
 	initialVal : function() {
@@ -632,13 +633,13 @@ var compXML = compAbstractEvent.extend({
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
 		this.editor = new editorHypertext(this.owner.getId(), this.name, 1,
-				component.getElementsByTagName("SUBMENU"))
+				component.getElementsByTagName("SUBMENU"));
 		this.tag = 'textarea';
 	},
 
 	getHtml : function() {
 		return this.editor.getHtml(this.getAttribHtml({}, true), this
-				.initialVal())
+				.initialVal());
 	},
 
 	initialVal : function() {
