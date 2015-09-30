@@ -31,6 +31,7 @@ if ($help) {
 }
 
 
+echo "====== install lucterios ======"
 echo ""
 echo ""
 echo ""

@@ -170,6 +170,7 @@ class XferContainerAbstract(View):
                 ids = ids.split(';')
                 if len(ids) == 1:
                     self._load_unique_record(ids[0])
+                    self.items = [self.item]
                 else:
                     self.items = self.model.objects.filter(id__in=ids)
             else:
