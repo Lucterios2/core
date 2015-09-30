@@ -33,13 +33,21 @@ if ($help) {
 
 if ($extra_url -ne '') {
 	$extra_host = ([System.Uri]$extra_url).Host
-	$PIP_OPTION = " --extra-index-url $extra_url --trusted-host $extra_host"
+	$PIP_OPTION = " --extra-index-url=$extra_url --trusted-host=$extra_host"
 }
 else {
 	$PIP_OPTION = ""
 }
 
 echo "====== install lucterios ======"
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
 
 $lucterios_path="c:\lucterios2"
 if ($env:PROCESSOR_ARCHITECTURE -eq "AMD64") {
@@ -115,6 +123,7 @@ echo "------ install lucterios ------"
 echo ""
 
 .\virtual_for_lucterios\Scripts\activate
+pip install -U pip | out-null
 pip install -U $lxml_install $pycrypto_install
 pip install $PIP_OPTION -U $packages
 
