@@ -155,4 +155,7 @@ $Shortcut.WindowStyle = 7
 $Shortcut.Save()
 
 echo "============ END ============="
-exit 0
+Write-Host -NoNewLine "Press a key..."
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host ""
+exit

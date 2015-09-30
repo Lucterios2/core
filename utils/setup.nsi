@@ -54,7 +54,7 @@ RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on
 ;--------------------------------
 ;Languages
  
-  !insertmacro MUI_LANGUAGE "French"
+  !insertmacro MUI_LANGUAGE "English"
 
 ;--------------------------------
 ;Installer Sections
@@ -76,9 +76,6 @@ Section "install"
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lucterios2" "NoModify" 1
   WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\Lucterios2" "NoRepair" 1
   WriteUninstaller "uninstall.exe"
-
-  CreateDirectory "$SMPROGRAMS\$%PROD_NAME%"
-  CreateShortCut "$SMPROGRAMS\$%PROD_NAME%\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
  
 SectionEnd
 
@@ -86,7 +83,7 @@ Function .onInit
   UserInfo::GetAccountType
   pop $0
   ${If} $0 != "admin" ;Require admin rights on NT4+
-      MessageBox mb_iconstop "Droits administrateur demandés!"
+      MessageBox mb_iconstop "Administrator permission needed!"
       SetErrorLevel 740 ;ERROR_ELEVATION_REQUIRED
       Quit
   ${EndIf}
