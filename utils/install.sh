@@ -49,7 +49,7 @@ while getopts "e:i:p:n:h" opt ; do
     esac
 done
 
-PIP_OPTION="--extra-index-url $EXTRA_URL --trusted-host $(echo $EXTRA_URL | awk -F/ '{print $3}')"
+PIP_OPTION=""
 if [ ! -z "$http_proxy" ]
 then
 	PIP_OPTION="$PIP_OPTION --proxy=$http_proxy"
@@ -57,7 +57,7 @@ fi
 
 echo "====== install lucterios ======"
 
-echo "install: extra_url=$EXTRA_URL packages=$PACKAGES icon_path=$ICON_PATH application_name=$APP_NAME"
+echo "install: extra_url=$EXTRA_URL packages=$PACKAGES icon_path=$ICON_PATH application_name=$APP_NAME - PIP_OPTION=$PIP_OPTION"
 
 echo
 echo "------ check perquisite -------"
@@ -105,7 +105,7 @@ done
 
 set -e
 
-$PIP_CMD install $PIP_OPTION virtualenv -U	
+$PIP_CMD install $PIP_OPTION virtualenv pip -U	
 
 mkdir -p /var/lucterios2
 cd /var/lucterios2
@@ -116,7 +116,9 @@ echo "------ install lucterios ------"
 echo
 
 . /var/lucterios2/virtual_for_lucterios/bin/activate
-pip install $PIP_OPTION -U $PACKAGES
+[ ! -z "$PIP_OPTION" ] && PIP_OPTION="$PIP_OPTION --extra-index-url $EXTRA_URL --trusted-host $(echo $EXTRA_URL | awk -F/ '{print $3}')"
+echo "-- pip install $PIP_OPTION -U $PACKAGES --"
+$PIP_CMD install $PIP_OPTION -U $PACKAGES
 
 echo
 echo "------ refresh shortcut ------"
