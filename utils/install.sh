@@ -68,7 +68,7 @@ if [ ! -z "$(which apt-get)" ]; then  # DEB linux like
 	apt-get install -y python-pip python-dev
 	apt-get install -y python3-pip python3-dev
 	apt-get install -y python-tk python-imaging
-	apt-get install -y python3-tk python3-imaging
+	apt-get install -y python3-tk python3-pil
 else if [ ! -z "$(which yum)" ]; then # RPM unix/linux like
 	yum install -y python-devel libxml2-devel libxslt-devel libjpeg-devel
 	yum install -y libfreetype6 libfreetype6-devel
