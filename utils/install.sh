@@ -4,7 +4,7 @@ if [ "$(id -u)" != "0" ]; then
    echo ">>> This script must be run as 'super user' <<<" 1>&2
    [ -z "$(which sudo)" ] && exit 1
    sudo -E $0 $@
-   sudo chmod -R ogu+w ~/.cache/pip	
+   [ -d "~/.cache/pip" ] && sudo chmod -R ogu+w ~/.cache/pip	
    exit $!
 fi
 
