@@ -28,15 +28,18 @@ from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve
 
-from os.path import join, dirname, isdir
+from os.path import join, dirname, isdir, basename
 import logging
 import inspect
 import pkgutil
 from lucterios.framework.help import defaulthelp
 
 
-def defaultblank(*args):
+def defaultblank(request, *args):
     from django.http import HttpResponse
+    if request.path == '/favicon.ico':
+        if hasattr(settings, 'APPLIS_FAVICON'):
+            return serve(request, basename(settings.APPLIS_FAVICON), document_root=dirname(settings.APPLIS_LOGO_NAME))
     return HttpResponse('')
 
 
@@ -54,6 +57,7 @@ def _init_url_patterns():
     res = []
     web_path = join(dirname(dirname(__file__)), 'web')
     res.append(url(r'^$', defaultview))
+    res.append(url(r'^favicon.ico$', defaultblank))
     res.append(url(r'^web/$', defaultview))
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))

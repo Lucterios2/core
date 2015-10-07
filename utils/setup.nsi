@@ -19,7 +19,9 @@ OutFile "..\bin\lucterios_setup.exe"
 ; The default installation directory
 InstallDir c:\Lucterios2
 
-WindowIcon off
+WindowIcon on
+Icon ..\utils\favicon.ico
+UninstallIcon ..\utils\favicon.ico
 
 ; Registry key to check for directory (so if you install again, it will 
 ; overwrite the old one automatically)

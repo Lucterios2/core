@@ -112,7 +112,7 @@ function about_function() {
 			+ "</table>", 3);
 	table[3] = [];
 	table[3][0] = new compBasic(
-			"<center><img src='images/LucteriosImage.gif'></center>", 3);
+			"<center><img src='images/LucteriosImage.png'></center>", 3);
 	table[4] = [];
 	table[4][0] = new compBasic("<center><font size='-1'><center><i>"
 			+ Singleton().getTranslate(

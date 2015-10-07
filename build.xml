@@ -113,6 +113,7 @@
 	<target name="installers">
 		<delete dir="${basedir}/bin" />
 		<mkdir dir="${basedir}/bin" />
+		<copy file="${basedir}/lucterios/install/lucterios.ico" tofile="${basedir}/utils/favicon.ico" />
 		<copy file="${basedir}/LICENSE" tofile="${basedir}/utils/License.txt" />
         <chmod file="${basedir}/utils/install.sh" perm="ugo+rx"/>
         <chmod file="${basedir}/utils/uninstall.sh" perm="ugo+rx"/>

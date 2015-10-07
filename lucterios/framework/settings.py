@@ -35,7 +35,6 @@ from django.utils import six
 from django.utils.module_loading import import_module
 
 from lucterios.framework.filetools import readimage_to_base64
-from django.core.urlresolvers import reverse_lazy
 
 
 def get_lan_ip():
