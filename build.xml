@@ -76,8 +76,13 @@
 	<available file="/usr/bin/hdiutil" property="mac.present" />
 
 	<target name="installer_tar">
+		<delete dir="${basedir}/utils/lucterios" />
+		<mkdir dir="${basedir}/utils//utils" />
+		<copy file="${basedir}/utils/install.sh" todir="${basedir}/utils/lucterios" />
+		<copy file="${basedir}/utils/uninstall.sh" todir="${basedir}/utils/lucterios" />
+		<copy file="${basedir}/utils/License.txt" todir="${basedir}/utils/lucterios" />
 		<exec executable="tar" dir="${basedir}/utils">
-			<arg line="-czf ../bin/lucterios_setup.tar.gz install.sh uninstall.sh License.txt" />
+			<arg line="-czf ../bin/lucterios_setup.tar.gz lucterios" />
 		</exec>
 	</target>
 
