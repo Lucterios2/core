@@ -4,7 +4,7 @@ if [ "$(id -u)" != "0" ]; then
    echo ">>> This script must be run as 'super user' <<<" 1>&2
    [ -z "$(which sudo)" ] && exit 1
    sudo -E $0 $@
-   [ -d "~/.cache/pip" ] && sudo chmod -R ogu+w ~/.cache/pip	
+   [ -d ~/.cache/pip ] && sudo chmod -R ogu+w ~/.cache/pip	
    exit $!
 fi
 
@@ -57,25 +57,30 @@ fi
 
 echo "====== install lucterios ======"
 
-echo "install: extra_url=$EXTRA_URL packages=$PACKAGES icon_path=$ICON_PATH application_name=$APP_NAME - PIP_OPTION=$PIP_OPTION"
+echo "install: extra_url=$EXTRA_URL packages=$PACKAGES icon_path=$ICON_PATH application_name=$APP_NAME"
 
 echo
 echo "------ check perquisite -------"
 echo
 
-if [ ! -z "$(which apt-get)" ]; then  # DEB linux like
+if [ ! -z "$(which apt-get 2>/dev/null)" ]; then  # DEB linux like
 	apt-get install -y libxml2-dev libxslt-dev libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev
 	apt-get install -y python-pip python-dev
 	apt-get install -y python3-pip python3-dev
 	apt-get install -y python-tk python-imaging
-	apt-get install -y python3-tk python3-pil
-else if [ ! -z "$(which yum)" ]; then # RPM unix/linux like
-	yum install -y python-devel libxml2-devel libxslt-devel libjpeg-devel
+	apt-get install -y python3-tk python3-imaging
+else if [ ! -z "$(which dnf 2>/dev/null)" ]; then # RPM unix/linux like
+	dnf install -y libxml2-devel libxslt-devel libjpeg-devel gcc
+	dnf install -y libfreetype6 libfreetype6-devel
+	dnf install -y python-devel python-imaging tkinter	
+	dnf install -y python3-devel python3-imaging python3-tkinter	
+else if [ ! -z "$(which yum 2>/dev/null)" ]; then # RPM unix/linux like
+	yum install -y libxml2-devel libxslt-devel libjpeg-devel gcc
 	yum install -y libfreetype6 libfreetype6-devel
-	yum install -y tkinter 
-	yum install -y python-imaging	
+	yum install -y python-devel python-imaging tkinter	
+	yum install -y python3-devel python3-imaging python3-tkinter	
 	easy_install pip
-else if [ ! -z "$(which brew)" ]; then # Mac OS X
+else if [ ! -z "$(which brew 2>/dev/null)" ]; then # Mac OS X
 	brew_perm=`stat -c "%G:%U" $(which brew)`
 	chown root:wheel $(which brew)
 	brew install libxml2 libxslt
@@ -85,7 +90,7 @@ else if [ ! -z "$(which brew)" ]; then # Mac OS X
 	pip3 install --upgrade pip
 else
 	echo "++++++ Unix/Linux distribution not available for this script! +++++++"
-fi; fi; fi
+fi; fi; fi; fi
 
 echo
 echo "------ configure virtual environment ------"
@@ -105,10 +110,12 @@ done
 
 set -e
 
-$PIP_CMD install $PIP_OPTION virtualenv pip -U	
+echo "$PYTHON_CMD $(which $PIP_CMD) install $PIP_OPTION virtualenv -U"
+$PYTHON_CMD $(which $PIP_CMD) install -U $PIP_OPTION pip virtualenv
 
 mkdir -p /var/lucterios2
 cd /var/lucterios2
+echo "$PYTHON_CMD $(which virtualenv) virtual_for_lucterios"
 $PYTHON_CMD $(which virtualenv) virtual_for_lucterios
 
 echo
@@ -116,9 +123,8 @@ echo "------ install lucterios ------"
 echo
 
 . /var/lucterios2/virtual_for_lucterios/bin/activate
-[ ! -z "$PIP_OPTION" ] && PIP_OPTION="$PIP_OPTION --extra-index-url $EXTRA_URL --trusted-host $(echo $EXTRA_URL | awk -F/ '{print $3}')"
-echo "-- pip install $PIP_OPTION -U $PACKAGES --"
-$PIP_CMD install $PIP_OPTION -U $PACKAGES
+[ ! -z "$EXTRA_URL" ] && PIP_OPTION="$PIP_OPTION --extra-index-url $EXTRA_URL --trusted-host $(echo $EXTRA_URL | awk -F/ '{print $3}')"
+pip install -U $PIP_OPTION $PACKAGES
 
 echo
 echo "------ refresh shortcut ------"
