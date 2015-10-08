@@ -65,7 +65,7 @@
 			<arg value="print(int('${build.hnum}', 16))" />
 		</exec>
 		<tstamp>
-			<format property="build.time" pattern="yyMMddhh" unit="hour" />
+			<format property="build.time" pattern="yyMMddHH" unit="hour" />
 		</tstamp>
 		<property name="projet.version.build" value="${build.time}" />
 		<for param="packageitem" list="${project.packagepath}">
