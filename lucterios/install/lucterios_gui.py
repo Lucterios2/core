@@ -25,18 +25,21 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
-    setup_from_none
-from django.utils import six
-from django.utils.translation import ugettext
-from subprocess import Popen, PIPE, STDOUT, check_output, CalledProcessError
+
 import sys
+import os
+from subprocess import Popen, PIPE, STDOUT, check_output, CalledProcessError
 from time import sleep
 from traceback import print_exc
 from threading import Thread
-import os
-from lucterios.framework.settings import fill_appli_settings
+
+from django.utils.translation import ugettext
+from django.utils import six
+
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
+    setup_from_none
 from lucterios.install.lucterios_migration import MigrateFromV1
+import webbrowser
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -105,37 +108,8 @@ class RunServer(object):
             raise RunException(message)
         self.open_url()
 
-    def _search_browser_from_nix(self):
-
-        browsers = ["xdg-open", "firefox", "chromium-browser",
-                    "mozilla", "konqueror", "opera", "epiphany", "netscape"]
-        browser = None
-        try:
-            for browser_iter in browsers:
-                try:
-                    val = check_output(["which", browser_iter], timeout=1)
-                    if val != '':
-                        browser = browser_iter
-                        break
-                except CalledProcessError:
-                    pass
-            if browser is None:
-                raise RunException(ugettext("Web browser unknown!"))
-            return browser
-        except Exception:
-            print_exc()
-            raise RunException(ugettext("Web browser not found!"))
-
     def open_url(self):
-        url = "http://127.0.0.1:%d" % self.port
-        os_name = sys.platform
-        if 'darwin' in os_name:
-            args = ["open", url]
-        elif 'win' in os_name:
-            args = ["rundll32", "url.dll", "FileProtocolHandler", url]
-        else:
-            args = [self._search_browser_from_nix(), url]
-        Popen(args)
+        webbrowser.open_new("http://127.0.0.1:%d" % self.port)
 
     def stop(self):
         if self.is_running():

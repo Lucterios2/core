@@ -31,13 +31,12 @@ InstallDirRegKey HKLM "Software\Lucterios2" "Install_Dir"
 RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on)
 
 !include LogicLib.nsh
-!include EnvVarUpdate.nsh
 
 ;--------------------------------
 ;Interface Settings
 
   !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP "HeaderLucterios.bmp"
+  !define MUI_HEADERIMAGE_BITMAP "..\utils\HeaderLucterios.bmp"
   !define MUI_ABORTWARNING
 
 ;--------------------------------

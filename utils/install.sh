@@ -3,8 +3,7 @@
 if [ "$(id -u)" != "0" ]; then
    echo ">>> This script must be run as 'super user' <<<" 1>&2
    [ -z "$(which sudo)" ] && exit 1
-   sudo -E $0 $@
-   [ -d ~/.cache/pip ] && sudo chmod -R ogu+w ~/.cache/pip	
+   sudo -E -H $0 $@
    exit $!
 fi
 
@@ -68,7 +67,7 @@ if [ ! -z "$(which apt-get 2>/dev/null)" ]; then  # DEB linux like
 	apt-get install -y python-pip python-dev
 	apt-get install -y python3-pip python3-dev
 	apt-get install -y python-tk python-imaging
-	apt-get install -y python3-tk python3-imaging
+	apt-get install -y python3-tk 'python3-imaging|python3-pil'
 else if [ ! -z "$(which dnf 2>/dev/null)" ]; then # RPM unix/linux like
 	dnf install -y libxml2-devel libxslt-devel libjpeg-devel gcc
 	dnf install -y libfreetype6 libfreetype6-devel

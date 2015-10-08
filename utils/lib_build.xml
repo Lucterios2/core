@@ -74,7 +74,9 @@
 			</sequential>
 		</for>
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py0.xml" append="false" />
-		<antcall target="init_addon" />
+		<antcall target="init_addon">
+			<param name="build_number" value="${projet.version.build}" />
+		</antcall>
 	</target>
 
 	<target name="pylint">
