@@ -75,6 +75,7 @@
 
 	<available file="/usr/bin/wine" property="wine.present" />
 	<available file="/usr/bin/hdiutil" property="mac.present" />
+	<available file="/usr/bin/genisoimage" property="pseudomac.present" />
 
 	<target name="installer_tar">
 		<delete dir="${basedir}/utils/lucterios" />
@@ -118,6 +119,22 @@
 		<delete dir="${basedir}/tmp" />
 	</target>
 
+	<target name="installer_pseudomac" if="pseudomac.present">
+		<delete dir="${basedir}/tmp" />
+		<mkdir dir="${basedir}/tmp" />
+		<delete file="${basedir}/lucterios_setup.dmg" />
+		<copy file="${basedir}/utils/install.sh" tofile="${basedir}/tmp/install_lucterios.command" />
+		<copy file="${basedir}/utils/uninstall.sh" tofile="${basedir}/tmp/uninstall_lucterios.command" />
+		<copy file="${basedir}/utils/License.txt" todir="${basedir}/tmp" />
+        <chmod file="${basedir}/tmp/install_lucterios.command" perm="ugo+rx"/>
+        <chmod file="${basedir}/tmp/uninstall_lucterios.command" perm="ugo+rx"/>
+		<exec executable="/usr/bin/genisoimage" dir="${basedir}">
+			<arg line="-V Lucterios -D -R -apple -no-pad -o lucterios_setup.dmg tmp" />
+		</exec>
+		<move file="${basedir}/lucterios_setup.dmg" todir="${basedir}/bin" />
+		<delete dir="${basedir}/tmp" />
+	</target>
+
 	<target name="installers">
 		<delete dir="${basedir}/bin" />
 		<mkdir dir="${basedir}/bin" />
@@ -127,6 +144,7 @@
         <chmod file="${basedir}/utils/uninstall.sh" perm="ugo+rx"/>
 		<antcall target="installer_tar" />
 		<antcall target="installer_win" />
+		<antcall target="installer_pseudomac" />
 		<antcall target="installer_mac" />
 	</target>
 
