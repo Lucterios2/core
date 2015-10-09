@@ -28,7 +28,8 @@ from __future__ import unicode_literals
 
 import sys
 import os
-from subprocess import Popen, PIPE, STDOUT, check_output, CalledProcessError
+import webbrowser
+from subprocess import Popen, PIPE, STDOUT
 from time import sleep
 from traceback import print_exc
 from threading import Thread
@@ -39,7 +40,6 @@ from django.utils import six
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
     setup_from_none
 from lucterios.install.lucterios_migration import MigrateFromV1
-import webbrowser
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():

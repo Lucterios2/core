@@ -429,29 +429,30 @@ parent.get('searchValueList').setVisible(type=='list' || type=='listmult');
         script_ref += """
 if (type=='float') {
     var prec=findLists[name].split(';')
-    parent.get('searchValueFloat').setValue('<FLOAT min=\"'+prec[0]+'\" max=\"'+prec[1]+'\" prec=\"'+prec[2]+'\"></FLOAT>')
+    parent.get('searchValueFloat').setValue('<FLOAT min=\"'+prec[0]+'\" max=\"'+prec[1]+'\" prec=\"'+prec[2]+'\"></FLOAT>');
 }
 if (type=='str') {
-    parent.get('searchValueStr').setValue('<STR></STR>')
+    parent.get('searchValueStr').setValue('<STR></STR>');
 }
 if (type=='bool') {
-    parent.get('searchValueBool').setValue('<BOOL>n</BOOL>')
+    parent.get('searchValueBool').setValue('<BOOL>n</BOOL>');
 }
 if (type=='date' || type=='datetime') {
-    parent.get('searchValueDate').setValue('<DATE>1900/01/01</DATE>')
+    parent.get('searchValueDate').setValue('<DATE>1900/01/01</DATE>');
 }
 if (type=='time' || type=='datetime') {
-    parent.get('searchValueTime').setValue('<DATE>00:00:00</DATE>')
+    parent.get('searchValueTime').setValue('<DATE>00:00:00</DATE>');
 }
 if ((type=='list') || (type=='listmult')) {
-    var list=findLists[name].split(';')
-    var list_txt=''
+    var list=findLists[name].split(';');
+    var list_txt='';
     for(i=0;i<list.length;i++) {
-        var val=list[i].split('||')
-        if (val.length>1)
-            list_txt+='<CASE id=\"'+val[0]+'\">'+val[1]+'</CASE>'
+        var val=list[i].split('||');
+        if (val.length>1) {
+            list_txt+='<CASE id=\"'+val[0]+'\">'+val[1]+'</CASE>';
+        }
     }
-    parent.get('searchValueList').setValue('<SELECT>'+list_txt+'</SELECT>')
+    parent.get('searchValueList').setValue('<SELECT>'+list_txt+'</SELECT>');
 }
 """
         label = XferCompLabelForm('labelsearchSelector')
