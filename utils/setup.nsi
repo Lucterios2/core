@@ -45,8 +45,6 @@ RequestExecutionLevel admin ;Require admin rights on NT6+ (When UAC is turned on
   !insertmacro MUI_PAGE_LICENSE "License.txt"
   !insertmacro MUI_PAGE_INSTFILES
   !define MUI_FINISHPAGE_TITLE "Install finished"
-  !define MUI_FINISHPAGE_RUN "PowerShell.exe -ExecutionPolicy Bypass -File $INSTDIR\launch_lucterios.ps1"
-  !define MUI_FINISHPAGE_RUN_TEXT "Launch Lucterios install to configurate your instances"
   !insertmacro MUI_PAGE_FINISH
   
   !insertmacro MUI_UNPAGE_CONFIRM
