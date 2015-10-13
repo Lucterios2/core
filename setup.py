@@ -29,7 +29,7 @@ setup(
     name="lucterios",
     version=__version__,
     author="Lucterios",
-    author_email="support@lucterios.org",
+    author_email="info@lucterios.org",
     url="http://www.lucterios.org",
     description="Lucterios framework.",
     long_description="""
@@ -39,7 +39,6 @@ setup(
     platforms=('Any',),
     license="GNU General Public License v3",
     classifiers=[
-        'Development Status :: 4 - Beta',
         'Environment :: Web Environment',
         'Framework :: Django :: 1.8',
         'Intended Audience :: Developers',
