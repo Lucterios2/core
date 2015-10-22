@@ -41,7 +41,7 @@
 			</xs:simpleContent>
 		</xs:complexType>
 	</xs:element>
-	cd .
+
 	<xs:element name="columns">
 		<xs:complexType>
 			<xs:simpleContent>

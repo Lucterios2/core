@@ -226,7 +226,7 @@ class FieldDescItem(object):
         if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) \
                 or (self.field_type == TYPE_FLOAT):
             script_ref += "findLists['" + self.fieldname + \
-                "']='" + self.get_list() + "';\n"
+                "']='" + self.get_list().replace("'", "\\'") + "';\n"
         return script_ref
 
     def get_value(self, value, operation):
@@ -428,7 +428,7 @@ parent.get('searchValueList').setVisible(type=='list' || type=='listmult');
         script_ref += get_script_for_operator()
         script_ref += """
 if (type=='float') {
-    var prec=findLists[name].split(';')
+    var prec=findLists[name].split(';');
     parent.get('searchValueFloat').setValue('<FLOAT min=\"'+prec[0]+'\" max=\"'+prec[1]+'\" prec=\"'+prec[2]+'\"></FLOAT>');
 }
 if (type=='str') {

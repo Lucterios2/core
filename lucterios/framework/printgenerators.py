@@ -294,12 +294,19 @@ class ReportGenerator(object):
         self.body = None
         self.content_width = 0
 
+    def fill_attrib_headerfooter(self):
+        if self.header is not None:
+            self.header.attrib['extent'] = "%d.0" % self.header_height
+        if self.bottom is not None:
+            self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
+
     def add_page(self):
         self.content_width = self.page_width - 2 * self.horizontal_marge
         page = etree.SubElement(self.modelxml, "page")
         self.header = etree.SubElement(page, "header")
         self.bottom = etree.SubElement(page, "bottom")
         self.body = etree.SubElement(page, "body")
+        self.fill_attrib_headerfooter()
 
     def get_text_from_title(self):
         xml_text = convert_to_html(
@@ -317,10 +324,7 @@ class ReportGenerator(object):
         self.modelxml.attrib['margin_left'] = "%d.0" % self.horizontal_marge
         self.modelxml.attrib['margin_bottom'] = "%d.0" % self.vertical_marge
         self.modelxml.attrib['margin_top'] = "%d.0" % self.vertical_marge
-        if self.header is not None:
-            self.header.attrib['extent'] = "%d.0" % self.header_height
-        if self.bottom is not None:
-            self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
+        self.fill_attrib_headerfooter()
 
     def fill_content(self, _):
         pass
@@ -330,7 +334,9 @@ class ReportGenerator(object):
         self.add_page()
         self.fill_content(request)
         self.fill_attrib()
-        return etree.tostring(self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+        xml_generated = etree.tostring(
+            self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+        return xml_generated
 
 
 class ActionGenerator(ReportGenerator):

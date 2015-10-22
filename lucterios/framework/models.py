@@ -177,6 +177,7 @@ class LucteriosModel(models.Model):
                         dep_field = None
                     if dep_field is None or is_simple_field(dep_field):
                         field_val = get_value_converted(field_value, True)
+                        field_val = get_value_if_choices(field_val, dep_field)
                     else:
                         if field_value is None:
                             field_val = ""

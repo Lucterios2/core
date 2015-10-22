@@ -462,7 +462,7 @@ class XferCompSelect(XferCompButton):
         else:
             value_found = False
             for select_item in self.select_list:
-                if select_item[0] == self.value:
+                if six.text_type(select_item[0]) == six.text_type(self.value):
                     return select_item[1]
             if not value_found:
                 return self.select_list[0][1]
@@ -476,7 +476,7 @@ class XferCompSelect(XferCompButton):
         if len(list_of_select) > 0:
             value_found = False
             for select_item in list_of_select:
-                if select_item[0] == self.value:
+                if six.text_type(select_item[0]) == six.text_type(self.value):
                     value_found = True
             if not value_found:
                 self.value = list_of_select[0][0]
