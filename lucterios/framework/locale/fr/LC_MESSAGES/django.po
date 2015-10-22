@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-24 14:05+0000\n"
+"POT-Creation-Date: 2015-10-22 16:28+0000\n"
 "PO-Revision-Date: 2015-09-17 13:21+0000\n"
 "Last-Translator: b'administrator ADMIN <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -39,21 +39,21 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:247
+#: models.py:248
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:269
+#: models.py:270
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:284
+#: models.py:285
 msgid "session"
 msgstr "session"
 
-#: models.py:285
+#: models.py:286
 msgid "sessions"
 msgstr "sessions"
 
@@ -95,13 +95,13 @@ msgstr "Liste"
 msgid "Label"
 msgstr "Etiquette"
 
-#: xferadvance.py:84 xfersearch.py:563
+#: xferadvance.py:84 xfersearch.py:564
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
 #: xferadvance.py:90 xferadvance.py:152 xfergraphic.py:129 xferprinting.py:111
-#: xfersearch.py:569
+#: xfersearch.py:570
 msgid "Close"
 msgstr "Fermer"
 
@@ -113,7 +113,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:140 xfercomponents.py:734
+#: xferadvance.py:140 xfercomponents.py:593
 msgid "Modify"
 msgstr "Modifier"
 
@@ -139,7 +139,7 @@ msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:208
+#: xferadvance.py:209
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
@@ -151,15 +151,15 @@ msgstr ""
 "Cet enregistrment n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:734
+#: xfercomponents.py:593
 msgid "Edit"
 msgstr "Editer"
 
-#: xfercomponents.py:735
+#: xfercomponents.py:594
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:735
+#: xfercomponents.py:594
 msgid "Add"
 msgstr "Ajouter"
 

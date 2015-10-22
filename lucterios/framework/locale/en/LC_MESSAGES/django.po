@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-24 14:05+0000\n"
+"POT-Creation-Date: 2015-10-22 16:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -37,19 +37,19 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: models.py:247
+#: models.py:248
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:269
+#: models.py:270
 msgid "username"
 msgstr "username"
 
-#: models.py:284
+#: models.py:285
 msgid "session"
 msgstr "session"
 
-#: models.py:285
+#: models.py:286
 msgid "sessions"
 msgstr "sessions"
 
@@ -91,13 +91,13 @@ msgstr "Listing"
 msgid "Label"
 msgstr "Label"
 
-#: xferadvance.py:84 xfersearch.py:563
+#: xferadvance.py:84 xfersearch.py:564
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
 #: xferadvance.py:90 xferadvance.py:152 xfergraphic.py:129 xferprinting.py:111
-#: xfersearch.py:569
+#: xfersearch.py:570
 msgid "Close"
 msgstr "Close"
 
@@ -109,7 +109,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:140 xfercomponents.py:734
+#: xferadvance.py:140 xfercomponents.py:593
 msgid "Modify"
 msgstr "Modify"
 
@@ -135,7 +135,7 @@ msgstr "Do you want delete this %(name)s?"
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:208
+#: xferadvance.py:209
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
@@ -147,15 +147,15 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:734
+#: xfercomponents.py:593
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:735
+#: xfercomponents.py:594
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:735
+#: xfercomponents.py:594
 msgid "Add"
 msgstr "Add"
 
