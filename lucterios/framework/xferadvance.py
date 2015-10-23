@@ -33,6 +33,7 @@ from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsMan
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 import logging
+from django.utils import six
 
 
 class XferListEditor(XferContainerCustom):
@@ -57,6 +58,23 @@ class XferListEditor(XferContainerCustom):
             items = self.model.objects.all()
         return items
 
+
+    def fill_grid(self, row, model, field_id, items):
+        grid = XferCompGrid(field_id)
+        if self.multi_page:
+            xfer = self
+        else:
+            xfer = None
+        grid.set_model(items, self.fieldnames, xfer)
+        grid.add_actions(self, action_list=self.action_grid, model=model)
+        grid.set_location(0, row + 1, 2)
+        grid.set_size(200, 500)
+        self.add_component(grid)
+        lbl = XferCompLabelForm("nb_" + field_id)
+        lbl.set_location(0, row + 2, 2)
+        lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':model._meta.verbose_name_plural, 'count':grid.nb_lines})
+        self.add_component(lbl)
+
     def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
@@ -67,23 +85,7 @@ class XferListEditor(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fillresponse_header()
-        row = self.get_max_row()
-        self.items = self.get_items_from_filter()
-        grid = XferCompGrid(self.field_id)
-        if self.multi_page:
-            xfer = self
-        else:
-            xfer = None
-        grid.set_model(self.items, self.fieldnames, xfer)
-        grid.add_actions(self, action_list=self.action_grid)
-        grid.set_location(0, row + 1, 2)
-        grid.set_size(200, 500)
-        self.add_component(grid)
-        lbl = XferCompLabelForm("nb")
-        lbl.set_location(0, row + 2, 2)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
-                      'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
-        self.add_component(lbl)
+        self.fill_grid(self.get_max_row(), self.model, self.field_id, self.get_items_from_filter())
         for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
@@ -208,6 +210,7 @@ class XferSave(XferContainerAcknowledge):
                     self.item.save()
             except IntegrityError as err:
                 logging.getLogger("lucterios.core.container").info("%s", err)
+                six.print_(err)
                 self.raise_except(
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
