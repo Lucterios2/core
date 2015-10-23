@@ -118,16 +118,19 @@ class XferAddEditor(XferContainerCustom):
             self._finalize()
             return self.get_response()
         else:
-            save = XferSave()
-            save.is_view_right = self.is_view_right
-            save.locked = self.locked
-            save.model = self.model
-            save.field_id = self.field_id
-            save.caption = self.caption
-            save.raise_except_class = self.__class__
-            save.closeaction = self.closeaction
-            save.redirect_to_show = self.redirect_to_show
-            return save.get(request, *args, **kwargs)
+            return self.run_save(request, *args, **kwargs)
+
+    def run_save(self, request, *args, **kwargs):
+        save = XferSave()
+        save.is_view_right = self.is_view_right
+        save.locked = self.locked
+        save.model = self.model
+        save.field_id = self.field_id
+        save.caption = self.caption
+        save.raise_except_class = self.__class__
+        save.closeaction = self.closeaction
+        save.redirect_to_show = self.redirect_to_show
+        return save.get(request, *args, **kwargs)
 
 
 class XferShowEditor(XferContainerCustom):
