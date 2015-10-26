@@ -620,9 +620,9 @@ class XferCompGrid(XferComponent):
             if header.name == name:
                 break
             head_idx += 1
-        if head_idx<len(self.headers):
+        if head_idx < len(self.headers):
             del self.headers[head_idx]
-            
+
     def add_action(self, request, action, option, pos_act=-1):
         if 'close' not in option.keys():
             option['close'] = CLOSE_NO

@@ -718,7 +718,7 @@ class GroupTest(LucteriosTest):
             'COMPONENTS/GRID[@name="group"]/HEADER[@name="name"]', "nom")
         self.assert_count_equal('COMPONENTS/GRID[@name="group"]/RECORD', 0)
         self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="nb"]', "Nombre total de groupes: 0", (0, 2, 2, 1))
+            'COMPONENTS/LABELFORM[@name="nb_group"]', "Nombre total de groupes: 0", (0, 2, 2, 1))
 
     def test_groupadd(self):
         self.factory.xfer = GroupsEdit()
@@ -935,7 +935,7 @@ class SessionTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="session"]/RECORD[1]/VALUE[@name="username"]', 'admin')
         self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="nb"]', "Nombre total de sessions: 1", (0, 2, 2, 1))
+            'COMPONENTS/LABELFORM[@name="nb_session"]', "Nombre total de sessions: 1", (0, 2, 2, 1))
 
     def test_sessiondel(self):
         self.call(

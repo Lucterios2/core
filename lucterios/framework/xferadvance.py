@@ -58,7 +58,6 @@ class XferListEditor(XferContainerCustom):
             items = self.model.objects.all()
         return items
 
-
     def fill_grid(self, row, model, field_id, items):
         grid = XferCompGrid(field_id)
         if self.multi_page:
@@ -72,7 +71,8 @@ class XferListEditor(XferContainerCustom):
         self.add_component(grid)
         lbl = XferCompLabelForm("nb_" + field_id)
         lbl.set_location(0, row + 2, 2)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {'name':model._meta.verbose_name_plural, 'count':grid.nb_lines})
+        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
+                      'name': model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
 
     def fillresponse(self):
@@ -85,7 +85,9 @@ class XferListEditor(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fillresponse_header()
-        self.fill_grid(self.get_max_row(), self.model, self.field_id, self.get_items_from_filter())
+        self.items = self.get_items_from_filter()
+        self.fill_grid(
+            self.get_max_row(), self.model, self.field_id, self.items)
         for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
