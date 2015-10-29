@@ -272,7 +272,7 @@ class XferContainerCustom(XferContainerAbstract):
         self.components = new_components
 
     def get_max_row(self):
-        row = 0
+        row = -1
         for comp in self.components.values():
             if comp.tab == self.tab:
                 row = max((row, comp.row))
@@ -462,6 +462,9 @@ class XferContainerCustom(XferContainerAbstract):
                     maxsize_of_lines, len(line_field_name), offset)
                 if field_name[-4:] == '_set':  # field is one-to-many relation
                     child = getattr(self.item, field_name).all()
+                    if hasattr(self.item, field_name[:-4] + '_query'):
+                        child = child.filter(
+                            getattr(self.item, field_name[:-4] + '_query'))
                     lbl = XferCompLabelForm('lbl_' + field_name)
                     lbl.set_location(col + offset, row, 1, 1)
                     lbl.set_value_as_name(

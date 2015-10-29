@@ -6,7 +6,7 @@ var G_Version = '1.0.1.15102816';
 
 var G_With_Extra_Menu = false;
 
-var G_Active_Log = false;
+var G_Active_Log = true;
 
 function get_serverurl() {
 	var fullurl = window.location.href;
