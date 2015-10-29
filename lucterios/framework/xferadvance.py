@@ -148,11 +148,12 @@ class XferShowEditor(XferContainerCustom):
                             ('print', _("Print"), "images/print.png", CLOSE_NO)]
 
     def fillresponse(self):
-        self.fill_from_model(1, self.get_max_row() + 1, True)
+        max_row = self.get_max_row() + 1
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
+        self.fill_from_model(1, max_row, True)
         for act_type, title, icon, close in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': close})
