@@ -132,7 +132,6 @@ class PrintImage(PrintItem):
         else:
             self.value = get_image_absolutepath(self.comp.value)
         self.img_size = get_image_size(self.value)
-        self.height = int(self.img_size[1] * self.DPI)
 
     def get_xml(self):
         xml_img = etree.Element('image')
@@ -155,11 +154,12 @@ class PrintTable(PrintItem):
         self.size_rows = [0]
         self.compute_table_size()
         self.size_y, self.size_x = self.get_table_sizes()
+        self.height = 5.5 * self.size_y + 3 * len(self.rows)
 
     def compute_table_size(self):
         for header in self.comp.headers:
             size_cx, size_cy = get_text_size(header.descript)
-            column = [header.descript, size_cx]
+            column = [header.descript, size_cx * 2]
             self.size_rows[0] = max(self.size_rows[0], size_cy)
             row_idx = 0
             for record in self.comp.records.values():
@@ -180,7 +180,7 @@ class PrintTable(PrintItem):
                 self.rows[row_idx].append(six.text_type(value))
                 self.size_rows[
                     row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
-                column[1] = max(column[1], size_x)
+                column[1] = max(column[1], size_x * 2)
                 row_idx += 1
             self.columns.append(column)
 
@@ -218,15 +218,14 @@ class PrintTable(PrintItem):
                 new_row.append(xml_text)
 
     def get_xml(self):
-        xml_table = etree.Element('table')
-        self.fill_attrib(xml_table)
         if len(self.rows) == 0:
             row = []
             for _ in self.columns:
                 row.append('')
             self.rows.append(row)
             self.size_rows.append(get_text_size('')[1])
-        self.height = 6 * self.size_y
+        xml_table = etree.Element('table')
+        self.fill_attrib(xml_table)
         self.write_columns(xml_table, self.size_x)
         self.write_rows(xml_table)
         return xml_table
@@ -274,7 +273,7 @@ class PrintLabel(PrintItem):
             self.value = self.comp.value
         self.value = get_value_converted(self.value, True)
         self.size_x, size_y = get_text_size(self.value)
-        self.height = 4.8 * size_y
+        self.height = 5.5 * size_y
 
     def get_xml(self):
         xml_text = convert_to_html('text', self.value)
