@@ -110,6 +110,10 @@ class WrapAction(object):
             raise LucteriosRedirectException(
                 _("Bad permission for '%s'") % username, bad_permission_redirect_classaction)
 
+    @classmethod
+    def is_permission(cls, request, is_view_right):
+        return cls(caption='', icon_path='', is_view_right=is_view_right).check_permission(request)
+
 
 class ActionsManage(object):
 

@@ -59,14 +59,18 @@ def remove_format(xml_text):
 
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
-    xml_text = etree.XML(
-        "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': toHtml(text)})
-    xml_text.attrib['font_family'] = font_family
-    xml_text.attrib['font_size'] = "%d" % font_size
-    xml_text.attrib['line_height'] = "%d" % line_height
+    try:
+        xml_text = etree.XML(
+            "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': toHtml(text)})
+        xml_text.attrib['font_family'] = font_family
+        xml_text.attrib['font_size'] = "%d" % font_size
+        xml_text.attrib['line_height'] = "%d" % line_height
 
-    xml_text.attrib['text_align'] = text_align
-    xml_text.attrib['spacing'] = "0.0"
+        xml_text.attrib['text_align'] = text_align
+        xml_text.attrib['spacing'] = "0.0"
+    except etree.XMLSyntaxError:
+        raise Exception(
+            'convert_to_html error:tagname=%s text=%s' % (tagname, text))
     return xml_text
 
 
