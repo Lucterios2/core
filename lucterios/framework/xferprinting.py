@@ -137,7 +137,6 @@ class XferContainerPrint(XferContainerAbstract):
             content = six.text_type(
                 csv_transform(xml_rep_content)).encode('utf-8')
         else:
-            six.print_(self.report_content.decode('utf8'))
             content = transforme_xml2pdf(self.report_content)
         if len(content) > 0:
             return b64encode(content)
