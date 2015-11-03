@@ -285,6 +285,12 @@ class XferCompEdit(XferCompButton):
         self._component_ident = "EDIT"
         self.mask = ""
 
+    def _get_content(self):
+        if self.value is None:
+            return ""
+        else:
+            return self.value
+
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
         if self.mask != '':
@@ -302,6 +308,7 @@ class XferCompFloat(XferCompButton):
         self.max = float(maxval)
         self.prec = int(precval)
         self.value = self.min
+        self.needed = True
 
     def set_value(self, value):
         if value is None:

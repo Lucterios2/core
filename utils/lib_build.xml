@@ -219,6 +219,7 @@
 			<arg value="sdist" />
 			<arg value="bdist_wheel" />
 		</exec>
+		<delete dir="${basedir}/build" />
 		<antcall target="package_del" />
 	</target>
 
