@@ -27,7 +27,7 @@ from lxml import etree
 from collections import namedtuple
 
 from django.utils import six
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote_plus
 
 from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI
@@ -349,6 +349,12 @@ class XferCompMemo(XferCompButton):
             compxml.attrib['with_hypertext'] = "1"
         else:
             compxml.attrib['with_hypertext'] = "0"
+
+    def _get_content(self):
+        if self.value is None:
+            return ""
+        else:
+            return self.value
 
     def get_reponse_xml(self):
         compxml = XferCompButton.get_reponse_xml(self)
