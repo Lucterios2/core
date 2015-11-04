@@ -53,7 +53,20 @@ PERMISSION_CODENAMES = {'add_label': ('Impression', 'CORE'), 'change_label': ('I
 
                         'add_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), 'change_third': ('Voir/Consulter les tiers', 'fr_sdlibre_compta'), 'delete_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'),
                         'add_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'), 'change_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'), 'delete_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'),
-                        'add_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount': ('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta')}
+                        'add_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount': ('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+
+                        'add_vat': ('Configuration', 'fr_sdlibre_facture'), 'change_vat': ('Configuration', 'fr_sdlibre_facture'), 'delete_vat': ('Configuration', 'fr_sdlibre_facture'),
+                        'add_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'), 'change_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'), 'delete_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'),
+                        'add_bill': ('Modification factures', 'fr_sdlibre_facture'), 'change_bill': ('Consultation factures', 'fr_sdlibre_facture'), 'delete_bill': ('Suppression factures', 'fr_sdlibre_facture'),
+                        'add_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')], 'change_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')], 'delete_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')],
+                        'add_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')], 'change_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Consultation factures', 'fr_sdlibre_facture')], 'delete_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')],
+                        'add_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')], 'change_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')], 'delete_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')],
+
+                        'add_set': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_set': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_set': ('Suppression', 'fr_sdlibre_copropriete'),
+                        'add_owner': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_owner': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_owner': ('Suppression', 'fr_sdlibre_copropriete'),
+                        'add_callfund': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_callfund': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_callfund': ('Suppression', 'fr_sdlibre_copropriete'),
+                        'add_expense': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_expense': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_expense': ('Suppression', 'fr_sdlibre_copropriete'),
+                        }
 
 
 class CoreMigrate(MigrateAbstract):
@@ -69,16 +82,21 @@ class CoreMigrate(MigrateAbstract):
         self.permission_relation = []
         for permission in permissions:
             if permission.codename in PERMISSION_CODENAMES.keys():
-                rigth_name, ext_name = PERMISSION_CODENAMES[
-                    permission.codename]
-                cur = self.old_db.open()
-                sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (
-                    six.text_type(rigth_name), ext_name)
-                try:
-                    cur.execute(sql_text)
-                except:
-                    self.print_log("SQL error:%s", sql_text)
-                rigth_id = cur.fetchone()
+                perm_value = PERMISSION_CODENAMES[permission.codename]
+                if isinstance(perm_value[0], six.text_type):
+                    perm_value = [perm_value]
+                rigth_id = None
+                for rigth_name, ext_name in perm_value:
+                    cur = self.old_db.open()
+                    sql_text = six.text_type("SELECT R.id FROM CORE_extension_rights R,CORE_extension E WHERE R.extension=E.id AND R.description='%s' AND E.extensionId='%s'") % (
+                        six.text_type(rigth_name), ext_name)
+                    try:
+                        cur.execute(sql_text)
+                    except:
+                        self.print_log("SQL error:%s", sql_text)
+                    rigth_id = cur.fetchone()
+                    if rigth_id is not None:
+                        break
                 if rigth_id is not None:
                     self.permission_relation.append(
                         (permission.id, rigth_id[0]))

@@ -45,7 +45,7 @@ MODULE_LINKS = [('data_CORE.sql', ('lucterios.CORE',)),
                 ('data_fr_sdlibre_facture.sql', ('diacamma.invoice',)),
                 ('data_fr_sdlibre_membres.sql', ('diacamma.members',)),
                 ('data_fr_sdlibre_copropriete.sql', ('diacamma.condominium',)),
-                ('data_fr_sdlibre_FormationSport.sql', ('diacamma.sportexamination',))]
+                ('data_fr_sdlibre_FormationSport.sql', ('diacamma.event',))]
 
 
 def dict_factory(cursor, row):
