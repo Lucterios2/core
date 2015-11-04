@@ -182,6 +182,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
         elif self.traitment_data is not None:
             return self._get_from_custom(request, *args, **kwargs)
         else:
+            if "CONFIRME" in self.params.keys():
+                del self.params["CONFIRME"]
             self._finalize()
             return self.get_response()
 

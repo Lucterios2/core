@@ -180,8 +180,7 @@ class UserTest(LucteriosTest):
         self.call(
             '/CORE/usersDelete', {'user_actif': '3;4', 'CONFIRME': 'YES'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'usersDelete')
-        self.assert_count_equal('CONTEXT', 1)
-        self.assert_xml_equal('CONTEXT/PARAM[@name="CONFIRME"]', 'YES')
+        self.assert_count_equal('CONTEXT/PARAM', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3;4')
 
         self.factory.xfer = UsersList()
