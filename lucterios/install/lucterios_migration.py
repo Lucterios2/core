@@ -43,7 +43,7 @@ MODULE_LINKS = [('data_CORE.sql', ('lucterios.CORE',)),
                  ('lucterios.contacts', 'lucterios.mailing')),
                 ('data_fr_sdlibre_compta.sql', ('diacamma.accounting',)),
                 ('data_fr_sdlibre_facture.sql', ('diacamma.invoice',)),
-                ('data_fr_sdlibre_membres.sql', ('diacamma.members',)),
+                ('data_fr_sdlibre_membres.sql', ('diacamma.member',)),
                 ('data_fr_sdlibre_copropriete.sql', ('diacamma.condominium',)),
                 ('data_fr_sdlibre_FormationSport.sql', ('diacamma.event',))]
 

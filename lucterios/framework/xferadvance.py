@@ -23,17 +23,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+import logging
+from copy import deepcopy
 
 from django.utils.translation import ugettext as _, ugettext_lazy
 from django.db import IntegrityError
 from django.db.models import Q
+from django.utils import six
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid,\
+    DEFAULT_ACTION_LIST
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
-import logging
-from django.utils import six
 
 
 class XferListEditor(XferContainerCustom):
@@ -44,7 +46,7 @@ class XferListEditor(XferContainerCustom):
         self.fieldnames = None
         self.action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"),
                             ('label', ugettext_lazy("Label"), "images/print.png")]
-        self.action_grid = None
+        self.action_grid = deepcopy(DEFAULT_ACTION_LIST)
         self.filter = None
 
     def fillresponse_header(self):
