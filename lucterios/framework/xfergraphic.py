@@ -440,7 +440,6 @@ class XferContainerCustom(XferContainerAbstract):
         return comp
 
     def get_maxsize_of_lines(self, field_names):
-
         maxsize_of_lines = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
@@ -449,14 +448,12 @@ class XferContainerCustom(XferContainerAbstract):
         return maxsize_of_lines
 
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
-
         colspan = 1
         if offset == (line_field_size - 1):
             colspan = 2 * maxsize_of_lines - (1 + offset)
         return colspan
 
     def filltab_from_model(self, col, row, readonly, field_names):
-
         maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
@@ -464,6 +461,8 @@ class XferContainerCustom(XferContainerAbstract):
             offset = 0
             height = 1
             for field_name in line_field_name:
+                if field_name is None:
+                    continue
                 colspan = self.get_current_offset(
                     maxsize_of_lines, len(line_field_name), offset)
                 if field_name[-4:] == '_set':  # field is one-to-many relation
@@ -491,16 +490,16 @@ class XferContainerCustom(XferContainerAbstract):
                     # field real in model
                     if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:
                         # field not many-to-many
+                        lbl = XferCompLabelForm('lbl_' + field_name)
+                        lbl.set_location(col + offset, row, 1, 1)
+                        if verbose_name is None:
+                            lbl.set_value_as_name(
+                                six.text_type(dep_field.verbose_name))
+                        else:
+                            lbl.set_value_as_name(
+                                six.text_type(verbose_name))
+                        self.add_component(lbl)
                         if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):
-                            lbl = XferCompLabelForm('lbl_' + field_name)
-                            lbl.set_location(col + offset, row, 1, 1)
-                            if verbose_name is None:
-                                lbl.set_value_as_name(
-                                    six.text_type(dep_field.verbose_name))
-                            else:
-                                lbl.set_value_as_name(
-                                    six.text_type(verbose_name))
-                            self.add_component(lbl)
                             if readonly:
                                 comp = self.get_reading_comp(field_name)
                             else:
@@ -509,14 +508,21 @@ class XferContainerCustom(XferContainerAbstract):
                                 col + 1 + offset, row, colspan, 1)
                             self.add_component(comp)
                         else:  # field many-to-many
-                            self.selector_from_model(
-                                col + offset, row, field_name)
+                            if readonly:
+                                child = getattr(self.item, field_name).all()
+                                comp = XferCompGrid(field_name)
+                                comp.set_model(child, None, self)
+                                comp.set_location(
+                                    col + 1 + offset, row, colspan, 1)
+                                self.add_component(comp)
+                            else:
+                                self.selector_from_model(
+                                    col + offset, row, field_name)
                             height = 5
                         offset += 2
             row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
-
         current_desc_fields = desc_fields
         if desc_fields is None:
             if readonly:
@@ -600,15 +606,10 @@ class XferContainerCustom(XferContainerAbstract):
                 title_available, title_chosen = getattr(
                     self.item, field_name + "__titles")
             else:
-                title_available, title_chosen = ('', '')
+                title_available, title_chosen = _("Available"), _("Chosen")
             availables = get_corrected_setquery(dep_field.rel.to.objects.all())
             java_script_init, java_script_treat = self._get_scripts_for_selectors(
                 field_name, availables)
-
-            lbl = XferCompLabelForm('lbl_' + field_name)
-            lbl.set_location(col, row, 1, 1)
-            lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
-            self.add_component(lbl)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_available')
             lbl.set_location(col + 1, row, 1, 1)
