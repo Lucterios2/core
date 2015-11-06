@@ -206,16 +206,16 @@ class ParamEdit(XferContainerCustom):
     caption = _("Parameters")
     icon = "config.png"
 
-    def fillresponse(self, params=()):
+    def fillresponse(self, params=(), nb_col=1):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0)
         img_title.set_value('images/config.png')
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
-        lab.set_location(1, 0, 2)
+        lab.set_location(1, 0, 2 * nb_col)
         lab.set_value_as_title(_("Edition of parameters"))
         self.add_component(lab)
-        Params.fill(self, params, 1, 1, False)
+        Params.fill(self, params, 1, 1, False, nb_col)
         self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 

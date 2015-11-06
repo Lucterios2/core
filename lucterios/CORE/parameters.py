@@ -174,22 +174,26 @@ class Params(object):
             cls._paramlock.release()
 
     @classmethod
-    def fill(cls, xfer, names, col, row, readonly=True):
+    def fill(cls, xfer, names, col, row, readonly=True, nb_col=1):
         cls._paramlock.acquire()
         try:
+            coloffset = 0
             for name in names:
                 param = cls._get(name)
                 if param is not None:
                     lbl = param.get_label_comp()
-                    lbl.set_location(col, row, 1, 1)
+                    lbl.set_location(col + coloffset * 2, row, 1, 1)
                     xfer.add_component(lbl)
                     if readonly:
                         param_cmp = param.get_read_comp()
                     else:
                         param_cmp = param.get_write_comp()
-                    param_cmp.set_location(col + 1, row, 1, 1)
+                    param_cmp.set_location(col + 1 + coloffset * 2, row, 1, 1)
                     xfer.add_component(param_cmp)
-                    row += 1
+                    coloffset += 1
+                    if coloffset == nb_col:
+                        coloffset = 0
+                        row += 1
         finally:
             cls._paramlock.release()
 
