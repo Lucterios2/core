@@ -77,6 +77,10 @@ class XferListEditor(XferContainerCustom):
                       'name': model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
 
+    def fillresponse_body(self):
+        self.items = self.get_items_from_filter()
+        self.fill_grid(self.get_max_row(), self.model, self.field_id, self.items)
+
     def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
@@ -87,12 +91,11 @@ class XferListEditor(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         self.fillresponse_header()
-        self.items = self.get_items_from_filter()
-        self.fill_grid(
-            self.get_max_row(), self.model, self.field_id, self.items)
-        for act_type, title, icon in self.action_list:
-            self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
+        self.fillresponse_body()
+        if self.model is not None:
+            for act_type, title, icon in self.action_list:
+                self.add_action(ActionsManage.get_act_changed(
+                    self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 
