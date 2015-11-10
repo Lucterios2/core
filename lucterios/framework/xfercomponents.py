@@ -511,10 +511,21 @@ class XferCompCheckList(XferCompButton):
         self.simple = False
 
     def set_value(self, value):
-        self.value = list(value)
+        if isinstance(value, six.text_type):
+            value = value.split(";")
+        else:
+            value = list(value)
+        self.value = []
+        for item in value:
+            self.value.append(six.text_type(item))
 
     def set_select(self, select_list):
         self.select_list = select_list
+
+    def set_select_query(self, query):
+        self.select_list = []
+        for item in query:
+            self.select_list.append((item.id, six.text_type(item)))
 
     def _get_content(self):
         return ''
@@ -536,7 +547,7 @@ class XferCompCheckList(XferCompButton):
         for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)
-            if key in self.value:
+            if six.text_type(key) in self.value:
                 xml_case.attrib['checked'] = '1'
             else:
                 xml_case.attrib['checked'] = '0'
