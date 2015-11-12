@@ -132,6 +132,9 @@ class LucteriosModel(models.Model):
     def get_print_fields(cls):
         return cls.get_default_fields()
 
+    def set_context(self, xfer):
+        pass
+
     @classmethod
     def get_field_by_name(cls, fieldname):
         from django.db.models.fields import FieldDoesNotExist

@@ -426,16 +426,12 @@ class XferContainerCustom(XferContainerAbstract):
                 comp.set_value(0)
             else:
                 comp.set_value(value.id)
-            sel_list = []
-            if dep_field.null:
-                sel_list.append((0, "---"))
             if hasattr(self.item, fieldname + '_query'):
                 sub_select = getattr(self.item, field_name + '_query')
             else:
                 sub_select = dep_field.rel.to.objects.all()
-            for select_obj in sub_select:
-                sel_list.append((select_obj.id, six.text_type(select_obj)))
-            comp.set_select(sel_list)
+            comp.set_needed(not dep_field.null)
+            comp.set_select_query(sub_select)
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(get_value_from_field(""))

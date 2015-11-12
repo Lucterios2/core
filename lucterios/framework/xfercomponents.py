@@ -35,6 +35,7 @@ from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, S
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 from lucterios.framework.xferbasic import NULL_VALUE
+from lucterios.framework.error import LucteriosException
 
 
 class XferComponent(object):
@@ -459,12 +460,20 @@ class XferCompSelect(XferCompButton):
     def set_select(self, select_list):
         self.select_list = select_list
 
+    def set_needed(self, needed):
+        self.needed = needed
+        if (len(self.select_list) > 0) and (self.select_list[0][0] == 0):
+            del self.select_list[0]
+
     def set_select_query(self, query):
         self.select_list = []
         if not self.needed:
             self.select_list.append((0, '---'))
         for item in query:
-            self.select_list.append((item.id, six.text_type(item)))
+            try:
+                self.select_list.append((item.id, item.get_text_value()))
+            except AttributeError:
+                self.select_list.append((item.id, six.text_type(item)))
 
     def set_value(self, value):
         self.value = value
@@ -766,6 +775,7 @@ class XferCompGrid(XferComponent):
             query_set = query_set.order_by(*self.order_list)
         for value in query_set[record_min:record_max]:
             child = value.get_final_child()
+            child.set_context(xfer_custom)
             pk_id = getattr(child, primary_key_fieldname)
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
