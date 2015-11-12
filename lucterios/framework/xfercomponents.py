@@ -462,13 +462,13 @@ class XferCompSelect(XferCompButton):
 
     def set_needed(self, needed):
         self.needed = needed
-        if (len(self.select_list) > 0) and (self.select_list[0][0] == 0):
+        if self.needed and (len(self.select_list) > 0) and (self.select_list[0][1] == None):
             del self.select_list[0]
 
     def set_select_query(self, query):
         self.select_list = []
         if not self.needed:
-            self.select_list.append((0, '---'))
+            self.select_list.append((0, None))
         for item in query:
             try:
                 self.select_list.append((item.id, item.get_text_value()))
@@ -506,7 +506,10 @@ class XferCompSelect(XferCompButton):
         for (key, val) in list_of_select:
             xml_case = etree.SubElement(compxml, "CASE")
             xml_case.attrib['id'] = six.text_type(key)
-            xml_case.text = six.text_type(val)
+            if val is None:
+                xml_case.text = "---"
+            else:
+                xml_case.text = six.text_type(val)
         return compxml
 
 
