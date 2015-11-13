@@ -79,7 +79,8 @@ class XferListEditor(XferContainerCustom):
 
     def fillresponse_body(self):
         self.items = self.get_items_from_filter()
-        self.fill_grid(self.get_max_row(), self.model, self.field_id, self.items)
+        self.fill_grid(
+            self.get_max_row(), self.model, self.field_id, self.items)
 
     def fillresponse(self):
         img = XferCompImage('img')
@@ -102,7 +103,7 @@ class XferListEditor(XferContainerCustom):
 class XferAddEditor(XferContainerCustom):
     caption_add = ''
     caption_modify = ''
-    redirect_to_show = True
+    redirect_to_show = 'show'
     locked = True
 
     def fillresponse(self):
@@ -198,7 +199,7 @@ class XferDelete(XferContainerAcknowledge):
 
 class XferSave(XferContainerAcknowledge):
     raise_except_class = None
-    redirect_to_show = True
+    redirect_to_show = 'show'
 
     def fillresponse(self):
         if "SAVE" in self.params.keys():
@@ -217,6 +218,6 @@ class XferSave(XferContainerAcknowledge):
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
             self.item.editor.saving(self)
-        if self.redirect_to_show:
+        if isinstance(self.redirect_to_show, six.text_type):
             self.redirect_action(ActionsManage.get_act_changed(
-                self.model.__name__, 'show', '', ''), {'params': {self.field_id: self.item.id}})
+                self.model.__name__, self.redirect_to_show, '', ''), {'params': {self.field_id: self.item.id}})
