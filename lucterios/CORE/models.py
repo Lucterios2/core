@@ -46,8 +46,8 @@ class Parameter(LucteriosModel):
     @classmethod
     def change_value(cls, pname, pvalue):
         db_param = cls.objects.get(name=pname)
-        if db_param.typeparam == 3:
-            db_param.value = six.text_type(pvalue == '1')
+        if (db_param.typeparam == 3) and isinstance(pvalue, six.text_type):
+            db_param.value = six.text_type((pvalue == '1') or (pvalue == 'o'))
         else:
             db_param.value = pvalue
         db_param.save()
