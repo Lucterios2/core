@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lxml import etree
+from base64 import b64encode
 
 from django.utils.translation import ugettext as _
 from django.utils import six
@@ -130,8 +131,8 @@ class XferContainerPrint(XferContainerAbstract):
             if report_generator is not None:
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = report_generator.generate_report(
-                    self.request, self.report_mode == PRINT_CSV_FILE)
+                self.report_content = b64encode(report_generator.generate_report(
+                    self.request, self.report_mode == PRINT_CSV_FILE))
 
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")

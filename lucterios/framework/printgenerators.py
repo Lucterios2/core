@@ -24,6 +24,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lxml import etree
+from copy import deepcopy
+from os.path import join, dirname, isfile
 import datetime
 import re
 
@@ -38,11 +40,7 @@ from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.models import get_value_converted
-from copy import deepcopy
-from _io import BytesIO
 from lucterios.framework.reporting import transforme_xml2pdf
-from os.path import join, dirname, isfile
-from base64 import b64encode
 
 
 def remove_format(xml_text):
@@ -361,7 +359,7 @@ class ReportGenerator(object):
         else:
             content = transforme_xml2pdf(report_content)
         if len(content) > 0:
-            return b64encode(content)
+            return content
         else:
             return ""
 
