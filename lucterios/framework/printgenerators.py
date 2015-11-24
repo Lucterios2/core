@@ -33,12 +33,16 @@ from django.db.models import Q
 from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.models import get_value_converted
 from copy import deepcopy
+from _io import BytesIO
+from lucterios.framework.reporting import transforme_xml2pdf
+from os.path import join, dirname, isfile
+from base64 import b64encode
 
 
 def remove_format(xml_text):
@@ -341,6 +345,26 @@ class ReportGenerator(object):
             self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
         return xml_generated
 
+    def generate_report(self, request, is_csv):
+        report_content = self.generate(request)
+        if is_csv:
+            xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
+            if not isfile(xsl_file):
+                raise LucteriosException(GRAVE, "Error:no csv xsl file!")
+            with open(xsl_file, 'rb') as xsl_file:
+                csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
+            xml_rep_content = etree.XML(report_content)
+            for xml_br in xml_rep_content.xpath("//br"):
+                xml_br.text = ' '
+            content = six.text_type(
+                csv_transform(xml_rep_content)).encode('utf-8')
+        else:
+            content = transforme_xml2pdf(report_content)
+        if len(content) > 0:
+            return b64encode(content)
+        else:
+            return ""
+
 
 class ActionGenerator(ReportGenerator):
 
@@ -569,6 +593,7 @@ class ReportingGenerator(ReportGenerator):
         self.report_xml = None
         self.current_item = None
         self.items_callback = None
+        self.items = []
 
     @property
     def model_text(self):
@@ -640,7 +665,7 @@ class ReportingGenerator(ReportGenerator):
 
     def get_items(self):
         if self.items_callback is None:
-            return []
+            return self.items
         else:
             return self.items_callback()
 

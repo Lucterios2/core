@@ -24,8 +24,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
-from os.path import isfile, join, dirname
-from base64 import b64encode
 from lxml import etree
 
 from django.utils.translation import ugettext as _
@@ -37,7 +35,6 @@ from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
     XferCompFloat
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
-from lucterios.framework.reporting import transforme_xml2pdf
 from lucterios.framework.xfersearch import get_search_query
 
 PRINT_PDF_FILE = 3
@@ -113,35 +110,16 @@ class XferContainerPrint(XferContainerAbstract):
 
     def get(self, request, *args, **kwargs):
         self._initialize(request, *args, **kwargs)
-        self.fillresponse(**self._get_params())
         report_mode = self.getparam("PRINT_MODE")
+        if report_mode is not None:
+            self.report_mode = int(report_mode)
+        self.fillresponse(**self._get_params())
         if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
             dlg = self._get_from_selector()
             return dlg.get(request, *args, **kwargs)
         else:
-            if report_mode is not None:
-                self.report_mode = int(report_mode)
             self._finalize()
             return self.get_response()
-
-    def get_body_content(self):
-        if self.report_mode == PRINT_CSV_FILE:
-            xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
-            if not isfile(xsl_file):
-                raise LucteriosException(GRAVE, "Error:no csv xsl file!")
-            with open(xsl_file, 'rb') as xsl_file:
-                csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
-            xml_rep_content = etree.XML(self.report_content)
-            for xml_br in xml_rep_content.xpath("//br"):
-                xml_br.text = ' '
-            content = six.text_type(
-                csv_transform(xml_rep_content)).encode('utf-8')
-        else:
-            content = transforme_xml2pdf(self.report_content)
-        if len(content) > 0:
-            return b64encode(content)
-        else:
-            return ""
 
     def fillresponse(self):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
@@ -152,12 +130,13 @@ class XferContainerPrint(XferContainerAbstract):
             if report_generator is not None:
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = report_generator.generate(self.request)
+                self.report_content = report_generator.generate_report(
+                    self.request, self.report_mode == PRINT_CSV_FILE)
 
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")
         printxml.attrib['mode'] = six.text_type(
             self.report_mode)  # 3=PDF - 4=CSV
-        printxml.text = self.get_body_content()
+        printxml.text = self.report_content
         etree.SubElement(printxml, "TITLE").text = six.text_type(self.caption)
         XferContainerAbstract._finalize(self)
