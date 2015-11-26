@@ -24,11 +24,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 import re
+import logging
 
 from django.db import models
 from django.db.models import Transform
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
+from django.core.exceptions import FieldDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats
@@ -37,7 +39,6 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
-from django.core.exceptions import FieldDoesNotExist
 
 
 class AbsoluteValue(Transform):
@@ -136,8 +137,56 @@ class LucteriosModel(models.Model):
         pass
 
     @classmethod
+    def get_import_fields(cls):
+        fields = []
+        for field in cls.get_edit_fields():
+            if isinstance(field, tuple):
+                fields.extend(field)
+            else:
+                fields.append(field)
+        return fields
+
+    @classmethod
+    def import_data(cls, rowdata):
+        from django.db.models.fields import IntegerField
+        from django.db.models.fields.related import ForeignKey
+        try:
+            new_item = cls()
+            if cls._meta.ordering is not None:
+                query = {}
+                for order_fd in cls._meta.ordering:
+                    if order_fd[0] == '-':
+                        order_fd = order_fd[1:]
+                    if order_fd in rowdata.keys():
+                        query[order_fd] = rowdata[order_fd]
+            if len(query) > 0:
+                search = cls.objects.filter(**query)
+                if len(search) > 0:
+                    new_item = search[0]
+            for fieldname, fieldvalue in rowdata.items():
+                dep_field = cls.get_field_by_name(fieldname)
+                if isinstance(dep_field, IntegerField):
+                    if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+                        for choice in dep_field.choices:
+                            if fieldvalue == choice[1]:
+                                fieldvalue = choice[0]
+                    if not isinstance(fieldvalue, int):
+                        fieldvalue = 0
+                elif isinstance(dep_field, ForeignKey):
+                    sub_value = fieldvalue
+                    fieldvalue = None
+                    for sub_item in dep_field.rel.to.objects.all():
+                        if six.text_type(sub_item) == six.text_type(sub_value):
+                            fieldvalue = sub_item
+                setattr(new_item, fieldname, fieldvalue)
+            new_item.save()
+            return new_item
+        except:
+            logging.getLogger('lucterios.framwork').exception("import_data")
+            return None
+
+    @classmethod
     def get_field_by_name(cls, fieldname):
-        from django.db.models.fields import FieldDoesNotExist
         try:
             fieldnames = fieldname.split('.')
             current_meta = cls._meta
