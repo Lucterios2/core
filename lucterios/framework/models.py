@@ -27,7 +27,7 @@ import re
 import logging
 
 from django.db import models
-from django.db.models import Transform
+from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.core.exceptions import FieldDoesNotExist
@@ -184,6 +184,18 @@ class LucteriosModel(models.Model):
         except:
             logging.getLogger('lucterios.framwork').exception("import_data")
             return None
+
+    @classmethod
+    def get_query_for_duplicate(cls):
+        query = Q()
+        for ident in cls.objects.values(*cls._meta.ordering).annotate(Count('id')).values(*cls._meta.ordering).order_by().filter(id__count__gt=1):
+            query |= Q(**ident)
+        if len(query) == 0:
+            empty_val = {}
+            for item in cls._meta.ordering:
+                empty_val[item] = ''
+            query = Q(**empty_val)
+        return query
 
     @classmethod
     def get_field_by_name(cls, fieldname):
