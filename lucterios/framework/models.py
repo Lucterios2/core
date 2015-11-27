@@ -26,11 +26,12 @@ from __future__ import unicode_literals
 import re
 import logging
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.core.exceptions import FieldDoesNotExist
+from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats
@@ -39,6 +40,7 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
+from django.db.models.loading import get_models
 
 
 class AbsoluteValue(Transform):
@@ -196,6 +198,67 @@ class LucteriosModel(models.Model):
                 empty_val[item] = ''
             query = Q(**empty_val)
         return query
+
+    @transaction.atomic
+    def merge_objects(self, alias_objects=[]):
+        if not isinstance(alias_objects, list):
+            alias_objects = [alias_objects]
+
+        primary_class = self.__class__
+        for alias_object in alias_objects:
+            if not isinstance(alias_object, primary_class):
+                raise TypeError('Only models of same class can be merged')
+
+        generic_fields = []
+        for model in get_models():
+            generic_fields.extend(
+                filter(lambda x: isinstance(x, GenericForeignKey), model.__dict__.values()))
+
+        blank_local_fields = set([field.attname for field in self._meta.local_fields if getattr(
+            self, field.attname) in [None, '']])
+
+        for alias_object in alias_objects:
+            for related_object in alias_object._meta.get_all_related_objects():
+                alias_varname = related_object.get_accessor_name()
+                obj_varname = related_object.field.name
+                related_objects = getattr(alias_object, alias_varname)
+                for obj in related_objects.all():
+                    setattr(obj, obj_varname, self)
+                    obj.save()
+
+            for related_many_object in alias_object._meta.get_all_related_many_to_many_objects():
+                alias_varname = related_many_object.get_accessor_name()
+                obj_varname = related_many_object.field.name
+
+                if alias_varname is not None:
+                    related_many_objects = getattr(
+                        alias_object, alias_varname).all()
+                else:
+                    related_many_objects = getattr(
+                        alias_object, obj_varname).all()
+                for obj in related_many_objects.all():
+                    getattr(obj, obj_varname).remove(alias_object)
+                    getattr(obj, obj_varname).add(self)
+
+            for field in generic_fields:
+                filter_kwargs = {}
+                filter_kwargs[field.fk_field] = alias_object._get_pk_val()
+                filter_kwargs[field.ct_field] = field.get_content_type(
+                    alias_object)
+                for generic_related_object in field.model.objects.filter(**filter_kwargs):
+                    setattr(generic_related_object, field.name, self)
+                    generic_related_object.save()
+
+            filled_up = set()
+            for field_name in blank_local_fields:
+                val = getattr(alias_object, field_name)
+                if val not in [None, '']:
+                    setattr(self, field_name, val)
+                    filled_up.add(field_name)
+            blank_local_fields -= filled_up
+
+            alias_object.delete()
+        self.save()
 
     @classmethod
     def get_field_by_name(cls, fieldname):
