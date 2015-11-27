@@ -134,10 +134,13 @@ class XferContainerPrint(XferContainerAbstract):
                 self.report_content = b64encode(report_generator.generate_report(
                     self.request, self.report_mode == PRINT_CSV_FILE))
 
+    def get_print_name(self):
+        return six.text_type(self.caption)
+
     def _finalize(self):
         printxml = etree.SubElement(self.responsexml, "PRINT")
         printxml.attrib['mode'] = six.text_type(
             self.report_mode)  # 3=PDF - 4=CSV
         printxml.text = self.report_content
-        etree.SubElement(printxml, "TITLE").text = six.text_type(self.caption)
+        etree.SubElement(printxml, "TITLE").text = self.get_print_name()
         XferContainerAbstract._finalize(self)
