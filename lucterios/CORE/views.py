@@ -35,7 +35,8 @@ from django.http.response import StreamingHttpResponse
 from django.conf import settings
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL,\
+    CLOSE_YES
 from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
@@ -47,6 +48,7 @@ from lucterios.framework.filetools import get_user_dir, xml_validator, read_file
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
+from django.apps.registry import apps
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub(
@@ -508,5 +510,59 @@ class LabelDelete(XferDelete):
     icon = "PrintReportLabel.png"
     model = Label
     field_id = 'label'
+
+
+@MenuManage.describ('')
+class ObjectMerge(XferContainerAcknowledge):
+    caption = _("Merge")
+    icon = ""
+    model = None
+    field_id = 'object'
+
+    def _search_model(self):
+        modelname = self.getparam('modelname')
+        self.model = apps.get_model(modelname)
+        XferContainerAcknowledge._search_model(self)
+
+    def fillresponse(self, field_id):
+        self.items = self.model.objects.filter(
+            id__in=self.getparam(field_id, ()))
+        if len(self.items) < 2:
+            raise LucteriosException(
+                IMPORTANT, _("Impossible: you must to select many records!"))
+        if self.item.id is None:
+            self.item = self.items[0]
+        if self.getparam("CONFIRME") is None:
+            dlg = self.create_custom()
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0)
+            dlg.add_component(lbl)
+            grid = XferCompGrid(self.field_id)
+            grid.add_header('value', _('designation'))
+            grid.add_header('select', _('is main?'), 'bool')
+            for item in self.items:
+                grid.set_value(item.id, 'value', six.text_type(item))
+                grid.set_value(item.id, 'select', item.id == self.item.id)
+            grid.set_location(1, 1)
+            grid.add_action(self.request, self.get_action(_("Edit"), "images/show.png"), {
+                            'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'unique': SELECT_SINGLE, 'params': {"CONFIRME": 'OPEN'}})
+            grid.add_action(self.request, self.get_action(
+                _("Select"), "images/ok.png"), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_SINGLE})
+            dlg.add_component(grid)
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"),
+                           {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL, 'params': {'CONFIRME': 'YES', self.field_id: self.item.id}})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+        elif self.getparam("CONFIRME") == 'YES':
+            alias_objects = []
+            for item in self.items:
+                if item.id != self.item.id:
+                    alias_objects.append(item.get_final_child())
+            self.item.get_final_child().merge_objects(alias_objects)
+            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {
+                                 'params': {field_id: self.item.id}})
+        else:
+            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {
+                                 'params': {field_id: self.item.id}})
 
 tools.bad_permission_redirect_classaction = Menu

@@ -28,7 +28,7 @@ import logging
 import sys
 import os
 import socket
-from os.path import dirname, join
+from os.path import dirname, join, isdir
 from locale import getdefaultlocale
 
 from django.utils import six
@@ -121,8 +121,11 @@ def _get_locale_pathes(appli_name, addon_modules):
     if addon_modules is not None:
         module_lang_list.extend(addon_modules)
     for module_lang_item in module_lang_list:
-        local_path.append(
-            join(import_module(module_lang_item).__path__[0], 'locale/'))
+        module_path = import_module(module_lang_item).__path__[0]
+        local_path.append(join(module_path, 'locale', ''))
+        for subdir in os.listdir(module_path):
+            if isdir(join(module_path, subdir)) and isdir(join(module_path, subdir, 'locale')):
+                local_path.append(join(module_path, subdir, 'locale', ''))
     return tuple(local_path)
 
 
