@@ -285,6 +285,11 @@ class XferCompEdit(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "EDIT"
         self.mask = ""
+        self.size = -1
+
+    def _get_attribut(self, compxml):
+        XferComponent._get_attribut(self, compxml)
+        compxml.attrib['size'] = six.text_type(self.size)
 
     def _get_content(self):
         if self.value is None:

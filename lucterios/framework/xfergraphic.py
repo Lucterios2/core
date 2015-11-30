@@ -380,7 +380,7 @@ class XferContainerCustom(XferContainerAbstract):
                     else:
                         val = default
             return val
-        from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField
+        from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, CharField
         from django.db.models.fields.related import ForeignKey
         from django.core.exceptions import ObjectDoesNotExist
         dep_field = self.item.get_field_by_name(field_name)
@@ -435,6 +435,8 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(get_value_from_field(""))
+            if isinstance(dep_field, CharField):
+                comp.size = dep_field.max_length
         comp.set_needed(is_needed)
         comp.description = six.text_type(dep_field.verbose_name)
         return comp
@@ -618,6 +620,7 @@ class XferContainerCustom(XferContainerAbstract):
 
             lista = XferCompCheckList(field_name + '_available')
             lista.set_location(col + 1, row + 1, 1, 5)
+            lista.set_size(200, 250)
             self.add_component(lista)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_chosen')
@@ -627,6 +630,7 @@ class XferContainerCustom(XferContainerAbstract):
 
             listc = XferCompCheckList(field_name + '_chosen')
             listc.set_location(col + 3, row + 1, 1, 5)
+            listc.set_size(200, 250)
             self.add_component(listc)
 
             btn_idx = 0

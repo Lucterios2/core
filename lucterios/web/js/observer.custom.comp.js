@@ -340,11 +340,13 @@ var compLink = compGeneric.extend({
 var compEdit = compAbstractEvent.extend({
 	value : "",
 	mask : null,
+	size : -1,
 
 	initial : function(component) {
 		var regex;
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
+		this.size = component.getXMLAttributInt("size", -1);
 		regex = component.getCDataOfFirstTag("REG_EXPR");
 		if (regex !== '') {
 			this.mask = new RegExp(regex, 'i');
@@ -374,15 +376,22 @@ var compEdit = compAbstractEvent.extend({
 				throw new LucteriosException(MINOR, msg_text);
 			}
 		}
+		else if (this.size !== -1) {
+			inputVal = this.getGUIComp().val().trim();
+			if (inputVal.length > this.size) {
+				msg_text = Singleton().getTranslate("Size too long!");
+				throw new LucteriosException(MINOR, msg_text);
+			}
+		}
 		return;
 	},
 
 	addAction : function() {
 		this.addActionEx(0);
-		if (this.mask !== null) {
+		if ((this.mask !== null) || (this.size !== -1)) {
 			this.getGUIComp().keyup($.proxy(function() {
 				var inputVal = this.getGUIComp().val();
-				if (!this.mask.test(inputVal)) {
+				if (((this.mask !== null) && !this.mask.test(inputVal)) || ((this.size !== -1) && (inputVal.trim().length > this.size))) {
 					this.getGUIComp().css({
 						'background-color' : 'red'
 					});
