@@ -132,7 +132,7 @@ class LucteriosGlobal(LucteriosManage):
         import re
         list_res = []
         for manage_file in os.listdir(self.instance_path):
-            val = re.match(r"manage_([a-zA-Z0-9_]+)\.py", manage_file)
+            val = re.match(r"manage_(.+)\.py", manage_file)
             if val is not None and isdir(join(self.instance_path, val.group(1))):
                 list_res.append(val.group(1))
         list_res.sort()
