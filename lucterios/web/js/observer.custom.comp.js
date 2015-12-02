@@ -225,7 +225,9 @@ var compButton = compAbstractEvent.extend({
 			if (this.btnaction.getIcon() !== '') {
 				btn_icon = Singleton().Transport().getIconUrl(
 						this.btnaction.getIcon());
-				title = '<img src="{0}"/>'.format(btn_icon) + title;
+				title = '<img src="{0}" style="max-width:32px"/>'
+						.format(btn_icon)
+						+ title;
 			}
 			return this.getBuildHtml(arg, false, false) + title + "</button>";
 		}
@@ -375,8 +377,7 @@ var compEdit = compAbstractEvent.extend({
 				msg_text = Singleton().getTranslate("Invalid format!");
 				throw new LucteriosException(MINOR, msg_text);
 			}
-		}
-		else if (this.size !== -1) {
+		} else if (this.size !== -1) {
 			inputVal = this.getGUIComp().val().trim();
 			if (inputVal.length > this.size) {
 				msg_text = Singleton().getTranslate("Size too long!");
@@ -389,18 +390,23 @@ var compEdit = compAbstractEvent.extend({
 	addAction : function() {
 		this.addActionEx(0);
 		if ((this.mask !== null) || (this.size !== -1)) {
-			this.getGUIComp().keyup($.proxy(function() {
-				var inputVal = this.getGUIComp().val();
-				if (((this.mask !== null) && !this.mask.test(inputVal)) || ((this.size !== -1) && (inputVal.trim().length > this.size))) {
-					this.getGUIComp().css({
-						'background-color' : 'red'
-					});
-				} else {
-					this.getGUIComp().css({
-						'background-color' : 'white'
-					});
-				}
-			}, this));
+			this.getGUIComp().keyup(
+					$.proxy(
+							function() {
+								var inputVal = this.getGUIComp().val();
+								if (((this.mask !== null) && !this.mask
+										.test(inputVal))
+										|| ((this.size !== -1) && (inputVal
+												.trim().length > this.size))) {
+									this.getGUIComp().css({
+										'background-color' : 'red'
+									});
+								} else {
+									this.getGUIComp().css({
+										'background-color' : 'white'
+									});
+								}
+							}, this));
 		}
 	}
 

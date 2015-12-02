@@ -147,8 +147,10 @@ class FieldDescItem(object):
         if self.dbfield is None:
             if self.sub_fieldnames[0][-4:] == '_set':
                 self.dbfieldname = self.sub_fieldnames[0][:-4]
-                self.description = model._meta.verbose_name
                 self.dbfield = getattr(model, self.sub_fieldnames[0])
+                if not hasattr(self.dbfield, 'model'):
+                    self.dbfield = getattr(model(), self.sub_fieldnames[0])
+                self.description = self.dbfield.model._meta.verbose_name
             else:
                 dep_field = model._meta.get_field(
                     self.sub_fieldnames[0])
@@ -158,10 +160,9 @@ class FieldDescItem(object):
                     # field not many-to-many
                     if not (dep_field.is_relation and dep_field.many_to_many):
                         self.dbfield = dep_field
-                        self.description = self.dbfield.verbose_name
                     else:
                         self.dbfield = dep_field
-                        self.description = self.dbfield.verbose_name
+                self.description = self.dbfield.verbose_name
         else:
             self.description = self.dbfield.verbose_name
 
