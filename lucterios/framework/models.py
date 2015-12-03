@@ -149,7 +149,7 @@ class LucteriosModel(models.Model):
         return fields
 
     @classmethod
-    def import_data(cls, rowdata):
+    def import_data(cls, rowdata, dateformat):
         from django.db.models.fields import IntegerField
         from django.db.models.fields.related import ForeignKey
         try:
