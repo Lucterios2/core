@@ -565,4 +565,66 @@ class ObjectMerge(XferContainerAcknowledge):
             self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {
                                  'params': {field_id: self.item.id}})
 
+
+@MenuManage.describ('')
+class ObjectPromote(XferContainerAcknowledge):
+    caption = _("Promote")
+    icon = "images/config.png"
+    model = None
+    field_id = ''
+
+    def _search_model(self):
+        modelname = self.getparam('modelname')
+        self.model = apps.get_model(modelname)
+        self.field_id = self.getparam('field_id', modelname.lower())
+        XferContainerAcknowledge._search_model(self)
+
+    def fillresponse(self):
+        if self.getparam("CONFIRME") is None:
+            dlg = self.create_custom()
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0, 2)
+            dlg.add_component(lbl)
+            lbl = XferCompLabelForm('lbl_record')
+            lbl.set_value_as_name(_('record'))
+            lbl.set_location(1, 1)
+            dlg.add_component(lbl)
+            lbl = XferCompLabelForm('record')
+            lbl.set_value(six.text_type(self.item))
+            lbl.set_location(2, 1)
+            dlg.add_component(lbl)
+            lbl = XferCompLabelForm('lbl_current')
+            lbl.set_value_as_name(_('current model'))
+            lbl.set_location(1, 2)
+            dlg.add_component(lbl)
+            lbl = XferCompLabelForm('current')
+            lbl.set_value(self.item.__class__._meta.verbose_name)
+            lbl.set_location(2, 2)
+            dlg.add_component(lbl)
+            lbl = XferCompLabelForm('lbl_newmodel')
+            lbl.set_value_as_name(_('new model'))
+            lbl.set_location(1, 3)
+            dlg.add_component(lbl)
+            lbl = XferCompSelect('newmodel')
+            lbl.set_select(self.item.__class__.get_select_contact_type(False))
+            lbl.set_location(2, 3)
+            dlg.add_component(lbl)
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"),
+                           {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL, 'params': {'CONFIRME': 'YES'}})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+        else:
+            new_model = apps.get_model(self.getparam('newmodel'))
+            field_id_name = "%s_ptr_id" % self.model.__name__.lower()
+            new_object = new_model(**{field_id_name: self.item.pk})
+            new_object.save()
+            new_object.__dict__.update(self.item.__dict__)
+            new_object.save()
+            self.redirect_action(
+                ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {})
+
 tools.bad_permission_redirect_classaction = Menu

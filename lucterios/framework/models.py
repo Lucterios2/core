@@ -139,6 +139,16 @@ class LucteriosModel(models.Model):
         pass
 
     @classmethod
+    def get_select_contact_type(cls, with_current=True):
+        select_list = []
+        if with_current:
+            select_list.append(
+                (cls.get_long_name(), cls._meta.verbose_name.title()))
+        for sub_class in cls.__subclasses__():
+            select_list.extend(sub_class.get_select_contact_type())
+        return select_list
+
+    @classmethod
     def get_import_fields(cls):
         fields = []
         for field in cls.get_edit_fields():
