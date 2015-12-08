@@ -78,7 +78,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/TITLE', 'Lucterios standard')
         self.assert_xml_equal(
             'CONNECTION/SUBTITLE', six.text_type('Application générique de gestion'))
-        self.assert_xml_equal('CONNECTION/VERSION', '2.0.1.', (0, 6))
+        self.assert_xml_equal('CONNECTION/VERSION', '2.0.2.', (0, 6))
         self.assert_xml_equal('CONNECTION/SERVERVERSION', '2.0.', (0, 4))
         self.assert_xml_equal('CONNECTION/COPYRIGHT', '(c) ', (0, 4))
         self.assert_xml_equal(
