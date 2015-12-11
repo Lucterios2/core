@@ -193,6 +193,18 @@ Element.prototype.getXMLAttributInt = function(aAttribName, aDefault) {
 	return val;
 };
 
+Element.prototype.getXMLAttributFloat = function(aAttribName, aDefault) {
+	var attr = this.getAttribute(aAttribName), val;
+	if (attr === null) {
+		return aDefault;
+	}
+	val = parseFloat(attr);
+	if (isNaN(val)) {
+		val = aDefault;
+	}
+	return val;
+};
+
 Element.prototype.getXMLAttributStr = function(aAttribName, aDefault) {
 	var attr = this.getAttribute(aAttribName);
 	if (attr === null) {

@@ -430,8 +430,8 @@ var compFloat = compAbstractEvent
 					text_value = '0';
 				}
 				this.value = parseFloat(text_value);
-				this.min = component.getXMLAttributInt('min', 0);
-				this.max = component.getXMLAttributInt('max', 1000);
+				this.min = component.getXMLAttributFloat('min', 0.0);
+				this.max = component.getXMLAttributFloat('max', 1000.0);
 				this.prec = 1;
 				for (dec_i = 0; dec_i < nb_dec; dec_i++) {
 					this.prec = this.prec / 10;
