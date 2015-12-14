@@ -367,6 +367,8 @@ class TestAdminPostGreSQL(BaseTest):
             os.system(complete_cmd)
 
     def tearDown(self):
+        from django import db
+        db.close_old_connections()
         for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;"):
             complete_cmd = 'sudo -u postgres psql -c "%s"' % (cmd % self.data)
             os.system(complete_cmd)
@@ -415,6 +417,20 @@ class TestAdminPostGreSQL(BaseTest):
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.delete()
         self.assertEqual([], self.luct_glo.listing())
+
+    def test_archive(self):
+        self.assertEqual([], self.luct_glo.listing())
+        inst = LucteriosInstance("inst_h", self.path_dir)
+        inst.add()
+        inst.filename = join(self.path_dir, "inst_h.arc")
+        self.assertEqual(True, inst.archive())
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.set_database(
+            "postgresql:name=testv2,user=puser,password=123456,host=localhost")
+        inst.add()
+        inst.filename = join(self.path_dir, "inst_h.arc")
+        self.assertEqual(True, inst.restore())
 
 #     def test_migration(self):
 #         self.assertEqual([], self.luct_glo.listing())

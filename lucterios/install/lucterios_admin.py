@@ -438,15 +438,21 @@ class LucteriosInstance(LucteriosManage):
         self.read()
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
-        if only_delete:
-            sql_cmd = 'DELETE FROM "%s" %s;'
+        option = 'CASCADE'
+        if self.database[0] == 'postgresql':
+            if only_delete:
+                sql_cmd = 'DELETE FROM "%s" %s;'
+            else:
+                sql_cmd = 'DROP TABLE IF EXISTS "%s" %s;'
         else:
-            sql_cmd = 'DROP TABLE IF EXISTS "%s" %s;'
-        try:
-            connection.cursor().execute('SET foreign_key_checks = 0;')
-            option = ''
-        except:
-            option = 'CASCADE'
+            if only_delete:
+                sql_cmd = 'DELETE FROM %s %s;'
+            else:
+                sql_cmd = 'DROP TABLE IF EXISTS %s %s;'
+            try:
+                connection.cursor().execute('SET foreign_key_checks = 0;')
+            except:
+                option = 'CASCADE'
         loop = 10
         while loop > 0:
             tables = connection.introspection.table_names()
@@ -465,10 +471,11 @@ class LucteriosInstance(LucteriosManage):
                 loop = -1
             else:
                 loop -= 1
-        try:
-            connection.cursor().execute('SET foreign_key_checks = 1;')
-        except:
-            pass
+        if self.database[0] != 'postgresql':
+            try:
+                connection.cursor().execute('SET foreign_key_checks = 1;')
+            except:
+                pass
         if loop == 0:
             raise Exception("not clear!!")
         user_path = get_user_dir()
@@ -704,7 +711,6 @@ class LucteriosInstance(LucteriosManage):
             from django.core.management import call_command
             call_command('loaddata', output_filename)
             if isdir(join(tmp_path, 'usr')):
-                mkdir(get_user_dir())
                 shutil.move(join(tmp_path, 'usr'), get_user_dir())
             success = True
         if isdir(tmp_path):
