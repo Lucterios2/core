@@ -33,6 +33,7 @@ from optparse import OptionParser
 from importlib import import_module
 import shutil
 from django.utils import six
+import traceback
 try:
     from importlib import reload
 except ImportError:
@@ -187,7 +188,6 @@ class LucteriosGlobal(LucteriosManage):
         return args
 
     def check(self):
-
         from pip import get_installed_distributions
         from pip.commands import list as list_
         import pip.utils.logging
@@ -435,39 +435,44 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('\n')
 
     def clear(self, only_delete=False):
-
         self.read()
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
-        tables = connection.introspection.table_names()
-        tables.sort()
+        if only_delete:
+            sql_cmd = 'DELETE FROM "%s" %s;'
+        else:
+            sql_cmd = 'DROP TABLE IF EXISTS "%s" %s;'
         try:
             connection.cursor().execute('SET foreign_key_checks = 0;')
             option = ''
         except:
             option = 'CASCADE'
-        for table in tables:
-            try:
-                if only_delete:
-                    connection.cursor().execute(
-                        'DELETE FROM %s %s;' % (table, option))
-                else:
-                    connection.cursor().execute(
-                        'DROP TABLE IF EXISTS %s %s;' % (table, option))
-            except:
-                option = ''
-                if only_delete:
-                    connection.cursor().execute(
-                        'DELETE FROM %s %s;' % (table, option))
-                else:
-                    connection.cursor().execute(
-                        'DROP TABLE IF EXISTS %s %s;' % (table, option))
+        loop = 10
+        while loop > 0:
+            tables = connection.introspection.table_names()
+            tables.sort()
+            no_error = True
+            for table in tables:
+                try:
+                    try:
+                        connection.cursor().execute(sql_cmd % (table, option))
+                    except:
+                        connection.cursor().execute(sql_cmd % (table, ''))
+                except:
+                    traceback.print_exc()
+                    no_error = False
+            if no_error:
+                loop = -1
+            else:
+                loop -= 1
         try:
             connection.cursor().execute('SET foreign_key_checks = 1;')
         except:
             pass
+        if loop == 0:
+            raise Exception("not clear!!")
         user_path = get_user_dir()
-        if not only_delete and isdir(user_path):
+        if isdir(user_path):
             rmtree(user_path)
         self.print_info_("Instance '%s' clear." %
                          self.name)
@@ -699,6 +704,7 @@ class LucteriosInstance(LucteriosManage):
             from django.core.management import call_command
             call_command('loaddata', output_filename)
             if isdir(join(tmp_path, 'usr')):
+                mkdir(get_user_dir())
                 shutil.move(join(tmp_path, 'usr'), get_user_dir())
             success = True
         if isdir(tmp_path):
