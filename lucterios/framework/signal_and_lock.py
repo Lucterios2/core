@@ -107,6 +107,16 @@ class RecordLocker(object):
             cls._lock.release()
 
     @classmethod
+    def is_lock(cls, model_item):
+        cls._lock.acquire()
+        try:
+            lock_ident = "-".join((six.text_type(model_item.__module__),
+                                   six.text_type(model_item.__class__.__name__), six.text_type(model_item.pk)))
+            return lock_ident in cls._lock_list.keys()
+        finally:
+            cls._lock.release()
+
+    @classmethod
     def unlock(cls, request, params):
         cls._lock.acquire()
         try:
