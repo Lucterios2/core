@@ -26,14 +26,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from shutil import rmtree
+from shutil import rmtree, move
 from os import mkdir, remove
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
-import shutil
 from django.utils import six
-import traceback
 try:
     from importlib import reload
 except ImportError:
@@ -465,7 +463,6 @@ class LucteriosInstance(LucteriosManage):
                     except:
                         connection.cursor().execute(sql_cmd % (table, ''))
                 except:
-                    traceback.print_exc()
                     no_error = False
             if no_error:
                 loop = -1
@@ -711,7 +708,7 @@ class LucteriosInstance(LucteriosManage):
             from django.core.management import call_command
             call_command('loaddata', output_filename)
             if isdir(join(tmp_path, 'usr')):
-                shutil.move(join(tmp_path, 'usr'), get_user_dir())
+                move(join(tmp_path, 'usr'), get_user_dir())
             success = True
         if isdir(tmp_path):
             rmtree(tmp_path)
