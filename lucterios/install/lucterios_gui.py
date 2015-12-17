@@ -34,12 +34,14 @@ from time import sleep
 from traceback import print_exc
 from threading import Thread
 
+from django.utils.module_loading import import_module
 from django.utils.translation import ugettext
 from django.utils import six
 
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
     setup_from_none
 from lucterios.install.lucterios_migration import MigrateFromV1
+from os.path import join, dirname
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -53,7 +55,9 @@ try:
     from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
     from tkinter.messagebox import showerror, showinfo, askokcancel
     from tkinter.filedialog import asksaveasfilename, askopenfilename
+    from tkinter import Image
 except ImportError:
+    from Tkinter import Image
     from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar
     from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
     from tkMessageBox import showerror, showinfo, askokcancel
@@ -344,8 +348,10 @@ class InstanceEditor(Toplevel):
 class LucteriosMainForm(Tk):
 
     def __init__(self):
-
         Tk.__init__(self)
+        img = Image("photo", file=join(
+            dirname(import_module('lucterios.install').__file__), "lucterios.png"))
+        self.tk.call('wm', 'iconphoto', self._w, img)
         self.has_checked = False
         self.title(ugettext("Lucterios installer"))
         self.minsize(475, 260)
