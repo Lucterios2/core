@@ -349,9 +349,12 @@ class LucteriosMainForm(Tk):
 
     def __init__(self):
         Tk.__init__(self)
-        img = Image("photo", file=join(
-            dirname(import_module('lucterios.install').__file__), "lucterios.png"))
-        self.tk.call('wm', 'iconphoto', self._w, img)
+		try:
+		    img = Image("photo", file=join(
+		        dirname(import_module('lucterios.install').__file__), "lucterios.png"))
+		    self.tk.call('wm', 'iconphoto', self._w, img)
+		except:
+			pass
         self.has_checked = False
         self.title(ugettext("Lucterios installer"))
         self.minsize(475, 260)
