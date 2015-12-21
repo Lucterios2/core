@@ -32,6 +32,7 @@ from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
 from django.utils import six
+from re import escape
 try:
     from importlib import reload
 except ImportError:
@@ -406,7 +407,7 @@ class LucteriosInstance(LucteriosManage):
                 self.databases["default"][
                     "ENGINE"] = 'django.db.backends.sqlite3'
                 self.databases["default"]["NAME"] = join(
-                    self.instance_dir, 'db.sqlite3')
+                    self.instance_dir, 'db.sqlite3').replace('\\', '\\\\')
             elif self.database[0].lower() == 'mysql':
                 self.databases["default"] = self.database[1]
                 self.databases["default"][
