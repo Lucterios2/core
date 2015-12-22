@@ -79,6 +79,10 @@ def add_url_from_module(url_list, appmodule, lucterios_ext):
     if isdir(extpath_help):
         url_list.append(url(r'^%s/help/(?P<path>.*)$' %
                             lucterios_ext, serve, {'document_root': extpath_help}))
+    extpath_static = join(dirname(appmodule.__file__), 'static')
+    if isdir(extpath_static):
+        url_list.append(url(r'^%s/static/(?P<path>.*)$' %
+                            lucterios_ext, serve, {'document_root': extpath_static}))
 
 
 def get_url_patterns():

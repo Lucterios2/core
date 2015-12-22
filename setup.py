@@ -56,7 +56,7 @@ setup(
              'lucterios/install/lucterios_gui.py', 'lucterios/install/lucterios_migration.py'],
     package_data={
         "lucterios.CORE.migrations": ['*'],
-        "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
+        "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*', 'static/*/*', 'static/*/*/*', 'static/*/*/*/*'],
         "lucterios.framework.migrations": ['*'],
         "lucterios.framework": ['locale/*/*/*', 'static/*/*', 'static/*/*/*', 'static/*/*/*/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],

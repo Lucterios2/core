@@ -28,6 +28,7 @@
 		<antcall target="pep8" />
 		<antcall target="add_instance" />
 		<antcall target="i18n" />
+		<antcall target="docs" />
 		<antcall target="package" />
 		<antcall target="tests" />
 		<antcall target="del_instance" />
@@ -206,6 +207,40 @@
 	<target name="tests">
 		<antcall target="test_py2" />
 		<antcall target="test_py3" />
+	</target>
+
+	<target name="docs_comp">
+		<if>
+			<available file="${sub_path}/docs/${lang}" />
+			<then>
+				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name}  --" />
+				<delete dir="${sub_path}/docs/build_${lang}" />
+				<delete dir="${sub_path}/static/${module_name}/help_${lang}" />
+				<mkdir dir="${sub_path}/static/${module_name}/help_${lang}"/>
+				<exec executable="make" dir="${sub_path}/docs/${lang}">
+					<arg value="html" />
+				</exec>
+				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/help_${lang}" />
+			</then>
+		</if>
+	</target>
+
+	<target name="docs">
+		<for param="packageitem" list="${project.packagepath}">
+			<sequential>
+				<basename property="module_name" file="@{packageitem}"/>
+				<antcall target="docs_comp">
+					<param name="sub_path" value="${basedir}/@{packageitem}" />
+					<param name="lang" value="fr" />
+					<param name="module_name" value="${module_name}" />
+				</antcall>
+				<antcall target="docs_comp">
+					<param name="sub_path" value="${basedir}/@{packageitem}" />
+					<param name="lang" value="en" />
+					<param name="module_name" value="${module_name}" />
+				</antcall>
+			</sequential>
+		</for>
 	</target>
 
 	<target name="package_del">
