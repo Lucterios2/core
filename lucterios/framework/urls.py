@@ -55,7 +55,7 @@ def _init_url_patterns():
     from django.contrib import admin
     admin.autodiscover()
     res = []
-    web_path = join(dirname(dirname(__file__)), 'web')
+    web_path = join(dirname(__file__), 'static', 'framework', 'web')
     res.append(url(r'^$', defaultview))
     res.append(url(r'^favicon.ico$', defaultblank))
     res.append(url(r'^web/$', defaultview))

@@ -58,7 +58,7 @@ setup(
         "lucterios.CORE.migrations": ['*'],
         "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
         "lucterios.framework.migrations": ['*'],
-        "lucterios.framework": ['locale/*/*/*'],
+        "lucterios.framework": ['locale/*/*/*', 'static/*/*', 'static/*/*/*', 'static/*/*/*/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
     install_requires=[

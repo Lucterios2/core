@@ -10,7 +10,7 @@
 	<property name="web.version" value="1.0.2" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
-	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="lucterios/web/jslint/jslint4java-2.0.5.jar" />
+	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="lucterios/framework/static/framework/web/jslint/jslint4java-2.0.5.jar" />
 
 	<target name="init_addon">
 		<delete file="lucterios/web/conf/conf.js" />
