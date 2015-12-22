@@ -13,13 +13,13 @@
 	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="lucterios/framework/static/framework/web/jslint/jslint4java-2.0.5.jar" />
 
 	<target name="init_addon">
-		<delete file="lucterios/web/conf/conf.js" />
-		<copy file="lucterios/web/deployed/conf_template.js" tofile="lucterios/web/conf/conf.js" />
-		<replace file="lucterios/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${build_number}';" />
+		<delete file="lucterios/framework/static/framework/web/conf/conf.js" />
+		<copy file="lucterios/framework/static/framework/web/deployed/conf_template.js" tofile="lucterios/framework/static/framework/web/conf/conf.js" />
+		<replace file="lucterios/framework/static/framework/web/conf/conf.js" token="G_Version = 'X.X.X.X';" value="G_Version = '${web.version}.${build_number}';" />
 		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
 			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
 			<formatter type="xml" destfile="jslint_results.xml" />
-			<fileset dir="lucterios/web/" includes="js/*.js" />
+			<fileset dir="lucterios/framework/static/framework/web/" includes="js/*.js" />
 		</jslint>
 	</target>
 
