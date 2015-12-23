@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from django.utils import six
 from django.conf import settings
 from django.utils.module_loading import import_module
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, get_language
 
 from os.path import dirname, join, isdir
 from os import listdir
@@ -73,3 +73,34 @@ def defaulthelp(request):
         module = import_module(module_name)
         help_path = join(dirname(module.__file__), "help")
         return render_to_response(help_file, dirs=[help_path])
+
+
+def find_doc(module):
+    mod_id = module.__name__.split('.')[-1]
+    doc_path = join(
+        dirname(module.__file__), "static", mod_id, 'doc_%s' % get_language())
+    if isdir(doc_path):
+        if hasattr(module, '__title__'):
+            return (mod_id, six.text_type(module.__title__()))
+        else:
+            return (mod_id, module.__name__)
+    return None
+
+
+def defaultDocs(request):
+    from django.shortcuts import render_to_response
+    dictionary = {}
+    dictionary['title'] = six.text_type(settings.APPLIS_NAME)
+    dictionary['subtitle'] = settings.APPLIS_SUBTITLE()
+    dictionary['applogo'] = settings.APPLIS_LOGO
+    dictionary['version'] = six.text_type(settings.APPLIS_VERSION)
+    dictionary['lang'] = get_language()
+    dictionary['menus'] = []
+    dictionary['menus'].append(find_doc(settings.APPLIS_MODULE))
+    for appname in settings.INSTALLED_APPS:
+        if ("django" not in appname) and ("lucterios.CORE" not in appname) and (settings.APPLIS_MODULE.__name__ != appname):
+            help_item = find_doc(import_module(appname))
+            if help_item is not None:
+                dictionary['menus'].append(help_item)
+    dictionary['menus'].append(find_doc(CORE))
+    return render_to_response('main_docs.html', dirs=[dirname(__file__)], dictionary=dictionary)

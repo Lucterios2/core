@@ -1,0 +1,115 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>{% trans "User manual" %}</title>
+<style type="text/css">
+<!--
+BODY {
+	background-color: #EEE;
+}
+
+.title {
+	font-family: Helvetica, serif;
+	font-size: 9mm;
+	font-weight: bold;
+	text-align: center;
+	vertical-align: middle;
+	color: #0C3762;
+}
+
+.subtitle {
+	font-family: Helvetica, serif;
+	font-size: 4mm;
+	text-align: center;
+	vertical-align: middle;
+	color: #AAA;
+}
+
+#header {
+	top: 0px;
+	position: fixed;
+	margin: 10px 0px 5px 0px;
+	width: 99%;
+	height: 70px;
+}
+
+#menu {
+	top: 90px;
+	bottom: 25px;
+	position: fixed;
+	width: 15%;
+}
+
+ul {
+	list-style-type: none;
+	text-align:left;
+	padding-left:0px;
+}
+
+li {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    padding: 5px 10px 5px 10px;
+	margin: 3px 3px 3px 3px;
+	background-color: #FFFFFF;
+	border: 1px SOLID black;
+	color: #DC3C01;
+	font-weight: bold;
+	width:90%;
+}
+
+#content {
+	top: 100px;
+	left: 17%;
+	position: fixed;
+	width: 80%;
+	height: 80%;
+	overflow: auto;
+}
+
+
+#foot {
+	background-color: #2D2DFF;
+	color: #FFF;
+	font-size: 10px;
+	text-align: right;
+	font-weight: bold;
+	bottom: 0px;
+	position: fixed;
+	margin: 10px 0px 5px 0px;
+	width: 99%;
+	height: 15px;
+}
+
+-->
+</style>
+<script language="javascript">
+	function showcontent(submenuid, lang) {
+		var url = "/static/" + submenuid + "/doc_" + lang + "/index.html";
+		var content = document.getElementById('content');
+		content.src = url;
+	}
+</script>
+</head>
+
+<body onload='showcontent("{{ menus.0.0 }}","{{ lang }}")')>
+	<div id="header">
+		<div class="title">{{ title }}</div>
+		<div class="subtitle">{{ subtitle }}</div>
+	</div>
+
+	<div id="menu">
+		<ul>
+{% for menu in menus %}
+			<li onclick='showcontent("{{ menu.0 }}","{{ lang }}")'>{{menu.1}}</li>
+{% endfor %}
+		</ul>
+	</div>
+
+	<iframe id='content' src=""> </iframe>
+
+	<div id="foot">{{ title }} - {% trans "User manual" %}</div>
+</body>
+</html>

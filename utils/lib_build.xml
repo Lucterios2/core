@@ -49,6 +49,16 @@
 			<fileset dir="." includes="**/*.pyc" />
 		</delete>
 		<delete dir="*/__pycache__" />
+		<for param="packageitem" list="${project.packagepath}">
+			<sequential>
+				<basename property="module_name" file="@{packageitem}"/>
+				<delete dir="${basedir}/@{packageitem}/docs/build_fr" />
+				<delete dir="${basedir}/@{packageitem}/docs/build_en" />
+				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_fr"/>
+				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_en"/>
+			</sequential>
+		</for>
+		
 	</target>
 
 	<target name="init_addon">
@@ -213,14 +223,15 @@
 		<if>
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
+				<basename property="module_name" file="${sub_path}"/>
 				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name}  --" />
 				<delete dir="${sub_path}/docs/build_${lang}" />
-				<delete dir="${sub_path}/static/${module_name}/help_${lang}" />
-				<mkdir dir="${sub_path}/static/${module_name}/help_${lang}"/>
+				<delete dir="${sub_path}/static/${module_name}/doc_${lang}" />
+				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}"/>
 				<exec executable="make" dir="${sub_path}/docs/${lang}">
 					<arg value="html" />
 				</exec>
-				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/help_${lang}" />
+				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/doc_${lang}" />
 			</then>
 		</if>
 	</target>
@@ -228,16 +239,13 @@
 	<target name="docs">
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
-				<basename property="module_name" file="@{packageitem}"/>
 				<antcall target="docs_comp">
 					<param name="sub_path" value="${basedir}/@{packageitem}" />
 					<param name="lang" value="fr" />
-					<param name="module_name" value="${module_name}" />
 				</antcall>
 				<antcall target="docs_comp">
 					<param name="sub_path" value="${basedir}/@{packageitem}" />
 					<param name="lang" value="en" />
-					<param name="module_name" value="${module_name}" />
 				</antcall>
 			</sequential>
 		</for>

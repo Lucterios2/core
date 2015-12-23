@@ -32,7 +32,7 @@ from os.path import join, dirname, isdir, basename
 import logging
 import inspect
 import pkgutil
-from lucterios.framework.help import defaulthelp
+from lucterios.framework.help import defaulthelp, defaultDocs
 
 
 def defaultblank(request, *args):
@@ -62,6 +62,7 @@ def _init_url_patterns():
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
     res.append(url(r'^Help$', defaulthelp))
+    res.append(url(r'^Docs$', defaultDocs))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
 
@@ -79,10 +80,11 @@ def add_url_from_module(url_list, appmodule, lucterios_ext):
     if isdir(extpath_help):
         url_list.append(url(r'^%s/help/(?P<path>.*)$' %
                             lucterios_ext, serve, {'document_root': extpath_help}))
-    extpath_static = join(dirname(appmodule.__file__), 'static')
+    mod_id = appmodule.__name__.split('.')[-1]
+    extpath_static = join(dirname(appmodule.__file__), 'static', mod_id)
     if isdir(extpath_static):
-        url_list.append(url(r'^%s/static/(?P<path>.*)$' %
-                            lucterios_ext, serve, {'document_root': extpath_static}))
+        url_list.append(url(r'^static/%s/(?P<path>.*)$' %
+                            mod_id, serve, {'document_root': extpath_static}))
 
 
 def get_url_patterns():
@@ -107,6 +109,8 @@ def get_url_patterns():
                                     url(r"^%s$" % obj[1].url_text, as_view_meth()))
                     except AttributeError:
                         pass
+            elif settings.APPLIS_MODULE == appmodule:
+                is_lucterios_ext = True
         if is_lucterios_ext:
             add_url_from_module(res, appmodule, lucterios_ext)
         else:
