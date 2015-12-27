@@ -58,6 +58,7 @@ class XferPrintListing(XferContainerPrint):
         gen.page_height = dbmodel.page_height
         gen.page_width = dbmodel.page_width
         gen.columns = dbmodel.columns
+        gen.mode = dbmodel.mode
         return gen
 
 
@@ -80,6 +81,7 @@ class XferPrintLabel(XferContainerPrint):
         gen.filter = self.get_filter()
         gen.filter_callback = self.filter_callback
         gen.label_text = model_value.value
+        gen.mode = model_value.mode
         for lblkey in gen.label_size.keys():
             gen.label_size[lblkey] = getattr(dblbl, lblkey)
         return gen
@@ -101,4 +103,5 @@ class XferPrintReporting(XferContainerPrint):
         gen = ReportingGenerator()
         gen.items_callback = self.items_callback
         gen.model_text = model_value.value
+        gen.mode = model_value.mode
         return gen

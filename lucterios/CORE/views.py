@@ -345,11 +345,12 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(lab)
         self.fill_from_model(1, 1, False, ['name'])
         self.fill_from_model(1, 2, True, ['kind'])
+        self.fill_from_model(1, 3, True, ['mode'])
         if self.item.kind == 0:
             self._fill_listing_editor()
-        elif self.item.kind == 1:
+        elif self.item.kind == 1 and self.item.mode == 0:
             self._fill_label_editor()
-        elif self.item.kind == 2:
+        elif self.item.kind == 2 or (self.item.kind == 1 and self.item.mode == 1):
             self._fill_report_editor()
         self.add_action(
             PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
@@ -449,7 +450,7 @@ class PrintModelSave(XferSave):
                 col_index += 1
             self.item.change_listing(page_width, page_heigth, columns)
             self.item.save()
-        elif self.item.kind == 2:
+        elif self.item.kind == 2 or (self.item.kind == 1 and self.item.mode == 1):
             error = xml_validator(
                 self.item.value, join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
             if error is not None:
