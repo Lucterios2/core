@@ -169,17 +169,19 @@ class PrintModel(LucteriosModel):
         _('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
     modelname = models.CharField(_('model'), max_length=100)
     value = models.TextField(_('value'), blank=True)
+    mode = models.IntegerField(
+        _('mode'), choices=((0, _('Simple')), (1, _('Advanced'))), default=0)
 
     def __str__(self):
         return self.name
 
     @classmethod
     def get_show_fields(cls):
-        return ['name', 'kind', 'modelname', 'value']
+        return ['name', 'kind', 'mode', 'modelname', 'value']
 
     @classmethod
     def get_search_fields(cls):
-        return['name', 'kind', 'modelname', 'value']
+        return['name', 'kind', 'mode', 'modelname', 'value']
 
     @classmethod
     def get_default_fields(cls):
