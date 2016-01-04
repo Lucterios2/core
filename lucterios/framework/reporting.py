@@ -141,6 +141,8 @@ class LucteriosPDF(object):
     def create_para(self, xmltext, current_w, current_h, offset_font_size=0):
         para_text = extract_text(xmltext)
         font_name = xmltext.get('font_family')
+        if font_name is None:
+            font_name = 'sans-serif'
         align = xmltext.get('text_align')
         if (align == 'left') or (align == 'start'):
             alignment = TA_LEFT
@@ -148,9 +150,16 @@ class LucteriosPDF(object):
             alignment = TA_CENTER
         else:
             alignment = TA_RIGHT
-        font_size = float(xmltext.get('font_size')) - offset_font_size
+        if xmltext.get('font_size') is None:
+            font_size = 10.0 - offset_font_size
+        else:
+            font_size = float(xmltext.get('font_size')) - offset_font_size
+        if xmltext.get('line_height') is None:
+            line_height = 11
+        else:
+            line_height = int(xmltext.get('line_height'))
         style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size,
-                               alignment=alignment, leading=int(xmltext.get('line_height')))
+                               alignment=alignment, leading=line_height)
         # six.print_("%s:%s" % (xmltext.tag, para_text))
         text = Paragraph(para_text, style=style)
         _, new_current_h = text.wrapOn(self.pdf, current_w, current_h)

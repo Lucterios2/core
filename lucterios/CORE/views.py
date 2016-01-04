@@ -345,12 +345,18 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(lab)
         self.fill_from_model(1, 1, False, ['name'])
         self.fill_from_model(1, 2, True, ['kind'])
-        self.fill_from_model(1, 3, True, ['mode'])
+        self.item.mode = int(self.item.mode)
+        if self.item.kind == 1:
+            self.fill_from_model(1, 3, False, ['mode'])
+            self.get_components('mode').set_action(
+                self.request, self.get_action('', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+            if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
+                self.item.value = "<model>\n<header/>\n<bottom/>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
             self._fill_listing_editor()
-        elif self.item.kind == 1 and self.item.mode == 0:
+        elif (self.item.kind == 1) and (self.item.mode == 0):
             self._fill_label_editor()
-        elif self.item.kind == 2 or (self.item.kind == 1 and self.item.mode == 1):
+        elif (self.item.kind == 2) or ((self.item.kind == 1) and (self.item.mode == 1)):
             self._fill_report_editor()
         self.add_action(
             PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
@@ -410,7 +416,7 @@ class PrintModelEdit(XferContainerCustom):
     def _fill_label_editor(self):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
-        edit.set_location(1, 3, 2)
+        edit.set_location(1, 4, 2)
         edit.set_size(100, 500)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
@@ -421,7 +427,7 @@ class PrintModelEdit(XferContainerCustom):
         edit.set_value(self.item.value)
         edit.schema = read_file(
             join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
-        edit.set_location(1, 3, 2)
+        edit.set_location(1, 4, 2)
         edit.set_size(400, 700)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
@@ -436,6 +442,7 @@ class PrintModelSave(XferSave):
     field_id = 'print_model'
 
     def fillresponse(self):
+        self.item.mode = int(self.item.mode)
         if self.item.kind == 0:
             page_width = int(self.getparam('page_width'))
             page_heigth = int(self.getparam('page_heigth'))

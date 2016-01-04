@@ -109,7 +109,7 @@
 	<xs:element name="model">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="header">
+				<xs:element name="header" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:choice maxOccurs="unbounded">
 							<xs:element ref='text' minOccurs="0" maxOccurs="unbounded" />
@@ -119,7 +119,7 @@
 						<xs:attribute type="xs:float" name="extent" />
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="bottom">
+				<xs:element name="bottom" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:choice maxOccurs="unbounded">
 							<xs:element ref='text' minOccurs="0" maxOccurs="unbounded" />

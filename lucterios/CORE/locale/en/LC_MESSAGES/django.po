@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-22 15:42+0000\n"
+"POT-Creation-Date: 2016-01-04 15:40+0000\n"
 "PO-Revision-Date: 2015-09-17 15:53+0000\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -127,7 +127,7 @@ msgstr "Open in anonymous"
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:40 models.py:113 models.py:167 models.py:253
+#: models.py:40 models.py:113 models.py:167 models.py:255
 msgid "name"
 msgstr "name"
 
@@ -147,7 +147,7 @@ msgstr "Real"
 msgid "Boolean"
 msgstr "Boolean"
 
-#: models.py:42 views.py:551
+#: models.py:42 views.py:559
 msgid "Select"
 msgstr "Select"
 
@@ -267,36 +267,48 @@ msgstr "Label"
 msgid "Report"
 msgstr "Report"
 
-#: models.py:170 models.py:202 models.py:248 models.py:254 models.py:282
+#: models.py:170 models.py:204 models.py:250 models.py:256 models.py:284
 #: views.py:291
 msgid "model"
 msgstr "model"
 
-#: models.py:192
+#: models.py:173
+msgid "mode"
+msgstr "mode"
+
+#: models.py:173
+msgid "Simple"
+msgstr "Simple"
+
+#: models.py:173
+msgid "Advanced"
+msgstr "Advanced"
+
+#: models.py:194
 msgid "Last model of this kind!"
 msgstr "Last model of this kind!"
 
-#: models.py:201
+#: models.py:203
 msgid "No model!"
 msgstr "No model!"
 
-#: models.py:210
+#: models.py:212
 msgid "No model selected!"
 msgstr "No model selected!"
 
-#: models.py:249
+#: models.py:251
 msgid "models"
 msgstr "models"
 
-#: models.py:255 models.py:282
+#: models.py:257 models.py:284
 msgid "criteria"
 msgstr "criteria"
 
-#: models.py:285
+#: models.py:287
 msgid "Saved criteria"
 msgstr "Saved criteria"
 
-#: models.py:286 views.py:246
+#: models.py:288 views.py:246
 msgid "Saved criterias"
 msgstr "Saved criterias"
 
@@ -357,11 +369,11 @@ msgstr "new password"
 msgid "new password (again)"
 msgstr "new password (again)"
 
-#: views.py:156 views.py:221 views.py:553 views.py:617
+#: views.py:156 views.py:221 views.py:561 views.py:625
 msgid "Ok"
 msgstr "Ok"
 
-#: views.py:157 views.py:222 views.py:555 views.py:619
+#: views.py:157 views.py:222 views.py:563 views.py:627
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -453,7 +465,7 @@ msgstr "clone"
 msgid "delete"
 msgstr "delete"
 
-#: views.py:327 views.py:465
+#: views.py:327 views.py:473
 msgid "Add a print model"
 msgstr "Add a print model"
 
@@ -461,100 +473,100 @@ msgstr "Add a print model"
 msgid "Modify a print model"
 msgstr "Modify a print model"
 
-#: views.py:355
+#: views.py:362
 msgid "ok"
 msgstr "ok"
 
-#: views.py:356
+#: views.py:363
 msgid "cancel"
 msgstr "cancel"
 
-#: views.py:361
+#: views.py:368
 msgid "list page width"
 msgstr "page width"
 
-#: views.py:369
+#: views.py:376
 msgid "list page height"
 msgstr "page height"
 
-#: views.py:378
+#: views.py:385
 msgid "size"
 msgstr "size"
 
-#: views.py:382
+#: views.py:389
 msgid "title"
 msgstr "title"
 
-#: views.py:386
+#: views.py:393
 msgid "text"
 msgstr "text"
 
-#: views.py:432
+#: views.py:439
 msgid "print model"
 msgstr "print model"
 
-#: views.py:472
+#: views.py:480
 #, python-format
 msgid "copy of %s"
 msgstr "copy of %s"
 
-#: views.py:482
+#: views.py:490
 msgid "Delete print model"
 msgstr "Delete print model"
 
-#: views.py:488
+#: views.py:496
 msgid "To manage boards of labels"
 msgstr "Manage boards of labels"
 
-#: views.py:490
+#: views.py:498
 msgid "Labels"
 msgstr "Labels"
 
-#: views.py:499
+#: views.py:507
 msgid "Add a label"
 msgstr "Add a label"
 
-#: views.py:500
+#: views.py:508
 msgid "Modify a label"
 msgstr "Modify a label"
 
-#: views.py:509
+#: views.py:517
 msgid "Delete label"
 msgstr "Delete label"
 
-#: views.py:517
+#: views.py:525
 msgid "Merge"
 msgstr "Merge"
 
-#: views.py:532
+#: views.py:540
 msgid "Impossible: you must to select many records!"
 msgstr "Impossible: you must to select many records!"
 
-#: views.py:542
+#: views.py:550
 msgid "designation"
 msgstr "designation"
 
-#: views.py:543
+#: views.py:551
 msgid "is main?"
 msgstr "is main?"
 
-#: views.py:548
+#: views.py:556
 msgid "Edit"
 msgstr "Edit"
 
-#: views.py:571
+#: views.py:579
 msgid "Promote"
 msgstr "Promote"
 
-#: views.py:594
+#: views.py:602
 msgid "record"
 msgstr "record"
 
-#: views.py:602
+#: views.py:610
 msgid "current model"
 msgstr "current model"
 
-#: views.py:610
+#: views.py:618
 msgid "new model"
 msgstr "new model"
 

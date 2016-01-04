@@ -624,8 +624,10 @@ class LabelGenerator(ReportModelGenerator):
             if self.mode == 0:
                 xml_text = convert_to_html(
                     'text', labelval, "sans-serif", 9, 10, "center")
-                xml_text.attrib['height'] = "%d.0" % self.label_size['cell_height']
-                xml_text.attrib['width'] = "%d.0" % self.label_size['cell_width']
+                xml_text.attrib['height'] = "%d.0" % self.label_size[
+                    'cell_height']
+                xml_text.attrib['width'] = "%d.0" % self.label_size[
+                    'cell_width']
                 xml_text.attrib['top'] = "%d.0" % top
                 xml_text.attrib['left'] = "%d.0" % left
                 xml_text.attrib['spacing'] = "0.0"
@@ -634,11 +636,24 @@ class LabelGenerator(ReportModelGenerator):
                 docroot = etree.XML(labelval)
                 for xml_text in docroot.find('body').iter():
                     if 'top' in xml_text.attrib:
-                        offset = float(top) + float(xml_text.attrib['top'])
-                        xml_text.attrib['top'] = "%d.0" % offset
-                        offset = float(left) + float(xml_text.attrib['left'])
-                        xml_text.attrib['left'] = "%d.0" % offset
-                        self.body.append(xml_text)
+                        top_offset = float(top) + float(xml_text.attrib['top'])
+                    else:
+                        top_offset = float(top)
+                    if 'left' in xml_text.attrib:
+                        left_offset = float(
+                            left) + float(xml_text.attrib['left'])
+                    else:
+                        left_offset = float(left)
+                    if 'width' not in xml_text.attrib:
+                        xml_text.attrib['width'] = "%d.0" % self.label_size[
+                            'cell_width']
+                    if 'height' not in xml_text.attrib:
+                        xml_text.attrib['height'] = "%d.0" % self.label_size[
+                            'cell_height']
+                    xml_text.attrib['top'] = "%d.0" % top_offset
+                    xml_text.attrib['left'] = "%d.0" % left_offset
+                    xml_text.attrib['spacing'] = "0.0"
+                    self.body.append(xml_text)
             index += 1
 
 
@@ -661,23 +676,30 @@ class ReportingGenerator(ReportGenerator):
     @model_text.setter
     def model_text(self, value):
         self.report_xml = etree.fromstring(value)
+        self.header_height = 0.0
+        self.bottom_height = 0.0
         self.horizontal_marge = float(self.report_xml.get('hmargin'))
         self.vertical_marge = float(self.report_xml.get('vmargin'))
         self.page_width = float(self.report_xml.get('page_width'))
         self.page_height = float(self.report_xml.get('page_height'))
-        self.header_height = float(
-            self.report_xml.xpath('header')[0].get('extent'))
-        self.bottom_height = float(
-            self.report_xml.xpath('bottom')[0].get('extent'))
+        if len(self.report_xml.xpath('header')) > 0:
+            self.header_height = float(
+                self.report_xml.xpath('header')[0].get('extent'))
+        if len(self.report_xml.xpath('bottom')) > 0:
+            self.bottom_height = float(
+                self.report_xml.xpath('bottom')[0].get('extent'))
 
     def add_convert_model(self, node, partname):
-        ReportModelGenerator.add_convert_model(node, partname, self.report_xml, self.current_item)
+        ReportModelGenerator.add_convert_model(
+            node, partname, self.report_xml, self.current_item)
 
     def add_page(self):
         if self.current_item is not None:
             ReportGenerator.add_page(self)
-            self.add_convert_model(self.header, 'header')
-            self.add_convert_model(self.bottom, 'bottom')
+            if len(self.report_xml.xpath('header')) > 0:
+                self.add_convert_model(self.header, 'header')
+            if len(self.report_xml.xpath('bottom')) > 0:
+                self.add_convert_model(self.bottom, 'bottom')
 
     def get_items(self):
         if self.items_callback is None:

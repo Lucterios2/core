@@ -179,14 +179,14 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 2}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelEdit')
-        self.assert_count_equal('COMPONENTS/*', 6 + 1)
+        self.assert_count_equal('COMPONENTS/*', 2*4 + 1)
         self.assert_comp_equal(
             'COMPONENTS/EDIT[@name="name"]', "label", (2, 1, 1, 1))
 
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="kind"]', "Etiquette", (2, 2, 1, 1))
         self.assert_comp_equal(
-            'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time", (1, 3, 2, 1))
+            'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time", (1, 4, 2, 1))
 
     def testsave_label(self):
         self.factory.xfer = PrintModelSave()
@@ -198,7 +198,7 @@ class PrintTest(LucteriosTest):
         self.call('/CORE/printModelEdit', {'print_model': 2}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_comp_equal(
-            'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#date #time{[newline]}#value:#price", (1, 3, 2, 1))
+            'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#date #time{[newline]}#value:#price", (1, 4, 2, 1))
 
     def testclonedel_listing(self):
         self.factory.xfer = PrintModelClone()
