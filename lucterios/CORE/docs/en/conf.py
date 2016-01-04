@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Lucterios CORE'
-copyright = '2015, sd-libre'
+copyright = '2016, sd-libre'
 author = 'sd-libre'
 
 # The version info for the project you're documenting, acts as replacement for
