@@ -224,10 +224,19 @@
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
 				<basename property="module_name" file="${sub_path}"/>
-				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name}  --" />
+				<tstamp>
+					<format property="currentyear" pattern="yyyy" unit="hour" />
+				</tstamp>
+				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packlongversion} / ${packshortversion} --" />
 				<delete dir="${sub_path}/docs/build_${lang}" />
 				<delete dir="${sub_path}/static/${module_name}/doc_${lang}" />
 				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}"/>
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true"/>
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true"/>
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="version = '.*'" replace="version = '${packshortversion}'" byline="true"/>				
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="release = '.*'" replace="release = '${packlongversion}'" byline="true"/>				
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true"/>
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true"/>
 				<exec executable="make" dir="${sub_path}/docs/${lang}">
 					<arg value="html" />
 				</exec>
@@ -239,13 +248,26 @@
 	<target name="docs">
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
+				<loadfile property="build_file" srcfile="@{packageitem}/build"/>
+				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py"/>
+				<for param="line" delimiter="${line.separator}" list="${init_file}">
+				    <sequential>
+				        <propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
+				        <propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
+				    </sequential>
+				</for>
+				<var name="packlongversion" value="${packversion}${build_file}" />
 				<antcall target="docs_comp">
 					<param name="sub_path" value="${basedir}/@{packageitem}" />
 					<param name="lang" value="fr" />
+					<param name="packlongversion" value="${packlongversion}" />
+					<param name="packshortversion" value="${packshortversion}" />
 				</antcall>
 				<antcall target="docs_comp">
 					<param name="sub_path" value="${basedir}/@{packageitem}" />
 					<param name="lang" value="en" />
+					<param name="packlongversion" value="${packlongversion}" />
+					<param name="packshortversion" value="${packshortversion}" />
 				</antcall>
 			</sequential>
 		</for>

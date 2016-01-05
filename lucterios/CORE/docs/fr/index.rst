@@ -1,5 +1,5 @@
-Lucterios CORE
-==============
+Coeur Lucterios
+===============
 
 Aide relative aux fonctionnalités générales de cet outil de gestion.
 
