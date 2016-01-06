@@ -357,7 +357,7 @@ class TestAdminPostGreSQL(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        self.data = {'dbname': 'testv2', 'username': 'puser',
+        self.data = {'dbname': self._testMethodName, 'username': 'puser',
                      'passwd': '123456', 'server': 'localhost'}
         for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;",
                     "CREATE USER %(username)s;",
@@ -388,7 +388,7 @@ class TestAdminPostGreSQL(BaseTest):
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.set_database(
-            "postgresql:name=testv2,user=puser,password=123456,host=localhost")
+            "postgresql:name=" + self.data['dbname'] + ",user=puser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_psql"], self.luct_glo.listing())
 
@@ -396,7 +396,7 @@ class TestAdminPostGreSQL(BaseTest):
         inst.read()
         self.assertEqual("postgresql", inst.database[0])
         self.assertEqual("localhost", inst.database[1]['host'])
-        self.assertEqual("testv2", inst.database[1]['name'])
+        self.assertEqual(self._testMethodName, inst.database[1]['name'])
         self.assertEqual("123456", inst.database[1]['password'])
         self.assertEqual("puser", inst.database[1]['user'])
         self.assertEqual("lucterios.standard", inst.appli_name)
@@ -410,9 +410,10 @@ class TestAdminPostGreSQL(BaseTest):
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.clear()
-        # table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
-        # table_list = table_list[2:-2]
-        # self.assertEqual([], len(table_list)
+        table_list = list(self.run_psql_cmd(
+            "SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
+        table_list = table_list[2:-2]
+        self.assertEqual([], table_list)
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.delete()
@@ -427,21 +428,23 @@ class TestAdminPostGreSQL(BaseTest):
 
         inst = LucteriosInstance("inst_psql", self.path_dir)
         inst.set_database(
-            "postgresql:name=testv2,user=puser,password=123456,host=localhost")
+            "postgresql:name=" + self.data['dbname'] + ",user=puser,password=123456,host=localhost")
         inst.add()
         inst.filename = join(self.path_dir, "inst_h.arc")
         self.assertEqual(True, inst.restore())
 
-#     def test_migration(self):
-#         self.assertEqual([], self.luct_glo.listing())
-#
-#         inst = LucteriosInstance("inst_psql", self.path_dir)
-#         inst.set_database("postgresql:name=testv2,user=puser,password=123456,host=localhost")
-#         inst.add()
-#         self.assertEqual(["inst_psql"], self.luct_glo.listing())
-#         mirg = MigrateFromV1("inst_psql", self.path_dir, "")
-#         mirg.filename = join(dirname(self.path_dir), 'data', 'archive_demo.bkf')
-#         mirg.restore()
+    def test_migration(self):
+        self.assertEqual([], self.luct_glo.listing())
+
+        inst = LucteriosInstance("inst_psql", self.path_dir)
+        inst.set_database(
+            "postgresql:name=" + self.data['dbname'] + ",user=puser,password=123456,host=localhost")
+        inst.add()
+        self.assertEqual(["inst_psql"], self.luct_glo.listing())
+        mirg = MigrateFromV1("inst_psql", self.path_dir, "")
+        mirg.filename = join(
+            dirname(self.path_dir), 'data', 'archive_demo.bkf')
+        mirg.restore()
 
 if __name__ == "__main__":
     suite = TestSuite()
