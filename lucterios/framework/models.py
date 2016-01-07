@@ -31,7 +31,6 @@ from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.core.exceptions import FieldDoesNotExist
-from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats
@@ -40,7 +39,6 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
-from django.db.models.loading import get_models
 
 
 class AbsoluteValue(Transform):
@@ -211,6 +209,8 @@ class LucteriosModel(models.Model):
 
     @transaction.atomic
     def merge_objects(self, alias_objects=[]):
+        from django.contrib.contenttypes.fields import GenericForeignKey
+        from django.apps import apps
         if not isinstance(alias_objects, list):
             alias_objects = [alias_objects]
 
@@ -220,7 +220,7 @@ class LucteriosModel(models.Model):
                 raise TypeError('Only models of same class can be merged')
 
         generic_fields = []
-        for model in get_models():
+        for model in apps.get_models():
             generic_fields.extend(
                 filter(lambda x: isinstance(x, GenericForeignKey), model.__dict__.values()))
 

@@ -23,11 +23,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from logging import getLogger
 import threading
 
 from django.utils.translation import ugettext_lazy
 from django.utils import six
-from django.utils.log import getLogger
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.CORE.models import Parameter

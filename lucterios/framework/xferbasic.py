@@ -25,11 +25,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lxml import etree
 from inspect import isfunction
+from logging import getLogger
 
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse
 from django.utils import translation, six
-from django.utils.log import getLogger
+from django.http import HttpResponse
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
@@ -37,7 +37,6 @@ from django.db.models.fields.related import ForeignKey
 from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
-import logging
 
 NULL_VALUE = 'NULL'
 
@@ -347,5 +346,5 @@ class XferContainerException(XferContainerAbstract):
         etree.SubElement(expt, 'CODE').text = code_text
         etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
         etree.SubElement(expt, 'TYPE').text = type_text
-        logging.getLogger("lucterios.core.exception").warning(
+        getLogger("lucterios.core.exception").warning(
             "type %s: code=%s - message=%s", type_text, code_text, msg_text)

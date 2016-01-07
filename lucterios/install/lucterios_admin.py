@@ -32,7 +32,6 @@ from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
 from django.utils import six
-from re import escape
 try:
     from importlib import reload
 except ImportError:
@@ -540,7 +539,7 @@ class LucteriosInstance(LucteriosManage):
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
-        __import__(self.setting_module_name)
+        import_module(self.setting_module_name)
         reload(django.conf)
         django.setup()
         self.secret_key = django.conf.settings.SECRET_KEY

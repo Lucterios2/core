@@ -30,9 +30,9 @@ import os
 import socket
 from os.path import dirname, join, isdir
 from locale import getdefaultlocale
+from importlib import import_module
 
 from django.utils import six
-from django.utils.module_loading import import_module
 
 from lucterios.framework.filetools import readimage_to_base64
 
@@ -141,13 +141,13 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     if module_to_setup is None:
         last_frm = stack()[1]
         module_to_setup = getmodule(last_frm[0])
+    setup_path = dirname(module_to_setup.__file__)
     setattr(module_to_setup, "EXTRA", _get_extra(module_to_setup))
     logging.getLogger(__name__).debug(
         "Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         setattr(module_to_setup, key_name, setting_value)
-    setattr(module_to_setup, "BASE_DIR", dirname(
-        dirname(module_to_setup.__file__)))
+    setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
     if isinstance(addon_modules, tuple):
         module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
             addon_modules
@@ -159,10 +159,8 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
     setattr(module_to_setup, 'LOCALE_PATHS',
             _get_locale_pathes(appli_name, addon_modules))
-    setattr(module_to_setup, 'STATIC_ROOT', join(
-        dirname(module_to_setup.__file__), 'static'))
-    setattr(module_to_setup, 'STATICFILES_DIRS',
-            (dirname(module_to_setup.__file__), ))
+    setattr(module_to_setup, 'STATIC_ROOT', join(setup_path, 'static'))
+    setattr(module_to_setup, 'STATICFILES_DIRS', (setup_path, ))
     setting_module = import_module("%s.appli_settings" % appli_name)
     for item in dir(setting_module):
         if item == item.upper():

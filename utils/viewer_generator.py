@@ -181,7 +181,7 @@ class Generator(object):
             os.environ.setdefault(keys[key_idx].text, values[key_idx].text)
         sys.path.append(self.project_path)
         import django.conf
-        __import__(os.environ[django.conf.ENVIRONMENT_VARIABLE])
+        import_module(os.environ[django.conf.ENVIRONMENT_VARIABLE])
         reload(django.conf)
         django.setup()
 
