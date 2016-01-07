@@ -203,7 +203,7 @@
 		<antcall target="test">
 			<param name="testversion" value="coverage2" />
 		</antcall>
-		<replace file="${basedir}/junit_py2.xml" token="lucterios." value="lucterios-py2." />
+		<replace file="${basedir}/junit_py2.xml" token="${project.name}." value="${project.name}-py2." />
 	</target>
 
 	<target name="test_py3" if="python3.present">
@@ -211,7 +211,7 @@
 		<antcall target="test">
 			<param name="testversion" value="coverage3" />
 		</antcall>
-		<replace file="${basedir}/junit_py3.xml" token="lucterios." value="lucterios-py3." />
+		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
 	</target>
 
 	<target name="tests">
