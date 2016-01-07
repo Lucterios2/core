@@ -464,10 +464,14 @@ var compFloat = compAbstractEvent
 			},
 
 			setEnabled : function(isEnabled) {
-				if (isEnabled === true) {
-					this.getGUIComp().spinner("enable");
-				} else {
-					this.getGUIComp().spinner("disable");
+				try {
+					if (isEnabled === true) {
+						this.getGUIComp().spinner("enable");
+					} else {
+						this.getGUIComp().spinner("disable");
+					}
+				} catch (lctept) {
+					this.getGUIComp().prop("disabled", !isEnabled);
 				}
 			},
 

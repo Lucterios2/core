@@ -65,10 +65,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.except_classact = None
         self.custom = None
 
-    def create_custom(self):
+    def create_custom(self, model=None):
         self.custom = XferContainerCustom()
-        self.custom.request = self.request
-        self.custom.request = self.request
+        self.custom.model = model
+        self.custom._initialize(self.request)
         self.custom.is_view_right = self.is_view_right
         self.custom.caption = self.caption
         self.custom.extension = self.extension

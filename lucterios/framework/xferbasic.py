@@ -108,7 +108,7 @@ class XferContainerAbstract(View):
         if icon_path is None:
             icon_path = cls.icon_path()
         ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
-                             is_view_right=cls.is_view_right)
+                             is_view_right=getattr(cls, 'is_view_right', None))
         ret_act.modal = modal
         return ret_act
 
