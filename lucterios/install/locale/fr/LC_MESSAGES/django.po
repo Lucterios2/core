@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-12-16 10:53+0000\n"
+"POT-Creation-Date: 2015-12-18 09:41+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,194 +18,194 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: lucterios_admin.py:564 lucterios_gui.py:208
+#: lucterios_admin.py:564 lucterios_gui.py:212
 msgid "CORE-connectmode"
 msgstr "Mode de connexion"
 
-#: lucterios_gui.py:74 lucterios_gui.py:350 lucterios_gui.py:545
-#: lucterios_gui.py:684 lucterios_gui.py:688 lucterios_gui.py:707
-#: lucterios_gui.py:711
+#: lucterios_gui.py:78 lucterios_gui.py:359 lucterios_gui.py:554
+#: lucterios_gui.py:693 lucterios_gui.py:697 lucterios_gui.py:716
+#: lucterios_gui.py:720
 msgid "Lucterios installer"
 msgstr "Lucterios installeur"
 
-#: lucterios_gui.py:146 lucterios_gui.py:274
+#: lucterios_gui.py:150 lucterios_gui.py:278
 msgid "Instance editor"
 msgstr "Editeur d'instance"
 
-#: lucterios_gui.py:157
+#: lucterios_gui.py:161
 msgid "General"
 msgstr "Général"
 
-#: lucterios_gui.py:163
+#: lucterios_gui.py:167
 msgid "Database"
 msgstr "Base de données"
 
-#: lucterios_gui.py:167
+#: lucterios_gui.py:171
 msgid "OK"
 msgstr "OK"
 
-#: lucterios_gui.py:169
+#: lucterios_gui.py:173
 msgid "Cancel"
 msgstr "Annuler"
 
-#: lucterios_gui.py:173
+#: lucterios_gui.py:177
 msgid "Type"
 msgstr "Type"
 
-#: lucterios_gui.py:179 lucterios_gui.py:193
+#: lucterios_gui.py:183 lucterios_gui.py:197
 msgid "Name"
 msgstr "Nom"
 
-#: lucterios_gui.py:183
+#: lucterios_gui.py:187
 msgid "User"
 msgstr "Utilisateur"
 
-#: lucterios_gui.py:187 lucterios_gui.py:214
+#: lucterios_gui.py:191 lucterios_gui.py:218
 msgid "Password"
 msgstr "Mot de passe"
 
-#: lucterios_gui.py:197
+#: lucterios_gui.py:201
 msgid "Appli"
 msgstr "Appli"
 
-#: lucterios_gui.py:203 lucterios_gui.py:429
+#: lucterios_gui.py:207 lucterios_gui.py:438
 msgid "Modules"
 msgstr "Modules"
 
-#: lucterios_gui.py:274
+#: lucterios_gui.py:278
 msgid "Name empty!"
 msgstr "Nom vide!"
 
-#: lucterios_gui.py:318
+#: lucterios_gui.py:322
 msgid "CORE-connectmode.0"
 msgstr "Connexion toujours nécessaire"
 
-#: lucterios_gui.py:318
+#: lucterios_gui.py:322
 msgid "CORE-connectmode.1"
 msgstr "Ouvert en tant qu'anonyme"
 
-#: lucterios_gui.py:318
+#: lucterios_gui.py:322
 msgid "CORE-connectmode.2"
 msgstr "Accès libre"
 
-#: lucterios_gui.py:372
+#: lucterios_gui.py:381
 msgid "Refresh"
 msgstr "Rafraichir"
 
-#: lucterios_gui.py:375
+#: lucterios_gui.py:384
 msgid "Search upgrade"
 msgstr "Recherche de mise à jours"
 
-#: lucterios_gui.py:378
+#: lucterios_gui.py:387
 msgid "Close"
 msgstr "Fermer"
 
-#: lucterios_gui.py:407 lucterios_gui.py:587 lucterios_gui.py:590
+#: lucterios_gui.py:416 lucterios_gui.py:596 lucterios_gui.py:599
 msgid "Launch"
 msgstr "Lancer"
 
-#: lucterios_gui.py:409
+#: lucterios_gui.py:418
 msgid "Modify"
 msgstr "Modifier"
 
-#: lucterios_gui.py:411
+#: lucterios_gui.py:420
 msgid "Delete"
 msgstr "Supprimer"
 
-#: lucterios_gui.py:413
+#: lucterios_gui.py:422
 msgid "Save"
 msgstr "Enregistrer"
 
-#: lucterios_gui.py:415
+#: lucterios_gui.py:424
 msgid "Restore"
 msgstr "Restorer"
 
-#: lucterios_gui.py:417
+#: lucterios_gui.py:426
 msgid "Add"
 msgstr "Ajouter"
 
-#: lucterios_gui.py:420
+#: lucterios_gui.py:429
 msgid "Instances"
 msgstr "Instances"
 
-#: lucterios_gui.py:476
+#: lucterios_gui.py:485
 #, python-format
 msgid "Lucterios core\t\t%s\n"
 msgstr "Lucterios coeur\t\t%s\n"
 
-#: lucterios_gui.py:478
+#: lucterios_gui.py:487
 msgid "Application\n"
 msgstr "Application\n"
 
-#: lucterios_gui.py:482
+#: lucterios_gui.py:491
 msgid "Modules\n"
 msgstr "Modules\n"
 
-#: lucterios_gui.py:525
+#: lucterios_gui.py:534
 msgid "Upgrade needs"
 msgstr "Mise à jours disponible"
 
-#: lucterios_gui.py:527
+#: lucterios_gui.py:536
 msgid "No upgrade"
 msgstr "Pas de mise à jours"
 
-#: lucterios_gui.py:546
+#: lucterios_gui.py:555
 msgid "The application must restart"
 msgstr "L'application doit redémarrer"
 
-#: lucterios_gui.py:570
+#: lucterios_gui.py:579
 #, python-format
 msgid "Database\t\t%s\n"
 msgstr "Base de données\t%s\n"
 
-#: lucterios_gui.py:572
+#: lucterios_gui.py:581
 #, python-format
 msgid "Appli\t\t%s\n"
 msgstr "Appli\t\t%s\n"
 
-#: lucterios_gui.py:574
+#: lucterios_gui.py:583
 #, python-format
 msgid "Modules\t\t%s\n"
 msgstr "Modules\t\t%s\n"
 
-#: lucterios_gui.py:576
+#: lucterios_gui.py:585
 #, python-format
 msgid "Extra\t\t%s\n"
 msgstr "Extra\t\t%s\n"
 
-#: lucterios_gui.py:580
+#: lucterios_gui.py:589
 #, python-format
 msgid "=> Running in http://127.0.0.1:%s\n"
 msgstr "=> Lancé sur http://127.0.0.1:%s\n"
 
-#: lucterios_gui.py:582
+#: lucterios_gui.py:591
 msgid "Stop"
 msgstr "Arret"
 
-#: lucterios_gui.py:585
+#: lucterios_gui.py:594
 msgid "=> Stopped\n"
 msgstr "=> Arrêté\n"
 
-#: lucterios_gui.py:655
+#: lucterios_gui.py:664
 #, python-format
 msgid "Do you want to delete '%s'?"
 msgstr "Voulez-vous supprimer '%s'?"
 
-#: lucterios_gui.py:685
+#: lucterios_gui.py:694
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance sauvée à %s"
 
-#: lucterios_gui.py:688
+#: lucterios_gui.py:697
 msgid "Instance not saved!"
 msgstr "Instance non sauvée!"
 
-#: lucterios_gui.py:708
+#: lucterios_gui.py:717
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restorée depuis %s"
 
-#: lucterios_gui.py:711
+#: lucterios_gui.py:720
 msgid "Instance not restored!"
 msgstr "Instance non restorée!"
 
