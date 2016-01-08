@@ -4,7 +4,8 @@
 function refresh_function() {
 	$("#lucteriosClient").html('<div class="waiting"/>');
 	var act = Singleton().CreateAction();
-	act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'authentification');
+	act.initializeEx(null, Singleton().Factory(), '', 'CORE',
+			'authentification');
 	act.getParameters = function() {
 		var param = new HashMap();
 		param.put('info', 'true');
@@ -148,7 +149,6 @@ function initial_function() {
 		if (Singleton().mDesc.getLogin() === '') {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}
-		help_url = "Help";
 		html = "<div id='status' class='ui-widget ui-widget-content ui-corner-all'>"
 				+ "<label style='width:280px;margin:5px;'>"
 				+ Singleton().mDesc.getConnectUser()
@@ -163,8 +163,8 @@ function initial_function() {
 				+ Singleton().getTranslate("About...")
 				+ "</label>"
 				+ "<a href='{0}' target='_blank'><img src='{1}' /></a>".format(
-						Singleton().Transport().getIconUrl(help_url),
-						Singleton().Transport().getIconUrl('images/help.png'))
+						Singleton().Transport().getIconUrl("Docs"), Singleton()
+								.Transport().getIconUrl('images/help.png'))
 				+ "</div>";
 		$("#lucteriosClient").append(html);
 		$("#refresh").click(refresh_function);
@@ -181,7 +181,8 @@ function initial_function() {
 			act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'menu');
 			act.actionPerformed();
 		}
-		$('body').css('background', '#EEE url('+Singleton().mDesc.mBackground+') repeat');
+		$('body').css('background',
+				'#EEE url(' + Singleton().mDesc.mBackground + ') repeat');
 	}
 }
 

@@ -85,14 +85,15 @@ DEFAULT_SETTINGS = {
         'lucterios.framework',
         'lucterios.CORE',
     ),
-    'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'APP_DIRS': True, }, ],
-    'TEMPLATE_LOADERS': (
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    ),
-    'TEMPLATE_CONTEXT_PROCESSOR': (
-        'django.core.context_processors.i18n',
-    ),
+    'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                   'OPTIONS': {'context_processors': (
+                               'django.core.context_processors.i18n',
+                               ),
+                               'loaders': (
+                               'django.template.loaders.filesystem.Loader',
+                               'django.template.loaders.app_directories.Loader',
+                   ), }
+                   }, ],
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': getdefaultlocale()[0],
     'TIME_ZONE': 'UTC',
@@ -107,6 +108,7 @@ DEFAULT_SETTINGS = {
     'ADMIN_MEDIA_PREFIX': '/static/admin/',
     'TEST_RUNNER': 'lucterios.framework.juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
+    'DEFAULT_PAGE': '/web/index.html',
     'LANGUAGES': (
         ('en', six.text_type('English')),
         ('fr', six.text_type('Français')),
@@ -142,11 +144,13 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         last_frm = stack()[1]
         module_to_setup = getmodule(last_frm[0])
     setup_path = dirname(module_to_setup.__file__)
-    setattr(module_to_setup, "EXTRA", _get_extra(module_to_setup))
+    extra_setting = _get_extra(module_to_setup)
+    setattr(module_to_setup, "EXTRA", extra_setting)
     logging.getLogger(__name__).debug(
         "Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
-        setattr(module_to_setup, key_name, setting_value)
+        if key_name not in extra_setting.keys():
+            setattr(module_to_setup, key_name, setting_value)
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
     if isinstance(addon_modules, tuple):
         module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \

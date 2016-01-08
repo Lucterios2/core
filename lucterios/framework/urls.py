@@ -32,7 +32,7 @@ from os.path import join, dirname, isdir, basename
 import logging
 import inspect
 import pkgutil
-from lucterios.framework.help import defaulthelp, defaultDocs
+from lucterios.framework.docs import defaultDocs
 
 
 def defaultblank(request, *args):
@@ -45,7 +45,7 @@ def defaultblank(request, *args):
 
 def defaultview(*args):
     from django.http import HttpResponseRedirect
-    web_page = '/web/index.html'
+    web_page = settings.DEFAULT_PAGE
     if settings.USE_X_FORWARDED_HOST:
         web_page = settings.FORCE_SCRIPT_NAME + web_page
     return HttpResponseRedirect(web_page)
@@ -61,7 +61,6 @@ def _init_url_patterns():
     res.append(url(r'^web/$', defaultview))
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
-    res.append(url(r'^Help$', defaulthelp))
     res.append(url(r'^Docs$', defaultDocs))
     res.append(url(r'^admin/', include(admin.site.urls)))
     return res
