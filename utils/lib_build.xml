@@ -17,11 +17,11 @@
 	<available file="/usr/local/bin/coverage3" property="python3.present" />
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
-	  <classpath>
-	    <pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar"/>
-	  </classpath>
+		<classpath>
+			<pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar" />
+		</classpath>
 	</taskdef>
-	
+
 	<target name="all">
 		<antcall target="clear" />
 		<antcall target="init" />
@@ -51,14 +51,14 @@
 		<delete dir="*/__pycache__" />
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
-				<basename property="module_name" file="@{packageitem}"/>
+				<basename property="module_name" file="@{packageitem}" />
 				<delete dir="${basedir}/@{packageitem}/docs/build_fr" />
 				<delete dir="${basedir}/@{packageitem}/docs/build_en" />
-				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_fr"/>
-				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_en"/>
+				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_fr" />
+				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_en" />
 			</sequential>
 		</for>
-		
+
 	</target>
 
 	<target name="init_addon">
@@ -121,7 +121,7 @@
 
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --" />
-		<exec executable="python" dir="${sub_path}">
+		<exec executable="python" dir="${sub_path}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="makemessages" />
@@ -134,7 +134,7 @@
 
 	<target name="i18n_build">
 		<echo message="-- compile --" />
-		<exec executable="python" dir="${basedir}">
+		<exec executable="python" dir="${basedir}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="compilemessages" />
@@ -153,7 +153,7 @@
 	</target>
 
 	<target name="add_instance">
-		<exec executable="python3">
+		<exec executable="python3" failonerror="true">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
 			<arg value="add" />
@@ -165,7 +165,7 @@
 	</target>
 
 	<target name="del_instance">
-		<exec executable="python3">
+		<exec executable="python3" failonerror="true">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
 			<arg value="delete" />
@@ -179,10 +179,10 @@
 		<delete file=".converage" />
 		<delete file="converage.xml" />
 		<delete file="${testversion}.xml" />
-		<exec executable="${testversion}"  dir="${basedir}">
+		<exec executable="${testversion}" dir="${basedir}">
 			<arg value="erase" />
 		</exec>
-		<exec executable="${testversion}"  dir="${basedir}">
+		<exec executable="${testversion}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg line="run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
@@ -223,21 +223,21 @@
 		<if>
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
-				<basename property="module_name" file="${sub_path}"/>
+				<basename property="module_name" file="${sub_path}" />
 				<tstamp>
 					<format property="currentyear" pattern="yyyy" unit="hour" />
 				</tstamp>
 				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packlongversion} / ${packshortversion} --" />
 				<delete dir="${sub_path}/docs/build_${lang}" />
 				<delete dir="${sub_path}/static/${module_name}/doc_${lang}" />
-				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}"/>
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true"/>
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true"/>
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="version = '.*'" replace="version = '${packshortversion}'" byline="true"/>				
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="release = '.*'" replace="release = '${packlongversion}'" byline="true"/>				
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true"/>
-				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true"/>
-				<exec executable="make" dir="${sub_path}/docs/${lang}">
+				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="version = '.*'" replace="version = '${packshortversion}'" byline="true" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="release = '.*'" replace="release = '${packlongversion}'" byline="true" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true" />
+				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true" />
+				<exec executable="make" dir="${sub_path}/docs/${lang}" failonerror="true">
 					<arg value="html" />
 				</exec>
 				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/doc_${lang}" />
@@ -248,13 +248,13 @@
 	<target name="docs">
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
-				<loadfile property="build_file" srcfile="@{packageitem}/build"/>
-				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py"/>
+				<loadfile property="build_file" srcfile="@{packageitem}/build" />
+				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py" />
 				<for param="line" delimiter="${line.separator}" list="${init_file}">
-				    <sequential>
-				        <propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
-				        <propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
-				    </sequential>
+					<sequential>
+						<propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
+						<propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
+					</sequential>
 				</for>
 				<var name="packlongversion" value="${packversion}${build_file}" />
 				<antcall target="docs_comp">
@@ -279,7 +279,7 @@
 
 	<target name="package">
 		<delete file="MANIFEST" />
-		<exec executable="python3">
+		<exec executable="python3" failonerror="true">
 			<arg value="setup.py" />
 			<arg value="sdist" />
 			<arg value="bdist_wheel" />
