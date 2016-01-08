@@ -496,8 +496,9 @@ class LucteriosInstance(LucteriosManage):
         if django.conf.ENVIRONMENT_VARIABLE in os.environ:
             framework_classes = django.conf.settings.INSTALLED_APPS
             framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
-            framework_classes += django.conf.settings.TEMPLATE_LOADERS
-            framework_classes += django.conf.settings.TEMPLATE_CONTEXT_PROCESSOR
+            for template in django.conf.settings.TEMPLATES:
+                framework_classes += template['OPTIONS']['loaders']
+                framework_classes += template['OPTIONS']['context_processors']
         module_list = list(sys.modules.keys())
         for module_item in module_list:
             is_in_framwork_list = False
