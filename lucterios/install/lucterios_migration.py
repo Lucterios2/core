@@ -30,6 +30,7 @@ from os.path import join, isfile, isdir
 from os import mkdir, unlink
 from shutil import rmtree
 from time import time
+from logging import getLogger
 import sqlite3
 
 from django.utils import six
@@ -188,29 +189,39 @@ class MigrateAbstract(object):
     def __init__(self, old_db):
         self.old_db = old_db
 
-    def print_log(self, msg, arg):
-
+    def print_debug(self, msg, arg):
         try:
-            six.print_(six.text_type(msg) % arg)
+            if isinstance(arg, tuple):
+                getLogger("lucterios.migration").debug(msg, *arg)
+            else:
+                getLogger("lucterios.migration").debug(msg, arg)
         except UnicodeEncodeError:
-            six.print_("*** UnicodeEncodeError ***")
+            getLogger("lucterios.migration").debug(
+                "*** UnicodeEncodeError ***")
             try:
-                six.print_(msg)
-                six.print_(arg)
+                getLogger("lucterios.migration").debug(msg)
+                getLogger("lucterios.migration").debug(six.text_type(arg))
             except UnicodeEncodeError:
                 pass
+
+    def print_info(self, msg, arg):
+        try:
+            text = msg % arg
+            six.print_(text)
+        except UnicodeEncodeError:
+            pass
 
     def run(self):
         pass
 
 
-class MigrateFromV1(LucteriosInstance):
+class MigrateFromV1(LucteriosInstance, MigrateAbstract):
 
     def __init__(self, name, instance_path=INSTANCE_PATH, debug=''):
         LucteriosInstance.__init__(self, name, instance_path)
+        MigrateAbstract.__init__(self, OldDataBase(debug))
         self.read()
         self.debug = debug
-        self.old_db = OldDataBase(debug)
         self.filename = ""
 
     def clear_current(self):
@@ -227,14 +238,15 @@ class MigrateFromV1(LucteriosInstance):
         from django.apps import apps
         module_names = module_name.split('.')
         try:
-            apps.get_app_config(module_names[-1])
+            current_mod = apps.get_app_config(module_names[-1])
+            self.print_info("\n*** module '%s' ***", current_mod.verbose_name)
             appmodule = import_module(module_name + ".from_v1")
             class_name = "%sMigrate" % module_names[-1].lower()
             class_name = class_name[0].upper() + class_name[1:]
             migrate_class = getattr(appmodule, class_name)
             migrate_class(self.old_db).run()
         except (LookupError, ImportError, AttributeError):
-            six.print_("=> No module %s" % module_name)
+            self.print_info("\n=> No module %s", module_name)
 
     def restore(self):
         begin_time = time()
@@ -252,8 +264,8 @@ class MigrateFromV1(LucteriosInstance):
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
         duration_sec = duration_sec - duration_min * 60
-        six.print_("Migration duration: %d min %d sec" %
-                   (duration_min, duration_sec))
+        self.print_info(
+            "Migration duration: %d min %d sec", (duration_min, duration_sec))
         return True
 
 

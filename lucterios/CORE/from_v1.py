@@ -93,7 +93,7 @@ class CoreMigrate(MigrateAbstract):
                     try:
                         cur.execute(sql_text)
                     except:
-                        self.print_log("SQL error:%s", sql_text)
+                        self.print_debug("SQL error:%s", sql_text)
                     rigth_id = cur.fetchone()
                     if rigth_id is not None:
                         break
@@ -101,7 +101,7 @@ class CoreMigrate(MigrateAbstract):
                     self.permission_relation.append(
                         (permission.id, rigth_id[0]))
                 else:
-                    self.print_log("=> not found %s", (sql_text,))
+                    self.print_debug("=> not found %s", (sql_text,))
 
     def _groups(self):
         LucteriosGroup.objects.all().delete()
@@ -120,7 +120,7 @@ class CoreMigrate(MigrateAbstract):
                 name=group_name)
             new_grp.permissions = Permission.objects.filter(
                 id__in=premission_ref)
-            self.print_log("=> Group %s (%s)", (group_name, premission_ref))
+            self.print_debug("=> Group %s (%s)", (group_name, premission_ref))
             self.group_list[groupid] = new_grp
 
     def _users(self):
@@ -130,7 +130,7 @@ class CoreMigrate(MigrateAbstract):
             "SELECT id,login,pass,realName,groupId,actif FROM CORE_users")
         for userid, login, password, real_name, group_id, actif in cur.fetchall():
             if login != '':
-                self.print_log("=> User %s [%s]", (login, real_name))
+                self.print_debug("=> User %s [%s]", (login, real_name))
                 try:
                     new_user = LucteriosUser.objects.create_user(
                         username=login)
@@ -149,7 +149,7 @@ class CoreMigrate(MigrateAbstract):
                     new_user.save()
                     self.user_list[userid] = new_user
                 except IntegrityError:
-                    self.print_log("*** User %s doubled", (login,))
+                    self.print_debug("*** User %s doubled", (login,))
 
     def run(self):
         try:
@@ -158,5 +158,7 @@ class CoreMigrate(MigrateAbstract):
             self._users()
         finally:
             self.old_db.close()
+        self.print_info("Nb groups:%d", len(self.group_list))
+        self.print_info("Nb users:%d", len(self.user_list))
         self.old_db.objectlinks['groups'] = self.group_list
         self.old_db.objectlinks['users'] = self.user_list
