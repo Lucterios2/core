@@ -19,16 +19,16 @@ var ObserverDialogBox = ObserverGUI.extend({
 		var image_name = '', table = [];
 		switch (this.mType) {
 		case 2:
-			image_name = "images/confirm.png";
+			image_name = "static/lucterios.CORE/images/confirm.png";
 			break;
 		case 3:
-			image_name = "images/warning.png";
+			image_name = "static/lucterios.CORE/images/warning.png";
 			break;
 		case 4:
-			image_name = "images/error.png";
+			image_name = "static/lucterios.CORE/images/error.png";
 			break;
 		default:
-			image_name = "images/info.png";
+			image_name = "static/lucterios.CORE/images/info.png";
 			break;
 		}
 		image_name = Singleton().Transport().getIconUrl(image_name);

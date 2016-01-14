@@ -124,7 +124,7 @@ class ChangePassword(XferContainerCustom):
 
     def fillresponse(self):
         img = XferCompImage('img')
-        img.set_value('images/passwd.png')
+        img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
 
@@ -189,7 +189,7 @@ class Configuration(XferContainerCustom):
     def fillresponse(self):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0, 1, 10)
-        img_title.set_value('images/config.png')
+        img_title.set_value(self.icon_path())
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
@@ -211,7 +211,7 @@ class ParamEdit(XferContainerCustom):
     def fillresponse(self, params=(), nb_col=1):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0)
-        img_title.set_value('images/config.png')
+        img_title.set_value(self.icon_path())
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 2 * nb_col)
@@ -279,7 +279,7 @@ class PrintModelList(XferContainerCustom):
     def fillresponse(self, modelname=''):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0, 1, 2)
-        img_title.set_value('images/PrintReportModel.png')
+        img_title.set_value(self.icon_path())
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
@@ -337,7 +337,7 @@ class PrintModelEdit(XferContainerCustom):
     def fillresponse(self):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0, 1, 6)
-        img_title.set_value('images/PrintReportModel.png')
+        img_title.set_value(self.icon_path())
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 2)

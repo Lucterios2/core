@@ -63,7 +63,14 @@ var HttpTransportAbstract = Class
 			},
 
 			getIconUrl : function(icon) {
-				return get_serverurl() + icon;
+				var icon_url = get_serverurl();
+				if (icon[0]=='/') {
+					icon_url+=icon.substring(1);
+				}
+				else {
+					icon_url+=icon;
+				}
+				return icon_url ;
 			},
 
 			transfertXMLFromServer : function(aParams) {

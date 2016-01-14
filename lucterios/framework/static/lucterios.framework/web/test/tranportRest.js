@@ -94,7 +94,7 @@ asyncTest("File", function() {
 	if (typeof (Blob) === typeof (Function)) {
 		equal(this.mFileContent, null, 'init');
 		Singleton().mFileManager.saveFile = $.proxy(this.saveFile, this);
-		this.transport.getFileContent('images/add.png', function(blob) {
+		this.transport.getFileContent('static/lucterios.CORE/images/add.png', function(blob) {
 			Singleton().mFileManager.saveBlob(blob, 'add.png');
 		});
 		var transp_test = this;

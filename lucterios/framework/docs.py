@@ -31,15 +31,15 @@ from os.path import dirname, join, isdir
 from lucterios import CORE
 
 
-def find_doc(module):
-    mod_id = module.__name__.split('.')[-1]
+def find_doc(appname):
+    module = import_module(appname)
     doc_path = join(
-        dirname(module.__file__), "static", mod_id, 'doc_%s' % get_language())
+        dirname(module.__file__), "static", appname, 'doc_%s' % get_language())
     if isdir(doc_path):
         if hasattr(module, '__title__'):
-            return (mod_id, six.text_type(module.__title__()))
+            return (appname, six.text_type(module.__title__()))
         else:
-            return (mod_id, module.__name__)
+            return (appname, appname)
     return None
 
 
@@ -52,11 +52,11 @@ def defaultDocs(request):
     dictionary['version'] = six.text_type(settings.APPLIS_VERSION)
     dictionary['lang'] = get_language()
     dictionary['menus'] = []
-    dictionary['menus'].append(find_doc(settings.APPLIS_MODULE))
+    dictionary['menus'].append(find_doc(settings.APPLIS_MODULE.__name__))
     for appname in settings.INSTALLED_APPS:
         if ("django" not in appname) and ("lucterios.CORE" not in appname) and (settings.APPLIS_MODULE.__name__ != appname):
-            help_item = find_doc(import_module(appname))
+            help_item = find_doc(appname)
             if help_item is not None:
                 dictionary['menus'].append(help_item)
-    dictionary['menus'].append(find_doc(CORE))
+    dictionary['menus'].append(find_doc('lucterios.CORE'))
     return render_to_response('main_docs.html', dirs=[dirname(__file__)], dictionary=dictionary)

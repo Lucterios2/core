@@ -75,7 +75,7 @@ class UsersList(XferContainerCustom):
 
     def fillresponse(self):
         img = XferCompImage('img')
-        img.set_value('images/user.png')
+        img.set_value(self.icon_path())
         img.set_location(0, 0)
         self.add_component(img)
 

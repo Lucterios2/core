@@ -34,7 +34,7 @@ from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
 
-from lucterios.framework.tools import fill_param_xml, WrapAction, FORMTYPE_MODAL
+from lucterios.framework.tools import fill_param_xml, get_icon_path, WrapAction, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 
@@ -86,19 +86,10 @@ class XferContainerAbstract(View):
         cls.url_text = r'%s/%s' % (extension, action)
 
     @classmethod
-    def icon_path(cls):
-        res_icon_path = ""
-        if hasattr(cls, 'icon') and cls.icon != "":
-            if cls.url_text.find('/') != -1:
-                extension = cls.url_text.split('/')[0]
-            else:
-                extension = cls.extension
-            if (extension == '') or ('images/' in cls.icon):
-                res_icon_path = cls.icon
-            elif extension == 'CORE':
-                res_icon_path = "images/" + cls.icon
-            else:
-                res_icon_path = "%s/images/%s" % (extension, cls.icon)
+    def icon_path(cls, icon_path=None):
+        if icon_path is None:
+            icon_path = getattr(cls, 'icon', '')
+        res_icon_path = get_icon_path(icon_path, cls.url_text, cls.extension)
         return res_icon_path
 
     @classmethod
@@ -106,7 +97,7 @@ class XferContainerAbstract(View):
         if caption is None:
             caption = cls.caption
         if icon_path is None:
-            icon_path = cls.icon_path()
+            icon_path = getattr(cls, 'icon', '')
         ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
                              is_view_right=getattr(cls, 'is_view_right', None))
         ret_act.modal = modal

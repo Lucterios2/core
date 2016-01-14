@@ -94,7 +94,7 @@ var ObserverException = ObserverAbstract
 					break;
 				}
 				image_name = Singleton().Transport().getIconUrl(
-						'images/' + image_name);
+						'static/lucterios.CORE/images/' + image_name);
 				table[0] = [];
 				table[0][0] = new compBasic("<img src='" + image_name
 						+ "' alt='" + image_name + "'></img>");

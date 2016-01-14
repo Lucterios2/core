@@ -88,6 +88,7 @@ DEFAULT_SETTINGS = {
     'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
                    'OPTIONS': {'context_processors': (
                                'django.core.context_processors.i18n',
+                               'django.contrib.auth.context_processors.auth',
                                ),
                                'loaders': (
                                'django.template.loaders.filesystem.Loader',

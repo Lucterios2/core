@@ -42,13 +42,35 @@ SELECT_MULTI = 2
 bad_permission_redirect_classaction = None
 
 
+def get_icon_path(icon_path, url_text='', extension=''):
+    from django.conf import settings
+    res_icon_path = ""
+    if (icon_path is not None) and (icon_path != ""):
+        if url_text.find('/') != -1:
+            extension = url_text.split('/')[0]
+        if icon_path.startswith(settings.STATIC_URL):
+            res_icon_path = icon_path
+        elif icon_path.startswith('images/'):
+            res_icon_path = "%slucterios.CORE/%s" % (
+                settings.STATIC_URL, icon_path)
+        elif ('images/' in icon_path):
+            res_icon_path = "%s%s" % (settings.STATIC_URL, icon_path)
+        elif (extension == '') or (extension == 'CORE'):
+            res_icon_path = "%slucterios.CORE/images/%s" % (
+                settings.STATIC_URL, icon_path)
+        else:
+            res_icon_path = "%s%s/images/%s" % (
+                settings.STATIC_URL, extension, icon_path)
+    return res_icon_path
+
+
 class WrapAction(object):
 
     mode_connect_notfree = None
 
     def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
-        self.icon_path = icon_path
+        self.icon_path = get_icon_path(icon_path, url_text, extension)
         self.modal = FORMTYPE_MODAL
         self.is_view_right = is_view_right
         self.url_text = url_text
@@ -160,8 +182,15 @@ class MenuManage(object):
 
     @classmethod
     def add_sub(cls, ref, parentref, icon, caption, desc, pos=0):
+        from django.conf import settings
         cls._menulock.acquire()
         try:
+            if icon.startswith('images/'):
+                icon_path = "%slucterios.CORE/%s" % (settings.STATIC_URL, icon)
+            elif 'images/' in icon:
+                icon_path = "%s%s" % (settings.STATIC_URL, icon)
+            else:
+                icon_path = icon
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
             add_new_menu = True
@@ -172,7 +201,7 @@ class MenuManage(object):
                 logging.getLogger("lucterios.core.menu").debug(
                     "new sub-menu: caption=%s ref=%s", caption, ref)
                 cls._MENU_LIST[parentref].append(
-                    (WrapAction(caption, icon, url_text=ref, pos=pos), desc))
+                    (WrapAction(caption, icon_path, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 

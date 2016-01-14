@@ -33,6 +33,7 @@ import logging
 import inspect
 import pkgutil
 from lucterios.framework.docs import defaultDocs
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 
 def defaultblank(request, *args):
@@ -55,7 +56,7 @@ def _init_url_patterns():
     from django.contrib import admin
     admin.autodiscover()
     res = []
-    web_path = join(dirname(__file__), 'static', 'framework', 'web')
+    web_path = join(dirname(__file__), 'static', 'lucterios.framework', 'web')
     res.append(url(r'^$', defaultview))
     res.append(url(r'^favicon.ico$', defaultblank))
     res.append(url(r'^web/$', defaultview))
@@ -79,11 +80,6 @@ def add_url_from_module(url_list, appmodule, lucterios_ext):
     if isdir(extpath_help):
         url_list.append(url(r'^%s/help/(?P<path>.*)$' %
                             lucterios_ext, serve, {'document_root': extpath_help}))
-    mod_id = appmodule.__name__.split('.')[-1]
-    extpath_static = join(dirname(appmodule.__file__), 'static', mod_id)
-    if isdir(extpath_static):
-        url_list.append(url(r'^static/%s/(?P<path>.*)$' %
-                            mod_id, serve, {'document_root': extpath_static}))
 
 
 def get_url_patterns():
@@ -131,6 +127,7 @@ def get_url_patterns():
         res.append(url(r'^accounts/login/$', site.login))
     except ImportError:
         pass
+    res.extend(staticfiles_urlpatterns())
     logging.getLogger('lucterios.core.init').debug(
         "Urls:" + '\n'.join(str(res_item) for res_item in res))
     return res

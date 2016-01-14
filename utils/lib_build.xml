@@ -220,9 +220,19 @@
 	</target>
 
 	<target name="docs_comp">
+		<property name="sub_path" value="${basedir}/${packageitem}" />
 		<if>
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
+				<property name="module_name_" value="${packageitem}" />
+				<loadresource property="module_name">
+				  <propertyresource name="module_name_" />
+				  <filterchain>
+				    <tokenfilter>
+				      <replaceregex pattern="/" replace="\." flags="g"/>
+				    </tokenfilter>
+				  </filterchain>
+				</loadresource>
 				<basename property="module_name" file="${sub_path}" />
 				<tstamp>
 					<format property="currentyear" pattern="yyyy" unit="hour" />
@@ -250,6 +260,7 @@
 			<sequential>
 				<loadfile property="build_file" srcfile="@{packageitem}/build" />
 				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py" />
+				
 				<for param="line" delimiter="${line.separator}" list="${init_file}">
 					<sequential>
 						<propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
@@ -258,13 +269,15 @@
 				</for>
 				<var name="packlongversion" value="${packversion}${build_file}" />
 				<antcall target="docs_comp">
-					<param name="sub_path" value="${basedir}/@{packageitem}" />
+					<param name="basedir" value="${basedir}" />
+					<param name="packageitem" value="@{packageitem}" />
 					<param name="lang" value="fr" />
 					<param name="packlongversion" value="${packlongversion}" />
 					<param name="packshortversion" value="${packshortversion}" />
 				</antcall>
 				<antcall target="docs_comp">
-					<param name="sub_path" value="${basedir}/@{packageitem}" />
+					<param name="basedir" value="${basedir}" />
+					<param name="packageitem" value="@{packageitem}" />
 					<param name="lang" value="en" />
 					<param name="packlongversion" value="${packlongversion}" />
 					<param name="packshortversion" value="${packshortversion}" />

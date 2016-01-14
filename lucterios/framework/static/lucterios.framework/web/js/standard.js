@@ -164,7 +164,7 @@ function initial_function() {
 				+ "</label>"
 				+ "<a href='{0}' target='_blank'><img src='{1}' /></a>".format(
 						Singleton().Transport().getIconUrl("Docs"), Singleton()
-								.Transport().getIconUrl('images/help.png'))
+								.Transport().getIconUrl('static/lucterios.CORE/images/help.png'))
 				+ "</div>";
 		$("#lucteriosClient").append(html);
 		$("#refresh").click(refresh_function);
