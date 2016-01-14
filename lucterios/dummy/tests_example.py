@@ -339,7 +339,7 @@ class ExampleTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'lucterios.dummy/images/10.png', (0, 0, 1, 6))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.dummy/images/10.png', (0, 0, 1, 6))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="lbl_bool"]', "{[b]}bool{[/b]}", (1, 0, 1, 1))
         self.assert_comp_equal(
@@ -374,7 +374,7 @@ class ExampleTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
 
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'lucterios.dummy/images/10.png', (0, 0, 1, 6))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.dummy/images/10.png', (0, 0, 1, 6))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="lbl_bool"]', "{[b]}bool{[/b]}", (1, 0, 1, 1))
         self.assert_comp_equal(

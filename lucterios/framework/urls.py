@@ -67,30 +67,11 @@ def _init_url_patterns():
     return res
 
 
-def add_url_from_module(url_list, appmodule, lucterios_ext):
-    extpath_img = join(dirname(appmodule.__file__), 'images')
-    if isdir(extpath_img):
-        if lucterios_ext == 'CORE':
-            url_list.append(
-                url(r'^images/(?P<path>.*)$', serve, {'document_root': extpath_img}))
-        else:
-            url_list.append(url(r'^%s/images/(?P<path>.*)$' %
-                                lucterios_ext, serve, {'document_root': extpath_img}))
-    extpath_help = join(dirname(appmodule.__file__), 'help')
-    if isdir(extpath_help):
-        url_list.append(url(r'^%s/help/(?P<path>.*)$' %
-                            lucterios_ext, serve, {'document_root': extpath_help}))
-
-
 def get_url_patterns():
     res = _init_url_patterns()
     for appname in settings.INSTALLED_APPS:
         appmodule = import_module(appname)
-        module_items = appname.split('.')
-        if (len(module_items) > 1) and (module_items[1] == 'CORE'):
-            module_items = module_items[1:]
         is_lucterios_ext = False
-        lucterios_ext = ".".join(module_items)
         for _, modname, ispkg in pkgutil.iter_modules(appmodule.__path__):
             if (modname[:5] == 'views') and not ispkg:
                 view = import_module(appname + '.' + modname)
@@ -106,14 +87,13 @@ def get_url_patterns():
                         pass
             elif settings.APPLIS_MODULE == appmodule:
                 is_lucterios_ext = True
-        if is_lucterios_ext:
-            add_url_from_module(res, appmodule, lucterios_ext)
-        else:
+        if not is_lucterios_ext:
             try:
                 patterns = getattr(
                     import_module('%s.urls' % appname), 'urlpatterns', None)
                 if isinstance(patterns, (list, tuple)):
                     for url_pattern in patterns:
+                        module_items = appname.split('.')
                         if module_items[0] == 'django':
                             res.append(url_pattern)
                         else:

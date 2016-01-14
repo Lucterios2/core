@@ -58,7 +58,7 @@ class UserTest(LucteriosTest):
             'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 7)
         self.assert_xml_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/user.png')
         self.assert_coordcomp_equal(
             'COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
         self.assert_xml_equal(
@@ -167,12 +167,12 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('ACTIONS', 1)
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_xml_equal('ACTIONS/ACTION[1]', 'Oui')
-        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'icon', 'images/ok.png')
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'icon', '/static/lucterios.CORE/images/ok.png')
         self.assert_attrib_equal('ACTIONS/ACTION[1]', 'extension', 'CORE')
         self.assert_attrib_equal('ACTIONS/ACTION[1]', 'action', 'usersDelete')
         self.assert_xml_equal('ACTIONS/ACTION[2]', 'Non')
         self.assert_attrib_equal(
-            'ACTIONS/ACTION[2]', 'icon', 'images/cancel.png')
+            'ACTIONS/ACTION[2]', 'icon', '/static/lucterios.CORE/images/cancel.png')
         self.assert_attrib_equal('ACTIONS/ACTION[2]', 'extension', None)
         self.assert_attrib_equal('ACTIONS/ACTION[2]', 'action', None)
 
@@ -275,7 +275,7 @@ class UserTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_xml_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/user.png')
         self.assert_coordcomp_equal(
             'COMPONENTS/IMAGE[@name="img"]', (0, 0, 1, 6))
 
@@ -434,7 +434,7 @@ class UserTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
         self.assert_xml_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/user.png')
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/user.png')
         self.assert_coordcomp_equal(
             'COMPONENTS/IMAGE[@name="img"]', (0, 0, 1, 6))
 
@@ -699,7 +699,7 @@ class GroupTest(LucteriosTest):
             'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/group.png', ('0', '0', '1', '1'))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/group.png', ('0', '0', '1', '1'))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Les groupes{[/b]}{[/u]}{[/center]}',
                                ('1', '0', '1', '1'))
         self.assert_coordcomp_equal(
@@ -733,7 +733,7 @@ class GroupTest(LucteriosTest):
 
         self.assert_count_equal('COMPONENTS/*', 12)
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/group.png', (0, 0, 1, 6))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/group.png', (0, 0, 1, 6))
 
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="lbl_name"]', "{[b]}nom{[/b]}", (1, 0, 1, 1))
@@ -914,7 +914,7 @@ class SessionTest(LucteriosTest):
             'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_xml_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/session.png')
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/session.png')
         self.assert_coordcomp_equal(
             'COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
         self.assert_xml_equal(

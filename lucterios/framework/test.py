@@ -176,7 +176,13 @@ class LucteriosTest(TestCase):
 
     def assert_action_equal(self, xpath, act_desc):
         self.assert_xml_equal(xpath, act_desc[0])
-        self.assert_attrib_equal(xpath, "icon", act_desc[1])
+        if act_desc[1] is None:
+            self.assert_attrib_equal(xpath, "icon", None)
+        elif act_desc[1].startswith('images/'):
+            self.assert_attrib_equal(
+                xpath, "icon", '/static/lucterios.CORE/' + act_desc[1])
+        else:
+            self.assert_attrib_equal(xpath, "icon", '/static/' + act_desc[1])
         if len(act_desc) > 2:
             self.assert_attrib_equal(xpath, "extension", act_desc[2])
             self.assert_attrib_equal(xpath, "action", act_desc[3])

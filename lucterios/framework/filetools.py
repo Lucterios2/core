@@ -129,19 +129,23 @@ def open_image_resize(filep, max_width, max_height):
 def get_image_absolutepath(icon_path):
     if isfile(icon_path):
         return icon_path
-    root_dir = icon_path.split('/')[0]
-    if root_dir == 'images':
-        root_dir = 'CORE'
-        sub_path = icon_path.split('/')
-    else:
-        sub_path = icon_path.split('/')[1:]
-    from django.utils.module_loading import import_module
-    try:
-
-        module = import_module(root_dir)
-        return join(dirname(module.__file__), *sub_path)
-    except ImportError:
-        return icon_path
+    from django.conf import settings
+    if icon_path.startswith(settings.STATIC_URL):
+        tmp_icon_path = icon_path[len(settings.STATIC_URL):]
+        if isfile(join(settings.STATIC_ROOT, tmp_icon_path)):
+            icon_path = join(settings.STATIC_ROOT, tmp_icon_path)
+        else:
+            if icon_path[0] == '/':
+                icon_path = icon_path[1:]
+            sub_path = tmp_icon_path.split('/')
+            root_dir = sub_path[0]
+            try:
+                from importlib import import_module
+                module = import_module(root_dir)
+                icon_path = join(dirname(module.__file__), icon_path)
+            except:
+                pass
+    return icon_path
 
 
 def get_image_size(image_path):

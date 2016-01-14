@@ -277,7 +277,7 @@ class AuthentificationTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
         self.assert_count_equal('COMPONENTS/*', 7)
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/passwd.png', ('0', '0', '1', '3'))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/passwd.png', ('0', '0', '1', '3'))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="lbl_oldpass"]', '{[b]}ancien mot de passe{[/b]}', ('1', '0', '1', '1'))
         self.assert_comp_equal(
@@ -349,7 +349,7 @@ class ConfigTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 10))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 10))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
@@ -374,7 +374,7 @@ class ConfigTest(LucteriosTest):
             'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
         self.assert_count_equal('COMPONENTS/*', 4)
         self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', 'images/config.png', (0, 0, 1, 1))
+            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
 

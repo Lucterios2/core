@@ -64,7 +64,7 @@ class DummyTest(LucteriosTest):
         self.assert_count_equal('ACTIONS', 1)
         self.assert_count_equal('ACTIONS/ACTION', 1)
         self.assert_xml_equal('ACTIONS/ACTION[1]', 'Ok')
-        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'icon', 'images/ok.png')
+        self.assert_attrib_equal('ACTIONS/ACTION[1]', 'icon', '/static/lucterios.CORE/images/ok.png')
         self.assert_attrib_equal('ACTIONS/ACTION[1]', 'extension', None)
         self.assert_attrib_equal('ACTIONS/ACTION[1]', 'action', None)
 
