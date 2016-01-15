@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-07 10:04+0000\n"
+"POT-Creation-Date: 2016-01-08 16:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -30,11 +30,11 @@ msgstr "Help"
 msgid "Table of content"
 msgstr "Table of content"
 
-#: models.py:73 xfergraphic.py:156
+#: models.py:71 xfergraphic.py:156
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:75 xfergraphic.py:158
+#: models.py:73 xfergraphic.py:158
 msgid "No"
 msgstr "No"
 

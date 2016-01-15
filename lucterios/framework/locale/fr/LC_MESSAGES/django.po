@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-07 10:04+0000\n"
-"PO-Revision-Date: 2015-09-17 13:21+0000\n"
-"Last-Translator: b'administrator ADMIN <>'\n"
+"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"PO-Revision-Date: 2016-01-14 21:50+0000\n"
+"Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Translated-Using: django-rosetta 0.7.6\n"
+"X-Translated-Using: django-rosetta 0.7.8\n"
 
 #: main_docs.html:5 main_docs.html.py:113 main_help.html:148
 #: main_help.html.py:154
@@ -32,11 +32,11 @@ msgstr "Aide"
 msgid "Table of content"
 msgstr "Sommaire"
 
-#: models.py:73 xfergraphic.py:156
+#: models.py:71 xfergraphic.py:156
 msgid "Yes"
 msgstr "Oui"
 
-#: models.py:75 xfergraphic.py:158
+#: models.py:73 xfergraphic.py:158
 msgid "No"
 msgstr "Non"
 
@@ -78,7 +78,7 @@ msgstr "ajouter"
 
 #: tools.py:279
 msgid "view"
-msgstr "voir"
+msgstr "Afficher"
 
 #: tools.py:281
 msgid "delete"
@@ -94,7 +94,7 @@ msgstr "Liste"
 
 #: xferadvance.py:48 xfersearch.py:371
 msgid "Label"
-msgstr "Etiquette"
+msgstr "Étiquette"
 
 #: xferadvance.py:76 xfersearch.py:565
 #, python-format
@@ -149,12 +149,12 @@ msgid ""
 "This record not exist!\n"
 "Refresh your application."
 msgstr ""
-"Cet enregistrment n'existe pas!\n"
+"Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
 #: xfercomponents.py:634
 msgid "Edit"
-msgstr "Editer"
+msgstr "Éditer"
 
 #: xfercomponents.py:635
 msgid "Delete"
@@ -210,7 +210,7 @@ msgstr "supérieur"
 
 #: xfersearch.py:55
 msgid "contains"
-msgstr "contiens"
+msgstr "contient"
 
 #: xfersearch.py:56
 msgid "starts with"

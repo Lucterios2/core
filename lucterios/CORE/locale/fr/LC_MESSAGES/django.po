@@ -8,19 +8,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-07 10:04+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Lucterios <support@lucterios.org>\n"
+"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"PO-Revision-Date: 2016-01-11 22:43+0000\n"
+"Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
-"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.7.8\n"
 
 #: __init__.py:41
 msgid "Lucterios core"
-msgstr "Coeur Lucterios"
+msgstr "Cœur Lucterios"
 
 #: editors.py:53
 msgid "To change password?"
@@ -358,7 +359,7 @@ msgstr "Pour changer de mot de passe."
 
 #: views.py:122 views.py:162
 msgid "_Password"
-msgstr "Mot de _passe"
+msgstr "Mot de passe"
 
 #: views.py:133
 msgid "old password"
@@ -426,7 +427,7 @@ msgstr "Gérer les configurations des modules"
 
 #: views.py:241
 msgid "Saved criteria list for searching tools"
-msgstr "List de critères sauvegardés pour les outils de recherche"
+msgstr "Liste de critères sauvegardés pour les outils de recherche"
 
 #: views.py:255
 msgid "Add saved criteria"
