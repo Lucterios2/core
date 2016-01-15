@@ -103,7 +103,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal(
             "MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
+            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de passe')
         self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
         self.assert_xml_equal(
             "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']", 'Gestion des droits')
@@ -133,7 +133,7 @@ class AuthentificationTest(LucteriosTest):
             "MENUS/MENU[@id='core.general']", six.text_type('Général'))
         self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 1)
         self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de _passe')
+            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de passe')
         self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
         self.assert_count_equal(
             "MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)

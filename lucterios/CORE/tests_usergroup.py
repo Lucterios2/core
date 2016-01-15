@@ -813,7 +813,7 @@ class GroupTest(LucteriosTest):
         self.call('/CORE/groupsEdit', {'group': '50'}, False)
         self.assert_observer('core.exception', 'CORE', 'groupsEdit')
         self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type(
-            "Cet enregistrment n'existe pas!\nVeuillez rafraichir votre application."))
+            "Cet enregistrement n'existe pas!\nVeuillez rafraichir votre application."))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
     def test_groupadd_same(self):
