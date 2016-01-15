@@ -8,15 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-07 10:04+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"PO-Revision-Date: 2016-01-14 21:55+0000\n"
+"Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.7.8\n"
 
 #: lucterios_admin.py:565 lucterios_gui.py:212
 msgid "CORE-connectmode"
@@ -26,11 +27,11 @@ msgstr "Mode de connexion"
 #: lucterios_gui.py:693 lucterios_gui.py:697 lucterios_gui.py:716
 #: lucterios_gui.py:720
 msgid "Lucterios installer"
-msgstr "Lucterios installeur"
+msgstr "Installeur Lucterios"
 
 #: lucterios_gui.py:150 lucterios_gui.py:278
 msgid "Instance editor"
-msgstr "Editeur d'instance"
+msgstr "Éditeur d'instance"
 
 #: lucterios_gui.py:161
 msgid "General"
@@ -118,7 +119,7 @@ msgstr "Enregistrer"
 
 #: lucterios_gui.py:424
 msgid "Restore"
-msgstr "Restorer"
+msgstr "Restaurer"
 
 #: lucterios_gui.py:426
 msgid "Add"
@@ -131,7 +132,7 @@ msgstr "Instances"
 #: lucterios_gui.py:485
 #, python-format
 msgid "Lucterios core\t\t%s\n"
-msgstr "Lucterios coeur\t\t%s\n"
+msgstr "Cœur Lucterios cœur %s\n"
 
 #: lucterios_gui.py:487
 msgid "Application\n"
@@ -143,11 +144,11 @@ msgstr "Modules\n"
 
 #: lucterios_gui.py:534
 msgid "Upgrade needs"
-msgstr "Mise à jours disponible"
+msgstr "Mise à jour disponible"
 
 #: lucterios_gui.py:536
 msgid "No upgrade"
-msgstr "Pas de mise à jours"
+msgstr "Pas de mise à jour"
 
 #: lucterios_gui.py:555
 msgid "The application must restart"
@@ -180,7 +181,7 @@ msgstr "=> Lancé sur http://127.0.0.1:%s\n"
 
 #: lucterios_gui.py:591
 msgid "Stop"
-msgstr "Arret"
+msgstr "Arrêt"
 
 #: lucterios_gui.py:594
 msgid "=> Stopped\n"
@@ -203,11 +204,11 @@ msgstr "Instance non sauvée!"
 #: lucterios_gui.py:717
 #, python-format
 msgid "Instance restore from %s"
-msgstr "Instance restorée depuis %s"
+msgstr "Instance restaurée depuis %s"
 
 #: lucterios_gui.py:720
 msgid "Instance not restored!"
-msgstr "Instance non restorée!"
+msgstr "Instance non restaurée!"
 
 #~ msgid "Web browser unknown!"
 #~ msgstr "Navigateur web inconnu!"
