@@ -102,7 +102,7 @@ DEFAULT_SETTINGS = {
     'USE_I18N': True,
     'USE_L10N': True,
     'USE_TZ': True,
-    'TEMPLATE_DEBUG': False,
+    'DEBUG': True,
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',
@@ -153,13 +153,13 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         if key_name not in extra_setting.keys():
             setattr(module_to_setup, key_name, setting_value)
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
+    if not hasattr(module_to_setup, "MEDIA_ROOT"):
+        setattr(module_to_setup, "MEDIA_ROOT", join(setup_path, 'usr'))
     if isinstance(addon_modules, tuple):
         module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
             addon_modules
     module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
         (appli_name,)
-    if not hasattr(module_to_setup, "DEBUG"):
-        module_to_setup.DEBUG = False
     appli_module = import_module(appli_name)
     setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
     setattr(module_to_setup, 'LOCALE_PATHS',

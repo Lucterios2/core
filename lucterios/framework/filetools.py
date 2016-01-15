@@ -68,9 +68,7 @@ def get_tmp_dir():
 
 def get_user_dir():
     from django.conf import settings
-    setting_path = join(
-        settings.BASE_DIR, settings.SETTINGS_MODULE.split('.')[0])
-    return join(setting_path, 'usr')
+    return settings.MEDIA_ROOT
 
 
 def get_user_path(rootpath, filename):
