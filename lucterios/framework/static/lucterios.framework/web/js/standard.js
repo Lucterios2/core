@@ -145,7 +145,7 @@ function initial_function() {
 		Singleton().close();
 		first_action();
 	} else {
-		var disconnect_title = Singleton().getTranslate('Logoff'), html, help_url, act;
+		var disconnect_title = Singleton().getTranslate('Logoff'), html, act;
 		if (Singleton().mDesc.getLogin() === '') {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}

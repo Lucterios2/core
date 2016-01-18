@@ -64,7 +64,7 @@ var HttpTransportAbstract = Class
 
 			getIconUrl : function(icon) {
 				var icon_url = get_serverurl();
-				if (icon[0]=='/') {
+				if (icon[0]==='/') {
 					icon_url+=icon.substring(1);
 				}
 				else {
