@@ -64,6 +64,22 @@ def get_lan_ip():
                 pass
     return ip_address
 
+DEFAULT_LANGUAGES = (
+    ('en', six.text_type('English')),
+    ('fr', six.text_type('Français')),
+),
+
+
+def get_locale_lang():
+    try:
+        default_locale = getdefaultlocale()[0]
+        for lang in DEFAULT_LANGUAGES:
+            if default_locale.startswith(lang[0]):
+                return lang[0]
+    except TypeError:
+        pass
+    return DEFAULT_LANGUAGES[0][0]
+
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
         'django.contrib.sessions.middleware.SessionMiddleware',
@@ -96,7 +112,7 @@ DEFAULT_SETTINGS = {
                    ), }
                    }, ],
     'ROOT_URLCONF': 'lucterios.framework.urls',
-    'LANGUAGE_CODE': getdefaultlocale()[0],
+    'LANGUAGE_CODE': get_locale_lang(),
     'TIME_ZONE': 'UTC',
     'SESSION_COOKIE_AGE': 60 * 60,
     'USE_I18N': True,
@@ -110,10 +126,7 @@ DEFAULT_SETTINGS = {
     'TEST_RUNNER': 'lucterios.framework.juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
     'DEFAULT_PAGE': '/web/index.html',
-    'LANGUAGES': (
-        ('en', six.text_type('English')),
-        ('fr', six.text_type('Français')),
-    ),
+    'LANGUAGES': DEFAULT_LANGUAGES,
 }
 
 
