@@ -40,7 +40,7 @@ def defaultblank(request, *args):
     from django.http import HttpResponse
     if request.path == '/favicon.ico':
         if hasattr(settings, 'APPLIS_FAVICON'):
-            return serve(request, basename(settings.APPLIS_FAVICON), document_root=dirname(settings.APPLIS_LOGO_NAME))
+            return serve(request, basename(settings.APPLIS_FAVICON), document_root=dirname(settings.APPLIS_FAVICON))
     return HttpResponse('')
 
 

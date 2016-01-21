@@ -28,17 +28,25 @@ italic {
 	margin: 5px;
 }
 
+#status img {
+	margin: 0px 0px 0px 10px;
+}
+
 #status label {
 	width: 150px;
 	text-align: center;
-	margin: 5px 70px 5px 70px;
+	margin: 5px 50px 5px 50px;
 	height: 15px;
 	vertical-align: middle;
+	position: relative;
+	top: -25px;
 }
 
 #status a img {
 	margin: 5px;
 	vertical-align: middle;
+	position: relative;
+	top: -25px;
 }
 
 .tabContent table img {
@@ -46,7 +54,7 @@ italic {
 }
 
 #mainMenu {
-	top: 40px;
+	top: 90px;
 	position: fixed;
 	height: 545px;
 	width: 1212px;

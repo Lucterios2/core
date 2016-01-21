@@ -231,27 +231,26 @@ class InstanceEditor(Toplevel):
                 child_cmp.config(state=DISABLED)
 
     def appli_selection(self, event):
+        if self.applis.get() != '':
+            appli_id = list(self.applis[VALUES]).index(self.applis.get())
+            luct_glo = LucteriosGlobal()
+            current_inst_names = luct_glo.listing()
+            appli_root_name = sorted(self.mod_applis)[appli_id][0].split('.')[-1]
+            default_name_idx = 1
+            while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
+                default_name_idx += 1
+            self.name.delete(0, END)
+            self.name.insert(
+                0, appli_root_name + six.text_type(default_name_idx))
 
-        appli_id = list(self.applis[VALUES]).index(self.applis.get())
-
-        luct_glo = LucteriosGlobal()
-        current_inst_names = luct_glo.listing()
-        appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
-        default_name_idx = 1
-        while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
-            default_name_idx += 1
-        self.name.delete(0, END)
-        self.name.insert(0, appli_root_name + six.text_type(default_name_idx))
-
-        mod_depended = self.mod_applis[appli_id][2]
-        self.modules.select_clear(0, self.modules.size())
-        for mod_idx in range(len(self.module_data)):
-            current_mod = self.module_data[mod_idx]
-            if current_mod in mod_depended:
-                self.modules.selection_set(mod_idx)
+            mod_depended = self.mod_applis[appli_id][2]
+            self.modules.select_clear(0, self.modules.size())
+            for mod_idx in range(len(self.module_data)):
+                current_mod = self.module_data[mod_idx]
+                if current_mod in mod_depended:
+                    self.modules.selection_set(mod_idx)
 
     def mode_selection(self, event):
-
         visible = list(self.mode[VALUES]).index(self.mode.get()) != 2
         for child_cmp in self.frm_general.winfo_children()[-2:]:
             if visible:
@@ -260,22 +259,24 @@ class InstanceEditor(Toplevel):
                 child_cmp.config(state=DISABLED)
 
     def apply(self):
-        if self.name.get() != '':
-            db_param = "%s:name=%s,user=%s,password=%s" % (
-                self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
-            security = "MODE=%s" % list(
-                self.mode[VALUES]).index(self.mode.get())
-            if self.password.get() != '':
-                security += ",PASSWORD=%s" % self.password.get()
-            module_list = [
-                self.module_data[int(item)] for item in self.modules.curselection()]
-            appli_id = list(self.applis[VALUES]).index(self.applis.get())
-
-            self.result = (self.name.get(), self.mod_applis[appli_id][
-                           0], ",".join(module_list), security, db_param)
-            self.destroy()
-        else:
+        if self.name.get() == '':
             showerror(ugettext("Instance editor"), ugettext("Name empty!"))
+            return
+        if self.applis.get() == '':
+            showerror(ugettext("Instance editor"), ugettext("No application!"))
+            return
+        db_param = "%s:name=%s,user=%s,password=%s" % (
+            self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
+        security = "MODE=%s" % list(
+            self.mode[VALUES]).index(self.mode.get())
+        if self.password.get() != '':
+            security += ",PASSWORD=%s" % self.password.get()
+        module_list = [
+            self.module_data[int(item)] for item in self.modules.curselection()]
+        appli_id = list(self.applis[VALUES]).index(self.applis.get())
+        self.result = (self.name.get(), self.mod_applis[appli_id][
+                       0], ",".join(module_list), security, db_param)
+        self.destroy()
 
     def _load_current_data(self, instance_name):
         lct_inst = LucteriosInstance(instance_name)
@@ -325,11 +326,16 @@ class InstanceEditor(Toplevel):
         _, self.mod_applis, mod_modules = lct_glob.installed()
         self.modules.delete(0, END)
         self.module_data = []
+        module_list = []
         for mod_module_item in mod_modules:
-            self.modules.insert(END, get_module_title(mod_module_item[0]))
-            self.module_data.append(mod_module_item[0])
+            module_list.append(
+                (get_module_title(mod_module_item[0]), mod_module_item[0]))
+        module_list.sort(key=lambda module: module[0])
+        for module_title, module_name in module_list:
+            self.modules.insert(END, module_title)
+            self.module_data.append(module_name)
         appli_list = []
-        for mod_appli_item in self.mod_applis:
+        for mod_appli_item in sorted(self.mod_applis):
             appli_list.append(get_module_title(mod_appli_item[0]))
         self.applis[VALUES] = appli_list
         if instance_name is not None:
