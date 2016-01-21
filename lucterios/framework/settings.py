@@ -67,18 +67,20 @@ def get_lan_ip():
 DEFAULT_LANGUAGES = (
     ('en', six.text_type('English')),
     ('fr', six.text_type('Français')),
-),
+)
 
 
 def get_locale_lang():
+    lang_result = DEFAULT_LANGUAGES[0][0]
     try:
         default_locale = getdefaultlocale()[0]
         for lang in DEFAULT_LANGUAGES:
             if default_locale.startswith(lang[0]):
-                return lang[0]
+                lang_result = lang[0]
+                break
     except TypeError:
         pass
-    return DEFAULT_LANGUAGES[0][0]
+    return lang_result
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (

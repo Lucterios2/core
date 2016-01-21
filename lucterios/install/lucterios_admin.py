@@ -189,6 +189,7 @@ class LucteriosGlobal(LucteriosManage):
         from pip import get_installed_distributions
         from pip.commands import list as list_
         import pip.utils.logging
+        import site
         pip.utils.logging._log_state.indentation = 0
         check_list = {}
         for dist in get_installed_distributions():
