@@ -74,10 +74,11 @@ def get_locale_lang():
     lang_result = DEFAULT_LANGUAGES[0][0]
     try:
         default_locale = getdefaultlocale()[0]
-        for lang in DEFAULT_LANGUAGES:
-            if default_locale.startswith(lang[0]):
-                lang_result = lang[0]
-                break
+        if isinstance(default_locale, six.text_type):
+            for lang in DEFAULT_LANGUAGES:
+                if default_locale.startswith(lang[0]):
+                    lang_result = lang[0]
+                    break
     except TypeError:
         pass
     return lang_result
