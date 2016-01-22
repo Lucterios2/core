@@ -150,7 +150,7 @@ function initial_function() {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}
 		html = "<div id='status' class='ui-widget ui-widget-content ui-corner-all'>"
-			    + "<img src='{0}'>".format(Singleton().mDesc.getLogoIconName())
+			    + "<img src='{0}' style='height:64px'>".format(Singleton().mDesc.getLogoIconName())
 				+ "<label style='width:250px;margin:5px;'>"
 				+ Singleton().mDesc.getConnectUser()
 				+ "</label>"

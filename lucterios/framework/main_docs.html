@@ -16,14 +16,8 @@ BODY {
 	text-align: center;
 	vertical-align: middle;
 	color: #0C3762;
-}
-
-.subtitle {
-	font-family: Helvetica, serif;
-	font-size: 4mm;
-	text-align: center;
-	vertical-align: middle;
-	color: #AAA;
+    position: relative;
+    top: -64px;
 }
 
 #header {
@@ -32,6 +26,11 @@ BODY {
 	margin: 10px 0px 5px 0px;
 	width: 99%;
 	height: 70px;
+}
+
+#header img {
+	margin-left: 5%;
+	height:64px;
 }
 
 #menu {
@@ -96,8 +95,8 @@ li {
 
 <body onload='showcontent("{{ menus.0.0 }}","{{ lang }}")')>
 	<div id="header">
+		<img src="{{ applogo }}"/>
 		<div class="title">{{ title }}</div>
-		<div class="subtitle">{{ subtitle }}</div>
 	</div>
 
 	<div id="menu">
