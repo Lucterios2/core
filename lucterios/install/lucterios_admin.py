@@ -49,9 +49,10 @@ SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
 def get_module_title(module_name):
     try:
         current_mod = import_module(module_name)
-        return six.text_type(getattr(current_mod, '__title__')())
+        result = getattr(current_mod, '__title__')()
     except AttributeError:
-        return "??? (%s)" % module_name
+        result = "??? (%s)" % module_name
+    return six.text_type(result)
 
 
 def get_package_list():
@@ -786,10 +787,17 @@ def main():
 def setup_from_none():
     from lucterios.framework.settings import fill_appli_settings
     import types
+    lct_modules = []
+    glob = LucteriosGlobal()
+    _, mod_applis, mod_modules = glob.installed()
+    for mod_item in mod_applis:
+        lct_modules.append(mod_item[0])
+    for mod_item in mod_modules:
+        lct_modules.append(mod_item[0])
     module = types.ModuleType("default_setting")
     setattr(module, '__file__', "")
     setattr(module, 'SECRET_KEY', "default_setting")
-    fill_appli_settings("lucterios.standard", None, module)
+    fill_appli_settings("lucterios.standard", lct_modules, module)
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
     import django

@@ -139,7 +139,6 @@ def center(root, size=None):
 class InstanceEditor(Toplevel):
 
     def __init__(self):
-
         Toplevel.__init__(self)
         self.focus_set()
         self.grab_set()
@@ -235,7 +234,8 @@ class InstanceEditor(Toplevel):
             appli_id = list(self.applis[VALUES]).index(self.applis.get())
             luct_glo = LucteriosGlobal()
             current_inst_names = luct_glo.listing()
-            appli_root_name = sorted(self.mod_applis)[appli_id][0].split('.')[-1]
+            appli_root_name = sorted(
+                self.mod_applis)[appli_id][0].split('.')[-1]
             default_name_idx = 1
             while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
                 default_name_idx += 1
@@ -324,6 +324,7 @@ class InstanceEditor(Toplevel):
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
         _, self.mod_applis, mod_modules = lct_glob.installed()
+        self.mod_applis.sort(key=lambda item: get_module_title(item[0]))
         self.modules.delete(0, END)
         self.module_data = []
         module_list = []
@@ -335,7 +336,7 @@ class InstanceEditor(Toplevel):
             self.modules.insert(END, module_title)
             self.module_data.append(module_name)
         appli_list = []
-        for mod_appli_item in sorted(self.mod_applis):
+        for mod_appli_item in self.mod_applis:
             appli_list.append(get_module_title(mod_appli_item[0]))
         self.applis[VALUES] = appli_list
         if instance_name is not None:

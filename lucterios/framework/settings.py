@@ -132,20 +132,24 @@ DEFAULT_SETTINGS = {
     'LANGUAGES': DEFAULT_LANGUAGES,
 }
 
+LOCALE_PATH = []
+
 
 def _get_locale_pathes(appli_name, addon_modules):
-    local_path = []
+    def add_locale_path(new_path):
+        if new_path not in LOCALE_PATH:
+            LOCALE_PATH.append(new_path)
     module_lang_list = [
         "lucterios.CORE", 'lucterios.framework', "lucterios.install", appli_name]
     if addon_modules is not None:
         module_lang_list.extend(addon_modules)
     for module_lang_item in module_lang_list:
         module_path = import_module(module_lang_item).__path__[0]
-        local_path.append(join(module_path, 'locale', ''))
+        add_locale_path(join(module_path, 'locale', ''))
         for subdir in os.listdir(module_path):
             if isdir(join(module_path, subdir)) and isdir(join(module_path, subdir, 'locale')):
-                local_path.append(join(module_path, subdir, 'locale', ''))
-    return tuple(local_path)
+                add_locale_path(join(module_path, subdir, 'locale', ''))
+    return tuple(LOCALE_PATH)
 
 
 def _get_extra(module_to_setup):
