@@ -1,4 +1,4 @@
-/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log*/
+/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC*/
 
 var ENCODE = "utf-8";
 var MANAGER_FILE = "coreIndex.php";
@@ -64,13 +64,12 @@ var HttpTransportAbstract = Class
 
 			getIconUrl : function(icon) {
 				var icon_url = get_serverurl();
-				if (icon[0]==='/') {
-					icon_url+=icon.substring(1);
+				if (icon[0] === '/') {
+					icon_url += icon.substring(1);
+				} else {
+					icon_url += icon;
 				}
-				else {
-					icon_url+=icon;
-				}
-				return icon_url ;
+				return icon_url;
 			},
 
 			transfertXMLFromServer : function(aParams) {
@@ -112,7 +111,7 @@ var HttpTransportAbstract = Class
 var HttpTransportImpl = HttpTransportAbstract.extend({
 
 	transfertFileFromServerString : function(aWebFile, aParams) {
-		var reponsetext = "", formdata = new FormData();
+		var reponsetext = "", formdata = new FormData(), error_num = -1;
 		if (aParams !== null) {
 			aParams.keys().forEach(function(key) {
 				formdata.append(key, aParams.get(key));
@@ -133,9 +132,20 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 			error : function(xhr, textStatus, errorThrown) {
 				post_log('HTTP ERROR:' + xhr.statusText + "/" + textStatus
 						+ "/" + errorThrown);
-				reponsetext = "Http error:" + errorThrown;
+				error_num = xhr.readyState;
+				reponsetext = errorThrown;
 			}
 		});
+		if (error_num !== -1) {
+			if (error_num === 0) {
+				throw new LucteriosException(IMPORTANT, Singleton()
+						.getTranslate('Lost connection!'), aWebFile,
+						reponsetext);
+			} else {
+				throw new LucteriosException(CRITIC, 'Http error', aWebFile,
+						reponsetext);
+			}
+		}
 		return reponsetext;
 	},
 

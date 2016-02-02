@@ -22,7 +22,8 @@ var ObserverException = ObserverAbstract
 						.convertLuctoriosFormatToHtml();
 				this.code = parseInt(
 						"0" + xml_error.getCDataOfFirstTag("CODE"), 10);
-				this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO").replace(/\{\[br\/\]\}/g, "{[newline]}");
+				this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO")
+						.replace(/\{\[br\/\]\}/g, "{[newline]}");
 				this.type = xml_error.getCDataOfFirstTag("TYPE");
 
 				this.requette = decodeURIComponent(xml_error
@@ -72,31 +73,31 @@ var ObserverException = ObserverAbstract
 			},
 
 			except_show : function() {
-				var err_title = '', image_name = '', table = [], titles = [], contents = [], extra_id, rep, pos, comp, current_gui, self;
+				var err_title = '', image_name = '', image_url = '', table = [], titles = [], contents = [], extra_id, rep, pos, comp, current_gui, self;
 				switch (this.code) {
 				case FAILURE:
 				case CRITIC:
-					image_name = "error.png";
+					image_name = "error";
 					err_title = Singleton().getTranslate('Error');
 					break;
 				case GRAVE:
 				case IMPORTANT:
-					image_name = "warning.png";
+					image_name = "warning";
 					err_title = Singleton().getTranslate('Warning');
 					break;
 				case MINOR:
-					image_name = "info.png";
+					image_name = "info";
 					err_title = Singleton().getTranslate('Information');
 					break;
 				default:
-					image_name = "error.png";
+					image_name = "error";
 					err_title = Singleton().getTranslate('Error');
 					break;
 				}
-				image_name = Singleton().Transport().getIconUrl(
-						'static/lucterios.CORE/images/' + image_name);
+				image_url = Singleton().Transport().getIconUrl(
+						'static/lucterios.CORE/images/' + image_name + '.png');
 				table[0] = [];
-				table[0][0] = new compBasic("<img src='" + image_name
+				table[0][0] = new compBasic("<img src='" + image_url
 						+ "' alt='" + image_name + "'></img>");
 				table[0][1] = new compBasic(
 						"<label style='max-width:800px;overflow:auto;'><b>"

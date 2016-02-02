@@ -130,6 +130,20 @@ DEFAULT_SETTINGS = {
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
     'DEFAULT_PAGE': '/web/index.html',
     'LANGUAGES': DEFAULT_LANGUAGES,
+    'LOGGING': {
+        'version': 1, 'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'ERROR',
+                'class': 'logging.FileHandler',
+                'filename': 'error.log',
+            },
+        },
+        'loggers': {
+            'django': {'handlers': ['file'], 'level': 'ERROR', 'propagate': True},
+            'lucterios': {'handlers': ['file'], 'level': 'ERROR', 'propagate': True},
+        },
+    },
 }
 
 LOCALE_PATH = []
@@ -172,6 +186,13 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         if key_name not in extra_setting.keys():
             setattr(module_to_setup, key_name, setting_value)
+    my_log = getattr(module_to_setup, 'LOGGING', {})
+    try:
+        if my_log['handlers']['file']['filename'] == 'error.log':
+            my_log['handlers']['file'][
+                'filename'] = join(setup_path, 'error.log')
+    except KeyError:
+        pass
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
     if not hasattr(module_to_setup, "MEDIA_ROOT"):
         setattr(module_to_setup, "MEDIA_ROOT", join(setup_path, 'usr'))

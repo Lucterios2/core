@@ -55,6 +55,7 @@ g_translation.fr.put("This field is needed!", "Ce champ est obligatoire!");
 g_translation.fr.put("The field '{0}' is needed!",
 		"Le champ '{0}' est obligatoire!");
 g_translation.fr.put("Invalid format!", "Format invalide!");
+g_translation.fr.put("Lost connection!", "Connexion perdue!");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -105,3 +106,4 @@ g_translation.en.put("This field is needed!", "This field is needed!");
 g_translation.en
 		.put("The field '{0}' is needed!", "The field '{0}' is needed!");
 g_translation.en.put("Invalid format!", "Invalid format!");
+g_translation.en.put("Lost connection!", "Lost connection!");

@@ -41,6 +41,7 @@ from django.utils import six
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
     setup_from_none
 from lucterios.install.lucterios_migration import MigrateFromV1
+from lucterios.framework.settings import get_lan_ip
 from os.path import join, dirname
 
 FIRST_HTTP_PORT = 8100
@@ -97,6 +98,7 @@ class RunServer(object):
     def __init__(self, instance_name, port):
         self.instance_name = instance_name
         self.port = port
+        self.lan_ip = get_lan_ip()
         self.process = None
         self.out = None
 
@@ -113,7 +115,8 @@ class RunServer(object):
         self.open_url()
 
     def open_url(self):
-        webbrowser.open_new("http://127.0.0.1:%d" % self.port)
+        webbrowser.open_new("http://%(ip)s:%(port)d" %
+                            {'ip': self.lan_ip, 'port': self.port})
 
     def stop(self):
         if self.is_running():
@@ -369,6 +372,7 @@ class LucteriosMainForm(Tk):
         self.grid_rowconfigure(0, weight=1)
         self.running_instance = {}
         self.resizable(True, True)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.ntbk = ttk.Notebook(self)
         self.ntbk.grid(row=0, column=0, columnspan=1, sticky=(N, S, E, W))
@@ -391,8 +395,17 @@ class LucteriosMainForm(Tk):
             self.btnframe, text=ugettext("Search upgrade"), width=20, command=self.upgrade)
         self.btnupgrade.config(state=DISABLED)
         self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
-        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.destroy).grid(
+        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.on_closing).grid(
             row=0, column=2, padx=3, pady=3, sticky=(N, S))
+
+    def on_closing(self):
+        all_stop = True
+        instance_names = list(self.running_instance.keys())
+        for old_item in instance_names:
+            if (self.running_instance[old_item] is not None) and self.running_instance[old_item].is_running():
+                all_stop = False
+        if all_stop or askokcancel(None, ugettext("An instance is always running.\nDo you want to close?")):
+            self.destroy()
 
     def destroy(self):
         instance_names = list(self.running_instance.keys())
@@ -593,7 +606,7 @@ class LucteriosMainForm(Tk):
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
                         self.instance_txt.insert(END, ugettext(
-                            "=> Running in http://127.0.0.1:%s\n") % six.text_type(self.running_instance[instance_name].port))
+                            "=> Running in http://%(ip)s:%(port)d\n") % {'ip': six.text_type(self.running_instance[instance_name].lan_ip), 'port': six.text_type(self.running_instance[instance_name].port)})
                         self.btninstframe.winfo_children()[0]["text"] = ugettext(
                             "Stop")
                     else:
@@ -715,7 +728,7 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
         if file_name[-4:] == '.bkf':
-            rest_inst = MigrateFromV1(instance_name)
+            rest_inst = MigrateFromV1(instance_name, withlog=True)
         else:
             rest_inst = LucteriosInstance(instance_name)
         rest_inst.filename = file_name
@@ -725,7 +738,6 @@ class LucteriosMainForm(Tk):
         else:
             showerror(
                 ugettext("Lucterios installer"), ugettext("Instance not restored!"))
-
         self.refresh(instance_name)
 
     def restore_inst(self):

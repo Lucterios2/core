@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"POT-Creation-Date: 2016-02-01 16:56+0000\n"
 "PO-Revision-Date: 2016-01-11 22:43+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
@@ -46,70 +46,6 @@ msgstr "Les mots de passes sont différents!"
 #: editors.py:153
 msgid "saved criteria"
 msgstr "critère sauvegardé"
-
-#: help/01_password.html:2
-msgid "01_password.html"
-msgstr "Mot de passe"
-
-#: help/01_password.html:4
-msgid "help-password-intro"
-msgstr ""
-"<p>Le menu <i>Général/Mot de passe</i> vous permet de changer le mot de "
-"passe d'accès de l'utilisateur courant.</p>"
-
-#: help/01_password.html:8
-msgid "help-password-security"
-msgstr ""
-"<p>Pour plus de sécurité, nous vous conseillons d'utiliser un mot de passe "
-"comprenant des lettres et des chiffres et ne constituant pas un mot "
-"compréhensible.</p>"
-
-#: help/02_groups.html:2
-msgid "02_groups.html"
-msgstr "Les groupes"
-
-#: help/02_groups.html:4
-msgid "help-groups-intro"
-msgstr ""
-"<p>Le menu <i>Administration/Gestion des Droits/Les groupes<i> vous permet "
-"de créer, modifier ou supprimer un groupe de droits.</p>"
-
-#: help/02_groups.html:8
-msgid "help-groups-detail"
-msgstr ""
-"<p>Un groupe de droits réunit un ensemble d'autorisations aux actions de "
-"l'application.</p>"
-
-#: help/03_users.html:2
-msgid "03_users.html"
-msgstr "Les utilisateurs"
-
-#: help/03_users.html:4
-msgid "help-users-intro"
-msgstr ""
-"<p>Le menu <i>Administration/Gestion des Droits/Les utilisateurs</i> vous "
-"permet de créer, modifier ou désactiver un utilisateur de l'application. Un "
-"utilisateur définit un droit de connexion au logiciel.</p>"
-
-#: help/03_users.html:8
-msgid "help-users-ended"
-msgstr ""
-"<p>Depuis cette liste, vous pouvez créer ou modifier l'utilisateur: son "
-"alias, son nom et son mot de passe. A cela, vous lui ajouter des groupes et "
-"des permissions suplémentaires éventuelles afin de définir son niveau "
-"d'accès au logiciel. Vous pouvez aussi désactiver un utilisateur pour lui "
-"interdire l'accès à l'application. </p>"
-
-#: help/04_architecture.html:2
-msgid "04_architecture.html"
-msgstr "L'architecture"
-
-#: help/04_architecture.html:4
-msgid "help-archi-intro"
-msgstr ""
-"<p>Depuis le commencement de ce logiciel, les développeurs ont voulu que "
-"cette application puisse avoir une architecture ouverte permettant des "
-"évolutions les plus larges.</p>"
 
 #: migrations/0001_initial.py:49
 msgid "CORE-GUID"
@@ -681,3 +617,56 @@ msgstr "Gérer les sessions."
 #: views_usergroup.py:195
 msgid "Sessions"
 msgstr "Sessions"
+
+#~ msgid "01_password.html"
+#~ msgstr "Mot de passe"
+
+#~ msgid "help-password-intro"
+#~ msgstr ""
+#~ "<p>Le menu <i>Général/Mot de passe</i> vous permet de changer le mot de "
+#~ "passe d'accès de l'utilisateur courant.</p>"
+
+#~ msgid "help-password-security"
+#~ msgstr ""
+#~ "<p>Pour plus de sécurité, nous vous conseillons d'utiliser un mot de "
+#~ "passe comprenant des lettres et des chiffres et ne constituant pas un mot "
+#~ "compréhensible.</p>"
+
+#~ msgid "02_groups.html"
+#~ msgstr "Les groupes"
+
+#~ msgid "help-groups-intro"
+#~ msgstr ""
+#~ "<p>Le menu <i>Administration/Gestion des Droits/Les groupes<i> vous "
+#~ "permet de créer, modifier ou supprimer un groupe de droits.</p>"
+
+#~ msgid "help-groups-detail"
+#~ msgstr ""
+#~ "<p>Un groupe de droits réunit un ensemble d'autorisations aux actions de "
+#~ "l'application.</p>"
+
+#~ msgid "03_users.html"
+#~ msgstr "Les utilisateurs"
+
+#~ msgid "help-users-intro"
+#~ msgstr ""
+#~ "<p>Le menu <i>Administration/Gestion des Droits/Les utilisateurs</i> vous "
+#~ "permet de créer, modifier ou désactiver un utilisateur de l'application. "
+#~ "Un utilisateur définit un droit de connexion au logiciel.</p>"
+
+#~ msgid "help-users-ended"
+#~ msgstr ""
+#~ "<p>Depuis cette liste, vous pouvez créer ou modifier l'utilisateur: son "
+#~ "alias, son nom et son mot de passe. A cela, vous lui ajouter des groupes "
+#~ "et des permissions suplémentaires éventuelles afin de définir son niveau "
+#~ "d'accès au logiciel. Vous pouvez aussi désactiver un utilisateur pour lui "
+#~ "interdire l'accès à l'application. </p>"
+
+#~ msgid "04_architecture.html"
+#~ msgstr "L'architecture"
+
+#~ msgid "help-archi-intro"
+#~ msgstr ""
+#~ "<p>Depuis le commencement de ce logiciel, les développeurs ont voulu que "
+#~ "cette application puisse avoir une architecture ouverte permettant des "
+#~ "évolutions les plus larges.</p>"

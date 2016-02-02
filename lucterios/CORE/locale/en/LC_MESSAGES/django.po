@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"POT-Creation-Date: 2016-02-01 16:56+0000\n"
 "PO-Revision-Date: 2015-09-17 15:53+0000\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -45,67 +45,6 @@ msgstr "Passwords are differents!"
 #: editors.py:153
 msgid "saved criteria"
 msgstr "saved criteria"
-
-#: help/01_password.html:2
-msgid "01_password.html"
-msgstr "Password"
-
-#: help/01_password.html:4
-msgid "help-password-intro"
-msgstr ""
-"<p>The <i>General/Password</i> allows you to change the access password of "
-"the current user.</p>"
-
-#: help/01_password.html:8
-msgid "help-password-security"
-msgstr ""
-"<p>For more security, we recommend that you use a password consisting of "
-"letters and numbers and not being an understandable word.</p>"
-
-#: help/02_groups.html:2
-msgid "02_groups.html"
-msgstr "Groups"
-
-#: help/02_groups.html:4
-msgid "help-groups-intro"
-msgstr ""
-"<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify or "
-"delete a rights group.</p>"
-
-#: help/02_groups.html:8
-msgid "help-groups-detail"
-msgstr ""
-"<p> Rights group brings together a set of permissions to the actions of the "
-"application.</p>"
-
-#: help/03_users.html:2
-msgid "03_users.html"
-msgstr "Users"
-
-#: help/03_users.html:4
-msgid "help-users-intro"
-msgstr ""
-"<p>The <i>Management/Rights manage/Users</i> allows you to create, modify, "
-"or disable an application user. A user defines a connection right to the "
-"software.</p>"
-
-#: help/03_users.html:8
-msgid "help-users-ended"
-msgstr ""
-"<p>On this list, you can create or edit the user: his alias, his name and "
-"his password. You can add groups and additional permissions to define the "
-"access level to the software. You can also disable a user for him prohibit "
-"access to the application</p>"
-
-#: help/04_architecture.html:2
-msgid "04_architecture.html"
-msgstr "Architecture"
-
-#: help/04_architecture.html:4
-msgid "help-archi-intro"
-msgstr ""
-"<p>Since the beginning of this software, the developers wanted this "
-"application can have an open architecture allowing the widest devolution.</p>"
 
 #: migrations/0001_initial.py:49
 msgid "CORE-GUID"
@@ -677,3 +616,54 @@ msgstr "Manage session."
 #: views_usergroup.py:195
 msgid "Sessions"
 msgstr "Sessions"
+
+#~ msgid "01_password.html"
+#~ msgstr "Password"
+
+#~ msgid "help-password-intro"
+#~ msgstr ""
+#~ "<p>The <i>General/Password</i> allows you to change the access password "
+#~ "of the current user.</p>"
+
+#~ msgid "help-password-security"
+#~ msgstr ""
+#~ "<p>For more security, we recommend that you use a password consisting of "
+#~ "letters and numbers and not being an understandable word.</p>"
+
+#~ msgid "02_groups.html"
+#~ msgstr "Groups"
+
+#~ msgid "help-groups-intro"
+#~ msgstr ""
+#~ "<p>The <i>Management/Rights manage/Groups</i> allow you to create, modify "
+#~ "or delete a rights group.</p>"
+
+#~ msgid "help-groups-detail"
+#~ msgstr ""
+#~ "<p> Rights group brings together a set of permissions to the actions of "
+#~ "the application.</p>"
+
+#~ msgid "03_users.html"
+#~ msgstr "Users"
+
+#~ msgid "help-users-intro"
+#~ msgstr ""
+#~ "<p>The <i>Management/Rights manage/Users</i> allows you to create, "
+#~ "modify, or disable an application user. A user defines a connection right "
+#~ "to the software.</p>"
+
+#~ msgid "help-users-ended"
+#~ msgstr ""
+#~ "<p>On this list, you can create or edit the user: his alias, his name and "
+#~ "his password. You can add groups and additional permissions to define the "
+#~ "access level to the software. You can also disable a user for him "
+#~ "prohibit access to the application</p>"
+
+#~ msgid "04_architecture.html"
+#~ msgstr "Architecture"
+
+#~ msgid "help-archi-intro"
+#~ msgstr ""
+#~ "<p>Since the beginning of this software, the developers wanted this "
+#~ "application can have an open architecture allowing the widest devolution."
+#~ "</p>"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-01-08 16:09+0000\n"
+"POT-Creation-Date: 2016-02-01 16:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,18 +17,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main_docs.html:5 main_docs.html.py:113 main_help.html:148
-#: main_help.html.py:154
+#: main_docs.html:5 main_docs.html.py:112
 msgid "User manual"
 msgstr "User manual"
-
-#: main_help.html:5
-msgid "Help"
-msgstr "Help"
-
-#: main_help.html:127
-msgid "Table of content"
-msgstr "Table of content"
 
 #: models.py:71 xfergraphic.py:156
 msgid "Yes"
@@ -59,28 +50,28 @@ msgstr "sessions"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:109
+#: tools.py:131
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:111
+#: tools.py:133
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:277
+#: tools.py:306
 msgid "add"
 msgstr "add"
 
-#: tools.py:279
+#: tools.py:308
 msgid "view"
 msgstr "view"
 
-#: tools.py:281
+#: tools.py:310
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:283
+#: tools.py:312
 msgid "Can"
 msgstr "Can"
 
@@ -140,7 +131,7 @@ msgstr "Do you want delete those %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:160
+#: xferbasic.py:151
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -223,6 +214,12 @@ msgstr "or"
 #: xfersearch.py:59
 msgid "and"
 msgstr "and"
+
+#~ msgid "Help"
+#~ msgstr "Help"
+
+#~ msgid "Table of content"
+#~ msgstr "Table of content"
 
 #~ msgid "Unknown signal %s"
 #~ msgstr "Unknown signal %s"

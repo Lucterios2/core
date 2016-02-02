@@ -28,8 +28,10 @@ from __future__ import unicode_literals
 
 from os.path import join, isfile, isdir
 from os import mkdir, unlink
+import sys
+import io
 from shutil import rmtree
-from time import time
+from time import time, sleep
 from logging import getLogger
 import sqlite3
 
@@ -37,6 +39,7 @@ from django.utils import six
 from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
+from traceback import format_exc
 
 MODULE_LINKS = [('data_CORE.sql', ('lucterios.CORE',)),
                 ('data_org_lucterios_documents.sql', ('lucterios.documents',)),
@@ -58,16 +61,22 @@ def dict_factory(cursor, row):
 
 class OldDataBase(object):
 
-    def __init__(self, debug=''):
+    def __init__(self, debug='', withlog=False):
         self.db_path = ""
         self.tmp_path = ""
         self.con = None
         self.debug = debug
         self.objectlinks = {}
+        self.log_file = None
+        self.withlog = withlog
 
     def initial(self, instance_dir):
         self.db_path = join(instance_dir, 'old_database.sqlite3')
         self.tmp_path = join(instance_dir, 'tmp_resore')
+        if self.withlog:
+            self.log_file = join(instance_dir, 'last_migrate.log')
+            if isfile(self.log_file):
+                unlink(self.log_file)
         self.clear()
         mkdir(self.tmp_path)
 
@@ -75,11 +84,17 @@ class OldDataBase(object):
         return isfile(self.db_path)
 
     def clear(self):
+        self.close()
         if self.debug == '':
-            if isfile(self.db_path):
-                unlink(self.db_path)
-            if isdir(self.tmp_path):
-                rmtree(self.tmp_path)
+            for _ in range(3):
+                try:
+                    if isfile(self.db_path):
+                        unlink(self.db_path)
+                    if isdir(self.tmp_path):
+                        rmtree(self.tmp_path)
+                    break
+                except:
+                    sleep(1)
 
     def open(self, with_factory=False):
         if self.con is None:
@@ -97,7 +112,6 @@ class OldDataBase(object):
         self.con = None
 
     def read_sqlfile(self, sql_file_path):
-
         import re
         import codecs
         rigth_insert_script = []
@@ -205,11 +219,18 @@ class MigrateAbstract(object):
                 pass
 
     def print_info(self, msg, arg):
+        if self.old_db.log_file is None:
+            stdout = sys.stdout
+        else:
+            stdout = io.open(self.old_db.log_file, mode="a", encoding='utf-8')
         try:
             text = msg % arg
-            six.print_(text)
+            six.print_(text, file=stdout)
         except UnicodeEncodeError:
             pass
+        finally:
+            if self.old_db.log_file is not None:
+                stdout.close()
 
     def run(self):
         pass
@@ -217,9 +238,9 @@ class MigrateAbstract(object):
 
 class MigrateFromV1(LucteriosInstance, MigrateAbstract):
 
-    def __init__(self, name, instance_path=INSTANCE_PATH, debug=''):
+    def __init__(self, name, instance_path=INSTANCE_PATH, debug='', withlog=False):
         LucteriosInstance.__init__(self, name, instance_path)
-        MigrateAbstract.__init__(self, OldDataBase(debug))
+        MigrateAbstract.__init__(self, OldDataBase(debug, withlog))
         self.read()
         self.debug = debug
         self.filename = ""
@@ -247,6 +268,10 @@ class MigrateFromV1(LucteriosInstance, MigrateAbstract):
             migrate_class(self.old_db).run()
         except (LookupError, ImportError, AttributeError):
             self.print_info("\n=> No module %s", module_name)
+        except Exception as e:
+            self.print_info(
+                "\n#### Error '%s' ####\n%s", (six.text_type(e), format_exc()))
+            raise
 
     def restore(self):
         begin_time = time()
