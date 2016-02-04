@@ -26,12 +26,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from shutil import rmtree, move
-from os import mkdir, remove
+from shutil import move
+from os import mkdir
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
 from django.utils import six
+from time import sleep
 try:
     from importlib import reload
 except ImportError:
@@ -44,6 +45,23 @@ INSTANCE_PATH = '.'
 SECURITY_PASSWD = 'PASSWORD'
 SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
+
+
+def delete_path(path):
+    from shutil import rmtree
+    from os import remove
+    max_loop = 2
+    for loop_id in range(max_loop + 1):
+        try:
+            if isdir(path):
+                rmtree(path)
+            if isfile(path):
+                remove(path)
+            break
+        except:
+            if max_loop == loop_id:
+                raise
+            sleep(loop_id)
 
 
 def get_module_title(module_name):
@@ -477,16 +495,13 @@ class LucteriosInstance(LucteriosManage):
         if loop == 0:
             raise Exception("not clear!!")
         user_path = get_user_dir()
-        if isdir(user_path):
-            rmtree(user_path)
+        delete_path(user_path)
         self.print_info_("Instance '%s' clear." %
                          self.name)
 
     def delete(self):
-        if isdir(self.instance_dir):
-            rmtree(self.instance_dir)
-        if isfile(self.instance_conf):
-            remove(self.instance_conf)
+        delete_path(self.instance_dir)
+        delete_path(self.instance_conf)
         self.print_info_("Instance '%s' deleted." %
                          self.name)
 
@@ -683,7 +698,7 @@ class LucteriosInstance(LucteriosManage):
             user_dir = get_user_dir()
             if isdir(user_dir):
                 tar.add(user_dir, arcname="usr")
-        remove(output_filename)
+        delete_path(output_filename)
         return isfile(self.filename)
 
     def restore(self):
@@ -697,8 +712,7 @@ class LucteriosInstance(LucteriosManage):
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
         tmp_path = join(get_tmp_dir(), 'tmp_resore')
-        if isdir(tmp_path):
-            rmtree(tmp_path)
+        delete_path(tmp_path)
         mkdir(tmp_path)
         with tarfile.open(self.filename, "r:gz") as tar:
             for item in tar:
@@ -712,8 +726,7 @@ class LucteriosInstance(LucteriosManage):
             if isdir(join(tmp_path, 'usr')):
                 move(join(tmp_path, 'usr'), get_user_dir())
             success = True
-        if isdir(tmp_path):
-            rmtree(tmp_path)
+        delete_path(tmp_path)
         return success
 
 

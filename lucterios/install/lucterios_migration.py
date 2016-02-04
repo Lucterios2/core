@@ -26,19 +26,18 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from os.path import join, isfile, isdir
-from os import mkdir, unlink
+from os.path import join, isfile
+from os import mkdir
 import sys
 import io
-from shutil import rmtree
-from time import time, sleep
+from time import time
 from logging import getLogger
 import sqlite3
 
 from django.utils import six
 from django.utils.module_loading import import_module
 
-from lucterios.install.lucterios_admin import LucteriosInstance, INSTANCE_PATH
+from lucterios.install.lucterios_admin import delete_path, LucteriosInstance, INSTANCE_PATH
 from traceback import format_exc
 
 MODULE_LINKS = [('data_CORE.sql', ('lucterios.CORE',)),
@@ -75,8 +74,7 @@ class OldDataBase(object):
         self.tmp_path = join(instance_dir, 'tmp_resore')
         if self.withlog:
             self.log_file = join(instance_dir, 'last_migrate.log')
-            if isfile(self.log_file):
-                unlink(self.log_file)
+            delete_path(self.log_file)
         self.clear()
         mkdir(self.tmp_path)
 
@@ -86,15 +84,8 @@ class OldDataBase(object):
     def clear(self):
         self.close()
         if self.debug == '':
-            for _ in range(3):
-                try:
-                    if isfile(self.db_path):
-                        unlink(self.db_path)
-                    if isdir(self.tmp_path):
-                        rmtree(self.tmp_path)
-                    break
-                except:
-                    sleep(1)
+            delete_path(self.db_path)
+            delete_path(self.tmp_path)
 
     def open(self, with_factory=False):
         if self.con is None:
