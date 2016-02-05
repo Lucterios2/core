@@ -606,7 +606,7 @@ class LucteriosMainForm(Tk):
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
                         self.instance_txt.insert(END, ugettext(
-                            "=> Running in http://%(ip)s:%(port)d\n") % {'ip': six.text_type(self.running_instance[instance_name].lan_ip), 'port': six.text_type(self.running_instance[instance_name].port)})
+                            "=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[instance_name].lan_ip, 'port': self.running_instance[instance_name].port})
                         self.btninstframe.winfo_children()[0]["text"] = ugettext(
                             "Stop")
                     else:
