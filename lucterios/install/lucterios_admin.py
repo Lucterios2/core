@@ -64,6 +64,29 @@ def delete_path(path):
             sleep(loop_id)
 
 
+def clear_modules():
+    framework_classes = ()
+    import django.conf
+    if django.conf.ENVIRONMENT_VARIABLE in os.environ:
+        framework_classes = django.conf.settings.INSTALLED_APPS
+        framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
+        for template in django.conf.settings.TEMPLATES:
+            framework_classes += template['OPTIONS']['loaders']
+            framework_classes += template['OPTIONS']['context_processors']
+    module_list = list(sys.modules.keys())
+    for module_item in module_list:
+        is_in_framwork_list = False
+        if not module_item.startswith('django'):
+            for framework_class in framework_classes:
+                if module_item.startswith(framework_class):
+                    is_in_framwork_list = True
+                    break
+        else:
+            is_in_framwork_list = True
+        if is_in_framwork_list:
+            del sys.modules[module_item]
+
+
 def get_module_title(module_name):
     try:
         current_mod = import_module(module_name)
@@ -505,29 +528,6 @@ class LucteriosInstance(LucteriosManage):
         self.print_info_("Instance '%s' deleted." %
                          self.name)
 
-    def _clear_modules_(self):
-
-        framework_classes = ()
-        import django.conf
-        if django.conf.ENVIRONMENT_VARIABLE in os.environ:
-            framework_classes = django.conf.settings.INSTALLED_APPS
-            framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
-            for template in django.conf.settings.TEMPLATES:
-                framework_classes += template['OPTIONS']['loaders']
-                framework_classes += template['OPTIONS']['context_processors']
-        module_list = list(sys.modules.keys())
-        for module_item in module_list:
-            is_in_framwork_list = False
-            if not module_item.startswith('django'):
-                for framework_class in framework_classes:
-                    if module_item.startswith(framework_class):
-                        is_in_framwork_list = True
-                        break
-            else:
-                is_in_framwork_list = True
-            if is_in_framwork_list:
-                del sys.modules[module_item]
-
     def _get_db_info_(self):
 
         import django.conf
@@ -545,7 +545,7 @@ class LucteriosInstance(LucteriosManage):
             self.read()
 
     def read(self):
-        self._clear_modules_()
+        clear_modules()
         import django.conf
         if self.name == '':
             raise AdminException("Instance not precise!")
@@ -587,7 +587,7 @@ class LucteriosInstance(LucteriosManage):
     database\t%s
     modules\t%s
     extra\t%s
-""" % (self.name, self.instance_dir, self.get_appli_txt(), self.get_database_txt(), self.get_module_txt(), self.get_extra_txt()))
+    """ % (self.name, self.instance_dir, self.get_appli_txt(), self.get_database_txt(), self.get_module_txt(), self.get_extra_txt()))
         return
 
     def add(self):
@@ -798,8 +798,11 @@ def main():
 
 
 def setup_from_none():
+    clear_modules()
     from lucterios.framework.settings import fill_appli_settings
     import types
+    import gc
+    gc.collect()
     lct_modules = []
     glob = LucteriosGlobal()
     _, mod_applis, mod_modules = glob.installed()
@@ -814,7 +817,9 @@ def setup_from_none():
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
     import django
+    from django import db
     django.setup()
+    db.close_old_connections()
 
 if __name__ == '__main__':
     main()

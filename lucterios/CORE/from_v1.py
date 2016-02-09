@@ -33,40 +33,116 @@ from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.models import LucteriosGroup
 from django.utils import six
 
+PERMISSION_CODENAMES = {
+    'CORE.add_label': ('Impression', 'CORE'),
+    'CORE.delete_label': ('Impression', 'CORE'),
+    'CORE.change_label': ('Impression', 'CORE'),
+    'CORE.add_parameter': ('Modifier les paramètres généraux', 'CORE'),
+    'CORE.change_parameter': ('Modifier les paramètres généraux', 'CORE'),
+    'CORE.add_printmodel': ('Impression', 'CORE'),
+    'CORE.change_printmodel': ('Impression', 'CORE'),
+    'CORE.delete_printmodel': ('Impression', 'CORE'),
+    'auth.add_group': ('Ajouter/Modifier un groupe', 'CORE'),
+    'auth.change_group': ('Ajouter/Modifier un groupe', 'CORE'),
+    'auth.delete_group': ('Ajouter/Modifier un groupe', 'CORE'),
+    'auth.add_user': ('Ajouter/modifier un utilisateur', 'CORE'),
+    'auth.change_user': ('Ajouter/modifier un utilisateur', 'CORE'),
+    'auth.delete_user': ('Ajouter/modifier un utilisateur', 'CORE'),
+    'sessions.delete_session': ('Consultation de session de connexion', 'CORE'),
+    'sessions.change_session': ('Consultation de session de connexion', 'CORE'),
 
-PERMISSION_CODENAMES = {'add_label': ('Impression', 'CORE'), 'change_label': ('Impression', 'CORE'), 'delete_label': ('Impression', 'CORE'),
-                        'add_parameter': ('Modifier les paramètres généraux', 'CORE'), 'change_parameter': ('Consulter les paramètres généreaux', 'CORE'),
-                        'add_printmodel': ('Impression', 'CORE'), 'change_printmodel': ('Impression', 'CORE'), 'delete_printmodel': ('Impression', 'CORE'),
-                        'add_logentry': ('Paramètres généraux (avancé)', 'CORE'), 'change_logentry': ('Paramètres généraux (avancé)', 'CORE'), 'delete_logentry': ('Paramètres généraux (avancé)', 'CORE'),
-                        'add_group': ('Ajouter/Modifier un groupe', 'CORE'), 'change_group': ('Ajouter/Modifier un groupe', 'CORE'), 'delete_group': ('Ajouter/Modifier un groupe', 'CORE'),
-                        'add_permission': ('Ajouter/Modifier un groupe', 'CORE'), 'change_permission': ('Ajouter/Modifier un groupe', 'CORE'), 'delete_permission': ('Ajouter/Modifier un groupe', 'CORE'),
-                        'add_contenttype': ('Paramètres généraux (avancé)', 'CORE'), 'change_contenttype': ('Paramètres généraux (avancé)', 'CORE'), 'delete_contenttype': ('Paramètres généraux (avancé)', 'CORE'),
-                        'add_session': ('Consultation de session de connexion', 'CORE'), 'change_session': ('Consultation de session de connexion', 'CORE'), 'delete_session': ('Consultation de session de connexion', 'CORE'),
-                        'add_user': ('Ajouter/modifier un utilisateur', 'CORE'), 'change_user': ('Ajouter/modifier un utilisateur', 'CORE'), 'delete_user': ('Ajouter/modifier un utilisateur', 'CORE'),
+    'contacts.add_abstractcontact': ('Ajouter/Modifier', 'org_lucterios_contacts'),
+    'contacts.change_abstractcontact': ('Voir/Lister', 'org_lucterios_contacts'),
+    'contacts.delete_abstractcontact': ('Suppression/Fusion', 'org_lucterios_contacts'),
+    'contacts.add_postalcode': ('Gestion des paramètres', 'org_lucterios_contacts'),
+    'contacts.change_postalcode': ('Gestion des paramètres', 'org_lucterios_contacts'),
+    'contacts.add_responsability': ('Ajouter/Modifier', 'org_lucterios_contacts'),
+    'contacts.change_responsability': ('Voir/Lister', 'org_lucterios_contacts'),
+    'contacts.delete_responsability': ('Suppression/Fusion', 'org_lucterios_contacts'),
 
-                        'add_abstractcontact': ('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_abstractcontact': ('Voir/Lister', 'org_lucterios_contacts'), 'delete_abstractcontact': ('Suppression/Fusion', 'org_lucterios_contacts'),
-                        'add_postalcode': ('Gestion des paramètres', 'org_lucterios_contacts'), 'change_postalcode': ('Gestion des paramètres', 'org_lucterios_contacts'),
-                        'add_responsability': ('Ajouter/Modifier', 'org_lucterios_contacts'), 'change_responsability': ('Voir/Lister', 'org_lucterios_contacts'), 'delete_responsability': ('Suppression/Fusion', 'org_lucterios_contacts'),
+    'documents.add_document': ('Ajout/modification', 'org_lucterios_documents'),
+    'documents.change_document': ('Visualisation', 'org_lucterios_documents'),
+    'documents.delete_document': ('Supression', 'org_lucterios_documents'),
+    'documents.add_folder': ('Parametrages', 'org_lucterios_documents'),
+    'documents.change_folder': ('Parametrages', 'org_lucterios_documents'),
+    'documents.delete_folder': ('Parametrages', 'org_lucterios_documents'),
 
-                        'add_folder': ('Parametrages', 'org_lucterios_documents'), 'change_folder': ('Parametrages', 'org_lucterios_documents'), 'delete_folder': ('Parametrages', 'org_lucterios_documents'),
-                        'add_document': ('Ajout/modification', 'org_lucterios_documents'), 'change_document': ('Visualisation', 'org_lucterios_documents'), 'delete_document': ('Supression', 'org_lucterios_documents'),
+    'mailing.add_message': ('Ajouter/Modifier', 'org_lucterios_contacts'),
+    'mailing.change_message': ('Voir/Lister', 'org_lucterios_contacts'),
+    'mailing.delete_message': ('Suppression/Fusion', 'org_lucterios_contacts'),
 
-                        'add_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'), 'change_third': ('Voir/Consulter les tiers', 'fr_sdlibre_compta'), 'delete_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'),
-                        'add_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'), 'change_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'), 'delete_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'),
-                        'add_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'), 'change_chartsaccount': ('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'), 'delete_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.add_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.change_chartsaccount': ('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.delete_chartsaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.add_entryaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.change_entryaccount': ('Voir/Consulter la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.delete_entryaccount': ('Ajouter/Modifier la comptabilité', 'fr_sdlibre_compta'),
+    'accounting.add_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'),
+    'accounting.change_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'),
+    'accounting.delete_fiscalyear': ('Paramètrages', 'fr_sdlibre_compta'),
+    'accounting.add_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'),
+    'accounting.change_third': ('Voir/Consulter les tiers', 'fr_sdlibre_compta'),
+    'accounting.delete_third': ('Ajouter/Modifier les tiers', 'fr_sdlibre_compta'),
 
-                        'add_vat': ('Configuration', 'fr_sdlibre_facture'), 'change_vat': ('Configuration', 'fr_sdlibre_facture'), 'delete_vat': ('Configuration', 'fr_sdlibre_facture'),
-                        'add_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'), 'change_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'), 'delete_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'),
-                        'add_bill': ('Modification factures', 'fr_sdlibre_facture'), 'change_bill': ('Consultation factures', 'fr_sdlibre_facture'), 'delete_bill': ('Suppression factures', 'fr_sdlibre_facture'),
-                        'add_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')], 'change_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')], 'delete_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')],
-                        'add_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')], 'change_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Consultation factures', 'fr_sdlibre_facture')], 'delete_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')],
-                        'add_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')], 'change_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')], 'delete_depositsplit': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')],
+    'invoice.add_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'),
+    'invoice.change_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'),
+    'invoice.delete_article': ('Ajout/Modification articles', 'fr_sdlibre_facture'),
+    'invoice.add_bill': ('Modification factures', 'fr_sdlibre_facture'),
+    'invoice.change_bill': ('Consultation factures', 'fr_sdlibre_facture'),
+    'invoice.delete_bill': ('Suppression factures', 'fr_sdlibre_facture'),
+    'invoice.add_vat': ('Configuration', 'fr_sdlibre_facture'),
+    'invoice.change_vat': ('Configuration', 'fr_sdlibre_facture'),
+    'invoice.delete_vat': ('Configuration', 'fr_sdlibre_facture'),
 
-                        'add_set': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_set': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_set': ('Suppression', 'fr_sdlibre_copropriete'),
-                        'add_owner': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_owner': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_owner': ('Suppression', 'fr_sdlibre_copropriete'),
-                        'add_callfund': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_callfund': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_callfund': ('Suppression', 'fr_sdlibre_copropriete'),
-                        'add_expense': ('Ajout/Modification', 'fr_sdlibre_copropriete'), 'change_expense': ('Visualisation', 'fr_sdlibre_copropriete'), 'delete_expense': ('Suppression', 'fr_sdlibre_copropriete'),
-                        }
+    'payoff.add_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')],
+    'payoff.change_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')],
+    'payoff.delete_bankaccount': [('Parametrage', 'fr_sdlibre_copropriete'), ('Configuration', 'fr_sdlibre_facture')],
+    'payoff.add_depositslip': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')],
+    'payoff.change_depositslip': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')],
+    'payoff.delete_depositslip': [('Parametrage', 'fr_sdlibre_copropriete'), ('Gestion des remises de chèques', 'fr_sdlibre_facture')],
+    'payoff.add_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')],
+    'payoff.change_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Consultation factures', 'fr_sdlibre_facture')],
+    'payoff.delete_payoff': [('Parametrage', 'fr_sdlibre_copropriete'), ('Modification factures', 'fr_sdlibre_facture')],
+
+    'condominium.add_callfunds': ('Ajout/Modification', 'fr_sdlibre_copropriete'),
+    'condominium.change_callfunds': ('Visualisation', 'fr_sdlibre_copropriete'),
+    'condominium.delete_callfunds': ('Suppression', 'fr_sdlibre_copropriete'),
+    'condominium.add_expense': ('Ajout/Modification', 'fr_sdlibre_copropriete'),
+    'condominium.change_expense': ('Visualisation', 'fr_sdlibre_copropriete'),
+    'condominium.delete_expense': ('Suppression', 'fr_sdlibre_copropriete'),
+    'condominium.add_owner': ('Ajout/Modification', 'fr_sdlibre_copropriete'),
+    'condominium.change_owner': ('Visualisation', 'fr_sdlibre_copropriete'),
+    'condominium.delete_owner': ('Suppression', 'fr_sdlibre_copropriete'),
+    'condominium.add_set': ('Ajout/Modification', 'fr_sdlibre_copropriete'),
+    'condominium.change_set': ('Visualisation', 'fr_sdlibre_copropriete'),
+    'condominium.delete_set': ('Suppression', 'fr_sdlibre_copropriete'),
+
+    'member.add_activity': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.delete_activity': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.add_age': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.delete_age': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.delete_age': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.add_season': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.change_season': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.add_team': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.delete_team': ('Gestion des paramètres', 'fr_sdlibre_membres'),
+    'member.add_subscription': ('Ajouter une licence', 'fr_sdlibre_membres'),
+    'member.change_subscription': ('Ajouter une licence', 'fr_sdlibre_membres'),
+    'member.delete_subscription': ('Ajouter une licence', 'fr_sdlibre_membres'),
+    'member.add_adherent': ('Modifier/Ajouter un adhérent', 'fr_sdlibre_membres'),
+    'member.change_adherent': ('Consulter les adhérents', 'fr_sdlibre_membres'),
+    'member.delete_adherent': ('Modifier/Ajouter un adhérent', 'fr_sdlibre_membres'),
+
+    'event.add_degreetype': ('Gestion des paramètres', 'fr_sdlibre_FormationSport'),
+    'event.change_degreetype': ('Gestion des paramètres', 'fr_sdlibre_FormationSport'),
+    'event.delete_degreetype': ('Gestion des paramètres', 'fr_sdlibre_FormationSport'),
+    'event.add_degree': ('Gestion des paramètres', 'fr_sdlibre_FormationSport'),
+    'event.change_degree': ('Consultation', 'fr_sdlibre_FormationSport'),
+    'event.delete_degree': ('Gestion des paramètres', 'fr_sdlibre_FormationSport'),
+    'event.add_event': ('Modifier/Ajouter une formation', 'fr_sdlibre_FormationSport'),
+    'event.change_event': ('Consultation', 'fr_sdlibre_FormationSport'),
+    'event.delete_event': ('Modifier/Ajouter une formation', 'fr_sdlibre_FormationSport'),
+}
 
 
 class CoreMigrate(MigrateAbstract):
@@ -81,8 +157,10 @@ class CoreMigrate(MigrateAbstract):
         permissions = Permission.objects.all()
         self.permission_relation = []
         for permission in permissions:
-            if permission.codename in PERMISSION_CODENAMES.keys():
-                perm_value = PERMISSION_CODENAMES[permission.codename]
+            right_name = "%s.%s" % (
+                permission.content_type.app_label, permission.codename)
+            if right_name in PERMISSION_CODENAMES.keys():
+                perm_value = PERMISSION_CODENAMES[right_name]
                 if isinstance(perm_value[0], six.text_type):
                     perm_value = [perm_value]
                 rigth_id = None

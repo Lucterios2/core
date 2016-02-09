@@ -629,6 +629,7 @@ class LucteriosMainForm(Tk):
                     instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
+                setup_from_none()
                 self.instance_list.config(state=NORMAL)
 
     @ThreadRun
@@ -680,6 +681,7 @@ class LucteriosMainForm(Tk):
         self.refresh()
 
     def delete_inst(self):
+        setup_from_none()
         instance_name = self.get_selected_instance_name()
         if askokcancel(None, ugettext("Do you want to delete '%s'?") % instance_name):
             self.delete_inst_name(instance_name)
