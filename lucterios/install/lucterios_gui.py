@@ -237,15 +237,13 @@ class InstanceEditor(Toplevel):
             appli_id = list(self.applis[VALUES]).index(self.applis.get())
             luct_glo = LucteriosGlobal()
             current_inst_names = luct_glo.listing()
-            appli_root_name = sorted(
-                self.mod_applis)[appli_id][0].split('.')[-1]
+            appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
             default_name_idx = 1
             while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
                 default_name_idx += 1
             self.name.delete(0, END)
             self.name.insert(
                 0, appli_root_name + six.text_type(default_name_idx))
-
             mod_depended = self.mod_applis[appli_id][2]
             self.modules.select_clear(0, self.modules.size())
             for mod_idx in range(len(self.module_data)):
@@ -406,6 +404,8 @@ class LucteriosMainForm(Tk):
                 all_stop = False
         if all_stop or askokcancel(None, ugettext("An instance is always running.\nDo you want to close?")):
             self.destroy()
+        else:
+            self.refresh()
 
     def destroy(self):
         instance_names = list(self.running_instance.keys())
@@ -685,6 +685,8 @@ class LucteriosMainForm(Tk):
         instance_name = self.get_selected_instance_name()
         if askokcancel(None, ugettext("Do you want to delete '%s'?") % instance_name):
             self.delete_inst_name(instance_name)
+        else:
+            self.refresh()
 
     @ThreadRun
     def open_inst(self):

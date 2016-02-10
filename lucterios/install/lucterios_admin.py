@@ -823,6 +823,8 @@ def setup_from_none():
     module = types.ModuleType("default_setting")
     setattr(module, '__file__', "")
     setattr(module, 'SECRET_KEY', "default_setting")
+    setattr(
+        module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
     fill_appli_settings("lucterios.standard", lct_modules, module)
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
