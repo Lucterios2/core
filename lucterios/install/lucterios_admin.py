@@ -72,11 +72,14 @@ def clear_modules():
     framework_classes = ()
     import django.conf
     if django.conf.ENVIRONMENT_VARIABLE in os.environ:
-        framework_classes = django.conf.settings.INSTALLED_APPS
-        framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
-        for template in django.conf.settings.TEMPLATES:
-            framework_classes += template['OPTIONS']['loaders']
-            framework_classes += template['OPTIONS']['context_processors']
+        try:
+            framework_classes = django.conf.settings.INSTALLED_APPS
+            framework_classes += django.conf.settings.MIDDLEWARE_CLASSES
+            for template in django.conf.settings.TEMPLATES:
+                framework_classes += template['OPTIONS']['loaders']
+                framework_classes += template['OPTIONS']['context_processors']
+        except:
+            pass
     module_list = list(sys.modules.keys())
     for module_item in module_list:
         is_in_framwork_list = False
