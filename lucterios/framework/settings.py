@@ -190,7 +190,7 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     try:
         if my_log['handlers']['file']['filename'] == 'error.log':
             my_log['handlers']['file'][
-                'filename'] = join(setup_path, 'error.log')
+                'filename'] = join(dirname(setup_path), 'error.log')
     except KeyError:
         pass
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))

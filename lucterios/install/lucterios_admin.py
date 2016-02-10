@@ -47,10 +47,10 @@ SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
 
 
-def delete_path(path):
+def delete_path(path, ignore_error=False):
     from shutil import rmtree
     from os import remove
-    max_loop = 2
+    max_loop = 5
     for loop_id in range(max_loop + 1):
         try:
             if isdir(path):
@@ -60,7 +60,11 @@ def delete_path(path):
             break
         except:
             if max_loop == loop_id:
-                raise
+                if ignore_error:
+                    if isdir(path):
+                        rmtree(path, True)
+                else:
+                    raise
             sleep(loop_id)
 
 
@@ -174,8 +178,10 @@ class LucteriosGlobal(LucteriosManage):
         list_res = []
         for manage_file in os.listdir(self.instance_path):
             val = re.match(r"manage_(.+)\.py", manage_file)
-            if val is not None and isdir(join(self.instance_path, val.group(1))):
-                list_res.append(val.group(1))
+            if val is not None:
+                sub_dir = val.group(1)
+                if isdir(join(self.instance_path, sub_dir)) and isfile(join(self.instance_path, sub_dir, 'settings.py')):
+                    list_res.append(sub_dir)
         list_res.sort()
         self.print_info_("Instance listing: %s" % ",".join(list_res))
         return list_res
@@ -523,7 +529,7 @@ class LucteriosInstance(LucteriosManage):
                          self.name)
 
     def delete(self):
-        delete_path(self.instance_dir)
+        delete_path(self.instance_dir, True)
         delete_path(self.instance_conf)
         self.print_info_("Instance '%s' deleted." %
                          self.name)
@@ -541,7 +547,7 @@ class LucteriosInstance(LucteriosManage):
         return info
 
     def read_before(self):
-        if self.name != '' and isdir(self.instance_dir) and isfile(self.instance_conf):
+        if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
             self.read()
 
     def read(self):
@@ -549,7 +555,7 @@ class LucteriosInstance(LucteriosManage):
         import django.conf
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists !")
         os.environ[django.conf.ENVIRONMENT_VARIABLE] = self.setting_module_name
         if self.setting_module_name in sys.modules.keys():
@@ -593,9 +599,13 @@ class LucteriosInstance(LucteriosManage):
     def add(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if isdir(self.instance_dir) or isfile(self.instance_conf):
+        if isfile(self.setting_path) or isfile(self.instance_conf):
             raise AdminException("Instance exists yet!")
-        mkdir(self.instance_dir)
+        if isdir(self.instance_dir):
+            for file_item in os.listdir(self.instance_dir):
+                delete_path(os.path.join(self.instance_dir, file_item), True)
+        else:
+            mkdir(self.instance_dir)
         with open(join(self.instance_dir, '__init__.py'), "w") as file_py:
             file_py.write('\n')
         self.write_setting_()
@@ -617,7 +627,7 @@ class LucteriosInstance(LucteriosManage):
     def modif(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         self.clear_info_()
         self.write_setting_()
@@ -628,7 +638,7 @@ class LucteriosInstance(LucteriosManage):
     def security(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         security_param = self.extra
         self.read()
@@ -670,7 +680,7 @@ class LucteriosInstance(LucteriosManage):
     def refresh(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         self.read()
         self.print_info_("Instance '%s' refreshed." %
@@ -681,7 +691,7 @@ class LucteriosInstance(LucteriosManage):
     def archive(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
@@ -704,7 +714,7 @@ class LucteriosInstance(LucteriosManage):
     def restore(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
-        if not isdir(self.instance_dir) or not isfile(self.instance_conf):
+        if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
