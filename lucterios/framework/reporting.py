@@ -217,6 +217,8 @@ class LucteriosPDF(object):
 
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         if xmlimage.text is not None:
+            from PIL import ImageFile
+            ImageFile.LOAD_TRUNCATED_IMAGES = True
             img_content = xmlimage.text.strip()
             is_base64 = img_content[:len(BASE64_PREFIX)] == BASE64_PREFIX
             if is_base64:
@@ -227,7 +229,8 @@ class LucteriosPDF(object):
                 img = Image(img_file)
                 img.drawHeight = current_h
                 img.drawWidth = current_w
-                _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
+                _, new_current_h = img.wrapOn(
+                    self.pdf, current_w, current_h)
                 img.drawOn(
                     self.pdf, current_x, self.height - current_y - current_h)
                 self.position_y = current_y + max(new_current_h, current_h)

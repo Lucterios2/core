@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from lxml import etree
 from copy import deepcopy
 from os.path import join, dirname, isfile
+import logging
 import datetime
 import re
 
@@ -260,19 +261,33 @@ class PrintLabel(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        if isinstance(self.comp, XferCompDate):
-            self.value = datetime.date(
-                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:3]])
-        elif isinstance(self.comp, XferCompDateTime):
-            self.value = datetime.datetime(
-                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)])
-        elif isinstance(self.comp, XferCompTime):
-            self.value = datetime.time(
-                *[int(subvalue) for subvalue in re.split(r'[^\d]', self.comp.value)[:2]])
-        elif isinstance(self.comp, XferCompSelect):
-            self.value = self.comp.get_value_text()
-        else:
-            self.value = self.comp.value
+        try:
+            if isinstance(self.comp, XferCompDate):
+                if isinstance(self.comp.value, datetime.date):
+                    self.value = self.comp.value
+                else:
+                    self.value = datetime.date(
+                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))[:3]])
+            elif isinstance(self.comp, XferCompDateTime):
+                if isinstance(self.comp.value, datetime.datetime):
+                    self.value = self.comp.value
+                else:
+                    self.value = datetime.datetime(
+                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))])
+            elif isinstance(self.comp, XferCompTime):
+                if isinstance(self.comp.value, datetime.time):
+                    self.value = self.comp.value
+                else:
+                    self.value = datetime.time(
+                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))[:2]])
+            elif isinstance(self.comp, XferCompSelect):
+                self.value = self.comp.get_value_text()
+            else:
+                self.value = self.comp.value
+        except Exception as err:
+            logging.getLogger("lucterios.core.print").exception(
+                six.text_type(err))
+            self.value = six.text_type(self.comp.value)
         self.value = get_value_converted(self.value, True)
         self.size_x, size_y = get_text_size(self.value)
         self.height = 5.5 * size_y
@@ -342,6 +357,7 @@ class ReportGenerator(object):
         self.fill_attrib()
         xml_generated = etree.tostring(
             self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
+        logging.getLogger("lucterios.core.print").debug(xml_generated)
         return xml_generated
 
     def generate_report(self, request, is_csv):
