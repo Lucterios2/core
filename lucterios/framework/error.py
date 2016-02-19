@@ -52,5 +52,11 @@ def get_error_trace():
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
     res = six.text_type('')
     for item in trace:
-        res += six.text_type("%s in line %d in %s : %s{[br/]}") % item
+        try:
+            res += six.text_type("%s in line %d in %s : %s{[br/]}") % item
+        except:
+            try:
+                res += six.text_type("%s in line %d in %s : %s{[br/]}") % (item.filename, item.lineno, item.name, item.line)
+            except:
+                res += "???{[br/]}"
     return res

@@ -493,6 +493,7 @@ class LucteriosMainForm(Tk):
         if not self.has_checked:
             self._refresh_modules()
             if self.instance_list.size() == 0:
+                sleep(.5)
                 self.after_idle(self.add_inst)
 
     def _refresh_modules(self):

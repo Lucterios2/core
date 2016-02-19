@@ -193,7 +193,7 @@ class LucteriosGlobal(LucteriosManage):
         def show_list(modlist):
             res = []
             for item in modlist:
-                res.append("\t%s\t[%s]\t%s" %
+                res.append("\t%s\t[%s]\t%s" % 
                            (item[0], item[1], ",".join(item[2])))
             return "\n".join(res)
         package_list = get_package_list()
@@ -239,8 +239,11 @@ class LucteriosGlobal(LucteriosManage):
     def check(self):
         from pip import get_installed_distributions
         from pip.commands import list as list_
-        import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0
+        try:
+            import pip.utils.logging
+            pip.utils.logging._log_state.indentation = 0
+        except:
+            pass
         check_list = {}
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -277,8 +280,10 @@ class LucteriosGlobal(LucteriosManage):
     def update(self):
         from pip import get_installed_distributions
         from pip.commands import install
-        import pip.utils.logging
-        pip.utils.logging._log_state.indentation = 0
+        try:
+            import pip.utils.logging
+        except:
+            pass
         module_list = []
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -291,7 +296,7 @@ class LucteriosGlobal(LucteriosManage):
                 self.get_default_args_(['-U']))
             requirement_set = install_command.run(options, module_list)
             requirement_set.install(options)
-            self.print_info_("Modules updated: %s" %
+            self.print_info_("Modules updated: %s" % 
                              ",".join(requirement_set.successfully_installed))
             self.refresh_all()
             return True
@@ -427,10 +432,10 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('     "%s": {\n' % db_ident)
             for db_key, db_data in db_values.items():
                 if isinstance(db_data, six.string_types):
-                    file_py.write('         "%s": "%s",\n' %
+                    file_py.write('         "%s": "%s",\n' % 
                                   (db_key.upper(), db_data))
                 else:
-                    file_py.write('         "%s": %s,\n' %
+                    file_py.write('         "%s": %s,\n' % 
                                   (db_key.upper(), db_data))
             file_py.write('     },\n')
         file_py.write('}\n')
@@ -479,7 +484,7 @@ class LucteriosInstance(LucteriosManage):
                 if key != '':
                     file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
-            file_py.write('fill_appli_settings("%s", (%s)) \n' %
+            file_py.write('fill_appli_settings("%s", (%s)) \n' % 
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
@@ -528,13 +533,13 @@ class LucteriosInstance(LucteriosManage):
             raise Exception("not clear!!")
         user_path = get_user_dir()
         delete_path(user_path)
-        self.print_info_("Instance '%s' clear." %
+        self.print_info_("Instance '%s' clear." % 
                          self.name)
 
     def delete(self):
         delete_path(self.instance_dir, True)
         delete_path(self.instance_conf)
-        self.print_info_("Instance '%s' deleted." %
+        self.print_info_("Instance '%s' deleted." % 
                          self.name)
 
     def _get_db_info_(self):
@@ -623,7 +628,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write(
                 '    from django.core.management import execute_from_command_line\n')
             file_py.write('    execute_from_command_line(sys.argv)\n')
-        self.print_info_("Instance '%s' created." %
+        self.print_info_("Instance '%s' created." % 
                          self.name)
         self.refresh()
 
@@ -634,7 +639,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         self.clear_info_()
         self.write_setting_()
-        self.print_info_("Instance '%s' modified." %
+        self.print_info_("Instance '%s' modified." % 
                          self.name)
         self.refresh()
 
@@ -666,7 +671,7 @@ class LucteriosInstance(LucteriosManage):
                 username='admin')
             adm_user.set_password(passwd)
             adm_user.save()
-            self.print_info_("Admin password change in '%s'." %
+            self.print_info_("Admin password change in '%s'." % 
                              self.name)
         if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
             from lucterios.CORE.models import Parameter
@@ -677,7 +682,7 @@ class LucteriosInstance(LucteriosManage):
             db_param.save()
             Params.clear()
 
-            self.print_info_("Security mode change in '%s'." %
+            self.print_info_("Security mode change in '%s'." % 
                              self.name)
 
     def refresh(self):
@@ -686,7 +691,7 @@ class LucteriosInstance(LucteriosManage):
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         self.read()
-        self.print_info_("Instance '%s' refreshed." %
+        self.print_info_("Instance '%s' refreshed." % 
                          self.name)
         from django.core.management import call_command
         call_command('migrate', stdout=sys.stdout)
@@ -811,7 +816,8 @@ def main():
 
 
 def setup_from_none():
-    clear_modules()
+    if six.PY3:
+        clear_modules()
     from lucterios.framework.settings import fill_appli_settings
     import types
     import gc
@@ -823,7 +829,10 @@ def setup_from_none():
         lct_modules.append(mod_item[0])
     for mod_item in mod_modules:
         lct_modules.append(mod_item[0])
-    module = types.ModuleType("default_setting")
+    try:
+        module = types.ModuleType("default_setting")
+    except TypeError:
+        module = types.ModuleType(six.binary_type("default_setting"))
     setattr(module, '__file__', "")
     setattr(module, 'SECRET_KEY', "default_setting")
     setattr(
