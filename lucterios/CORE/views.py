@@ -49,6 +49,7 @@ from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
 from django.apps.registry import apps
+from lucterios.framework.signal_and_lock import Signal
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub(
@@ -232,6 +233,7 @@ class ParamSave(XferContainerAcknowledge):
             pvalue = self.getparam(pname)
             Parameter.change_value(pname, pvalue)
         Params.clear()
+        Signal.call_signal("param_change", params)
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
                    _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
