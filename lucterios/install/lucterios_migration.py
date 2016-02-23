@@ -68,6 +68,7 @@ class OldDataBase(object):
         self.objectlinks = {}
         self.log_file = None
         self.withlog = withlog
+        self.cursors = []
 
     def initial(self, instance_dir):
         self.db_path = join(instance_dir, 'old_database.sqlite3')
@@ -95,9 +96,17 @@ class OldDataBase(object):
         else:
 
             self.con.row_factory = None
-        return self.con.cursor()
+        new_cursor = self.con.cursor()
+        self.cursors.append(new_cursor)
+        return new_cursor
 
     def close(self):
+        for old_cursor in self.cursors:
+            try:
+                old_cursor.close()
+            except:
+                pass
+        self.cursors = []
         if self.con is not None:
             self.con.close()
         self.con = None
