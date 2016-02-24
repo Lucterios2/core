@@ -29,7 +29,7 @@ from lxml.etree import XMLSyntaxError
 from base64 import b64encode, b64decode
 from os.path import join, exists, dirname, isfile
 from os import makedirs, environ
-from Crypto.Hash.MD5 import MD5Hash
+from Crypto.Hash.MD5 import new
 from _io import BytesIO
 import io
 
@@ -73,7 +73,7 @@ def get_user_dir():
 
 def md5sum(filename):
     full_path = join(get_user_dir(), filename)
-    return MD5Hash.new(open(full_path, 'rb').read).hexdigest()
+    return new(open(full_path, 'rb').read()).hexdigest()
 
 
 def get_user_path(rootpath, filename):
@@ -94,8 +94,7 @@ def readimage_to_base64(file_path, with_prefix=True):
 def save_from_base64(base64stream):
     if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
         stream = base64stream[len(BASE64_PREFIX):]
-        md_hash = MD5Hash.new(stream)
-        file_name = md_hash.hexdigest() + ".jpg"
+        file_name = new(stream).hexdigest() + ".jpg"
     else:
         file_name, stream = base64stream.split(";")
     file_path = join(get_tmp_dir(), file_name)
