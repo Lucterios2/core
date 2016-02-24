@@ -193,6 +193,10 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
                 'filename'] = join(dirname(setup_path), 'error.log')
     except KeyError:
         pass
+    my_database = getattr(module_to_setup, 'DATABASES', {})
+    if ('default' in my_database.keys()):
+        if 'ATOMIC_REQUESTS' not in my_database['default']:
+            my_database['default']['ATOMIC_REQUESTS'] = True
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
     if not hasattr(module_to_setup, "MEDIA_ROOT"):
         setattr(module_to_setup, "MEDIA_ROOT", join(setup_path, 'usr'))
