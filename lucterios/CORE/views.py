@@ -44,7 +44,8 @@ from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, 
     XferCompMemo, XferCompFloat, XferCompXML
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.filetools import get_user_dir, xml_validator, read_file
+from lucterios.framework.filetools import get_user_dir, xml_validator, read_file,\
+    md5sum
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
@@ -86,6 +87,9 @@ class Download(XferContainerAbstract):
             get_user_dir(), six.text_type(self.getparam('filename')))
         if not isfile(full_path):
             raise LucteriosException(IMPORTANT, _("File not found!"))
+        sign = self.getparam('sign', '')
+        if sign != md5sum(full_path):
+            raise LucteriosException(IMPORTANT, _("File invalid!"))
         content_type, encoding = mimetypes.guess_type(full_path)
         content_type = content_type or 'application/octet-stream'
         statobj = os.stat(full_path)

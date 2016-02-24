@@ -71,6 +71,11 @@ def get_user_dir():
     return settings.MEDIA_ROOT
 
 
+def md5sum(filename):
+    full_path = join(get_user_dir(), filename)
+    return MD5Hash.new(open(full_path, 'rb').read).hexdigest()
+
+
 def get_user_path(rootpath, filename):
     root_path = join(get_user_dir(), rootpath)
     if not exists(root_path):

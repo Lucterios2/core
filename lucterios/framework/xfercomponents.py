@@ -35,7 +35,7 @@ from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, S
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 from lucterios.framework.xferbasic import NULL_VALUE
-from lucterios.framework.error import LucteriosException
+from lucterios.framework.filetools import md5sum
 
 
 class XferComponent(object):
@@ -613,6 +613,11 @@ class XferCompDownLoad(XferCompButton):
 
     def set_filename(self, filename):
         self.filename = six.text_type(filename).strip()
+
+    def set_download(self, filename):
+        sign_value = md5sum(filename)
+        self.set_filename(
+            "CORE/download?filename=%s&sign=%s" % (filename, sign_value))
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)

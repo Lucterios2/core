@@ -121,9 +121,15 @@ class XferContainerAbstract(View):
                     else:
                         param_value = float(param_value)
                 elif isinstance(default_value, tuple):
-                    param_value = tuple(param_value.split(';'))
+                    if param_value == '':
+                        param_value = ()
+                    else:
+                        param_value = tuple(param_value.split(';'))
                 elif isinstance(default_value, list):
-                    param_value = param_value.split(';')
+                    if param_value == '':
+                        param_value = []
+                    else:
+                        param_value = param_value.split(';')
             except ValueError:
                 param_value = default_value
             return param_value
