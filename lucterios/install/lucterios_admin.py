@@ -488,7 +488,7 @@ class LucteriosInstance(LucteriosManage):
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
-    def clear(self, only_delete=False):
+    def clear(self, only_delete=False, ignore_db=None):
         self.read()
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
@@ -504,7 +504,8 @@ class LucteriosInstance(LucteriosManage):
             else:
                 sql_cmd = 'DROP TABLE IF EXISTS %s %s;'
             try:
-                connection.cursor().execute('SET foreign_key_checks = 0;')
+                with connection.cursor() as curs:
+                    curs.execute('SET foreign_key_checks = 0;')
             except:
                 option = 'CASCADE'
         loop = 10
@@ -513,20 +514,24 @@ class LucteriosInstance(LucteriosManage):
             tables.sort()
             no_error = True
             for table in tables:
-                try:
+                if (ignore_db is None) or (table not in ignore_db):
                     try:
-                        connection.cursor().execute(sql_cmd % (table, option))
+                        try:
+                            with connection.cursor() as curs:
+                                curs.execute(sql_cmd % (table, option))
+                        except:
+                            with connection.cursor() as curs:
+                                curs.execute(sql_cmd % (table, ''))
                     except:
-                        connection.cursor().execute(sql_cmd % (table, ''))
-                except:
-                    no_error = False
+                        no_error = False
             if no_error:
                 loop = -1
             else:
                 loop -= 1
         if self.database[0] != 'postgresql':
             try:
-                connection.cursor().execute('SET foreign_key_checks = 1;')
+                with connection.cursor() as curs:
+                    curs.execute('SET foreign_key_checks = 1;')
             except:
                 pass
         if loop == 0:
@@ -705,19 +710,84 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Archive file not precise!")
         self.read()
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
-        output_filename = join(get_tmp_dir(), 'dump.json')
         from django.core.management import call_command
-        # Point stdout at a file for dumping data to.
+        from django.db import connection
+        output_filename = join(get_tmp_dir(), 'dump.json')
         with open(output_filename, 'w') as output:
             call_command('dumpdata', stdout=output)
+        target_filename = join(get_tmp_dir(), 'target')
+        with open(target_filename, 'w') as output:
+            with connection.cursor() as curs:
+                curs.execute(
+                    "SELECT app,name FROM django_migrations ORDER BY applied")
+                output.write(six.text_type(curs.fetchall()))
         import tarfile
         with tarfile.open(self.filename, "w:gz") as tar:
             tar.add(output_filename, arcname="dump.json")
+            tar.add(target_filename, arcname="target")
             user_dir = get_user_dir()
             if isdir(user_dir):
                 tar.add(user_dir, arcname="usr")
+        delete_path(target_filename)
         delete_path(output_filename)
         return isfile(self.filename)
+
+    def _migrate_from_old_targets(self, tmp_path):
+        target_filename = join(tmp_path, 'target')
+        if isfile(target_filename):
+            with open(target_filename, 'r') as output:
+                old_targets = eval(output.read())
+        else:
+            old_targets = [('contenttypes', '0001_initial'),
+                           ('auth', '0001_initial'),
+                           ('CORE', '0001_initial'),
+                           ('CORE', '0002_savedcriteria'),
+                           ('CORE', '0003_printmodel_mode'),
+                           ('contacts', '0001_initial'),
+                           ('accounting', '0001_initial'),
+                           ('admin', '0001_initial'),
+                           ('admin', '0002_logentry_remove_auto_add'),
+                           ('contenttypes', '0002_remove_content_type_name'),
+                           ('auth', '0002_alter_permission_name_max_length'),
+                           ('auth', '0003_alter_user_email_max_length'),
+                           ('auth', '0004_alter_user_username_opts'),
+                           ('auth', '0005_alter_user_last_login_null'),
+                           ('auth', '0006_require_contenttypes_0002'),
+                           ('auth',
+                            '0007_alter_validators_add_error_messages'),
+                           ('payoff', '0001_initial'),
+                           ('condominium', '0001_initial'),
+                           ('documents', '0001_initial'),
+                           ('sessions', '0001_initial'),
+                           ('framework', '0001_initial'), ('syndic', '0001_initial')]
+
+        if "sqlite3" in self.databases['default']['ENGINE']:
+            delete_path(self.databases['default']['NAME'])
+            self.read()
+        else:
+            self.clear(False)
+
+        from django.db import DEFAULT_DB_ALIAS, connections
+        from django.apps import apps
+        from django.utils.module_loading import module_has_submodule
+        from django.db.migrations.executor import MigrationExecutor
+        from django.core.management.sql import emit_pre_migrate_signal, emit_post_migrate_signal
+
+        for app_config in apps.get_app_configs():
+            if module_has_submodule(app_config.module, "management"):
+                import_module('.management', app_config.name)
+
+        connection = connections[DEFAULT_DB_ALIAS]
+        connection.prepare_database()
+        executor = MigrationExecutor(connection)
+        plan = executor.migration_plan(old_targets)
+        emit_pre_migrate_signal(0, None, connection.alias)
+        if not plan:
+            executor.check_replacements()
+        else:
+            executor.migrate(old_targets, plan)
+        emit_post_migrate_signal(0, None, connection.alias)
+        self.clear(True, ['django_migrations'])
 
     def restore(self):
         if self.name == '':
@@ -738,13 +808,16 @@ class LucteriosInstance(LucteriosManage):
         output_filename = join(tmp_path, 'dump.json')
         success = False
         if isfile(output_filename):
-            self.clear(True)
+            self._migrate_from_old_targets(tmp_path)
+            self.clear_info_()
             from django.core.management import call_command
             call_command('loaddata', output_filename)
+            self.print_info_("instance restored with '%s'" % self.filename)
             if isdir(join(tmp_path, 'usr')):
                 move(join(tmp_path, 'usr'), get_user_dir())
             success = True
         delete_path(tmp_path)
+        self.refresh()
         return success
 
 
