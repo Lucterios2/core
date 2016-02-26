@@ -784,14 +784,14 @@ class LucteriosInstance(LucteriosManage):
         for app_config in apps.get_app_configs():
             if module_has_submodule(app_config.module, "management"):
                 import_module('.management', app_config.name)
-        targets = []
-        for target in old_targets:
-            if target[0] in apps.get_app_configs():
-                targets.append(target)
 
         connection = connections[DEFAULT_DB_ALIAS]
         connection.prepare_database()
         executor = MigrationExecutor(connection)
+        targets = []
+        for target in old_targets:
+            if target[0] in executor.loader.migrated_apps:
+                targets.append(target)
         plan = executor.migration_plan(targets)
         emit_pre_migrate_signal(0, None, connection.alias)
         if not plan:
