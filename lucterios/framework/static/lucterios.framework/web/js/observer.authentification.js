@@ -179,7 +179,7 @@ var ApplicationDescription = Class
 				text_html = text_html.replace("&#91;", "[");
 				text_html = text_html.replace("&#93;", "]");
 				text_html = text_html.replace("&#47;", "/");
-				text_html = text_html.replace(/(<\/td><\/tr>|<br>)/g, "\n");
+				text_html = text_html.replace(/(<\/td><\/tr>|<br>|<br\/>)/g, "\n");
 				text_html = text_html.replace(/<\/td><td>/g, " : ");
 				text_html = text_html.replace(/(<hr>|<hr\/>)/g,
 						"__________________________________________\n");
