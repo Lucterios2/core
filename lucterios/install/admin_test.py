@@ -198,7 +198,7 @@ class TestAdminSQLite(BaseTest):
                 list_file.append(tarinfo.name)
         list_file.sort()
         self.assertEqual(
-            ['dump.json', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
+            ['dump.json', 'target', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
 
         inst = LucteriosInstance("inst_f", self.path_dir)
         inst.add()

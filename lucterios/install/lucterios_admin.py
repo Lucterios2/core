@@ -756,10 +756,18 @@ class LucteriosInstance(LucteriosManage):
                            ('auth',
                             '0007_alter_validators_add_error_messages'),
                            ('payoff', '0001_initial'),
+                           ('invoice', '0001_initial'),
+                           ('member', '0001_initial'),
+                           ('member', '0002_change_activity'),
+                           ('member', '0003_change_permission'),
                            ('condominium', '0001_initial'),
                            ('documents', '0001_initial'),
+                           ('mailing', '0001_initial'),
+                           ('mailing', '0002_message'),
                            ('sessions', '0001_initial'),
-                           ('framework', '0001_initial'), ('syndic', '0001_initial')]
+                           ('framework', '0001_initial'),
+                           ('asso', '0001_initial'),
+                           ('syndic', '0001_initial')]
 
         if "sqlite3" in self.databases['default']['ENGINE']:
             delete_path(self.databases['default']['NAME'])
