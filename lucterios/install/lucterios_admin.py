@@ -770,7 +770,11 @@ class LucteriosInstance(LucteriosManage):
                            ('syndic', '0001_initial')]
 
         if "sqlite3" in self.databases['default']['ENGINE']:
-            delete_path(self.databases['default']['NAME'])
+            try:
+                delete_path(self.databases['default']['NAME'])
+            except:
+                self.clear(False)
+                setup_from_none()
             self.read()
         else:
             self.clear(False)
