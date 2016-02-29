@@ -734,10 +734,11 @@ class LucteriosInstance(LucteriosManage):
 
     def _migrate_from_old_targets(self, tmp_path):
         target_filename = join(tmp_path, 'target')
+        old_targets = []
         if isfile(target_filename):
             with open(target_filename, 'r') as output:
                 old_targets = eval(output.read())
-        else:
+        if len(old_targets) == 0:
             old_targets = [('contenttypes', '0001_initial'),
                            ('auth', '0001_initial'),
                            ('CORE', '0001_initial'),
