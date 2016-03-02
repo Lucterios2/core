@@ -206,7 +206,7 @@ class XferContainerAbstract(View):
                                 if pk_id <= 0:
                                     new_value = None
                                 else:
-                                    new_value = dep_field.rel.to.objects.get(
+                                    new_value = dep_field.remote_field.model.objects.get(
                                         pk=pk_id)
                             except ValueError:
                                 new_value = None
@@ -224,7 +224,7 @@ class XferContainerAbstract(View):
             if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
                 new_value = self.getparam(field_name)
                 if new_value is not None:
-                    relation_model = dep_field.rel.to
+                    relation_model = dep_field.remote_field.model
                     if new_value != '':
                         new_value = relation_model.objects.filter(
                             id__in=new_value.split(';'))

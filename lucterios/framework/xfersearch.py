@@ -203,9 +203,9 @@ class FieldDescItem(object):
             elif isinstance(self.dbfield, DateTimeField):
                 self.field_type = TYPE_DATETIME
             elif isinstance(self.dbfield, ForeignKey):
-                return self._init_for_list(self.dbfield.rel.to, False)
+                return self._init_for_list(self.dbfield.remote_field.model, False)
             elif isinstance(self.dbfield, ManyToManyField):
-                return self._init_for_list(self.dbfield.rel.to, True)
+                return self._init_for_list(self.dbfield.remote_field.model, True)
             elif 'RelatedManager' in self.dbfield.__class__.__name__:
                 return self._init_for_list(self.dbfield.model, False)
             else:

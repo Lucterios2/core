@@ -429,7 +429,7 @@ class XferContainerCustom(XferContainerAbstract):
             if hasattr(self.item, fieldname + '_query'):
                 sub_select = getattr(self.item, field_name + '_query')
             else:
-                sub_select = dep_field.rel.to.objects.all()
+                sub_select = dep_field.remote_field.model.objects.all()
             comp.set_needed(not dep_field.null)
             comp.set_select_query(sub_select)
         else:
@@ -609,7 +609,8 @@ class XferContainerCustom(XferContainerAbstract):
                     self.item, field_name + "__titles")
             else:
                 title_available, title_chosen = _("Available"), _("Chosen")
-            availables = get_corrected_setquery(dep_field.rel.to.objects.all())
+            availables = get_corrected_setquery(
+                dep_field.remote_field.model.objects.all())
             java_script_init, java_script_treat = self._get_scripts_for_selectors(
                 field_name, availables)
 

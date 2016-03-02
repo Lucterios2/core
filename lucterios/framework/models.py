@@ -185,7 +185,7 @@ class LucteriosModel(models.Model):
                 elif isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
                     fieldvalue = None
-                    for sub_item in dep_field.rel.to.objects.all():
+                    for sub_item in dep_field.remote_field.model.objects.all():
                         if six.text_type(sub_item) == six.text_type(sub_value):
                             fieldvalue = sub_item
                 setattr(new_item, fieldname, fieldvalue)
@@ -228,27 +228,26 @@ class LucteriosModel(models.Model):
             self, field.attname) in [None, '']])
 
         for alias_object in alias_objects:
-            for related_object in alias_object._meta.get_all_related_objects():
-                alias_varname = related_object.get_accessor_name()
-                obj_varname = related_object.field.name
-                related_objects = getattr(alias_object, alias_varname)
-                for obj in related_objects.all():
-                    setattr(obj, obj_varname, self)
-                    obj.save()
-
-            for related_many_object in alias_object._meta.get_all_related_many_to_many_objects():
-                alias_varname = related_many_object.get_accessor_name()
-                obj_varname = related_many_object.field.name
-
-                if alias_varname is not None:
-                    related_many_objects = getattr(
-                        alias_object, alias_varname).all()
-                else:
-                    related_many_objects = getattr(
-                        alias_object, obj_varname).all()
-                for obj in related_many_objects.all():
-                    getattr(obj, obj_varname).remove(alias_object)
-                    getattr(obj, obj_varname).add(self)
+            for related_object in alias_object._meta.get_fields(include_hidden=True):
+                if related_object.one_to_many and related_object.auto_created:
+                    alias_varname = related_object.get_accessor_name()
+                    obj_varname = related_object.field.name
+                    related_objects = getattr(alias_object, alias_varname)
+                    for obj in related_objects.all():
+                        setattr(obj, obj_varname, self)
+                        obj.save()
+                if related_object.many_to_many and related_object.auto_created:
+                    alias_varname = related_object.get_accessor_name()
+                    obj_varname = related_object.field.name
+                    if alias_varname is not None:
+                        related_many_objects = getattr(
+                            alias_object, alias_varname).all()
+                    else:
+                        related_many_objects = getattr(
+                            alias_object, obj_varname).all()
+                    for obj in related_many_objects.all():
+                        getattr(obj, obj_varname).remove(alias_object)
+                        getattr(obj, obj_varname).add(self)
 
             for field in generic_fields:
                 filter_kwargs = {}
@@ -277,8 +276,8 @@ class LucteriosModel(models.Model):
             current_meta = cls._meta
             for field_name in fieldnames:
                 dep_field = current_meta.get_field(field_name)
-                if hasattr(dep_field, 'rel') and (dep_field.rel is not None):
-                    current_meta = dep_field.rel.to._meta
+                if hasattr(dep_field, 'remote_field') and (dep_field.remote_field is not None):
+                    current_meta = dep_field.remote_field.model._meta
         except FieldDoesNotExist:
             dep_field = None
         return dep_field
@@ -354,7 +353,7 @@ class LucteriosModel(models.Model):
                         fields.append((field_title, field_name))
                     else:
                         add_sub_field(
-                            field_name, field_title, dep_field.rel.to)
+                            field_name, field_title, dep_field.remote_field.model)
                 except FieldDoesNotExist:
                     if hasattr(item, field_name):
                         fields.append((field_name, field_name))

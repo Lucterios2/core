@@ -28,7 +28,7 @@ from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve
 
-from os.path import join, dirname, isdir, basename
+from os.path import join, dirname, basename
 import logging
 import inspect
 import pkgutil
@@ -63,7 +63,7 @@ def _init_url_patterns():
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
     res.append(url(r'^Docs$', defaultDocs))
-    res.append(url(r'^admin/', include(admin.site.urls)))
+    res.append(url(r'^admin/', include(admin.site.get_urls(), 'admin')))
     return res
 
 
