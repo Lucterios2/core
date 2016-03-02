@@ -794,15 +794,11 @@ class LucteriosInstance(LucteriosManage):
         connection.prepare_database()
         executor = MigrationExecutor(connection)
         targets = []
-        for target in old_targets:
-            if target[0] in executor.loader.migrated_apps:
+        for target in executor.loader.graph.leaf_nodes():
+            if target in old_targets:
                 targets.append(target)
-        plan = executor.migration_plan(targets)
         emit_pre_migrate_signal(0, None, connection.alias)
-        if not plan:
-            executor.check_replacements()
-        else:
-            executor.migrate(targets, plan)
+        executor.migrate(targets)
         emit_post_migrate_signal(0, None, connection.alias)
         self.clear(True, ['django_migrations'])
 
