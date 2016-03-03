@@ -282,6 +282,7 @@ class LucteriosGlobal(LucteriosManage):
         from pip.commands import install
         try:
             import pip.utils.logging
+            pip.utils.logging._log_state.indentation = 0
         except:
             pass
         module_list = []

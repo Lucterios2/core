@@ -454,7 +454,7 @@ var compFloat = compAbstractEvent
 					return NULL_VALUE;
 				}
 				val_num = this.getGUIComp().val();
-				val_num = val_num.replace(",", ".")				
+				val_num = val_num.replace(",", ".");
 				val_num = Math.max(val_num, this.min);
 				val_num = Math.min(val_num, this.max);
 				return "{0}".format(val_num);
