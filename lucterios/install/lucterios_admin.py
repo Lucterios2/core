@@ -309,7 +309,8 @@ class LucteriosGlobal(LucteriosManage):
         instances = self.listing()
         self.clear_info_()
         for instance in instances:
-            luct = LucteriosInstance(instance)
+            luct = LucteriosInstance(
+                instance, instance_path=self.instance_path)
             luct.refresh()
             self.print_info_("Refresh %s" % instance)
         return instances
