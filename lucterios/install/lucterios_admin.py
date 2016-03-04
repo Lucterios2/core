@@ -292,15 +292,17 @@ class LucteriosGlobal(LucteriosManage):
             if (dist.key == 'lucterios') or ('lucterios' in requires):
                 module_list.append(dist.project_name)
         if len(module_list) > 0:
-            self.print_info_("Modules to update: %s" % ",".join(module_list))
-            install_command = install.InstallCommand()
-            options, _ = install_command.parse_args(
-                self.get_default_args_(['-U']))
-            requirement_set = install_command.run(options, module_list)
-            requirement_set.install(options)
-            self.print_info_("Modules updated: %s" %
-                             ",".join(requirement_set.successfully_installed))
-            self.refreshall()
+            try:
+                self.print_info_("Modules to update: %s" % ",".join(module_list))
+                install_command = install.InstallCommand()
+                options, _ = install_command.parse_args(
+                    self.get_default_args_(['-U']))
+                requirement_set = install_command.run(options, module_list)
+                requirement_set.install(options)
+                self.print_info_("Modules updated: %s" %
+                                 ",".join(requirement_set.successfully_installed))
+            finally:
+                self.refreshall()
             return True
         else:
             self.print_info_("No modules to update")

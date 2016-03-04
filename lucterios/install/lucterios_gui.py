@@ -576,16 +576,19 @@ class LucteriosMainForm(Tk):
             proc = Popen(
                 [sys.executable, admin_path, "update"], stderr=STDOUT, stdout=PIPE)
             value = proc.communicate()[0]
-            if proc.returncode == 0:
-                six.print_(value.decode('ascii'))
-                getLogger("lucterios.admin").info(value)
-                showinfo(ugettext("Lucterios installer"), ugettext(
-                    "The application must restart"))
-                python = sys.executable
-                os.execl(python, python, *sys.argv)
-            else:
+            try:
+                value = value.decode('ascii')
+            except:
+                pass
+            six.print_(value)
+            if proc.returncode != 0:
                 getLogger("lucterios.admin").error(value)
-                showerror(ugettext("Lucterios installer"), value)
+            else:
+                getLogger("lucterios.admin").info(value)
+            showinfo(ugettext("Lucterios installer"), ugettext(
+                "The application must restart"))
+            python = sys.executable
+            os.execl(python, python, *sys.argv)
         finally:
             self._refresh_modules()
             self.btnupgrade.config(state=NORMAL)
