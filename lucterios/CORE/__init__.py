@@ -33,7 +33,7 @@ def get_build():
             return flb.read()
     return "0"
 
-__version__ = "2.0.6." + get_build()
+__version__ = "2.0.7." + get_build()
 
 
 def __title__():
