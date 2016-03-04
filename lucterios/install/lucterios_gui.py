@@ -570,12 +570,22 @@ class LucteriosMainForm(Tk):
         self.btnupgrade.config(state=DISABLED)
         self.instance_list.config(state=DISABLED)
         try:
-            lct_glob = LucteriosGlobal()
-            if lct_glob.update():
+            from logging import getLogger
+            admin_path = import_module(
+                "lucterios.install.lucterios_admin").__file__
+            proc = Popen(
+                [sys.executable, admin_path, "update"], stderr=STDOUT, stdout=PIPE)
+            value = proc.communicate()[0]
+            if proc.returncode == 0:
+                six.print_(value.decode('ascii'))
+                getLogger("lucterios.admin").info(value)
                 showinfo(ugettext("Lucterios installer"), ugettext(
                     "The application must restart"))
                 python = sys.executable
                 os.execl(python, python, *sys.argv)
+            else:
+                getLogger("lucterios.admin").error(value)
+                showerror(ugettext("Lucterios installer"), value)
         finally:
             self._refresh_modules()
             self.btnupgrade.config(state=NORMAL)

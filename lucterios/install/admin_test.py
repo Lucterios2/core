@@ -75,7 +75,7 @@ class TestGlobal(BaseTest):
         self.assertEqual(False, val[1])
 
     def test_refresh_all(self):
-        self.assertEqual([], self.luct_glo.refresh_all())
+        self.assertEqual([], self.luct_glo.refreshall())
 
 
 class TestAdminSQLite(BaseTest):

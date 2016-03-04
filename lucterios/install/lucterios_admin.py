@@ -168,7 +168,8 @@ class LucteriosManage(object):
         self.msg_list.append(msg)
 
     def show_info_(self):
-        six.print_("\n".join(self.msg_list))
+        for msg_item in self.msg_list:
+            six.print_(msg_item)
 
 
 class LucteriosGlobal(LucteriosManage):
@@ -299,13 +300,13 @@ class LucteriosGlobal(LucteriosManage):
             requirement_set.install(options)
             self.print_info_("Modules updated: %s" %
                              ",".join(requirement_set.successfully_installed))
-            self.refresh_all()
+            self.refreshall()
             return True
         else:
             self.print_info_("No modules to update")
             return False
 
-    def refresh_all(self):
+    def refreshall(self):
         instances = self.listing()
         self.clear_info_()
         for instance in instances:
