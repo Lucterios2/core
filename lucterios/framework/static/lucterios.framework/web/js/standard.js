@@ -1,8 +1,18 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,g_InitialCallBack,G_Version,refreshCurrentAcideMenu*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 
-function refresh_function() {
+function clean_function() {
+	$("body > div").each(function() {
+		var id = $(this).attr('id');
+		if (id !== 'lucteriosClient') {
+			$(this).remove();
+		}
+	});
 	$("#lucteriosClient").html('<div class="waiting"/>');
+}
+
+function refresh_function() {
+	clean_function();
 	var act = Singleton().CreateAction();
 	act.initializeEx(null, Singleton().Factory(), '', 'CORE',
 			'authentification');
@@ -16,7 +26,7 @@ function refresh_function() {
 }
 
 function standard_initial() {
-	$("#lucteriosClient").html('<div class="waiting"/>');
+	clean_function();
 
 	$(document).on({
 		ajaxStart : function() {
@@ -150,7 +160,8 @@ function initial_function() {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}
 		html = "<div id='status' class='ui-widget ui-widget-content ui-corner-all'>"
-			    + "<img src='{0}' style='height:64px'>".format(Singleton().mDesc.getLogoIconName())
+				+ "<img src='{0}' style='height:64px'>"
+						.format(Singleton().mDesc.getLogoIconName())
 				+ "<label style='width:250px;margin:5px;'>"
 				+ Singleton().mDesc.getConnectUser()
 				+ "</label>"
@@ -164,8 +175,9 @@ function initial_function() {
 				+ Singleton().getTranslate("About...")
 				+ "</label>"
 				+ "<a href='{0}' target='_blank'><img src='{1}' /></a>".format(
-						Singleton().Transport().getIconUrl("Docs"), Singleton()
-								.Transport().getIconUrl('static/lucterios.CORE/images/help.png'))
+						Singleton().Transport().getIconUrl("Docs"),
+						Singleton().Transport().getIconUrl(
+								'static/lucterios.CORE/images/help.png'))
 				+ "</div>";
 		$("#lucteriosClient").append(html);
 		$("#refresh").click(refresh_function);
@@ -215,5 +227,6 @@ window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 };
 
 set_InitialCallBack(initial_function);
+set_CleanCallBack(clean_function);
 first_action();
 setInterval(refreshCurrentAcideMenu, 5 * 60 * 1000); // Watchdog 5 min

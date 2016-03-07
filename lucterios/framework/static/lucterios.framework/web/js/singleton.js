@@ -2,9 +2,18 @@
 
 var SingletonObj = null;
 var g_InitialCallBack = null;
+var g_CleanCallBack = null;
 
 function set_InitialCallBack(call_back) {
 	g_InitialCallBack = call_back;
+}
+function set_CleanCallBack(call_back) {
+	g_CleanCallBack = call_back;
+}
+function run_CleanCallBack() {
+	if (g_CleanCallBack !== null) {
+		g_CleanCallBack();
+	}
 }
 
 var FileManager = Class.extend({

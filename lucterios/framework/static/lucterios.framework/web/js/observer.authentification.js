@@ -1,4 +1,4 @@
-/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl */
+/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack */
 
 var ApplicationDescription = Class
 		.extend({
@@ -227,6 +227,7 @@ var ObserverAuthentification = ObserverAbstract
 				var cdate = this.mDomXmlContent.getTextFromXmlNode().trim(), xml_connection, desc, xml_params, param_idx;
 				if (cdate !== "OK") {
 					Singleton().Transport().setSession("");
+					run_CleanCallBack();
 					this.show_logon(cdate);
 					this.refreshMenu = true;
 				} else {
