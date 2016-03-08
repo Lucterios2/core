@@ -23,11 +23,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+import threading
+import logging
+
 from django.utils.translation import ugettext_lazy as _
-from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from django.utils import six
 from django.core.exceptions import ObjectDoesNotExist
-import threading
+
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.models import LucteriosSession
 
 
@@ -40,6 +43,8 @@ class Signal(object):
     @classmethod
     def decorate(cls, name):
         def wrapper(item):
+            logging.getLogger("lucterios.core.signal").debug(
+                ">> decorate %s", name)
             cls._signlock.acquire()
             try:
                 if name not in cls._SIGNAL_LIST.keys():
@@ -48,11 +53,15 @@ class Signal(object):
                 return item
             finally:
                 cls._signlock.release()
+                logging.getLogger("lucterios.core.signal").debug(
+                    "<< decorate %s", name)
         return wrapper
 
     @classmethod
     def call_signal(cls, name, *args):
         nb_call = 0
+        logging.getLogger("lucterios.core.signal").debug(
+            ">> call_signal %s", name)
         cls._signlock.acquire()
         try:
             if name in cls._SIGNAL_LIST.keys():
@@ -61,6 +70,8 @@ class Signal(object):
                         nb_call += 1
         finally:
             cls._signlock.release()
+        logging.getLogger("lucterios.core.signal").debug(
+            "<< call_signal %s", name)
         return nb_call
 
 unlocker_view_class = None
@@ -74,14 +85,18 @@ class RecordLocker(object):
 
     @classmethod
     def clear(cls):
+        logging.getLogger("lucterios.core.record").debug(">> clear")
         cls._lock.acquire()
         try:
             cls._lock_list = {}
         finally:
             cls._lock.release()
+        logging.getLogger("lucterios.core.record").debug("<< clear")
 
     @classmethod
     def lock(cls, request, model_item):
+        logging.getLogger("lucterios.core.record").debug(
+            ">> lock [%s] %s", request.user, model_item)
         cls._lock.acquire()
         try:
             params = {}
@@ -105,9 +120,13 @@ class RecordLocker(object):
             return params
         finally:
             cls._lock.release()
+        logging.getLogger("lucterios.core.record").debug(
+            "<< lock [%s] %s", request.user, model_item)
 
     @classmethod
     def is_lock(cls, model_item):
+        logging.getLogger("lucterios.core.record").debug(
+            ">> is_lock %s", model_item)
         cls._lock.acquire()
         try:
             lock_ident = "-".join((six.text_type(model_item.__module__),
@@ -115,6 +134,8 @@ class RecordLocker(object):
             return lock_ident in cls._lock_list.keys()
         finally:
             cls._lock.release()
+        logging.getLogger("lucterios.core.record").debug(
+            "<< is_lock %s", model_item)
 
     @classmethod
     def unlock(cls, request, params):
