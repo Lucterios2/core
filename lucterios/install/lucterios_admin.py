@@ -214,11 +214,10 @@ class LucteriosGlobal(LucteriosManage):
         return mod_lucterios, mod_applis, mod_modules
 
     def get_default_args_(self, other_args):
-
         import logging
         logging.captureWarnings(True)
-        args = ['--quiet']
-        args.extend(other_args)
+        args = list(other_args)
+        args.append('--quiet')
         if 'http_proxy' in os.environ.keys():
             args.append('--proxy=' + os.environ['http_proxy'])
         if 'extra_url' in os.environ.keys():
@@ -279,28 +278,24 @@ class LucteriosGlobal(LucteriosManage):
         return check_list, must_upgrade
 
     def update(self):
-        from pip import get_installed_distributions
-        from pip.commands import install
+        import pip
         try:
             import pip.utils.logging
             pip.utils.logging._log_state.indentation = 0
         except:
             pass
         module_list = []
-        for dist in get_installed_distributions():
+        for dist in pip.get_installed_distributions():
             requires = [req.key for req in dist.requires()]
             if (dist.key == 'lucterios') or ('lucterios' in requires):
                 module_list.append(dist.project_name)
         if len(module_list) > 0:
             try:
-                self.print_info_("Modules to update: %s" % ",".join(module_list))
-                install_command = install.InstallCommand()
-                options, _ = install_command.parse_args(
-                    self.get_default_args_(['-U']))
-                requirement_set = install_command.run(options, module_list)
-                requirement_set.install(options)
-                self.print_info_("Modules updated: %s" %
-                                 ",".join(requirement_set.successfully_installed))
+                self.print_info_("Modules to update: %s" %
+                                 ",".join(module_list))
+                options = self.get_default_args_(['install', '-U'])
+                options.extend(module_list)
+                pip.main(options)
             finally:
                 self.refreshall()
             return True
