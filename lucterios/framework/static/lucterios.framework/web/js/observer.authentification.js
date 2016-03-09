@@ -14,6 +14,7 @@ var ApplicationDescription = Class
 			mSupportEmail : '',
 			mSubTitle : '',
 			mRealName : '',
+			mInstanceName : '',
 			mMode : 0,
 
 			init : function(aTitle, aCopyRigth, aAppliVersion,
@@ -39,7 +40,10 @@ var ApplicationDescription = Class
 			getConnectUser : function() {
 				var res = this.mRealName;
 				if (this.mLogin !== '') {
-					res += " ({0})".format(this.mLogin);
+					res += " ({0}@{1})".format(this.mLogin,this.mInstanceName);
+				}
+				else {
+					res += " @{0}".format(this.mInstanceName);
 				}
 				return res;
 			},
@@ -107,6 +111,10 @@ var ApplicationDescription = Class
 			setMode : function(aMode) {
 				this.mMode = aMode;
 			},
+			
+			setInstanceName : function(aInstanceName) {
+				this.mInstanceName= aInstanceName;
+			},			
 
 			fillEmailSupport : function(aTitle, aComplement) {
 				var email = this.mSupportEmail, url = "mailto:" + email;
@@ -250,6 +258,7 @@ var ObserverAuthentification = ObserverAbstract
 					desc.setRealName(xml_connection
 							.getCDataOfFirstTag("REALNAME"));
 					desc.setMode(xml_connection.getCDataOfFirstTag("MODE"));
+					desc.setInstanceName(xml_connection.getCDataOfFirstTag("INSTANCE"));
 					xml_params = this.mDomXmlContent
 							.getElementsByTagName("PARAM");
 					for (param_idx = 0; param_idx < xml_params.length; param_idx++) {

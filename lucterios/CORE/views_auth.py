@@ -92,6 +92,7 @@ class Authentification(XferContainerAbstract):
         from lxml import etree
         from django.conf import settings
         import lucterios.CORE
+        import os
         connextion = etree.SubElement(self.responsexml, "CONNECTION")
         etree.SubElement(connextion, 'TITLE').text = six.text_type(
             settings.APPLIS_NAME)
@@ -104,10 +105,14 @@ class Authentification(XferContainerAbstract):
         etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(
             settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
-        etree.SubElement(connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
+        etree.SubElement(
+            connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
         etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(
             settings.APPLI_EMAIL)
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
+        setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
+        etree.SubElement(
+            connextion, 'INSTANCE').text = setting_module_name.split('.')[0]
         etree.SubElement(connextion, 'MODE').text = six.text_type(
             Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
