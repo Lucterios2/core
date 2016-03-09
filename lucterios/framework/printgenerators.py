@@ -41,16 +41,26 @@ from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
     get_image_size
 from lucterios.framework.models import get_value_converted
-from lucterios.framework.reporting import transforme_xml2pdf
+from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
+
+DPI = 0.3528125
 
 
 def remove_format(xml_text):
+    xml_text = xml_text.replace('&#160;', ' ')
     xml_text = xml_text.replace('<b>', '')
     xml_text = xml_text.replace('<i>', '')
     xml_text = xml_text.replace('<u>', '')
     xml_text = xml_text.replace('</b>', '')
     xml_text = xml_text.replace('</i>', '')
     xml_text = xml_text.replace('</u>', '')
+    xml_text = xml_text.replace('{[b>', '')
+    xml_text = xml_text.replace('{[i]}', '')
+    xml_text = xml_text.replace('{[u]}', '')
+    xml_text = xml_text.replace('{[/b]}', '')
+    xml_text = xml_text.replace('{[/i]}', '')
+    xml_text = xml_text.replace('{[/u]}', '')
+    xml_text = xml_text.replace('{[br/]}', '')
     xml_text = xml_text.replace('{[newline]}', '')
     xml_text = xml_text.replace('{[bold]}', '')
     xml_text = xml_text.replace('{[/bold]}', '')
@@ -59,6 +69,20 @@ def remove_format(xml_text):
     xml_text = xml_text.replace('{[underline]}', '')
     xml_text = xml_text.replace('{[/underline]}', '')
     return xml_text
+
+
+def calcul_text_size(text, font_size=9, line_height=10, text_align='left', is_cell=False):
+    text = six.text_type(text)
+    text = text.replace('<br/>', '\n')
+    text = text.replace('{[br/]}', '\n')
+    text = text.replace('{[newline]}', '\n')
+    if text == '\n':
+        text = 'A'
+    width, height = get_text_size(
+        remove_format(text), font_size, line_height, text_align, is_cell)
+    width = max(10.0, width * 1.2)
+    height = height * 1.2
+    return width, height
 
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
@@ -75,17 +99,6 @@ def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_h
         raise Exception(
             'convert_to_html error:tagname=%s text=%s' % (tagname, text))
     return xml_text
-
-
-def get_text_size(text):
-    size_x = 0
-    size_y = 0
-    text = six.text_type(text).replace(
-        '{[newline]}', "\n").replace('{[br/]}', "\n")
-    for line in text.split('\n'):
-        size_x = max(size_x, len(remove_format(line)))
-        size_y += 1
-    return size_x, size_y
 
 
 class PrintItem(object):
@@ -123,8 +136,6 @@ class PrintItem(object):
 
 class PrintImage(PrintItem):
 
-    DPI = 0.34
-
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
         if self.comp.type != '':
@@ -135,20 +146,25 @@ class PrintImage(PrintItem):
         else:
             self.value = get_image_absolutepath(self.comp.value)
         self.img_size = get_image_size(self.value)
+        self.size_x = int(round(self.img_size[0] * DPI * 1.1))
+        self.height = int(round(self.img_size[1] * DPI * 1.1))
 
     def get_xml(self):
         xml_img = etree.Element('image')
         xml_img.text = self.value
-        if (self.img_size[0] * self.DPI) < self.width:
-            self.width = int(self.img_size[0] * self.DPI)
-            self.height = int(self.img_size[1] * self.DPI)
+        if (abs(self.width) < 0.0001) or ((self.img_size[0] * DPI) < self.width):
+            self.width = int(round(self.img_size[0] * DPI))
+            self.height = int(round(self.img_size[1] * DPI))
         else:
-            self.height = int(self.width * self.img_size[1] / self.img_size[0])
+            self.height = int(
+                round(self.width * self.img_size[1] / self.img_size[0]))
         self.fill_attrib(xml_img)
         return xml_img
 
 
 class PrintTable(PrintItem):
+
+    RATIO = 1.4
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
@@ -157,33 +173,34 @@ class PrintTable(PrintItem):
         self.size_rows = [0]
         self.compute_table_size()
         self.size_y, self.size_x = self.get_table_sizes()
-        self.height = 5.5 * self.size_y + 3 * len(self.rows)
+        self.height = self.size_y * self.RATIO
+        self.width_ratio = 1.0
 
     def compute_table_size(self):
         for header in self.comp.headers:
-            size_cx, size_cy = get_text_size(header.descript)
-            column = [header.descript, size_cx * 2]
+            size_cx, size_cy = calcul_text_size(
+                header.descript, 9, 10, "center", True)
+            column = [header.descript, size_cx * self.RATIO]
             self.size_rows[0] = max(self.size_rows[0], size_cy)
             row_idx = 0
             for record in self.comp.records.values():
                 while len(self.rows) <= row_idx:
                     self.rows.append([])
-
                 while len(self.size_rows) <= (row_idx + 1):
                     self.size_rows.append(0)
-
                 value = get_value_converted(record[header.name], True)
                 if header.type == 'icon':
                     value = BASE64_PREFIX + value
                     img_size = get_image_size(value)
-                    size_x = int(img_size[0] * PrintImage.DPI)
-                    size_y = int(img_size[1] * PrintImage.DPI)
+                    size_x = int(round(img_size[0] * DPI))
+                    size_y = int(round(img_size[1] * DPI))
                 else:
-                    size_x, size_y = get_text_size(value)
+                    size_x, size_y = calcul_text_size(
+                        value, 9, 10, "start", True)
                 self.rows[row_idx].append(six.text_type(value))
                 self.size_rows[
                     row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
-                column[1] = max(column[1], size_x * 2)
+                column[1] = max(column[1], size_x * self.RATIO)
                 row_idx += 1
             self.columns.append(column)
 
@@ -194,28 +211,31 @@ class PrintTable(PrintItem):
         size_y = 0
         for size_row in self.size_rows:
             size_y += size_row
+        if len(self.size_rows) == 1:
+            _cx, size_cy = calcul_text_size("A", 9, 10, "center", True)
+            size_y += size_cy
+        six.print_('table columns:%s rows:%s => %.2f / %.2f' %
+                   (self.columns, self.size_rows, size_y, size_x))
         return size_y, size_x
 
-    def write_columns(self, xml_table, size_x):
+    def size_ratio(self, init_size):
+        return min(init_size, int(init_size * self.width_ratio))
+
+    def write_columns(self, xml_table):
         for column in self.columns:
-            size_col = int(self.width * column[1] / size_x)
+            size_col = int(round(self.width_ratio * column[1]))
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
             xml_text = convert_to_html(
-                'cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", 9, 10, "center")
-            xml_text.attrib['font_family'] = "sans-serif"
-            xml_text.attrib['font_size'] = "9"
-            xml_text.attrib['line_height'] = "10"
-            xml_text.attrib['text_align'] = "center"
+                'cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", self.size_ratio(9), self.size_ratio(10), "center")
             new_col.append(xml_text)
-        return
 
     def write_rows(self, xml_table):
         for row in self.rows:
             new_row = etree.SubElement(xml_table, "rows")
             for value in row:
                 xml_text = convert_to_html(
-                    'cell', value, "sans-serif", 9, 10, "start")
+                    'cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
                 if value[:len(BASE64_PREFIX)] == BASE64_PREFIX:
                     xml_text.attrib['image'] = "1"
                 new_row.append(xml_text)
@@ -226,12 +246,24 @@ class PrintTable(PrintItem):
             for _ in self.columns:
                 row.append('')
             self.rows.append(row)
-            self.size_rows.append(get_text_size('')[1])
+            self.size_rows.append(calcul_text_size('')[1])
         xml_table = etree.Element('table')
-        self.fill_attrib(xml_table)
-        self.write_columns(xml_table, self.size_x)
+        self.width_ratio = self.width / self.size_x
+        six.print_('table width:%.2f => %.2f = %.2f' %
+                   (self.width, self.size_x, self.width_ratio))
+        six.print_('table before:%.2f' % self.height)
+        self.write_columns(xml_table)
         self.write_rows(xml_table)
+        if self.width_ratio < 1:
+            self.height = self.height * self.width_ratio
+        self.fill_attrib(xml_table)
+        six.print_('table after:%.2f' % self.height)
         return xml_table
+
+    def calcul_position(self):
+        PrintItem.calcul_position(self)
+        self.owner.top += 3
+        self.top = self.owner.top
 
 
 class PrintTab(PrintItem):
@@ -240,12 +272,12 @@ class PrintTab(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        self.size_x, size_y = get_text_size(self.comp.value)
-        self.height = 4.8 * size_y + self.SEP_HEIGHT * 2
+        self.size_x, size_y = calcul_text_size(self.comp.value)
+        self.height = size_y + self.SEP_HEIGHT * 2
 
     def calcul_position(self):
         self.left = 10
-        self.owner.top += self.SEP_HEIGHT
+        self.owner.top += self.SEP_HEIGHT / 2
         self.top = self.owner.top
         self.width = self.owner.page_width - 2 * \
             self.owner.horizontal_marge - self.left
@@ -289,8 +321,8 @@ class PrintLabel(PrintItem):
                 six.text_type(err))
             self.value = six.text_type(self.comp.value)
         self.value = get_value_converted(self.value, True)
-        self.size_x, size_y = get_text_size(self.value)
-        self.height = 5.5 * size_y
+        self.size_x, self.height = calcul_text_size(self.value)
+        self.height = self.height * 1.1
 
     def get_xml(self):
         xml_text = convert_to_html('text', self.value)
@@ -357,7 +389,8 @@ class ReportGenerator(object):
         self.fill_attrib()
         xml_generated = etree.tostring(
             self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
-        logging.getLogger("lucterios.core.print").debug(xml_generated)
+        logging.getLogger("lucterios.core.print").debug(
+            xml_generated.decode("utf-8"))
         return xml_generated
 
     def generate_report(self, request, is_csv):
@@ -401,24 +434,6 @@ class ActionGenerator(ReportGenerator):
         if not check_top_value or (self.top > (self.page_height - 2 * self.vertical_marge)):
             self.add_page()
 
-    def get_height_of_rowspan(self, print_item):
-        value = 0
-        last_y = -1
-        current_height = 0
-        for item in self.print_items:
-            if (item.tab == print_item.tab) and (item.rowspan == 1) and (item.row >= print_item.row) \
-                    and (item.row < (print_item.row + print_item.rowspan)):
-                if last_y == item.row:
-                    current_height = max(current_height, item.height)
-                else:
-                    value += current_height
-                    current_height = item.height
-                    last_y = item.row
-        value += current_height
-        if value < print_item.height:
-            value = print_item.height - value
-        return value
-
     def compute_components(self):
         col_size = {}
         max_col = {}
@@ -461,9 +476,11 @@ class ActionGenerator(ReportGenerator):
         for col_idx in range(0, max_col):
             if total_size == 0:
                 new_col_size = 0
+            elif (total_size) < self.content_width:
+                new_col_size = int(round(col_size[col_idx]))
             else:
                 new_col_size = int(
-                    self.content_width * col_size[col_idx] / total_size)
+                    round(self.content_width * col_size[col_idx] / total_size))
             self.col_width[tab_id].append(new_col_size)
 
     def fill_content(self, request):
@@ -483,22 +500,21 @@ class ActionGenerator(ReportGenerator):
         current_height = 0
         self.last_top = 0
         for item in self.print_items:
-            if last_y == item.row:
-                if item.rowspan == 1:
-                    current_height = max(current_height, item.height)
-                else:
-                    current_height = max(
-                        current_height, self.get_height_of_rowspan(item))
-            else:
+            if last_y != item.row:
                 self.top = self.top + current_height
+                for last_item in self.print_items:
+                    if last_item == item:
+                        break
+                    if (item.row == -1) or ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan)):
+                        self.top = max(
+                            self.top, last_item.top + last_item.height)
                 self.change_page()
-                if item.rowspan == 1:
-                    current_height = item.height
-                else:
-                    current_height = self.get_height_of_rowspan(item)
-                last_y = item.row
+                current_height = 0
             item.calcul_position()
             self.body.append(item.get_xml())
+            if item.rowspan == 1:
+                current_height = max(current_height, item.height)
+            last_y = item.row
             self.last_top = item.top + item.height
 
 
@@ -589,9 +605,10 @@ class ListingGenerator(ReportModelGenerator):
         xml_table.attrib['spacing'] = "0.0"
         size_x = 0
         for column in self.columns:
-            size_x += int(column[0])
+            size_x += int(round(column[0]))
         for column in self.columns:
-            size_col = int(self.content_width * int(column[0]) / size_x)
+            size_col = int(
+                round(self.content_width * int(round(column[0])) / size_x))
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
             xml_text = convert_to_html(

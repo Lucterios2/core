@@ -37,6 +37,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 import re
 from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
+from reportlab.lib.utils import simpleSplit
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
 def get_size(xmltext, name):
@@ -81,6 +83,41 @@ TABLE_STYLE = TableStyle([
     ('BOX', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0))
 ])
 
+g_initial_fonts = False
+
+
+def initial_fonts():
+    global g_initial_fonts
+    if not g_initial_fonts:
+        font_dir_path = join(dirname(__file__), 'fonts')
+        pdfmetrics.registerFont(
+            TTFont('sans-serif', join(font_dir_path, 'FreeSans.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-bold', join(font_dir_path, 'FreeSansBold.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-italic', join(font_dir_path, 'FreeSansOblique.ttf')))
+        pdfmetrics.registerFont(
+            TTFont('sans-serif-bolditalic', join(font_dir_path, 'FreeSansBoldOblique.ttf')))
+        pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold",
+                                      italic="sans-serif-italic", boldItalic="sans-serif-bolditalic")
+        g_initial_fonts = True
+
+
+def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):
+    initial_fonts()
+    lines = para_text.split('\n')
+    max_line = ""
+    for line in lines:
+        if len(line) > len(max_line):
+            max_line = line
+    width = stringWidth(max_line, "sans-serif", font_size)
+    if is_cell:
+        height = font_size * max(1, len(lines) * 2 / 3)
+    else:
+        height = font_size * len(lines)
+    height += abs(line_height - font_size) * 2
+    return width / mm, height / mm
+
 
 class LucteriosPDF(object):
 
@@ -100,17 +137,7 @@ class LucteriosPDF(object):
         self.y_offset = 0
         self.position_y = 0
         self.current_page = None
-        font_dir_path = join(dirname(__file__), 'fonts')
-        pdfmetrics.registerFont(
-            TTFont('sans-serif', join(font_dir_path, 'FreeSans.ttf')))
-        pdfmetrics.registerFont(
-            TTFont('sans-serif-bold', join(font_dir_path, 'FreeSansBold.ttf')))
-        pdfmetrics.registerFont(
-            TTFont('sans-serif-italic', join(font_dir_path, 'FreeSansOblique.ttf')))
-        pdfmetrics.registerFont(
-            TTFont('sans-serif-bolditalic', join(font_dir_path, 'FreeSansBoldOblique.ttf')))
-        pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold",
-                                      italic="sans-serif-italic", boldItalic="sans-serif-bolditalic")
+        initial_fonts()
 
     def _init(self):
         self.pages = self.xml.xpath('page')
@@ -144,6 +171,8 @@ class LucteriosPDF(object):
         if font_name is None:
             font_name = 'sans-serif'
         align = xmltext.get('text_align')
+        if para_text.startswith('<center>'):
+            align = 'center'
         if (align == 'left') or (align == 'start'):
             alignment = TA_LEFT
         elif align == 'center':

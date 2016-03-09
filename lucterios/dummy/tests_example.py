@@ -31,6 +31,7 @@ from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
 from lucterios.dummy.models import Example
 from base64 import b64decode
 from django.utils import six
+from lucterios.framework.printgenerators import ActionGenerator
 
 
 class ExampleTest(LucteriosTest):
@@ -391,3 +392,42 @@ class ExampleTest(LucteriosTest):
             'COMPONENTS/LABELFORM[@name="lbl_text"]', "{[b]}text{[/b]}", (1, 3, 1, 1))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="text"]', "abc", (2, 3, 1, 1))
+
+    def test_printaction(self):
+        generator = ActionGenerator(ExampleShow())
+        xml = generator.generate(
+            self.factory.create_request('/lucterios.dummy/examplePrint', {'example': '2'}))
+        self.parse_xml(xml, 'model', False)
+        self.print_xml('')
+        self.assert_attrib_equal("page/header", "extent", "12.0")
+        self.assert_count_equal('page/header/*', 1)
+        self.assert_attrib_equal("page/bottom", "extent", "0.0")
+        self.assert_count_equal('page/bottom/*', 0)
+        self.assert_count_equal('page/body/*', 15)
+        self.assert_xml_equal(
+            'page/body/image[1]', 'images/9.pn', (-12, -1))
+        self.assert_attrib_equal("page/body/image[1]", "height", "23.0")
+        self.assert_attrib_equal("page/body/image[1]", "width", "23.0")
+        self.assert_attrib_equal("page/body/image[1]", "top", "0.0")
+        self.assert_attrib_equal("page/body/image[1]", "left", "0.0")
+        self.assert_xml_equal("page/body/text[1]/b", 'name')
+        self.assert_attrib_equal("page/body/text[1]", "top", "0.0")
+        self.assert_attrib_equal("page/body/text[1]", "left", "25.0")
+        self.assert_attrib_equal("page/body/text[1]", "width", "22.0")
+        self.assert_attrib_equal("page/body/text[1]", "height", "5.0")
+        self.assert_xml_equal("page/body/text[2]", 'zzzz')
+        self.assert_attrib_equal("page/body/text[2]", "top", "0.0")
+        self.assert_attrib_equal("page/body/text[2]", "left", "47.0")
+        self.assert_attrib_equal("page/body/text[2]", "width", "50.0")
+        self.assert_attrib_equal("page/body/text[2]", "height", "5.0")
+
+        self.assert_xml_equal("page/body/text[3]/b", 'value')
+        self.assert_attrib_equal("page/body/text[3]", "top", "5.0")
+        self.assert_attrib_equal("page/body/text[3]", "left", "25.0")
+        self.assert_attrib_equal("page/body/text[3]", "width", "22.0")
+        self.assert_attrib_equal("page/body/text[3]", "height", "5.0")
+        self.assert_xml_equal("page/body/text[4]", '7')
+        self.assert_attrib_equal("page/body/text[4]", "top", "5.0")
+        self.assert_attrib_equal("page/body/text[4]", "left", "47.0")
+        self.assert_attrib_equal("page/body/text[4]", "width", "23.0")
+        self.assert_attrib_equal("page/body/text[4]", "height", "5.0")

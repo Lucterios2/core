@@ -74,11 +74,15 @@ class XmlRequestFactory(RequestFactory):
         else:
             self.xfer = None
 
+    def create_request(self, path, data):
+        request = self.post(path, data)
+        request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
+        request.user = self.user
+        return request
+
     def call(self, path, data):
         try:
-            request = self.post(path, data)
-            request.META['HTTP_ACCEPT_LANGUAGE'] = self.language
-            request.user = self.user
+            request = self.create_request(path, data)
             return self.xfer.get(request)
         except Exception as expt:
             err = LucteriosErrorMiddleware()
@@ -100,6 +104,15 @@ class LucteriosTest(TestCase):
         Params.clear()
         notfree_mode_connect()
 
+    def parse_xml(self, xml, root_tag='REPONSE', first_child=True):
+        contentxml = etree.fromstring(xml)
+        if first_child:
+            root = contentxml.getchildren()[0]
+        else:
+            root = contentxml
+        self.assertEqual(root.tag, root_tag, "NOT %s" % root_tag)
+        self.response_xml = root
+
     def call(self, path, data, is_client=True):
         if is_client:
             response = self.client.call(path, data)
@@ -107,10 +120,7 @@ class LucteriosTest(TestCase):
             response = self.factory.call(path, data)
         self.assertEqual(
             response.status_code, 200, "HTTP error:" + str(response.status_code))
-        contentxml = etree.fromstring(response.content)
-        self.assertEqual(
-            contentxml.getchildren()[0].tag, 'REPONSE', "NOT REPONSE")
-        self.response_xml = contentxml.getchildren()[0]
+        self.parse_xml(response.content)
 
     def get_first_xpath(self, xpath):
         if xpath == '':
@@ -123,7 +133,7 @@ class LucteriosTest(TestCase):
     def print_xml(self, xpath):
         xml_value = self.get_first_xpath(xpath)
         six.print_(etree.tostring(
-            xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+            xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8').decode("utf-8"))
 
     def assert_count_equal(self, xpath, size):
         xml_values = self.response_xml.xpath(xpath)
