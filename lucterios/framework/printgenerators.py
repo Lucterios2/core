@@ -54,7 +54,7 @@ def remove_format(xml_text):
     xml_text = xml_text.replace('</b>', '')
     xml_text = xml_text.replace('</i>', '')
     xml_text = xml_text.replace('</u>', '')
-    xml_text = xml_text.replace('{[b>', '')
+    xml_text = xml_text.replace('{[b]}', '')
     xml_text = xml_text.replace('{[i]}', '')
     xml_text = xml_text.replace('{[u]}', '')
     xml_text = xml_text.replace('{[/b]}', '')
@@ -214,8 +214,6 @@ class PrintTable(PrintItem):
         if len(self.size_rows) == 1:
             _cx, size_cy = calcul_text_size("A", 9, 10, "center", True)
             size_y += size_cy
-        six.print_('table columns:%s rows:%s => %.2f / %.2f' %
-                   (self.columns, self.size_rows, size_y, size_x))
         return size_y, size_x
 
     def size_ratio(self, init_size):
@@ -249,15 +247,11 @@ class PrintTable(PrintItem):
             self.size_rows.append(calcul_text_size('')[1])
         xml_table = etree.Element('table')
         self.width_ratio = self.width / self.size_x
-        six.print_('table width:%.2f => %.2f = %.2f' %
-                   (self.width, self.size_x, self.width_ratio))
-        six.print_('table before:%.2f' % self.height)
         self.write_columns(xml_table)
         self.write_rows(xml_table)
         if self.width_ratio < 1:
             self.height = self.height * self.width_ratio
         self.fill_attrib(xml_table)
-        six.print_('table after:%.2f' % self.height)
         return xml_table
 
     def calcul_position(self):
