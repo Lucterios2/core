@@ -33,10 +33,11 @@ from lucterios.CORE.models import PrintModel, Label
 class XferPrintAction(XferContainerPrint):
 
     action_class = None
+    tab_change_page = False
 
     def get_report_generator(self):
         if self.action_class is not None:
-            return ActionGenerator(self.action_class())
+            return ActionGenerator(self.action_class(), self.tab_change_page)
 
 
 class XferPrintListing(XferContainerPrint):

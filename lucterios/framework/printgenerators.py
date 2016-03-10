@@ -347,6 +347,9 @@ class ReportGenerator(object):
         if self.bottom is not None:
             self.bottom.attrib['extent'] = "%d.0" % self.bottom_height
 
+    def get_num_page(self):
+        return len(self.modelxml.xpath("page"))
+
     def add_page(self):
         self.content_width = self.page_width - 2 * self.horizontal_marge
         page = etree.SubElement(self.modelxml, "page")
@@ -410,7 +413,7 @@ class ReportGenerator(object):
 
 class ActionGenerator(ReportGenerator):
 
-    def __init__(self, action):
+    def __init__(self, action, tab_change_page):
         ReportGenerator.__init__(self)
         self.action = action
         self.header_height = 12
@@ -418,6 +421,7 @@ class ActionGenerator(ReportGenerator):
         self.top = 0
         self.print_items = []
         self.col_width = {}
+        self.tab_change_page = tab_change_page
 
     def add_page(self):
         ReportGenerator.add_page(self)
@@ -491,19 +495,29 @@ class ActionGenerator(ReportGenerator):
             self.define_col_size(tab_id, col_size[tab_id], max_col[tab_id])
         self.top = 0
         last_y = -1
+        num_tab = 0
         current_height = 0
         self.last_top = 0
         for item in self.print_items:
-            if last_y != item.row:
+            new_page = False
+            if self.tab_change_page and isinstance(item, PrintTab):
+                num_tab += 1
+                if (num_tab > 1):
+                    self.add_page()
+                    current_height = 0
+                    new_page = True
+            if not new_page and (last_y != item.row):
                 self.top = self.top + current_height
                 for last_item in self.print_items:
                     if last_item == item:
                         break
-                    if (item.row == -1) or ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan)):
+                    if ((item.row == -1) and not self.tab_change_page) or ((last_item.tab == item.tab) and ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan))):
                         self.top = max(
                             self.top, last_item.top + last_item.height)
                 self.change_page()
                 current_height = 0
+            six.print_('%s : top=%f current_height=%f item.height=%f' %
+                       (item.__class__, self.top, current_height, item.height))
             item.calcul_position()
             self.body.append(item.get_xml())
             if item.rowspan == 1:
