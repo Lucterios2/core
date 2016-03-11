@@ -23,9 +23,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from lxml import etree
+import datetime
+from logging import getLogger
+
 from django.utils.translation import ugettext as _
 from django.utils import six, formats
-from lxml import etree
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
@@ -36,7 +39,6 @@ from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, W
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
-import datetime
 
 
 def get_range_value(model_field):
@@ -141,51 +143,57 @@ class XferContainerAcknowledge(XferContainerAbstract):
         return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self._initialize(request, *args, **kwargs)
-        self.fillresponse(**self._get_params())
-        if self.custom is not None:
-            return self.custom.get(request, *args, **kwargs)
-        if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
-            dlg = XferContainerDialogBox()
-            dlg.request = self.request
-            dlg.is_view_right = self.is_view_right
-            dlg.caption = "Confirmation"
-            dlg.extension = self.extension
-            dlg.action = self.action
-            dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-            dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {
-                           'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'params': {"CONFIRME": "YES"}})
-            dlg.add_action(WrapAction(_("No"), "images/cancel.png"), {})
-            dlg.closeaction = self.closeaction
-            return dlg.get(request, *args, **kwargs)
-        elif self.msg != "":
-            dlg = XferContainerDialogBox()
-            dlg.request = self.request
-            dlg.caption = self.caption
-            dlg.set_dialog(self.msg, self.typemsg)
-            dlg.add_action(WrapAction(_("Ok"), "images/ok.png"), {})
-            dlg.closeaction = self.closeaction
-            return dlg.get(request, *args, **kwargs)
-        elif self.except_msg != "":
-            dlg = XferContainerDialogBox()
-            dlg.request = self.request
-            dlg.is_view_right = self.is_view_right
-            dlg.caption = self.caption
-            dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
-            if self.except_classact is not None:
-                except_action = self.except_classact()
-                if self.check_action_permission(except_action.get_action()):
-                    dlg.add_action(
-                        except_action.get_action(_("Retry"), ""), {})
-            dlg.closeaction = self.closeaction
-            return dlg.get(request, *args, **kwargs)
-        elif self.traitment_data is not None:
-            return self._get_from_custom(request, *args, **kwargs)
-        else:
-            if "CONFIRME" in self.params.keys():
-                del self.params["CONFIRME"]
-            self._finalize()
-            return self.get_response()
+        getLogger("lucterios.core.request").debug(
+            ">> get %s [%s]", request.path, request.user)
+        try:
+            self._initialize(request, *args, **kwargs)
+            self.fillresponse(**self._get_params())
+            if self.custom is not None:
+                return self.custom.get(request, *args, **kwargs)
+            if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
+                dlg = XferContainerDialogBox()
+                dlg.request = self.request
+                dlg.is_view_right = self.is_view_right
+                dlg.caption = "Confirmation"
+                dlg.extension = self.extension
+                dlg.action = self.action
+                dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
+                dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {
+                               'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'params': {"CONFIRME": "YES"}})
+                dlg.add_action(WrapAction(_("No"), "images/cancel.png"), {})
+                dlg.closeaction = self.closeaction
+                return dlg.get(request, *args, **kwargs)
+            elif self.msg != "":
+                dlg = XferContainerDialogBox()
+                dlg.request = self.request
+                dlg.caption = self.caption
+                dlg.set_dialog(self.msg, self.typemsg)
+                dlg.add_action(WrapAction(_("Ok"), "images/ok.png"), {})
+                dlg.closeaction = self.closeaction
+                return dlg.get(request, *args, **kwargs)
+            elif self.except_msg != "":
+                dlg = XferContainerDialogBox()
+                dlg.request = self.request
+                dlg.is_view_right = self.is_view_right
+                dlg.caption = self.caption
+                dlg.set_dialog(self.except_msg, XFER_DBOX_WARNING)
+                if self.except_classact is not None:
+                    except_action = self.except_classact()
+                    if self.check_action_permission(except_action.get_action()):
+                        dlg.add_action(
+                            except_action.get_action(_("Retry"), ""), {})
+                dlg.closeaction = self.closeaction
+                return dlg.get(request, *args, **kwargs)
+            elif self.traitment_data is not None:
+                return self._get_from_custom(request, *args, **kwargs)
+            else:
+                if "CONFIRME" in self.params.keys():
+                    del self.params["CONFIRME"]
+                self._finalize()
+                return self.get_response()
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
     def _finalize(self):
         if self.redirect_act is not None:

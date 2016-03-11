@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-import logging
+from logging import getLogger
 from copy import deepcopy
 
 from django.utils.translation import ugettext as _, ugettext_lazy
@@ -122,13 +122,19 @@ class XferAddEditor(XferContainerCustom):
             self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
 
     def get(self, request, *args, **kwargs):
-        self._initialize(request, *args, **kwargs)
-        if self.getparam("SAVE") != "YES":
-            self.fillresponse()
-            self._finalize()
-            return self.get_response()
-        else:
-            return self.run_save(request, *args, **kwargs)
+        getLogger("lucterios.core.request").debug(
+            ">> get %s [%s]", request.path, request.user)
+        try:
+            self._initialize(request, *args, **kwargs)
+            if self.getparam("SAVE") != "YES":
+                self.fillresponse()
+                self._finalize()
+                return self.get_response()
+            else:
+                return self.run_save(request, *args, **kwargs)
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
     def run_save(self, request, *args, **kwargs):
         save = XferSave()
@@ -212,7 +218,7 @@ class XferSave(XferContainerAcknowledge):
                 if self.fill_manytomany_fields():
                     self.item.save()
             except IntegrityError as err:
-                logging.getLogger("lucterios.core.container").info("%s", err)
+                getLogger("lucterios.core.container").info("%s", err)
                 six.print_(err)
                 self.raise_except(
                     _("This record exists yet!"), self.raise_except_class)

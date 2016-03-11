@@ -300,15 +300,17 @@ class XferContainerAbstract(View):
     def get(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
-        self._initialize(request, *args, **kwargs)
-        getLogger("lucterios.core.request").debug(
-            "... get params=%s", self.params)
-        self.fillresponse(**self._get_params())
-        self._finalize()
-        res = self.get_response()
-        getLogger("lucterios.core.request").debug(
-            "<< get %s [%s]", request.path, request.user)
-        return res
+        try:
+            self._initialize(request, *args, **kwargs)
+            getLogger("lucterios.core.request").debug(
+                "... get params=%s", self.params)
+            self.fillresponse(**self._get_params())
+            self._finalize()
+            res = self.get_response()
+            return res
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
     def post(self, request, *args, **kwargs):
         return self.get(request, *args, **kwargs)

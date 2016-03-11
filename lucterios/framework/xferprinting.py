@@ -26,6 +26,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lxml import etree
 from base64 import b64encode
+from logging import getLogger
 
 from django.utils.translation import ugettext as _
 from django.utils import six
@@ -110,17 +111,23 @@ class XferContainerPrint(XferContainerAbstract):
         return gui
 
     def get(self, request, *args, **kwargs):
-        self._initialize(request, *args, **kwargs)
-        report_mode = self.getparam("PRINT_MODE")
-        if report_mode is not None:
-            self.report_mode = int(report_mode)
-        self.fillresponse(**self._get_params())
-        if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
-            dlg = self._get_from_selector()
-            return dlg.get(request, *args, **kwargs)
-        else:
-            self._finalize()
-            return self.get_response()
+        getLogger("lucterios.core.request").debug(
+            ">> get %s [%s]", request.path, request.user)
+        try:
+            self._initialize(request, *args, **kwargs)
+            report_mode = self.getparam("PRINT_MODE")
+            if report_mode is not None:
+                self.report_mode = int(report_mode)
+            self.fillresponse(**self._get_params())
+            if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
+                dlg = self._get_from_selector()
+                return dlg.get(request, *args, **kwargs)
+            else:
+                self._finalize()
+                return self.get_response()
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
     def fillresponse(self):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]

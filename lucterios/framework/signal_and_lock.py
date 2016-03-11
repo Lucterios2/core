@@ -120,8 +120,8 @@ class RecordLocker(object):
             return params
         finally:
             cls._lock.release()
-        logging.getLogger("lucterios.core.record").debug(
-            "<< lock [%s] %s", request.user, model_item)
+            logging.getLogger("lucterios.core.record").debug(
+                "<< lock [%s] %s", request.user, model_item)
 
     @classmethod
     def is_lock(cls, model_item):
@@ -134,11 +134,13 @@ class RecordLocker(object):
             return lock_ident in cls._lock_list.keys()
         finally:
             cls._lock.release()
-        logging.getLogger("lucterios.core.record").debug(
-            "<< is_lock %s", model_item)
+            logging.getLogger("lucterios.core.record").debug(
+                "<< is_lock %s", model_item)
 
     @classmethod
     def unlock(cls, request, params):
+        logging.getLogger("lucterios.core.record").debug(
+            ">> unlock [%s] %s", request.user, params)
         cls._lock.acquire()
         try:
             from django.conf import settings
@@ -149,3 +151,5 @@ class RecordLocker(object):
                     del cls._lock_list[lock_ident]
         finally:
             cls._lock.release()
+            logging.getLogger("lucterios.core.record").debug(
+                ">> unlock [%s]", request.user)

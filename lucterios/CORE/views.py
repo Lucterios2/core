@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import isfile, join, dirname
+from logging import getLogger
 import mimetypes
 import stat
 import os
@@ -82,25 +83,31 @@ signal_and_lock.unlocker_view_class = Unlock
 class Download(XferContainerAbstract):
 
     def get(self, request, *args, **kwargs):
-        self._initialize(request, *args, **kwargs)
-        full_path = join(
-            get_user_dir(), six.text_type(self.getparam('filename')))
-        if not isfile(full_path):
-            raise LucteriosException(IMPORTANT, _("File not found!"))
-        sign = self.getparam('sign', '')
-        if sign != md5sum(full_path):
-            raise LucteriosException(IMPORTANT, _("File invalid!"))
-        content_type, encoding = mimetypes.guess_type(full_path)
-        content_type = content_type or 'application/octet-stream'
-        statobj = os.stat(full_path)
-        response = StreamingHttpResponse(open(full_path, 'rb'),
-                                         content_type=content_type)
-        response["Last-Modified"] = http_date(statobj.st_mtime)
-        if stat.S_ISREG(statobj.st_mode):
-            response["Content-Length"] = statobj.st_size
-        if encoding:
-            response["Content-Encoding"] = encoding
-        return response
+        getLogger("lucterios.core.request").debug(
+            ">> get %s [%s]", request.path, request.user)
+        try:
+            self._initialize(request, *args, **kwargs)
+            full_path = join(
+                get_user_dir(), six.text_type(self.getparam('filename')))
+            if not isfile(full_path):
+                raise LucteriosException(IMPORTANT, _("File not found!"))
+            sign = self.getparam('sign', '')
+            if sign != md5sum(full_path):
+                raise LucteriosException(IMPORTANT, _("File invalid!"))
+            content_type, encoding = mimetypes.guess_type(full_path)
+            content_type = content_type or 'application/octet-stream'
+            statobj = os.stat(full_path)
+            response = StreamingHttpResponse(open(full_path, 'rb'),
+                                             content_type=content_type)
+            response["Last-Modified"] = http_date(statobj.st_mtime)
+            if stat.S_ISREG(statobj.st_mode):
+                response["Content-Length"] = statobj.st_size
+            if encoding:
+                response["Content-Encoding"] = encoding
+            return response
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
 
 @MenuManage.describ('')
@@ -108,12 +115,18 @@ class Menu(XferContainerMenu):
     caption = 'menu'
 
     def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated() or not secure_mode_connect():
-            return XferContainerMenu.get(self, request, *args, **kwargs)
-        else:
-            from lucterios.CORE.views_auth import Authentification
-            auth = Authentification()
-            return auth.get(request, *args, **kwargs)
+        getLogger("lucterios.core.request").debug(
+            ">> get %s [%s]", request.path, request.user)
+        try:
+            if request.user.is_authenticated() or not secure_mode_connect():
+                return XferContainerMenu.get(self, request, *args, **kwargs)
+            else:
+                from lucterios.CORE.views_auth import Authentification
+                auth = Authentification()
+                return auth.get(request, *args, **kwargs)
+        finally:
+            getLogger("lucterios.core.request").debug(
+                "<< get %s [%s]", request.path, request.user)
 
 
 def right_changepassword(request):
