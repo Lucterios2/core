@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-01 16:56+0000\n"
+"POT-Creation-Date: 2016-03-11 13:17+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -31,25 +31,25 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:385
+#: models.py:384
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:407
+#: models.py:406
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:422
+#: models.py:421
 msgid "session"
 msgstr "session"
 
-#: models.py:423
+#: models.py:422
 msgid "sessions"
 msgstr "sessions"
 
-#: signal_and_lock.py:101
+#: signal_and_lock.py:116
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
@@ -105,7 +105,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:153 xfercomponents.py:634
+#: xferadvance.py:153 xfercomponents.py:639
 msgid "Modify"
 msgstr "Modifier"
 
@@ -135,7 +135,7 @@ msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferbasic.py:151
+#: xferbasic.py:157
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -143,15 +143,15 @@ msgstr ""
 "Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfercomponents.py:634
+#: xfercomponents.py:639
 msgid "Edit"
 msgstr "Éditer"
 
-#: xfercomponents.py:635
+#: xfercomponents.py:640
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xfercomponents.py:635
+#: xfercomponents.py:640
 msgid "Add"
 msgstr "Ajouter"
 

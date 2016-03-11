@@ -211,17 +211,23 @@ class InstanceEditor(Toplevel):
         self.modules = Listbox(self.frm_general, selectmode=EXTENDED)
         self.modules.configure(exportselection=False)
         self.modules.grid(row=2, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+        Label(self.frm_general, text=ugettext("Language")).grid(
+            row=3, column=0, sticky=(N, W), padx=5, pady=3)
+        self.language = ttk.Combobox(
+            self.frm_general, textvariable=StringVar(), state=READLONY)
+        self.language.grid(
+            row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
         Label(self.frm_general, text=ugettext("CORE-connectmode")
-              ).grid(row=3, column=0, sticky=(N, W), padx=5, pady=3)
+              ).grid(row=4, column=0, sticky=(N, W), padx=5, pady=3)
         self.mode = ttk.Combobox(
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.mode.bind("<<ComboboxSelected>>", self.mode_selection)
-        self.mode.grid(row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+        self.mode.grid(row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
         Label(self.frm_general, text=ugettext("Password")).grid(
-            row=4, column=0, sticky=(N, W), padx=5, pady=3)
+            row=5, column=0, sticky=(N, W), padx=5, pady=3)
         self.password = Entry(self.frm_general, show="*")
         self.password.grid(
-            row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+            row=5, column=1, sticky=(N, S, E, W), padx=5, pady=3)
 
     def typedb_selection(self, event):
 
@@ -260,6 +266,7 @@ class InstanceEditor(Toplevel):
                 child_cmp.config(state=DISABLED)
 
     def apply(self):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
         if self.name.get() == '':
             showerror(ugettext("Instance editor"), ugettext("Name empty!"))
             return
@@ -275,11 +282,16 @@ class InstanceEditor(Toplevel):
         module_list = [
             self.module_data[int(item)] for item in self.modules.curselection()]
         appli_id = list(self.applis[VALUES]).index(self.applis.get())
+        current_lang = get_locale_lang()
+        for lang in DEFAULT_LANGUAGES:
+            if lang[1] == self.language.get():
+                current_lang = lang[0]
         self.result = (self.name.get(), self.mod_applis[appli_id][
-                       0], ",".join(module_list), security, db_param)
+                       0], ",".join(module_list), security, db_param, current_lang)
         self.destroy()
 
     def _load_current_data(self, instance_name):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
         lct_inst = LucteriosInstance(instance_name)
         lct_inst.read()
         self.name.delete(0, END)
@@ -318,10 +330,18 @@ class InstanceEditor(Toplevel):
             current_mod = self.module_data[mod_idx]
             if current_mod in lct_inst.modules:
                 self.modules.select_set(mod_idx)
+        current_lang = get_locale_lang()
+        if 'LANGUAGE_CODE' in lct_inst.extra.keys():
+            current_lang = lct_inst.extra['LANGUAGE_CODE']
+        for lang in DEFAULT_LANGUAGES:
+            if lang[0] == current_lang:
+                self.language.current(self.language[VALUES].index(lang[1]))
 
     def execute(self, instance_name=None):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
         self.mode[VALUES] = [ugettext(
             "CORE-connectmode.0"), ugettext("CORE-connectmode.1"), ugettext("CORE-connectmode.2")]
+        self.language[VALUES] = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
         _, self.mod_applis, mod_modules = lct_glob.installed()
@@ -350,6 +370,9 @@ class InstanceEditor(Toplevel):
             self.appli_selection(None)
             self.mode_selection(None)
             self.typedb_selection(None)
+            for lang in DEFAULT_LANGUAGES:
+                if lang[0] == get_locale_lang():
+                    self.language.current(self.language[VALUES].index(lang[1]))
         center(self)
 
 
@@ -649,7 +672,7 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def add_modif_inst_result(self, result, to_create):
         inst = LucteriosInstance(result[0])
-        inst.set_extra("")
+        inst.set_extra("LANGUAGE_CODE='%s'" % result[5])
         inst.set_appli(result[1])
         inst.set_module(result[2])
         inst.set_database(result[4])

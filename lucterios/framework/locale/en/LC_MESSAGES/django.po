@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-01 16:56+0000\n"
+"POT-Creation-Date: 2016-03-11 13:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -29,23 +29,23 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: models.py:385
+#: models.py:384
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:407
+#: models.py:406
 msgid "username"
 msgstr "username"
 
-#: models.py:422
+#: models.py:421
 msgid "session"
 msgstr "session"
 
-#: models.py:423
+#: models.py:422
 msgid "sessions"
 msgstr "sessions"
 
-#: signal_and_lock.py:101
+#: signal_and_lock.py:116
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
@@ -101,7 +101,7 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:153 xfercomponents.py:634
+#: xferadvance.py:153 xfercomponents.py:639
 msgid "Modify"
 msgstr "Modify"
 
@@ -131,7 +131,7 @@ msgstr "Do you want delete those %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferbasic.py:151
+#: xferbasic.py:157
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -139,15 +139,15 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:634
+#: xfercomponents.py:639
 msgid "Edit"
 msgstr "Edit"
 
-#: xfercomponents.py:635
+#: xfercomponents.py:640
 msgid "Delete"
 msgstr "Delete"
 
-#: xfercomponents.py:635
+#: xfercomponents.py:640
 msgid "Add"
 msgstr "Add"
 
