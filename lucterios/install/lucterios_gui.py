@@ -106,12 +106,11 @@ class RunServer(object):
         self.stop()
         cmd = [sys.executable, 'manage_%s.py' % self.instance_name,
                'runserver', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
-        self.process = Popen(cmd, stdout=PIPE, stderr=STDOUT)
+        self.process = Popen(cmd)
         sleep(3.0)
         if self.process.poll() is not None:
-            message = self.process.communicate()[0].decode('ascii')
             self.stop()
-            raise RunException(message)
+            raise RunException(ugettext("Error to start!"))
         self.open_url()
 
     def open_url(self):
