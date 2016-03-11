@@ -394,7 +394,7 @@ class ExampleTest(LucteriosTest):
             'COMPONENTS/LABELFORM[@name="text"]', "abc", (2, 3, 1, 1))
 
     def test_printaction(self):
-        generator = ActionGenerator(ExampleShow())
+        generator = ActionGenerator(ExampleShow(), False)
         xml = generator.generate(
             self.factory.create_request('/lucterios.dummy/examplePrint', {'example': '2'}))
         self.parse_xml(xml, 'model', False)

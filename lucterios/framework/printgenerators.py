@@ -516,8 +516,6 @@ class ActionGenerator(ReportGenerator):
                             self.top, last_item.top + last_item.height)
                 self.change_page()
                 current_height = 0
-            six.print_('%s : top=%f current_height=%f item.height=%f' %
-                       (item.__class__, self.top, current_height, item.height))
             item.calcul_position()
             self.body.append(item.get_xml())
             if item.rowspan == 1:
