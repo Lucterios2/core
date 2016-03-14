@@ -79,8 +79,11 @@ class TestGlobal(BaseTest):
                 file.write(val + '\n')
 
     def test_check_pypi(self):
-        old_http_proxy = os.environ['http_proxy']
-        del os.environ['http_proxy']
+        try:
+            old_http_proxy = os.environ['http_proxy']
+            del os.environ['http_proxy']
+        except KeyError:
+            old_http_proxy = None
         try:
             self.assertEqual(
                 ['--quiet', '--extra-index-url', 'http://pypi.lucterios.org/simple', '--trusted-host', 'pypi.lucterios.org'], self.luct_glo.get_default_args_([]))
@@ -99,7 +102,8 @@ class TestGlobal(BaseTest):
             self.assertEqual(
                 ['--quiet', '--proxy=http://myproxy.truc.com:8000'], self.luct_glo.get_default_args_([]))
         finally:
-            os.environ['http_proxy'] = old_http_proxy
+            if old_http_proxy is not None:
+                os.environ['http_proxy'] = old_http_proxy
 
 
 class TestAdminSQLite(BaseTest):
