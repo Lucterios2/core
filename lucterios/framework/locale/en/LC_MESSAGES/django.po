@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-11 13:17+0000\n"
+"POT-Creation-Date: 2016-03-14 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,11 +21,11 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:71 xfergraphic.py:156
+#: models.py:71 xfergraphic.py:161
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:73 xfergraphic.py:158
+#: models.py:73 xfergraphic.py:163
 msgid "No"
 msgstr "No"
 
@@ -88,46 +88,46 @@ msgstr "Label"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:100 xferadvance.py:166 xfergraphic.py:129
-#: xferprinting.py:109 xfersearch.py:571
+#: xferadvance.py:100 xferadvance.py:172 xfergraphic.py:131
+#: xferprinting.py:110 xfersearch.py:571
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:121 xfergraphic.py:166
+#: xferadvance.py:121 xfergraphic.py:171
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:122 xfergraphic.py:140
+#: xferadvance.py:122 xfergraphic.py:142
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:153 xfercomponents.py:639
+#: xferadvance.py:159 xfercomponents.py:639
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:154 xferprinting.py:108
+#: xferadvance.py:160 xferprinting.py:109
 msgid "Print"
 msgstr "Print"
 
-#: xferadvance.py:173
+#: xferadvance.py:179
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:183
+#: xferadvance.py:189
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:194
+#: xferadvance.py:200
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:195
+#: xferadvance.py:201
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:218
+#: xferadvance.py:224
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
@@ -151,31 +151,31 @@ msgstr "Delete"
 msgid "Add"
 msgstr "Add"
 
-#: xfergraphic.py:137
+#: xfergraphic.py:139
 msgid "Traitment..."
 msgstr "Traitment..."
 
-#: xfergraphic.py:179
+#: xfergraphic.py:184
 msgid "Retry"
 msgstr "Retry"
 
-#: xfergraphic.py:611
+#: xfergraphic.py:619
 msgid "Available"
 msgstr ""
 
-#: xfergraphic.py:611
+#: xfergraphic.py:619
 msgid "Chosen"
 msgstr ""
 
-#: xferprinting.py:81
+#: xferprinting.py:82
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:126
+#: xferprinting.py:133
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:128
+#: xferprinting.py:135
 msgid "CSV file"
 msgstr "CSV file"
 

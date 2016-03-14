@@ -35,7 +35,7 @@ from django.db.models import Q
 
 from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
-    XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime
+    XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
@@ -308,6 +308,8 @@ class PrintLabel(PrintItem):
                         *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))[:2]])
             elif isinstance(self.comp, XferCompSelect):
                 self.value = self.comp.get_value_text()
+            elif isinstance(self.comp, XferCompCheck):
+                self.value = get_value_converted(bool(self.comp.value), True)
             else:
                 self.value = self.comp.value
         except Exception as err:
@@ -447,7 +449,7 @@ class ActionGenerator(ReportGenerator):
                 new_item = PrintTab(comp, self)
             elif isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
                     isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) \
-                    or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect):
+                    or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect) or isinstance(comp, XferCompCheck):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
                 if new_item.tab not in col_size.keys():

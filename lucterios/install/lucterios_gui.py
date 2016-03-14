@@ -535,6 +535,12 @@ class LucteriosMainForm(Tk):
         for module_item in mod_modules:
             self.module_txt.insert(
                 END, "\t%s\t%s\n" % (module_item[0].ljust(30), module_item[1]))
+        extra_urls = lct_glob.get_extra_urls()
+        if len(extra_urls) > 0:
+            self.module_txt.insert(END, "\n")
+            self.module_txt.insert(END, ugettext("Pypi servers\n"))
+            for extra_url in extra_urls:
+                self.module_txt.insert(END, "\t%s\n" % extra_url)
         self.module_txt.config(state=DISABLED)
         self.has_checked = True
 

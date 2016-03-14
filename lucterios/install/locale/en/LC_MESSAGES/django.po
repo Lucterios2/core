@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-11 13:17+0000\n"
+"POT-Creation-Date: 2016-03-14 16:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,97 +17,101 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lucterios_admin.py:600 lucterios_gui.py:220
+#: lucterios_admin.py:612 lucterios_gui.py:219
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
-#: lucterios_gui.py:79 lucterios_gui.py:390 lucterios_gui.py:611
-#: lucterios_gui.py:754 lucterios_gui.py:758 lucterios_gui.py:777
-#: lucterios_gui.py:781
+#: lucterios_gui.py:79 lucterios_gui.py:389 lucterios_gui.py:616
+#: lucterios_gui.py:759 lucterios_gui.py:763 lucterios_gui.py:782
+#: lucterios_gui.py:786
 msgid "Lucterios installer"
 msgstr "Lucterios installer"
 
-#: lucterios_gui.py:152 lucterios_gui.py:271 lucterios_gui.py:274
+#: lucterios_gui.py:113
+msgid "Error to start!"
+msgstr "Error to start!"
+
+#: lucterios_gui.py:151 lucterios_gui.py:270 lucterios_gui.py:273
 msgid "Instance editor"
 msgstr "Instance editor"
 
-#: lucterios_gui.py:163
+#: lucterios_gui.py:162
 msgid "General"
 msgstr "General"
 
-#: lucterios_gui.py:169
+#: lucterios_gui.py:168
 msgid "Database"
 msgstr "Database"
 
-#: lucterios_gui.py:173
+#: lucterios_gui.py:172
 msgid "OK"
 msgstr "OK"
 
-#: lucterios_gui.py:175
+#: lucterios_gui.py:174
 msgid "Cancel"
 msgstr "Cancel"
 
-#: lucterios_gui.py:179
+#: lucterios_gui.py:178
 msgid "Type"
 msgstr "Type"
 
-#: lucterios_gui.py:185 lucterios_gui.py:199
+#: lucterios_gui.py:184 lucterios_gui.py:198
 msgid "Name"
 msgstr "Name"
 
-#: lucterios_gui.py:189
+#: lucterios_gui.py:188
 msgid "User"
 msgstr "User"
 
-#: lucterios_gui.py:193 lucterios_gui.py:226
+#: lucterios_gui.py:192 lucterios_gui.py:225
 msgid "Password"
 msgstr "Password"
 
-#: lucterios_gui.py:203
+#: lucterios_gui.py:202
 msgid "Appli"
 msgstr "Appli"
 
-#: lucterios_gui.py:209 lucterios_gui.py:481
+#: lucterios_gui.py:208 lucterios_gui.py:480
 msgid "Modules"
 msgstr "Modules"
 
-#: lucterios_gui.py:214
+#: lucterios_gui.py:213
 msgid "Language"
 msgstr "Language"
 
-#: lucterios_gui.py:271
+#: lucterios_gui.py:270
 msgid "Name empty!"
 msgstr "Name empty!"
 
-#: lucterios_gui.py:274
+#: lucterios_gui.py:273
 msgid "No application!"
 msgstr "No application!"
 
-#: lucterios_gui.py:343
+#: lucterios_gui.py:342
 msgid "CORE-connectmode.0"
 msgstr "Connection always needed"
 
-#: lucterios_gui.py:343
+#: lucterios_gui.py:342
 msgid "CORE-connectmode.1"
 msgstr "Open in anonymous"
 
-#: lucterios_gui.py:343
+#: lucterios_gui.py:342
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: lucterios_gui.py:413
+#: lucterios_gui.py:412
 msgid "Refresh"
 msgstr "Refresh"
 
-#: lucterios_gui.py:416
+#: lucterios_gui.py:415
 msgid "Search upgrade"
 msgstr "Search upgrade"
 
-#: lucterios_gui.py:419
+#: lucterios_gui.py:418
 msgid "Close"
 msgstr "Close"
 
-#: lucterios_gui.py:428
+#: lucterios_gui.py:427
 msgid ""
 "An instance is always running.\n"
 "Do you want to close?"
@@ -115,111 +119,115 @@ msgstr ""
 "An instance is always running.\n"
 "Do you want to close?"
 
-#: lucterios_gui.py:459 lucterios_gui.py:653 lucterios_gui.py:656
+#: lucterios_gui.py:458 lucterios_gui.py:658 lucterios_gui.py:661
 msgid "Launch"
 msgstr "Launch"
 
-#: lucterios_gui.py:461
+#: lucterios_gui.py:460
 msgid "Modify"
 msgstr "Modify"
 
-#: lucterios_gui.py:463
+#: lucterios_gui.py:462
 msgid "Delete"
 msgstr "Delete"
 
-#: lucterios_gui.py:465
+#: lucterios_gui.py:464
 msgid "Save"
 msgstr "Save"
 
-#: lucterios_gui.py:467
+#: lucterios_gui.py:466
 msgid "Restore"
 msgstr "Restore"
 
-#: lucterios_gui.py:469
+#: lucterios_gui.py:468
 msgid "Add"
 msgstr "Add"
 
-#: lucterios_gui.py:472
+#: lucterios_gui.py:471
 msgid "Instances"
 msgstr "Instances"
 
-#: lucterios_gui.py:529
+#: lucterios_gui.py:528
 #, python-format
 msgid "Lucterios core\t\t%s\n"
 msgstr "Lucterios core\t\t%s\n"
 
-#: lucterios_gui.py:531
+#: lucterios_gui.py:530
 msgid "Application\n"
 msgstr "Application\n"
 
-#: lucterios_gui.py:535
+#: lucterios_gui.py:534
 msgid "Modules\n"
 msgstr "Modules\n"
 
-#: lucterios_gui.py:578
+#: lucterios_gui.py:541
+msgid "Pypi servers\n"
+msgstr "Pypi servers\n"
+
+#: lucterios_gui.py:583
 msgid "Upgrade needs"
 msgstr "Upgrade needs"
 
-#: lucterios_gui.py:580
+#: lucterios_gui.py:585
 msgid "No upgrade"
 msgstr "No upgrade"
 
-#: lucterios_gui.py:612
+#: lucterios_gui.py:617
 msgid "The application must restart"
 msgstr "The application must restart"
 
-#: lucterios_gui.py:636
+#: lucterios_gui.py:641
 #, python-format
 msgid "Database\t\t%s\n"
 msgstr "Database\t\t%s\n"
 
-#: lucterios_gui.py:638
+#: lucterios_gui.py:643
 #, python-format
 msgid "Appli\t\t%s\n"
 msgstr "Appli\t\t%s\n"
 
-#: lucterios_gui.py:640
+#: lucterios_gui.py:645
 #, python-format
 msgid "Modules\t\t%s\n"
 msgstr "Modules\t\t%s\n"
 
-#: lucterios_gui.py:642
+#: lucterios_gui.py:647
 #, python-format
 msgid "Extra\t\t%s\n"
 msgstr "Extra\t\t%s\n"
 
-#: lucterios_gui.py:646
+#: lucterios_gui.py:651
 #, python-format
 msgid "=> Running in http://%(ip)s:%(port)d\n"
 msgstr "=> Running in http://%(ip)s:%(port)d\n"
 
-#: lucterios_gui.py:648
+#: lucterios_gui.py:653
 msgid "Stop"
 msgstr "Stop"
 
-#: lucterios_gui.py:651
+#: lucterios_gui.py:656
 msgid "=> Stopped\n"
 msgstr "=> Stopped\n"
 
-#: lucterios_gui.py:723
+#: lucterios_gui.py:728
 #, python-format
 msgid "Do you want to delete '%s'?"
 msgstr "Do you want to delete '%s'?"
 
-#: lucterios_gui.py:755
+#: lucterios_gui.py:760
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance saved to %s"
 
-#: lucterios_gui.py:758
+#: lucterios_gui.py:763
 msgid "Instance not saved!"
 msgstr "Instance not saved!"
 
-#: lucterios_gui.py:778
+#: lucterios_gui.py:783
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restore from %s"
 
-#: lucterios_gui.py:781
+#: lucterios_gui.py:786
 msgid "Instance not restored!"
 msgstr "Instance not restored!"

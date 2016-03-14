@@ -42,6 +42,7 @@ import os
 
 INSTANCE_PATH = '.'
 
+EXTRA_URL = 'extra_url'
 SECURITY_PASSWD = 'PASSWORD'
 SECURITY_MODE = 'MODE'
 SECURITY_LIST = [SECURITY_PASSWD, SECURITY_MODE]
@@ -213,6 +214,18 @@ class LucteriosGlobal(LucteriosManage):
         self.print_info_("Modules:\n%s" % show_list(mod_modules))
         return mod_lucterios, mod_applis, mod_modules
 
+    def get_extra_urls(self):
+        extra_urls = []
+        if EXTRA_URL in os.environ.keys():
+            extra_urls = os.environ[EXTRA_URL].split(';')
+        if isfile(join(self.instance_path, EXTRA_URL)):
+            with open(join(self.instance_path, EXTRA_URL), mode='r') as url_file:
+                for line in url_file:
+                    line = line.strip()
+                    if line.startswith('http'):
+                        extra_urls.append(line)
+        return extra_urls
+
     def get_default_args_(self, other_args):
         import logging
         logging.captureWarnings(True)
@@ -220,20 +233,19 @@ class LucteriosGlobal(LucteriosManage):
         args.append('--quiet')
         if 'http_proxy' in os.environ.keys():
             args.append('--proxy=' + os.environ['http_proxy'])
-        if 'extra_url' in os.environ.keys():
-            extra_urls = os.environ['extra_url']
-            args.append('--extra-index-url=' + extra_urls)
-            trusted_host = []
-            for extra_url in extra_urls.split(','):
+        extra_urls = self.get_extra_urls()
+        if len(extra_urls) > 0:
+            for extra_url in extra_urls:
+                args.append('--extra-index-url')
+                args.append(extra_url)
                 if extra_url.startswith('http://'):
                     import re
                     url_parse = re.compile(
                         r'^(([^:/?#]+):)?//(([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?')
-                    url_sep = url_parse.search(os.environ['extra_url'])
+                    url_sep = url_parse.search(extra_url)
                     if url_sep:
-                        trusted_host.append(url_sep.groups()[2])
-            if len(trusted_host) > 0:
-                args.append('--trusted-host=' + ",".join(trusted_host))
+                        args.append('--trusted-host')
+                        args.append(url_sep.groups()[2])
         return args
 
     def check(self):

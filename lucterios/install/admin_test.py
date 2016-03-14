@@ -31,7 +31,7 @@ from unittest.loader import TestLoader
 from os.path import join, dirname, isfile, isdir
 import os
 from lucterios.install.lucterios_migration import MigrateFromV1
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none, delete_path
 from lucterios.framework.juxd import JUXDTestRunner
 
 
@@ -56,26 +56,50 @@ class TestGlobal(BaseTest):
     def setUp(self):
         BaseTest.setUp(self)
         os.environ['extra_url'] = "http://pypi.lucterios.org/simple"
+        delete_path(join(self.path_dir, 'extra_url'))
 
     def test_installed(self):
         val = self.luct_glo.installed()
         self.assertEqual('lucterios', val[0][0])
-        self.assertEqual('2.0', val[0][1][:3])
+        self.assertEqual('???', val[0][1][:3])
         self.assertEqual(([], []), val[1:])
 
     def test_check(self):
         val = self.luct_glo.check()
         list_key = list(val[0].keys())
         list_key.sort()
-        self.assertEqual(['lucterios', 'lucterios-standard'], list_key)
-        self.assertEqual(None, val[0]['lucterios'][1])
-        self.assertEqual(False, val[0]['lucterios'][2])
-        self.assertEqual(None, val[0]['lucterios-standard'][1])
-        self.assertEqual(False, val[0]['lucterios-standard'][2])
-        self.assertEqual(False, val[1])
+        self.assertEqual([], list_key)
 
     def test_refresh_all(self):
         self.assertEqual([], self.luct_glo.refreshall())
+
+    def write_extraurl_file(self, values):
+        with open(join(self.path_dir, 'extra_url'), mode='w') as file:
+            for val in values:
+                file.write(val + '\n')
+
+    def test_check_pypi(self):
+        old_http_proxy = os.environ['http_proxy']
+        del os.environ['http_proxy']
+        try:
+            self.assertEqual(
+                ['--quiet', '--extra-index-url', 'http://pypi.lucterios.org/simple', '--trusted-host', 'pypi.lucterios.org'], self.luct_glo.get_default_args_([]))
+            del os.environ['extra_url']
+            self.assertEqual(['--quiet'], self.luct_glo.get_default_args_([]))
+            self.write_extraurl_file([])
+            self.assertEqual(['--quiet'], self.luct_glo.get_default_args_([]))
+            self.write_extraurl_file(
+                ['# pypi server list', 'http://pypi.diacamma.org/simple', 'https://pypi.supersecure.net/simple', 'http://pypi.lucterios.org/simple', ''])
+            self.assertEqual(
+                ['--quiet', '--extra-index-url', 'http://pypi.diacamma.org/simple', '--trusted-host', 'pypi.diacamma.org', '--extra-index-url', 'https://pypi.supersecure.net/simple',
+                 '--extra-index-url', 'http://pypi.lucterios.org/simple', '--trusted-host', 'pypi.lucterios.org'], self.luct_glo.get_default_args_([]))
+            self.write_extraurl_file([])
+            os.environ['http_proxy'] = 'http://myproxy.truc.com:8000'
+            self.write_extraurl_file([])
+            self.assertEqual(
+                ['--quiet', '--proxy=http://myproxy.truc.com:8000'], self.luct_glo.get_default_args_([]))
+        finally:
+            os.environ['http_proxy'] = old_http_proxy
 
 
 class TestAdminSQLite(BaseTest):
@@ -449,10 +473,10 @@ class TestAdminPostGreSQL(BaseTest):
 if __name__ == "__main__":
     suite = TestSuite()
     loader = TestLoader()
-    suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
-    suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
-    suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
-    # suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
+    # suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
+    # suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    # suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
+    suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     JUXDTestRunner(verbosity=1).run(suite)
 else:
     setup_from_none()
