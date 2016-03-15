@@ -15,6 +15,7 @@ module('ObserverCustom', {
 		Singleton().setFactory(this.mObsFactory);
 		Singleton().setActionClass(ActionImpl);
 		Singleton().Transport().setSession("abc123");
+		Singleton().mSelectLang = 'fr';
 
 		ObserverFactoryMock.NewObserver = new ObserverAcknowledgeNoParent();
 		ObserverAuthentification.connectSetValue = this.setValue;

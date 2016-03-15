@@ -10,6 +10,7 @@ module('Observer', {
 		Singleton().setActionClass(ActionImpl);
 		Singleton().Transport().setSession("abc123");
 		Singleton().Transport().setLastLogin("admin");
+		Singleton().mSelectLang = 'fr';
 		this.mObsFactory.setHttpTransport(Singleton().Transport());
 
 		ObserverFactoryMock.NewObserver = new ObserverAcknowledge();

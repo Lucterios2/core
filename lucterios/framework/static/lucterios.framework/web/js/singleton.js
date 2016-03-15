@@ -90,7 +90,7 @@ var SingletonClass = Class.extend({
 	},
 	
 	getSelectLang : function() {
-		if ((this.mDesc!==null) && (this.mDesc.getLanguage()!==null)) {
+		if ((this.mDesc!==null) && (this.mDesc.getLanguage()!=='')) {
 			return this.mDesc.getLanguage();
 		}   
 		return this.mSelectLang;
