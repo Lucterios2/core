@@ -16,9 +16,9 @@ var ApplicationDescription = Class
 			mRealName : '',
 			mInstanceName : '',
 			mMode : 0,
+			mLanguage : '',
 
-			init : function(aTitle, aCopyRigth, aAppliVersion,
-					aServerVersion) {
+			init : function(aTitle, aCopyRigth, aAppliVersion, aServerVersion) {
 				this.mTitle = aTitle;
 				this.mApplisVersion = aAppliVersion;
 				this.mServerVersion = aServerVersion;
@@ -28,7 +28,7 @@ var ApplicationDescription = Class
 			setLogoIconName : function(aLogoIconName) {
 				this.mLogoIconName = aLogoIconName;
 			},
-			
+
 			setBackground : function(aBackground) {
 				this.mBackground = aBackground;
 			},
@@ -40,9 +40,8 @@ var ApplicationDescription = Class
 			getConnectUser : function() {
 				var res = this.mRealName;
 				if (this.mLogin !== '') {
-					res += " ({0}@{1})".format(this.mLogin,this.mInstanceName);
-				}
-				else {
+					res += " ({0}@{1})".format(this.mLogin, this.mInstanceName);
+				} else {
 					res += " @{0}".format(this.mInstanceName);
 				}
 				return res;
@@ -111,10 +110,18 @@ var ApplicationDescription = Class
 			setMode : function(aMode) {
 				this.mMode = aMode;
 			},
-			
+
 			setInstanceName : function(aInstanceName) {
-				this.mInstanceName= aInstanceName;
-			},			
+				this.mInstanceName = aInstanceName;
+			},
+
+			getLanguage : function() {
+				return this.mLanguage;
+			},
+			
+			setLanguage : function(language) {
+				this.mLanguage = language;
+			},
 
 			fillEmailSupport : function(aTitle, aComplement) {
 				var email = this.mSupportEmail, url = "mailto:" + email;
@@ -187,7 +194,8 @@ var ApplicationDescription = Class
 				text_html = text_html.replace("&#91;", "[");
 				text_html = text_html.replace("&#93;", "]");
 				text_html = text_html.replace("&#47;", "/");
-				text_html = text_html.replace(/(<\/td><\/tr>|<br>|<br\/>)/g, "\n");
+				text_html = text_html.replace(/(<\/td><\/tr>|<br>|<br\/>)/g,
+						"\n");
 				text_html = text_html.replace(/<\/td><td>/g, " : ");
 				text_html = text_html.replace(/(<hr>|<hr\/>)/g,
 						"__________________________________________\n");
@@ -210,18 +218,13 @@ var ObserverAuthentification = ObserverAbstract
 				this.acts = [];
 				this.acts[0] = new ActionInt();
 				this.acts[0].initializeEx(this, null, 'Ok');
-				this.acts[0].callback = $
-						.proxy(
-								function(aParams) {
-									if (this.mGUI !== null) {
-										var login = aParams
-												.get('username'), pass = aParams
-												.get('password');
-										Singleton().Factory()
-												.setAuthentification(login,
-														pass);
-									}
-								}, this);
+				this.acts[0].callback = $.proxy(function(aParams) {
+					if (this.mGUI !== null) {
+						var login = aParams.get('username'), pass = aParams
+								.get('password');
+						Singleton().Factory().setAuthentification(login, pass);
+					}
+				}, this);
 				this.acts[1] = new ActionInt();
 				this.acts[1].initializeEx(this, Singleton().Factory(),
 						Singleton().getTranslate("Cancel"));
@@ -246,8 +249,10 @@ var ObserverAuthentification = ObserverAbstract
 							.getCDataOfFirstTag("COPYRIGHT"), xml_connection
 							.getCDataOfFirstTag("VERSION"), xml_connection
 							.getCDataOfFirstTag("SERVERVERSION"));
-					desc.setLogoIconName(xml_connection.getCDataOfFirstTag("LOGONAME"));
-					desc.setBackground(xml_connection.getCDataOfFirstTag("BACKGROUND"));
+					desc.setLogoIconName(xml_connection
+							.getCDataOfFirstTag("LOGONAME"));
+					desc.setBackground(xml_connection
+							.getCDataOfFirstTag("BACKGROUND"));
 					desc.setSupportEmail(xml_connection
 							.getCDataOfFirstTag("SUPPORT_EMAIL"));
 					desc.setInfoServer(xml_connection
@@ -258,7 +263,10 @@ var ObserverAuthentification = ObserverAbstract
 					desc.setRealName(xml_connection
 							.getCDataOfFirstTag("REALNAME"));
 					desc.setMode(xml_connection.getCDataOfFirstTag("MODE"));
-					desc.setInstanceName(xml_connection.getCDataOfFirstTag("INSTANCE"));
+					desc.setInstanceName(xml_connection
+							.getCDataOfFirstTag("INSTANCE"));
+					desc.setLanguage(xml_connection
+							.getCDataOfFirstTag("LANGUAGE"));
 					xml_params = this.mDomXmlContent
 							.getElementsByTagName("PARAM");
 					for (param_idx = 0; param_idx < xml_params.length; param_idx++) {

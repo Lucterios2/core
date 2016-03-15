@@ -113,6 +113,8 @@ class Authentification(XferContainerAbstract):
         setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
         etree.SubElement(
             connextion, 'INSTANCE').text = setting_module_name.split('.')[0]
+        etree.SubElement(
+            connextion, 'LANGUAGE').text = self.language
         etree.SubElement(connextion, 'MODE').text = six.text_type(
             Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():

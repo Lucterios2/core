@@ -88,11 +88,18 @@ var SingletonClass = Class.extend({
 			$.datepicker.setDefaults($.datepicker.regional[this.mSelectLang]);
 		}
 	},
+	
+	getSelectLang : function() {
+		if ((this.mDesc!==null) && (this.mDesc.getLanguage()!==null)) {
+			return this.mDesc.getLanguage();
+		}   
+		return this.mSelectLang;
+	},
 
 	getTranslate : function(name) {
-		var res = null;
-		if (g_translation.get(this.mSelectLang) !== null) {
-			res = g_translation.get(this.mSelectLang).get(name);
+		var res = null, select_lang=this.getSelectLang();
+		if (g_translation.get(select_lang) !== null) {
+			res = g_translation.get(select_lang).get(name);
 		}
 		if (res === null) {
 			res = name;
