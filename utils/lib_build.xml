@@ -65,20 +65,17 @@
 	</target>
 
 	<target name="init">
-		<exec executable="git" outputproperty="build.hnum" failifexecutionfails="false" errorproperty="">
-			<arg value="describe" />
-			<arg value="--tags" />
-			<arg value="--always" />
-			<arg value="HEAD" />
+		<exec executable="/bin/bash" outputproperty="build.tstmp" failifexecutionfails="false" errorproperty="">
+			<arg line="-c 'git log -1 --format=%at'" />
 		</exec>
 		<exec executable="python" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
 			<arg value="-c" />
-			<arg value="print(int('${build.hnum}', 16))" />
+			<arg value="import datetime;print(datetime.datetime.fromtimestamp(int('${build.tstmp}')).strftime('%y%m%d%H'))" />
 		</exec>
 		<tstamp>
 			<format property="build.time" pattern="yyMMddHH" unit="hour" />
 		</tstamp>
-		<property name="projet.version.build" value="${build.time}" />
+		<property name="projet.version.build" value="${build.num}" />
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
 				<echo message="${projet.version.build}" file="${basedir}/@{packageitem}/build" append="false" />
@@ -299,6 +296,7 @@
 		</exec>
 		<delete dir="${basedir}/build" />
 		<antcall target="package_del" />
+		<echo message="" file="dist/${project.name}-git_${build.num}-time_${build.time}" append="false" />
 	</target>
 
 </project>
