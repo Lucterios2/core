@@ -44,6 +44,7 @@
 		<delete file="junit_py2.xml" />
 		<delete file="junit_py3.xml" />
 		<delete file="pylint.txt" />
+		<delete file="*.version" />
 		<delete file="MANIFEST" />
 		<delete>
 			<fileset dir="." includes="**/*.pyc" />
@@ -76,6 +77,7 @@
 			<format property="build.time" pattern="yyMMddHH" unit="hour" />
 		</tstamp>
 		<property name="projet.version.build" value="${build.num}" />
+		<echo message="git:${build.num}-time:${build.time}" file="${project.name}-git_${build.num}-time_${build.time}.version" append="false" />
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
 				<echo message="${projet.version.build}" file="${basedir}/@{packageitem}/build" append="false" />
@@ -258,7 +260,7 @@
 				<loadfile property="build_file" srcfile="@{packageitem}/build" />
 				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py" />
 				
-				<for param="line" delimiter="${line.separator}" list="${init_file}">
+					<for param="line" delimiter="${line.separator}" list="${init_file}">
 					<sequential>
 						<propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
 						<propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
@@ -296,7 +298,11 @@
 		</exec>
 		<delete dir="${basedir}/build" />
 		<antcall target="package_del" />
-		<echo message="" file="dist/${project.name}-git_${build.num}-time_${build.time}" append="false" />
+		<move todir="dist">				
+			<fileset dir=".">
+		      <include name="*.version"/>
+		    </fileset>		
+    	</move>
 	</target>
 
 </project>
