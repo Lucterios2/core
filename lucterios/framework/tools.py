@@ -23,6 +23,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from datetime import datetime
+from calendar import monthrange
+
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
@@ -335,3 +338,21 @@ def toHtml(text):
     text = text.replace(']}', '>')
     text = text.replace('& ', '&amp; ')
     return text
+
+
+def convert_date(current_date, defaultdate=None):
+    try:
+        return datetime.strptime(current_date, "%Y-%m-%d").date()
+    except (TypeError, ValueError):
+        return defaultdate
+
+
+def same_day_months_after(start_date, months=1):
+    month_val = start_date.month - 1 + months
+    if month_val < 0:
+        target_year = start_date.year + int(month_val / 12) - 1
+    else:
+        target_year = start_date.year + int(month_val / 12)
+    target_month = month_val % 12 + 1
+    num_days_target_month = monthrange(target_year, target_month)[1]
+    return start_date.replace(year=target_year, month=target_month, day=min(start_date.day, num_days_target_month))
