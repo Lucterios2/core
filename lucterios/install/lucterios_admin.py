@@ -815,13 +815,10 @@ class LucteriosInstance(LucteriosManage):
                            ('asso', '0001_initial'),
                            ('syndic', '0001_initial')]
         targets = []
-        for target in executor.loader.graph.root_nodes():
-            #if target in old_targets:
-            targets.append(target)
         for target in executor.loader.graph.leaf_nodes():
-            if (target not in targets): # and (target in old_targets):
-                targets.append(target)
-        targets.sort(key=cmp_node())
+            targets.append(target)
+        targets = sorted(set(targets), key=cmp_node())
+        six.print_(targets)
         return targets
 
     def _migrate_from_old_targets(self, tmp_path):
