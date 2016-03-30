@@ -744,7 +744,40 @@ class LucteriosInstance(LucteriosManage):
         delete_path(output_filename)
         return isfile(self.filename)
 
-    def _migrate_from_old_targets(self, tmp_path):
+    def get_targets(self, tmp_path, executor):
+        def cmp_node():
+            class CmpNode:
+
+                def __init__(self, obj, *args):
+                    self.obj = obj
+
+                def comp_node(self, other):
+                    if self.obj in executor.loader.graph.node_map[other.obj].parents:
+                        return -1
+                    elif other.obj in executor.loader.graph.node_map[self.obj].parents:
+                        return 1
+                    else:
+                        return 0
+
+                def __lt__(self, other):
+                    return self.comp_node(other) < 0
+
+                def __gt__(self, other):
+                    return self.comp_node(other) > 0
+
+                def __eq__(self, other):
+                    return self.comp_node(other) == 0
+
+                def __le__(self, other):
+                    return self.comp_node(other) <= 0
+
+                def __ge__(self, other):
+                    return self.comp_node(other) >= 0
+
+                def __ne__(self, other):
+                    return self.comp_node(other) != 0
+            return CmpNode
+
         target_filename = join(tmp_path, 'target')
         old_targets = []
         if isfile(target_filename):
@@ -781,7 +814,17 @@ class LucteriosInstance(LucteriosManage):
                            ('framework', '0001_initial'),
                            ('asso', '0001_initial'),
                            ('syndic', '0001_initial')]
+        targets = []
+        for target in executor.loader.graph.root_nodes():
+            #if target in old_targets:
+            targets.append(target)
+        for target in executor.loader.graph.leaf_nodes():
+            if (target not in targets): # and (target in old_targets):
+                targets.append(target)
+        targets.sort(key=cmp_node())
+        return targets
 
+    def _migrate_from_old_targets(self, tmp_path):
         if "sqlite3" in self.databases['default']['ENGINE']:
             try:
                 delete_path(self.databases['default']['NAME'])
@@ -805,10 +848,7 @@ class LucteriosInstance(LucteriosManage):
         connection = connections[DEFAULT_DB_ALIAS]
         connection.prepare_database()
         executor = MigrationExecutor(connection)
-        targets = []
-        for target in executor.loader.graph.leaf_nodes():
-            if target in old_targets:
-                targets.append(target)
+        targets = self.get_targets(tmp_path, executor)
         emit_pre_migrate_signal(0, None, connection.alias)
         executor.migrate(targets)
         emit_post_migrate_signal(0, None, connection.alias)
