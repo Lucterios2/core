@@ -312,10 +312,13 @@ class PrintModelList(XferContainerCustom):
         model_list = {}
         for print_model in PrintModel.objects.all():
             if print_model.modelname not in model_list.keys():
-                model_list[
-                    print_model.modelname] = print_model.model_associated_title()
-                if modelname == '':
-                    modelname = print_model.modelname
+                try:
+                    model_list[
+                        print_model.modelname] = print_model.model_associated_title()
+                    if modelname == '':
+                        modelname = print_model.modelname
+                except LookupError:
+                    pass
         model_sel = XferCompSelect('modelname')
         model_sel.set_location(2, 1, 2)
         model_sel.set_select(model_list)

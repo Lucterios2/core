@@ -216,7 +216,7 @@ class PrintModel(LucteriosModel):
         return apps.get_model(self.modelname)
 
     def model_associated_title(self):
-        return self.model_associated()._meta.verbose_name.title()
+        return six.text_type(self.model_associated()._meta.verbose_name)
 
     @property
     def page_width(self):

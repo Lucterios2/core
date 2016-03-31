@@ -744,7 +744,7 @@ class LucteriosInstance(LucteriosManage):
         delete_path(output_filename)
         return isfile(self.filename)
 
-    def get_targets(self, tmp_path, executor):
+    def get_other_targets(self, tmp_path, executor):
         def cmp_node():
             class CmpNode:
 
@@ -815,10 +815,10 @@ class LucteriosInstance(LucteriosManage):
                            ('asso', '0001_initial'),
                            ('syndic', '0001_initial')]
         targets = []
-        for target in executor.loader.graph.leaf_nodes():
-            targets.append(target)
+        for target in executor.loader.graph.nodes:
+            if target not in old_targets:
+                targets.append(target)
         targets = sorted(set(targets), key=cmp_node())
-        six.print_(targets)
         return targets
 
     def _migrate_from_old_targets(self, tmp_path):
@@ -845,11 +845,31 @@ class LucteriosInstance(LucteriosManage):
         connection = connections[DEFAULT_DB_ALIAS]
         connection.prepare_database()
         executor = MigrationExecutor(connection)
-        targets = self.get_targets(tmp_path, executor)
         emit_pre_migrate_signal(0, None, connection.alias)
-        executor.migrate(targets)
+        executor.migrate(executor.loader.graph.leaf_nodes())
         emit_post_migrate_signal(0, None, connection.alias)
         self.clear(True, ['django_migrations'])
+
+    def run_new_migration(self, tmp_path):
+        from inspect import getmembers, isfunction
+        from django.apps import apps
+        from django.db import DEFAULT_DB_ALIAS, connections
+        from django.db.migrations.executor import MigrationExecutor
+        connection = connections[DEFAULT_DB_ALIAS]
+        connection.prepare_database()
+        executor = MigrationExecutor(connection)
+        for target in self.get_other_targets(tmp_path, executor):
+            try:
+                target_conf = apps.get_app_config(target[0])
+                migrat_mod = import_module(
+                    "%s.migrations.%s" % (target_conf.module.__name__, target[1]))
+                for migr_obj in getmembers(migrat_mod):
+                    if isfunction(migr_obj[1]) and (migr_obj[0][0] != '_'):
+                        six.print_("run %s.%s.%s" %
+                                   (target[0], target[1], migr_obj[0]))
+                        migr_obj[1]()
+            except:
+                pass
 
     def restore(self):
         if self.name == '':
@@ -874,6 +894,7 @@ class LucteriosInstance(LucteriosManage):
             self.clear_info_()
             from django.core.management import call_command
             call_command('loaddata', output_filename)
+            self.run_new_migration(tmp_path)
             self.print_info_("instance restored with '%s'" % self.filename)
             if isdir(join(tmp_path, 'usr')):
                 move(join(tmp_path, 'usr'), get_user_dir())

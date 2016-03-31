@@ -42,6 +42,7 @@ from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath,
     get_image_size
 from lucterios.framework.models import get_value_converted
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
+from lucterios.framework.xferbasic import XferContainerAbstract
 
 DPI = 0.3528125
 
@@ -342,6 +343,7 @@ class ReportGenerator(object):
         self.body = None
         self.content_width = 0
         self.mode = 0
+        self.xfer = XferContainerAbstract()
 
     def fill_attrib_headerfooter(self):
         if self.header is not None:
@@ -378,8 +380,8 @@ class ReportGenerator(object):
         self.modelxml.attrib['margin_top'] = "%d.0" % self.vertical_marge
         self.fill_attrib_headerfooter()
 
-    def fill_content(self, _):
-        pass
+    def fill_content(self, request):
+        self.xfer._initialize(request)
 
     def generate(self, request):
         self.modelxml = etree.Element('model')
@@ -551,7 +553,8 @@ class ReportModelGenerator(ReportGenerator):
             target_node.attrib[att_name] = source_node.get(att_name)
 
     @staticmethod
-    def add_convert_model(node, partname, report_xml, current_item):
+    def add_convert_model(node, partname, report_xml, current_item, xfer):
+        current_item.set_context(xfer)
         for item in report_xml.xpath(partname)[0]:
             if item.tag == 'text':
                 new_item = convert_to_html(
@@ -574,9 +577,13 @@ class ReportModelGenerator(ReportGenerator):
                         new_value = getattr(current_item, data)
                         if data[-4:] == '_set':
                             sub_values = new_value.all()
+                            if hasattr(current_item, data[:-4] + '_query'):
+                                sub_values = sub_values.filter(
+                                    getattr(current_item, data[:-4] + '_query'))
                         elif hasattr(new_value, "evaluate"):
                             sub_values = [new_value]
                     for sub_value in sub_values:
+                        sub_value.set_context(xfer)
                         new_row = etree.SubElement(new_item, 'rows')
                         for cell in row.xpath('cell'):
                             new_cell = convert_to_html(
@@ -732,7 +739,7 @@ class ReportingGenerator(ReportGenerator):
 
     def add_convert_model(self, node, partname):
         ReportModelGenerator.add_convert_model(
-            node, partname, self.report_xml, self.current_item)
+            node, partname, self.report_xml, self.current_item, self.xfer)
 
     def add_page(self):
         if self.current_item is not None:
@@ -748,7 +755,8 @@ class ReportingGenerator(ReportGenerator):
         else:
             return self.items_callback()
 
-    def fill_content(self, _):
+    def fill_content(self, request):
+        ReportGenerator.fill_content(self, request)
         for self.current_item in self.get_items():
             self.add_page()
             self.add_convert_model(self.body, 'body')
