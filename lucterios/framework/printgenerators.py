@@ -381,7 +381,8 @@ class ReportGenerator(object):
         self.fill_attrib_headerfooter()
 
     def fill_content(self, request):
-        self.xfer._initialize(request)
+        if request is not None:
+            self.xfer._initialize(request)
 
     def generate(self, request):
         self.modelxml = etree.Element('model')
