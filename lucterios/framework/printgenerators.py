@@ -102,6 +102,26 @@ def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_h
     return xml_text
 
 
+def convert_text_xml(xml_text):
+    if 'font_family' in xml_text.attrib:
+        font_family = xml_text.attrib['font_family']
+    else:
+        font_family = "sans-serif"
+    if 'font_size' in xml_text.attrib:
+        font_size = int(xml_text.attrib['font_size'])
+    else:
+        font_size = 9
+    if 'line_height' in xml_text.attrib:
+        line_height = int(xml_text.attrib['line_height'])
+    else:
+        line_height = 10
+    if 'text_align' in xml_text.attrib:
+        text_align = xml_text.attrib['text_align']
+    else:
+        text_align = 'center'
+    return convert_to_html(xml_text.tag, xml_text.text, font_family, font_size, line_height, text_align)
+
+
 class PrintItem(object):
 
     def __init__(self, comp, owner):
@@ -684,6 +704,12 @@ class LabelGenerator(ReportModelGenerator):
             else:
                 docroot = etree.XML(labelval)
                 for xml_text in docroot.find('body').iter():
+                    if xml_text.tag == 'body':
+                        continue
+                    if xml_text.tag == 'text':
+                        new_xml_text = convert_text_xml(xml_text)
+                    else:
+                        new_xml_text = xml_text
                     if 'top' in xml_text.attrib:
                         top_offset = float(top) + float(xml_text.attrib['top'])
                     else:
@@ -693,16 +719,20 @@ class LabelGenerator(ReportModelGenerator):
                             left) + float(xml_text.attrib['left'])
                     else:
                         left_offset = float(left)
-                    if 'width' not in xml_text.attrib:
-                        xml_text.attrib['width'] = "%d.0" % self.label_size[
-                            'cell_width']
-                    if 'height' not in xml_text.attrib:
-                        xml_text.attrib['height'] = "%d.0" % self.label_size[
-                            'cell_height']
-                    xml_text.attrib['top'] = "%d.0" % top_offset
-                    xml_text.attrib['left'] = "%d.0" % left_offset
-                    xml_text.attrib['spacing'] = "0.0"
-                    self.body.append(xml_text)
+                    if 'width' in xml_text.attrib:
+                        width = int(xml_text.attrib['width'])
+                    else:
+                        width = self.label_size['cell_width']
+                    if 'height' in xml_text.attrib:
+                        height = int(xml_text.attrib['height'])
+                    else:
+                        height = self.label_size['cell_height']
+                    new_xml_text.attrib['top'] = "%d.0" % top_offset
+                    new_xml_text.attrib['left'] = "%d.0" % left_offset
+                    new_xml_text.attrib['width'] = "%d.0" % width
+                    new_xml_text.attrib['height'] = "%d.0" % height
+                    new_xml_text.attrib['spacing'] = "0.0"
+                    self.body.append(new_xml_text)
             index += 1
 
 
