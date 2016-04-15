@@ -384,7 +384,7 @@ class ReportGenerator(object):
 
     def get_text_from_title(self):
         xml_text = convert_to_html(
-            'text', "<b><u>%s</u></b>" % self.title, text_align='center')
+            'text', "{[b]}{[u]}%s{[/u]}{[/b]}" % self.title, text_align='center')
         xml_text.attrib['height'] = "%d.0" % 12
         xml_text.attrib['width'] = "%d.0" % self.content_width
         xml_text.attrib['top'] = "0.0"
