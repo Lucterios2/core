@@ -166,9 +166,14 @@ class XferShowEditor(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, max_row, True)
-        for act_type, title, icon, close in self.action_list:
+        for action_item in self.action_list:
+            act_type, title, icon, close = action_item[:4]
+            if len(action_item) > 4:
+                params = action_item[4]
+            else:
+                params = {}
             self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), {'close': close})
+                self.model.__name__, act_type, title, icon), {'close': close, 'params': params})
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
 
 

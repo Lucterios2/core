@@ -327,7 +327,10 @@ def get_binay(text):
 
 
 def toHtml(text):
-    text = six.text_type(text).replace('{[newline]}', '<br/>')
+    text = six.text_type(text)
+    text = text.replace('<', '&lt;')
+    text = text.replace('>', '&gt;')
+    text = text.replace('{[newline]}', '<br/>')
     text = text.replace('{[bold]}', '<b>')
     text = text.replace('{[/bold]}', '</b>')
     text = text.replace('{[italic]}', '<i>')

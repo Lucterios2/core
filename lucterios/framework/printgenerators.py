@@ -720,17 +720,17 @@ class LabelGenerator(ReportModelGenerator):
                     else:
                         left_offset = float(left)
                     if 'width' in xml_text.attrib:
-                        width = int(xml_text.attrib['width'])
+                        width = float(xml_text.attrib['width'])
                     else:
                         width = self.label_size['cell_width']
                     if 'height' in xml_text.attrib:
-                        height = int(xml_text.attrib['height'])
+                        height = float(xml_text.attrib['height'])
                     else:
                         height = self.label_size['cell_height']
-                    new_xml_text.attrib['top'] = "%d.0" % top_offset
-                    new_xml_text.attrib['left'] = "%d.0" % left_offset
-                    new_xml_text.attrib['width'] = "%d.0" % width
-                    new_xml_text.attrib['height'] = "%d.0" % height
+                    new_xml_text.attrib['top'] = "%.1f" % top_offset
+                    new_xml_text.attrib['left'] = "%.1f" % left_offset
+                    new_xml_text.attrib['width'] = "%.1f" % width
+                    new_xml_text.attrib['height'] = "%.1f" % height
                     new_xml_text.attrib['spacing'] = "0.0"
                     self.body.append(new_xml_text)
             index += 1

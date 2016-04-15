@@ -373,7 +373,7 @@ class PrintModelEdit(XferContainerCustom):
             self.get_components('mode').set_action(
                 self.request, self.get_action('', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
-                self.item.value = "<model>\n<header/>\n<bottom/>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
+                self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
             self._fill_listing_editor()
         elif (self.item.kind == 1) and (self.item.mode == 0):
