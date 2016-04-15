@@ -829,3 +829,12 @@ class XferCompGrid(XferComponent):
         for act_type, title, icon, unique in action_list:
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
                 model.__name__, act_type, title, icon), {'modal': FORMTYPE_MODAL, 'unique': unique})
+
+    def delete_action(self, url_text):
+        modify_idx = 0
+        for action in self.actions:
+            if action[0].url_text == url_text:
+                break
+            modify_idx += 1
+        if modify_idx < len(self.actions):
+            del self.actions[modify_idx]
