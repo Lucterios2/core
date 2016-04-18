@@ -812,7 +812,8 @@ class XferCompGrid(XferComponent):
                 else:
                     resvalue = child
                     for field_name in fieldname.split('.'):
-                        resvalue = getattr(resvalue, field_name)
+                        if resvalue is not None:
+                            resvalue = getattr(resvalue, field_name)
                     try:
                         field_desc = query_set.model.get_field_by_name(
                             fieldname)

@@ -365,7 +365,8 @@ class XferContainerCustom(XferContainerAbstract):
     def get_reading_comp(self, field_name):
         sub_value = self.item
         for fieldname in field_name.split('.'):
-            sub_value = getattr(sub_value, fieldname)
+            if sub_value is not None:
+                sub_value = getattr(sub_value, fieldname)
         value = get_value_converted(sub_value, True)
         dep_field = self.item.get_field_by_name(
             field_name)
