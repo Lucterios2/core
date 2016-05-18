@@ -122,9 +122,12 @@ class Authentification(XferContainerAbstract):
                 connextion, 'LOGIN').text = self.request.user.username
             etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (
                 self.request.user.first_name, self.request.user.last_name)
+            etree.SubElement(
+                connextion, 'EMAIL').text = self.request.user.email
         else:
             etree.SubElement(connextion, 'LOGIN').text = ''
             etree.SubElement(connextion, 'REALNAME').text = ''
+            etree.SubElement(connextion, 'EMAIL').text = ''
         self.responsexml.text = "OK"
 
 

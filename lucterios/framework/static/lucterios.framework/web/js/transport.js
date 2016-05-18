@@ -1,12 +1,5 @@
 /*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC*/
 
-var ENCODE = "utf-8";
-var MANAGER_FILE = "coreIndex.php";
-var AUTH_PARAM = "<PARAM name='ses' type='str'>";
-var MANAGER_FILE = "coreIndex.php";
-var POST_VARIABLE = "XMLinput";
-var NOENCODE = "nourlencode";
-
 var HttpTransportAbstract = Class
 		.extend({
 			mLastLogin : '',
@@ -70,32 +63,6 @@ var HttpTransportAbstract = Class
 					icon_url += icon;
 				}
 				return icon_url;
-			},
-
-			transfertXMLFromServer : function(aParams) {
-				var AUTH_REQUETE = "<REQUETE extension='CORE' action='authentification'>", xml_param = "<?xml version='1.0' encoding='"
-						+ ENCODE + "'?>", post_xml, data, reponse;
-				xml_param = xml_param + "<REQUETES>\n";
-				post_xml = '';
-				if (aParams.hasOwnProperty(POST_VARIABLE)) {
-					post_xml = aParams.get(POST_VARIABLE);
-				}
-				if ((this.getSessionEx() !== "")
-						&& (post_xml.indexOf(AUTH_REQUETE) === -1)) {
-					xml_param = xml_param + AUTH_REQUETE;
-					xml_param = xml_param + AUTH_PARAM + this.getSessionEx()
-							+ "</PARAM>";
-					xml_param = xml_param + "</REQUETE>";
-				}
-				xml_param = xml_param + post_xml + "</REQUETES>";
-				post_log("Ask " + xml_param);
-				aParams.put(POST_VARIABLE, xml_param);
-				aParams.put(NOENCODE, "1");
-				data = this
-						.transfertFileFromServerString(MANAGER_FILE, aParams);
-				reponse = "<?xml version='1.0' encoding='ISO-8859-1'?>"
-						+ data.replace(/\n/g, "");
-				return reponse;
 			},
 
 			close : function() {

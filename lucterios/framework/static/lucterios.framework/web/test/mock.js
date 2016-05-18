@@ -10,17 +10,13 @@ var HttpTransportStub = HttpTransportAbstract.extend({
 		this.XmlParam = new HashMap();
 	},
 
-	transfertXMLFromServer : function(aParams) {
+	transfertFileFromServerString : function(aWebFile, aParams) {
 		var self = this;
+		this.XmlParam['WebFile'] = aWebFile;
 		aParams.keys().forEach(function(key) {
 			self.XmlParam[key] = decodeURIComponent(aParams.get(key));
 		});
 		return this.XmlReceved;
-	},
-
-	transfertFileFromServerString : function(aWebFile, aParams) {
-		this.XmlParam['WebFile'] = aWebFile;
-		return this.transfertXMLFromServer(aParams);
 	},
 
 	getFileContent : function(aUrl, callback) {

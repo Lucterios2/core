@@ -27,6 +27,11 @@ var ObserverFactoryAbstract = Class
 				return new observer_class();
 			},
 
+			transfertFromServer : function(aExtension, aAction, aParam) {
+				unusedVariables(aExtension, aAction, aParam);
+				return null;
+			},
+			
 			callAction : function(aExtension, aAction, aParam) {
 				unusedVariables(aExtension, aAction, aParam);
 				return null;
@@ -63,38 +68,6 @@ var ObserverFactoryAbstract = Class
 
 var ObserverFactoryImpl = ObserverFactoryAbstract
 		.extend({
-			m_XMLParameters : "",
-
-			convertParameters : function(aExtension, aAction, aParam) {
-				var result = new HashMap(), self = this, val;
-				this.m_XMLParameters = "<REQUETE extension='" + aExtension
-						+ "' action='" + aAction + "'>";
-				aParam.keys().forEach(
-						function(key) {
-							val = aParam.get(key);
-							if (typeof val === 'string') {
-								self.m_XMLParameters = self.m_XMLParameters
-										+ "<PARAM name='" + key + "'><![CDATA["
-										+ val + "]]></PARAM>";
-							} else {
-								result.put(key, val);
-								if (val instanceof Blob) {
-									self.m_XMLParameters = self.m_XMLParameters
-											+ "<PARAM name='" + key
-											+ "'><![CDATA[" + val.name
-											+ "]]></PARAM>";
-								}
-							}
-						});
-				this.m_XMLParameters = this.m_XMLParameters + "</REQUETE>";
-				result.put(POST_VARIABLE, this.m_XMLParameters);
-				return result;
-			},
-
-			transfertFromServer : function(aExtension, aAction, aParam) {
-				return this.mTransport.transfertXMLFromServer(this
-						.convertParameters(aExtension, aAction, aParam));
-			},
 
 			callAction : function(aExtension, aAction, aParam, aObserver) {
 				var res_obs = null, xml_text = this.transfertFromServer(
