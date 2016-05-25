@@ -272,6 +272,8 @@ class XferCompButton(XferComponent):
             xml_acts = etree.SubElement(compxml, "ACTIONS")
             new_xml = self.action[0].get_action_xml(self.action[1])
             if new_xml is not None:
+                new_xml.attrib['id'] = self.name
+                new_xml.attrib['name'] = self.name
                 xml_acts.append(new_xml)
         if self.java_script != "":
             etree.SubElement(compxml, "JavaScript").text = six.text_type(
