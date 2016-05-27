@@ -141,7 +141,7 @@ class GenericTest(LucteriosTest):
         self.call('/customer/details', {}, False)
         self.assertEqual(self.value, False)
         self.assert_observer('core.custom', 'customer', 'details')
-        self.assert_count_equal('CONTEXT', 0)
+        self.assert_count_equal('CONTEXT', 1)
         self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_xml_equal(
             'COMPONENTS/LABELFORM[@name="info"]', '{[br/]}{[center]}Traitment{[br/]}Wait...{[/center]}')
