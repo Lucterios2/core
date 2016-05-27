@@ -127,17 +127,18 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value(
-                "{[br/]}{[center]}" + self.traitment_data[2] + "{[/center]}")
+                "{[br/]}{[center]}" + six.text_type(self.traitment_data[2]) + "{[/center]}")
             dlg.add_action(WrapAction(_("Close"), "images/close.png"), {})
         else:
             lbl.set_value(
-                "{[br/]}{[center]}" + self.traitment_data[1] + "{[/center]}")
+                "{[br/]}{[center]}" + six.text_type(self.traitment_data[1]) + "{[/center]}")
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
             btn.set_action(self.request, self.get_action(
                 _('Traitment...'), ""), {'params': {"RELOAD": "YES"}})
             btn.java_script = "parent.refresh()"
+            dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
         return dlg.get(request, *args, **kwargs)
