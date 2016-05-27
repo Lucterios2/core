@@ -219,9 +219,12 @@ var compButton = compAbstractEvent.extend({
 			this.btnaction = this.action;
 			this.action = this;
 			if (this.isMini) {
-				arg.style = 'width:30px;';
+				arg.style = 'width:30px;padding: 0px;';
+				title = '';
 			}
-			title = this.btnaction.getTitle();
+			else {
+				title = this.btnaction.getTitle();
+			}
 			if (this.btnaction.getIcon() !== '') {
 				btn_icon = Singleton().Transport().getIconUrl(
 						this.btnaction.getIcon());
