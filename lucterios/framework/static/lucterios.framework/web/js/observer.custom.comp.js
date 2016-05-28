@@ -220,10 +220,12 @@ var compButton = compAbstractEvent.extend({
 			this.action = this;
 			if (this.isMini) {
 				arg.style = 'width:30px;padding: 0px;';
-				title = '';
+			}
+			if (!this.isMini || (this.btnaction.getIcon() === '')) {
+				title = this.btnaction.getTitle();
 			}
 			else {
-				title = this.btnaction.getTitle();
+				title = '';
 			}
 			if (this.btnaction.getIcon() !== '') {
 				btn_icon = Singleton().Transport().getIconUrl(
