@@ -105,26 +105,19 @@ parent.get('password2').setEnabled(pwd_change);
     def saving(self, xfer):
         password = None
         password_generate = xfer.getparam('password_generate')
+        password_change = xfer.getparam('password_change')
         if password_generate == 'o':
-            import random
-            letter_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*+='
-            password = ''.join(random.choice(letter_string)
-                               for _ in range(random.randint(8, 12)))
-            if Signal.call_signal("send_connection", self.item.email, self.item.username, password) == 0:
-                password = None
-        else:
-            password_change = xfer.getparam('password_change')
-            if password_change == 'o':
-                password = xfer.getparam('password1')
-                password_again = xfer.getparam('password2')
-                if password != password_again:
-                    raise LucteriosException(
-                        IMPORTANT, _("The passwords are differents!"))
-        if password is not None:
+            if not self.item.generate_password():
+                raise LucteriosException(
+                    MINOR, _("The password is not changed!"))
+        elif password_change == 'o':
+            password = xfer.getparam('password1')
+            password_again = xfer.getparam('password2')
+            if password != password_again:
+                raise LucteriosException(
+                    IMPORTANT, _("The passwords are differents!"))
             self.item.set_password(password)
             self.item.save()
-        elif (password_generate == 'o') or (password_change == 'o'):
-            raise LucteriosException(MINOR, _("The password is not changed!"))
 
 
 class SavedCriteriaEditor(LucteriosEditor):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-14 16:10+0000\n"
+"POT-Creation-Date: 2016-06-02 10:02+0000\n"
 "PO-Revision-Date: 2016-01-14 21:55+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,9 +23,9 @@ msgstr ""
 msgid "CORE-connectmode"
 msgstr "Mode de connexion"
 
-#: lucterios_gui.py:79 lucterios_gui.py:389 lucterios_gui.py:616
-#: lucterios_gui.py:759 lucterios_gui.py:763 lucterios_gui.py:782
-#: lucterios_gui.py:786
+#: lucterios_gui.py:79 lucterios_gui.py:389 lucterios_gui.py:618
+#: lucterios_gui.py:761 lucterios_gui.py:765 lucterios_gui.py:784
+#: lucterios_gui.py:788
 msgid "Lucterios installer"
 msgstr "Installeur Lucterios"
 
@@ -121,7 +121,7 @@ msgstr ""
 "Une instance est toujours en marche.\n"
 "Voulez vous fermer?"
 
-#: lucterios_gui.py:458 lucterios_gui.py:658 lucterios_gui.py:661
+#: lucterios_gui.py:458 lucterios_gui.py:660 lucterios_gui.py:663
 msgid "Launch"
 msgstr "Lancer"
 
@@ -149,87 +149,87 @@ msgstr "Ajouter"
 msgid "Instances"
 msgstr "Instances"
 
-#: lucterios_gui.py:528
+#: lucterios_gui.py:530
 #, python-format
 msgid "Lucterios core\t\t%s\n"
 msgstr "Cœur Lucterios cœur %s\n"
 
-#: lucterios_gui.py:530
+#: lucterios_gui.py:532
 msgid "Application\n"
 msgstr "Application\n"
 
-#: lucterios_gui.py:534
+#: lucterios_gui.py:536
 msgid "Modules\n"
 msgstr "Modules\n"
 
-#: lucterios_gui.py:541
+#: lucterios_gui.py:543
 msgid "Pypi servers\n"
 msgstr "Serveurs Pypi\n"
 
-#: lucterios_gui.py:583
+#: lucterios_gui.py:585
 msgid "Upgrade needs"
 msgstr "Mise à jour disponible"
 
-#: lucterios_gui.py:585
+#: lucterios_gui.py:587
 msgid "No upgrade"
 msgstr "Pas de mise à jour"
 
-#: lucterios_gui.py:617
+#: lucterios_gui.py:619
 msgid "The application must restart"
 msgstr "L'application doit redémarrer"
 
-#: lucterios_gui.py:641
+#: lucterios_gui.py:643
 #, python-format
 msgid "Database\t\t%s\n"
 msgstr "Base de données\t%s\n"
 
-#: lucterios_gui.py:643
+#: lucterios_gui.py:645
 #, python-format
 msgid "Appli\t\t%s\n"
 msgstr "Appli\t\t%s\n"
 
-#: lucterios_gui.py:645
+#: lucterios_gui.py:647
 #, python-format
 msgid "Modules\t\t%s\n"
 msgstr "Modules\t\t%s\n"
 
-#: lucterios_gui.py:647
+#: lucterios_gui.py:649
 #, python-format
 msgid "Extra\t\t%s\n"
 msgstr "Extra\t\t%s\n"
 
-#: lucterios_gui.py:651
+#: lucterios_gui.py:653
 #, python-format
 msgid "=> Running in http://%(ip)s:%(port)d\n"
 msgstr "=> Lancé sur http://%(ip)s:%(port)d\n"
 
-#: lucterios_gui.py:653
+#: lucterios_gui.py:655
 msgid "Stop"
 msgstr "Arrêt"
 
-#: lucterios_gui.py:656
+#: lucterios_gui.py:658
 msgid "=> Stopped\n"
 msgstr "=> Arrêté\n"
 
-#: lucterios_gui.py:728
+#: lucterios_gui.py:730
 #, python-format
 msgid "Do you want to delete '%s'?"
 msgstr "Voulez-vous supprimer '%s'?"
 
-#: lucterios_gui.py:760
+#: lucterios_gui.py:762
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance sauvée à %s"
 
-#: lucterios_gui.py:763
+#: lucterios_gui.py:765
 msgid "Instance not saved!"
 msgstr "Instance non sauvée!"
 
-#: lucterios_gui.py:783
+#: lucterios_gui.py:785
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restaurée depuis %s"
 
-#: lucterios_gui.py:786
+#: lucterios_gui.py:788
 msgid "Instance not restored!"
 msgstr "Instance non restaurée!"

@@ -33,6 +33,7 @@ from django.utils import six
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
+from lucterios.framework.signal_and_lock import Signal
 
 
 class Parameter(LucteriosModel):
@@ -78,6 +79,18 @@ class LucteriosUser(User, LucteriosModel):
     @classmethod
     def get_print_fields(cls):
         return ['username']
+
+    def generate_password(self):
+        import random
+        letter_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*+='
+        password = ''.join(random.choice(letter_string)
+                           for _ in range(random.randint(8, 12)))
+        if Signal.call_signal("send_connection", self.email, self.username, password) > 0:
+            self.set_password(password)
+            self.save()
+            return True
+        else:
+            return False
 
     groups__titles = [_("Available groups"), _("Chosen groups")]
     user_permissions__titles = [

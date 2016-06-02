@@ -42,14 +42,15 @@ from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file,\
     md5sum
 from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria,\
+    LucteriosUser
 from django.apps.registry import apps
 from lucterios.framework.signal_and_lock import Signal
 
@@ -137,7 +138,7 @@ def right_changepassword(request):
 
 @MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
-    caption = _("_Password")
+    caption = _("Password")
     icon = "passwd.png"
 
     def fillresponse(self):
@@ -177,7 +178,7 @@ class ChangePassword(XferContainerCustom):
 
 @MenuManage.describ('')
 class ModifyPassword(XferContainerAcknowledge):
-    caption = _("_Password")
+    caption = _("Password")
     icon = "passwd.png"
 
     def fillresponse(self, oldpass='', newpass1='', newpass2=''):
@@ -191,6 +192,51 @@ class ModifyPassword(XferContainerAcknowledge):
         self.request.user.set_password(newpass1)
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)
+
+
+def right_askpassword(request):
+    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend') or (Signal.call_signal("send_connection", None, None, None) == 0):
+        return False
+    return not request.user.is_authenticated()
+
+
+@MenuManage.describ(right_askpassword, FORMTYPE_MODAL, 'core.general', _("Password or login forget?"))
+class AskPassword(XferContainerCustom):
+    caption = _("Ask password")
+    icon = "passwd.png"
+
+    def fillresponse(self):
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 3)
+        self.add_component(img)
+        lbl = XferCompLabelForm('lbl_title')
+        lbl.set_location(1, 0, 2)
+        lbl.set_value_as_header(
+            _("To receive by email your login and a new password."))
+        self.add_component(lbl)
+
+        lbl = XferCompLabelForm('lbl_email')
+        lbl.set_location(1, 1)
+        lbl.set_value_as_name(_("email"))
+        self.add_component(lbl)
+        pwd = XferCompEdit('email')
+        pwd.set_location(2, 1)
+        self.add_component(pwd)
+
+        self.add_action(
+            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'), {})
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+
+
+@MenuManage.describ(right_askpassword)
+class AskPasswordAct(XferContainerAcknowledge):
+    caption = _("Ask password")
+    icon = "passwd.png"
+
+    def fillresponse(self, email=''):
+        for user in LucteriosUser.objects.filter(email=email):
+            user.generate_password()
 
 
 @signal_and_lock.Signal.decorate('config')
