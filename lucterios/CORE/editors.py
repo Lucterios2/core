@@ -30,7 +30,7 @@ from django.utils import timezone
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword, XferCompCheck,\
     XferCompSelect, XferCompButton
 from lucterios.framework.editors import LucteriosEditor
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, MINOR
 from lucterios.CORE.models import SavedCriteria
 from lucterios.framework.tools import CLOSE_NO, ActionsManage, FORMTYPE_REFRESH
 from lucterios.framework.xfersearch import XferSearchEditor
@@ -110,7 +110,7 @@ parent.get('password2').setEnabled(pwd_change);
             letter_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*+='
             password = ''.join(random.choice(letter_string)
                                for _ in range(random.randint(8, 12)))
-            if Signal.call_signal("send_connection", self.item.email, self.item.username, password) > 0:
+            if Signal.call_signal("send_connection", self.item.email, self.item.username, password) == 0:
                 password = None
         else:
             password_change = xfer.getparam('password_change')
@@ -123,6 +123,8 @@ parent.get('password2').setEnabled(pwd_change);
         if password is not None:
             self.item.set_password(password)
             self.item.save()
+        elif (password_generate == 'o') or (password_change == 'o'):
+            raise LucteriosException(MINOR, _("The password is not changed!"))
 
 
 class SavedCriteriaEditor(LucteriosEditor):
