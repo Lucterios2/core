@@ -36,7 +36,7 @@ from django.http.response import StreamingHttpResponse
 from django.conf import settings
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL,\
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, \
     CLOSE_YES
 from lucterios.framework.xferbasic import XferContainerMenu, \
     XferContainerAbstract
@@ -45,11 +45,12 @@ from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, 
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.filetools import get_user_dir, xml_validator, read_file,\
+from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, \
     md5sum
 from lucterios.framework import signal_and_lock, tools
-from lucterios.CORE.parameters import Params, secure_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria,\
+from lucterios.CORE.parameters import Params, secure_mode_connect,\
+    notfree_mode_connect
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, \
     LucteriosUser
 from django.apps.registry import apps
 from lucterios.framework.signal_and_lock import Signal
@@ -195,7 +196,11 @@ class ModifyPassword(XferContainerAcknowledge):
 
 
 def right_askpassword(request):
-    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend') or (Signal.call_signal("send_connection", None, None, None) == 0):
+    if not notfree_mode_connect():
+        return False
+    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
+        return False
+    if (Signal.call_signal("send_connection", None, None, None) == 0):
         return False
     return not request.user.is_authenticated()
 
