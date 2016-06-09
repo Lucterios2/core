@@ -98,6 +98,16 @@ italic {
 	z-index: 10;
 }
 
+#support {
+	position: absolute;
+	bottom: 0px;
+	margin: 0px 450px 3% 450px;
+	width: 350px;
+	display: block;
+	background-color: white;
+	padding: 5px;
+}
+
 .menuFrame {
 	width: 90%;
 	text-align: center;

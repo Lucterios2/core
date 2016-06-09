@@ -181,16 +181,14 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     setup_path = dirname(module_to_setup.__file__)
     extra_setting = _get_extra(module_to_setup)
     setattr(module_to_setup, "EXTRA", extra_setting)
-    logging.getLogger(__name__).debug(
-        "Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
+    logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         if key_name not in extra_setting.keys():
             setattr(module_to_setup, key_name, setting_value)
     my_log = getattr(module_to_setup, 'LOGGING', {})
     try:
         if my_log['handlers']['file']['filename'] == 'error.log':
-            my_log['handlers']['file'][
-                'filename'] = join(dirname(setup_path), 'error.log')
+            my_log['handlers']['file']['filename'] = join(dirname(setup_path), 'error.log')
     except KeyError:
         pass
     my_database = getattr(module_to_setup, 'DATABASES', {})
@@ -201,14 +199,11 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     if not hasattr(module_to_setup, "MEDIA_ROOT"):
         setattr(module_to_setup, "MEDIA_ROOT", join(setup_path, 'usr'))
     if isinstance(addon_modules, tuple):
-        module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
-            addon_modules
-    module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + \
-        (appli_name,)
+        module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + addon_modules
+    module_to_setup.INSTALLED_APPS = module_to_setup.INSTALLED_APPS + (appli_name,)
     appli_module = import_module(appli_name)
     setattr(module_to_setup, 'APPLIS_MODULE', appli_module)
-    setattr(module_to_setup, 'LOCALE_PATHS',
-            _get_locale_pathes(appli_name, addon_modules))
+    setattr(module_to_setup, 'LOCALE_PATHS', _get_locale_pathes(appli_name, addon_modules))
     setattr(module_to_setup, 'STATIC_ROOT', join(setup_path, 'static'))
     setattr(module_to_setup, 'STATICFILES_DIRS', (setup_path, ))
     setting_module = import_module("%s.appli_settings" % appli_name)
@@ -216,12 +211,14 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         if item == item.upper():
             setattr(module_to_setup, item, getattr(setting_module, item))
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(
-            setting_module.APPLIS_LOGO_NAME))
+        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(module_to_setup, 'APPLIS_LOGO', '')
     if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(
-            setting_module.APPLIS_BACKGROUND_NAME))
+        setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
     else:
         setattr(module_to_setup, 'APPLIS_BACKGROUND', '')
+    if 'APPLI_SUPPORT' in dir(setting_module):
+        setattr(module_to_setup, 'APPLI_SUPPORT', setting_module.APPLI_SUPPORT)
+    else:
+        setattr(module_to_setup, 'APPLI_SUPPORT', lambda: "")

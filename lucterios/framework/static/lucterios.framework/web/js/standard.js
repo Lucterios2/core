@@ -131,15 +131,19 @@ function about_function() {
 			+ "</i></center></font></center>", 3);
 	table[5] = [];
 	table[5][0] = new compBasic(
-			"<center><a href='http://www.lucterios.org'>http://www.lucterios.org</a></center>",
+			"<center><a href='http://www.lucterios.org'>http://www.lucterios.org</a></center><hr/>",
 			3);
 
 	table[6] = [];
-	table[6][1] = new compBasic(
+	table[6][0] = new compBasic(mDescription.mSupportHTML
+			.convertLuctoriosFormatToHtml(), 3);
+
+	table[7] = [];
+	table[7][1] = new compBasic(
 			"<input type='button' id='send_support' value='"
 					+ Singleton().getTranslate("ask support") + "'>", 1, 1,
 			'width:100%;');
-	table[6][2] = new compBasic(
+	table[7][2] = new compBasic(
 			"<input type='button' id='aboutmore' value='...'/>", 1);
 
 	this.mGUI = new GUIManage(createGuid(), Singleton()

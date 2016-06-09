@@ -94,36 +94,24 @@ class Authentification(XferContainerAbstract):
         import lucterios.CORE
         import os
         connextion = etree.SubElement(self.responsexml, "CONNECTION")
-        etree.SubElement(connextion, 'TITLE').text = six.text_type(
-            settings.APPLIS_NAME)
-        etree.SubElement(
-            connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
-        etree.SubElement(connextion, 'VERSION').text = six.text_type(
-            settings.APPLIS_VERSION)
-        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(
-            lucterios.CORE.__version__)
-        etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(
-            settings.APPLIS_COPYRIGHT)
+        etree.SubElement(connextion, 'TITLE').text = six.text_type(settings.APPLIS_NAME)
+        etree.SubElement(connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
+        etree.SubElement(connextion, 'VERSION').text = six.text_type(settings.APPLIS_VERSION)
+        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.CORE.__version__)
+        etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(settings.APPLIS_COPYRIGHT)
         etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
-        etree.SubElement(
-            connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
-        etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(
-            settings.APPLI_EMAIL)
+        etree.SubElement(connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
+        etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)
+        etree.SubElement(connextion, 'SUPPORT_HTML').text = six.text_type(settings.APPLI_SUPPORT())
         etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
         setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
-        etree.SubElement(
-            connextion, 'INSTANCE').text = setting_module_name.split('.')[0]
-        etree.SubElement(
-            connextion, 'LANGUAGE').text = self.language
-        etree.SubElement(connextion, 'MODE').text = six.text_type(
-            Params.getvalue("CORE-connectmode"))
+        etree.SubElement(connextion, 'INSTANCE').text = setting_module_name.split('.')[0]
+        etree.SubElement(connextion, 'LANGUAGE').text = self.language
+        etree.SubElement(connextion, 'MODE').text = six.text_type(Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
-            etree.SubElement(
-                connextion, 'LOGIN').text = self.request.user.username
-            etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (
-                self.request.user.first_name, self.request.user.last_name)
-            etree.SubElement(
-                connextion, 'EMAIL').text = self.request.user.email
+            etree.SubElement(connextion, 'LOGIN').text = self.request.user.username
+            etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
+            etree.SubElement(connextion, 'EMAIL').text = self.request.user.email
         else:
             etree.SubElement(connextion, 'LOGIN').text = ''
             etree.SubElement(connextion, 'REALNAME').text = ''

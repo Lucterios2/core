@@ -245,6 +245,9 @@ var ObserverMenu = ObserverAbstract
 				} else {
 					$("#mainMenu").css('display', 'block');
 				}
+				if (Singleton().mDesc.mSupportHTML!==''){
+					$("#lucteriosClient").append("<div id='support'>" + Singleton().mDesc.mSupportHTML.convertLuctoriosFormatToHtml() + '</div>');
+				}
 			},
 
 			buildAsideMenu : function() {

@@ -12,6 +12,7 @@ var ApplicationDescription = Class
 			mLogin : '',
 			mInfoServer : '',
 			mSupportEmail : '',
+			mSupportHTML : '',
 			mSubTitle : '',
 			mRealName : '',
 			mInstanceName : '',
@@ -71,6 +72,10 @@ var ApplicationDescription = Class
 				return this.mSupportEmail;
 			},
 
+			getSupportHTML : function() {
+				return this.mSupportHTML;
+			},
+
 			getLogin : function() {
 				return this.mLogin;
 			},
@@ -99,6 +104,10 @@ var ApplicationDescription = Class
 				this.mSupportEmail = aSupportEmail;
 			},
 
+			setSupportHTML : function(aSupportHTML) {
+				this.mSupportHTML = aSupportHTML;
+			},
+
 			setSubTitle : function(aSubTitle) {
 				this.mSubTitle = aSubTitle;
 			},
@@ -118,7 +127,7 @@ var ApplicationDescription = Class
 			getLanguage : function() {
 				return this.mLanguage;
 			},
-			
+
 			setLanguage : function(language) {
 				this.mLanguage = language;
 			},
@@ -156,7 +165,7 @@ var ApplicationDescription = Class
 						+ "</font></center></td></tr>"
 						+ "<tr><td colspan='2'><center><font size='-1'><i>"
 						+ this.mCopyRigth + "</i></font></center></td></tr>"
-						+ "</table>" + "<hr>";
+						+ "</table><hr>";
 				if ((this.mInfoServer !== null)
 						&& (this.mInfoServer.length > 0)) {
 					resValue += this.mInfoServer.convertLuctoriosFormatToHtml()
@@ -255,6 +264,8 @@ var ObserverAuthentification = ObserverAbstract
 							.getCDataOfFirstTag("BACKGROUND"));
 					desc.setSupportEmail(xml_connection
 							.getCDataOfFirstTag("SUPPORT_EMAIL"));
+					desc.setSupportHTML(xml_connection
+							.getCDataOfFirstTag("SUPPORT_HTML"));
 					desc.setInfoServer(xml_connection
 							.getCDataOfFirstTag("INFO_SERVER"));
 					desc.setSubTitle(xml_connection
