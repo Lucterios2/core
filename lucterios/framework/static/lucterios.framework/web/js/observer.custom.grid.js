@@ -342,8 +342,16 @@ var compGrid = compGeneric
 
 			dbclick : function() {
 				if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
+					var iBtn, sel_btn = -1;
 					this.selectChange();
-					this.buttons[0].actionPerformed();
+					for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {
+						if (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE) {
+							sel_btn = iBtn;
+						}
+					}
+					if (sel_btn !== -1) {
+						this.buttons[sel_btn].actionPerformed();
+					}
 				}
 			},
 

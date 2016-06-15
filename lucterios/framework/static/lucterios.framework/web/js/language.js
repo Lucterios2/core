@@ -7,7 +7,7 @@ g_translation.fr.put("Configuration", "Configuration");
 g_translation.fr
 		.put(
 				"Describ your problem.<br>Thanks<br><br>",
-				"Décrivez le plus précisément possible, comment vous avez obtenu ce problème.<br>Merci de votre aide.<br><br>");
+				"D&eacute;crivez le plus pr&eacute;cis&eacute;ment possible, comment vous avez obtenu ce probl&egrave;me.<br>Merci de votre aide.<br><br>");
 g_translation.fr.put("Bug report", "Rapport de bogue");
 g_translation.fr.put("Version", "Version");
 g_translation.fr.put("Use the <i>Lucterios</i> framework",
@@ -15,26 +15,26 @@ g_translation.fr.put("Use the <i>Lucterios</i> framework",
 g_translation.fr.put("Server", "Serveur");
 g_translation.fr.put("AJAX client", "Client AJAX");
 g_translation.fr.put("Tool of customize management on GPL license",
-		"Outil de gestion personnalisé sous licence GPL");
+		"Outil de gestion personnalis&eacute; sous licence GPL");
 g_translation.fr.put("ask support", "Demande de support");
 g_translation.fr.put("About...", "A propos...");
 g_translation.fr.put("Logon", "Connexion");
-g_translation.fr.put("Logoff", "Déconnexion");
+g_translation.fr.put("Logoff", "D&eacute;connexion");
 g_translation.fr.put("Refresh", "Rafraichir");
 g_translation.fr.put("Error", "Erreur");
 g_translation.fr.put("Warning", "Avertissement");
 g_translation.fr.put("Information", "Information");
 g_translation.fr.put("Call-stack", "Pile d'appel");
 g_translation.fr.put("Extra", "Extra");
-g_translation.fr.put("Requette", "Requête");
-g_translation.fr.put("Reponse", "Réponse");
+g_translation.fr.put("Requette", "Requ&ecirc;te");
+g_translation.fr.put("Reponse", "R&eacute;ponse");
 g_translation.fr.put("Sent to support", "Envoyer au support");
 g_translation.fr.put("Page #", "Page N°");
 g_translation.fr.put("Select one line before!",
-		"Sélectionnez une ligne avant !");
-g_translation.fr.put("Select only one line!", "Ne sélectionnez qu'une ligne !");
+		"S&eacute;lectionnez une ligne avant !");
+g_translation.fr.put("Select only one line!", "Ne s&eacute;lectionnez qu'une ligne !");
 g_translation.fr.put("Upload impossible<br/>The file must be less than {0}Mo ",
-		"Téléchargement impossible<br/>Le fichier doit faire moins de {0}Mo ");
+		"T&eacute;l&eacute;chargement impossible<br/>Le fichier doit faire moins de {0}Mo ");
 g_translation.fr.put("Loading...", "Chargement...");
 g_translation.fr.put("Save as...", "Enregistrer sous...");
 g_translation.fr.put("Browser", "Navigateur");
@@ -44,7 +44,7 @@ g_translation.fr.put("Cancel", "Annuler");
 g_translation.fr.put("Login or password wrong!",
 		"Alias ou Mot de passe incorrect!");
 g_translation.fr.put("Please, identify you", "Veuillez vous identifier");
-g_translation.fr.put("Expired session!", "Session expirée !");
+g_translation.fr.put("Expired session!", "Session expir&eacute;e !");
 g_translation.fr.put("Connection forbideen in this localisation!",
 		"Localisation de connexion interdite !");
 g_translation.fr.put("Connection", "Connexion");

@@ -216,7 +216,7 @@ window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 		error_desc[0] = error_desc[0].substr(2);
 	}
 	obs.setContent(("<Error><EXCEPTION>"
-			+ "<MESSAGE>{0}</MESSAGE>".format(error_desc[0])
+			+ "<MESSAGE><![CDATA[{0}]]></MESSAGE>".format(error_desc[0])
 			+ "<CODE>{0}</CODE>".format(type_error)
 			+ "<DEBUG_INFO>|{0}</DEBUG_INFO>".format(stack)
 			+ "<TYPE>Ajax exception</TYPE>"

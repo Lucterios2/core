@@ -165,7 +165,8 @@ var ActionAbstract = Class
 				} else {
 					param = new HashMap();
 				}
-				if ((param !== null)&& (this.mExtraParam !== null) && (this.mExtraParam.size() > 0)) {
+				if ((param !== null) && (this.mExtraParam !== null)
+						&& (this.mExtraParam.size() > 0)) {
 					param.putAll(this.mExtraParam);
 				}
 				return param;
@@ -197,7 +198,8 @@ var ActionAbstract = Class
 						try {
 							this.runAction(param);
 						} finally {
-							if (this.mOwner !== null) {
+							if ((this.mOwner !== null)
+									&& (this.mFormType !== FORM_REFRESH)) {
 								this.mOwner.setActive(true);
 							}
 						}
