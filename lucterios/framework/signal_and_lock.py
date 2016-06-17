@@ -95,8 +95,7 @@ class RecordLocker(object):
 
     @classmethod
     def lock(cls, request, model_item):
-        logging.getLogger("lucterios.core.record").debug(
-            ">> lock [%s] %s", request.user, model_item)
+        logging.getLogger("lucterios.core.record").debug(">> lock [%s] %s", request.user, model_item)
         cls._lock.acquire()
         try:
             params = {}
@@ -120,8 +119,7 @@ class RecordLocker(object):
             return params
         finally:
             cls._lock.release()
-            logging.getLogger("lucterios.core.record").debug(
-                "<< lock [%s] %s", request.user, model_item)
+            logging.getLogger("lucterios.core.record").debug("<< lock [%s] %s %s", request.user, model_item, session_key)
 
     @classmethod
     def is_lock(cls, model_item):
@@ -136,6 +134,20 @@ class RecordLocker(object):
             cls._lock.release()
             logging.getLogger("lucterios.core.record").debug(
                 "<< is_lock %s", model_item)
+
+    @classmethod
+    def has_item_lock(cls, model_class):
+        logging.getLogger("lucterios.core.record").debug(">> has_item_lock %s", model_class)
+        cls._lock.acquire()
+        try:
+            lock_root = "-".join((six.text_type(model_class.__module__), six.text_type(model_class.__name__)))
+            for lock_ident in cls._lock_list.keys():
+                if lock_ident.startswith(lock_root):
+                    return True
+            return False
+        finally:
+            cls._lock.release()
+            logging.getLogger("lucterios.core.record").debug("<< has_item_lock %s", model_class)
 
     @classmethod
     def unlock(cls, request, params):
