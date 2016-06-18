@@ -45,7 +45,7 @@ var HttpTransportAbstract = Class
 					});
 				} else {
 					$.cookie("lucterios_session", session, {
-						expires : 0.025
+						expires : 1
 					});
 				}
 			},

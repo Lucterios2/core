@@ -237,6 +237,7 @@ class XferContainerAbstract(View):
     def _initialize(self, request, *_, **kwargs):
         if hasattr(self.__class__, 'is_view_right'):
             self.get_action().raise_bad_permission(request)
+        request.session.set_expiry(12 * 60)  # 12 min of idle timeout
         path_list = request.path.split('/')
         self.extension, self.action = path_list[-2:]
         self.request = request
