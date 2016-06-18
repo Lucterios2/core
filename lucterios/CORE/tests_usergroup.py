@@ -937,24 +937,18 @@ class SessionTest(LucteriosTest):
             'COMPONENTS/LABELFORM[@name="nb_session"]', "Nombre total de sessions: 1", (0, 2, 2, 1))
 
     def test_sessiondel(self):
-        self.call(
-            '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.call('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/sessionList', {})
         self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
-        session_id = self.response_xml.xpath(
-            'COMPONENTS/GRID[@name="session"]/RECORD')[0].get("id")
+        session_id = self.response_xml.xpath('COMPONENTS/GRID[@name="session"]/RECORD')[0].get("id")
 
-        self.call(
-            '/CORE/sessionDelete', {'session': session_id, 'CONFIRME': 'YES'})
+        self.call('/CORE/sessionDelete', {'session': session_id, 'CONFIRME': 'YES'})
         self.assert_observer('core.acknowledge', 'CORE', 'sessionDelete')
 
         self.call('/CORE/sessionList', {})
-        self.assert_observer('core.exception', 'CORE', 'sessionList')
-        self.assert_xml_equal(
-            "EXCEPTION/MESSAGE", six.text_type("Mauvaise permission pour 'Utilisateur anonyme'"))
-        self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
-        self.assert_action_equal(
-            'CLOSE_ACTION/ACTION', ('menu', None, "CORE", "menu", 1, 1, 1))
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
+        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
+        self.assert_attrib_equal('COMPONENTS/GRID[@name="session"]/RECORD[1]', 'id', session_id)
