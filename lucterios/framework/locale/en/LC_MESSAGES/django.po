@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-02 10:02+0000\n"
+"POT-Creation-Date: 2016-06-20 16:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main_docs.html:5 main_docs.html.py:112
+#: main_docs.html:5 main_docs.html:112
 msgid "User manual"
 msgstr "User manual"
 
@@ -45,89 +45,101 @@ msgstr "session"
 msgid "sessions"
 msgstr "sessions"
 
-#: signal_and_lock.py:116
+#: signal_and_lock.py:115
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:134
+#: tools.py:135
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:136
+#: tools.py:137
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:309
+#: tools.py:392
 msgid "add"
 msgstr "add"
 
-#: tools.py:311
+#: tools.py:394
 msgid "view"
 msgstr "view"
 
-#: tools.py:313
+#: tools.py:396
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:315
+#: tools.py:398
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:47 xfersearch.py:370
+#: xferadvance.py:40 xfercomponents.py:641
+msgid "Edit"
+msgstr "Edit"
+
+#: xferadvance.py:41 xferadvance.py:193 xfercomponents.py:641
+msgid "Modify"
+msgstr "Modify"
+
+#: xferadvance.py:42 xfercomponents.py:642
+msgid "Delete"
+msgstr "Delete"
+
+#: xferadvance.py:43 xfercomponents.py:642
+msgid "Add"
+msgstr "Add"
+
+#: xferadvance.py:44 xferadvance.py:194 xferprinting.py:109
+msgid "Print"
+msgstr "Print"
+
+#: xferadvance.py:45 xferadvance.py:76 xfersearch.py:370
 msgid "Listing"
 msgstr "Listing"
 
-#: xferadvance.py:48 xfersearch.py:371
+#: xferadvance.py:46 xferadvance.py:77 xfersearch.py:371
 msgid "Label"
 msgstr "Label"
 
-#: xferadvance.py:76 xfersearch.py:565
+#: xferadvance.py:107 xfersearch.py:567
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:100 xferadvance.py:177 xfergraphic.py:131
-#: xferprinting.py:110 xfersearch.py:571
+#: xferadvance.py:133 xferadvance.py:213 xfergraphic.py:131
+#: xferprinting.py:110 xfersearch.py:575
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:121 xfergraphic.py:172
+#: xferadvance.py:153 xfergraphic.py:172
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:122 xfergraphic.py:143
+#: xferadvance.py:156 xfergraphic.py:143
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:159 xfercomponents.py:641
-msgid "Modify"
-msgstr "Modify"
-
-#: xferadvance.py:160 xferprinting.py:109
-msgid "Print"
-msgstr "Print"
-
-#: xferadvance.py:184
+#: xferadvance.py:220
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:194
+#: xferadvance.py:230
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:205
+#: xferadvance.py:241
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:206
+#: xferadvance.py:242
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:229
+#: xferadvance.py:265
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
@@ -139,18 +151,6 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xfercomponents.py:641
-msgid "Edit"
-msgstr "Edit"
-
-#: xfercomponents.py:642
-msgid "Delete"
-msgstr "Delete"
-
-#: xfercomponents.py:642
-msgid "Add"
-msgstr "Add"
-
 #: xfergraphic.py:139
 msgid "Traitment..."
 msgstr "Traitment..."
@@ -161,11 +161,11 @@ msgstr "Retry"
 
 #: xfergraphic.py:621
 msgid "Available"
-msgstr ""
+msgstr "Available"
 
 #: xfergraphic.py:621
 msgid "Chosen"
-msgstr ""
+msgstr "Chosen"
 
 #: xferprinting.py:82
 msgid "Kind of report"
@@ -214,12 +214,3 @@ msgstr "or"
 #: xfersearch.py:59
 msgid "and"
 msgstr "and"
-
-#~ msgid "Help"
-#~ msgstr "Help"
-
-#~ msgid "Table of content"
-#~ msgstr "Table of content"
-
-#~ msgid "Unknown signal %s"
-#~ msgstr "Unknown signal %s"

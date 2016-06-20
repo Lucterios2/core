@@ -26,17 +26,17 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.utils import six
+from django.db.models.fields.related import ManyToManyField
+from django.db.models import Q
 
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
 from lucterios.framework.tools import WrapAction, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xfergraphic import XferContainerCustom, \
-    get_range_value
-from django.utils import six
-from django.db.models.fields.related import ManyToManyField
-from django.db.models import Q
+from lucterios.framework.xferadvance import action_list_sorted
+from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 
 TYPE_FLOAT = 'float'
 TYPE_STR = 'str'
@@ -557,6 +557,8 @@ if ((type=='list') || (type=='listmult')) {
         grid = XferCompGrid(self.field_id)
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_actions(self, action_list=self.action_grid)
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, self, key=action_list_sorted):
+            grid.add_action(self.request, act, opt)
         grid.set_location(0, row + 4, 4)
         grid.set_size(200, 500)
         self.add_component(grid)
@@ -568,4 +570,6 @@ if ((type=='list') || (type=='listmult')) {
         for act_type, title, icon in self.action_list:
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
+            self.add_action(act, opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'), {})

@@ -41,12 +41,12 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelList')
-        self.assert_count_equal('COMPONENTS/*', 5)
+        self.assert_count_equal('COMPONENTS/*', 6)
         self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
+            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (1, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="modelname"]/CASE', 1)
         self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="print_model"]', (1, 2, 3, 1))
+            'COMPONENTS/GRID[@name="print_model"]', (0, 2, 2, 1))
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/HEADER', 2)
         self.assert_xml_equal(
@@ -73,7 +73,7 @@ class PrintTest(LucteriosTest):
             '/CORE/printModelList', {"modelname": "dummy.Example"}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
+            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (1, 1, 1, 1))
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
 

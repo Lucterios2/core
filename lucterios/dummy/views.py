@@ -28,27 +28,24 @@ from datetime import datetime
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
-from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage
+from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage, SELECT_SINGLE, SELECT_MULTI
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete
-from lucterios.framework.xfersearch import XferSearchEditor
-from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel,\
-    XferPrintReporting
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete,\
+    TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT,\
+    TITLE_LISTING, TITLE_LABEL
+from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel, XferPrintReporting
 from lucterios.dummy.models import Example, Other
 from lucterios.framework import signal_and_lock
-from lucterios.CORE.editors import SavedCriteriaEditor,\
-    XferSavedCriteriaSearchEditor
+from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 
-MenuManage.add_sub(
-    'dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
+MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
-
     caption = _("_Bidule")
     icon = "1.png"
 
@@ -66,8 +63,7 @@ class Truc(XferContainerAcknowledge):
     icon = "2.png"
 
     def fillresponse(self, val1, val2=4):
-        self.message("Hello world (%s,%s)!" %
-                     (str(val1), str(val2)), XFER_DBOX_INFORMATION)
+        self.message("Hello world (%s,%s)!" % (str(val1), str(val2)), XFER_DBOX_INFORMATION)
 
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
@@ -84,16 +80,12 @@ class Multi(XferContainerAcknowledge):
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
 class TestComposants(XferContainerCustom):
-    # pylint:
-    # disable=line-too-long,too-many-arguments,too-many-locals,too-many-statements,dangerous-default-value,too-many-public-methods
-
     caption = _("_Test of composants")
     icon = "4.png"
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
                      ck1=False, slct1='1', flt2=5, cl1=['1', '2'], stm1='2008-07-12 23:47:31'):
-        act_modif = (self.get_action('Modify', ''), {
-                     'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_NONE})
+        act_modif = (self.get_action('Modify', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_NONE})
 
         lbl = XferCompLabelForm('Lbl2')
         lbl.set_value('editor=' + six.text_type(edt1))
@@ -217,8 +209,7 @@ class TestComposants(XferContainerCustom):
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(WrapAction('Fin', 'images/close.png'),
-                        {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'unique': SELECT_NONE})
+        self.add_action(WrapAction('Fin', 'images/close.png'), {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'unique': SELECT_NONE})
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
@@ -259,12 +250,8 @@ class ExampleList(XferListEditor):
     model = Example
     field_id = 'example'
 
-    def __init__(self, **kwargs):
-        XferListEditor.__init__(self, **kwargs)
-        self.action_list.append(('reporting', "Reporting", "images/print.png"))
 
-
-@ActionsManage.affect('Example', 'show')
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_example')
 class ExampleShow(XferShowEditor):
     caption = _("Example")
@@ -273,7 +260,9 @@ class ExampleShow(XferShowEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect('Example', 'add', 'modify', 'edit')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
 @MenuManage.describ('dummy.add_example')
 class ExampleAddModify(XferAddEditor):
     caption = _("Example")
@@ -282,7 +271,7 @@ class ExampleAddModify(XferAddEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect('Example', 'del')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_example')
 class ExampleDel(XferDelete):
     caption = _("Example")
@@ -291,7 +280,7 @@ class ExampleDel(XferDelete):
     field_id = 'example'
 
 
-@ActionsManage.affect('Example', 'print')
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png")
 @MenuManage.describ('dummy.change_example')
 class ExamplePrint(XferPrintAction):
     caption = _("Example")
@@ -301,7 +290,7 @@ class ExamplePrint(XferPrintAction):
     action_class = ExampleShow
 
 
-@ActionsManage.affect('Example', 'listing')
+@ActionsManage.affect_list(TITLE_LISTING, "images/print.png")
 @MenuManage.describ('dummy.change_example')
 class ExampleListing(XferPrintListing):
     caption = _("Example")
@@ -310,7 +299,7 @@ class ExampleListing(XferPrintListing):
     field_id = 'example'
 
 
-@ActionsManage.affect('Example', 'reporting')
+@ActionsManage.affect_list("Reporting", "images/print.png")
 @MenuManage.describ('dummy.change_example')
 class ExampleReporting(XferPrintReporting):
     with_text_export = True
@@ -323,7 +312,7 @@ class ExampleReporting(XferPrintReporting):
         return self.model.objects.all()
 
 
-@ActionsManage.affect('Example', 'label')
+@ActionsManage.affect_list(TITLE_LABEL, "images/print.png")
 @MenuManage.describ('dummy.change_example')
 class ExampleLabel(XferPrintLabel):
     caption = _("Example")
@@ -340,7 +329,6 @@ class ExampleSearch(XferSavedCriteriaSearchEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect('Other', 'list')
 @MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))
 class OtherList(XferListEditor):
     icon = "10.png"
@@ -349,7 +337,9 @@ class OtherList(XferListEditor):
     caption = _("others")
 
 
-@ActionsManage.affect('Other', 'edit', 'modify', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
 @MenuManage.describ('dummy.add_other')
 class OtherAddModify(XferAddEditor):
     icon = "10.png"
@@ -359,7 +349,7 @@ class OtherAddModify(XferAddEditor):
     caption_modify = _("Modify other")
 
 
-@ActionsManage.affect('Other', 'show')
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_other')
 class OtherShow(XferShowEditor):
     icon = "10.png"
@@ -368,7 +358,17 @@ class OtherShow(XferShowEditor):
     caption = _("Show other")
 
 
-@ActionsManage.affect('Other', 'delete')
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", condition=lambda xfer: xfer.item.bool)
+@MenuManage.describ('dummy.change_other')
+class OtherPrint(XferPrintAction):
+    caption = _("Example")
+    icon = "10.png"
+    model = Other
+    field_id = 'other'
+    action_class = OtherShow
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_other')
 class OtherDel(XferDelete):
     icon = "10.png"

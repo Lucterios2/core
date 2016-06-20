@@ -54,91 +54,58 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Utilisateurs')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
-        self.assert_action_equal(
-            'ACTIONS/ACTION', ('Fermer', 'images/close.png'))
-        self.assert_count_equal('COMPONENTS/*', 7)
-        self.assert_xml_equal(
-            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/user.png')
-        self.assert_coordcomp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Utilisateurs du logiciel{[/b]}{[/u]}{[/center]}')
-        self.assert_coordcomp_equal(
-            'COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_actifs"]', '{[b]}Liste des utilisateurs actifs{[/b]}')
-        self.assert_coordcomp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_actifs"]', ('0', '1', '2', '1'))
-        self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="user_actif"]', ('0', '2', '2', '1'))
+        self.assert_action_equal('ACTIONS/ACTION', ('Fermer', 'images/close.png'))
+        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_xml_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/user.png')
+        self.assert_coordcomp_equal('COMPONENTS/IMAGE[@name="img"]', ('0', '0', '1', '1'))
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="title"]', '{[br/]}{[center]}{[u]}{[b]}Utilisateurs du logiciel{[/b]}{[/u]}{[/center]}')
+        self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_actifs"]', '{[b]}Liste des utilisateurs actifs{[/b]}')
+        self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="lbl_actifs"]', ('0', '1', '2', '1'))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="user_actif"]', ('0', '2', '2', '1'))
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="separator"]', None)
-        self.assert_coordcomp_equal(
-            'COMPONENTS/LABELFORM[@name="separator"]', ('0', '3', '1', '1'))
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_inactif"]', '{[b]}Liste des utilisateurs inactifs{[/b]}')
-        self.assert_coordcomp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_inactif"]', ('0', '4', '2', '1'))
-        self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]', ('0', '5', '2', '1'))
+        self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="separator"]', ('0', '4', '1', '1'))
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_inactif"]', '{[b]}Liste des utilisateurs inactifs{[/b]}')
+        self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="lbl_inactif"]', ('0', '5', '2', '1'))
+        self.assert_coordcomp_equal('COMPONENTS/GRID[@name="user_inactif"]', ('0', '6', '2', '1'))
 
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/HEADER', 4)
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/HEADER', 4)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="username"]', "nom d'utilisateur")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="first_name"]', "prénom")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="last_name"]', "nom")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="last_login"]', "dernière connexion")
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD', 2)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="username"]', 'admin')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="username"]', 'empty')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="first_name"]', 'administrator')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="first_name"]', 'empty')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_name"]', 'ADMIN')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_name"]', 'NOFULL')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_login"]',
+                              date.today().strftime('%e').strip(), True)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_login"]',
+                              date.today().strftime('%e').strip(), True)
 
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="username"]', "nom d'utilisateur")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="first_name"]', "prénom")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="last_name"]', "nom")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/HEADER[@name="last_login"]', "dernière connexion")
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="username"]', 'admin')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="username"]', 'empty')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="first_name"]', 'administrator')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="first_name"]', 'empty')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_name"]', 'ADMIN')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_name"]', 'NOFULL')
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=1]/VALUE[@name="last_login"]', date.today().strftime('%e').strip(), True)
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/RECORD[@id=2]/VALUE[@name="last_login"]', date.today().strftime('%e').strip(), True)
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION', 4)
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=1]',
+                                 ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]',
+                                 ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]',
+                                 ('Ajouter', 'images/add.png', 'CORE', 'usersEdit', 0, 1, 1))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=4]',
+                                 ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
 
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION', 4)
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=1]', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=2]', ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=3]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_actif"]/ACTIONS/ACTION[position()=4]', ('Ajouter', 'images/add.png', 'CORE', 'usersEdit', 0, 1, 1))
-
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/HEADER', 3)
-
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="username"]', "nom d'utilisateur")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="first_name"]', "prénom")
-        self.assert_xml_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="last_name"]', "nom")
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/RECORD', 0)
-        self.assert_count_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION', 2)
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=1]', ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
-        self.assert_action_equal(
-            'COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER', 3)
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="username"]', "nom d'utilisateur")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="first_name"]', "prénom")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="user_inactif"]/HEADER[@name="last_name"]', "nom")
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/RECORD', 0)
+        self.assert_count_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION', 2)
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=1]',
+                                 ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
+        self.assert_action_equal('COMPONENTS/GRID[@name="user_inactif"]/ACTIONS/ACTION[position()=2]',
+                                 ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
 
     def test_userdelete(self):
         add_user("user1")

@@ -26,12 +26,13 @@ from __future__ import unicode_literals
 from datetime import datetime
 from calendar import monthrange
 
-from django.utils import six
-from django.utils.translation import ugettext_lazy as _
-
 from lxml import etree
 import threading
 import logging
+import warnings
+
+from django.utils import six
+from django.utils.translation import ugettext_lazy as _
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -142,12 +143,21 @@ class WrapAction(object):
 
 class ActionsManage(object):
 
+    ACTION_IDENT_LIST = 1
+    ACTION_IDENT_GRID = 2
+    ACTION_IDENT_SHOW = 3
+    ACTION_IDENT_EDIT = 4
+
     _VIEW_LIST = {}
+
+    _ACTION_LIST = {}
 
     _actlock = threading.RLock()
 
     @classmethod
     def affect(cls, *arg_tuples):
+        warnings.warn("[ActionsManage.affect] Deprecated in Lucterios 2.2", DeprecationWarning)
+
         def wrapper(item):
             cls._actlock.acquire()
             try:
@@ -169,12 +179,85 @@ class ActionsManage(object):
         try:
             ident = "%s@%s" % (model_name, action_type)
             if ident in cls._VIEW_LIST.keys():
+                warnings.warn("[ActionsManage.get_act_changed] Deprecated in Lucterios 2.2", DeprecationWarning)
                 view_class = cls._VIEW_LIST[ident]
                 return view_class.get_action(title, icon)
             else:
                 return None
         finally:
             cls._actlock.release()
+
+    @classmethod
+    def get_actions(cls, ident, xfer, model_name=None, key=None, **args):
+        cls._actlock.acquire()
+        try:
+            acts = []
+            if model_name is None:
+                model_name = xfer.model.__name__
+            if model_name in cls._ACTION_LIST.keys():
+                for act_ident, act_xclass, act_title, act_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
+                    if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
+                        acts.append((act_xclass.get_action(act_title, act_icon), act_options))
+            if key is not None:
+                acts.sort(key=key)
+            return acts
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def get_action_url(cls, model_name, url):
+        cls._actlock.acquire()
+        try:
+            retact = None
+            if model_name in cls._ACTION_LIST.keys():
+                for act in cls._ACTION_LIST[model_name]:
+                    if act[1].url_text.endswith(url):
+                        retact = act[1].get_action(act[2], act[3])
+            return retact
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def affect_generic(cls, ident, title, icon, condition=None, **options):
+        def wrapper(xclass):
+            if 'model_name' in options.keys() and (options['model_name'] is not None):
+                model_name = options['model_name']
+            else:
+                model_name = xclass.model.__name__
+            cls._actlock.acquire()
+            try:
+                if model_name not in cls._ACTION_LIST.keys():
+                    cls._ACTION_LIST[model_name] = []
+                cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, condition, options))
+                return xclass
+            finally:
+                cls._actlock.release()
+        return wrapper
+
+    @classmethod
+    def affect_list(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.affect_generic(cls.ACTION_IDENT_LIST, title, icon, condition, **options)
+
+    @classmethod
+    def affect_grid(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, **options):
+        options['close'] = close
+        options['modal'] = modal
+        options['unique'] = unique
+        return cls.affect_generic(cls.ACTION_IDENT_GRID, title, icon, condition, **options)
+
+    @classmethod
+    def affect_show(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.affect_generic(cls.ACTION_IDENT_SHOW, title, icon, condition, **options)
+
+    @classmethod
+    def affect_edit(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
 
 
 class MenuManage(object):
