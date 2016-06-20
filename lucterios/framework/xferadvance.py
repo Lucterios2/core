@@ -37,6 +37,9 @@ from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm,
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 
 
+TITLE_OK = _("Ok")
+TITLE_CANCEL = _("Cancel")
+TITLE_CLOSE = _("Close")
 TITLE_EDIT = _("Edit")
 TITLE_MODIFY = _("Modify")
 TITLE_DELETE = _("Delete")
@@ -266,4 +269,4 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         if isinstance(self.redirect_to_show, six.text_type):
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show), {'params': {self.field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show, self), {'params': {self.field_id: self.item.id}})

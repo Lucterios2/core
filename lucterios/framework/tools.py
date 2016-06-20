@@ -205,13 +205,13 @@ class ActionsManage(object):
             cls._actlock.release()
 
     @classmethod
-    def get_action_url(cls, model_name, url):
+    def get_action_url(cls, model_name, url, xfer, **args):
         cls._actlock.acquire()
         try:
             retact = None
             if model_name in cls._ACTION_LIST.keys():
                 for act in cls._ACTION_LIST[model_name]:
-                    if act[1].url_text.endswith(url):
+                    if act[1].url_text.endswith(url) and ((act[4] is None) or act[4](xfer, **args)):
                         retact = act[1].get_action(act[2], act[3])
             return retact
         finally:

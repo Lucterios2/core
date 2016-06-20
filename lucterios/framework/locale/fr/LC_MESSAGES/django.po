@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-20 16:13+0000\n"
+"POT-Creation-Date: 2016-06-20 17:14+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -79,71 +79,71 @@ msgstr "supprimer"
 msgid "Can"
 msgstr "Pouvoir"
 
-#: xferadvance.py:40 xfercomponents.py:641
-msgid "Edit"
-msgstr "Éditer"
+#: xferadvance.py:40 xferadvance.py:156 xfergraphic.py:172
+msgid "Ok"
+msgstr "Ok"
 
-#: xferadvance.py:41 xferadvance.py:193 xfercomponents.py:641
-msgid "Modify"
-msgstr "Modifier"
+#: xferadvance.py:41 xferadvance.py:159 xfergraphic.py:143
+msgid "Cancel"
+msgstr "Annuler"
 
-#: xferadvance.py:42 xfercomponents.py:642
-msgid "Delete"
-msgstr "Supprimer"
-
-#: xferadvance.py:43 xfercomponents.py:642
-msgid "Add"
-msgstr "Ajouter"
-
-#: xferadvance.py:44 xferadvance.py:194 xferprinting.py:109
-msgid "Print"
-msgstr "Imprimer"
-
-#: xferadvance.py:45 xferadvance.py:76 xfersearch.py:370
-msgid "Listing"
-msgstr "Liste"
-
-#: xferadvance.py:46 xferadvance.py:77 xfersearch.py:371
-msgid "Label"
-msgstr "Étiquette"
-
-#: xferadvance.py:107 xfersearch.py:567
-#, python-format
-msgid "Total number of %(name)s: %(count)d"
-msgstr "Nombre total de %(name)s: %(count)d"
-
-#: xferadvance.py:133 xferadvance.py:213 xfergraphic.py:131
+#: xferadvance.py:42 xferadvance.py:136 xferadvance.py:216 xfergraphic.py:131
 #: xferprinting.py:110 xfersearch.py:575
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:153 xfergraphic.py:172
-msgid "Ok"
-msgstr "Ok"
+#: xferadvance.py:43 xfercomponents.py:641
+msgid "Edit"
+msgstr "Éditer"
 
-#: xferadvance.py:156 xfergraphic.py:143
-msgid "Cancel"
-msgstr "Annuler"
+#: xferadvance.py:44 xferadvance.py:196 xfercomponents.py:641
+msgid "Modify"
+msgstr "Modifier"
 
-#: xferadvance.py:220
+#: xferadvance.py:45 xfercomponents.py:642
+msgid "Delete"
+msgstr "Supprimer"
+
+#: xferadvance.py:46 xfercomponents.py:642
+msgid "Add"
+msgstr "Ajouter"
+
+#: xferadvance.py:47 xferadvance.py:197 xferprinting.py:109
+msgid "Print"
+msgstr "Imprimer"
+
+#: xferadvance.py:48 xferadvance.py:79 xfersearch.py:370
+msgid "Listing"
+msgstr "Liste"
+
+#: xferadvance.py:49 xferadvance.py:80 xfersearch.py:371
+msgid "Label"
+msgstr "Étiquette"
+
+#: xferadvance.py:110 xfersearch.py:567
+#, python-format
+msgid "Total number of %(name)s: %(count)d"
+msgstr "Nombre total de %(name)s: %(count)d"
+
+#: xferadvance.py:223
 msgid "No model"
 msgstr "Pas de modèle"
 
-#: xferadvance.py:230
+#: xferadvance.py:233
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:241
+#: xferadvance.py:244
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:242
+#: xferadvance.py:245
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:265
+#: xferadvance.py:268
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 

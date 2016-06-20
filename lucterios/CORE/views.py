@@ -607,9 +607,9 @@ class ObjectMerge(XferContainerAcknowledge):
                 if item.id != self.item.id:
                     alias_objects.append(item.get_final_child())
             self.item.get_final_child().merge_objects(alias_objects)
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show'), {'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {'params': {field_id: self.item.id}})
         else:
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show'), {'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {'params': {field_id: self.item.id}})
 
 
 @MenuManage.describ('')
@@ -669,6 +669,6 @@ class ObjectPromote(XferContainerAcknowledge):
             new_object.save()
             new_object.__dict__.update(self.item.__dict__)
             new_object.save()
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show'), {})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {})
 
 tools.bad_permission_redirect_classaction = Menu

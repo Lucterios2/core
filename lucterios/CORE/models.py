@@ -44,6 +44,9 @@ class Parameter(LucteriosModel):
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
 
+    def __str__(self):
+        return self.name
+
     @classmethod
     def change_value(cls, pname, pvalue):
         db_param = cls.objects.get(name=pname)
