@@ -29,9 +29,8 @@ from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompImage, XferCompGrid
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_MULTI, \
-    WrapAction, ActionsManage, SELECT_NONE
+from lucterios.framework.xfercomponents import XferCompLabelForm
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser

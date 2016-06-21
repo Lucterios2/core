@@ -131,11 +131,10 @@ class XferListEditor(XferContainerCustom):
         self.fillresponse_body()
         if self.model is not None:
             for act_type, title, icon in self.action_list:
-                self.add_action(ActionsManage.get_act_changed(
-                    self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
+                self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), close=CLOSE_NO)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
-            self.add_action(act, opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 class XferAddEditor(XferContainerCustom):
@@ -155,10 +154,10 @@ class XferAddEditor(XferContainerCustom):
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         if len(self.actions) == 0:
-            self.add_action(self.get_action(_('Ok'), 'images/ok.png'), {'params': {"SAVE": "YES"}})
+            self.add_action(self.get_action(_('Ok'), 'images/ok.png'), params={"SAVE": "YES"})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
-            self.add_action(act, opt)
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
     def get(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
@@ -212,10 +211,10 @@ class XferShowEditor(XferContainerCustom):
             else:
                 params = {}
             self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), {'close': close, 'params': params})
+                self.model.__name__, act_type, title, icon), close=close, params=params)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
-            self.add_action(act, opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 class XferDelete(XferContainerAcknowledge):
@@ -271,5 +270,5 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         if isinstance(self.redirect_to_show, six.text_type):
-            self.redirect_action(ActionsManage.get_action_url(
-                self.model.__name__, self.redirect_to_show, self), {'params': {self.field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show, self),
+                                 params={self.field_id: self.item.id})

@@ -106,8 +106,8 @@ class XferContainerPrint(XferContainerAbstract):
                 gui.add_component(comp)
                 row_idx += 1
         gui.add_action(self.get_action(
-            _("Print"), "images/print.png"), {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES})
-        gui.add_action(WrapAction(_("Close"), "images/close.png"), {})
+            _("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 
     def get(self, request, *args, **kwargs):

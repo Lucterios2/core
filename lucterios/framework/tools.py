@@ -75,7 +75,7 @@ class WrapAction(object):
     def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, url_text, extension)
-        self.modal = FORMTYPE_MODAL
+        self.modal = None
         self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
@@ -89,7 +89,7 @@ class WrapAction(object):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, self.url_text, self.extension)
 
-    def get_action_xml(self, option, desc='', tag='ACTION'):
+    def get_action_xml(self, desc='', tag='ACTION', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         actionxml = etree.Element(tag)
         actionxml.text = six.text_type(self.caption)
         actionxml.attrib['id'] = self.url_text
@@ -101,17 +101,13 @@ class WrapAction(object):
             actionxml.attrib['action'] = self.action
         if desc != "":
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-        actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
-        actionxml.attrib['close'] = six.text_type(CLOSE_YES)
-        actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+        actionxml.attrib['modal'] = six.text_type(modal)
+        actionxml.attrib['close'] = six.text_type(close)
+        actionxml.attrib['unique'] = six.text_type(unique)
         if isinstance(self.modal, int):
             actionxml.attrib['modal'] = six.text_type(self.modal)
-        if 'params' in option:
-            fill_param_xml(actionxml, option['params'])
-            del option['params']
-        for key in option.keys():  # modal, close, unique
-            if isinstance(option[key], six.integer_types):
-                actionxml.attrib[key] = six.text_type(option[key])
+        if isinstance(params, dict):
+            fill_param_xml(actionxml, params)
         return actionxml
 
     def check_permission(self, request):
@@ -202,9 +198,13 @@ class ActionsManage(object):
             if model_name in cls._ACTION_LIST.keys():
                 for act_ident, act_xclass, act_title, act_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
                     if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
-                        acts.append((act_xclass.get_action(act_title, act_icon), act_options))
+                        acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
             if key is not None:
                 acts.sort(key=key)
+            for act in acts:
+                for remove_opt in ['intop', 'model_name']:
+                    if remove_opt in act[1]:
+                        del act[1][remove_opt]
             return acts
         finally:
             cls._actlock.release()
@@ -307,8 +307,9 @@ class MenuManage(object):
                         cls._MENU_LIST[menu_parent] = []
                     logging.getLogger("lucterios.core.menu").debug(
                         "new menu: caption=%s ref=%s", item.caption, item.url_text)
-                    cls._MENU_LIST[menu_parent].append(
-                        (item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
+                    act = item.get_action(item.caption, item.icon_path())
+                    act.modal = modal
+                    cls._MENU_LIST[menu_parent].append((act, menu_desc))
                 return item
             finally:
                 cls._menulock.release()
@@ -328,20 +329,18 @@ class MenuManage(object):
                 sub_menus.sort(key=menu_key_to_comp)
                 for sub_menu_item in sub_menus:
                     if sub_menu_item[0].check_permission(request):
-                        new_xml = sub_menu_item[0].get_action_xml(
-                            {}, sub_menu_item[1], "MENU")
+                        new_xml = sub_menu_item[0].get_action_xml(desc=sub_menu_item[1], tag="MENU")
                         if new_xml is not None:
                             parentxml.append(new_xml)
-                            cls.fill(
-                                request, sub_menu_item[0].url_text, new_xml)
+                            cls.fill(request, sub_menu_item[0].url_text, new_xml)
         finally:
             cls._menulock.release()
 
 
 def get_actions_xml(actions):
     actionsxml = etree.Element("ACTIONS")
-    for (action, options) in actions:
-        new_xml = action.get_action_xml(options)
+    for action, modal, close, unique, params in actions:
+        new_xml = action.get_action_xml(modal=modal, close=close, unique=unique, params=params)
         if new_xml is not None:
             actionsxml.append(new_xml)
     return actionsxml

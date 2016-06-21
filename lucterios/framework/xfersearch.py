@@ -478,8 +478,7 @@ if ((type=='list') || (type=='listmult')) {
         comp = XferCompButton("searchButtonAdd")
         comp.set_is_mini(True)
         comp.set_location(4, 10, 1, 7)
-        comp.set_action(self.request, self.get_action("", "images/add.png"),
-                        {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'params': {'ACT': 'ADD'}})
+        comp.set_action(self.request, self.get_action("", "images/add.png"), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
@@ -536,8 +535,8 @@ if ((type=='list') || (type=='listmult')) {
             comp = XferCompButton("searchButtonDel_" + criteria_id)
             comp.set_is_mini(True)
             comp.set_location(4, row)
-            comp.set_action(self.request, self.get_action("", "images/delete.png"), {
-                            'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'params': {'ACT': criteria_id}})
+            comp.set_action(self.request, self.get_action("", "images/delete.png"),
+                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': criteria_id})
             self.add_component(comp)
             row += 1
 
@@ -570,5 +569,5 @@ if ((type=='list') || (type=='listmult')) {
             self.add_action(ActionsManage.get_act_changed(
                 self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
-            self.add_action(act, opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))

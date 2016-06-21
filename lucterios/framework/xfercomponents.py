@@ -30,12 +30,14 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote_plus
 
-from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI
+from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI,\
+    CLOSE_YES
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum
+import warnings
 
 
 class XferComponent(object):
@@ -256,10 +258,15 @@ class XferCompButton(XferComponent):
         else:
             self.is_mini = False
 
-    def set_action(self, request, action, option):
+    def set_action(self, request, action, options=None, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         assert (action is None) or isinstance(action, WrapAction)
         if isinstance(action, WrapAction) and action.check_permission(request):
-            self.action = (action, option)
+            if (options is not None) and isinstance(options, dict):
+                warnings.warn("[%s.set_action] Deprecated in Lucterios 2.2" % self.__class__.__name__, DeprecationWarning)
+                modal = options.get('modal', FORMTYPE_MODAL)
+                close = options.get('close', CLOSE_YES)
+                params = options.get('params', None)
+            self.action = (action, modal, close, params)
 
     def _get_attribut(self, compxml):
         XferComponent._get_attribut(self, compxml)
@@ -270,7 +277,7 @@ class XferCompButton(XferComponent):
         compxml = XferComponent.get_reponse_xml(self)
         if self.action is not None:
             xml_acts = etree.SubElement(compxml, "ACTIONS")
-            new_xml = self.action[0].get_action_xml(self.action[1])
+            new_xml = self.action[0].get_action_xml(modal=self.action[1], close=self.action[2], unique=SELECT_NONE, params=self.action[3])
             if new_xml is not None:
                 new_xml.attrib['id'] = self.name
                 new_xml.attrib['name'] = self.name
@@ -681,14 +688,18 @@ class XferCompGrid(XferComponent):
             self.headers[head_idx] = XferCompHeader(self.headers[head_idx].name, self.headers[
                                                     head_idx].descript, htype, self.headers[head_idx].orderable)
 
-    def add_action(self, request, action, option, pos_act=-1):
-        if 'close' not in option.keys():
-            option['close'] = CLOSE_NO
+    def add_action(self, request, action, options=None, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         if isinstance(action, WrapAction) and action.check_permission(request):
+            if isinstance(options, dict):
+                warnings.warn("[XferCompGrid.add_action] Deprecated in Lucterios 2.2", DeprecationWarning)
+                modal = options.get('modal', FORMTYPE_MODAL)
+                close = options.get('close', CLOSE_YES)
+                unique = options.get('unique', SELECT_NONE)
+                params = options.get('params', None)
             if pos_act != -1:
-                self.actions.insert(pos_act, (action, option))
+                self.actions.insert(pos_act, (action, modal, close, unique, params))
             else:
-                self.actions.append((action, option))
+                self.actions.append((action, modal, close, unique, params))
 
     def define_page(self, xfer_custom=None):
         if xfer_custom is not None:
@@ -840,7 +851,7 @@ class XferCompGrid(XferComponent):
         elif hasattr(model, "__name__"):
             model = model.__name__
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, xfer_custom, model, key=action_list_sorted, gridname=self.name):
-            self.add_action(xfer_custom.request, act, opt)
+            self.add_action(xfer_custom.request, act, **opt)
 
     def delete_action(self, url_text):
         modify_idx = 0

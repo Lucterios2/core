@@ -170,8 +170,8 @@ class ChangePassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(
-            ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ('')
@@ -227,8 +227,8 @@ class AskPassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(
-            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ(right_askpassword)
@@ -265,8 +265,8 @@ class Configuration(XferContainerCustom):
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
         self.add_action(
-            ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close': 0})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+            ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -284,8 +284,8 @@ class ParamEdit(XferContainerCustom):
         lab.set_value_as_title(_("Edition of parameters"))
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False, nb_col)
-        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -360,7 +360,7 @@ class PrintModelList(XferListEditor):
         model_sel.set_location(1, 1)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_action("", ""), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        model_sel.set_action(self.request, self.get_action("", ""), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(model_sel)
         self.filter = Q(modelname=modelname)
         self.fieldnames = ['name', 'kind']
@@ -395,7 +395,7 @@ class PrintModelEdit(XferContainerCustom):
         if self.item.kind == 1:
             self.fill_from_model(1, 3, False, ['mode'])
             self.get_components('mode').set_action(
-                self.request, self.get_action('', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+                self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
                 self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
@@ -404,8 +404,8 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif (self.item.kind == 2) or ((self.item.kind == 1) and (self.item.mode == 1)):
             self._fill_report_editor()
-        self.add_action(PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
-        self.add_action(WrapAction(_('cancel'), 'images/cancel.png'), {})
+        self.add_action(PrintModelSave.get_action(_("ok"), "images/ok.png"))
+        self.add_action(WrapAction(_('cancel'), 'images/cancel.png'))
 
     def _fill_listing_editor(self):
         lab = XferCompLabelForm('lbl_page_width')
@@ -595,22 +595,22 @@ class ObjectMerge(XferContainerAcknowledge):
                 grid.set_value(item.id, 'select', item.id == self.item.id)
             grid.set_location(1, 1)
             grid.add_action(self.request, self.get_action(_("Edit"), "images/show.png"),
-                            {'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'unique': SELECT_SINGLE, 'params': {"CONFIRME": 'OPEN'}})
+                            modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, params={"CONFIRME": 'OPEN'})
             grid.add_action(self.request, self.get_action(_("Select"), "images/ok.png"),
-                            {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_SINGLE})
+                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL,
-                                                                       'params': {'CONFIRME': 'YES', self.field_id: self.item.id}})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
+                           params={'CONFIRME': 'YES', self.field_id: self.item.id})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
             alias_objects = []
             for item in self.items:
                 if item.id != self.item.id:
                     alias_objects.append(item.get_final_child())
             self.item.get_final_child().merge_objects(alias_objects)
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), params={field_id: self.item.id})
         else:
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), params={field_id: self.item.id})
 
 
 @MenuManage.describ('')
@@ -661,8 +661,8 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_select(self.item.__class__.get_select_contact_type(False))
             lbl.set_location(2, 3)
             dlg.add_component(lbl)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL, 'params': {'CONFIRME': 'YES'}})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         else:
             new_model = apps.get_model(self.getparam('newmodel'))
             field_id_name = "%s_ptr_id" % self.model.__name__.lower()
@@ -670,6 +670,6 @@ class ObjectPromote(XferContainerAcknowledge):
             new_object.save()
             new_object.__dict__.update(self.item.__dict__)
             new_object.save()
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), {})
+            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self))
 
 tools.bad_permission_redirect_classaction = Menu

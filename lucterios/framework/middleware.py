@@ -28,6 +28,7 @@ from __future__ import unicode_literals
 from lxml import etree
 from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
+from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 
 
 class LucteriosErrorMiddleware(XferContainerException):
@@ -39,7 +40,7 @@ class LucteriosErrorMiddleware(XferContainerException):
         if isinstance(exception, LucteriosRedirectException) and (exception.redirectclassview is not None):
             redirectaction = exception.redirectclassview.get_action()
             if self.check_action_permission(redirectaction):
-                self.closeaction = (redirectaction, {})
+                self.closeaction = (redirectaction, FORMTYPE_MODAL, CLOSE_YES, None)
         self.responsesxml = etree.Element('REPONSES')
         self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
         self._initialize(request)

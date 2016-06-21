@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
 from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage, SELECT_SINGLE, SELECT_MULTI
-from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES, SELECT_NONE
+from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
@@ -85,7 +85,7 @@ class TestComposants(XferContainerCustom):
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
                      ck1=False, slct1='1', flt2=5, cl1=['1', '2'], stm1='2008-07-12 23:47:31'):
-        act_modif = (self.get_action('Modify', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_NONE})
+        act_modif = self.get_action('Modify', '')
 
         lbl = XferCompLabelForm('Lbl2')
         lbl.set_value('editor=' + six.text_type(edt1))
@@ -94,7 +94,7 @@ class TestComposants(XferContainerCustom):
         edt = XferCompEdit('edt1')
         edt.set_value(edt1)
 
-        edt.set_action(self.request, act_modif[0], act_modif[1])
+        edt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         edt.set_location(1, 1)
 
         self.add_component(edt)
@@ -105,7 +105,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         flt = XferCompFloat('flt1')
         flt.set_value(flt1)
-        flt.set_action(self.request, act_modif[0], act_modif[1])
+        flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         flt.set_location(1, 2)
         self.add_component(flt)
 
@@ -115,7 +115,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         cmm = XferCompMemo('mm1')
         cmm.set_value(mm1)
-        cmm.set_action(self.request, act_modif[0], act_modif[1])
+        cmm.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         cmm.add_sub_menu('Première valeur', 'VALUE_1')
         cmm.add_sub_menu('Deuxième valeur', 'VALUE_2')
         cmm.add_sub_menu('Troisième valeur', 'VALUE_3')
@@ -128,7 +128,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         date = XferCompDate('dt1')
         date.set_value(dt1)
-        date.set_action(self.request, act_modif[0], act_modif[1])
+        date.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         date.set_location(1, 4)
         self.add_component(date)
 
@@ -138,7 +138,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         time = XferCompTime('tm1')
         time.set_value(tm1)
-        time.set_action(self.request, act_modif[0], act_modif[1])
+        time.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         time.set_location(1, 5)
         self.add_component(time)
 
@@ -148,7 +148,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         datetime = XferCompDateTime('stm1')
         datetime.set_value(stm1)
-        datetime.set_action(self.request, act_modif[0], act_modif[1])
+        datetime.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         datetime.set_location(1, 6)
         self.add_component(datetime)
 
@@ -158,7 +158,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         check = XferCompCheck('ck1')
         check.set_value(ck1)
-        check.set_action(self.request, act_modif[0], act_modif[1])
+        check.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         check.set_location(1, 7)
         self.add_component(check)
 
@@ -174,7 +174,7 @@ class TestComposants(XferContainerCustom):
         else:
             slct.set_select({'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})
         slct.set_value(slct1)
-        slct.set_action(self.request, act_modif[0], act_modif[1])
+        slct.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         slct.set_location(1, 8)
         self.add_component(slct)
 
@@ -184,7 +184,7 @@ class TestComposants(XferContainerCustom):
         self.add_component(lbl)
         flt = XferCompFloat('flt2', 0, 100, 0)
         flt.set_value(flt2)
-        flt.set_action(self.request, act_modif[0], act_modif[1])
+        flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         flt.set_location(1, 9)
         self.add_component(flt)
 
@@ -196,7 +196,7 @@ class TestComposants(XferContainerCustom):
         checklist.set_select(
             {'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})
         checklist.set_value(cl1)
-        checklist.set_action(self.request, act_modif[0], act_modif[1])
+        checklist.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         checklist.set_location(1, 10)
         self.add_component(checklist)
 
@@ -205,11 +205,11 @@ class TestComposants(XferContainerCustom):
         lbl.set_location(0, 20)
         self.add_component(lbl)
         btn = XferCompButton('btn1')
-        btn.set_action(self.request, act_modif[0], act_modif[1])
+        btn.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(WrapAction('Fin', 'images/close.png'), {'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'unique': SELECT_NONE})
+        self.add_action(WrapAction('Fin', 'images/close.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
