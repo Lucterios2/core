@@ -833,6 +833,15 @@ class XferCompGrid(XferComponent):
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
                 model.__name__, act_type, title, icon), {'modal': FORMTYPE_MODAL, 'unique': unique})
 
+    def add_action_notified(self, xfer_custom, model=None):
+        from lucterios.framework.xferadvance import action_list_sorted
+        if model is None:
+            model = xfer_custom.model.__name__
+        elif hasattr(model, "__name__"):
+            model = model.__name__
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, xfer_custom, model, key=action_list_sorted, gridname=self.name):
+            self.add_action(xfer_custom.request, act, opt)
+
     def delete_action(self, url_text):
         modify_idx = 0
         for action in self.actions:

@@ -43,7 +43,8 @@ from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstra
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
+    TITLE_CLONE
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
@@ -509,7 +510,7 @@ class PrintModelSave(XferSave):
             XferSave.fillresponse(self)
 
 
-@ActionsManage.affect_grid(_('clone'), 'images/clone.png', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_CLONE, 'images/clone.png', unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelClone(XferContainerAcknowledge):
     caption = _("Add a print model")

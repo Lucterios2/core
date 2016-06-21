@@ -100,8 +100,8 @@ class UsersList(XferListEditor):
         self.fill_grid(row + 1, self.model, 'user_inactif', LucteriosUser.objects.filter(is_active=False))
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname: gridname == 'user_actif')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname: gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
     caption_add = _("Add an users")
@@ -111,7 +111,7 @@ class UsersEdit(XferAddEditor):
     field_id = 'user_actif'
 
 
-@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname: gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
@@ -126,7 +126,7 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.save()
 
 
-@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", condition=lambda xfer, gridname: gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
+@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")

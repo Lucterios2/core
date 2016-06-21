@@ -490,6 +490,7 @@ class XferContainerCustom(XferContainerAbstract):
                     comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
                     comp.add_actions(self, model=child.model)
+                    comp.add_action_notified(self, model=child.model)
                     comp.set_location(col + 1 + offset, row, colspan, 1)
                     self.add_component(comp)
                     offset += 2

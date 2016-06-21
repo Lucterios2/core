@@ -44,6 +44,7 @@ TITLE_EDIT = _("Edit")
 TITLE_MODIFY = _("Modify")
 TITLE_DELETE = _("Delete")
 TITLE_ADD = _("Add")
+TITLE_CLONE = _('clone')
 TITLE_PRINT = _("Print")
 TITLE_LISTING = _("Listing")
 TITLE_LABEL = _("Label")
@@ -58,12 +59,14 @@ def action_list_sorted(item):
         return 3
     if item[0].caption == TITLE_ADD:
         return 4
-    if item[0].caption == TITLE_PRINT:
+    if item[0].caption == TITLE_CLONE:
         return 5
-    if item[0].caption == TITLE_LISTING:
+    if item[0].caption == TITLE_PRINT:
         return 6
-    if item[0].caption == TITLE_LABEL:
+    if item[0].caption == TITLE_LISTING:
         return 7
+    if item[0].caption == TITLE_LABEL:
+        return 8
     if ('intop' in item[1].keys()) and item[1]['intop']:
         return 0
     else:
@@ -100,8 +103,7 @@ class XferListEditor(XferContainerCustom):
             xfer = None
         grid.set_model(items, self.fieldnames, xfer)
         grid.add_actions(self, action_list=self.action_grid, model=model)
-        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, xfer, model.__name__, key=action_list_sorted, gridname=field_id):
-            grid.add_action(self.request, act, opt)
+        grid.add_action_notified(self, model=model)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
@@ -269,4 +271,5 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         if isinstance(self.redirect_to_show, six.text_type):
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show, self), {'params': {self.field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(
+                self.model.__name__, self.redirect_to_show, self), {'params': {self.field_id: self.item.id}})

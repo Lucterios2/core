@@ -557,8 +557,7 @@ if ((type=='list') || (type=='listmult')) {
         grid = XferCompGrid(self.field_id)
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_actions(self, action_list=self.action_grid)
-        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, self, key=action_list_sorted):
-            grid.add_action(self.request, act, opt)
+        grid.add_action_notified(self)
         grid.set_location(0, row + 4, 4)
         grid.set_size(200, 500)
         self.add_component(grid)

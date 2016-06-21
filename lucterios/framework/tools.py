@@ -85,6 +85,10 @@ class WrapAction(object):
             self.action = action
         self.pos = pos
 
+    def set_value(self, caption, icon_path):
+        self.caption = caption
+        self.icon_path = get_icon_path(icon_path, self.url_text, self.extension)
+
     def get_action_xml(self, option, desc='', tag='ACTION'):
         actionxml = etree.Element(tag)
         actionxml.text = six.text_type(self.caption)
@@ -179,7 +183,8 @@ class ActionsManage(object):
         try:
             ident = "%s@%s" % (model_name, action_type)
             if ident in cls._VIEW_LIST.keys():
-                warnings.warn("[ActionsManage.get_act_changed] Deprecated in Lucterios 2.2", DeprecationWarning)
+                warnings.warn("[ActionsManage.get_act_changed('%s','%s','%s','%s')] Deprecated in Lucterios 2.2" %
+                              (model_name, action_type, title, icon), DeprecationWarning)
                 view_class = cls._VIEW_LIST[ident]
                 return view_class.get_action(title, icon)
             else:
