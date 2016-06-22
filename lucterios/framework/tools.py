@@ -33,6 +33,9 @@ import warnings
 
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
+from django_fsm import FSMFieldMixin
+from django.utils.encoding import smart_text
+from types import FunctionType
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -223,7 +226,22 @@ class ActionsManage(object):
             cls._actlock.release()
 
     @classmethod
-    def affect_generic(cls, ident, title, icon, condition=None, **options):
+    def add_action_generic(cls, xclass, ident, title, icon, condition, **options):
+        if 'model_name' in options.keys() and (options['model_name'] is not None):
+            model_name = options['model_name']
+        else:
+            model_name = xclass.model.__name__
+        cls._actlock.acquire()
+        try:
+            if model_name not in cls._ACTION_LIST.keys():
+                cls._ACTION_LIST[model_name] = []
+            cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, condition, options))
+            return xclass
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def wrapp_affect_generic(cls, ident, title, icon, condition=None, **options):
         def wrapper(xclass):
             if 'model_name' in options.keys() and (options['model_name'] is not None):
                 model_name = options['model_name']
@@ -243,26 +261,52 @@ class ActionsManage(object):
     def affect_list(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
-        return cls.affect_generic(cls.ACTION_IDENT_LIST, title, icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_LIST, title, icon, condition, **options)
 
     @classmethod
     def affect_grid(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = unique
-        return cls.affect_generic(cls.ACTION_IDENT_GRID, title, icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_GRID, title, icon, condition, **options)
 
     @classmethod
     def affect_show(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
-        return cls.affect_generic(cls.ACTION_IDENT_SHOW, title, icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_SHOW, title, icon, condition, **options)
 
     @classmethod
     def affect_edit(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
-        return cls.affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
+
+    @classmethod
+    def affect_transition(cls, state, close=CLOSE_NO, **options):
+        def wrapper(xclass):
+            xclass.trans_list = {}
+            for field in xclass.model._meta.get_fields():
+                if isinstance(field, FSMFieldMixin) and (field.name == state):
+                    for transition in field.get_all_transitions(xclass.model):
+                        source_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.source][0]
+                        target_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.target][0]
+                        title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
+                        xclass.trans_list[transition.name] = (transition.source, six.text_type(source_label),
+                                                              transition.target, six.text_type(target_label),
+                                                              transition.name, six.text_type(title))
+                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (
+                            transition.name, state)
+                        cond_fct = eval(cmd)
+                        new_dict = dict(options)
+                        if 'params' not in new_dict:
+                            new_dict['params'] = {}
+                        new_dict['params']['TRANSITION'] = transition.name
+                        new_dict['close'] = close
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, **new_dict)
+            six.print_(xclass.trans_list)
+            return xclass
+        return wrapper
 
 
 class MenuManage(object):

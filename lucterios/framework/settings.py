@@ -101,6 +101,7 @@ DEFAULT_SETTINGS = {
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'django_fsm',
         'lucterios.framework',
         'lucterios.CORE',
     ),

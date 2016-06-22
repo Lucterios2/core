@@ -35,6 +35,7 @@ from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, DEFAULT_ACTION_LIST
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
+from django_fsm import TransitionNotAllowed
 
 
 TITLE_OK = _("Ok")
@@ -272,3 +273,19 @@ class XferSave(XferContainerAcknowledge):
         if isinstance(self.redirect_to_show, six.text_type):
             self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show, self),
                                  params={self.field_id: self.item.id})
+
+
+class XferTransition(XferContainerAcknowledge):
+
+    def fillresponse(self):
+        transition = self.getparam('TRANSITION', '')
+        if transition in self.trans_list:
+            trans = self.trans_list[transition]
+            self.caption = trans[5]
+            if self.confirme(_("Do you want to change this %(name)s to %(state)s?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
+                try:
+                    getattr(self.item, transition)()
+                except TransitionNotAllowed:
+                    raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
+        else:
+            raise LucteriosException(GRAVE, _("Bad transition"))
