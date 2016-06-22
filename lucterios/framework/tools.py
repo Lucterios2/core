@@ -35,7 +35,6 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_text
-from types import FunctionType
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -304,7 +303,6 @@ class ActionsManage(object):
                         new_dict['params']['TRANSITION'] = transition.name
                         new_dict['close'] = close
                         cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, **new_dict)
-            six.print_(xclass.trans_list)
             return xclass
         return wrapper
 
