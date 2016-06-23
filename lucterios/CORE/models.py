@@ -34,6 +34,7 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
+from django.db.models.signals import post_migrate
 
 
 class Parameter(LucteriosModel):
@@ -46,6 +47,16 @@ class Parameter(LucteriosModel):
 
     def __str__(self):
         return self.name
+
+    @classmethod
+    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None):
+        param, created = Parameter.objects.get_or_create(name=name, typeparam=typeparam)
+        if created:
+            param.title = title
+            param.param_titles = param_titles
+            param.args = args
+            param.value = value
+            param.save()
 
     @classmethod
     def change_value(cls, pname, pvalue):
@@ -303,3 +314,18 @@ class SavedCriteria(LucteriosModel):
         verbose_name = _('Saved criteria')
         verbose_name_plural = _('Saved criterias')
         default_permissions = []
+
+
+@Signal.decorate('checkparam')
+def core_checkparam():
+    Parameter.check_and_create(name='CORE-GUID', typeparam=0, title=_("CORE-GUID"), args="{'Multi':False}", value='')
+    Parameter.check_and_create(name='CORE-connectmode', typeparam=4, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
+                               param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
+
+
+def post_after_migrate(sender, **kwargs):
+    if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
+        six.print_('check parameters')
+        Signal.call_signal("checkparam")
+
+post_migrate.connect(post_after_migrate)

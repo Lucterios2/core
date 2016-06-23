@@ -112,5 +112,4 @@ def get_url_patterns():
         "Urls:" + '\n'.join(str(res_item) for res_item in res))
     return res
 
-
 urlpatterns = get_url_patterns()
