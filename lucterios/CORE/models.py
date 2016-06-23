@@ -23,10 +23,16 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import dirname, join, exists, isfile
+from os import walk, makedirs, unlink
+from shutil import rmtree
+from zipfile import ZipFile
+from imp import load_source
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User, Group
 from django.db import models
+from django.db.models.signals import post_migrate
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
@@ -34,7 +40,7 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
-from django.db.models.signals import post_migrate
+from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 
 
 class Parameter(LucteriosModel):
@@ -272,6 +278,74 @@ class PrintModel(LucteriosModel):
         self.value = "%d\n%d\n" % (page_width, page_heigth)
         for column in columns:
             self.value += "%d//%s//%s\n" % column
+
+    def load_model(self, module, name=None, check=False):
+        from django.utils.module_loading import import_module
+        try:
+            if name is None:
+                print_mod = load_source('modelprint', module)
+            else:
+                print_mod = import_module("%s.printmodel.%s" % (module, name))
+            if self.id is None:
+                self.name = getattr(print_mod, "name")
+            elif check and (self.kind != getattr(print_mod, "kind")) and (self.modelname != getattr(print_mod, "modelname")):
+                return False
+            self.kind = getattr(print_mod, "kind")
+            self.modelname = getattr(print_mod, "modelname")
+            self.value = getattr(print_mod, "value", "")
+            self.mode = getattr(print_mod, "mode", 0)
+            self.save()
+            return True
+        except ImportError:
+            return False
+
+    def import_file(self, file):
+        content = ''
+        try:
+            with ZipFile(file, 'r') as zip_ref:
+                content = zip_ref.extract('printmodel', path=get_tmp_dir())
+            return self.load_model(content, check=True)
+        finally:
+            if isfile(content):
+                unlink(content)
+
+    def extract_file(self):
+        tmp_dir = join(get_tmp_dir(), 'zipfile')
+        download_file = join(get_user_dir(), 'extract-%d.mdl' % self.id)
+        if exists(tmp_dir):
+            rmtree(tmp_dir)
+        makedirs(tmp_dir)
+        try:
+            content_model = "# -*- coding: utf-8 -*-\n\n"
+            content_model += "from __future__ import unicode_literals\n\n"
+            content_model += 'name = "%s"\n' % self.name
+            content_model += 'kind = %d\n' % int(self.kind)
+            content_model += 'modelname = "%s"\n' % self.modelname
+            content_model += 'value = """%s"""\n' % self.value
+            content_model += 'mode = %d\n' % int(self.mode)
+            with ZipFile(download_file, 'w') as zip_ref:
+                zip_ref.writestr('printmodel', content_model)
+        finally:
+            if exists(tmp_dir):
+                rmtree(tmp_dir)
+        return 'extract-%d.mdl' % self.id
+
+    @classmethod
+    def get_default_model(cls, module, modelname=None, kind=None):
+        models = []
+        from django.utils.module_loading import import_module
+        try:
+            dir_pack = dirname(import_module("%s.printmodel" % module).__file__)
+            for _dir, _dirs, filenames in walk(dir_pack):
+                for filename in filenames:
+                    if (filename[-3:] == ".py") and not filename.startswith('_'):
+                        mod_name = filename[:-3]
+                        print_mod = import_module("%s.printmodel.%s" % (module, mod_name))
+                        if ((modelname is None) or (getattr(print_mod, "modelname") == modelname)) and ((kind is None) or (getattr(print_mod, "kind") == kind)):
+                            models.append((mod_name, getattr(print_mod, "name")))
+        except ImportError:
+            pass
+        return models
 
     class Meta(object):
         verbose_name = _('model')
