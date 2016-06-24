@@ -328,6 +328,16 @@ class PrintTest(LucteriosTest):
         sign = self.get_first_xpath('COMPONENTS/DOWNLOAD[@name="filename"]/FILENAME').text[42:]
 
         self.factory.xfer = Download()
+        self.call('/CORE/download', {'filename': 'extract-2.mdl', 'sign': 'abcdef'}, False)
+        self.assert_observer('core.exception', 'CORE', 'download')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Fichier invalide!")
+
+        self.factory.xfer = Download()
+        self.call('/CORE/download', {'filename': 'extract-5.mdl', 'sign': sign}, False)
+        self.assert_observer('core.exception', 'CORE', 'download')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Ficher non trouvé!")
+
+        self.factory.xfer = Download()
         response = self.factory.call('/CORE/download', {'filename': 'extract-2.mdl', 'sign': sign})
         zip_content = b""
         for stream_item in response.streaming_content:
