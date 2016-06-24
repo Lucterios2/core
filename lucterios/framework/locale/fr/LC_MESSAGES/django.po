@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-22 14:15+0000\n"
+"POT-Creation-Date: 2016-06-24 12:36+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -54,28 +54,28 @@ msgstr "sessions"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:138
+#: tools.py:137
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:140
+#: tools.py:139
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:440
+#: tools.py:438
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:442
+#: tools.py:440
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:444
+#: tools.py:442
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:446
+#: tools.py:444
 msgid "Can"
 msgstr "Pouvoir"
 

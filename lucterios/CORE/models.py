@@ -27,6 +27,10 @@ from os.path import dirname, join, exists, isfile
 from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile
+try:
+    from zipfile import BadZipFile
+except:
+    from zipfile import BadZipfile as BadZipFile
 from imp import load_source
 
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -302,8 +306,11 @@ class PrintModel(LucteriosModel):
     def import_file(self, file):
         content = ''
         try:
-            with ZipFile(file, 'r') as zip_ref:
-                content = zip_ref.extract('printmodel', path=get_tmp_dir())
+            try:
+                with ZipFile(file, 'r') as zip_ref:
+                    content = zip_ref.extract('printmodel', path=get_tmp_dir())
+            except (KeyError, BadZipFile):
+                raise LucteriosException(IMPORTANT, _('Model file is invalid!'))
             return self.load_model(content, check=True)
         finally:
             if isfile(content):

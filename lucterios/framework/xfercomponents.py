@@ -476,7 +476,7 @@ class XferCompSelect(XferCompButton):
 
     def set_needed(self, needed):
         self.needed = needed
-        if self.needed and (len(self.select_list) > 0) and (self.select_list[0][1] == None):
+        if self.needed and (len(self.select_list) > 0) and (self.select_list[0][1] is None):
             del self.select_list[0]
 
     def set_select_query(self, query):

@@ -68,7 +68,10 @@ def get_tmp_dir():
 
 def get_user_dir():
     from django.conf import settings
-    return settings.MEDIA_ROOT
+    user_dir = settings.MEDIA_ROOT
+    if not exists(user_dir):
+        makedirs(user_dir)
+    return user_dir
 
 
 def md5sum(filename):
