@@ -199,8 +199,12 @@ class ActionsManage(object):
                 model_name = xfer.model.__name__
             if model_name in cls._ACTION_LIST.keys():
                 for act_ident, act_xclass, act_title, act_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
-                    if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
-                        acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
+                    try:
+                        if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
+                            acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
+                    except:
+                        six.print_('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
+                        raise
             if key is not None:
                 acts.sort(key=key)
             for act in acts:

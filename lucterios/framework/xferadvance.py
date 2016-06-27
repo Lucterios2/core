@@ -155,10 +155,10 @@ class XferAddEditor(XferContainerCustom):
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         if len(self.actions) == 0:
-            self.add_action(self.get_action(_('Ok'), 'images/ok.png'), params={"SAVE": "YES"})
+            self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
     def get(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
