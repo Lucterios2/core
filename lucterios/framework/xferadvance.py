@@ -133,8 +133,8 @@ class XferListEditor(XferContainerCustom):
         if self.model is not None:
             for act_type, title, icon in self.action_list:
                 self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), close=CLOSE_NO)
-        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
-            self.add_action(act, **opt)
+            for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
+                self.add_action(act, **opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 

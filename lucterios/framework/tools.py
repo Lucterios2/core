@@ -158,7 +158,7 @@ class ActionsManage(object):
 
     @classmethod
     def affect(cls, *arg_tuples):
-        warnings.warn("[ActionsManage.affect] Deprecated in Lucterios 2.2", DeprecationWarning)
+        warnings.warn("[ActionsManage.affect(%s)] Deprecated in Lucterios 2.2" % arg_tuples, DeprecationWarning)
 
         def wrapper(item):
             cls._actlock.acquire()
