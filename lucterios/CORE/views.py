@@ -515,8 +515,8 @@ class PrintModelImport(XferContainerAcknowledge):
             upload.set_location(2, 1)
             dlg.add_component(upload)
 
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), {'close': CLOSE_YES, 'params': {'SAVE': 'YES'}})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'), {})
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if 'import_model' in self.request.FILES.keys():
                 upload_file = self.request.FILES['import_model']
@@ -580,8 +580,8 @@ class PrintModelReload(XferContainerAcknowledge):
             sel.set_location(2, 1)
             dlg.add_component(sel)
 
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), {'close': CLOSE_YES, 'params': {'SAVE': 'YES'}})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'), {})
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close= CLOSE_YES, params= {'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if self.item.load_model(model_module, self.getparam("default_model", "")):
                 self.message(_('Model reloaded'))
@@ -717,9 +717,9 @@ class ObjectMerge(XferContainerAcknowledge):
                 if item.id != self.item.id:
                     alias_objects.append(item.get_final_child())
             self.item.get_final_child().merge_objects(alias_objects)
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), params={field_id: self.item.id})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self), params={field_id: self.item.id})
         else:
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self), params={field_id: self.item.id})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self), params={field_id: self.item.id})
 
 
 @MenuManage.describ('')
@@ -779,6 +779,6 @@ class ObjectPromote(XferContainerAcknowledge):
             new_object.save()
             new_object.__dict__.update(self.item.__dict__)
             new_object.save()
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, 'Show', self))
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self))
 
 tools.bad_permission_redirect_classaction = Menu

@@ -271,7 +271,7 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         if isinstance(self.redirect_to_show, six.text_type):
-            self.redirect_action(ActionsManage.get_action_url(self.model.__name__, self.redirect_to_show, self),
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self),
                                  params={self.field_id: self.item.id})
 
 

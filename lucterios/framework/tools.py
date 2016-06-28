@@ -149,6 +149,7 @@ class ActionsManage(object):
     ACTION_IDENT_GRID = 2
     ACTION_IDENT_SHOW = 3
     ACTION_IDENT_EDIT = 4
+    ACTION_IDENT_OTHER = 5
 
     _VIEW_LIST = {}
 
@@ -196,7 +197,7 @@ class ActionsManage(object):
         try:
             acts = []
             if model_name is None:
-                model_name = xfer.model.__name__
+                model_name = xfer.model.get_long_name()
             if model_name in cls._ACTION_LIST.keys():
                 for act_ident, act_xclass, act_title, act_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
                     try:
@@ -233,7 +234,7 @@ class ActionsManage(object):
         if 'model_name' in options.keys() and (options['model_name'] is not None):
             model_name = options['model_name']
         else:
-            model_name = xclass.model.__name__
+            model_name = xclass.model.get_long_name()
         cls._actlock.acquire()
         try:
             if model_name not in cls._ACTION_LIST.keys():
@@ -249,7 +250,7 @@ class ActionsManage(object):
             if 'model_name' in options.keys() and (options['model_name'] is not None):
                 model_name = options['model_name']
             else:
-                model_name = xclass.model.__name__
+                model_name = xclass.model.get_long_name()
             cls._actlock.acquire()
             try:
                 if model_name not in cls._ACTION_LIST.keys():
@@ -284,6 +285,13 @@ class ActionsManage(object):
         options['close'] = close
         options['modal'] = modal
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
+
+    @classmethod
+    def affect_other(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, **options):
+        options['close'] = close
+        options['modal'] = modal
+        options['unique'] = unique
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, icon, condition, **options)
 
     @classmethod
     def affect_transition(cls, state, close=CLOSE_NO, **options):
