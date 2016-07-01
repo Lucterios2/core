@@ -135,7 +135,7 @@ class XferListEditor(XferContainerCustom):
                 self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), close=CLOSE_NO)
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 class XferAddEditor(XferContainerCustom):
