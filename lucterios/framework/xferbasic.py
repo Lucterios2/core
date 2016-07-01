@@ -282,12 +282,10 @@ class XferContainerAbstract(View):
     def get_response(self):
         return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
-    def _get_params(self, fnct=None):
-        if fnct is None:
-            fnct = self.fillresponse
+    def _get_params(self):
         params = {}
         import inspect
-        spec = inspect.getargspec(fnct)
+        spec = inspect.getargspec(self.fillresponse)
         if isinstance(spec.defaults, tuple):
             diff = len(spec.args) - len(spec.defaults)
         else:

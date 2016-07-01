@@ -285,7 +285,8 @@ class XferTransition(XferContainerAcknowledge):
         if self.confirme(_("Do you want to change this %(name)s to '%(state)s'?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
             try:
                 transit_function = getattr(self.item, transition)
-                self.trans_result = transit_function(**self._get_params(fnct=transit_function))
+                setattr(self.item, 'xfer', self)
+                self.trans_result = transit_function()
             except TransitionNotAllowed:
                 raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
 
