@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-06-24 12:36+0000\n"
+"POT-Creation-Date: 2016-07-01 14:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main_docs.html:5 main_docs.html:112
+#: main_docs.html:5 main_docs.html.py:112
 msgid "User manual"
 msgstr "User manual"
 
@@ -59,32 +59,32 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:438
+#: tools.py:454
 msgid "add"
 msgstr "add"
 
-#: tools.py:440
+#: tools.py:456
 msgid "view"
 msgstr "view"
 
-#: tools.py:442
+#: tools.py:458
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:444
+#: tools.py:460
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:41 xferadvance.py:158 xfergraphic.py:178
+#: xferadvance.py:41 xfergraphic.py:178
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:42 xferadvance.py:161 xfergraphic.py:150
+#: xferadvance.py:42 xfergraphic.py:150
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:43 xferadvance.py:138 xferadvance.py:218 xfergraphic.py:139
-#: xferprinting.py:110 xfersearch.py:573
+#: xferadvance.py:43 xferadvance.py:218 xfergraphic.py:139 xferprinting.py:110
+#: xfersearch.py:573
 msgid "Close"
 msgstr "Close"
 
@@ -149,14 +149,14 @@ msgstr "This record exists yet!"
 
 #: xferadvance.py:285
 #, python-format
-msgid "Do you want to change this %(name)s to %(state)s?"
-msgstr "Do you want to change this %(name)s to %(state)s?"
+msgid "Do you want to change this %(name)s to '%(state)s'?"
+msgstr "Do you want to change this %(name)s to '%(state)s'?"
 
-#: xferadvance.py:289
+#: xferadvance.py:290
 msgid "Transaction failure, please refresh your application."
 msgstr "Transaction failure, please refresh your application."
 
-#: xferadvance.py:291
+#: xferadvance.py:299
 msgid "Bad transition"
 msgstr "Bad transition"
 

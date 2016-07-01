@@ -277,15 +277,23 @@ class XferSave(XferContainerAcknowledge):
 
 class XferTransition(XferContainerAcknowledge):
 
+    def __init__(self, **kwargs):
+        XferContainerAcknowledge.__init__(self, **kwargs)
+        self.trans_result = None
+
+    def fill_confirm(self, transition, trans):
+        if self.confirme(_("Do you want to change this %(name)s to '%(state)s'?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
+            try:
+                transit_function = getattr(self.item, transition)
+                self.trans_result = transit_function(**self._get_params(fnct=transit_function))
+            except TransitionNotAllowed:
+                raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
+
     def fillresponse(self):
         transition = self.getparam('TRANSITION', '')
         if transition in self.trans_list:
             trans = self.trans_list[transition]
             self.caption = trans[5]
-            if self.confirme(_("Do you want to change this %(name)s to %(state)s?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
-                try:
-                    getattr(self.item, transition)()
-                except TransitionNotAllowed:
-                    raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
+            self.fill_confirm(transition, trans)
         else:
             raise LucteriosException(GRAVE, _("Bad transition"))
