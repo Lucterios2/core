@@ -307,18 +307,19 @@ class ActionsManage(object):
                                                               transition.target, six.text_type(target_label),
                                                               transition.name, six.text_type(title))
                         new_dict = dict(options)
+                        if 'close' in new_dict:
+                            del new_dict['close']
                         if 'params' not in new_dict:
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
-                        new_dict['close'] = close
 
                         cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (transition.name, state)
                         cond_fct = eval(cmd)
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, **new_dict)
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
 
                         cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
                         cond_fct = eval(cmd)
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png", cond_fct, intop=False, unique=SELECT_SINGLE, **new_dict)
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png", cond_fct, intop=False, close=CLOSE_NO, unique=SELECT_SINGLE, **new_dict)
             return xclass
         return wrapper
 
