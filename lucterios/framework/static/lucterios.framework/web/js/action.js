@@ -1,4 +1,5 @@
 /*global $, Class, createGuid, HashMap*/
+'use strict';
 
 var FORM_NOMODAL = 0;
 var FORM_MODAL = 1;
@@ -32,15 +33,15 @@ var ActionAbstract = Class
 			mEnabled : true,
 			mUsedContext : false,
 
-			setEnabled : function(aEnabled) {
+			setEnabled : function (aEnabled) {
 				this.mEnabled = aEnabled;
 			},
 
-			isEnabled : function() {
+			isEnabled : function () {
 				return this.mEnabled;
 			},
 
-			initialize : function(aOwner, aFactory, aXml) {
+			initialize : function (aOwner, aFactory, aXml) {
 				var xmlparams, index;
 				this.initializeEx(aOwner, aFactory, aXml.getTextFromXmlNode(),
 						aXml.getAttribute("extension"), aXml
@@ -58,16 +59,15 @@ var ActionAbstract = Class
 				this.mSizeIcon = aXml.getXMLAttributInt("sizeicon", 0);
 				this.mKeyStroke = aXml.getAttribute("shortcut");
 				xmlparams = aXml.getElementsByTagName("PARAM");
-				for (index = 0; index < xmlparams.length; index++) {
-					this.mExtraParam
-							.put(
-									xmlparams[index].getAttribute("name"),
-									xmlparams[index].childNodes.length > 0 ? xmlparams[index].childNodes[0].nodeValue
-											: '');
+				for (index = 0; index < xmlparams.length; index += 1) {
+					this.mExtraParam.put(
+                        xmlparams[index].getAttribute("name"),
+                        xmlparams[index].childNodes.length > 0 ? xmlparams[index].childNodes[0].nodeValue : ''
+                    );
 				}
 			},
 
-			initializeEx : function(aOwner, aFactory, aTitle, aExtension,
+			initializeEx : function (aOwner, aFactory, aTitle, aExtension,
 					aAction) {
 				this.mOwner = aOwner;
 				this.mFactory = aFactory;
@@ -90,71 +90,71 @@ var ActionAbstract = Class
 				this.mID = createGuid();
 			},
 
-			getOwner : function() {
+			getOwner : function () {
 				return this.mOwner;
 			},
 
-			getID : function() {
+			getID : function () {
 				return this.mID;
 			},
 
-			getTitle : function() {
+			getTitle : function () {
 				return this.mTitle;
 			},
 
-			getMnemonic : function() {
+			getMnemonic : function () {
 				return this.mMnemonic;
 			},
 
-			getExtension : function() {
+			getExtension : function () {
 				return this.mExtension;
 			},
 
-			getAction : function() {
+			getAction : function () {
 				return this.mAction;
 			},
 
-			getIcon : function() {
+			getIcon : function () {
 				return this.mIcon;
 			},
 
-			getFormType : function() {
+			getFormType : function () {
 				return this.mFormType;
 			},
 
-			getClose : function() {
+			getClose : function () {
 				return this.mClose;
 			},
 
-			getSelect : function() {
+			getSelect : function () {
 				return this.mSelect;
 			},
 
-			getCheckNull : function() {
+			getCheckNull : function () {
 				return this.mCheckNull;
 			},
 
-			getUsedContext : function() {
+			getUsedContext : function () {
 				return this.mUsedContext;
 			},
 
-			setUsedContext : function(aUsedContext) {
+			setUsedContext : function (aUsedContext) {
 				this.mUsedContext = aUsedContext;
 			},
 
-			setCheckNull : function(aCheckNull) {
+			setCheckNull : function (aCheckNull) {
 				this.mCheckNull = aCheckNull;
 			},
 
-			setClose : function(aClose) {
+			setClose : function (aClose) {
 				this.mClose = aClose;
 			},
 
-			setFormType : function(aFormType) {
+			setFormType : function (aFormType) {
 				this.mFormType = aFormType;
 			},
 
-			getParameters : function() {
+			getParameters : function () {
 				var param;
 				if (this.mOwner !== null) {
 					if (this.mUsedContext) {
@@ -165,14 +165,13 @@ var ActionAbstract = Class
 				} else {
 					param = new HashMap();
 				}
-				if ((param !== null) && (this.mExtraParam !== null)
-						&& (this.mExtraParam.size() > 0)) {
+				if ((param !== null) && (this.mExtraParam !== null) && (this.mExtraParam.size() > 0)) {
 					param.putAll(this.mExtraParam);
 				}
 				return param;
 			},
 
-			mustPerforme : function() {
+			mustPerforme : function () {
 				if (!this.mEnabled) {
 					return false;
 				}
@@ -185,7 +184,7 @@ var ActionAbstract = Class
 				return true;
 			},
 
-			actionPerformed : function() {
+			actionPerformed : function () {
 				if (this.mustPerforme()) {
 					var param = this.getParameters();
 					if (param !== null) {
@@ -198,8 +197,7 @@ var ActionAbstract = Class
 						try {
 							this.runAction(param);
 						} finally {
-							if ((this.mOwner !== null)
-									&& (this.mFormType !== FORM_REFRESH)) {
+							if (this.mOwner !== null) {
 								this.mOwner.setActive(true);
 							}
 						}
@@ -207,10 +205,10 @@ var ActionAbstract = Class
 				}
 			},
 
-			get_button : function() {
+			get_button : function () {
 				var result = {};
 				result.text = this.getTitle();
-				result.click = $.proxy(function() {
+				result.click = $.proxy(function () {
 					this.actionPerformed();
 				}, this);
 				return result;
@@ -219,7 +217,7 @@ var ActionAbstract = Class
 
 var ActionImpl = ActionAbstract.extend({
 
-	runAction : function(aParam) {
+	runAction : function (aParam) {
 		var old_observrer = null, current_obs = null;
 		if (this.mFormType === FORM_REFRESH) {
 			old_observrer = this.getOwner();
@@ -242,11 +240,11 @@ var ActionInt = ActionAbstract.extend({
 
 	callback : null,
 
-	mustPerforme : function() {
+	mustPerforme : function () {
 		return true;
 	},
 
-	runAction : function(aParam) {
+	runAction : function (aParam) {
 		if (this.callback !== null) {
 			this.callback(aParam);
 		}

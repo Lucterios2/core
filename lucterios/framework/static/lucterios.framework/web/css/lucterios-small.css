@@ -1,0 +1,17 @@
+@media only screen and (max-width : 1000px) {
+    button.lucterios-menu {
+        display: inline-block;
+    }
+    .btn-last {
+        display: none;
+    }
+    .sidebar {
+        display: none;
+    }
+    .visibleMenu {
+        display: block;
+    }
+    .content {
+        min-width: 98%;
+    }
+}

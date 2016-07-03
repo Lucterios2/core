@@ -1,5 +1,6 @@
-/*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
-/*global compImage,compLabelForm,compEdit,compFloat,compMemo,compXML,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
+/*global $,ObserverGUI,CompBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,singleton*/
+/*global CompImage,CompLabelForm,CompEdit,CompFloat,CompMemo,CompXML,CompMemoForm,CompCheck,CompGrid,CompLink,CompSelect,CompCheckList,CompButton,CompDate,CompTime,CompDateTime,CompPassword,CompUpload,Compdownload*/
+'use strict';
 
 var NULL_VALUE = 'NULL';
 
@@ -8,24 +9,24 @@ var ObserverCustom = ObserverGUI
 
 			mCompList : new HashMap(),
 
-			get : function(key) {
+			get : function (key) {
 				return this.mCompList[key];
 			},
 
-			getObserverName : function() {
+			getObserverName : function () {
 				return "core.custom";
 			},
 
-			setContent : function(aDomXmlContent) {
+			setContent : function (aDomXmlContent) {
 				this._super(aDomXmlContent);
 			},
 
-			savefocusin : function(event) {
+			savefocusin : function (event) {
 				$("#" + this.mId).prop('fieldname',
 						event.target.getAttribute("name"));
 			},
 
-			show : function(aTitle, aGUIType) {
+			show : function (aTitle, aGUIType) {
 				this._super(aTitle, aGUIType);
 				this.setActive(true);
 
@@ -34,26 +35,26 @@ var ObserverCustom = ObserverGUI
 				this.mGUI.addcontent(this.getHtmlFromComponent(), this
 						.buildButtons());
 				this.mGUI.showGUI(aGUIType === FORM_MODAL);
-				for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
+				for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx += 1) {
 					this.mCompList.val(comp_idx).addAction();
 					this.mCompList.val(comp_idx).getGUIComp().focusin(
-							$.proxy(this.savefocusin, this));
+                        $.proxy(this.savefocusin, this)
+                    );
 				}
 				if (aGUIType === FORM_MODAL) {
 					this.mGUI.memorize_size();
 				}
 				fieldname = $("#" + this.mId).prop('fieldname');
 				if (fieldname !== undefined) {
-					$("#" + this.mId).find(
-							"[name='{0}']:eq(0)".format(fieldname)).focus();
+					$("#" + this.mId).find("[name='{0}']:eq(0)".format(fieldname)).focus();
 				}
 
 			},
 
-			checkCompoundValid : function() {
+			checkCompoundValid : function () {
 				var cmp, comp_idx;
 				try {
-					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
+					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx += 1) {
 						cmp = this.mCompList.val(comp_idx);
 						cmp.checkValid();
 					}
@@ -67,11 +68,11 @@ var ObserverCustom = ObserverGUI
 				return true;
 			},
 
-			getParameters : function(aCheckNull) {
+			getParameters : function (aCheckNull) {
 				if (!aCheckNull || this.checkCompoundValid()) {
 					var params = new HashMap(), comp_idx;
 					params.putAll(this.mContext);
-					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
+					for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx += 1) {
 						this.mCompList.val(comp_idx).fillValue(params);
 					}
 					return params;
@@ -79,76 +80,76 @@ var ObserverCustom = ObserverGUI
 				return null;
 			},
 
-			getHtmlFromComponent : function() {
+			getHtmlFromComponent : function () {
 				var compArray = [], hasTabs = false, tabs = [], tabContent = [], actualTab = -1, compType, components, iComp, component, comp, html;
 
 				this.mCompList = new HashMap();
 				components = this.mDomXmlContent
 						.getElementsByTagName("COMPONENTS");
 				if (components.length > 0) {
-					for (iComp = 0; iComp < components[0].childNodes.length; iComp++) {
+					for (iComp = 0; iComp < components[0].childNodes.length; iComp += 1) {
 						component = components[0].childNodes[iComp];
 						compType = component.tagName;
 						if (compType !== undefined) {
 							switch (compType) {
 							case "IMAGE":
-								comp = new compImage(this);
+								comp = new CompImage(this);
 								break;
 							case "LABELFORM":
 							case "LABEL":
-								comp = new compLabelForm(this);
+								comp = new CompLabelForm(this);
 								break;
 							case "EDIT":
-								comp = new compEdit(this);
+								comp = new CompEdit(this);
 								break;
 							case "FLOAT":
-								comp = new compFloat(this);
+								comp = new CompFloat(this);
 								break;
 							case "MEMO":
-								comp = new compMemo(this);
+								comp = new CompMemo(this);
 								break;
 							case "XML":
-								comp = new compXML(this);
+								comp = new CompXML(this);
 								break;
 							case "CHECK":
-								comp = new compCheck(this);
+								comp = new CompCheck(this);
 								break;
 							case "GRID":
-								comp = new compGrid(this);
+								comp = new CompGrid(this);
 								break;
 							case "LINK":
-								comp = new compLink(this);
+								comp = new CompLink(this);
 								break;
 							case "SELECT":
-								comp = new compSelect(this);
+								comp = new CompSelect(this);
 								break;
 							case "CHECKLIST":
-								comp = new compCheckList(this);
+								comp = new CompCheckList(this);
 								break;
 							case "BUTTON":
-								comp = new compButton(this);
+								comp = new CompButton(this);
 								break;
 							case "DATE":
-								comp = new compDate(this);
+								comp = new CompDate(this);
 								break;
 							case "TIME":
-								comp = new compTime(this);
+								comp = new CompTime(this);
 								break;
 							case "DATETIME":
-								comp = new compDateTime(this);
+								comp = new CompDateTime(this);
 								break;
 							case "PASSWD":
-								comp = new compPassword(this);
+								comp = new CompPassword(this);
 								break;
 							case "UPLOAD":
-								comp = new compUpload(this);
+								comp = new CompUpload(this);
 								break;
 							case "DOWNLOAD":
-								comp = new compdownload(this);
+								comp = new Compdownload(this);
 								break;
 							case "TAB":
 								hasTabs = true;
-								actualTab++;
+								actualTab += 1;
 								tabs[actualTab] = component.firstChild.nodeValue;
 								tabContent[actualTab] = [];
 								break;
@@ -185,7 +186,7 @@ var ObserverCustom = ObserverGUI
 		});
 
 // Generic
-var compGeneric = compBasic
+var compGeneric = CompBasic
 		.extend({
 			name : "",
 			VMin : 0,
@@ -195,20 +196,19 @@ var compGeneric = compBasic
 			owner : null,
 			tag : '',
 
-			init : function(aOwner) {
+			init : function (aOwner) {
 				this.owner = aOwner;
 			},
 
-			getGUIComp : function() {
-				return $("#" + this.owner.getId()).find(
-						"{0}[name='{1}']:eq(0)".format(this.tag, this.name));
+			getGUIComp : function () {
+				return $("#" + this.owner.getId()).find("{0}[name='{1}']:eq(0)".format(this.tag, this.name));
 			},
 
-			setEnabled : function(isEnabled) {
+			setEnabled : function (isEnabled) {
 				this.getGUIComp().prop("disabled", !isEnabled);
 			},
 
-			setVisible : function(isVisible) {
+			setVisible : function (isVisible) {
 				var cell_cont = this.getGUIComp()[0];
 				while ((cell_cont.nodeName !== 'TD')
 						&& (cell_cont.parentNode !== null)
@@ -226,24 +226,24 @@ var compGeneric = compBasic
 				}
 			},
 
-			requestFocus : function() {
+			requestFocus : function () {
 				this.getGUIComp().focus();
 			},
 
-			getValue : function() {
+			getValue : function () {
 				return this.getGUIComp().val();
 			},
 
-			initialVal : function() {
+			initialVal : function () {
 				return null;
 			},
 
-			setValue : function(xmlValue) {
+			setValue : function (xmlValue) {
 				this.initial(xmlValue.parseXML());
 				this.getGUIComp().val(this.initialVal());
 			},
 
-			initial : function(component) {
+			initial : function (component) {
 				if (this.name === '') {
 					this.name = component.getAttribute("name");
 					this.description = component.getAttribute("description");
@@ -252,8 +252,7 @@ var compGeneric = compBasic
 					}
 					this.description = this.description.replace(/%E9/g, 'é')
 							.replace(/%E8/g, 'è').replace(/%EA/g, 'ê');
-					this.description = this.description.replace(
-							/%[D-F][0-9A-F]/g, '?');
+					this.description = this.description.replace(/%[D-F][0-9A-F]/g, '?');
 					this.tab = component.getAttribute("tab");
 					this.x = component.getAttribute("x");
 					this.y = component.getAttribute("y");
@@ -267,7 +266,7 @@ var compGeneric = compBasic
 				}
 			},
 
-			getAttribHtml : function(args, isJustify) {
+			getAttribHtml : function (args, isJustify) {
 				args.name = this.name;
 				args.description = this.description;
 				if (args.cssclass === undefined) {
@@ -293,8 +292,8 @@ var compGeneric = compBasic
 				return html;
 			},
 			
-			getBuildHtml : function(args, isJustify, isClose) {
-				var html = "<" + this.tag+this.getAttribHtml(args, isJustify);
+			getBuildHtml : function (args, isJustify, isClose) {
+				var html = "<" + this.tag + this.getAttribHtml(args, isJustify);
 				if (isClose) {
 					html += '/';
 				}
@@ -302,30 +301,27 @@ var compGeneric = compBasic
 				return html;
 			},
 
-			checkValid : function() {
+			checkValid : function () {
 				var msg_text;
 				if (this.needed
 						&& ((this.getValue() === null) || (this.getValue() === ''))) {
-					msg_text = Singleton()
+					msg_text = singleton()
 							.getTranslate("This field is needed!");
 					if (this.description.length > 0) {
-						msg_text = Singleton().getTranslate(
-								"The field '{0}' is needed!").format(
-								decodeURIComponent(this.description.replace(
-										/\+/g, ' ')));
+						msg_text = singleton().getTranslate("The field '{0}' is needed!").format(decodeURIComponent(this.description.replace(/\+/g, ' ')));
 					}
 					throw new LucteriosException(MINOR, msg_text);
 				}
 				return;
 			},
 
-			fillValue : function(params) {
+			fillValue : function (params) {
 				if (this.initialVal() !== null) {
 					params.put(this.name, this.getValue());
 				}
 			},
 
-			addAction : function() {
+			addAction : function () {
 				return undefined;
 			}
 		});

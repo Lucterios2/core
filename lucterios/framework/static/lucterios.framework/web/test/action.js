@@ -1,7 +1,7 @@
 module('Action', {
-	setup : function() {
+	setup : function () {
 		this.mAction = new ActionImpl();
-		Singleton().setHttpTransportClass(HttpTransportStub);
+		singleton().setHttpTransportClass(HttpTransportStub);
 		ObserverStub.mParameters = new HashMap();
 		ObserverStub.mLastActionId = "";
 		ObserverStub.mLastSelect = SELECT_NONE;
@@ -12,12 +12,12 @@ module('Action', {
 		ObserverFactoryMock.LastAction = "";
 		ObserverFactoryMock.LastParam = null;
 	},
-	teardown : function() {
-		Singleton().close();
+	teardown : function () {
+		singleton().close();
 	}
 });
 
-test("Empty", function() {
+test("Empty", function () {
 	var action = "<ACTION/>".parseXML();
 	this.mAction.initialize(null, null, action);
 
@@ -33,7 +33,7 @@ test("Empty", function() {
 
 test(
 		"Action",
-		function() {
+		function () {
 			var action = "<ACTION icon='images/edit.png' extension='CORE' action='extension_params_APAS_modifier' close='0' modal='1' unique='1'><![CDATA[_Modifier]]></ACTION>"
 					.parseXML();
 			this.mAction.initialize(null, null, action);
@@ -51,7 +51,7 @@ test(
 
 test(
 		"Menu",
-		function() {
+		function () {
 			var action = "<MENU id='Im_pressionsauvegardees' extension='CORE' action='finalreport_APAS_list'><![CDATA[Im_pression sauvegardees]]></MENU>"
 					.parseXML();
 			this.mAction.initialize(null, null, action);
@@ -69,7 +69,7 @@ test(
 
 test(
 		"Simple",
-		function() {
+		function () {
 			var fact = new ObserverFactoryMock();
 			ObserverFactoryMock.NewObserver = new ObserverStub();
 
@@ -89,7 +89,7 @@ test(
 
 test(
 		"CloseParent",
-		function() {
+		function () {
 			var obs_parent = new ObserverStub();
 			ObserverStub.mParameters.put("abc", "123");
 
@@ -118,7 +118,7 @@ test(
 
 test(
 		"NoCloseParent",
-		function() {
+		function () {
 			var obs_parent = new ObserverStub();
 			ObserverStub.mParameters.put("xyz", "456");
 			ObserverStub.mParameters.put("ijk", "987");
@@ -147,7 +147,7 @@ test(
 			ok(!obs_parent.mClose, "Close");
 		});
 
-test("OnlyCloseParent", function() {
+test("OnlyCloseParent", function () {
 	var obs_parent = new ObserverStub();
 	ObserverStub.mParameters.put("abc", "123");
 

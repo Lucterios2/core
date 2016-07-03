@@ -1,4 +1,5 @@
-/*global $,ObserverAbstract,Singleton, compBasic, GUIManage, createTable, createTab, unusedVariables, FAILURE, CRITIC, GRAVE, IMPORTANT, MINOR*/
+/*global $,ObserverAbstract,singleton, CompBasic, GUIManage, createTable, createTab, unusedVariables, FAILURE, CRITIC, GRAVE, IMPORTANT, MINOR*/
+'use strict';
 
 var ObserverException = ObserverAbstract
 		.extend({
@@ -10,42 +11,40 @@ var ObserverException = ObserverAbstract
 			user_info : "",
 			stack_text : "",
 
-			getObserverName : function() {
+			getObserverName : function () {
 				return "core.exception";
 			},
 
-			setContent : function(aDomXmlContent) {
+			setContent : function (aDomXmlContent) {
 				this._super(aDomXmlContent);
 				var xml_error = this.mDomXmlContent
-						.getElementsByTagName("EXCEPTION")[0];
+                    .getElementsByTagName("EXCEPTION")[0];
 				this.message = xml_error.getCDataOfFirstTag("MESSAGE")
-						.convertLuctoriosFormatToHtml();
-				this.code = parseInt(
-						"0" + xml_error.getCDataOfFirstTag("CODE"), 10);
+                    .convertLuctoriosFormatToHtml();
+				this.code = parseInt("0" + xml_error.getCDataOfFirstTag("CODE"), 10);
 				this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO")
-						.replace(/\{\[br\/\]\}/g, "{[newline]}");
+                    .replace(/\{\[br\/\]\}/g, "{[newline]}");
 				this.type = xml_error.getCDataOfFirstTag("TYPE");
 
 				this.requette = decodeURIComponent(xml_error
 						.getCDataOfFirstTag("REQUETTE").replace('+', ' '));
 				if (this.requette === '') {
-					this.requette = Singleton().Factory().m_XMLParameters;
+					this.requette = singleton().Factory().m_XMLParameters;
 				}
-				this.reponse = decodeURIComponent(xml_error.getCDataOfFirstTag(
-						"REPONSE").replace('+', ' '));
+				this.reponse = decodeURIComponent(xml_error.getCDataOfFirstTag("REPONSE").replace('+', ' '));
 				this.stack_text = this.get_stack_text();
 			},
 
-			get_info : function(aInfo) {
+			get_info : function (aInfo) {
 				var res = aInfo.replace(/\n/g, '***');
 				res = $('<div />').text(res).html();
 				return res.replace(/\*\*\*/g, '\n').replace(/></g, '>\n<');
 			},
 
-			get_stack_text : function() {
+			get_stack_text : function () {
 				var stack_text = "", stack_texts = this.debug_info
-						.split("{[newline]}"), s_idx, stack_lines;
-				for (s_idx = 0; s_idx < stack_texts.length; s_idx++) {
+                    .split("{[newline]}"), s_idx, stack_lines;
+				for (s_idx = 0; s_idx < stack_texts.length; s_idx += 1) {
 					stack_lines = stack_texts[s_idx].split("|");
 					if (stack_lines.length === 1) {
 						stack_text += stack_lines;
@@ -65,56 +64,60 @@ var ObserverException = ObserverAbstract
 				return stack_text.trim();
 			},
 
-			show : function(aTitle, aGUIType) {
+			show : function (aTitle, aGUIType) {
 				this._super(aTitle, aGUIType);
 				this.setActive(true);
 				this.except_show();
 				this.close(true);
 			},
 
-			except_show : function() {
+			except_show : function () {
 				var err_title = '', image_name = '', image_url = '', table = [], titles = [], contents = [], extra_id, rep, pos, comp, current_gui, self;
 				switch (this.code) {
 				case FAILURE:
 				case CRITIC:
 					image_name = "error";
-					err_title = Singleton().getTranslate('Error');
+					err_title = singleton().getTranslate('Error');
 					break;
 				case GRAVE:
 				case IMPORTANT:
 					image_name = "warning";
-					err_title = Singleton().getTranslate('Warning');
+					err_title = singleton().getTranslate('Warning');
 					break;
 				case MINOR:
 					image_name = "info";
-					err_title = Singleton().getTranslate('Information');
+					err_title = singleton().getTranslate('Information');
 					break;
 				default:
 					image_name = "error";
-					err_title = Singleton().getTranslate('Error');
+					err_title = singleton().getTranslate('Error');
 					break;
 				}
-				image_url = Singleton().Transport().getIconUrl(
-						'static/lucterios.CORE/images/' + image_name + '.png');
+				image_url = singleton().Transport().getIconUrl(
+                    'static/lucterios.CORE/images/' + image_name + '.png'
+                );
 				table[0] = [];
-				table[0][0] = new compBasic("<img src='" + image_url
+				table[0][0] = new CompBasic("<img src='" + image_url
 						+ "' alt='" + image_name + "'></img>");
-				table[0][1] = new compBasic(
-						"<label style='max-width:800px;overflow:auto;'><b>"
-								+ this.message + "</b></label>", 1, 1,
-						'width:100%;text-align:center;');
+				table[0][1] = new CompBasic(
+                    "<label style='max-width:800px;overflow:auto;'><b>"
+                            + this.message + "</b></label>",
+                    1,
+                    1,
+                    'width:100%;text-align:center;'
+                );
 
 				if ((this.code === FAILURE) || (this.code === CRITIC)
 						|| (this.code === GRAVE)) {
 					if (this.stack_text !== '') {
-						titles.push(Singleton().getTranslate("Call-stack"));
+						titles.push(singleton().getTranslate("Call-stack"));
 						contents.push("<pre>" + this.stack_text + "</pre>");
 					}
 					extra_id = contents.length;
 					titles.push("Extra");
 					contents.push("<label>" + this.type + "</label>");
 					if (this.requette !== '') {
-						titles.push(Singleton().getTranslate("Requette"));
+						titles.push(singleton().getTranslate("Requette"));
 						contents.push("<pre>" + this.get_info(this.requette)
 								+ "</pre>");
 					}
@@ -130,7 +133,7 @@ var ObserverException = ObserverAbstract
 								contents[extra_id] = rep.substring(0, pos - 1)
 										.trim();
 							}
-							titles.push(Singleton().getTranslate("Reponse"));
+							titles.push(singleton().getTranslate("Reponse"));
 							contents.push("<pre>"
 									+ this.get_info(rep.substring(pos))
 									+ "</pre>");
@@ -140,13 +143,15 @@ var ObserverException = ObserverAbstract
 					}
 
 					table[1] = [];
-					table[1][0] = new compBasic(
-							"<input type='button' name='info' value='>>'/><input type='button' name='send' value='"
-									+ Singleton().getTranslate(
-											"Sent to support") + "'/>", 2, 1,
-							'text-align:center;');
+					table[1][0] = new CompBasic(
+                        "<input type='button' name='info' value='>>'/><input type='button' name='send' value='"
+                                + singleton().getTranslate("Sent to support") + "'/>",
+                        2,
+                        1,
+                        'text-align:center;'
+                    );
 					table[2] = [];
-					table[2][0] = new compBasic(createTab(titles, contents), 2,
+					table[2][0] = new CompBasic(createTab(titles, contents), 2,
 							1);
 				}
 
@@ -158,40 +163,34 @@ var ObserverException = ObserverAbstract
 				current_gui = this.mGUI;
 				comp
 						.find("input[name='info']")
-						.click(
-								function() {
-									if ($(this).attr('value') === ">>") {
-										$(this).attr('value', "<<");
-										comp
-												.find(
-														"table:eq(0) > tbody > tr:eq(2) > td:eq(0)")
-												.show();
-									} else {
-										$(this).attr('value', ">>");
-										comp
-												.find(
-														"table:eq(0) > tbody > tr:eq(2) > td:eq(0)")
-												.hide();
-									}
-									current_gui.moveCenter();
-								});
+						.click(function () {
+                        if ($(this).attr('value') === ">>") {
+                            $(this).attr('value', "<<");
+                            comp.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0)").show();
+                        } else {
+                            $(this).attr('value', ">>");
+                            comp.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0)").hide();
+                        }
+                        current_gui.moveCenter();
+                    }
+                              );
 				this.mGUI.getHtmlDom().find("input[name='send']").click(
-						function() {
-							window.location = self.sendSupport();
-						});
+                    function () {
+                        window.location = self.sendSupport();
+                    }
+                );
 				comp.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0)").hide();
 				this.mGUI.moveCenter();
 				this.mGUI.memorize_size();
 			},
 
-			sendSupport : function() {
-				var complement = Singleton().getTranslate(
-						"Describ your problem.<br>Thanks<br><br>");
+			sendSupport : function () {
+				var complement = singleton().getTranslate("Describ your problem.<br>Thanks<br><br>");
 				complement += "<h1>" + this.message + "</h1>";
 				if (this.stack_text !== '') {
 					complement += this.stack_text + "<br><br>";
 				}
-				return Singleton().mDesc.fillEmailSupport(Singleton()
+				return singleton().mDesc.fillEmailSupport(singleton()
 						.getTranslate("Bug report"), complement);
 			}
 

@@ -22,7 +22,7 @@ function waitFor(testFx, onReady, onError, timeOutMillis) {
 																	// Timout is
 																	// 3s
 	start = new Date().getTime(), condition = false, interval = setInterval(
-			function() {
+			function () {
 				if ((new Date().getTime() - start < maxtimeOutMillis)
 						&& !condition) {
 					// If not time-out yet and condition not yet fulfilled
@@ -64,7 +64,7 @@ function unescapeHtml(str) {
 	return str;
 }
 
-var generateJUnitXML = function(result) {
+var generateJUnitXML = function (result) {
 	console.log('<?xml version="1.0"?>');
 	console.log('<!--\n ' + result.testresult + ' \n-->');
 
@@ -85,7 +85,7 @@ var generateJUnitXML = function(result) {
 	var testList = document.createElement("ol");
 	testList.innerHTML = result.tests_html;
 	var testElements = testList.getElementsByTagName('li');
-	for ( var i = 0; i < testElements.length; i++) {
+	for ( var i = 0; i < testElements.length; i += 1) {
 		var resultLine = testElements[i].innerText;
 		var resultRE = /^([ \w-]*: )?(.+) \((\d+), (\d+), (\d+)\)Rerun/;
 		var resultMatch = resultLine.match(resultRE);
@@ -114,7 +114,7 @@ var generateJUnitXML = function(result) {
 	console.log('</testsuite>');
 };
 
-var onErrorXML = function(msg) {
+var onErrorXML = function (msg) {
 	var testName = 'QUnit Timeout';
 	var moduleName = "QUnit ";
 	var timestamp = ISODateString(new Date());
@@ -133,12 +133,12 @@ var onErrorXML = function(msg) {
 	console.log('</testsuite>');
 }
 
-var generateText = function(result) {
+var generateText = function (result) {
 	console.log(result.testresult);
 	console.log(result.tests);
 }
 
-var onErrorText = function(msg) {
+var onErrorText = function (msg) {
 	console.log(msg);
 }
 
@@ -149,7 +149,7 @@ if (phantom.args.length === 0 || phantom.args.length > 2) {
 }
 
 var page = new WebPage();
-page.onConsoleMessage = function(msg) {
+page.onConsoleMessage = function (msg) {
 	console.log(msg);
 };
 
@@ -160,7 +160,7 @@ output.onError = onErrorText;
 if (output.type == 'junit-xml') {
 	output.fn = generateJUnitXML;
 	output.onError = onErrorXML;
-	page.onConsoleMessage = function(msg) {
+	page.onConsoleMessage = function (msg) {
 		console.log('<!-- ' + msg + ' -->');
 	};
 }
@@ -169,7 +169,7 @@ var firstCall;
 page
 		.open(
 				phantom.args[0],
-				function(status) {
+				function (status) {
 					// page.loads gets called multiple times when iframes are
 					// dynamically added, only allow 1st call to continue
 					if (firstCall !== undefined) {
@@ -181,9 +181,9 @@ page
 						phantom.exit();
 					} else {
 						waitFor(
-								function() {
+								function () {
 									return page
-											.evaluate(function() {
+											.evaluate(function () {
 												var el = document
 														.getElementById('qunit-testresult');
 												if (el
@@ -194,9 +194,9 @@ page
 												return false;
 											});
 								},
-								function() {
+								function () {
 									var failedNum = page
-											.evaluate(function() {
+											.evaluate(function () {
 												var el = document
 														.getElementById('qunit-testresult');
 												try {
@@ -207,7 +207,7 @@ page
 												return 10000;
 											});
 									var result = page
-											.evaluate(function() {
+											.evaluate(function () {
 												return {
 													testresult : document
 															.getElementById('qunit-testresult').innerText,

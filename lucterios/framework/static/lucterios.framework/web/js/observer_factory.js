@@ -1,43 +1,39 @@
-/*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,post_log*/
+/*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,post_log,Blob*/
+'use strict';
 
 var ObserverFactoryAbstract = Class
 		.extend({
 			mTransport : null,
 			mObserverList : new HashMap(),
 
-			init : function() {
+			init : function () {
 				return undefined;
 			},
 
-			setHttpTransport : function(aHttpTransport) {
+			setHttpTransport : function (aHttpTransport) {
 				this.mTransport = aHttpTransport;
 			},
 
-			clearObserverList : function() {
+			clearObserverList : function () {
 				this.mObserverList = new HashMap();
 			},
 
-			AddObserver : function(aObsName, aObserverClass) {
+			AddObserver : function (aObsName, aObserverClass) {
 				this.mObserverList.put(aObsName, aObserverClass);
 			},
 
-			factoryObserver : function(aObserverName, aParamTxt, aXmlText) {
+			factoryObserver : function (aObserverName, aParamTxt, aXmlText) {
 				unusedVariables(aParamTxt, aXmlText);
-				var observer_class = this.mObserverList.get(aObserverName);
-				return new observer_class();
+				var Observer_class = this.mObserverList.get(aObserverName);
+				return new Observer_class();
 			},
 
-			transfertFromServer : function(aExtension, aAction, aParam) {
-				unusedVariables(aExtension, aAction, aParam);
-				return null;
-			},
-			
-			callAction : function(aExtension, aAction, aParam) {
+			callAction : function (aExtension, aAction, aParam) {
 				unusedVariables(aExtension, aAction, aParam);
 				return null;
 			},
 
-			setAuthentification : function(aLogin, aPassWord) {
+			setAuthentification : function (aLogin, aPassWord) {
 				var res = false, param = new HashMap(), aut, xml_aut, xml_params, session;
 				if ((aLogin === null)) {
 					param.put('ses', aPassWord);
@@ -68,14 +64,46 @@ var ObserverFactoryAbstract = Class
 
 var ObserverFactoryImpl = ObserverFactoryAbstract
 		.extend({
+			m_XMLParameters : "",
 
-			callAction : function(aExtension, aAction, aParam, aObserver) {
-				var res_obs = null, xml_text = this.transfertFromServer(
-						aExtension, aAction, aParam), reps = xml_text
-						.parseXML(), rep = null, idx, observer_name, titles, source_extension, source_action, errorMsg;
+			convertParameters : function (aExtension, aAction, aParam) {
+				var result = new HashMap(), self = this, val;
+				this.m_XMLParameters = "<REQUETE extension='" + aExtension
+						+ "' action='" + aAction + "'>";
+				aParam.keys().forEach(
+                    function (key) {
+                        val = aParam.get(key);
+                        if (typeof val === 'string') {
+                            self.m_XMLParameters = self.m_XMLParameters
+                                    + "<PARAM name='" + key + "'><![CDATA["
+                                    + val + "]]></PARAM>";
+                        } else {
+                            result.put(key, val);
+                            if (val instanceof Blob) {
+                                self.m_XMLParameters = self.m_XMLParameters
+                                        + "<PARAM name='" + key
+                                        + "'><![CDATA[" + val.name
+                                        + "]]></PARAM>";
+                            }
+                        }
+                    }
+                );
+				this.m_XMLParameters = this.m_XMLParameters + "</REQUETE>";
+				result.put(POST_VARIABLE, this.m_XMLParameters);
+				return result;
+			},
+
+			transfertFromServer : function (aExtension, aAction, aParam) {
+				return this.mTransport.transfertXMLFromServer(this
+						.convertParameters(aExtension, aAction, aParam));
+			},
+
+			callAction : function (aExtension, aAction, aParam, aObserver) {
+				var res_obs = null, xml_text = this.transfertFromServer(aExtension, aAction, aParam), reps = xml_text
+                    .parseXML(), rep = null, idx, observer_name, titles, source_extension, source_action, errorMsg;
 				post_log("==>  reponse :" + xml_text);
 				for (idx = 0; (reps !== null) && (rep === null)
-						&& (idx < reps.childNodes.length); idx++) {
+						&& (idx < reps.childNodes.length); idx += 1) {
 					if (reps.childNodes[idx].nodeName === 'REPONSE') {
 						rep = reps.childNodes[idx];
 					}
@@ -97,8 +125,10 @@ var ObserverFactoryImpl = ObserverFactoryAbstract
 								if ((observer_name === "core.auth")
 										|| (observer_name === "core.exception")) {
 									res_obs = this.factoryObserver(
-											observer_name,
-											this.m_XMLParameters, xml_text);
+                                        observer_name,
+                                        this.m_XMLParameters,
+                                        xml_text
+                                    );
 									res_obs.setSource(source_extension,
 											source_action);
 								} else {
@@ -120,11 +150,13 @@ var ObserverFactoryImpl = ObserverFactoryAbstract
 						res_obs.setContent(rep);
 					} else {
 						throw new LucteriosException(
-								IMPORTANT,
-								"Observeur '"
-										+ observer_name
-										+ "' inconnu{[newline]}Veuillez utiliser le client Java.",
-								this.m_XMLParameters, xml_text);
+                            IMPORTANT,
+                            "Observeur '"
+                                + observer_name
+                                + "' inconnu{[newline]}Veuillez utiliser le client Java.",
+                            this.m_XMLParameters,
+                            xml_text
+                        );
 					}
 				} else {
 					errorMsg = "**";
@@ -144,10 +176,10 @@ var ObserverFactoryImpl = ObserverFactoryAbstract
 		});
 
 var ObserverFactoryRestImpl = ObserverFactoryImpl.extend({
-	transfertFromServer : function(aExtension, aAction, aParam) {
+	transfertFromServer : function (aExtension, aAction, aParam) {
 		var val, self = this, web_file = aExtension + "/" + aAction;
 		this.m_XMLParameters = web_file + "?";
-		aParam.keys().forEach(function(key) {
+		aParam.keys().forEach(function (key) {
 			val = aParam.get(key);
 			if (typeof val === 'string') {
 				if (self.m_XMLParameters !== '') {

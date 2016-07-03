@@ -2,43 +2,43 @@ module('Observer', {
 	mFileContent : null,
 	mCalled : 0,
 
-	setup : function() {
+	setup : function () {
 		this.mObsFactory = new ObserverFactoryMock();
 
-		Singleton().setHttpTransportClass(HttpTransportStub);
-		Singleton().setFactory(this.mObsFactory);
-		Singleton().setActionClass(ActionImpl);
-		Singleton().Transport().setSession("abc123");
-		Singleton().Transport().setLastLogin("admin");
-		Singleton().mSelectLang = 'fr';
-		this.mObsFactory.setHttpTransport(Singleton().Transport());
+		singleton().setHttpTransportClass(HttpTransportStub);
+		singleton().setFactory(this.mObsFactory);
+		singleton().setActionClass(ActionImpl);
+		singleton().Transport().setSession("abc123");
+		singleton().Transport().setLastLogin("admin");
+		singleton().mSelectLang = 'fr';
+		this.mObsFactory.setHttpTransport(singleton().Transport());
 
 		ObserverFactoryMock.NewObserver = new ObserverAcknowledge();
 		ObserverAuthentification.connectSetValue = this.setValue;
 		g_InitialCallBack = $.proxy(this.callback, this);
 	},
 
-	teardown : function() {
+	teardown : function () {
 		ObserverAuthentification.connectSetValue = null;
 		g_InitialCallBack = null;
-		SingletonClose();
+		singletonClose();
 	},
 
-	saveFile : function(aContent, aFileName) {
+	saveFile : function (aContent, aFileName) {
 		this.mFileContent = atob(aContent);
 		this.mFileName = aFileName;
 	},
 
-	callback : function() {
-		this.mCalled++;
+	callback : function () {
+		this.mCalled += 1;
 	}
 
 });
 
 test(
 		"Authentification 1",
-		function() {
-			Singleton().Transport().setSession("");
+		function () {
+			singleton().Transport().setSession("");
 			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
 					+ "<CONNECTION>"
 					+ "	<TITLE>Lucterios standard</TITLE><SUBTITLE>Application générique de gestion</SUBTITLE>"
@@ -59,7 +59,7 @@ test(
 
 			equal(obs.getGUI(), null, "getGUI");
 
-			var description = Singleton().mDesc;
+			var description = singleton().mDesc;
 			equal(description.getTitle(), "Lucterios standard", "Title");
 			equal(description.getApplisVersion(), "1.4.2.5", "ApplisVersion");
 			equal(description.getServerVersion(), "1.2.5.606", "ServerVersion");
@@ -79,15 +79,15 @@ test(
 					"Application générique de gestion", "SubTitle");
 			equal(description.getLogin(), "admin", "Login");
 			equal(description.getRealName(), "Administrateur", "RealName");
-			equal(Singleton().mRefreshMenu, true, "RefreshMenu");
+			equal(singleton().mRefreshMenu, true, "RefreshMenu");
 			equal(obs.getRefreshMenu(), false, "RefreshMenu obs");
-			equal(Singleton().Transport().getSession(), 'admin1315821586',
+			equal(singleton().Transport().getSession(), 'admin1315821586',
 					"session");
 		});
 
 test(
 		"Authentification 2",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
 					+ "<![CDATA[BADAUTH]]>" + "</REPONSE>";
 
@@ -146,7 +146,7 @@ test(
 
 test(
 		"Authentification 3",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.auth' source_extension='CORE' source_action='authentification'>"
 					+ "<![CDATA[BADSESS]]>" + "</REPONSE>";
 
@@ -173,7 +173,7 @@ test(
 					"div:eq(2) > div:eq(0) > button:eq(1)");
 			equal(btn2.text(), 'Annuler', 'btn 2');
 
-			Singleton().mDesc = 0;
+			singleton().mDesc = 0;
 			equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
 			equal(this.mCalled, 0, "Called B");
 
@@ -183,12 +183,12 @@ test(
 			equal(this.mObsFactory.CallList.size(), 0, "Call B Nb");
 
 			equal(this.mCalled, 1, "Called B");
-			equal(Singleton().mDesc, null, 'Desc null');
+			equal(singleton().mDesc, null, 'Desc null');
 		});
 
 test(
 		"Acknowledge",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[Valider]]></TITLE>"
 					+ "<CONTEXT><PARAM name='SuperTableTest'><![CDATA[101]]></PARAM></CONTEXT>"
@@ -224,8 +224,8 @@ test(
 
 test(
 		"Exception1",
-		function() {
-			Singleton().mDesc = new ApplicationDescription("aa", "bb", "cc",
+		function () {
+			singleton().mDesc = new ApplicationDescription("aa", "bb", "cc",
 					"dd", "ee");
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[]]></TITLE>"
@@ -288,7 +288,7 @@ test(
 
 test(
 		"Exception2",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
@@ -340,7 +340,7 @@ test(
 
 test(
 		"Print",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[Imprimer une liste de personneMorale]]></TITLE>"
 					+ "<CONTEXT><PARAM name='Filtretype'><![CDATA[2]]></PARAM><PARAM name='PRINT_MODE'><![CDATA[4]]></PARAM></CONTEXT>"
@@ -348,7 +348,7 @@ test(
 					+ "<![CDATA[CiJMaXN0ZSBkZXMgUGVyc29ubmVzIE1vcmFsZXMiCgoKIlJhaXNvbiBTb2NpYWxlIjsiQWRyZXNzZSI7IlTpbOlwaG9uZXMiOyJDb3VycmllbCI7CiJMZXMgcCd0aXQgTWlja2V5IjsicGxhY2UgR3JlbmV0dGUgMzgwMDAgR1JFTk9CTEUgRlJBTkNFIjsiMDQuMTIuMzQuNTYuNzggMDYuOTguNzYuNTQuMzIiOyJwZXRpdC5taWNrZXlAZnJlZS5mciI7CiJMZSBnbG9zIG1pbmV0IjsiQ291cnMgQmVyaWF0IDM4MDAwIEdSRU5PQkxFIEZSQU5DRSI7IjA0LjE5LjI4LjM3LjQ2IjsiZ2xvcy5taW5ldEBob3RtYWlsLmZyIjsKImpqaiI7ImpqaiA2NDAwMCBQQVUgRlJBTkNFIjsiIjsibGF1cmVudDM4NjAwQGZyZWUuZnIiOwoKCiIiCgoK]]>"
 					+ "</PRINT>" + "</REPONSE>";
 
-			Singleton().mFileManager = this;
+			singleton().mFileManager = this;
 			equal(this.mFileContent, null, "Empty file");
 			var parse = xml_receive.parseXML();
 			var obs = new ObserverPrint();
@@ -382,7 +382,7 @@ test(
 
 test(
 		"Dialog",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[Confirmation]]></TITLE>"
 					+ "<CONTEXT>"

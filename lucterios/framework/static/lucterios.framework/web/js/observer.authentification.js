@@ -1,4 +1,5 @@
-/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack */
+/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,singleton,HashMap,CompBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack, LOGON_FORM_TEMPLATE */
+'use strict';
 
 var ApplicationDescription = Class
 		.extend({
@@ -12,33 +13,32 @@ var ApplicationDescription = Class
 			mLogin : '',
 			mInfoServer : '',
 			mSupportEmail : '',
-			mSupportHTML : '',
 			mSubTitle : '',
 			mRealName : '',
 			mInstanceName : '',
 			mMode : 0,
 			mLanguage : '',
 
-			init : function(aTitle, aCopyRigth, aAppliVersion, aServerVersion) {
+			init : function (aTitle, aCopyRigth, aAppliVersion, aServerVersion) {
 				this.mTitle = aTitle;
 				this.mApplisVersion = aAppliVersion;
 				this.mServerVersion = aServerVersion;
 				this.mCopyRigth = aCopyRigth;
 			},
 
-			setLogoIconName : function(aLogoIconName) {
+			setLogoIconName : function (aLogoIconName) {
 				this.mLogoIconName = aLogoIconName;
 			},
 
-			setBackground : function(aBackground) {
+			setBackground : function (aBackground) {
 				this.mBackground = aBackground;
 			},
 
-			getTitle : function() {
+			getTitle : function () {
 				return this.mTitle;
 			},
 
-			getConnectUser : function() {
+			getConnectUser : function () {
 				var res = this.mRealName;
 				if (this.mLogin !== '') {
 					res += " ({0}@{1})".format(this.mLogin, this.mInstanceName);
@@ -48,124 +48,116 @@ var ApplicationDescription = Class
 				return res;
 			},
 
-			getLogoIconName : function() {
+			getLogoIconName : function () {
 				return this.mLogoIconName;
 			},
 
-			getApplisVersion : function() {
+			getApplisVersion : function () {
 				return this.mApplisVersion;
 			},
 
-			getServerVersion : function() {
+			getServerVersion : function () {
 				return this.mServerVersion;
 			},
 
-			getCopyRigth : function() {
+			getCopyRigth : function () {
 				return this.mCopyRigth;
 			},
 
-			getInfoServer : function() {
+			getInfoServer : function () {
 				return this.mInfoServer;
 			},
 
-			getSupportEmail : function() {
+			getSupportEmail : function () {
 				return this.mSupportEmail;
 			},
 
-			getSupportHTML : function() {
-				return this.mSupportHTML;
-			},
-
-			getLogin : function() {
+			getLogin : function () {
 				return this.mLogin;
 			},
 
-			getSubTitle : function() {
+			getSubTitle : function () {
 				return this.mSubTitle;
 			},
 
-			getRealName : function() {
+			getRealName : function () {
 				return this.mRealName;
 			},
 
-			getMode : function() {
+			getMode : function () {
 				return this.mMode;
 			},
 
-			setLogin : function(aLogin) {
+			setLogin : function (aLogin) {
 				this.mLogin = aLogin;
 			},
 
-			setInfoServer : function(aInfoServer) {
+			setInfoServer : function (aInfoServer) {
 				this.mInfoServer = aInfoServer;
 			},
 
-			setSupportEmail : function(aSupportEmail) {
+			setSupportEmail : function (aSupportEmail) {
 				this.mSupportEmail = aSupportEmail;
 			},
 
-			setSupportHTML : function(aSupportHTML) {
-				this.mSupportHTML = aSupportHTML;
-			},
-
-			setSubTitle : function(aSubTitle) {
+			setSubTitle : function (aSubTitle) {
 				this.mSubTitle = aSubTitle;
 			},
 
-			setRealName : function(aRealName) {
+			setRealName : function (aRealName) {
 				this.mRealName = aRealName;
 			},
 
-			setMode : function(aMode) {
+			setMode : function (aMode) {
 				this.mMode = aMode;
 			},
 
-			setInstanceName : function(aInstanceName) {
+			setInstanceName : function (aInstanceName) {
 				this.mInstanceName = aInstanceName;
 			},
 
-			getLanguage : function() {
+			getLanguage : function () {
 				return this.mLanguage;
 			},
-
-			setLanguage : function(language) {
+			
+			setLanguage : function (language) {
 				this.mLanguage = language;
 			},
 
-			fillEmailSupport : function(aTitle, aComplement) {
+			fillEmailSupport : function (aTitle, aComplement) {
 				var email = this.mSupportEmail, url = "mailto:" + email;
 				url += "?subject=" + aTitle;
 				url += "&body=" + this.getText(aComplement).replace("+", " ");
 				return url;
 			},
 
-			getHTML : function(aComplement) {
+			getHTML : function (aComplement) {
 				var resValue = "";
 				if ((aComplement !== null) && (aComplement.length > 0)) {
 					resValue += aComplement + "<br>";
 				}
 				resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>"
 						+ "<table width='100%'>" + "<tr><td><center>"
-						+ Singleton().getTranslate("Version")
+						+ singleton().getTranslate("Version")
 						+ "</center></td><td><center>" + this.mApplisVersion
 						+ "</center></td></tr>" + "<tr><td><center>"
-						+ Singleton().getTranslate("Server")
+						+ singleton().getTranslate("Server")
 						+ "</center></td><td><center>" + this.mServerVersion
 						+ "</center></td></tr>" + "<tr><td><center>"
-						+ Singleton().getTranslate("AJAX Client")
+						+ singleton().getTranslate("AJAX Client")
 						+ "</center></td><td><center>" + G_Version
 						+ "</center></td></tr>" + "<tr><td><center>"
-						+ Singleton().getTranslate("Browser")
+						+ singleton().getTranslate("Browser")
 						+ "</center></td><td><center><font size='-1'>"
 						+ navigator.userAgent.replace(') ', ')<br>')
 						+ "</font></center></td></tr>" + "<tr><td><center>"
-						+ Singleton().getTranslate("Connection")
+						+ singleton().getTranslate("Connection")
 						+ "</center></td><td><center><font size='-1'>"
 						+ this.getConnectUser() + '<br>' + get_serverurl()
 						+ "</font></center></td></tr>"
 						+ "<tr><td colspan='2'><center><font size='-1'><i>"
 						+ this.mCopyRigth + "</i></font></center></td></tr>"
-						+ "</table><hr>";
+						+ "</table>" + "<hr>";
 				if ((this.mInfoServer !== null)
 						&& (this.mInfoServer.length > 0)) {
 					resValue += this.mInfoServer.convertLuctoriosFormatToHtml()
@@ -174,7 +166,7 @@ var ApplicationDescription = Class
 				return resValue;
 			},
 
-			getText : function(aComplement) {
+			getText : function (aComplement) {
 				var text_html = this.getHTML(aComplement), pos1 = 1, pos2 = 1;
 				while ((pos1 > 0) && (pos2 > 0)) {
 					pos1 = text_html.indexOf("<style type=\"text/css\">");
@@ -185,12 +177,12 @@ var ApplicationDescription = Class
 					}
 				}
 				text_html = text_html
-						.replace(
-								/(<center>|<\/center>|<table width='100%'>|<\/table>|<tr><td>|<tr><td colspan='2'>|<font size='-1'>|<\/font>|<i>|<\/i>)/g,
-								"");
+                    .replace(
+                        /(<center>|<\/center>|<table width='100%'>|<\/table>|<tr><td>|<tr><td colspan='2'>|<font size='-1'>|<\/font>|<i>|<\/i>)/g,
+                        ""
+                    );
 				text_html = text_html.replace(/<h1>\s*/g, "#### ");
-				text_html = text_html.replace(/[<br>|\\s|\n]*<\/h1>/g,
-						" ####\n");
+				text_html = text_html.replace(/[<br>|\\s|\n]*<\/h1>/g, " ####\n");
 				text_html = text_html.replace("<b>", "[");
 				text_html = text_html.replace("</b>", "]");
 				text_html = text_html.replace("&#60;", "<");
@@ -203,11 +195,9 @@ var ApplicationDescription = Class
 				text_html = text_html.replace("&#91;", "[");
 				text_html = text_html.replace("&#93;", "]");
 				text_html = text_html.replace("&#47;", "/");
-				text_html = text_html.replace(/(<\/td><\/tr>|<br>|<br\/>)/g,
-						"\n");
+				text_html = text_html.replace(/(<\/td><\/tr>|<br>|<br\/>)/g, "\n");
 				text_html = text_html.replace(/<\/td><td>/g, " : ");
-				text_html = text_html.replace(/(<hr>|<hr\/>)/g,
-						"__________________________________________\n");
+				text_html = text_html.replace(/(<hr>|<hr\/>)/g, "__________________________________________\n");
 				return encodeURIComponent(text_html);
 			}
 		});
@@ -218,150 +208,130 @@ var ObserverAuthentification = ObserverAbstract
 
 			acts : null,
 
-			getObserverName : function() {
+			getObserverName : function () {
 				return "core.auth";
 			},
 
-			setContent : function(aDomXmlContent) {
+			setContent : function (aDomXmlContent) {
 				this._super(aDomXmlContent);
 				this.acts = [];
 				this.acts[0] = new ActionInt();
 				this.acts[0].initializeEx(this, null, 'Ok');
-				this.acts[0].callback = $.proxy(function(aParams) {
+				this.acts[0].callback = $.proxy(function (aParams) {
 					if (this.mGUI !== null) {
-						var login = aParams.get('username'), pass = aParams
-								.get('password');
-						Singleton().Factory().setAuthentification(login, pass);
+						var login = aParams.get('username'), pass = aParams.get('password');
+						singleton().Factory().setAuthentification(login, pass);
 					}
 				}, this);
 				this.acts[1] = new ActionInt();
-				this.acts[1].initializeEx(this, Singleton().Factory(),
-						Singleton().getTranslate("Cancel"));
-				this.acts[1].callback = function() {
-					Singleton().setInfoDescription(null, false);
+				this.acts[1].initializeEx(this, singleton().Factory(),
+                    singleton().getTranslate("Cancel"));
+				this.acts[1].callback = function () {
+					singleton().setInfoDescription(null, false);
 				};
 			},
 
-			show : function(aTitle, aGUIType) {
+			show : function (aTitle, aGUIType) {
 				this._super(aTitle, aGUIType);
 				var cdate = this.mDomXmlContent.getTextFromXmlNode().trim(), xml_connection, desc, xml_params, param_idx;
 				if (cdate !== "OK") {
-					Singleton().Transport().setSession("");
+					singleton().Transport().setSession("");
 					run_CleanCallBack();
 					this.show_logon(cdate);
 					this.refreshMenu = true;
 				} else {
 					xml_connection = this.mDomXmlContent
-							.getElementsByTagName("CONNECTION")[0];
+                        .getElementsByTagName("CONNECTION")[0];
 					desc = new ApplicationDescription(xml_connection
-							.getCDataOfFirstTag("TITLE"), xml_connection
-							.getCDataOfFirstTag("COPYRIGHT"), xml_connection
-							.getCDataOfFirstTag("VERSION"), xml_connection
-							.getCDataOfFirstTag("SERVERVERSION"));
+                        .getCDataOfFirstTag("TITLE"), xml_connection
+                        .getCDataOfFirstTag("COPYRIGHT"), xml_connection
+                        .getCDataOfFirstTag("VERSION"), xml_connection
+                        .getCDataOfFirstTag("SERVERVERSION"));
 					desc.setLogoIconName(xml_connection
-							.getCDataOfFirstTag("LOGONAME"));
+                        .getCDataOfFirstTag("LOGONAME"));
 					desc.setBackground(xml_connection
-							.getCDataOfFirstTag("BACKGROUND"));
+                        .getCDataOfFirstTag("BACKGROUND"));
 					desc.setSupportEmail(xml_connection
-							.getCDataOfFirstTag("SUPPORT_EMAIL"));
-					desc.setSupportHTML(xml_connection
-							.getCDataOfFirstTag("SUPPORT_HTML"));
+                        .getCDataOfFirstTag("SUPPORT_EMAIL"));
 					desc.setInfoServer(xml_connection
-							.getCDataOfFirstTag("INFO_SERVER"));
+                        .getCDataOfFirstTag("INFO_SERVER"));
 					desc.setSubTitle(xml_connection
-							.getCDataOfFirstTag("SUBTITLE"));
+                        .getCDataOfFirstTag("SUBTITLE"));
 					desc.setLogin(xml_connection.getCDataOfFirstTag("LOGIN"));
 					desc.setRealName(xml_connection
-							.getCDataOfFirstTag("REALNAME"));
+                        .getCDataOfFirstTag("REALNAME"));
 					desc.setMode(xml_connection.getCDataOfFirstTag("MODE"));
 					desc.setInstanceName(xml_connection
-							.getCDataOfFirstTag("INSTANCE"));
+                        .getCDataOfFirstTag("INSTANCE"));
 					desc.setLanguage(xml_connection
-							.getCDataOfFirstTag("LANGUAGE"));
+                        .getCDataOfFirstTag("LANGUAGE"));
 					xml_params = this.mDomXmlContent
-							.getElementsByTagName("PARAM");
-					for (param_idx = 0; param_idx < xml_params.length; param_idx++) {
+                        .getElementsByTagName("PARAM");
+					for (param_idx = 0; param_idx < xml_params.length; param_idx += 1) {
 						if (xml_params[param_idx].getAttribute('name') === 'ses') {
-							Singleton().Transport().setSession(
-									xml_params[param_idx].getTextFromXmlNode());
+							singleton().Transport().setSession(
+                                xml_params[param_idx].getTextFromXmlNode()
+                            );
 						}
 					}
-					Singleton().setInfoDescription(desc, this.refreshMenu);
+					singleton().setInfoDescription(desc, this.refreshMenu);
 					this.refreshMenu = false;
 				}
 			},
 
-			getParameters : function(aCheckNull) {
+			getParameters : function (aCheckNull) {
 				unusedVariables(aCheckNull);
 				var requete = new HashMap(), jcnt, login, pass;
 				if (this.mGUI !== null) {
 					jcnt = this.mGUI.getHtmlDom();
-					login = jcnt
-							.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input");
+					login = $("#logon_username");
 					requete.put('username', login.val());
-					pass = jcnt
-							.find("table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input");
+					pass = $("#logon_password");
 					requete.put('password', pass.val());
 					$('#frm_' + this.mGUI.mId).submit();
 				}
 				return requete;
 			},
 
-			closeEx : function() {
+			closeEx : function () {
 				if (this.mGUI !== null) {
 					this.mGUI.dispose();
 				}
 			},
 
-			getRefreshMenu : function() {
+			getRefreshMenu : function () {
 				return this.refreshMenu;
 			},
 
-			show_logon : function(cdate) {
-				var text = "", table = [];
-				if (Singleton().Transport().getLastLogin() !== '') {
+			show_logon : function (cdate) {
+				var text = "", table = [], logon_form = '';
+				if (singleton().Transport().getLastLogin() !== '') {
 					if ("BADAUTH" === cdate) {
-						text = Singleton().getTranslate(
-								"Login or password wrong!",
-								"Alias ou Mot de passe incorrect!");
+						text = singleton().getTranslate(
+                            "Login or password wrong!",
+                            "Alias ou Mot de passe incorrect!"
+                        );
 					} else if ("NEEDAUTH" === cdate) {
-						text = Singleton().getTranslate("Please, identify you");
+						text = singleton().getTranslate("Please, identify you");
 					} else if ("BADSESS" === cdate) {
-						text = Singleton().getTranslate("Expired session!");
+						text = singleton().getTranslate("Expired session!");
 					} else if ("BADFROMLOCATION" === cdate) {
-						text = Singleton().getTranslate(
-								"Connection forbideen in this localisation!");
+						text = singleton().getTranslate("Connection forbideen in this localisation!");
 					} else if (cdate !== '') {
 						text = "'" + cdate + "'";
 					}
 				}
 
-				table[0] = [];
-				table[0][0] = new compBasic(
-						'<label style="width:100%;text-align:center;color:red;">'
-								+ text + '</label>', 2);
+                logon_form = LOGON_FORM_TEMPLATE.format(text, singleton().getTranslate("Login"),
+                                                            singleton().getTranslate("Password"));
 
-				table[1] = [];
-				table[1][0] = new compBasic(
-						'<span style="width:95%;margin:5px;"><b>'
-								+ Singleton().getTranslate("Login")
-								+ '</b></span>');
-				table[1][1] = new compBasic(
-						'<input name="username" type="text" style="width:95%;margin:5px;"/>');
-
-				table[2] = [];
-				table[2][0] = new compBasic(
-						'<span style="width:95%;margin:5px;"><b>'
-								+ Singleton().getTranslate("Password")
-								+ '</b></span>');
-				table[2][1] = new compBasic(
-						'<input name="password" type="password" style="width:95%;margin:5px;"/>');
-				this.mGUI = new GUIManage(this.getId(), Singleton()
+                
+				this.mGUI = new GUIManage(this.getId(), singleton()
 						.getTranslate("Logon"), this);
 				this.mGUI.withForm = true;
-				this.mGUI.addcontent(createTable(table), this.acts);
+				this.mGUI.addcontent(logon_form, this.acts);
 				this.mGUI.showGUI(true);
-				$('#frm_' + this.mGUI.mId).submit(function(event) {
+				$('#frm_' + this.mGUI.mId).submit(function (event) {
 					event.preventDefault();
 				});
 			}

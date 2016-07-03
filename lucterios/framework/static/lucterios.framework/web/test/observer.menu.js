@@ -1,26 +1,26 @@
 module('ObserverMenu', {
 	mFileContent : null,
-	setup : function() {
+	setup : function () {
 		this.mObsFactory = new ObserverFactoryMock();
 
-		Singleton().setHttpTransportClass(HttpTransportStub);
-		Singleton().setFactory(this.mObsFactory);
-		Singleton().setActionClass(ActionImpl);
-		Singleton().Transport().setSession("abc123");
+		singleton().setHttpTransportClass(HttpTransportStub);
+		singleton().setFactory(this.mObsFactory);
+		singleton().setActionClass(ActionImpl);
+		singleton().Transport().setSession("abc123");
 
 		ObserverFactoryMock.NewObserver = new ObserverAcknowledgeNoParent();
 		ObserverAuthentification.connectSetValue = this.setValue;
 	},
-	teardown : function() {
+	teardown : function () {
 		ObserverAuthentification.connectSetValue = null;
-		SingletonClose();
+		singletonClose();
 	},
 
 });
 
 test(
 		"Menu_Simple",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.menu' source_extension='CORE' source_action='menu'>"
 					+ "<TITLE><![CDATA[Menu de l application]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
@@ -89,7 +89,7 @@ test(
 
 test(
 		"Menu_Status",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.menu' source_extension='CORE' source_action='menu'>"
 					+ "<TITLE><![CDATA[Menu de l application]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"

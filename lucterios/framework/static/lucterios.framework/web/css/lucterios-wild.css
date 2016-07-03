@@ -1,0 +1,17 @@
+@media (min-width: 1001px) {
+    button.lucterios-menu {
+        display: none;
+    }
+    .btn-last {
+        display: inline;
+    }
+    .sidebar {
+        display: block;
+    }
+
+    .content {
+        width: calc(100% - 250px);
+        max-width: 80%;
+        float: right;
+    }
+}

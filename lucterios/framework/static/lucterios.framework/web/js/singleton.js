@@ -1,6 +1,7 @@
-/*global $,Class,HashMap,post_log,g_translation*/
+/*global $,Class,HashMap,post_log,g_translation,FileReader*/
+'use strict';
 
-var SingletonObj = null;
+var singletonObj = null;
 var g_InitialCallBack = null;
 var g_CleanCallBack = null;
 
@@ -18,9 +19,9 @@ function run_CleanCallBack() {
 
 var FileManager = Class.extend({
 
-	saveBlob : function(aBlob, aFileName) {
+	saveBlob : function (aBlob, aFileName) {
 		var reader = new FileReader();
-		reader.onload = $.proxy(function(event) {
+		reader.onload = $.proxy(function (event) {
 			var content = event.target.result, pos;
 			if (content.substr(0, 5) === 'data:') {
 				pos = content.indexOf(';base64,');
@@ -31,7 +32,7 @@ var FileManager = Class.extend({
 		reader.readAsDataURL(aBlob);
 	},
 
-	saveFile : function(aContent, aFileName) {
+	saveFile : function (aContent, aFileName) {
 		var hyperlink = document.createElement('a'), mouseEvent;
 		hyperlink.href = 'data:application/x-json;base64,' + aContent;
 		hyperlink.target = '_blank';
@@ -65,12 +66,12 @@ var SingletonClass = Class.extend({
 
 	mSelectLang : null,
 
-	init : function() {
+	init : function () {
 		var languages = navigator.languages, lang_idx, sub_language;
 		this.mSelectLang = null;
 		if ((languages !== undefined) && (languages !== null)) {
 			for (lang_idx = 0; (this.mSelectLang === null)
-					&& (lang_idx < languages.length); lang_idx++) {
+					&& (lang_idx < languages.length); lang_idx += 1) {
 				sub_language = languages[lang_idx].split('-')[0];
 				if (g_translation.hasOwnProperty(languages[lang_idx])) {
 					this.mSelectLang = languages[lang_idx];
@@ -89,15 +90,15 @@ var SingletonClass = Class.extend({
 		}
 	},
 	
-	getSelectLang : function() {
-		if ((this.mDesc!==null) && (this.mDesc.getLanguage()!=='')) {
+	getSelectLang : function () {
+		if ((this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
 			return this.mDesc.getLanguage();
-		}   
+		}
 		return this.mSelectLang;
 	},
 
-	getTranslate : function(name) {
-		var res = null, select_lang=this.getSelectLang();
+	getTranslate : function (name) {
+		var res = null, select_lang = this.getSelectLang();
 		if (g_translation.get(select_lang) !== null) {
 			res = g_translation.get(select_lang).get(name);
 		}
@@ -107,37 +108,37 @@ var SingletonClass = Class.extend({
 		return res;
 	},
 
-	setHttpTransportClass : function(aTransportClass) {
+	setHttpTransportClass : function (aTransportClass) {
 		this.mTransportClass = aTransportClass;
 	},
 
-	setActionClass : function(aActionClass) {
+	setActionClass : function (aActionClass) {
 		this.mActionClass = aActionClass;
 	},
 
-	setFactory : function(aFactory) {
+	setFactory : function (aFactory) {
 		this.mFactory = aFactory;
 	},
 
-	Factory : function() {
+	Factory : function () {
 		return this.mFactory;
 	},
 
-	Transport : function() {
+	Transport : function () {
 		if (this.mTransportObj === null) {
 			this.mTransportObj = new this.mTransportClass();
 		}
 		return this.mTransportObj;
 	},
 
-	CreateAction : function() {
+	CreateAction : function () {
 		if (this.mActionClass !== null) {
 			return new this.mActionClass();
 		}
 		return null;
 	},
 
-	setInfoDescription : function(aDesc, aRefreshMenu) {
+	setInfoDescription : function (aDesc, aRefreshMenu) {
 		this.mDesc = aDesc;
 		this.mRefreshMenu = aRefreshMenu;
 		if (g_InitialCallBack !== null) {
@@ -145,7 +146,7 @@ var SingletonClass = Class.extend({
 		}
 	},
 
-	close : function() {
+	close : function () {
 		if (this.mTransportObj !== null) {
 			this.mTransportObj.close();
 			this.mTransportObj = null;
@@ -156,18 +157,18 @@ var SingletonClass = Class.extend({
 	}
 });
 
-var Singleton = function() {
-	if (SingletonObj === null) {
-		post_log("Create Singleton");
-		SingletonObj = new SingletonClass();
+var singleton = function () {
+	if (singletonObj === null) {
+		post_log("Create singleton");
+		singletonObj = new SingletonClass();
 	}
-	return SingletonObj;
+	return singletonObj;
 };
 
-var SingletonClose = function() {
-	if (SingletonObj !== null) {
-		SingletonObj.close();
-		post_log("Close Singleton");
+var singletonClose = function () {
+	if (singletonObj !== null) {
+		singletonObj.close();
+		post_log("Close singleton");
 	}
-	SingletonObj = null;
+	singletonObj = null;
 };

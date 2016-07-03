@@ -2,24 +2,28 @@ var HttpTransportStub = HttpTransportAbstract.extend({
 	XmlReceved : "",
 	XmlParam : null,
 
-	getIconUrl : function(icon) {
+	getIconUrl : function (icon) {
 		return 'STUB/' + icon;
 	},
 
-	init : function() {
+	init : function () {
 		this.XmlParam = new HashMap();
 	},
 
-	transfertFileFromServerString : function(aWebFile, aParams) {
+	transfertXMLFromServer : function (aParams) {
 		var self = this;
-		this.XmlParam['WebFile'] = aWebFile;
-		aParams.keys().forEach(function(key) {
+		aParams.keys().forEach(function (key) {
 			self.XmlParam[key] = decodeURIComponent(aParams.get(key));
 		});
 		return this.XmlReceved;
 	},
 
-	getFileContent : function(aUrl, callback) {
+	transfertFileFromServerString : function (aWebFile, aParams) {
+		this.XmlParam['WebFile'] = aWebFile;
+		return this.transfertXMLFromServer(aParams);
+	},
+
+	getFileContent : function (aUrl, callback) {
 		this.XmlParam['URL'] = aUrl;
 		var blob_content = null;
 		if (typeof (Blob) === typeof (Function)) {
@@ -39,10 +43,10 @@ var HttpTransportStub = HttpTransportAbstract.extend({
 var ObserverFactoryMock = ObserverFactoryAbstract.extend({
 	m_XMLParameters : "",
 	CallList : new HashMap(),
-	init : function() {
+	init : function () {
 		this.CallList = new HashMap();
 	},
-	callAction : function(aExtension, aAction, aParam, aObserver) {
+	callAction : function (aExtension, aAction, aParam, aObserver) {
 		var new_call = "{0}->{1}({2})".format(aExtension, aAction, aParam
 				.toString());
 		this.CallList.put(this.CallList.size(), new_call);
@@ -60,24 +64,24 @@ ObserverFactoryMock.NewObserver = null;
 
 var ObserverStub = ObserverAbstract.extend({
 	mClose : false,
-	init : function() {
+	init : function () {
 	},
 
-	getObserverName : function() {
+	getObserverName : function () {
 		return ObserverStub.ObserverName;
 	},
 
-	show : function(aTitle) {
+	show : function (aTitle) {
 		ObserverStub.mShow = true;
 		ObserverStub.mTitle = aTitle;
 	},
 
-	getParameters : function(aCheckNull) {
+	getParameters : function (aCheckNull) {
 		ObserverStub.mLastCheckNull = aCheckNull;
 		return ObserverStub.mParameters;
 	},
 
-	close : function(aMustRefreshParent) {
+	close : function (aMustRefreshParent) {
 		this.mClose = true;
 		if (this.getGUI() != null)
 			this.getGUI().setVisible(false);

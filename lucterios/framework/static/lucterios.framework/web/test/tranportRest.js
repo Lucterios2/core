@@ -1,23 +1,23 @@
 module('TransportRest', {
 	mFileContent : null,
 
-	setup : function() {
+	setup : function () {
 		this.transport = new HttpTransportImpl();
 		this.transport.close();
 		$.removeCookie("sessionid");
 	},
-	teardown : function() {
+	teardown : function () {
 		this.transport.close();
 		this.transport = null;
 		$.removeCookie("sessionid");
 	},
 
-	saveFile : function(aContent, aFileName) {
+	saveFile : function (aContent, aFileName) {
 		this.mFileContent = atob(aContent);
 		this.mFileName = aFileName;
 	},
 
-	convertXML : function(data) {
+	convertXML : function (data) {
 		data = data.replace(/>\s*/g, '>'); // Replace "> " with ">"
 		data = data.replace(/\s*</g, '<'); // Replace "< " with "<"
 		var parser = new DOMParser();
@@ -27,7 +27,7 @@ module('TransportRest', {
 
 });
 
-test("Connection", function() {
+test("Connection", function () {
 	equal(this.transport.getServerUrl(), "http://127.0.0.1:8000/",
 			"Server connect");
 	equal(this.transport.getSession(), "", "session init");
@@ -36,7 +36,7 @@ test("Connection", function() {
 	equal(this.transport.getSession(), "ABCDEF12345", "session final");
 });
 
-test("Static", function() {
+test("Static", function () {
 	equal(this.transport.getSession(), "", "session init");
 	this.transport.setSession("ABCDEF12345");
 	equal(this.transport.getSession(), "ABCDEF12345", "session affected");
@@ -47,7 +47,7 @@ test("Static", function() {
 
 test(
 		"Actions",
-		function() {
+		function () {
 			var xml_retour;
 			post_log('cookie before:' + document.cookie);
 			xml_retour = this.transport.transfertFileFromServerString(
@@ -90,16 +90,16 @@ test(
 			post_log('cookie after:' + document.cookie);
 		});
 
-asyncTest("File", function() {
+asyncTest("File", function () {
 	if (typeof (Blob) === typeof (Function)) {
 		equal(this.mFileContent, null, 'init');
-		Singleton().mFileManager.saveFile = $.proxy(this.saveFile, this);
-		this.transport.getFileContent('static/lucterios.CORE/images/add.png', function(blob) {
-			Singleton().mFileManager.saveBlob(blob, 'add.png');
+		singleton().mFileManager.saveFile = $.proxy(this.saveFile, this);
+		this.transport.getFileContent('static/lucterios.CORE/images/add.png', function (blob) {
+			singleton().mFileManager.saveBlob(blob, 'add.png');
 		});
 		var transp_test = this;
 
-		setTimeout(function() {
+		setTimeout(function () {
 			start();
 			equal(transp_test.mFileContent.length, 1415, 'size');
 			equal(transp_test.mFileContent.substr(1, 3), "PNG")

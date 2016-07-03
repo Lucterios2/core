@@ -1,4 +1,5 @@
-/*global ObserverAbstract,Singleton*/
+/*global ObserverAbstract,singleton*/
+'use strict';
 
 var MODE_NONE = 0;
 var MODE_PRINT = 1;
@@ -12,11 +13,11 @@ var ObserverPrint = ObserverAbstract
 			print_content : null,
 			title : '',
 
-			getObserverName : function() {
+			getObserverName : function () {
 				return "CORE.Print";
 			},
 
-			setContent : function(aDomXmlContent) {
+			setContent : function (aDomXmlContent) {
 				this._super(aDomXmlContent);
 				this.print_content = null;
 				var print_elements = this.mDomXmlContent
@@ -28,7 +29,7 @@ var ObserverPrint = ObserverAbstract
 				this.print_content = print_elements.getTextFromXmlNode();
 			},
 
-			show : function(aTitle, aGUIType) {
+			show : function (aTitle, aGUIType) {
 				this._super(aTitle, aGUIType);
 
 				var file_name = this.title.getFileNameWithoutForgottenChar();
@@ -38,7 +39,7 @@ var ObserverPrint = ObserverAbstract
 					file_name += '.pdf';
 				}
 
-				Singleton().mFileManager
+				singleton().mFileManager
 						.saveFile(this.print_content, file_name);
 			}
 		});

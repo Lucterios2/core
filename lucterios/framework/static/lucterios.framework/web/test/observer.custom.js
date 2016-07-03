@@ -1,5 +1,5 @@
 var ObserverAcknowledgeNoParent = ObserverAcknowledge.extend({
-	setParent : function(aParent) {
+	setParent : function (aParent) {
 		this.mParent = null;
 	},
 });
@@ -8,24 +8,24 @@ module('ObserverCustom', {
 	mFileContent : null,
 	mCalled : 0,
 
-	setup : function() {
+	setup : function () {
 		this.mObsFactory = new ObserverFactoryMock();
 
-		Singleton().setHttpTransportClass(HttpTransportStub);
-		Singleton().setFactory(this.mObsFactory);
-		Singleton().setActionClass(ActionImpl);
-		Singleton().Transport().setSession("abc123");
-		Singleton().mSelectLang = 'fr';
+		singleton().setHttpTransportClass(HttpTransportStub);
+		singleton().setFactory(this.mObsFactory);
+		singleton().setActionClass(ActionImpl);
+		singleton().Transport().setSession("abc123");
+		singleton().mSelectLang = 'fr';
 
 		ObserverFactoryMock.NewObserver = new ObserverAcknowledgeNoParent();
 		ObserverAuthentification.connectSetValue = this.setValue;
 	},
-	teardown : function() {
+	teardown : function () {
 		ObserverAuthentification.connectSetValue = null;
-		SingletonClose();
+		singletonClose();
 	},
 
-	saveBlob : function(aBlob, aFileName) {
+	saveBlob : function (aBlob, aFileName) {
 		this.mFileContent = aBlob;
 		this.mFileName = aFileName;
 	},
@@ -33,7 +33,7 @@ module('ObserverCustom', {
 
 test(
 		"Custom_Simple",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE>"
 					+ "<TITLE><![CDATA[Résumé]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
@@ -110,7 +110,7 @@ test(
 
 test(
 		"Custom_EditMemo",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Modifier une personne morale]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM><PARAM name='ORIGINE'><![CDATA[personneMorale_APAS_AddModify]]></PARAM><PARAM name='TABLE_NAME'><![CDATA[org_lucterios_contacts_personneMorale]]></PARAM><PARAM name='RECORD_ID'><![CDATA[1]]></PARAM></CONTEXT>"
@@ -317,7 +317,7 @@ test(
 
 asyncTest(
 		"Custom_Upload",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personneMorale_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Modifier une personne morale]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM></CONTEXT>"
@@ -356,8 +356,8 @@ asyncTest(
 					+ 'along with Lucterios; if not, write to the Free Software\n'
 					+ 'Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA';
 
-			Singleton().Transport().XmlReceved = content_file;
-			Singleton().mFileManager.saveBlob = $.proxy(this.saveBlob, this);
+			singleton().Transport().XmlReceved = content_file;
+			singleton().mFileManager.saveBlob = $.proxy(this.saveBlob, this);
 			equal(this.mFileContent, null, "Empty file");
 
 			var parse = xml_receive.parseXML();
@@ -367,7 +367,7 @@ asyncTest(
 			obs.setContent(parse);
 			obs.show("Nos coordonnées", FORM_MODAL);
 
-			obs.mCompList.get('uploadlogo').getValue = function() {
+			obs.mCompList.get('uploadlogo').getValue = function () {
 				if (typeof (Blob) === typeof (Function)) {
 					var blob_content = new Blob([ content_file ], {
 						type : "text/plain;charset=UTF-8"
@@ -431,13 +431,13 @@ asyncTest(
 			equal(this.mFileName, "FileName.txt");
 			ok(this.mFileContent != null, "File write");
 			equal(this.mFileContent.size, content_file.length);
-			equal(Singleton().Transport().XmlParam['URL'],
+			equal(singleton().Transport().XmlParam['URL'],
 					'usr/TestValidation/FileName.txt');
 
 			var content_base64 = btoa(content_file);
 			var current_factory = this.mObsFactory;
 			setTimeout(
-					function() {
+					function () {
 						start();
 
 						btn1.click();
@@ -455,7 +455,7 @@ asyncTest(
 
 test(
 		"Custom_advance",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_task' source_action='Tasks_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Ajouter une tâche]]></TITLE>"
 					+ "<CONTEXT><PARAM name='isTerminate'><![CDATA[n]]></PARAM><PARAM name='task'><![CDATA[1]]></PARAM></CONTEXT>"
@@ -630,7 +630,7 @@ test(
 
 test(
 		"Custom_grid",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='StructureLocal'>"
 					+ "<TITLE><![CDATA[Nos coordonnées]]></TITLE>"
 					+ "<CONTEXT><PARAM name='personneMorale'><![CDATA[1]]></PARAM></CONTEXT>"
@@ -828,7 +828,7 @@ test(
 
 test(
 		"Custom_need",
-		function() {
+		function () {
 			var xml_receive = "<REPONSE observer='core.custom' source_extension='org_lucterios_contacts' source_action='personnePhysique_APAS_AddModify'>"
 					+ "<TITLE><![CDATA[Ajouter une personne physique]]></TITLE>"
 					+ "<CONTEXT></CONTEXT>"
@@ -869,7 +869,7 @@ test(
 					+ "</REPONSE>";
 
 			var message_dlg = null;
-			showMessageDialog = function(aText, aTitle) {
+			showMessageDialog = function (aText, aTitle) {
 				message_dlg = aText;
 			}
 

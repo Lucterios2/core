@@ -2,7 +2,7 @@
  * User: lag Date: 26/11/13 Time: 13:49 Config unit for lucterios client
  */
 
-var G_Version = '1.0.5.16060914';
+var G_Version = '1.0.4.16041312';
 
 var G_With_Extra_Menu = false;
 

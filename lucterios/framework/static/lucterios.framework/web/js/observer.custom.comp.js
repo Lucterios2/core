@@ -1,13 +1,14 @@
-/*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+/*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+'use strict';
 
 // image
-var compImage = compGeneric.extend({
+var CompImage = compGeneric.extend({
 	height : 0,
 	width : 0,
 	src : "",
 	type : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.height = component.getAttribute("height");
 		this.width = component.getAttribute("width");
@@ -20,15 +21,16 @@ var compImage = compGeneric.extend({
 		this.tag = 'img';
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var src_img = this.src;
 		if (this.type === '') {
-			src_img = Singleton().Transport().getIconUrl(
-					this.src + "?val=" + Math.floor(Math.random() * 1000));
+			src_img = singleton().Transport().getIconUrl(
+                this.src + "?val=" + Math.floor(Math.random() * 1000)
+            );
 		} else {
 			if (this.src.substring(0, 10) === 'data:image') {
 				src_img = this.src;
@@ -44,10 +46,10 @@ var compImage = compGeneric.extend({
 });
 
 // label formaté
-var compLabelForm = compGeneric.extend({
+var CompLabelForm = compGeneric.extend({
 	label : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.needed = 0;
 
@@ -56,11 +58,11 @@ var compLabelForm = compGeneric.extend({
 		this.tag = 'span';
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		return this.getBuildHtml({}, false, false) + this.label + '</span>';
 	}
 });
@@ -71,14 +73,14 @@ var compAbstractEvent = compGeneric
 			action : null,
 			java_script_content : null,
 
-			initial : function(component) {
+			initial : function (component) {
 				this._super(component);
 				var acts = component.getElementsByTagName("ACTIONS"), act;
 				if (acts.length > 0) {
 					act = acts[0].getElementsByTagName("ACTION");
 					if (act.length > 0) {
-						this.action = Singleton().CreateAction();
-						this.action.initialize(this.owner, Singleton()
+						this.action = singleton().CreateAction();
+						this.action.initialize(this.owner, singleton()
 								.Factory(), act[0]);
 						this.action.setCheckNull(false);
 					}
@@ -87,18 +89,17 @@ var compAbstractEvent = compGeneric
 						.getCDataOfFirstTag('JavaScript').replace(/\+/g, " "));
 			},
 
-			addAction : function() {
+			addAction : function () {
 				return undefined;
 			},
 
-			get_act_function : function() {
+			get_act_function : function () {
 				var act_function = null, adder = null, init_val;
 				if ((this.java_script_content !== '') || (this.action !== null)) {
 					post_log("java script :" + this.java_script_content);
-					act_function = function() {
+					act_function = function () {
 						if (this.java_script_content !== '') {
-							adder = new Function("current", "parent",
-									this.java_script_content); /* jshint -W054 */
+							adder = new function ("current", "parent", this.java_script_content); /* jshint -W054 */
 							adder(this, this.owner);
 						}
 						if (this.action !== null) {
@@ -113,7 +114,7 @@ var compAbstractEvent = compGeneric
 						}
 					};
 					if (this.java_script_content !== '') {
-						adder = new Function("current", "parent",
+						adder = new function ("current", "parent",
 								this.java_script_content); /* jshint -W054 */
 						adder(this, this.owner);
 					}
@@ -121,8 +122,8 @@ var compAbstractEvent = compGeneric
 				return act_function;
 			},
 
-			addActionEx : function(typeAct) {
-				var act_function = this.get_act_function(), gui_comp;
+			addActionEx : function (typeAct) {
+				var act_function = this.get_act_function (), gui_comp;
 				if (act_function !== null) {
 					gui_comp = this.getGUIComp();
 					switch (typeAct) {
@@ -142,13 +143,13 @@ var compAbstractEvent = compGeneric
 				this.addActionNull(act_function);
 			},
 
-			addActionNull : function(act_function) {
+			addActionNull : function (act_function) {
 				var nullcheck;
 				if (this.needed === false) {
 					nullcheck = $("#" + this.owner.getId()).find(
 							"input[name='nullcheck_{0}']:eq(0)"
 									.format(this.name));
-					nullcheck.change($.proxy(function() {
+					nullcheck.change($.proxy(function () {
 						if (act_function !== null) {
 							$.proxy(act_function, this)();
 						}
@@ -158,7 +159,7 @@ var compAbstractEvent = compGeneric
 				}
 			},
 
-			addnullcheck : function() {
+			addnullcheck : function () {
 				var res = '', valcheck = '';
 				if (this.needed === false) {
 					if (this.is_null === true) {
@@ -170,7 +171,7 @@ var compAbstractEvent = compGeneric
 				return res;
 			},
 
-			is_return_null : function() {
+			is_return_null : function () {
 				var res = false, nullcheck;
 				if (this.needed === false) {
 					nullcheck = $("#" + this.owner.getId()).find(
@@ -183,14 +184,14 @@ var compAbstractEvent = compGeneric
 		});
 
 // bouton
-var compButton = compAbstractEvent.extend({
+var CompButton = compAbstractEvent.extend({
 	clickName : '',
 	clickValue : '',
 	isMini : false,
 	hasBeenClicked : false,
 	btnaction : null,
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.clickName = component.getAttribute("clickname");
 		this.clickValue = component.getAttribute("clickvalue");
@@ -199,36 +200,31 @@ var compButton = compAbstractEvent.extend({
 		this.tag = 'button';
 	},
 
-	actionPerformed : function() {
+	actionPerformed : function () {
 		this.hasBeenClicked = true;
 		this.btnaction.actionPerformed();
 		this.hasBeenClicked = false;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(1);
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		if (this.action !== null) {
 			var arg = {}, title, btn_icon;
 			this.btnaction = this.action;
 			this.action = this;
 			if (this.isMini) {
-				arg.style = 'width:30px;padding: 0px;';
+				arg.style = 'width:30px;';
 			}
-			if (!this.isMini || (this.btnaction.getIcon() === '')) {
-				title = this.btnaction.getTitle();
-			}
-			else {
-				title = '';
-			}
+			title = this.btnaction.getTitle();
 			if (this.btnaction.getIcon() !== '') {
-				btn_icon = Singleton().Transport().getIconUrl(
+				btn_icon = singleton().Transport().getIconUrl(
 						this.btnaction.getIcon());
 				title = '<img src="{0}" style="max-width:32px"/>'
 						.format(btn_icon)
@@ -239,7 +235,7 @@ var compButton = compAbstractEvent.extend({
 		return '';
 	},
 
-	setSelectType : function(aSelectType) {
+	setSelectType : function (aSelectType) {
 		var enabled = false;
 		switch (aSelectType) {
 		case SELECT_NONE:
@@ -257,7 +253,7 @@ var compButton = compAbstractEvent.extend({
 		this.setEnabled(enabled);
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		if (this.hasBeenClicked) {
 			params.put(this.clickName, this.clickValue);
 		}
@@ -266,11 +262,11 @@ var compButton = compAbstractEvent.extend({
 });
 
 // case à cocher
-var compCheck = compAbstractEvent.extend({
+var CompCheck = compAbstractEvent.extend({
 	// generiques
 	checked : 0,
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 
 		var val = component.getTextFromXmlNode();
@@ -278,7 +274,7 @@ var compCheck = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'type' : "checkbox"
 		};
@@ -288,25 +284,25 @@ var compCheck = compAbstractEvent.extend({
 		return this.getBuildHtml(args, false, true);
 	},
 
-	getValue : function() {
+	getValue : function () {
 		var comp = this.getGUIComp();
 		return comp[0].checked;
 	},
 
-	setValue : function(xmlValue) {
+	setValue : function (xmlValue) {
 		this.initial(xmlValue.parseXML());
 		this.getGUIComp()[0].checked = this.initialVal();
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.checked;
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		if (this.getValue()) {
 			params.put(this.name, 'o');
 		} else {
@@ -314,16 +310,16 @@ var compCheck = compAbstractEvent.extend({
 		}
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(2);
 	}
 });
 
-var compLink = compGeneric.extend({
+var CompLink = compGeneric.extend({
 	link : "",
 	label : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.label = component.getTextFromXmlNode()
 				.convertLuctoriosFormatToHtml();
@@ -332,11 +328,11 @@ var compLink = compGeneric.extend({
 		this.tag = 'a';
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		return this.getBuildHtml({
 			'href' : this.link,
 			'target' : '_blank'
@@ -344,12 +340,12 @@ var compLink = compGeneric.extend({
 	}
 });
 
-var compEdit = compAbstractEvent.extend({
+var CompEdit = compAbstractEvent.extend({
 	value : "",
 	mask : null,
 	size : -1,
 
-	initial : function(component) {
+	initial : function (component) {
 		var regex;
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
@@ -361,7 +357,7 @@ var compEdit = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'type' : "text"
 		};
@@ -369,35 +365,35 @@ var compEdit = compAbstractEvent.extend({
 		return this.getBuildHtml(args, true, true);
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		var msg_text, inputVal;
 		this._super();
 		if (this.mask !== null) {
 			inputVal = this.getGUIComp().val();
 			if (!this.mask.test(inputVal)) {
-				msg_text = Singleton().getTranslate("Invalid format!");
+				msg_text = singleton().getTranslate("Invalid format!");
 				throw new LucteriosException(MINOR, msg_text);
 			}
 		} else if (this.size !== -1) {
 			inputVal = this.getGUIComp().val().trim();
 			if (inputVal.length > this.size) {
-				msg_text = Singleton().getTranslate("Size too long!");
+				msg_text = singleton().getTranslate("Size too long!");
 				throw new LucteriosException(MINOR, msg_text);
 			}
 		}
 		return;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(0);
 		if ((this.mask !== null) || (this.size !== -1)) {
 			this.getGUIComp().keyup(
 					$.proxy(
-							function() {
+							function () {
 								var inputVal = this.getGUIComp().val();
 								if (((this.mask !== null) && !this.mask
 										.test(inputVal))
@@ -417,14 +413,14 @@ var compEdit = compAbstractEvent.extend({
 
 });
 
-var compFloat = compAbstractEvent
+var CompFloat = compAbstractEvent
 		.extend({
 			value : "",
 			min : 0,
 			max : 1000,
 			prec : 1,
 
-			initial : function(component) {
+			initial : function (component) {
 				this._super(component);
 				var text_value = '', nb_dec = component.getXMLAttributInt(
 						'prec', 0), dec_i;
@@ -438,13 +434,13 @@ var compFloat = compAbstractEvent
 				this.min = component.getXMLAttributFloat('min', 0.0);
 				this.max = component.getXMLAttributFloat('max', 1000.0);
 				this.prec = 1;
-				for (dec_i = 0; dec_i < nb_dec; dec_i++) {
+				for (dec_i = 0; dec_i < nb_dec; dec_i += 1) {
 					this.prec = this.prec / 10;
 				}
 				this.tag = 'input';
 			},
 
-			getHtml : function() {
+			getHtml : function () {
 				var args = {
 					'type' : "text"
 				};
@@ -453,7 +449,7 @@ var compFloat = compAbstractEvent
 						+ this.getBuildHtml(args, true, true);
 			},
 
-			getValue : function() {
+			getValue : function () {
 				var val_num;
 				if (this.is_return_null() === true) {
 					return NULL_VALUE;
@@ -465,11 +461,11 @@ var compFloat = compAbstractEvent
 				return "{0}".format(val_num);
 			},
 
-			initialVal : function() {
+			initialVal : function () {
 				return this.value;
 			},
 
-			setEnabled : function(isEnabled) {
+			setEnabled : function (isEnabled) {
 				try {
 					if (isEnabled === true) {
 						this.getGUIComp().spinner("enable");
@@ -481,7 +477,7 @@ var compFloat = compAbstractEvent
 				}
 			},
 
-			addAction : function() {
+			addAction : function () {
 				this.getGUIComp().spinner({
 					step : this.prec,
 					min : this.min,
@@ -498,13 +494,13 @@ var editorHypertext = Class
 			name : '',
 			with_hypertext : false,
 			sub_menus : [],
-			init : function(aOwnerId, aName, aWith_hypertext, aSub_menu_xml) {
+			init : function (aOwnerId, aName, aWith_hypertext, aSub_menu_xml) {
 				var isub_menu, sub_menu, sub_menu_name, sub_menu_value;
 				this.ownerId = aOwnerId;
 				this.name = aName;
 				this.with_hypertext = aWith_hypertext;
 				this.sub_menus = [];
-				for (isub_menu = 0; isub_menu < aSub_menu_xml.length; isub_menu++) {
+				for (isub_menu = 0; isub_menu < aSub_menu_xml.length; isub_menu += 1) {
 					sub_menu = aSub_menu_xml[isub_menu];
 					sub_menu_name = sub_menu.getCDataOfFirstTag("NAME");
 					sub_menu_value = sub_menu.getCDataOfFirstTag("VALUE");
@@ -512,15 +508,15 @@ var editorHypertext = Class
 							sub_menu_value ];
 				}
 			},
-			getGUIComp : function() {
+			getGUIComp : function () {
 				return $("#" + this.ownerId).find(
 						"textarea[name='{0}']:eq(0)".format(this.name));
 			},
-			getHtml : function(attribut, value) {
+			getHtml : function (attribut, value) {
 				var html = "", imenu, sub_menu;
 				html += '<ul id="menu_{0}" class="contextMenu">'
 						.format(this.name);
-				for (imenu = 0; imenu < this.sub_menus.length; imenu++) {
+				for (imenu = 0; imenu < this.sub_menus.length; imenu += 1) {
 					sub_menu = this.sub_menus[imenu];
 					html += '<li><a href="#menu_{0}">{1}</a></li>'.format(
 							imenu, sub_menu[0]);
@@ -547,7 +543,7 @@ var editorHypertext = Class
 				html += '<textarea ' + attribut + '>' + value + '</textarea>';
 				return html;
 			},
-			addEditorAction : function() {
+			addEditorAction : function () {
 				var menu_name = "menu_{0}".format(this.name), area_name = "textarea[name='{0}']"
 						.format(this.name), self = this;
 				if (this.sub_menus.length > 0) {
@@ -556,7 +552,7 @@ var editorHypertext = Class
 									{
 										menu : menu_name
 									},
-									function(action, el, pos) {
+									function (action, el, pos) {
 										unusedVariables(el);
 										unusedVariables(pos);
 										var cursorPos, val_area, variable_text, textBefore, textAfter, variable_id;
@@ -577,30 +573,30 @@ var editorHypertext = Class
 														+ textAfter);
 									});
 				}
-				$("#bold_{0}".format(this.name)).click(function() {
+				$("#bold_{0}".format(this.name)).click(function () {
 					self.add_text_tag('b', '');
 				});
-				$("#italic_{0}".format(this.name)).click(function() {
+				$("#italic_{0}".format(this.name)).click(function () {
 					self.add_text_tag('i', '');
 				});
-				$("#underline_{0}".format(this.name)).click(function() {
+				$("#underline_{0}".format(this.name)).click(function () {
 					self.add_text_tag('u', '');
 				});
-				$("#black_{0}".format(this.name)).click(function() {
+				$("#black_{0}".format(this.name)).click(function () {
 					self.add_text_tag('font', 'color="black"');
 				});
-				$("#red_{0}".format(this.name)).click(function() {
+				$("#red_{0}".format(this.name)).click(function () {
 					self.add_text_tag('font', 'color="red"');
 				});
-				$("#blue_{0}".format(this.name)).click(function() {
+				$("#blue_{0}".format(this.name)).click(function () {
 					self.add_text_tag('font', 'color="blue"');
 				});
-				$("#green_{0}".format(this.name)).click(function() {
+				$("#green_{0}".format(this.name)).click(function () {
 					self.add_text_tag('font', 'color="green"');
 				});
 			},
 
-			add_text_tag : function(tagname, extra) {
+			add_text_tag : function (tagname, extra) {
 				var cursorPosBegin, cursorPosEnd, val_area, select_val, textBefore, textAfter;
 				if (extra !== '') {
 					extra = ' ' + extra;
@@ -618,10 +614,10 @@ var editorHypertext = Class
 
 		});
 
-var compMemo = compAbstractEvent.extend({
+var CompMemo = compAbstractEvent.extend({
 	value : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.value = component.getTextFromXmlNode().replace(/\{\[newline\]\}/g,
 				"\n");
@@ -631,30 +627,30 @@ var compMemo = compAbstractEvent.extend({
 		this.tag = 'textarea';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		return this.editor.getHtml(this.getAttribHtml({}, true), this
 				.initialVal());
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		var val = this.getValue();
 		params.put(this.name, val.replace(/\n/g, '{[newline]}'));
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(0);
 		this.editor.addEditorAction();
 	}
 });
 
-var compXML = compAbstractEvent.extend({
+var CompXML = compAbstractEvent.extend({
 	value : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
 		this.editor = new editorHypertext(this.owner.getId(), this.name, 1,
@@ -662,36 +658,36 @@ var compXML = compAbstractEvent.extend({
 		this.tag = 'textarea';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		return this.editor.getHtml(this.getAttribHtml({}, true), this
 				.initialVal());
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		var val = this.getValue();
 		params.put(this.name, val);
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(0);
 		this.editor.addEditorAction();
 	}
 });
 
-var compPassword = compAbstractEvent.extend({
+var CompPassword = compAbstractEvent.extend({
 	value : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'type' : "password"
 		};
@@ -699,20 +695,20 @@ var compPassword = compAbstractEvent.extend({
 		return this.getBuildHtml(args, true, true);
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(0);
 	}
 });
 
-var compDate = compAbstractEvent
+var CompDate = compAbstractEvent
 		.extend({
 			value : "",
 
-			initial : function(component) {
+			initial : function (component) {
 				this._super(component);
 				if (this.is_null === false) {
 					this.value = component.getTextFromXmlNode();
@@ -726,7 +722,7 @@ var compDate = compAbstractEvent
 				this.tag = 'input';
 			},
 
-			getHtml : function() {
+			getHtml : function () {
 				var args = {
 					'type' : "text",
 					'class' : "datepicker",
@@ -741,7 +737,7 @@ var compDate = compAbstractEvent
 						+ this.getBuildHtml(args, false, true);
 			},
 
-			getValue : function() {
+			getValue : function () {
 				var date_nums;
 				if (this.is_return_null() === true) {
 					return NULL_VALUE;
@@ -751,7 +747,7 @@ var compDate = compAbstractEvent
 						date_nums[0]);
 			},
 
-			setValue : function(xmlValue) {
+			setValue : function (xmlValue) {
 				this.initial(xmlValue.parseXML());
 				var date_nums = this.initialVal().replace(/\//g, '-')
 						.split('-');
@@ -760,20 +756,20 @@ var compDate = compAbstractEvent
 								date_nums[0]));
 			},
 
-			initialVal : function() {
+			initialVal : function () {
 				return this.value;
 			},
 
-			addAction : function() {
+			addAction : function () {
 				this.addActionEx(0);
 			}
 		});
 
-var compTime = compAbstractEvent.extend({
+var CompTime = compAbstractEvent.extend({
 
 	value : "",
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		if (this.is_null === false) {
 			this.value = component.getTextFromXmlNode();
@@ -786,14 +782,14 @@ var compTime = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getValue : function() {
+	getValue : function () {
 		if (this.is_return_null() === true) {
 			return NULL_VALUE;
 		}
 		return this._super();
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'type' : "text",
 			'class' : "timespinner"
@@ -802,7 +798,7 @@ var compTime = compAbstractEvent.extend({
 		return this.addnullcheck() + this.getBuildHtml(args, true, true);
 	},
 
-	setEnabled : function(isEnabled) {
+	setEnabled : function (isEnabled) {
 		if (isEnabled === true) {
 			this.getGUIComp().timespinner("enable");
 		} else {
@@ -810,22 +806,22 @@ var compTime = compAbstractEvent.extend({
 		}
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(0);
 	}
 
 });
 
-var compDateTime = compAbstractEvent
+var CompDateTime = compAbstractEvent
 		.extend({
 
 			value : "",
 
-			initial : function(component) {
+			initial : function (component) {
 				this._super(component);
 				if (this.is_null === false) {
 					this.value = component.getTextFromXmlNode();
@@ -841,12 +837,12 @@ var compDateTime = compAbstractEvent
 				this.tag = 'input';
 			},
 
-			getGUICompTime : function() {
+			getGUICompTime : function () {
 				return $("#" + this.owner.getId()).find(
 						"{0}[name='{1}']:eq(1)".format(this.tag, this.name));
 			},
 
-			getHtml : function() {
+			getHtml : function () {
 				var date_time = this.initialVal().split(' '), date_nums = date_time[0]
 						.split('-'), args_dt = {
 					'type' : "text",
@@ -865,11 +861,11 @@ var compDateTime = compAbstractEvent
 						+ this.getBuildHtml(args_tm, false, true);
 			},
 
-			initialVal : function() {
+			initialVal : function () {
 				return this.value;
 			},
 
-			getValue : function() {
+			getValue : function () {
 				var date_nums;
 				if (this.is_return_null() === true) {
 					return NULL_VALUE;
@@ -879,7 +875,7 @@ var compDateTime = compAbstractEvent
 						date_nums[0], this.getGUICompTime().val());
 			},
 
-			setEnabled : function(isEnabled) {
+			setEnabled : function (isEnabled) {
 				this.getGUIComp().prop("disabled", !isEnabled);
 				if (isEnabled === true) {
 					this.getGUICompTime().timespinner("enable");
@@ -888,7 +884,7 @@ var compDateTime = compAbstractEvent
 				}
 			},
 
-			setValue : function(xmlValue) {
+			setValue : function (xmlValue) {
 				this.initial(xmlValue.parseXML());
 				var date_time = this.initialVal().split(' '), date_nums = date_time[0]
 						.split('-');
@@ -898,8 +894,8 @@ var compDateTime = compAbstractEvent
 				this.getGUICompTime().val(date_time[1]);
 			},
 
-			addAction : function() {
-				var act_function = this.get_act_function();
+			addAction : function () {
+				var act_function = this.get_act_function ();
 				if (act_function !== null) {
 					this.getGUIComp().focusout($.proxy(act_function, this));
 					this.getGUICompTime().focusout($.proxy(act_function, this));
@@ -909,18 +905,18 @@ var compDateTime = compAbstractEvent
 
 		});
 
-var compSelectCase = Class.extend({
+var CompSelectCase = Class.extend({
 	id : 0,
 	label : "",
 	checked : null,
 
-	initial : function(component) {
+	initial : function (component) {
 		this.id = component.getAttribute("id");
 		this.label = component.getTextFromXmlNode();
 		this.checked = component.getAttribute('checked');
 	},
 
-	getHtml : function(value) {
+	getHtml : function (value) {
 		var html = '<option value="' + this.id + '"';
 		if (((value !== null) && (value === this.id))
 				|| ((value === null) && (this.checked === '1'))) {
@@ -931,19 +927,19 @@ var compSelectCase = Class.extend({
 	}
 });
 
-var compSelect = compAbstractEvent.extend({
+var CompSelect = compAbstractEvent.extend({
 	cases : null,
 	value : "",
 	args : {},
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 
 		// traitement des HEADER
 		this.cases = [];
 		var cass = component.getElementsByTagName("CASE"), iChild, cas;
-		for (iChild = 0; iChild < cass.length; iChild++) {
-			cas = new compSelectCase();
+		for (iChild = 0; iChild < cass.length; iChild += 1) {
+			cas = new CompSelectCase();
 			cas.initial(cass[iChild]);
 			this.cases[this.cases.length] = cas;
 		}
@@ -956,38 +952,38 @@ var compSelect = compAbstractEvent.extend({
 		this.tag = 'select';
 	},
 
-	getOptionVal : function() {
+	getOptionVal : function () {
 		var html = '', iHead;
-		for (iHead = 0; iHead < this.cases.length; iHead++) {
+		for (iHead = 0; iHead < this.cases.length; iHead += 1) {
 			html += this.cases[iHead].getHtml(this.value);
 		}
 		return html;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var html = this.getBuildHtml(this.args, true, false);
 		html += this.getOptionVal();
 		html += '</select>';
 		return html;
 	},
 
-	setValue : function(xmlValue) {
+	setValue : function (xmlValue) {
 		this.initial(xmlValue.parseXML());
 		this.getGUIComp().html(this.getOptionVal());
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		return this.value;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		this.addActionEx(2);
 	}
 });
 
-var compCheckList = compSelect.extend({
+var CompCheckList = CompSelect.extend({
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.simple = (component.getXMLAttributInt('simple', 0) === 1);
 		this.args = {
@@ -997,9 +993,9 @@ var compCheckList = compSelect.extend({
 		this.value = [];
 	},
 
-	getOptionVal : function() {
+	getOptionVal : function () {
 		var html = '', iHead;
-		for (iHead = 0; iHead < this.cases.length; iHead++) {
+		for (iHead = 0; iHead < this.cases.length; iHead += 1) {
 			html += this.cases[iHead].getHtml(null);
 			if (this.cases[iHead].checked === '1') {
 				this.value.push(this.cases[iHead].id);
@@ -1008,7 +1004,7 @@ var compCheckList = compSelect.extend({
 		return html;
 	},
 
-	addAction : function() {
+	addAction : function () {
 		if (this.simple) {
 			this.addActionEx(2);
 		} else {
@@ -1016,21 +1012,21 @@ var compCheckList = compSelect.extend({
 		}
 	},
 
-	initialVal : function() {
+	initialVal : function () {
 		if (this.value.length === 0) {
 			return null;
 		}
 		return this.value.join(';');
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		var res = this.getGUIComp().val();
 		if ((res !== null) && (res !== this.value)) {
 			params.put(this.name, res.join(';'));
 		}
 	},
 
-	getValue : function() {
+	getValue : function () {
 		if (this.getGUIComp().val() === null) {
 			return "";
 		}
@@ -1040,7 +1036,7 @@ var compCheckList = compSelect.extend({
 
 });
 
-var compUpload = compGeneric.extend({
+var CompUpload = compGeneric.extend({
 	filter : "",
 	compress : false,
 	httpFile : false,
@@ -1049,12 +1045,12 @@ var compUpload = compGeneric.extend({
 	content : null,
 	content_isloading : true,
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 
 		this.filter = '';
 		var filters = component.getElementsByTagName("FILTER"), iChild;
-		for (iChild = 0; iChild < filters.length; iChild++) {
+		for (iChild = 0; iChild < filters.length; iChild += 1) {
 			if (this.filter !== '') {
 				this.filter += ',';
 			}
@@ -1066,7 +1062,7 @@ var compUpload = compGeneric.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'type' : "file",
 			'accept' : this.filter
@@ -1074,11 +1070,11 @@ var compUpload = compGeneric.extend({
 		return this.getBuildHtml(args, true, true);
 	},
 
-	getEncodeFile : function(fileToSend) {
+	getEncodeFile : function (fileToSend) {
 		var size, reader;
 		if (fileToSend.size > this.maxsize) {
 			size = this.maxsize / (1024 * 1024);
-			throw new LucteriosException(IMPORTANT, Singleton().getTranslate(
+			throw new LucteriosException(IMPORTANT, singleton().getTranslate(
 					"Upload impossible<br/>The file must be less than {0}Mo ")
 					.format(size));
 		}
@@ -1087,7 +1083,7 @@ var compUpload = compGeneric.extend({
 			this.content_isloading = false;
 		} else {
 			reader = new FileReader();
-			reader.onload = $.proxy(function(readerEvt) {
+			reader.onload = $.proxy(function (readerEvt) {
 				var binaryString = readerEvt.target.result;
 				this.content = fileToSend.name + ";" + btoa(binaryString);
 				this.content_isloading = false;
@@ -1096,22 +1092,22 @@ var compUpload = compGeneric.extend({
 		}
 	},
 
-	getFileContentBase64 : function() {
+	getFileContentBase64 : function () {
 		this.content = null;
 		this.content_isloading = true;
 		if (this.compress) {
 			zip.useWebWorkers = true;
 			zip.workerScriptsPath = "lib/";
 			var current_upcomp = this, file_to_zip = this.getValue();
-			zip.createWriter(new zip.BlobWriter("application/zip"), function(
+			zip.createWriter(new zip.BlobWriter("application/zip"), function (
 					zipWriter) {
 				zipWriter.add(file_to_zip.name,
-						new zip.BlobReader(file_to_zip), function() {
+						new zip.BlobReader(file_to_zip), function () {
 							zipWriter.close($.proxy(
 									current_upcomp.getEncodeFile,
 									current_upcomp));
 						});
-			}, function(message) {
+			}, function (message) {
 				throw new LucteriosException(GRAVE, "Zip compression:"
 						+ message);
 			});
@@ -1120,12 +1116,12 @@ var compUpload = compGeneric.extend({
 		}
 	},
 
-	addAction : function() {
+	addAction : function () {
 		var gui_comp = this.getGUIComp();
 		gui_comp.change($.proxy(this.getFileContentBase64, this));
 	},
 
-	getValue : function() {
+	getValue : function () {
 		var comp = this.getGUIComp();
 		if (comp[0].files.length > 0) {
 			return comp[0].files[0];
@@ -1133,11 +1129,11 @@ var compUpload = compGeneric.extend({
 		return null;
 	},
 
-	fillValue : function(params) {
+	fillValue : function (params) {
 		var file_to_zip = this.getValue(), new_file;
 		if (file_to_zip !== null) {
 			if (this.content_isloading) {
-				throw new LucteriosException(MINOR, Singleton().getTranslate(
+				throw new LucteriosException(MINOR, singleton().getTranslate(
 						"Loading..."));
 			}
 			if (this.content !== null) {
@@ -1152,14 +1148,14 @@ var compUpload = compGeneric.extend({
 
 });
 
-var compdownload = compGeneric.extend({
+var Compdownload = compGeneric.extend({
 	compress : false,
 	httpFile : false,
 	maxsize : 0,
 	file_name : '',
 	link_file_name : '',
 
-	initial : function(component) {
+	initial : function (component) {
 		this._super(component);
 		this.compress = (component.getXMLAttributInt("Compress", 0) === 1);
 		this.httpFile = (component.getXMLAttributInt("HttpFile", 0) === 1);
@@ -1170,50 +1166,50 @@ var compdownload = compGeneric.extend({
 		this.tag = 'button';
 	},
 
-	checkValid : function() {
+	checkValid : function () {
 		return;
 	},
 
-	getHtml : function() {
+	getHtml : function () {
 		var args = {
 			'id' : 'download_{0}_{1}'.format(this.owner.getId(), this.name)
 		};
 		return "<label>" + this.file_name + "</label>"
 				+ this.getBuildHtml(args, false, false)
-				+ Singleton().getTranslate("Save as...") + "</button>";
+				+ singleton().getTranslate("Save as...") + "</button>";
 	},
 
-	addAction : function() {
+	addAction : function () {
 		var gui_btn = $('#download_{0}_{1}'.format(this.owner.getId(),
 				this.name));
 		gui_btn.click($.proxy(this.open_file, this));
 	},
 
-	open_file : function() {
-		Singleton().Transport().getFileContent(this.link_file_name,
+	open_file : function () {
+		singleton().Transport().getFileContent(this.link_file_name,
 				$.proxy(this.receive_blob, this));
 	},
 
-	receive_blob : function(blob) {
+	receive_blob : function (blob) {
 		if (this.compress) {
 			zip.useWebWorkers = true;
 			zip.workerScriptsPath = "lib/";
 			var file_name_to_load = this.file_name;
-			zip.createReader(new zip.BlobReader(blob), function(zipReader) {
-				zipReader.getEntries(function(entries) {
+			zip.createReader(new zip.BlobReader(blob), function (zipReader) {
+				zipReader.getEntries(function (entries) {
 					entries[0].getData(new zip.BlobWriter("text/plain"),
-							function(data_blob) {
+							function (data_blob) {
 								zipReader.close();
-								Singleton().mFileManager.saveBlob(data_blob,
+								singleton().mFileManager.saveBlob(data_blob,
 										file_name_to_load);
 							});
 				});
-			}, function(message) {
+			}, function (message) {
 				throw new LucteriosException(GRAVE, "Zip decompression:"
 						+ message);
 			});
 		} else {
-			Singleton().mFileManager.saveBlob(blob, this.file_name);
+			singleton().mFileManager.saveBlob(blob, this.file_name);
 		}
 	}
 

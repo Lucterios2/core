@@ -1,0 +1,120 @@
+/* topbar */
+.lucterios-header {
+    margin-right: 0;
+    margin-left: 0;
+}
+.header-right {
+    float: right;
+}
+.header-right > button {
+    margin-top: 13px;
+    color: white;
+    background: transparent;
+}
+button.lucterios-menu {
+    color: white;
+    float: left;
+    margin-top: 13px;
+    background: transparent;
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+	display: none;
+	top: 51px;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	z-index: 1000;
+	padding: 10px;
+	overflow-x: hidden;
+	overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+	background-color: #f5f5f5;
+	border-right: 1px solid #eee;
+	min-width: 250px;
+	width: 20%;
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+
+.nav > li > a > img {
+	border: none;
+	width: 20px;
+	vertical-align: sub;
+	margin-right: 5px;
+}
+
+.navbar-toggle {
+    float: left !important
+}
+
+.sidebar h5 {
+    font-weight: bold;
+}
+.sidebar p {
+    font-size: 0.8em;
+}
+
+.content-container {
+    display: none;
+}
+.content-container:nth-of-type(1) {
+    display: block;
+}
+
+/* Content */
+.content {
+	top: 51px;
+    position: relative;
+    bottom: 0;
+    left: 0;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+	float: left;
+	min-width: 340px;
+}
+
+.logo {
+	width: 32px;
+	float: left;
+	margin: 6px;
+}
+
+.description {
+	font-size: 8px;
+}
+
+.btn > img {
+	width: 20px;
+	vertical-align: sub;
+    margin-right: 5px;
+}
+.panel-title > img {
+    margin-right: 5px;
+    max-height: 22px;
+}
+
+.btn {
+	width: 300px;
+	margin: 5px;
+}
