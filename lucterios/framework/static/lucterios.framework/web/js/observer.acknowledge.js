@@ -1,5 +1,5 @@
 /*global ObserverAbstract, singleton, HashMap, unusedVariables */
-'use strict';
+
 
 var ObserverAcknowledge = ObserverAbstract.extend({
 

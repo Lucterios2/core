@@ -1,5 +1,5 @@
 /*global $,Class,HashMap,post_log,g_translation,FileReader*/
-'use strict';
+
 
 var singletonObj = null;
 var g_InitialCallBack = null;

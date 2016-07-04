@@ -1,5 +1,5 @@
 /*global $,singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC, FormData*/
-'use strict';
+
 
 var ENCODE = "utf-8";
 var MANAGER_FILE = "coreIndex.php";

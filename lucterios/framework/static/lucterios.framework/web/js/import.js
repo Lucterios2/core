@@ -1,5 +1,5 @@
 /*global head */
-'use strict';
+
 
 head.js("lib/jquery-1.11.2.min.js", "lib/jquery-ui-1.10.3.custom.min.js",
 		"lib/jquery.ui.datepicker-en.js", "lib/jquery.ui.datepicker-fr.js",

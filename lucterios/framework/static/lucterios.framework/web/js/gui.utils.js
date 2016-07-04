@@ -1,5 +1,5 @@
 /*global $,Class, screen, unusedVariables, singleton, String, createGuid, BUTTON_TEMPLATE, MODAL_TEMPLATE*/
-'use strict';
+
 
 $.widget("ui.timespinner", $.ui.spinner, {
 	options : {
@@ -89,7 +89,7 @@ var GUIBasic = Class
 				return undefined;
 			},
 
-			showGUI : function (isModal) {
+			showGUI : function(isModal) {
 				var html = "", bt_html = '', list = this.get_button_list(), i;
                 $('#' + this.mId).remove();
 

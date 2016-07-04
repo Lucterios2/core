@@ -1,5 +1,5 @@
 /*global Class, HashMap, createGuid, FORM_MODAL, FORM_REFRESH, XMLSerializer, singleton, unusedVariables */
-'use strict';
+
 
 var ObserverAbstract = Class
 		.extend({

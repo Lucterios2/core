@@ -1,5 +1,5 @@
 /*global ObserverAbstract,singleton*/
-'use strict';
+
 
 var MODE_NONE = 0;
 var MODE_PRINT = 1;

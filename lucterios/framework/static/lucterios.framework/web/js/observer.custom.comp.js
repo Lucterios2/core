@@ -1,5 +1,5 @@
 /*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
-'use strict';
+
 
 // image
 var CompImage = compGeneric.extend({
@@ -99,7 +99,7 @@ var compAbstractEvent = compGeneric
 					post_log("java script :" + this.java_script_content);
 					act_function = function () {
 						if (this.java_script_content !== '') {
-							adder = new function ("current", "parent", this.java_script_content); /* jshint -W054 */
+							adder = new function ("current", "parent", this.java_script_content); // jshint ignore:W054
 							adder(this, this.owner);
 						}
 						if (this.action !== null) {

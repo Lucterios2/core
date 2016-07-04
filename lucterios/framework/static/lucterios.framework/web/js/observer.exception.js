@@ -1,5 +1,5 @@
 /*global $,ObserverAbstract,singleton, CompBasic, GUIManage, createTable, createTab, unusedVariables, FAILURE, CRITIC, GRAVE, IMPORTANT, MINOR*/
-'use strict';
+
 
 var ObserverException = ObserverAbstract
 		.extend({

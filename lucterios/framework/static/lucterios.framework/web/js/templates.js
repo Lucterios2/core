@@ -1,4 +1,4 @@
-'use strict';
+
 var HTML_HEADER_TEMPLATE =
 	'<nav class="navbar navbar-inverse navbar-fixed-top">'
     + ' <div class="container-fluid">'

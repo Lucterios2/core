@@ -1,5 +1,5 @@
 /*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,post_log,Blob*/
-'use strict';
+
 
 var ObserverFactoryAbstract = Class
 		.extend({

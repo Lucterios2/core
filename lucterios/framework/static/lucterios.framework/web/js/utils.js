@@ -1,5 +1,5 @@
 /*global Class,String,Element,LucteriosException,CRITIC,DOMParser,ActiveXObject,G_Active_Log,console*/
-'use strict';
+
 
 var __next_objid = 1;
 

@@ -1,5 +1,5 @@
 /*global $,Class,compGeneric,singleton,CompButton,LucteriosException,MINOR,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI*/
-'use strict';
+
 
 var CompGridHeader = Class.extend({
 	name : "",

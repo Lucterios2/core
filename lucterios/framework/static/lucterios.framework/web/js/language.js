@@ -1,5 +1,5 @@
 /*global HashMap*/
-'use strict';
+
 
 var g_translation = new HashMap();
 

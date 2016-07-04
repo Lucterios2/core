@@ -1,7 +1,7 @@
 /*global $ */
 
 $(function () {
-    'use strict';
+    
     $("button.lucterios-menu").click(function () {
         $("#navbar").toggleClass('visibleMenu');
     });

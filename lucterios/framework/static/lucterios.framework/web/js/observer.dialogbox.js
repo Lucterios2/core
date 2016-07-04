@@ -1,5 +1,5 @@
 /*global ObserverGUI, singleton, CompBasic, GUIManage, createTable, unusedVariables*/
-'use strict';
+
 
 var ObserverDialogBox = ObserverGUI.extend({
 

@@ -1,5 +1,5 @@
 /*global $, Class, createGuid, HashMap*/
-'use strict';
+
 
 var FORM_NOMODAL = 0;
 var FORM_MODAL = 1;

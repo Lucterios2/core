@@ -1,6 +1,6 @@
 /*global $,HashMap,singletonObj,singletonClose,singleton,set_InitialCallBack,GUIManage,CompBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu, HTML_HEADER_TEMPLATE*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
-'use strict';
+
 
 function clean_function() {
 	$("body > div").each(function () {

@@ -1,6 +1,6 @@
 /*global $,ObserverGUI,CompBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,singleton*/
 /*global CompImage,CompLabelForm,CompEdit,CompFloat,CompMemo,CompXML,CompMemoForm,CompCheck,CompGrid,CompLink,CompSelect,CompCheckList,CompButton,CompDate,CompTime,CompDateTime,CompPassword,CompUpload,Compdownload*/
-'use strict';
+
 
 var NULL_VALUE = 'NULL';
 
