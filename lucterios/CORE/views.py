@@ -33,27 +33,25 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.http import http_date
 from django.utils import six
 from django.http.response import StreamingHttpResponse
+from django.apps.registry import apps
 from django.conf import settings
+from django.db.models import Q
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, \
-    CLOSE_YES
-from lucterios.framework.xferbasic import XferContainerMenu, \
-    XferContainerAbstract
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
+from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad,\
+    XferCompUpLoad
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, \
-    md5sum
+from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
-from lucterios.CORE.parameters import Params, secure_mode_connect,\
-    notfree_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, \
-    LucteriosUser
-from django.apps.registry import apps
-from lucterios.framework.signal_and_lock import Signal
+
+from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub(
@@ -173,8 +171,8 @@ class ChangePassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(
-            ModifyPassword.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ('')
@@ -200,7 +198,7 @@ def right_askpassword(request):
         return False
     if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
         return False
-    if (Signal.call_signal("send_connection", None, None, None) == 0):
+    if (signal_and_lock.Signal.call_signal("send_connection", None, None, None) == 0):
         return False
     return not request.user.is_authenticated()
 
@@ -230,8 +228,8 @@ class AskPassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(
-            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ(right_askpassword)
@@ -268,8 +266,8 @@ class Configuration(XferContainerCustom):
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
         self.add_action(
-            ParamEdit.get_action(_('Modify'), 'images/edit.png'), {'close': 0})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+            ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -287,8 +285,8 @@ class ParamEdit(XferContainerCustom):
         lab.set_value_as_title(_("Edition of parameters"))
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False, nb_col)
-        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'), {})
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -301,13 +299,12 @@ class ParamSave(XferContainerAcknowledge):
             pvalue = self.getparam(pname)
             Parameter.change_value(pname, pvalue)
         Params.clear()
-        Signal.call_signal("param_change", params)
+        signal_and_lock.Signal.call_signal("param_change", params)
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
                    _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
 
-@ActionsManage.affect('SavedCriteria', 'list')
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
 class SavedCriteriaList(XferListEditor):
     icon = "config_search.png"
@@ -316,7 +313,6 @@ class SavedCriteriaList(XferListEditor):
     caption = _("Saved criterias")
 
 
-@ActionsManage.affect('SavedCriteria', 'insert')
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaAddModify(XferAddEditor):
     icon = "config_search.png"
@@ -326,7 +322,7 @@ class SavedCriteriaAddModify(XferAddEditor):
     caption_modify = _("Modify saved criteria")
 
 
-@ActionsManage.affect('SavedCriteria', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaDel(XferDelete):
     icon = "config_search.png"
@@ -340,63 +336,41 @@ MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png",
 
 
 @MenuManage.describ('CORE.change_printmodel', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
-class PrintModelList(XferContainerCustom):
+class PrintModelList(XferListEditor):
     caption = _("Print models")
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
 
-    def fillresponse(self, modelname=''):
-        img_title = XferCompImage('img')
-        img_title.set_location(0, 0, 1, 2)
-        img_title.set_value(self.icon_path())
-        self.add_component(img_title)
-        lab = XferCompLabelForm('title')
-        lab.set_location(1, 0, 3)
-        lab.set_value_as_title(_("Print models"))
-        self.add_component(lab)
-
+    def fillresponse_header(self):
+        modelname = self.getparam('modelname', "")
         lab = XferCompLabelForm('lblmodelname')
-        lab.set_location(1, 1)
+        lab.set_location(0, 1)
         lab.set_value_as_name(_('model'))
         self.add_component(lab)
         model_list = {}
         for print_model in PrintModel.objects.all():
             if print_model.modelname not in model_list.keys():
                 try:
-                    model_list[
-                        print_model.modelname] = print_model.model_associated_title()
+                    model_list[print_model.modelname] = print_model.model_associated_title()
                     if modelname == '':
                         modelname = print_model.modelname
                 except LookupError:
                     pass
         model_sel = XferCompSelect('modelname')
-        model_sel.set_location(2, 1, 2)
+        model_sel.set_location(1, 1)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_action(
-            "", ""), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+        model_sel.set_action(self.request, self.get_action("", ""), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(model_sel)
-
-        items = PrintModel.objects.filter(
-            modelname=modelname)
-        grid = XferCompGrid('print_model')
-        grid.set_location(1, 2, 3)
-        grid.set_model(items, ['name', 'kind'], self)
-        grid.add_action(self.request, PrintModelEdit.get_action(
-            _('edit'), 'images/edit.png'), {'unique': SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelClone.get_action(
-            _('clone'), 'images/clone.png'), {'unique': SELECT_SINGLE})
-        grid.add_action(self.request, PrintModelDelete.get_action(
-            _('delete'), 'images/delete.png'), {'unique': SELECT_SINGLE})
-        self.add_component(grid)
-
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+        self.filter = Q(modelname=modelname)
+        self.fieldnames = ['name', 'kind']
+        return
 
 
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelEdit(XferContainerCustom):
-
     caption_add = _("Add a print model")
     caption_modify = _("Modify a print model")
     icon = "PrintReportModel.png"
@@ -422,7 +396,7 @@ class PrintModelEdit(XferContainerCustom):
         if self.item.kind == 1:
             self.fill_from_model(1, 3, False, ['mode'])
             self.get_components('mode').set_action(
-                self.request, self.get_action('', ''), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO})
+                self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
                 self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
@@ -431,9 +405,11 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif (self.item.kind == 2) or ((self.item.kind == 1) and (self.item.mode == 1)):
             self._fill_report_editor()
-        self.add_action(
-            PrintModelSave.get_action(_("ok"), "images/ok.png"), {})
-        self.add_action(WrapAction(_('cancel'), 'images/cancel.png'), {})
+        self.add_action(PrintModelReload.get_action(_('Reload'), "images/edit.png"), close=CLOSE_NO)
+        self.add_action(PrintModelExtract.get_action(_("Extract"), "images/left.png"), close=CLOSE_NO)
+        self.add_action(PrintModelImport.get_action(_("Import"), "images/right.png"), close=CLOSE_NO)
+        self.add_action(PrintModelSave.get_action(TITLE_OK, "images/ok.png"))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
     def _fill_listing_editor(self):
         lab = XferCompLabelForm('lbl_page_width')
@@ -498,13 +474,117 @@ class PrintModelEdit(XferContainerCustom):
     def _fill_report_editor(self):
         edit = XferCompXML('value')
         edit.set_value(self.item.value)
-        edit.schema = read_file(
-            join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
+        edit.schema = read_file(join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
         edit.set_location(1, 4, 2)
         edit.set_size(400, 700)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
         self.add_component(edit)
+
+
+@MenuManage.describ('documents.add_folder')
+class PrintModelImport(XferContainerAcknowledge):
+    caption = _("reload model")
+    icon = "PrintReportModel.png"
+    model = PrintModel
+    field_id = 'print_model'
+
+    def fillresponse(self):
+        model_module = ".".join(self.item.model_associated().__module__.split('.')[:-1])
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom(self.model)
+            dlg.item = self.item
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 3)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0, 6)
+            dlg.add_component(lbl)
+
+            lbl = XferCompLabelForm('lbl_import_model')
+            lbl.set_value_as_name(_("file to load"))
+            lbl.set_location(1, 1)
+            dlg.add_component(lbl)
+            upload = XferCompUpLoad('import_model')
+            upload.compress = False
+            upload.http_file = True
+            upload.maxsize = 128 * 1024 * 1024  # 128Mo
+            upload.add_filter('.mdl')
+            upload.set_location(2, 1)
+            dlg.add_component(upload)
+
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            if 'import_model' in self.request.FILES.keys():
+                upload_file = self.request.FILES['import_model']
+                if self.item.import_file(upload_file):
+                    self.message(_('Model loaded'))
+
+
+@MenuManage.describ('documents.add_folder')
+class PrintModelExtract(XferContainerCustom):
+    caption = _("Extract")
+    icon = "PrintReportModel.png"
+    model = PrintModel
+    field_id = 'print_model'
+
+    def fillresponse(self):
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 3)
+        self.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0, 6)
+        self.add_component(lbl)
+        zipdown = XferCompDownLoad('filename')
+        zipdown.compress = False
+        zipdown.http_file = True
+        zipdown.maxsize = 0
+        zipdown.set_value("%s.mdl" % self.item.name)
+        zipdown.set_download(self.item.extract_file())
+        zipdown.set_location(1, 15, 2)
+        self.add_component(zipdown)
+
+
+@MenuManage.describ('CORE.add_printmodel')
+class PrintModelReload(XferContainerAcknowledge):
+    caption = _("reload model")
+    icon = "PrintReportModel.png"
+    model = PrintModel
+    field_id = 'print_model'
+
+    def fillresponse(self):
+        model_module = ".".join(self.item.model_associated().__module__.split('.')[:-1])
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom(self.model)
+            dlg.item = self.item
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 3)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0, 6)
+            dlg.add_component(lbl)
+
+            lbl = XferCompLabelForm('lbl_default_model')
+            lbl.set_value_as_name(_("Model to reload"))
+            lbl.set_location(1, 1)
+            dlg.add_component(lbl)
+            sel = XferCompSelect('default_model')
+            sel.set_select(PrintModel.get_default_model(model_module, self.item.modelname, self.item.kind))
+            sel.set_location(2, 1)
+            dlg.add_component(sel)
+
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close= CLOSE_YES, params= {'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            if self.item.load_model(model_module, self.getparam("default_model", "")):
+                self.message(_('Model reloaded'))
 
 
 @MenuManage.describ('CORE.add_printmodel')
@@ -531,8 +611,7 @@ class PrintModelSave(XferSave):
             self.item.change_listing(page_width, page_heigth, columns)
             self.item.save()
         elif self.item.kind == 2 or (self.item.kind == 1 and self.item.mode == 1):
-            error = xml_validator(
-                self.item.value, join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
+            error = xml_validator(self.item.value, join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
             if error is not None:
                 raise LucteriosException(IMPORTANT, error)
             self.item.save()
@@ -540,24 +619,21 @@ class PrintModelSave(XferSave):
             XferSave.fillresponse(self)
 
 
+@ActionsManage.affect_grid(TITLE_CLONE, 'images/clone.png', unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelClone(XferContainerAcknowledge):
-
     caption = _("Add a print model")
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
 
     def fillresponse(self):
-        new_model = PrintModel()
-        new_model.name = _("copy of %s") % self.item.name
-        new_model.kind = self.item.kind
-        new_model.modelname = self.item.modelname
-
-        new_model.value = self.item.value
-        new_model.save()
+        self.item.name = _("copy of %s") % self.item.name
+        self.item.id = None
+        self.item.save()
 
 
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.delete_printmodel')
 class PrintModelDelete(XferDelete):
     caption = _("Delete print model")
@@ -574,7 +650,8 @@ class LabelList(XferListEditor):
     field_id = 'label'
 
 
-@ActionsManage.affect('Label', 'edit', 'add')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_label')
 class LabelEdit(XferAddEditor):
     caption_add = _("Add a label")
@@ -584,7 +661,7 @@ class LabelEdit(XferAddEditor):
     field_id = 'label'
 
 
-@ActionsManage.affect('Label', 'delete')
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('CORE.delete_label')
 class LabelDelete(XferDelete):
     caption = _("Delete label")
@@ -626,25 +703,23 @@ class ObjectMerge(XferContainerAcknowledge):
                 grid.set_value(item.id, 'value', six.text_type(item))
                 grid.set_value(item.id, 'select', item.id == self.item.id)
             grid.set_location(1, 1)
-            grid.add_action(self.request, self.get_action(_("Edit"), "images/show.png"), {
-                            'modal': FORMTYPE_MODAL, 'close': CLOSE_NO, 'unique': SELECT_SINGLE, 'params': {"CONFIRME": 'OPEN'}})
-            grid.add_action(self.request, self.get_action(
-                _("Select"), "images/ok.png"), {'modal': FORMTYPE_REFRESH, 'close': CLOSE_NO, 'unique': SELECT_SINGLE})
+            grid.add_action(self.request, self.get_action(_("Edit"), "images/show.png"),
+                            modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, params={"CONFIRME": 'OPEN'})
+            grid.add_action(self.request, self.get_action(_("Select"), "images/ok.png"),
+                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"),
-                           {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL, 'params': {'CONFIRME': 'YES', self.field_id: self.item.id}})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
+                           params={'CONFIRME': 'YES', self.field_id: self.item.id})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
             alias_objects = []
             for item in self.items:
                 if item.id != self.item.id:
                     alias_objects.append(item.get_final_child())
             self.item.get_final_child().merge_objects(alias_objects)
-            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {
-                                 'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self), params={field_id: self.item.id})
         else:
-            self.redirect_action(ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {
-                                 'params': {field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self), params={field_id: self.item.id})
 
 
 @MenuManage.describ('')
@@ -695,9 +770,8 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_select(self.item.__class__.get_select_contact_type(False))
             lbl.set_location(2, 3)
             dlg.add_component(lbl)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"),
-                           {'close': CLOSE_YES, 'modal': FORMTYPE_MODAL, 'params': {'CONFIRME': 'YES'}})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         else:
             new_model = apps.get_model(self.getparam('newmodel'))
             field_id_name = "%s_ptr_id" % self.model.__name__.lower()
@@ -705,7 +779,6 @@ class ObjectPromote(XferContainerAcknowledge):
             new_object.save()
             new_object.__dict__.update(self.item.__dict__)
             new_object.save()
-            self.redirect_action(
-                ActionsManage.get_act_changed(self.model.__name__, 'show', '', ''), {})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self))
 
 tools.bad_permission_redirect_classaction = Menu

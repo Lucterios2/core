@@ -35,10 +35,12 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, \
     XferCompDateTime
-from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction
+from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction,\
+    SELECT_NONE
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
+import warnings
 
 
 def get_range_value(model_field):
@@ -99,9 +101,15 @@ class XferContainerAcknowledge(XferContainerAbstract):
         else:
             return False
 
-    def redirect_action(self, action, option):
+    def redirect_action(self, action, option=None, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
             self.redirect_act = (action, option)
+            if isinstance(option, dict):
+                warnings.warn("[XferContainerAcknowledge.redirect_action] Deprecated in Lucterios 2.2", DeprecationWarning)
+                modal = option.get('modal', FORMTYPE_MODAL)
+                close = option.get('close', CLOSE_YES)
+                params = option.get('params', None)
+            self.redirect_act = (action, modal, close, params)
 
     def raise_except(self, error_msg, action=None):
         self.except_msg = error_msg
@@ -128,19 +136,18 @@ class XferContainerAcknowledge(XferContainerAbstract):
         if self.getparam("RELOAD") is not None:
             lbl.set_value(
                 "{[br/]}{[center]}" + six.text_type(self.traitment_data[2]) + "{[/center]}")
-            dlg.add_action(WrapAction(_("Close"), "images/close.png"), {})
+            dlg.add_action(WrapAction(_("Close"), "images/close.png"))
         else:
             lbl.set_value(
                 "{[br/]}{[center]}" + six.text_type(self.traitment_data[1]) + "{[/center]}")
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
-            btn.set_action(self.request, self.get_action(
-                _('Traitment...'), ""), {'params': {"RELOAD": "YES"}})
+            btn.set_action(self.request, self.get_action(_('Traitment...'), ""), params={"RELOAD": "YES"})
             btn.java_script = "parent.refresh()"
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"), {})
+            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         return dlg.get(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -159,9 +166,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.extension = self.extension
                 dlg.action = self.action
                 dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-                dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), {
-                               'modal': FORMTYPE_MODAL, 'close': CLOSE_YES, 'params': {"CONFIRME": "YES"}})
-                dlg.add_action(WrapAction(_("No"), "images/cancel.png"), {})
+                dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
+                dlg.add_action(WrapAction(_("No"), "images/cancel.png"))
                 dlg.closeaction = self.closeaction
                 return dlg.get(request, *args, **kwargs)
             elif self.msg != "":
@@ -169,7 +175,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.request = self.request
                 dlg.caption = self.caption
                 dlg.set_dialog(self.msg, self.typemsg)
-                dlg.add_action(WrapAction(_("Ok"), "images/ok.png"), {})
+                dlg.add_action(WrapAction(_("Ok"), "images/ok.png"))
                 dlg.closeaction = self.closeaction
                 return dlg.get(request, *args, **kwargs)
             elif self.except_msg != "":
@@ -181,8 +187,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 if self.except_classact is not None:
                     except_action = self.except_classact()
                     if self.check_action_permission(except_action.get_action()):
-                        dlg.add_action(
-                            except_action.get_action(_("Retry"), ""), {})
+                        dlg.add_action(except_action.get_action(_("Retry"), ""))
                 dlg.closeaction = self.closeaction
                 return dlg.get(request, *args, **kwargs)
             elif self.traitment_data is not None:
@@ -198,7 +203,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _finalize(self):
         if self.redirect_act is not None:
-            act_xml = self.redirect_act[0].get_action_xml(self.redirect_act[1])
+            act_xml = self.redirect_act[0].get_action_xml(modal=self.redirect_act[1], close=self.redirect_act[2], params=self.redirect_act[3])
             if act_xml is not None:
                 self.responsexml.append(act_xml)
         XferContainerAbstract._finalize(self)
@@ -227,9 +232,14 @@ class XferContainerDialogBox(XferContainerAbstract):
         self.msgtype = msgtype
         self.msgtext = msgtext
 
-    def add_action(self, action, options):
+    def add_action(self, action, options=None, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
-            self.actions.append((action, options))
+            if isinstance(options, dict):
+                warnings.warn("[XferContainerDialogBox.add_action] Deprecated in Lucterios 2.2", DeprecationWarning)
+                modal = options.get('modal', FORMTYPE_MODAL)
+                close = options.get('close', CLOSE_YES)
+                params = options.get('params', None)
+            self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def _finalize(self):
         text_dlg = etree.SubElement(self.responsexml, "TEXT")
@@ -490,6 +500,7 @@ class XferContainerCustom(XferContainerAbstract):
                     comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
                     comp.add_actions(self, model=child.model)
+                    comp.add_action_notified(self, model=child.model)
                     comp.set_location(col + 1 + offset, row, colspan, 1)
                     self.add_component(comp)
                     offset += 2
@@ -685,8 +696,7 @@ if (%(comp)s_current !== null) {
 }
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(
-                    self.request, WrapAction(button_title, ""), {'close': CLOSE_NO})
+                btn.set_action(self.request, WrapAction(button_title, ""), close=CLOSE_NO)
                 btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
                 btn.java_script = java_script_init + \
@@ -694,12 +704,17 @@ if (%(comp)s_current !== null) {
                 self.add_component(btn)
                 btn_idx += 1
 
-    def add_action(self, action, option, pos_act=-1):
+    def add_action(self, action, options=None, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
+            if isinstance(options, dict):
+                warnings.warn("[XferContainerCustom.add_action] Deprecated in Lucterios 2.2", DeprecationWarning)
+                modal = options.get('modal', FORMTYPE_MODAL)
+                close = options.get('close', CLOSE_YES)
+                params = options.get('params', None)
             if pos_act != -1:
-                self.actions.insert(pos_act, (action, option))
+                self.actions.insert(pos_act, (action, modal, close, SELECT_NONE, params))
             else:
-                self.actions.append((action, option))
+                self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def get_sort_components(self):
         final_components = {}

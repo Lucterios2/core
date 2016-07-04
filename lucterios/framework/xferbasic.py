@@ -34,7 +34,8 @@ from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
 
-from lucterios.framework.tools import fill_param_xml, get_icon_path, WrapAction, FORMTYPE_MODAL
+from lucterios.framework.tools import fill_param_xml, get_icon_path, WrapAction, FORMTYPE_MODAL,\
+    CLOSE_YES
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 
@@ -93,14 +94,13 @@ class XferContainerAbstract(View):
         return res_icon_path
 
     @classmethod
-    def get_action(cls, caption=None, icon_path=None, modal=FORMTYPE_MODAL):
+    def get_action(cls, caption=None, icon_path=None):
         if caption is None:
             caption = cls.caption
         if icon_path is None:
             icon_path = getattr(cls, 'icon', '')
         ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
                              is_view_right=getattr(cls, 'is_view_right', None))
-        ret_act.modal = modal
         return ret_act
 
     def getparam(self, key, default_value=None):
@@ -256,9 +256,9 @@ class XferContainerAbstract(View):
         assert (action is None) or isinstance(action, WrapAction)
         return isinstance(action, WrapAction) and action.check_permission(self.request)
 
-    def set_close_action(self, action, **option):
+    def set_close_action(self, action, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
-            self.closeaction = (action, option)
+            self.closeaction = (action, modal, close, params)
 
     def fillresponse(self):
         pass
@@ -277,7 +277,7 @@ class XferContainerAbstract(View):
             self.responsexml.insert(1, context)
         if self.closeaction is not None:
             etree.SubElement(self.responsexml, "CLOSE_ACTION").append(
-                self.closeaction[0].get_action_xml(self.closeaction[1]))
+                self.closeaction[0].get_action_xml(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3]))
 
     def get_response(self):
         return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))

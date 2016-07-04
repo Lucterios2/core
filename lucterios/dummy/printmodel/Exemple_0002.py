@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 '''
-lucterios.CORE package
+Printmodel django module for dummy
 
 @author: Laurent GAY
 @organization: sd-libre.fr
 @contact: info@sd-libre.fr
-@copyright: 2015 sd-libre.fr
+@copyright: 2016 sd-libre.fr
 @license: This file is part of Lucterios.
 
 Lucterios is free software: you can redistribute it and/or modify
@@ -23,19 +23,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import dirname, join, isfile
 
-
-def get_build():
-    file_name = join(dirname(__file__), 'build')
-    if isfile(file_name):
-        with open(file_name) as flb:
-            return flb.read()
-    return "0"
-
-__version__ = "2.1.1." + get_build()
-
-
-def __title__():
-    from django.utils.translation import ugettext_lazy as _
-    return _("Lucterios core")
+name = "label"
+kind = 1
+modelname = 'dummy.Example'
+value = "#name{[newline]}#value:#price{[newline]}#date #time"

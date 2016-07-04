@@ -86,8 +86,7 @@ class GenericTest(LucteriosTest):
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.factory.xfer.redirect_action(
-                WrapAction("redirect", "", "customer", "list"), {})
+            self.factory.xfer.redirect_action(WrapAction("redirect", "", "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.call('/customer/details', {}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')

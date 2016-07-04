@@ -81,10 +81,13 @@ class XmlRequestFactory(RequestFactory):
         return request
 
     def call(self, path, data):
+        request = None
         try:
             request = self.create_request(path, data)
             return self.xfer.get(request)
         except Exception as expt:
+            if request is None:
+                request = self.post(path, {})
             err = LucteriosErrorMiddleware()
             return err.process_exception(request, expt)
 

@@ -24,13 +24,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils.translation import ugettext_lazy as _
 
 import django.core.validators
 from django.db import models, migrations
 from django.contrib.auth.models import User
 from django.utils import six, timezone
-from lucterios.CORE.models import Parameter, Label
+from lucterios.CORE.models import Label
 
 
 def initial_values(*args):
@@ -43,22 +42,6 @@ def initial_values(*args):
     admin.is_superuser = True
     admin.is_active = True
     admin.save()
-
-    param = Parameter.objects.create(
-        name='CORE-GUID', typeparam=0)  # pylint: disable=no-member
-    param.title = _("CORE-GUID")
-    param.args = "{'Multi':False}"
-    param.value = ''
-    param.save()
-
-    param = Parameter.objects.create(
-        name='CORE-connectmode', typeparam=4)  # pylint: disable=no-member
-    param.title = _("CORE-connectmode")
-    param.param_titles = (
-        _("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2"))
-    param.args = "{'Enum':3}"
-    param.value = '0'
-    param.save()
 
     Label.objects.create(name='Planche 2x4', page_height=297, page_width=210, cell_height=70, cell_width=105,
                          columns=2, rows=4, left_marge=0, top_marge=8, horizontal_space=105, vertical_space=70),

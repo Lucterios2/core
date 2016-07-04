@@ -28,7 +28,9 @@ from __future__ import unicode_literals
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.CORE.views import PrintModelList, PrintModelEdit, PrintModelClone, \
-    PrintModelDelete, PrintModelSave
+    PrintModelDelete, PrintModelSave, PrintModelReload, PrintModelExtract,\
+    Download, PrintModelImport
+from os.path import isfile
 
 
 class PrintTest(LucteriosTest):
@@ -41,12 +43,12 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelList')
-        self.assert_count_equal('COMPONENTS/*', 5)
+        self.assert_count_equal('COMPONENTS/*', 6)
         self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
+            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (1, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="modelname"]/CASE', 1)
         self.assert_coordcomp_equal(
-            'COMPONENTS/GRID[@name="print_model"]', (1, 2, 3, 1))
+            'COMPONENTS/GRID[@name="print_model"]', (0, 2, 2, 1))
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/HEADER', 2)
         self.assert_xml_equal(
@@ -73,7 +75,7 @@ class PrintTest(LucteriosTest):
             '/CORE/printModelList', {"modelname": "dummy.Example"}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelList')
         self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (2, 1, 2, 1))
+            'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (1, 1, 1, 1))
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
 
@@ -287,3 +289,123 @@ class PrintTest(LucteriosTest):
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
+
+    def testreload_label(self):
+        self.factory.xfer = PrintModelSave()
+        self.call('/CORE/printModelSave', {'print_model': 2, 'name': 'new label', 'value':
+                                           "#name{[newline]}#date #time{[newline]}#value:#price"}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelSave')
+
+        self.factory.xfer = PrintModelReload()
+        self.call('/CORE/printModelReload', {'print_model': 2}, False)
+        self.assert_observer('core.custom', 'CORE', 'printModelReload')
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="default_model"]', "Exemple_0002")
+
+        self.factory.xfer = PrintModelReload()
+        self.call('/CORE/printModelReload', {'print_model': 2, 'SAVE': 'YES', 'default_model': "Exemple_0015"}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelReload')
+
+        self.factory.xfer = PrintModelReload()
+        self.call('/CORE/printModelReload', {'print_model': 2, 'SAVE': 'YES', 'default_model': "Exemple_0002"}, False)
+        self.assert_observer('core.dialogbox', 'CORE', 'printModelReload')
+
+        self.factory.xfer = PrintModelEdit()
+        self.call('/CORE/printModelEdit', {'print_model': 2}, False)
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="name"]', "new label")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="kind"]', "Etiquette")
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time")
+
+    def testexportimport_label(self):
+        from _io import BytesIO
+        from os import unlink
+        from zipfile import ZipFile
+
+        self.factory.xfer = PrintModelExtract()
+        self.call('/CORE/printModelExtract', {'print_model': 2}, False)
+        self.assert_observer('core.custom', 'CORE', 'printModelExtract')
+        self.assert_xml_equal('COMPONENTS/DOWNLOAD[@name="filename"]/FILENAME', "CORE/download?filename=extract-2.mdl&sign=", True)
+        sign = self.get_first_xpath('COMPONENTS/DOWNLOAD[@name="filename"]/FILENAME').text[42:]
+
+        self.factory.xfer = Download()
+        self.call('/CORE/download', {'filename': 'extract-2.mdl', 'sign': 'abcdef'}, False)
+        self.assert_observer('core.exception', 'CORE', 'download')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Fichier invalide!")
+
+        self.factory.xfer = Download()
+        self.call('/CORE/download', {'filename': 'extract-5.mdl', 'sign': sign}, False)
+        self.assert_observer('core.exception', 'CORE', 'download')
+        self.assert_xml_equal("EXCEPTION/MESSAGE", "Ficher non trouvé!")
+
+        self.factory.xfer = Download()
+        response = self.factory.call('/CORE/download', {'filename': 'extract-2.mdl', 'sign': sign})
+        zip_content = b""
+        for stream_item in response.streaming_content:
+            zip_content += stream_item
+        zip_file = BytesIO(zip_content)
+        zip_ref = ZipFile(zip_file, 'r')
+        file_model = zip_ref.extract('printmodel')
+        try:
+            with open(file_model, 'r') as mdl:
+                model_content = mdl.read()
+            self.assertTrue('name = "label"' in model_content, model_content)
+            self.assertTrue('kind = 1' in model_content, model_content)
+            self.assertTrue('modelname = "dummy.Example"' in model_content, model_content)
+            self.assertTrue('mode = 0' in model_content, model_content)
+            self.assertTrue('value = """#name{[newline]}#value:#price{[newline]}#date #time"""' in model_content,
+                            model_content)
+
+            self.factory.xfer = PrintModelSave()
+            self.call('/CORE/printModelSave', {'print_model': 2, 'name': 'new label', 'value':
+                                               "#name{[newline]}#date #time{[newline]}#value:#price"}, False)
+            self.assert_observer('core.acknowledge', 'CORE', 'printModelSave')
+
+            self.factory.xfer = PrintModelImport()
+            self.call('/CORE/printModelImport', {'print_model': 2}, False)
+            self.assert_observer('core.custom', 'CORE', 'printModelImport')
+
+            with ZipFile('test.mdl', 'w') as new_zip:
+                new_zip.writestr('printmodel', model_content)
+
+            with open('test.mdl', 'rb') as new_zip:
+                self.factory.xfer = PrintModelImport()
+                self.call('/CORE/printModelImport', {'print_model': 2, 'SAVE': 'YES',
+                                                     'import_model_FILENAME': 'report.mdl', 'import_model': new_zip}, False)
+                self.assert_observer('core.dialogbox', 'CORE', 'printModelImport')
+        finally:
+            if isfile(file_model):
+                unlink(file_model)
+            if isfile('test.mdl'):
+                unlink('test.mdl')
+
+        self.factory.xfer = PrintModelEdit()
+        self.call('/CORE/printModelEdit', {'print_model': 2}, False)
+        self.assert_observer('core.custom', 'CORE', 'printModelEdit')
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="name"]', "new label")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="kind"]', "Etiquette")
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time")
+
+    def testbadimport_label(self):
+        from os import unlink
+        from zipfile import ZipFile
+        try:
+            with open('test.mdl', 'w+') as new_zip:
+                new_zip.write("bad file name")
+            with open('test.mdl', 'rb') as new_zip:
+                self.factory.xfer = PrintModelImport()
+                self.call('/CORE/printModelImport', {'print_model': 2, 'SAVE': 'YES',
+                                                     'import_model_FILENAME': 'report.mdl', 'import_model': new_zip}, False)
+                self.assert_observer('core.exception', 'CORE', 'printModelImport')
+                self.assert_xml_equal("EXCEPTION/MESSAGE", "Fichier modèle invalide!")
+
+            with ZipFile('test.mdl', 'w') as new_zip:
+                new_zip.writestr('truc', "bad file name")
+            with open('test.mdl', 'rb') as new_zip:
+                self.factory.xfer = PrintModelImport()
+                self.call('/CORE/printModelImport', {'print_model': 2, 'SAVE': 'YES',
+                                                     'import_model_FILENAME': 'report.mdl', 'import_model': new_zip}, False)
+                self.assert_observer('core.exception', 'CORE', 'printModelImport')
+                self.assert_xml_equal("EXCEPTION/MESSAGE", "Fichier modèle invalide!")
+        finally:
+            if isfile('test.mdl'):
+                unlink('test.mdl')

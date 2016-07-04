@@ -23,10 +23,20 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import dirname, join, exists, isfile
+from os import walk, makedirs, unlink
+from shutil import rmtree
+from zipfile import ZipFile
+try:
+    from zipfile import BadZipFile
+except:
+    from zipfile import BadZipfile as BadZipFile
+from imp import load_source
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User, Group
 from django.db import models
+from django.db.models.signals import post_migrate
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
@@ -34,6 +44,7 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
+from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 
 
 class Parameter(LucteriosModel):
@@ -43,6 +54,19 @@ class Parameter(LucteriosModel):
         'Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None):
+        param, created = Parameter.objects.get_or_create(name=name, typeparam=typeparam)
+        if created:
+            param.title = title
+            param.param_titles = param_titles
+            param.args = args
+            param.value = value
+            param.save()
 
     @classmethod
     def change_value(cls, pname, pvalue):
@@ -259,6 +283,77 @@ class PrintModel(LucteriosModel):
         for column in columns:
             self.value += "%d//%s//%s\n" % column
 
+    def load_model(self, module, name=None, check=False):
+        from django.utils.module_loading import import_module
+        try:
+            if name is None:
+                print_mod = load_source('modelprint', module)
+            else:
+                print_mod = import_module("%s.printmodel.%s" % (module, name))
+            if self.id is None:
+                self.name = getattr(print_mod, "name")
+            elif check and (self.kind != getattr(print_mod, "kind")) and (self.modelname != getattr(print_mod, "modelname")):
+                return False
+            self.kind = getattr(print_mod, "kind")
+            self.modelname = getattr(print_mod, "modelname")
+            self.value = getattr(print_mod, "value", "")
+            self.mode = getattr(print_mod, "mode", 0)
+            self.save()
+            return True
+        except ImportError:
+            return False
+
+    def import_file(self, file):
+        content = ''
+        try:
+            try:
+                with ZipFile(file, 'r') as zip_ref:
+                    content = zip_ref.extract('printmodel', path=get_tmp_dir())
+            except (KeyError, BadZipFile):
+                raise LucteriosException(IMPORTANT, _('Model file is invalid!'))
+            return self.load_model(content, check=True)
+        finally:
+            if isfile(content):
+                unlink(content)
+
+    def extract_file(self):
+        tmp_dir = join(get_tmp_dir(), 'zipfile')
+        download_file = join(get_user_dir(), 'extract-%d.mdl' % self.id)
+        if exists(tmp_dir):
+            rmtree(tmp_dir)
+        makedirs(tmp_dir)
+        try:
+            content_model = "# -*- coding: utf-8 -*-\n\n"
+            content_model += "from __future__ import unicode_literals\n\n"
+            content_model += 'name = "%s"\n' % self.name
+            content_model += 'kind = %d\n' % int(self.kind)
+            content_model += 'modelname = "%s"\n' % self.modelname
+            content_model += 'value = """%s"""\n' % self.value
+            content_model += 'mode = %d\n' % int(self.mode)
+            with ZipFile(download_file, 'w') as zip_ref:
+                zip_ref.writestr('printmodel', content_model)
+        finally:
+            if exists(tmp_dir):
+                rmtree(tmp_dir)
+        return 'extract-%d.mdl' % self.id
+
+    @classmethod
+    def get_default_model(cls, module, modelname=None, kind=None):
+        models = []
+        from django.utils.module_loading import import_module
+        try:
+            dir_pack = dirname(import_module("%s.printmodel" % module).__file__)
+            for _dir, _dirs, filenames in walk(dir_pack):
+                for filename in filenames:
+                    if (filename[-3:] == ".py") and not filename.startswith('_'):
+                        mod_name = filename[:-3]
+                        print_mod = import_module("%s.printmodel.%s" % (module, mod_name))
+                        if ((modelname is None) or (getattr(print_mod, "modelname") == modelname)) and ((kind is None) or (getattr(print_mod, "kind") == kind)):
+                            models.append((mod_name, getattr(print_mod, "name")))
+        except ImportError:
+            pass
+        return models
+
     class Meta(object):
         verbose_name = _('model')
         verbose_name_plural = _('models')
@@ -300,3 +395,18 @@ class SavedCriteria(LucteriosModel):
         verbose_name = _('Saved criteria')
         verbose_name_plural = _('Saved criterias')
         default_permissions = []
+
+
+@Signal.decorate('checkparam')
+def core_checkparam():
+    Parameter.check_and_create(name='CORE-GUID', typeparam=0, title=_("CORE-GUID"), args="{'Multi':False}", value='')
+    Parameter.check_and_create(name='CORE-connectmode', typeparam=4, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
+                               param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
+
+
+def post_after_migrate(sender, **kwargs):
+    if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
+        six.print_('check parameters')
+        Signal.call_signal("checkparam")
+
+post_migrate.connect(post_after_migrate)

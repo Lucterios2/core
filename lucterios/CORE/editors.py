@@ -31,10 +31,11 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPasswo
     XferCompSelect, XferCompButton
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT, MINOR
-from lucterios.CORE.models import SavedCriteria
-from lucterios.framework.tools import CLOSE_NO, ActionsManage, FORMTYPE_REFRESH
+from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.signal_and_lock import Signal
+
+from lucterios.CORE.models import SavedCriteria
 
 
 class LucteriosUserEditor(LucteriosEditor):
@@ -151,15 +152,15 @@ class XferSavedCriteriaSearchEditor(XferSearchEditor):
         sel.set_location(2, new_row + 1, 2)
         sel.set_needed(False)
         sel.set_select_query(saved_list)
-        sel.set_action(self.request, self.get_action(),
-                       {'close': CLOSE_NO, 'modal': FORMTYPE_REFRESH})
+        sel.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(sel)
         if len(self.criteria_list) > 0:
+            from lucterios.CORE.views import SavedCriteriaAddModify
             btn = XferCompButton('btn_saved_criteria')
             btn.set_location(4, new_row + 1, 2)
             btn.set_is_mini(True)
-            btn.set_action(self.request, ActionsManage.get_act_changed(
-                SavedCriteria.__name__, "insert", "+", ""), {'close': CLOSE_NO, 'params': {'modelname': modelname, 'criteria': self.getparam('CRITERIA', '')}})
+            btn.set_action(self.request, SavedCriteriaAddModify.get_action("+", ""), close=CLOSE_NO,
+                           params={'modelname': modelname, 'criteria': self.getparam('CRITERIA', '')})
             self.add_component(btn)
         if self.getparam('saved_criteria', 0) != 0:
             saved_item = SavedCriteria.objects.get(

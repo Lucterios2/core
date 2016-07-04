@@ -39,6 +39,7 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
+from django_fsm.signals import post_transition
 
 
 class AbsoluteValue(Transform):
@@ -451,3 +452,11 @@ class PrintFieldsPlugIn(object):
     def evaluate(self, text_to_evaluate):
 
         return ""
+
+
+def post_after_transition(sender, **kwargs):
+    if 'exception' not in kwargs:
+        instance = kwargs['instance']
+        instance.save()
+
+post_transition.connect(post_after_transition)

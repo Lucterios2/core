@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-lucterios.CORE package
+lucterios.framework.management.commands package
 
 @author: Laurent GAY
 @organization: sd-libre.fr
@@ -23,19 +23,21 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import dirname, join, isfile
+
+from django.core.management.base import BaseCommand
+
+from lucterios.framework.management.commands._viewer_generator import Generator, GenForm
 
 
-def get_build():
-    file_name = join(dirname(__file__), 'build')
-    if isfile(file_name):
-        with open(file_name) as flb:
-            return flb.read()
-    return "0"
+class Command(BaseCommand):
+    help = 'Generate view for Lucterios model'
 
-__version__ = "2.1.1." + get_build()
+    def add_arguments(self, parser):
+        parser.add_argument('module_name', type=str)
 
-
-def __title__():
-    from django.utils.translation import ugettext_lazy as _
-    return _("Lucterios core")
+    def handle(self, module_name, *args, **options):
+        gen = Generator(".", module_name)
+        gen_form = GenForm()
+        gen_form.load(gen.class_model, gen.extract_icons())
+        if gen_form.result is not None:
+            gen.write_actions(gen_form.get_model_name(), gen_form.get_icon_name(), gen_form.result)

@@ -26,12 +26,15 @@ from __future__ import unicode_literals
 from datetime import datetime
 from calendar import monthrange
 
-from django.utils import six
-from django.utils.translation import ugettext_lazy as _
-
 from lxml import etree
 import threading
 import logging
+import warnings
+
+from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+from django_fsm import FSMFieldMixin
+from django.utils.encoding import smart_text
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -74,7 +77,7 @@ class WrapAction(object):
     def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, url_text, extension)
-        self.modal = FORMTYPE_MODAL
+        self.modal = None
         self.is_view_right = is_view_right
         self.url_text = url_text
         if (extension == '') and (action == '') and (url_text.find('/') != -1):
@@ -84,7 +87,11 @@ class WrapAction(object):
             self.action = action
         self.pos = pos
 
-    def get_action_xml(self, option, desc='', tag='ACTION'):
+    def set_value(self, caption, icon_path):
+        self.caption = caption
+        self.icon_path = get_icon_path(icon_path, self.url_text, self.extension)
+
+    def get_action_xml(self, desc='', tag='ACTION', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         actionxml = etree.Element(tag)
         actionxml.text = six.text_type(self.caption)
         actionxml.attrib['id'] = self.url_text
@@ -96,17 +103,13 @@ class WrapAction(object):
             actionxml.attrib['action'] = self.action
         if desc != "":
             etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-        actionxml.attrib['modal'] = six.text_type(FORMTYPE_MODAL)
-        actionxml.attrib['close'] = six.text_type(CLOSE_YES)
-        actionxml.attrib['unique'] = six.text_type(SELECT_NONE)
+        actionxml.attrib['modal'] = six.text_type(modal)
+        actionxml.attrib['close'] = six.text_type(close)
+        actionxml.attrib['unique'] = six.text_type(unique)
         if isinstance(self.modal, int):
             actionxml.attrib['modal'] = six.text_type(self.modal)
-        if 'params' in option:
-            fill_param_xml(actionxml, option['params'])
-            del option['params']
-        for key in option.keys():  # modal, close, unique
-            if isinstance(option[key], six.integer_types):
-                actionxml.attrib[key] = six.text_type(option[key])
+        if isinstance(params, dict):
+            fill_param_xml(actionxml, params)
         return actionxml
 
     def check_permission(self, request):
@@ -142,12 +145,22 @@ class WrapAction(object):
 
 class ActionsManage(object):
 
+    ACTION_IDENT_LIST = 1
+    ACTION_IDENT_GRID = 2
+    ACTION_IDENT_SHOW = 3
+    ACTION_IDENT_EDIT = 4
+    ACTION_IDENT_OTHER = 5
+
     _VIEW_LIST = {}
+
+    _ACTION_LIST = {}
 
     _actlock = threading.RLock()
 
     @classmethod
     def affect(cls, *arg_tuples):
+        warnings.warn("[ActionsManage.affect(%s)] Deprecated in Lucterios 2.2" % arg_tuples, DeprecationWarning)
+
         def wrapper(item):
             cls._actlock.acquire()
             try:
@@ -169,12 +182,151 @@ class ActionsManage(object):
         try:
             ident = "%s@%s" % (model_name, action_type)
             if ident in cls._VIEW_LIST.keys():
+                warnings.warn("[ActionsManage.get_act_changed('%s','%s','%s','%s')] Deprecated in Lucterios 2.2" %
+                              (model_name, action_type, title, icon), DeprecationWarning)
                 view_class = cls._VIEW_LIST[ident]
                 return view_class.get_action(title, icon)
             else:
                 return None
         finally:
             cls._actlock.release()
+
+    @classmethod
+    def get_actions(cls, ident, xfer, model_name=None, key=None, **args):
+        cls._actlock.acquire()
+        try:
+            acts = []
+            if model_name is None:
+                model_name = xfer.model.get_long_name()
+            if model_name in cls._ACTION_LIST.keys():
+                for act_ident, act_xclass, act_title, act_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
+                    try:
+                        if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
+                            acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
+                    except:
+                        six.print_('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
+                        raise
+            if key is not None:
+                acts.sort(key=key)
+            for act in acts:
+                for remove_opt in ['intop', 'model_name']:
+                    if remove_opt in act[1]:
+                        del act[1][remove_opt]
+            return acts
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def get_action_url(cls, model_name, url, xfer, **args):
+        cls._actlock.acquire()
+        try:
+            retact = None
+            if model_name in cls._ACTION_LIST.keys():
+                for act in cls._ACTION_LIST[model_name]:
+                    if act[1].url_text.endswith(url) and ((act[4] is None) or act[4](xfer, **args)):
+                        retact = act[1].get_action(act[2], act[3])
+            return retact
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def add_action_generic(cls, xclass, ident, title, icon, condition, **options):
+        if 'model_name' in options.keys() and (options['model_name'] is not None):
+            model_name = options['model_name']
+        else:
+            model_name = xclass.model.get_long_name()
+        cls._actlock.acquire()
+        try:
+            if model_name not in cls._ACTION_LIST.keys():
+                cls._ACTION_LIST[model_name] = []
+            cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, condition, options))
+            return xclass
+        finally:
+            cls._actlock.release()
+
+    @classmethod
+    def wrapp_affect_generic(cls, ident, title, icon, condition=None, **options):
+        def wrapper(xclass):
+            if 'model_name' in options.keys() and (options['model_name'] is not None):
+                model_name = options['model_name']
+            else:
+                model_name = xclass.model.get_long_name()
+            cls._actlock.acquire()
+            try:
+                if model_name not in cls._ACTION_LIST.keys():
+                    cls._ACTION_LIST[model_name] = []
+                cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, condition, options))
+                return xclass
+            finally:
+                cls._actlock.release()
+        return wrapper
+
+    @classmethod
+    def affect_list(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_LIST, title, icon, condition, **options)
+
+    @classmethod
+    def affect_grid(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, **options):
+        options['close'] = close
+        options['modal'] = modal
+        options['unique'] = unique
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_GRID, title, icon, condition, **options)
+
+    @classmethod
+    def affect_show(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_SHOW, title, icon, condition, **options)
+
+    @classmethod
+    def affect_edit(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
+        options['close'] = close
+        options['modal'] = modal
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
+
+    @classmethod
+    def affect_other(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, **options):
+        options['close'] = close
+        options['modal'] = modal
+        options['unique'] = unique
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, icon, condition, **options)
+
+    @classmethod
+    def affect_transition(cls, state, close=CLOSE_NO, **options):
+        def wrapper(xclass):
+            xclass.trans_list = {}
+            for field in xclass.model._meta.get_fields():
+                if isinstance(field, FSMFieldMixin) and (field.name == state):
+                    transitions = list(field.get_all_transitions(xclass.model))
+                    transitions.sort(key=lambda item: item.target)
+                    for transition in transitions:
+                        source_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.source][0]
+                        target_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.target][0]
+                        title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
+                        xclass.trans_list[transition.name] = (transition.source, six.text_type(source_label),
+                                                              transition.target, six.text_type(target_label),
+                                                              transition.name, six.text_type(title))
+                        new_dict = dict(options)
+                        if 'close' in new_dict:
+                            del new_dict['close']
+                        if 'params' not in new_dict:
+                            new_dict['params'] = {}
+                        new_dict['params']['TRANSITION'] = transition.name
+
+                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (
+                            transition.name, state)
+                        cond_fct = eval(cmd)
+                        cls.add_action_generic(
+                            xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
+
+                        cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
+                        cond_fct = eval(cmd)
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png",
+                                               cond_fct, intop=False, close=CLOSE_NO, unique=SELECT_SINGLE, **new_dict)
+            return xclass
+        return wrapper
 
 
 class MenuManage(object):
@@ -219,8 +371,9 @@ class MenuManage(object):
                         cls._MENU_LIST[menu_parent] = []
                     logging.getLogger("lucterios.core.menu").debug(
                         "new menu: caption=%s ref=%s", item.caption, item.url_text)
-                    cls._MENU_LIST[menu_parent].append(
-                        (item.get_action(item.caption, item.icon_path(), modal=modal), menu_desc))
+                    act = item.get_action(item.caption, item.icon_path())
+                    act.modal = modal
+                    cls._MENU_LIST[menu_parent].append((act, menu_desc))
                 return item
             finally:
                 cls._menulock.release()
@@ -240,20 +393,18 @@ class MenuManage(object):
                 sub_menus.sort(key=menu_key_to_comp)
                 for sub_menu_item in sub_menus:
                     if sub_menu_item[0].check_permission(request):
-                        new_xml = sub_menu_item[0].get_action_xml(
-                            {}, sub_menu_item[1], "MENU")
+                        new_xml = sub_menu_item[0].get_action_xml(desc=sub_menu_item[1], tag="MENU")
                         if new_xml is not None:
                             parentxml.append(new_xml)
-                            cls.fill(
-                                request, sub_menu_item[0].url_text, new_xml)
+                            cls.fill(request, sub_menu_item[0].url_text, new_xml)
         finally:
             cls._menulock.release()
 
 
 def get_actions_xml(actions):
     actionsxml = etree.Element("ACTIONS")
-    for (action, options) in actions:
-        new_xml = action.get_action_xml(options)
+    for action, modal, close, unique, params in actions:
+        new_xml = action.get_action_xml(modal=modal, close=close, unique=unique, params=params)
         if new_xml is not None:
             actionsxml.append(new_xml)
     return actionsxml

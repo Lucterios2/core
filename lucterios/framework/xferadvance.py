@@ -26,16 +26,52 @@ from __future__ import unicode_literals
 from logging import getLogger
 from copy import deepcopy
 
-from django.utils.translation import ugettext as _, ugettext_lazy
+from django.utils.translation import ugettext_lazy as _
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import six
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid,\
-    DEFAULT_ACTION_LIST
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, DEFAULT_ACTION_LIST
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
+from django_fsm import TransitionNotAllowed
+
+
+TITLE_OK = _("Ok")
+TITLE_CANCEL = _("Cancel")
+TITLE_CLOSE = _("Close")
+TITLE_EDIT = _("Edit")
+TITLE_MODIFY = _("Modify")
+TITLE_DELETE = _("Delete")
+TITLE_ADD = _("Add")
+TITLE_CLONE = _('clone')
+TITLE_PRINT = _("Print")
+TITLE_LISTING = _("Listing")
+TITLE_LABEL = _("Label")
+
+
+def action_list_sorted(item):
+    if item[0].caption == TITLE_EDIT:
+        return 1
+    if item[0].caption == TITLE_MODIFY:
+        return 2
+    if item[0].caption == TITLE_DELETE:
+        return 3
+    if item[0].caption == TITLE_ADD:
+        return 4
+    if item[0].caption == TITLE_CLONE:
+        return 5
+    if item[0].caption == TITLE_PRINT:
+        return 6
+    if item[0].caption == TITLE_LISTING:
+        return 7
+    if item[0].caption == TITLE_LABEL:
+        return 8
+    if ('intop' in item[1].keys()) and item[1]['intop']:
+        return 0
+    else:
+        return 100
 
 
 class XferListEditor(XferContainerCustom):
@@ -44,8 +80,8 @@ class XferListEditor(XferContainerCustom):
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.fieldnames = None
-        self.action_list = [('listing', ugettext_lazy("Listing"), "images/print.png"),
-                            ('label', ugettext_lazy("Label"), "images/print.png")]
+        self.action_list = [('listing', _("Listing"), "images/print.png"),
+                            ('label', _("Label"), "images/print.png")]
         self.action_grid = deepcopy(DEFAULT_ACTION_LIST)
         self.filter = None
 
@@ -68,6 +104,7 @@ class XferListEditor(XferContainerCustom):
             xfer = None
         grid.set_model(items, self.fieldnames, xfer)
         grid.add_actions(self, action_list=self.action_grid, model=model)
+        grid.add_action_notified(self, model=model)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
@@ -95,15 +132,16 @@ class XferListEditor(XferContainerCustom):
         self.fillresponse_body()
         if self.model is not None:
             for act_type, title, icon in self.action_list:
-                self.add_action(ActionsManage.get_act_changed(
-                    self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+                self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), close=CLOSE_NO)
+            for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
+                self.add_action(act, **opt)
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 class XferAddEditor(XferContainerCustom):
     caption_add = ''
     caption_modify = ''
-    redirect_to_show = 'show'
+    redirect_to_show = 'Show'
     locked = True
 
     def fillresponse(self):
@@ -117,9 +155,10 @@ class XferAddEditor(XferContainerCustom):
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         if len(self.actions) == 0:
-            self.add_action(
-                self.get_action(_('Ok'), 'images/ok.png'), {'params': {"SAVE": "YES"}})
-            self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'), {})
+            self.add_action(self.get_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
     def get(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
@@ -173,8 +212,10 @@ class XferShowEditor(XferContainerCustom):
             else:
                 params = {}
             self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), {'close': close, 'params': params})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'), {})
+                self.model.__name__, act_type, title, icon), close=close, params=params)
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
 class XferDelete(XferContainerAcknowledge):
@@ -210,7 +251,7 @@ class XferDelete(XferContainerAcknowledge):
 
 class XferSave(XferContainerAcknowledge):
     raise_except_class = None
-    redirect_to_show = 'show'
+    redirect_to_show = 'Show'
 
     def fillresponse(self):
         if "SAVE" in self.params.keys():
@@ -230,5 +271,30 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         if isinstance(self.redirect_to_show, six.text_type):
-            self.redirect_action(ActionsManage.get_act_changed(
-                self.model.__name__, self.redirect_to_show, '', ''), {'params': {self.field_id: self.item.id}})
+            self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self),
+                                 params={self.field_id: self.item.id})
+
+
+class XferTransition(XferContainerAcknowledge):
+
+    def __init__(self, **kwargs):
+        XferContainerAcknowledge.__init__(self, **kwargs)
+        self.trans_result = None
+
+    def fill_confirm(self, transition, trans):
+        if self.confirme(_("Do you want to change this %(name)s to '%(state)s'?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
+            try:
+                transit_function = getattr(self.item, transition)
+                setattr(self.item, 'xfer', self)
+                self.trans_result = transit_function()
+            except TransitionNotAllowed:
+                raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
+
+    def fillresponse(self):
+        transition = self.getparam('TRANSITION', '')
+        if transition in self.trans_list:
+            trans = self.trans_list[transition]
+            self.caption = trans[5]
+            self.fill_confirm(transition, trans)
+        else:
+            raise LucteriosException(GRAVE, _("Bad transition"))

@@ -368,11 +368,13 @@ class ExampleTest(LucteriosTest):
         self.call('/lucterios.dummy/otherShow', {'other': '1'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
         self.assert_count_equal('COMPONENTS/*', 9)
-        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_count_equal('ACTIONS/ACTION', 3)
         self.assert_action_equal(
             'ACTIONS/ACTION[1]', ('Modifier', 'images/edit.png', 'lucterios.dummy', 'otherAddModify', 1, 1, 1))
         self.assert_action_equal(
-            'ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
+            'ACTIONS/ACTION[2]', ('Imprimer', 'images/print.png', 'lucterios.dummy', 'otherPrint', 0, 1, 1))
+        self.assert_action_equal(
+            'ACTIONS/ACTION[3]', ('Fermer', 'images/close.png'))
 
         self.assert_comp_equal(
             'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.dummy/images/10.png', (0, 0, 1, 6))
@@ -392,6 +394,26 @@ class ExampleTest(LucteriosTest):
             'COMPONENTS/LABELFORM[@name="lbl_text"]', "{[b]}text{[/b]}", (1, 3, 1, 1))
         self.assert_comp_equal(
             'COMPONENTS/LABELFORM[@name="text"]', "abc", (2, 3, 1, 1))
+
+        self.factory.xfer = OtherAddModify()
+        self.call('/lucterios.dummy/otherAddModify',
+                  {'SAVE': 'YES', 'other': '1', 'bool': '0'}, False)
+        self.assert_observer(
+            'core.acknowledge', 'lucterios.dummy', 'otherAddModify')
+
+        self.factory.xfer = OtherShow()
+        self.call('/lucterios.dummy/otherShow', {'other': '1'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
+        self.assert_count_equal('COMPONENTS/*', 9)
+        self.assert_count_equal('ACTIONS/ACTION', 2)
+        self.assert_action_equal(
+            'ACTIONS/ACTION[1]', ('Modifier', 'images/edit.png', 'lucterios.dummy', 'otherAddModify', 1, 1, 1))
+        self.assert_action_equal(
+            'ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
+        self.assert_comp_equal(
+            'COMPONENTS/LABELFORM[@name="lbl_bool"]', "{[b]}bool{[/b]}", (1, 0, 1, 1))
+        self.assert_comp_equal(
+            'COMPONENTS/LABELFORM[@name="bool"]', "Non", (2, 0, 1, 1))
 
     def test_printaction(self):
         generator = ActionGenerator(ExampleShow(), False)
