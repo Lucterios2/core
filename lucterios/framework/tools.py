@@ -299,7 +299,9 @@ class ActionsManage(object):
             xclass.trans_list = {}
             for field in xclass.model._meta.get_fields():
                 if isinstance(field, FSMFieldMixin) and (field.name == state):
-                    for transition in field.get_all_transitions(xclass.model):
+                    transitions = list(field.get_all_transitions(xclass.model))
+                    transitions.sort(key=lambda item: item.target)
+                    for transition in transitions:
                         source_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.source][0]
                         target_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.target][0]
                         title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
@@ -313,13 +315,16 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
 
-                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (transition.name, state)
+                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (
+                            transition.name, state)
                         cond_fct = eval(cmd)
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
+                        cls.add_action_generic(
+                            xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
 
                         cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
                         cond_fct = eval(cmd)
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png", cond_fct, intop=False, close=CLOSE_NO, unique=SELECT_SINGLE, **new_dict)
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png",
+                                               cond_fct, intop=False, close=CLOSE_NO, unique=SELECT_SINGLE, **new_dict)
             return xclass
         return wrapper
 
