@@ -1,155 +1,72 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Lucterios</title>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+<title>Lucterios</title>
 
-    <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/lucterios.css" rel="stylesheet">
-    <link href="css/lucterios-small.css" media="(max-width: 1000px)" rel="stylesheet">
-    <link href="css/lucterios-wild.css" media="(min-width: 1001px)" rel="stylesheet">
+<!-- Bootstrap -->
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/lucterios.css" rel="stylesheet">
+<link href="css/lucterios-small.css" media="(max-width: 1000px)" rel="stylesheet">
+<link href="css/lucterios-wild.css" media="(min-width: 1001px)" rel="stylesheet">
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-      <script src="lib/head.min.js"></script>
-  </head>
-  <body>
+<script src="lib/head.min.js"></script>
+</head>
+<body>
 	<div class="container-fluid">
 		<div class="row">
 			<!-- SIDE NAV -->
 			<div id="navbar" class="sidebar">
-                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                  <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="heading1">
-                      <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse1" aria-expanded="true" aria-controls="collapse1">
-                          Menu
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading1">
-                      <div class="panel-body">
-                            <ul class="nav nav-pills nav-stacked" id="mainsidemenu"></ul>
-                        </div>
-                      </div>
-                    </div>
-                  <div class="panel panel-default" id="DIV_summary">
-                    <div class="panel-heading" role="tab" id="heading2">
-                      <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse2" aria-expanded="true" aria-controls="collapse2">
-                          Résumé
-                        </a>
-                      </h4>
-                    </div>
-                    <div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
-                      <div class="panel-body">
-                        </div>
-                      </div>
-                    </div>
-                </div>
+				<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+					<div class="panel panel-default">
+						<div class="panel-heading" role="tab" id="heading1">
+							<h4 class="panel-title">
+								<a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse1" aria-expanded="true" aria-controls="collapse1">
+									Menu </a>
+							</h4>
+						</div>
+						<div id="collapse1" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading1">
+							<div class="panel-body">
+								<ul class="nav nav-pills nav-stacked" id="mainsidemenu"></ul>
+							</div>
+						</div>
+					</div>
+					<div class="panel panel-default" id="DIV_summary">
+						<div class="panel-heading" role="tab" id="heading2">
+							<h4 class="panel-title">
+								<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse2" aria-expanded="true"
+									aria-controls="collapse2"> Résumé </a>
+							</h4>
+						</div>
+						<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
+							<div class="panel-body"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<!-- END SIDE NAV -->
 			<!-- CONTENT -->
-			<div class="content" id="mainmenucontent">
-                <div id="contentACCUEIL" class="content-container">
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><h3 class="panel-title"><img src="images/home.png">Accueil</h3></div>
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-default"><img src="images/home.png">Mot de passe<br/><span class="description">Changer de mot de passe</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/home.png">Mon compte<br/><span class="description">Visualiser mes informations</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/home.png">Nous<br/><span class="description">Visualiser les informations de notre organisation</span></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="contentFINANCES" class="content-container">
-                <div class="panel panel-default">
-                        <div class="panel-heading"><h3 class="panel-title"><img src="images/financial.png">Facturier</h3></div>
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-default"><img src="images/financial.png">Factures<br/><span class="description">Toutes les factures</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/financial.png">Recherche avancée<br/><span class="description">Recherche de factures</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/financial.png">Articles<br/><span class="description">Liste des produits vendus</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/financial.png">Statistiques<br/><span class="description">de vente</span></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="contentBUREAUTIQUE" class="content-container">
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><h3 class="panel-title"><img src="images/office.png">Adresses et Contacts</h3></div>
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-default"><img src="images/office.png">Personnes morales<br/><span class="description">Gestion d'une structure ou d'une organisation</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/office.png">Personnes physiques<br/><span class="description">Gestion des contacts</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/office.png">Recherche de personnes morales<br/><span class="description">Recherche multi-crit&egrave;res</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/office.png">Recherche de personnes physiques<br/><span class="description">Recherche multi-crit&egrave;res</span></button>
-                        </div>
-                    </div>
-
-                    <div class="panel panel-default">
-                        <div class="panel-heading"><h3 class="panel-title"><img src="images/office.png">Publipostage</h3></div>
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-default"><img src="images/office.png">Messages<br/><span class="description">Listes de messages</span></button>
-                        </div>
-                    </div>
-                </div>
-                <div id="contentADMIN" class="content-container">
-                <div class="panel panel-default">
-                    <div class="panel-heading"><h3 class="panel-title"><img src="images/config.png">Configuration des modules</h3></div>
-                        <div class="panel-body">
-                            <button type="button" class="btn btn-default"><img src="images/config.png">Personnes morales<br/><span class="description">Gestion d'une structure ou d'une organisation</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/config.png">Personnes physiques<br/><span class="description">Gestion des contacts</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/config.png">Recherche de personnes morales<br/><span class="description">Recherche multi-crit&egrave;res</span></button>
-                            <button type="button" class="btn btn-default"><img src="images/config.png">Recherche de personnes physiques<br/><span class="description">Recherche multi-crit&egrave;res</span></button>
-                        </div>
-                    </div>
-                </div>
-			</div>
+			<div class="content" id="mainmenucontent"></div>
 			<!-- END CONTENT -->
 		</div>
 	</div>
-<script>
-    head.js(
-        "lib/jquery.min.js",
-        "lib/bootstrap.min.js",
-        "lib/jquery-ui-1.10.3.custom.min.js",
-        "lib/jquery.ui.datepicker-en.js",
-        "lib/jquery.ui.datepicker-fr.js",
-        "lib/jquery.contextMenu.js",
-        "lib/jquery.class.js",
-        "lib/jquery-te-1.4.0.min.js",
-        "lib/jquery.splitter-0.8.0.js",
-        "lib/jquery.cookie.js",
-        "lib/deflate.js",
-        "lib/inflate.js",
-        "lib/zip.js",
-        "js/templates.js",
-        "js/utils.js",
-        "js/language.js",
-        "js/gui.utils.js",
-        "js/singleton.js",
-        "js/transport.js",
-        "js/action.js",
-        "js/observer.js",
-        "js/observer.acknowledge.js",
-        "js/observer.authentification.js",
-        "js/observer.exception.js",
-        "js/observer.print.js",
-        "js/observer.dialogbox.js",
-        "js/observer.custom.js",
-        "js/observer.custom.comp.js",
-        "js/observer.custom.grid.js",
-        "js/observer.menu.js",
-        "js/observer_factory.js",
-        "conf/conf.js",
-        "js/lucterios-main.js",
-        "js/standard.js"
-    );
-</script>
-  </body>
+	<script>
+		head.js("lib/jquery.min.js", "lib/bootstrap.min.js", "lib/jquery-ui-1.10.3.custom.min.js", "lib/jquery.ui.datepicker-en.js",
+				"lib/jquery.ui.datepicker-fr.js", "lib/jquery.contextMenu.js", "lib/jquery.class.js", "lib/jquery-te-1.4.0.min.js",
+				"lib/jquery.splitter-0.8.0.js", "lib/jquery.cookie.js", "lib/deflate.js", "lib/inflate.js", "lib/zip.js", "js/templates.js",
+				"js/utils.js", "js/language.js", "js/gui.utils.js", "js/singleton.js", "js/transport.js", "js/action.js", "js/observer.js",
+				"js/observer.acknowledge.js", "js/observer.authentification.js", "js/observer.exception.js", "js/observer.print.js",
+				"js/observer.dialogbox.js", "js/observer.custom.js", "js/observer.custom.comp.js", "js/observer.custom.grid.js",
+				"js/observer.menu.js", "js/observer_factory.js", "conf/conf.js", "js/lucterios-main.js", "js/standard.js");
+	</script>
+</body>
 </html>
