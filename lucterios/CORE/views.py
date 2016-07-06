@@ -364,7 +364,7 @@ class PrintModelList(XferListEditor):
         model_sel.set_action(self.request, self.get_action("", ""), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(model_sel)
         self.filter = Q(modelname=modelname)
-        self.fieldnames = ['name', 'kind']
+        self.fieldnames = ['name', 'kind', 'is_default']
         return
 
 
@@ -580,7 +580,7 @@ class PrintModelReload(XferContainerAcknowledge):
             sel.set_location(2, 1)
             dlg.add_component(sel)
 
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close= CLOSE_YES, params= {'SAVE': 'YES'})
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if self.item.load_model(model_module, self.getparam("default_model", "")):
@@ -628,9 +628,7 @@ class PrintModelClone(XferContainerAcknowledge):
     field_id = 'print_model'
 
     def fillresponse(self):
-        self.item.name = _("copy of %s") % self.item.name
-        self.item.id = None
-        self.item.save()
+        self.item.clone()
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_SINGLE)
@@ -640,6 +638,18 @@ class PrintModelDelete(XferDelete):
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
+
+
+@ActionsManage.affect_grid(_("Default"), "", unique=SELECT_SINGLE)
+@MenuManage.describ('CORE.add_printmodel')
+class PrintModelSetDefault(XferContainerAcknowledge):
+    caption = _("Set default print model")
+    icon = "PrintReportModel.png"
+    model = PrintModel
+    field_id = 'print_model'
+
+    def fillresponse(self):
+        self.item.change_has_default()
 
 
 @MenuManage.describ('CORE.change_label', FORMTYPE_NOMODAL, 'core.print', _("To manage boards of labels"))

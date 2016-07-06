@@ -73,11 +73,13 @@ class XferContainerPrint(XferContainerAbstract):
         if not isinstance(self.selector, list) and (self.selector is not None):
             raise LucteriosException(GRAVE, "Error of print selector!")
         gui = XferContainerCustom()
-        gui.request = self.request
+        gui.model = self.model
+        gui._initialize(self.request)
         gui.is_view_right = self.is_view_right
         gui.caption = self.caption
         gui.extension = self.extension
         gui.action = self.action
+        gui.params = self.params
         lbl = XferCompLabelForm('lblPrintMode')
         lbl.set_value_as_name(_('Kind of report'))
         lbl.set_location(0, 0)
@@ -97,7 +99,7 @@ class XferContainerPrint(XferContainerAbstract):
                 if isinstance(option_selector, list):
                     comp = XferCompSelect(name_selector)
                     comp.set_select(option_selector)
-                    comp.set_value(None)
+                    comp.set_value(gui.getparam(name_selector, 0))
                 elif isinstance(option_selector, tuple):
                     comp = XferCompFloat(
                         name_selector, option_selector[0], option_selector[1], option_selector[2])

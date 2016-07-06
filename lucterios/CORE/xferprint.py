@@ -47,6 +47,7 @@ class XferPrintListing(XferContainerPrint):
     def __init__(self):
         XferContainerPrint.__init__(self)
         self.selector = PrintModel.get_print_selector(0, self.model)
+        self.params['MODEL'] = PrintModel.get_print_default(0, self.model, False)
 
     def filter_callback(self, items):
         return items
@@ -71,6 +72,7 @@ class XferPrintLabel(XferContainerPrint):
         XferContainerPrint.__init__(self)
         self.selector = Label.get_print_selector()
         self.selector.extend(PrintModel.get_print_selector(1, self.model))
+        self.params['MODEL'] = PrintModel.get_print_default(1, self.model, False)
 
     def filter_callback(self, items):
         return items
@@ -95,6 +97,7 @@ class XferPrintReporting(XferContainerPrint):
     def __init__(self):
         XferContainerPrint.__init__(self)
         self.selector = PrintModel.get_print_selector(2, self.model)
+        self.params['MODEL'] = PrintModel.get_print_default(2, self.model, False)
 
     def items_callback(self):
         return [self.item]

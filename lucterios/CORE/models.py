@@ -208,6 +208,7 @@ class PrintModel(LucteriosModel):
     value = models.TextField(_('value'), blank=True)
     mode = models.IntegerField(
         _('mode'), choices=((0, _('Simple')), (1, _('Advanced'))), default=0)
+    is_default = models.BooleanField(verbose_name=_('default'), default=False)
 
     def __str__(self):
         return self.name
@@ -241,12 +242,36 @@ class PrintModel(LucteriosModel):
         return [('MODEL', _('model'), selection)]
 
     @classmethod
+    def get_print_default(cls, kind, model, raiseerror=True):
+        models = cls.objects.filter(kind=kind, modelname=model.get_long_name(), is_default=True)
+        if len(models) > 0:
+            return models[0].id
+        if raiseerror:
+            raise LucteriosException(IMPORTANT, _('No default model for %s!') % model._meta.verbose_name)
+        return 0
+
+    @classmethod
     def get_model_selected(cls, xfer):
         try:
             model_id = xfer.getparam('MODEL')
             return cls.objects.get(id=model_id)
         except ValueError:
             raise LucteriosException(IMPORTANT, _('No model selected!'))
+
+    def clone(self):
+        self.name = _("copy of %s") % self.name
+        self.id = None
+        self.is_default = False
+        self.save()
+
+    def change_has_default(self):
+        if not self.is_default:
+            all_model = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname)
+            for model_item in all_model:
+                model_item.is_default = False
+                model_item.save()
+            self.is_default = True
+            self.save()
 
     def model_associated(self):
         from django.apps import apps
@@ -283,7 +308,7 @@ class PrintModel(LucteriosModel):
         for column in columns:
             self.value += "%d//%s//%s\n" % column
 
-    def load_model(self, module, name=None, check=False):
+    def load_model(self, module, name=None, check=False, is_default=False):
         from django.utils.module_loading import import_module
         try:
             if name is None:
@@ -294,6 +319,7 @@ class PrintModel(LucteriosModel):
                 self.name = getattr(print_mod, "name")
             elif check and (self.kind != getattr(print_mod, "kind")) and (self.modelname != getattr(print_mod, "modelname")):
                 return False
+            self.is_default = is_default
             self.kind = getattr(print_mod, "kind")
             self.modelname = getattr(print_mod, "modelname")
             self.value = getattr(print_mod, "value", "")

@@ -32,9 +32,9 @@ from lucterios.CORE.models import PrintModel
 
 
 def initial_values(*args):
-    PrintModel().load_model('lucterios.dummy', 'Exemple_0001')
-    PrintModel().load_model('lucterios.dummy', 'Exemple_0002')
-    PrintModel().load_model('lucterios.dummy', 'Exemple_0003')
+    PrintModel().load_model('lucterios.dummy', 'Exemple_0001', is_default=True)
+    PrintModel().load_model('lucterios.dummy', 'Exemple_0002', is_default=False)
+    PrintModel().load_model('lucterios.dummy', 'Exemple_0003', is_default=True)
     PrintModel().load_model('lucterios.dummy', 'Exemple_0123')  # bad default model
 
 

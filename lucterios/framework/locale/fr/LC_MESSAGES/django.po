@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-01 14:11+0000\n"
+"POT-Creation-Date: 2016-07-06 12:11+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
-#: main_docs.html:5 main_docs.html.py:112
+#: main_docs.html:5 main_docs.html:112
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
@@ -31,21 +31,21 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:385
+#: models.py:386
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:407
+#: models.py:408
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:422
+#: models.py:423
 msgid "session"
 msgstr "session"
 
-#: models.py:423
+#: models.py:424
 msgid "sessions"
 msgstr "sessions"
 
@@ -63,19 +63,19 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:454
+#: tools.py:460
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:456
+#: tools.py:462
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:458
+#: tools.py:464
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:460
+#: tools.py:466
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -156,11 +156,11 @@ msgstr "Cet enregistrement existe déjà!"
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
-#: xferadvance.py:290
+#: xferadvance.py:291
 msgid "Transaction failure, please refresh your application."
 msgstr "Échec de transaction, veuillez rafraichir votre application."
 
-#: xferadvance.py:299
+#: xferadvance.py:300
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 

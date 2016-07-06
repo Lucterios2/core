@@ -29,7 +29,7 @@ from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest
 from lucterios.CORE.views import PrintModelList, PrintModelEdit, PrintModelClone, \
     PrintModelDelete, PrintModelSave, PrintModelReload, PrintModelExtract,\
-    Download, PrintModelImport
+    Download, PrintModelImport, PrintModelSetDefault
 from os.path import isfile
 
 
@@ -50,11 +50,13 @@ class PrintTest(LucteriosTest):
         self.assert_coordcomp_equal(
             'COMPONENTS/GRID[@name="print_model"]', (0, 2, 2, 1))
         self.assert_count_equal(
-            'COMPONENTS/GRID[@name="print_model"]/HEADER', 2)
+            'COMPONENTS/GRID[@name="print_model"]/HEADER', 3)
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/HEADER[@name="name"]', "nom")
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/HEADER[@name="kind"]', "type")
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/HEADER[@name="is_default"]', "défaut")
         self.assert_count_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD', 3)
         self.assert_xml_equal(
@@ -62,13 +64,19 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="kind"]', 'Liste')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="is_default"]', '1')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="kind"]', 'Etiquette')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="is_default"]', '0')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Rapport')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="is_default"]', '1')
 
         self.factory.xfer = PrintModelList()
         self.call(
@@ -217,17 +225,44 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="kind"]', 'Liste')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="is_default"]', '1')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="kind"]', 'Etiquette')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="is_default"]', '0')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="kind"]', 'Rapport')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="is_default"]', '1')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="name"]', 'copie de listing')
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="kind"]', 'Liste')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="is_default"]', '0')
+
+        self.factory.xfer = PrintModelSetDefault()
+        self.call(
+            '/CORE/printModelSetDefault', {'print_model': 4}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'printModelSetDefault')
+
+        self.factory.xfer = PrintModelList()
+        self.call('/CORE/printModelList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'printModelList')
+        self.assert_count_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD', 4)
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="is_default"]', '0')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="is_default"]', '0')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="is_default"]', '1')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=4]/VALUE[@name="is_default"]', '1')
 
         self.factory.xfer = PrintModelDelete()
         self.call(
@@ -242,9 +277,15 @@ class PrintTest(LucteriosTest):
         self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="name"]', 'listing')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=1]/VALUE[@name="is_default"]', '0')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="name"]', 'label')
         self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=2]/VALUE[@name="is_default"]', '0')
+        self.assert_xml_equal(
             'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="name"]', 'reporting')
+        self.assert_xml_equal(
+            'COMPONENTS/GRID[@name="print_model"]/RECORD[@id=3]/VALUE[@name="is_default"]', '1')
 
     def testclonedel_label(self):
         self.factory.xfer = PrintModelClone()

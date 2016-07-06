@@ -141,6 +141,14 @@
 	</target>
 
 	<target name="i18n">
+		<if>
+			<available file="${basedir}/manage_${project.test.instance}.py" />
+			<then/>
+			<else>
+				<antcall target="add_instance" />
+			</else>
+		</if>
+	
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
 				<antcall target="i18n_comp">
