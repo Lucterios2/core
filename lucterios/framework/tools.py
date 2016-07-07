@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from datetime import datetime
+from datetime import datetime, date
 from calendar import monthrange
 
 from lxml import etree
@@ -495,6 +495,8 @@ def toHtml(text):
 
 
 def convert_date(current_date, defaultdate=None):
+    if isinstance(current_date, date):
+        return current_date
     try:
         return datetime.strptime(current_date, "%Y-%m-%d").date()
     except (TypeError, ValueError):
