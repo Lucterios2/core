@@ -106,6 +106,7 @@ class ParamCache(object):
             param_cmp.set_needed(True)
         elif self.type == 5:  # password
             param_cmp = XferCompPassword(self.name)
+            param_cmp.security = 0
             param_cmp.set_value('')
         return param_cmp
 
