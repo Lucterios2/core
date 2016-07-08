@@ -118,6 +118,13 @@ class XferCompTab(XferComponent):
         self.value = value.strip()
 
 
+class XferCompCaptcha(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "CAPTCHA"
+
+
 class XferCompPassword(XferComponent):
 
     def __init__(self, name):

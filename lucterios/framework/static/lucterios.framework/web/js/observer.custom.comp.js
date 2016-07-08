@@ -65,6 +65,57 @@ var compLabelForm = compGeneric.extend({
 	}
 });
 
+var compCaptcha = compGeneric.extend({
+	num1 : 0,
+	num2 : 0,
+	operation : 0,
+	operation_txt : '+',
+	total : 0,
+
+	initial : function(component) {
+		this._super(component);
+		this.tag = 'input';
+		this.num1 = Math.floor((Math.random() * 10) + 1);
+		this.num2 = Math.floor((Math.random() * 10) + 1);
+		this.operation = Math.floor((Math.random() * 3) + 1);
+		if (this.operation === 0) {
+			this.total = this.num1 + this.num2;
+			this.operation_txt = '+';
+		} else if ((this.operation === 1) && (this.num2<this.num1)) {
+			this.total = this.num1 - this.num2;
+			this.operation_txt = '-';
+		} else {
+			this.total = this.num1 * this.num2;
+			this.operation_txt = 'x';
+		}
+	},
+
+	getHtml : function() {
+		var html = '', args = {
+			'type' : "text",
+			'style' : "width:20px"
+		};
+		args.value = '';
+		return "{0} {1} {2} = {3}".format(this.num1, this.operation_txt, this
+				.getBuildHtml(args, false, true), this.total);
+	},
+
+	initialVal : function() {
+		return this.value;
+	},
+
+	checkValid : function() {
+		var msg_text, inputVal;
+		this._super();
+		inputVal = parseInt('0' + this.getGUIComp().val());
+		if (inputVal !== this.num2) {
+			msg_text = Singleton().getTranslate("Captch wrong!");
+			throw new LucteriosException(MINOR, msg_text);
+		}
+		return;
+	},
+});
+
 // event
 var compAbstractEvent = compGeneric
 		.extend({
@@ -223,8 +274,7 @@ var compButton = compAbstractEvent.extend({
 			}
 			if (!this.isMini || (this.btnaction.getIcon() === '')) {
 				title = this.btnaction.getTitle();
-			}
-			else {
+			} else {
 				title = '';
 			}
 			if (this.btnaction.getIcon() !== '') {

@@ -146,6 +146,9 @@ var ObserverCustom = ObserverGUI
 							case "DOWNLOAD":
 								comp = new compdownload(this);
 								break;
+							case "CAPTCHA":
+								comp = new compCaptcha(this);
+								break;
 							case "TAB":
 								hasTabs = true;
 								actualTab++;
