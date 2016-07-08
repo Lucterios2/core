@@ -1,4 +1,4 @@
-/*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,Singleton*/
+/*global $,ObserverGUI,compBasic,HashMap,GUIManage,FORM_MODAL,showMessageDialog,LucteriosException,GRAVE,MINOR,createTable,createTab,compCaptcha,Singleton*/
 /*global compImage,compLabelForm,compEdit,compFloat,compMemo,compXML,compMemoForm,compCheck,compGrid,compLink,compSelect,compCheckList,compButton,compDate,compTime,compDateTime,compPassword,compUpload,compdownload*/
 
 var NULL_VALUE = 'NULL';
