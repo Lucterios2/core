@@ -56,6 +56,9 @@ g_translation.fr.put("The field '{0}' is needed!",
 		"Le champ '{0}' est obligatoire!");
 g_translation.fr.put("Invalid format!", "Format invalide!");
 g_translation.fr.put("Lost connection!", "Connexion perdue!");
+g_translation.fr.put("Captcha wrong!", "Mauvais Captcha!");
+g_translation.fr.put("Password too short!","Mot de passe trop court!");
+g_translation.fr.put("Password too simple!","Mot de passe trop simple!");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -103,7 +106,9 @@ g_translation.en.put("Login", "Login");
 g_translation.en.put("Password", "Password");
 g_translation.en.put("Close", "Close");
 g_translation.en.put("This field is needed!", "This field is needed!");
-g_translation.en
-		.put("The field '{0}' is needed!", "The field '{0}' is needed!");
+g_translation.en.put("The field '{0}' is needed!", "The field '{0}' is needed!");
 g_translation.en.put("Invalid format!", "Invalid format!");
 g_translation.en.put("Lost connection!", "Lost connection!");
+g_translation.en.put("Captcha wrong!", "Captcha wrong!");
+g_translation.en.put("Password too short!","Password too short!");
+g_translation.en.put("Password too simple!","Password too simple!");

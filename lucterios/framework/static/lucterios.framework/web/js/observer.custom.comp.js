@@ -81,7 +81,7 @@ var compCaptcha = compGeneric.extend({
 		if (this.operation === 0) {
 			this.total = this.num1 + this.num2;
 			this.operation_txt = '+';
-		} else if ((this.operation === 1) && (this.num2<this.num1)) {
+		} else if ((this.operation === 1) && (this.num2 < this.num1)) {
 			this.total = this.num1 - this.num2;
 			this.operation_txt = '-';
 		} else {
@@ -109,7 +109,7 @@ var compCaptcha = compGeneric.extend({
 		this._super();
 		inputVal = parseInt('0' + this.getGUIComp().val());
 		if (inputVal !== this.num2) {
-			msg_text = Singleton().getTranslate("Captch wrong!");
+			msg_text = Singleton().getTranslate("Captcha wrong!");
 			throw new LucteriosException(MINOR, msg_text);
 		}
 		return;
@@ -738,6 +738,7 @@ var compPassword = compAbstractEvent.extend({
 	initial : function(component) {
 		this._super(component);
 		this.value = component.getTextFromXmlNode();
+		this.security = component.getXMLAttributInt('security', 0)
 		this.tag = 'input';
 	},
 
@@ -751,6 +752,25 @@ var compPassword = compAbstractEvent.extend({
 
 	initialVal : function() {
 		return this.value;
+	},
+
+	checkValid : function() {
+		this._super();
+		if ((this.security !== 0) && !this.getGUIComp().prop("disabled")) {
+			var msg_text, inputVal;
+			inputVal = this.getGUIComp().val();
+			if (inputVal.length < 6) {
+				msg_text = Singleton().getTranslate("Password too short!");
+				throw new LucteriosException(MINOR, msg_text);
+			}
+			if (!/^(?=.*[a-z]).+$/.test(inputVal)
+					|| !/^(?=.*[A-Z]).+$/.test(inputVal)
+					|| !/^(?=.*[0-9_\W]).+$/.test(inputVal)) {
+				msg_text = Singleton().getTranslate("Password too simple!");
+				throw new LucteriosException(MINOR, msg_text);
+			}
+		}
+		return;
 	},
 
 	addAction : function() {

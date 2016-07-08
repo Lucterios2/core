@@ -152,6 +152,7 @@ class ChangePassword(XferContainerCustom):
         self.add_component(lbl)
         pwd = XferCompPassword('oldpass')
         pwd.set_location(2, 0, 1, 1)
+        pwd.security = 0
         self.add_component(pwd)
 
         lbl = XferCompLabelForm('lbl_newpass1')
@@ -185,9 +186,7 @@ class ModifyPassword(XferContainerAcknowledge):
             raise LucteriosException(IMPORTANT, _("Bad current password!"))
 
         if newpass1 != newpass2:
-
-            raise LucteriosException(
-                IMPORTANT, _("The passwords are differents!"))
+            raise LucteriosException(IMPORTANT, _("The passwords are differents!"))
         self.request.user.set_password(newpass1)
         self.request.user.save()
         self.message(_("Password modify"), XFER_DBOX_INFORMATION)

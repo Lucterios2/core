@@ -130,6 +130,11 @@ class XferCompPassword(XferComponent):
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "PASSWD"
+        self.security = 1
+
+    def _get_attribut(self, compxml):
+        XferComponent._get_attribut(self, compxml)
+        compxml.attrib['security'] = six.text_type(self.security)
 
 
 class XferCompImage(XferComponent):

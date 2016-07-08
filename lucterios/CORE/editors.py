@@ -73,9 +73,11 @@ parent.get('password2').setEnabled(pwd_change);
         xfer.add_component(lbl2)
         pwd1 = XferCompPassword('password1')
         pwd1.set_location(1, new_row + 2, 1, 1)
+        pwd1.empty = 1
         xfer.add_component(pwd1)
         pwd2 = XferCompPassword('password2')
         pwd2.set_location(1, new_row + 3, 1, 1)
+        pwd2.empty = 1
         xfer.add_component(pwd2)
         if Signal.call_signal("send_connection", None, None, None) > 0:
             lbl3 = XferCompLabelForm('lbl_password_generate')
