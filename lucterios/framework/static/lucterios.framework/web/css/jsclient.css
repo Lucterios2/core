@@ -14,39 +14,52 @@ italic {
 	font-style: italic;
 }
 
-#lucteriosClient {
-	width: 1220px;
+#lucteriosClient { 
+	/*width: 1220px;
 	height: 600px;
 	display: block;
-	margin: auto;
+	margin: auto;*/
 }
 
 #status {
-	width: 1212px;
+	width: 100%;
 	top: 0px;
+	left: 0px;
+	margin: 0px;
+	padding: 0px;
+	background-color: black;
 	position: fixed;
-	margin: 5px;
+}
+
+#statususer {
+	margin: 0px 0px 0px 30px;
+	color: white;
+	top: -18px;
+	position: relative;
 }
 
 #status img {
 	margin: 0px 0px 0px 10px;
 }
 
-#status label {
-	width: 150px;
-	text-align: center;
-	margin: 5px 50px 5px 50px;
-	height: 15px;
-	vertical-align: middle;
-	position: relative;
-	top: -25px;
+.header-left {
+	float: left;
 }
 
-#status a img {
-	margin: 5px;
-	vertical-align: middle;
-	position: relative;
-	top: -25px;
+.header-right {
+	float: right;
+}
+
+.header-right label {
+	width: 150px;
+	color: white;
+	background: transparent;
+	cursor: pointer;
+	text-transform: none;
+	overflow: visible;
+	margin: 15px 3px 0px 3px;
+	padding: 4px;
+	box-sizing: border-box;
 }
 
 .tabContent table img {
@@ -54,29 +67,35 @@ italic {
 }
 
 #mainMenu {
-	top: 90px;
+	top: 50px;
 	position: fixed;
-	height: 545px;
-	width: 1212px;
-	margin: 5px;
+	width: 100%;
+	left: 0px;	
 }
 
 #asideMenu {
 	min-height: 500px;
 	width: 300px;
-	margin-left: 5px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
 }
 
 #menuContainer {
 	margin-left: 0px;
 	margin-top: 0px;
+	position: absolute;
+	top: 0px;
+	left: 300px;
+	right: 0px;
 }
 
 #menuContainer div.tabContent {
 	height: 535px;
-	width: 98%;
-	margin-left: 1%;
-	min-width: 780px;
+	margin-top: 2px;
+	background-color: transparent;
+	background-image: none;
+	border:0px;
 }
 
 #menuContainer .ui-tabs-panel button {
@@ -100,12 +119,15 @@ italic {
 
 #support {
 	position: absolute;
-	bottom: 0px;
-	margin: 0px 450px 3% 450px;
-	width: 350px;
-	display: block;
+	width: 290px;
 	background-color: white;
 	padding: 5px;
+	left: 0px;
+	top: 540px;
+	border-top-right-radius: 4px;
+	border-top-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom-left-radius: 4px;
 }
 
 .menuFrame {

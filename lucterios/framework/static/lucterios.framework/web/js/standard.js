@@ -87,6 +87,11 @@ function aboutmore_function() {
 	this.mGUI.showGUI(true);
 }
 
+function help_function() {
+	  var win = window.open(Singleton().Transport().getIconUrl("Docs"), '_blank');
+	  win.focus();
+}
+
 function sendsupport_function() {
 	var complement = Singleton().getTranslate(
 			"Describ your problem.<br>Thanks<br><br>");
@@ -163,12 +168,15 @@ function initial_function() {
 		if (Singleton().mDesc.getLogin() === '') {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}
-		html = "<div id='status' class='ui-widget ui-widget-content ui-corner-all'>"
-				+ "<img src='{0}' style='height:64px'>"
+		html = "<div id='status'>"
+			+ "<div class='header-left'>"
+				+ "<img src='{0}' style='height:48px'>"
 						.format(Singleton().mDesc.getLogoIconName())
-				+ "<label style='width:250px;margin:5px;'>"
+				+ "<label id='statususer'>"
 				+ Singleton().mDesc.getConnectUser()
 				+ "</label>"
+				+ "</div>"
+				+ "<div class='header-right'>"
 				+ "<label id='disconnect' class='ui-widget-header ui-corner-all' >"
 				+ disconnect_title
 				+ "</label>"
@@ -178,10 +186,10 @@ function initial_function() {
 				+ "<label id='about' class='ui-widget-header ui-corner-all' >"
 				+ Singleton().getTranslate("About...")
 				+ "</label>"
-				+ "<a href='{0}' target='_blank'><img src='{1}' /></a>".format(
-						Singleton().Transport().getIconUrl("Docs"),
-						Singleton().Transport().getIconUrl(
-								'static/lucterios.CORE/images/help.png'))
+				+ "<label id='help' class='ui-widget-header ui-corner-all' >"
+				+ Singleton().getTranslate("Help")
+				+ "</label>"
+				+ "</div>"
 				+ "</div>";
 		$("#lucteriosClient").append(html);
 		$("#refresh").click(refresh_function);
@@ -191,6 +199,7 @@ function initial_function() {
 			$("#disconnect").click(disconnect_function);
 		}
 		$("#about").click(about_function);
+		$("#help").click(help_function);		
 		document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(),
 				Singleton().mDesc.getSubTitle());
 		if (Singleton().mRefreshMenu) {

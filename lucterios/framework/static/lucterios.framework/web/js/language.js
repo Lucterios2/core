@@ -59,6 +59,7 @@ g_translation.fr.put("Lost connection!", "Connexion perdue!");
 g_translation.fr.put("Captcha wrong!", "Mauvais Captcha!");
 g_translation.fr.put("Password too short!","Mot de passe trop court!");
 g_translation.fr.put("Password too simple!","Mot de passe trop simple!");
+g_translation.fr.put("Help","Aide");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -112,3 +113,4 @@ g_translation.en.put("Lost connection!", "Lost connection!");
 g_translation.en.put("Captcha wrong!", "Captcha wrong!");
 g_translation.en.put("Password too short!","Password too short!");
 g_translation.en.put("Password too simple!","Password too simple!");
+g_translation.en.put("Help","Help");
