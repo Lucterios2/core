@@ -87,6 +87,15 @@ function aboutmore_function() {
 	this.mGUI.showGUI(true);
 }
 
+function info_function() {
+	var val_display=$("#asideMenu").css('display');
+	if (val_display==='none') {
+		$("#asideMenu").css('display','block');
+	} else {
+		$("#asideMenu").css('display','none');
+	}
+}
+
 function help_function() {
 	  var win = window.open(Singleton().Transport().getIconUrl("Docs"), '_blank');
 	  win.focus();
@@ -169,7 +178,11 @@ function initial_function() {
 			disconnect_title = Singleton().getTranslate('Logon');
 		}
 		html = "<div id='status'>"
-			+ "<div class='header-left'>"
+				+ "<div class='header-left'>"
+				+ "<label id='showmenu' class='ui-widget-header ui-corner-all'>"
+				+ "<span class='fa fa-menu'/>"
+				+ Singleton().getTranslate('Info')
+				+ "</label>"
 				+ "<img src='{0}' style='height:48px'>"
 						.format(Singleton().mDesc.getLogoIconName())
 				+ "<label id='statususer'>"
@@ -178,15 +191,19 @@ function initial_function() {
 				+ "</div>"
 				+ "<div class='header-right'>"
 				+ "<label id='disconnect' class='ui-widget-header ui-corner-all' >"
+				+ "<span class='fa fa-logon'/>"
 				+ disconnect_title
 				+ "</label>"
 				+ "<label id='refresh' class='ui-widget-header ui-corner-all' >"
+				+ "<span class='fa fa-refresh'/>"
 				+ Singleton().getTranslate('Refresh')
 				+ "</label>"
 				+ "<label id='about' class='ui-widget-header ui-corner-all' >"
+				+ "<span class='fa fa-about'/>"
 				+ Singleton().getTranslate("About...")
 				+ "</label>"
 				+ "<label id='help' class='ui-widget-header ui-corner-all' >"
+				+ "<span class='fa fa-help'/>"
 				+ Singleton().getTranslate("Help")
 				+ "</label>"
 				+ "</div>"
@@ -199,7 +216,8 @@ function initial_function() {
 			$("#disconnect").click(disconnect_function);
 		}
 		$("#about").click(about_function);
-		$("#help").click(help_function);		
+		$("#help").click(help_function);
+		$("#showmenu").click(info_function);
 		document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(),
 				Singleton().mDesc.getSubTitle());
 		if (Singleton().mRefreshMenu) {
