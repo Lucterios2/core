@@ -1,4 +1,5 @@
 /*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+/*jslint regexp: true */
 
 // image
 var compImage = compGeneric.extend({

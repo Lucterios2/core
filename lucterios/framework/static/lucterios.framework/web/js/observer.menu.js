@@ -1,6 +1,27 @@
 /*global $,HashMap,ObserverAbstract, ObserverCustom,Class,Singleton, compBasic, GUIManage, createTable, createTab*/
 /*global unusedVariables, createGuid, G_With_Extra_Menu*/
 
+
+function resizeContentTabs() {
+	var tabs_panel_height;
+	if ($(window).width()>1000) {
+		$('#asideMenu').css('display', 'block');
+		tabs_panel_height=$(window).height() - 130;
+	}
+	else if ($(window).width()>623) {
+		tabs_panel_height=$(window).height() - 180;
+	}
+	else {
+		tabs_panel_height=$(window).height() - 220;
+	}
+	$(".ui-tabs-panel").css('max-height', tabs_panel_height + 'px');	
+	if ($(window).height()<570) {
+		$('.ui-accordion-content').css('height', (tabs_panel_height + 10) + 'px');
+	}
+	//post_log("{0}".format($(window).height()));
+	//post_log("{0}".format($(window).width()));
+}
+
 var Menu = Class.extend({
 
 	id : '',
@@ -179,7 +200,7 @@ var ObserverMenu = ObserverAbstract.extend({
 		this.setActive(true);
 
 		this.aside_menu = null;
-		var roothtml = [], html = [], iMen, menu, menu_item, menu_idx, main_menu, pos;
+		var roothtml = [], html = [], iMen, menu, menu_item, menu_idx;
 		this.menu_list = [];
 		for (iMen = 0; iMen < this.menu_xml.childNodes.length; iMen++) {
 			menu = this.menu_xml.childNodes[iMen];
@@ -215,7 +236,7 @@ var ObserverMenu = ObserverAbstract.extend({
 			$("#mainMenu").append("<div id='support'>" + Singleton().mDesc.mSupportHTML.convertLuctoriosFormatToHtml() + '</div>');
 		}
 		if (this.aside_menu === null) {
-			$("#menuContainer").css('left', '0px')
+			$("#menuContainer").css('left', '0px');
 			$("#support").css('display', 'none');
 			$("#showmenu").css('display', 'none');
 		}
@@ -254,24 +275,4 @@ function refreshCurrentAcideMenu() {
 		title = $('#title_' + acide_menu_id);
 		title.click();
 	}
-}
-
-function resizeContentTabs() {
-	var tabs_panel_height;
-	if ($(window).width()>1000) {
-		$('#asideMenu').css('display', 'block');
-		tabs_panel_height=$(window).height() - 130;
-	}
-	else if ($(window).width()>623) {
-		tabs_panel_height=$(window).height() - 180;
-	}
-	else {
-		tabs_panel_height=$(window).height() - 220;
-	}
-	$(".ui-tabs-panel").css('max-height', tabs_panel_height + 'px');	
-	if ($(window).height()<570) {
-		$('.ui-accordion-content').css('height', (tabs_panel_height + 10) + 'px');
-	}
-	post_log("{0}".format($(window).height()))
-	//post_log("{0}".format($(window).width()))
 }
