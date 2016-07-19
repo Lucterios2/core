@@ -54,7 +54,7 @@ g_translation.fr.put("Password too simple!", "Mot de passe trop simple!");
 g_translation.fr.put("Help", "Aide");
 g_translation.fr.put("Info", "Info");
 g_translation.fr.put("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.",
-		"Ce navigateur Web ne support pas cette fonctionnalité!{[br/]}Utilisez Firefox, Chrome, Safari ou Edge.")
+		"Ce navigateur Web ne support pas cette fonctionnalité!{[br/]}Utilisez Firefox, Chrome, Safari ou Edge.");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -106,4 +106,4 @@ g_translation.en.put("Password too simple!", "Password too simple!");
 g_translation.en.put("Help", "Help");
 g_translation.en.put("Info", "Info");
 g_translation.en.put("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.",
-		"This Web browser don't support this feature!{[br/]}Use Firefox, Chrome, Safari or Edge.")
+		"This Web browser don't support this feature!{[br/]}Use Firefox, Chrome, Safari or Edge.");

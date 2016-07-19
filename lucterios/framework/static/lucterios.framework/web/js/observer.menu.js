@@ -12,7 +12,7 @@ function resizeContentTabs() {
 		tabs_panel_height=$(window).height() - 180;
 	}
 	else {
-		tabs_panel_height=$(window).height() - 220;
+		tabs_panel_height=$(window).height() - 130;
 	}
 	$(".ui-tabs-panel").css('max-height', tabs_panel_height + 'px');	
 	if ($(window).height()<570) {
@@ -116,7 +116,7 @@ var Menu = Class.extend({
 				if (this.icon !== "") {
 					this.rootHtml += '<img src="{0}" />'.format(Singleton().Transport().getIconUrl(this.icon));
 				}
-				this.rootHtml += this.txt;
+				this.rootHtml += "<span>{0}</span>".format(this.txt);
 				for (submenu_idx = 0; submenu_idx < this.submenu.length; submenu_idx++) {
 					html += this.submenu[submenu_idx].getHtml();
 				}
@@ -239,6 +239,9 @@ var ObserverMenu = ObserverAbstract.extend({
 			$("#menuContainer").css('left', '0px');
 			$("#support").css('display', 'none');
 			$("#showmenu").css('display', 'none');
+		}
+		if (roothtml.length === 1) {
+			$('ul[role="tablist"]').css('display', 'none');
 		}
 	},
 

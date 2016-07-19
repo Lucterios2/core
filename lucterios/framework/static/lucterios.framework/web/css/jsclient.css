@@ -229,8 +229,29 @@ italic {
 }
 
 @media screen and (max-width: 623px) {
+	#status span[name="headertle"] {
+		display:none;
+	}
+	#showmenu {
+		width:auto;
+	}
+	.header-right label {
+		width:auto;
+	}
+	.header-left {
+		float: left;
+	}
+	.header-right {
+    	float: right;
+	}
+	#statususer {
+		display:none;
+	}
 	#mainMenu {
-		top: 140px;
+		top: 50px;
+	}
+	.ui-tabs-anchor span {
+		display:none;
 	}
 }
 
@@ -238,6 +259,15 @@ italic {
 	#support {
 		display: none;
 	}
+}
+
+@media screen and (max-width: 410px) {
+	.ui-tabs div[role="tabpanel"].ui-tabs-panel {
+		padding: 1em 0em;
+	}
+	#menuContainer .ui-tabs-panel button {
+	    width: 97%;
+	}	
 }
 
 .menuFrame {

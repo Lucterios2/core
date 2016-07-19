@@ -1126,13 +1126,11 @@ var compUpload = compGeneric.extend({
 	initial : function(component) {
 		this._super(component);
 		this.filter = '';
-		var filters = component.getElementsByTagName("FILTER"), iChild, textreader = new FileReader();
+		var filters = component.getElementsByTagName("FILTER"), msg_text, iChild, textreader = new FileReader();
 		if (typeof textreader.readAsBinaryString !== "function") { 
 			msg_text = Singleton().getTranslate("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.");
 			throw new LucteriosException(IMPORTANT, msg_text);
 		}		
-		
-		
 		for (iChild = 0; iChild < filters.length; iChild++) {
 			if (this.filter !== '') {
 				this.filter += ',';

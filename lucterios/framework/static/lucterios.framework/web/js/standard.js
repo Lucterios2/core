@@ -192,19 +192,27 @@ function initial_function() {
 				+ "<div class='header-right'>"
 				+ "<label id='disconnect' class='ui-widget-header ui-corner-all' >"
 				+ "<span class='fa fa-logon'/>"
+				+ "<span name='headertle'>"
 				+ disconnect_title
+				+ "</span>"
 				+ "</label>"
 				+ "<label id='refresh' class='ui-widget-header ui-corner-all' >"
 				+ "<span class='fa fa-refresh'/>"
+				+ "<span name='headertle'>"
 				+ Singleton().getTranslate('Refresh')
+				+ "</span>"
 				+ "</label>"
 				+ "<label id='about' class='ui-widget-header ui-corner-all' >"
 				+ "<span class='fa fa-about'/>"
+				+ "<span name='headertle'>"
 				+ Singleton().getTranslate("About...")
+				+ "</span>"
 				+ "</label>"
 				+ "<label id='help' class='ui-widget-header ui-corner-all' >"
 				+ "<span class='fa fa-help'/>"
+				+ "<span name='headertle'>"
 				+ Singleton().getTranslate("Help")
+				+ "</span>"
 				+ "</label>"
 				+ "</div>"
 				+ "</div>";
