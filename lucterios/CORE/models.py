@@ -428,6 +428,7 @@ def core_checkparam():
     Parameter.check_and_create(name='CORE-GUID', typeparam=0, title=_("CORE-GUID"), args="{'Multi':False}", value='')
     Parameter.check_and_create(name='CORE-connectmode', typeparam=4, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
                                param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
+    Parameter.check_and_create(name='CORE-Wizard', typeparam=3, title=_("CORE-Wizard"), args="{}", value='True')
 
 
 def post_after_migrate(sender, **kwargs):

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-06 12:11+0000\n"
+"POT-Creation-Date: 2016-07-25 16:26+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -87,24 +87,24 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:43 xferadvance.py:218 xfergraphic.py:139 xferprinting.py:110
+#: xferadvance.py:43 xferadvance.py:219 xfergraphic.py:139 xferprinting.py:112
 #: xfersearch.py:573
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:44 xfercomponents.py:648
+#: xferadvance.py:44 xfercomponents.py:660
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:45 xferadvance.py:198 xfercomponents.py:648
+#: xferadvance.py:45 xferadvance.py:199 xfercomponents.py:660
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:46 xfercomponents.py:649
+#: xferadvance.py:46 xfercomponents.py:661
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:47 xfercomponents.py:649
+#: xferadvance.py:47 xfercomponents.py:661
 msgid "Add"
 msgstr "Ajouter"
 
@@ -112,55 +112,55 @@ msgstr "Ajouter"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:49 xferadvance.py:199 xferprinting.py:109
+#: xferadvance.py:49 xferadvance.py:200 xferprinting.py:111
 msgid "Print"
 msgstr "Imprimer"
 
-#: xferadvance.py:50 xferadvance.py:83 xfersearch.py:370
+#: xferadvance.py:50 xferadvance.py:85 xfersearch.py:370
 msgid "Listing"
 msgstr "Liste"
 
-#: xferadvance.py:51 xferadvance.py:84 xfersearch.py:371
+#: xferadvance.py:51 xferadvance.py:86 xfersearch.py:371
 msgid "Label"
 msgstr "Étiquette"
 
-#: xferadvance.py:113 xfersearch.py:565
+#: xferadvance.py:53 xfersearch.py:565
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:225
+#: xferadvance.py:226
 msgid "No model"
 msgstr "Pas de modèle"
 
-#: xferadvance.py:235
+#: xferadvance.py:236
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:246
+#: xferadvance.py:247
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:247
+#: xferadvance.py:248
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:270
+#: xferadvance.py:271
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferadvance.py:285
+#: xferadvance.py:286
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
-#: xferadvance.py:291
+#: xferadvance.py:292
 msgid "Transaction failure, please refresh your application."
 msgstr "Échec de transaction, veuillez rafraichir votre application."
 
-#: xferadvance.py:300
+#: xferadvance.py:301
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
@@ -188,15 +188,15 @@ msgstr "Disponible"
 msgid "Chosen"
 msgstr "Choisi"
 
-#: xferprinting.py:82
+#: xferprinting.py:84
 msgid "Kind of report"
 msgstr "Type de rapport"
 
-#: xferprinting.py:133
+#: xferprinting.py:135
 msgid "PDF file"
 msgstr "Fichier PDF"
 
-#: xferprinting.py:135
+#: xferprinting.py:137
 msgid "CSV file"
 msgstr "Fichier CSV"
 

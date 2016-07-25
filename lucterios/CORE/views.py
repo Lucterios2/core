@@ -43,15 +43,18 @@ from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstra
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad,\
-    XferCompUpLoad
+    XferCompUpLoad, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
 
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser,\
+    LucteriosGroup
+from lucterios.CORE.views_usergroup import UsersList, GroupsList
+
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
 MenuManage.add_sub(
@@ -243,8 +246,9 @@ class AskPasswordAct(XferContainerAcknowledge):
 
 @signal_and_lock.Signal.decorate('config')
 def config_core(xfer):
-    Params.fill(xfer, ['CORE-connectmode'], 1, 1)
+    Params.fill(xfer, ['CORE-connectmode', 'CORE-Wizard'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
+    xfer.params['params'].append('CORE-Wizard')
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.admin', _("To view and to modify main parameters."))
@@ -264,6 +268,13 @@ class Configuration(XferContainerCustom):
         self.add_component(lab)
         self.params['params'] = []
         signal_and_lock.Signal.call_signal("config", self)
+        steplist = get_wizard_step_list()
+        if steplist != '':
+            btn = XferCompButton("conf_wizard")
+            btn.set_location(1, self.get_max_row() + 1)
+            btn.set_action(self.request, ConfigurationWizard.get_action(
+                _("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
+            self.add_component(btn)
         self.add_action(
             ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
@@ -489,7 +500,6 @@ class PrintModelImport(XferContainerAcknowledge):
     field_id = 'print_model'
 
     def fillresponse(self):
-        model_module = ".".join(self.item.model_associated().__module__.split('.')[:-1])
         if self.getparam('SAVE') is None:
             dlg = self.create_custom(self.model)
             dlg.item = self.item
@@ -791,3 +801,141 @@ class ObjectPromote(XferContainerAcknowledge):
             self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self))
 
 tools.bad_permission_redirect_classaction = Menu
+
+
+def right_show_wizard(request):
+    return Params.getvalue("CORE-Wizard") and (request.user.is_superuser or not secure_mode_connect())
+
+
+@MenuManage.describ("CORE.change_parameter")
+class ConfigurationWizard(XferListEditor):
+    caption = _("Configuration wizard")
+    icon = "images/config.png"
+    model = None
+    field_id = ''
+
+    def add_name(self, pos, name):
+        lbl = XferCompLabelForm('name_%d' % pos)
+        lbl.set_centered()
+        lbl.set_value_as_name(name)
+        lbl.set_location(0, pos)
+        self.add_component(lbl)
+
+    def add_title(self, title, subtitle, helptext=''):
+        lbl = XferCompLabelForm('title')
+        lbl.set_centered()
+        lbl.set_value_as_info(title)
+        lbl.set_location(0, 3, 6)
+        self.add_component(lbl)
+        lbl = XferCompLabelForm('subtitle')
+        lbl.set_centered()
+        lbl.set_value_as_name(subtitle)
+        lbl.set_location(0, 4, 6)
+        self.add_component(lbl)
+        if help != '':
+            lbl = XferCompLabelForm('help')
+            lbl.set_italic()
+            lbl.set_value(helptext)
+            lbl.set_location(0, 5, 6)
+            self.add_component(lbl)
+
+    def header_title(self, step, steplist):
+        if step > 0:
+            btn = XferCompButton("prec_wizard")
+            btn.set_location(0, 0)
+            btn.set_is_mini(True)
+            btn.set_action(self.request, self.get_action(_("Prec"), "images/left.png"),
+                           modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step - 1})
+            self.add_component(btn)
+        lbl = XferCompLabelForm('progress')
+        lbl.set_centered()
+        lbl.set_value_as_name(_("progress steps: %(current)d/%(max)d") % {'current': step + 1, "max": len(steplist)})
+        lbl.set_location(1, 0, 4)
+        self.add_component(lbl)
+        if step < (len(steplist) - 1):
+            btn = XferCompButton("next_wizard")
+            btn.set_location(5, 0)
+            btn.set_is_mini(True)
+            btn.set_action(self.request, self.get_action(_("Next"), "images/right.png"),
+                           modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step + 1})
+            self.add_component(btn)
+        lbl = XferCompLabelForm('sep1')
+        lbl.set_value("{[hr/]}")
+        lbl.set_location(0, 1, 6)
+        self.add_component(lbl)
+
+    def fillresponse(self, step=0, steplist=[]):
+        self.header_title(step, steplist)
+        signal_and_lock.Signal.call_signal("conf_wizard", steplist[step], self)
+        self.add_action(WrapAction(TITLE_CLOSE, "images/close.png"))
+
+
+def get_wizard_step_list():
+    wizard_list = []
+    signal_and_lock.Signal.call_signal("conf_wizard", wizard_list, None)
+    wizard_list.sort(key=lambda item: item[1])
+    return ";".join([item[0] for item in wizard_list])
+
+
+@signal_and_lock.Signal.decorate('summary')
+def summary_core(xfer):
+    if right_show_wizard(xfer.request):
+        steplist = get_wizard_step_list()
+        if steplist != '':
+            btn = XferCompButton("conf_wizard")
+            btn.set_location(0, xfer.get_max_row() + 1, 4)
+            btn.set_action(xfer.request, ConfigurationWizard.get_action(
+                _("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
+            btn.java_script = """if (typeof Singleton().hide_wizard === 'undefined') {
+    current.actionPerformed();
+    Singleton().hide_wizard = 1;
+}
+"""
+            xfer.add_component(btn)
+
+
+@signal_and_lock.Signal.decorate('conf_wizard')
+def conf_wizard_core(wizard_ident, xfer):
+    if isinstance(wizard_ident, list) and (xfer is None):
+        wizard_ident.append(("core_home", 0))
+        wizard_ident.append(("core_users", 100))
+    elif (xfer is not None) and (wizard_ident == "core_home"):
+        initial_wizard = Params.getvalue("CORE-Wizard")
+        param_wizard = xfer.getparam("CORE-Wizard", initial_wizard)
+        if initial_wizard != param_wizard:
+            Parameter.change_value("CORE-Wizard", param_wizard)
+            Params.clear()
+        lbl = XferCompLabelForm('title')
+        lbl.set_centered()
+        lbl.set_value_as_info(six.text_type(settings.APPLIS_NAME))
+        lbl.set_location(0, 3, 6)
+        xfer.add_component(lbl)
+        lbl = XferCompImage('img')
+        lbl.type = 'jpg'
+        lbl.set_value(settings.APPLIS_LOGO)
+        lbl.set_location(2, 4, 2)
+        xfer.add_component(lbl)
+        lbl = XferCompLabelForm('home')
+        lbl.set_value(_('This wizard will help you to configure this software.'))
+        lbl.set_location(0, 5, 6)
+        xfer.add_component(lbl)
+        Params.fill(xfer, ['CORE-Wizard'], 1, 6, False)
+        xfer.get_components("CORE-Wizard").set_action(xfer.request, xfer.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+    elif (xfer is not None) and (wizard_ident == "core_users"):
+        xfer.add_title(six.text_type(settings.APPLIS_NAME), _("Groups and users"))
+        lbl = XferCompLabelForm("nb_user")
+        lbl.set_location(1, xfer.get_max_row() + 1)
+        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': LucteriosUser._meta.verbose_name_plural, 'count': len(LucteriosUser.objects.all())})
+        xfer.add_component(lbl)
+        btn = XferCompButton("btnusers")
+        btn.set_location(4, xfer.get_max_row())
+        btn.set_action(xfer.request, UsersList.get_action(TITLE_MODIFY, "images/edit.png"), close=CLOSE_NO)
+        xfer.add_component(btn)
+        lbl = XferCompLabelForm("nb_group")
+        lbl.set_location(1, xfer.get_max_row() + 1)
+        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': LucteriosGroup._meta.verbose_name_plural, 'count': len(LucteriosGroup.objects.all())})
+        xfer.add_component(lbl)
+        btn = XferCompButton("btngroups")
+        btn.set_location(4, xfer.get_max_row())
+        btn.set_action(xfer.request, GroupsList.get_action(TITLE_MODIFY, "images/edit.png"), close=CLOSE_NO)
+        xfer.add_component(btn)

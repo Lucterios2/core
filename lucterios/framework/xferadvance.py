@@ -50,6 +50,8 @@ TITLE_PRINT = _("Print")
 TITLE_LISTING = _("Listing")
 TITLE_LABEL = _("Label")
 
+TEXT_TOTAL_NUMBER = _("Total number of %(name)s: %(count)d")
+
 
 def action_list_sorted(item):
     if item[0].caption == TITLE_EDIT:
@@ -110,8 +112,7 @@ class XferListEditor(XferContainerCustom):
         self.add_component(grid)
         lbl = XferCompLabelForm("nb_" + field_id)
         lbl.set_location(0, row + 2, 2)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
-                      'name': model._meta.verbose_name_plural, 'count': grid.nb_lines})
+        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)
 
     def fillresponse_body(self):
