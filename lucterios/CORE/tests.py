@@ -352,7 +352,7 @@ class ConfigTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connexion toujours nécessaire", (2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-Wizard"]',
-                               "{[b]}Ouvrir l'assistant de configuration au démarrage.{[/b]}", (1, 2, 1, 1))
+                               "{[b]}Toujours ouvrir l'assistant de configuration au démarrage.{[/b]}", (1, 2, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', "Oui", (2, 2, 1, 1))
         self.assert_action_equal('COMPONENTS/BUTTON[@name="conf_wizard"]/ACTIONS/ACTION', ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
 

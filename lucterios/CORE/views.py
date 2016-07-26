@@ -832,12 +832,11 @@ class ConfigurationWizard(XferListEditor):
         lbl.set_value_as_name(subtitle)
         lbl.set_location(0, 4, 6)
         self.add_component(lbl)
-        if help != '':
-            lbl = XferCompLabelForm('help')
-            lbl.set_italic()
-            lbl.set_value(helptext)
-            lbl.set_location(0, 5, 6)
-            self.add_component(lbl)
+        lbl = XferCompLabelForm('help')
+        lbl.set_italic()
+        lbl.set_value(helptext + "{[br/]}")
+        lbl.set_location(0, 5, 6)
+        self.add_component(lbl)
 
     def header_title(self, step, steplist):
         if step > 0:

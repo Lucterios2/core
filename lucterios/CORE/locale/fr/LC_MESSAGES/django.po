@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-25 16:26+0000\n"
+"POT-Creation-Date: 2016-07-26 12:17+0000\n"
 "PO-Revision-Date: 2016-01-11 22:43+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -276,7 +276,7 @@ msgstr "Accès libre"
 
 #: models.py:431
 msgid "CORE-Wizard"
-msgstr "Ouvrir l'assistant de configuration au démarrage."
+msgstr "Toujours ouvrir l'assistant de configuration au démarrage."
 
 #: parameters.py:103 parameters.py:121
 #, python-format
@@ -383,7 +383,7 @@ msgstr "Configuration générale"
 msgid "Software configuration"
 msgstr "Configuration du logiciel"
 
-#: views.py:276 views.py:888
+#: views.py:276 views.py:887
 msgid "Wizard"
 msgstr "Assistant"
 
@@ -579,26 +579,27 @@ msgstr "nouveau modèle"
 msgid "Configuration wizard"
 msgstr "Assistant de configuration"
 
-#: views.py:847
+#: views.py:846
 msgid "Prec"
 msgstr "Préc."
 
-#: views.py:852
+#: views.py:851
 #, python-format
 msgid "progress steps: %(current)d/%(max)d"
-msgstr "étapes de progression: %(current)d/%(max)d"
+msgstr "étape de progression: %(current)d/%(max)d"
 
-#: views.py:859
+#: views.py:858
 msgid "Next"
 msgstr "Suivant"
 
-#: views.py:919
+#: views.py:918
 msgid "This wizard will help you to configure this software."
 msgstr ""
 "Cet assistant vous aidera à configurer ce logiciel. {[br/]} Toutes les "
-"prochaines configurations sont accessibles dans le menu d'administration."
+"prochaines configurations sont également accessibles depuis le menu "
+"d'administration."
 
-#: views.py:925
+#: views.py:924
 msgid "Groups and users"
 msgstr "Groupes et utilisateurs"
 
