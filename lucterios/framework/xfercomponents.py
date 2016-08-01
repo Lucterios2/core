@@ -29,6 +29,7 @@ from collections import namedtuple
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote_plus
+from django.conf import settings
 
 from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
@@ -635,6 +636,9 @@ class XferCompDownLoad(XferCompButton):
         return compxml
 
 MAX_GRID_RECORD = 25
+if hasattr(settings, 'MAX_GRID_RECORD'):
+        MAX_GRID_RECORD = settings.MAX_GRID_RECORD
+
 GRID_PAGE = 'GRID_PAGE%'
 GRID_ORDER = 'GRID_ORDER%'
 
