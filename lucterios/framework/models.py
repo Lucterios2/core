@@ -327,37 +327,54 @@ class LucteriosModel(models.Model):
         return value
 
     @classmethod
-    def get_all_print_fields(cls, with_plugin=True):
+    def get_field_for_print(cls, with_plugin, field_name):
         def add_sub_field(field_name, field_title, model):
             for sub_title, sub_name in model.get_all_print_fields(False):
                 fields.append(
                     ("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
         fields = []
         item = cls()
-        for field_name in cls.get_print_fields():
-            if PrintFieldsPlugIn.is_plugin(field_name):
-                if with_plugin:
-                    fields.extend(
-                        PrintFieldsPlugIn.get_plugin(field_name).get_all_print_fields())
-            elif field_name[-4:] == '_set':
-                child = getattr(item, field_name)
+        if PrintFieldsPlugIn.is_plugin(field_name):
+            if with_plugin:
+                fields.extend(PrintFieldsPlugIn.get_plugin(field_name).get_all_print_fields())
+        elif field_name[-4:] == '_set':
+            child = getattr(item, field_name)
+            field_title = child.model._meta.verbose_name
+            add_sub_field(field_name, field_title, child.model)
+        elif isinstance(field_name, tuple):
+            sub_title, field_name = field_name
+            if field_name.split('.')[0][-4:] == '_set':
+                mother_field_name = field_name.split('.')[0]
+                child = getattr(item, mother_field_name)
                 field_title = child.model._meta.verbose_name
-                add_sub_field(field_name, field_title, child.model)
-            elif isinstance(field_name, tuple):
-                fields.append(field_name)
+                fields.append(("%s > %s" % (field_title, sub_title), field_name))
             else:
-                try:
-                    dep_field = item._meta.get_field(
-                        field_name)
-                    field_title = dep_field.verbose_name
-                    if is_simple_field(dep_field):
-                        fields.append((field_title, field_name))
-                    else:
-                        add_sub_field(
-                            field_name, field_title, dep_field.remote_field.model)
-                except FieldDoesNotExist:
-                    if hasattr(item, field_name):
-                        fields.append((field_name, field_name))
+                fields.append((sub_title, field_name))
+        elif field_name.split('.')[0][-4:] == '_set':
+            mother_field_name = field_name.split('.')[0]
+            child = getattr(item, mother_field_name)
+            field_title = child.model._meta.verbose_name
+            last_field_name = ".".join(field_name.split('.')[1:])
+            for (sub_title, __new_field) in child.model.get_field_for_print(with_plugin, last_field_name):
+                fields.append(("%s > %s" % (field_title, sub_title), field_name))
+        else:
+            try:
+                dep_field = item._meta.get_field(field_name)
+                field_title = dep_field.verbose_name
+                if is_simple_field(dep_field):
+                    fields.append((field_title, field_name))
+                else:
+                    add_sub_field(field_name, field_title, dep_field.remote_field.model)
+            except FieldDoesNotExist:
+                if hasattr(item, field_name):
+                    fields.append((field_name, field_name))
+        return fields
+
+    @classmethod
+    def get_all_print_fields(cls, with_plugin=True):
+        fields = []
+        for field_name in cls.get_print_fields():
+            fields.extend(cls.get_field_for_print(with_plugin, field_name))
         return fields
 
     def get_final_child(self):

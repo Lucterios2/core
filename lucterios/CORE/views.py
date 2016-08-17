@@ -707,7 +707,7 @@ class ObjectMerge(XferContainerAcknowledge):
         if len(self.items) < 2:
             raise LucteriosException(
                 IMPORTANT, _("Impossible: you must to select many records!"))
-        if self.item.id is None:
+        if (self.item is None) or (self.item.id is None):
             self.item = self.items[0]
         if self.getparam("CONFIRME") is None:
             dlg = self.create_custom()
@@ -922,6 +922,14 @@ def conf_wizard_core(wizard_ident, xfer):
         xfer.get_components("CORE-Wizard").set_action(xfer.request, xfer.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
     elif (xfer is not None) and (wizard_ident == "core_users"):
         xfer.add_title(six.text_type(settings.APPLIS_NAME), _("Groups and users"))
+        param_lists = ['CORE-connectmode', 'CORE-Wizard']
+        Params.fill(xfer, param_lists, 1, xfer.get_max_row() + 1)
+        btn = XferCompButton('editparam')
+        btn.set_location(4, xfer.get_max_row())
+        btn.set_is_mini(True)
+        btn.set_action(xfer.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO,
+                       params={'params': param_lists})
+        xfer.add_component(btn)
         lbl = XferCompLabelForm("nb_user")
         lbl.set_location(1, xfer.get_max_row() + 1)
         lbl.set_value(TEXT_TOTAL_NUMBER % {'name': LucteriosUser._meta.verbose_name_plural, 'count': len(LucteriosUser.objects.all())})
