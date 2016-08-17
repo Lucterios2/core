@@ -213,7 +213,8 @@ italic {
 		display: none;
 	}
 	#support {
-		display: none;
+		left: -400px;
+		top: -500px;
 	}
 	#menuContainer {
 		left: 0px;
@@ -257,7 +258,8 @@ italic {
 
 @media screen and (max-height: 690px) {
 	#support {
-		display: none;
+		left: -400px;
+		top: -500px;
 	}
 }
 
