@@ -48,13 +48,13 @@ TYPE_LIST = 'list'
 TYPE_LISTMULT = 'listmult'
 
 OP_NULL = ('0', '')
-OP_EQUAL = ('1', _('equals'), '__exact')
+OP_EQUAL = ('1', _('equals'), '__iexact')
 OP_DIFFERENT = ('2', _("different"), '__iexact')
 OP_LESS = ('3', _("inferior"), '__lt')
 OP_MORE = ('4', _("superior"), '__gt')
-OP_CONTAINS = ('5', _("contains"), '__contains')
-OP_STARTBY = ('6', _("starts with"), '__startswith')
-OP_ENDBY = ('7', _("ends with"), '__endswith')
+OP_CONTAINS = ('5', _("contains"), '__icontains')
+OP_STARTBY = ('6', _("starts with"), '__istartswith')
+OP_ENDBY = ('7', _("ends with"), '__iendswith')
 OP_OR = ('8', _("or"), '__in')
 OP_AND = ('9', _("and"), '__id')
 OP_LIST = [OP_NULL, OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,
@@ -279,7 +279,10 @@ class FieldDescItem(object):
                 for value_item in val_ids:
                     query_res = query_res & Q(**{field_with_op: value_item})
         else:
-            query_res = self.initial_q & Q(**{field_with_op: value})
+            if operation == int(OP_DIFFERENT[0]):
+                query_res = self.initial_q & ~Q(**{field_with_op: value})
+            else:
+                query_res = self.initial_q & Q(**{field_with_op: value})
         return query_res
 
     def get_new_criteria(self, params):

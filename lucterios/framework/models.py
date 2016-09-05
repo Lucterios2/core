@@ -40,6 +40,7 @@ from django.utils.module_loading import import_module
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
 from django_fsm.signals import post_transition
+from django.db.models.fields.related import ManyToOneRel
 
 
 class AbsoluteValue(Transform):
@@ -365,7 +366,7 @@ class LucteriosModel(models.Model):
                     fields.append((field_title, field_name))
                 else:
                     add_sub_field(field_name, field_title, dep_field.remote_field.model)
-            except FieldDoesNotExist:
+            except (FieldDoesNotExist, AttributeError):
                 if hasattr(item, field_name):
                     fields.append((field_name, field_name))
         return fields
