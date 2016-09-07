@@ -656,7 +656,7 @@ class XferCompDownLoad(XferCompButton):
 
 MAX_GRID_RECORD = 25
 if hasattr(settings, 'MAX_GRID_RECORD'):
-        MAX_GRID_RECORD = settings.MAX_GRID_RECORD
+    MAX_GRID_RECORD = settings.MAX_GRID_RECORD
 
 GRID_PAGE = 'GRID_PAGE%'
 GRID_ORDER = 'GRID_ORDER%'
@@ -858,7 +858,7 @@ class XferCompGrid(XferComponent):
             action_list = DEFAULT_ACTION_LIST
         for act_type, title, icon, unique in action_list:
             self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
-                model.__name__, act_type, title, icon), {'modal': FORMTYPE_MODAL, 'unique': unique})
+                model.__name__, act_type, title, icon), modal=FORMTYPE_MODAL, unique=unique)
 
     def add_action_notified(self, xfer_custom, model=None):
         from lucterios.framework.xferadvance import action_list_sorted
