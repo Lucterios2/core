@@ -67,6 +67,7 @@ class Parameter(LucteriosModel):
             param.args = args
             param.value = value
             param.save()
+        return created
 
     @classmethod
     def change_value(cls, pname, pvalue):
