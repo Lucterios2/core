@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-26 12:17+0000\n"
+"POT-Creation-Date: 2016-09-16 13:25+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -23,29 +23,29 @@ msgstr ""
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:72 xfergraphic.py:169
+#: models.py:73 xfergraphic.py:169
 msgid "Yes"
 msgstr "Oui"
 
-#: models.py:74 xfergraphic.py:170
+#: models.py:75 xfergraphic.py:170
 msgid "No"
 msgstr "Non"
 
-#: models.py:386
+#: models.py:404
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:408
+#: models.py:426
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:423
+#: models.py:441
 msgid "session"
 msgstr "session"
 
-#: models.py:424
+#: models.py:442
 msgid "sessions"
 msgstr "sessions"
 
@@ -88,23 +88,23 @@ msgid "Cancel"
 msgstr "Annuler"
 
 #: xferadvance.py:43 xferadvance.py:219 xfergraphic.py:139 xferprinting.py:112
-#: xfersearch.py:573
+#: xfersearch.py:576
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:44 xfercomponents.py:660
+#: xferadvance.py:44 xfercomponents.py:664
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:45 xferadvance.py:199 xfercomponents.py:660
+#: xferadvance.py:45 xferadvance.py:199 xfercomponents.py:664
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:46 xfercomponents.py:661
+#: xferadvance.py:46 xfercomponents.py:665
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:47 xfercomponents.py:661
+#: xferadvance.py:47 xfercomponents.py:665
 msgid "Add"
 msgstr "Ajouter"
 
@@ -116,15 +116,15 @@ msgstr "clone"
 msgid "Print"
 msgstr "Imprimer"
 
-#: xferadvance.py:50 xferadvance.py:85 xfersearch.py:370
+#: xferadvance.py:50 xferadvance.py:85 xfersearch.py:373
 msgid "Listing"
 msgstr "Liste"
 
-#: xferadvance.py:51 xferadvance.py:86 xfersearch.py:371
+#: xferadvance.py:51 xferadvance.py:86 xfersearch.py:374
 msgid "Label"
 msgstr "Étiquette"
 
-#: xferadvance.py:53 xfersearch.py:565
+#: xferadvance.py:53 xfersearch.py:568
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
@@ -157,8 +157,8 @@ msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
 #: xferadvance.py:292
-msgid "Transaction failure, please refresh your application."
-msgstr "Échec de transaction, veuillez rafraichir votre application."
+msgid "Transaction impossible!{[br/]}A condition should not be verified."
+msgstr "Transaction impossible!{[br/]}Une condition ne doit pas être vérifiée."
 
 #: xferadvance.py:301
 msgid "Bad transition"

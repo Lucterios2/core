@@ -289,7 +289,7 @@ class XferTransition(XferContainerAcknowledge):
                 setattr(self.item, 'xfer', self)
                 self.trans_result = transit_function()
             except TransitionNotAllowed:
-                raise LucteriosException(IMPORTANT, _('Transaction failure, please refresh your application.'))
+                raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
 
     def fillresponse(self):
         transition = self.getparam('TRANSITION', '')

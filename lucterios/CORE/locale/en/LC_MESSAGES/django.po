@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-07-26 12:17+0000\n"
+"POT-Creation-Date: 2016-09-16 13:25+0000\n"
 "PO-Revision-Date: 2015-09-17 15:53+0000\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -50,7 +50,7 @@ msgstr "Passwords are differents!"
 msgid "saved criteria"
 msgstr "saved criteria"
 
-#: models.py:52 models.py:150 models.py:204 models.py:389
+#: models.py:52 models.py:151 models.py:205 models.py:390
 msgid "name"
 msgstr "name"
 
@@ -78,202 +78,202 @@ msgstr "Select"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:56 models.py:208
+#: models.py:56 models.py:209
 msgid "value"
 msgstr "value"
 
-#: models.py:82
+#: models.py:83
 msgid "parameter"
 msgstr "parameter"
 
-#: models.py:83
+#: models.py:84
 msgid "parameters"
 msgstr "parameters"
 
-#: models.py:96
+#: models.py:97
 msgid "Informations"
 msgstr "Informations"
 
-#: models.py:97
+#: models.py:98
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:119
+#: models.py:120
 msgid "Available groups"
 msgstr "Available groups"
 
-#: models.py:119
+#: models.py:120
 msgid "Chosen groups"
 msgstr "Chosen groups"
 
-#: models.py:121 models.py:135
+#: models.py:122 models.py:136
 msgid "Available permissions"
 msgstr "Available permissions"
 
-#: models.py:121 models.py:135
+#: models.py:122 models.py:136
 msgid "Chosen permissions"
 msgstr "Chosen permissions"
 
-#: models.py:145
+#: models.py:146
 msgid "group"
 msgstr "group"
 
-#: models.py:146
+#: models.py:147
 msgid "groups"
 msgstr "groups"
 
-#: models.py:153
+#: models.py:154
 msgid "page width"
 msgstr "page width (L)"
 
-#: models.py:155
+#: models.py:156
 msgid "page height"
 msgstr "page height (H)"
 
-#: models.py:157
+#: models.py:158
 msgid "cell width"
 msgstr "cell width (l)"
 
-#: models.py:159
+#: models.py:160
 msgid "cell height"
 msgstr "cell height (h)"
 
-#: models.py:161
+#: models.py:162
 msgid "number of columns"
 msgstr "number of columns"
 
-#: models.py:163
+#: models.py:164
 msgid "number of rows"
 msgstr "number of rows"
 
-#: models.py:165
+#: models.py:166
 msgid "left marge"
 msgstr "left marge (a)"
 
-#: models.py:167
+#: models.py:168
 msgid "top marge"
 msgstr "top marge (b)"
 
-#: models.py:169
+#: models.py:170
 msgid "horizontal space"
 msgstr "horizontal space (c)"
 
-#: models.py:171
+#: models.py:172
 msgid "vertical space"
 msgstr "vertical space (d)"
 
-#: models.py:189 models.py:199
+#: models.py:190 models.py:200
 msgid "label"
 msgstr "label"
 
-#: models.py:189
+#: models.py:190
 msgid "# of first label"
 msgstr "# of first label"
 
-#: models.py:200
+#: models.py:201
 msgid "labels"
 msgstr "labels"
 
-#: models.py:206
+#: models.py:207
 msgid "kind"
 msgstr "kind"
 
-#: models.py:206
+#: models.py:207
 msgid "Listing"
 msgstr "Listing"
 
-#: models.py:206
+#: models.py:207
 msgid "Label"
 msgstr "Label"
 
-#: models.py:206
+#: models.py:207
 msgid "Report"
 msgstr "Report"
 
-#: models.py:207 models.py:242 models.py:384 models.py:390 models.py:418
+#: models.py:208 models.py:243 models.py:385 models.py:391 models.py:419
 #: views.py:359
 msgid "model"
 msgstr "model"
 
-#: models.py:210
+#: models.py:211
 msgid "mode"
 msgstr "mode"
 
-#: models.py:210
+#: models.py:211
 msgid "Simple"
 msgstr "Simple"
 
-#: models.py:210
+#: models.py:211
 msgid "Advanced"
 msgstr "Advanced"
 
-#: models.py:211
+#: models.py:212
 msgid "default"
 msgstr "default"
 
-#: models.py:232
+#: models.py:233
 msgid "Last model of this kind!"
 msgstr "Last model of this kind!"
 
-#: models.py:241
+#: models.py:242
 msgid "No model!"
 msgstr "No model!"
 
-#: models.py:250
+#: models.py:251
 #, python-format
 msgid "No default model for %s!"
 msgstr "No default model for %s!"
 
-#: models.py:259
+#: models.py:260
 msgid "No model selected!"
 msgstr "No model selected!"
 
-#: models.py:262
+#: models.py:263
 #, python-format
 msgid "copy of %s"
 msgstr "copy of %s"
 
-#: models.py:339
+#: models.py:340
 msgid "Model file is invalid!"
 msgstr "Model file is invalid!"
 
-#: models.py:385
+#: models.py:386
 msgid "models"
 msgstr "models"
 
-#: models.py:391 models.py:418
+#: models.py:392 models.py:419
 msgid "criteria"
 msgstr "criteria"
 
-#: models.py:421
+#: models.py:422
 msgid "Saved criteria"
 msgstr "Saved criteria"
 
-#: models.py:422 views.py:323
+#: models.py:423 views.py:323
 msgid "Saved criterias"
 msgstr "Saved criterias"
 
-#: models.py:428
+#: models.py:429
 msgid "CORE-GUID"
 msgstr "Software serial number"
 
-#: models.py:429
+#: models.py:430
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
-#: models.py:430
+#: models.py:431
 msgid "CORE-connectmode.0"
 msgstr "Connection always needed"
 
-#: models.py:430
+#: models.py:431
 msgid "CORE-connectmode.1"
 msgstr "Open in anonymous"
 
-#: models.py:430
+#: models.py:431
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:431
+#: models.py:432
 msgid "CORE-Wizard"
 msgstr "Open the configuration wizard at startup"
 
