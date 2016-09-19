@@ -59,7 +59,7 @@ class XferContainerPrint(XferContainerAbstract):
         new_filter = None
         criteria = self.getparam('CRITERIA')
         if criteria is not None:
-            new_filter = get_search_query(criteria, self.item)
+            new_filter = get_search_query(criteria, self.item)[0]
         return new_filter
 
     def get_report_generator(self):

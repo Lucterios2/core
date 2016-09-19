@@ -309,19 +309,17 @@ class LucteriosModel(models.Model):
                     field_val = eval_sublist(field_list, field_value)
                 else:
                     try:
-                        dep_field = self._meta.get_field(
-                            field_list[0])
+                        dep_field = self._meta.get_field(field_list[0])
                     except FieldDoesNotExist:
                         dep_field = None
-                    if dep_field is None or is_simple_field(dep_field):
+                    if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
                         field_val = get_value_converted(field_value, True)
                         field_val = get_value_if_choices(field_val, dep_field)
                     else:
                         if field_value is None:
                             field_val = ""
-                        elif isinstance(dep_field, ForeignKey):
-                            field_val = field_value.evaluate(
-                                "#" + ".".join(field_list[1:]))
+                        elif isinstance(field_value, LucteriosModel) and not hasattr(field_value, "all"):
+                            field_val = field_value.evaluate("#" + ".".join(field_list[1:]))
                         else:
                             field_val = eval_sublist(field_list, field_value)
                 value = value.replace(field, six.text_type(field_val))

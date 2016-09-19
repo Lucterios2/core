@@ -630,7 +630,8 @@ class ListingGenerator(ReportModelGenerator):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
 
-    def fill_content(self, _):
+    def fill_content(self, request):
+        ReportModelGenerator.fill_content(self, request)
         xml_table = etree.Element('table')
         self.body.append(xml_table)
         xml_table.attrib['height'] = "%d.0" % (
@@ -655,6 +656,7 @@ class ListingGenerator(ReportModelGenerator):
             xml_text.attrib['text_align'] = "center"
             new_col.append(xml_text)
         for item in self.get_items_filtered():
+            item.set_context(self.xfer)
             new_row = etree.SubElement(xml_table, "rows")
             for column in self.columns:
                 xml_text = convert_to_html(
@@ -671,7 +673,8 @@ class LabelGenerator(ReportModelGenerator):
         self.label_size = {'page_width': 210, 'page_height': 297, 'cell_width': 105, 'cell_height': 70, 'columns': 2,
                            'rows': 4, 'left_marge': 0, 'top_marge': 8, 'horizontal_space': 105, 'vertical_space': 70}
 
-    def fill_content(self, _):
+    def fill_content(self, request):
+        ReportModelGenerator.fill_content(self, request)
         self.horizontal_marge = self.label_size['left_marge']
         self.vertical_marge = self.label_size['top_marge']
         self.page_width = self.label_size['page_width']
@@ -680,6 +683,7 @@ class LabelGenerator(ReportModelGenerator):
         for _ in range(1, self.first_label):
             label_values.append("")
         for item in self.get_items_filtered():
+            item.set_context(self.xfer)
             label_values.append(item.evaluate(self.label_text))
         index = 0
         for labelval in label_values:
