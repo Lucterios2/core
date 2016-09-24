@@ -479,6 +479,12 @@ def get_binay(text):
 
 def toHtml(text):
     text = six.text_type(text)
+    pos_in = text.find('&')
+    while pos_in != -1:
+        pos_out = text.find(';', pos_in, pos_in + 8)
+        if pos_out == -1:
+            text = text[:pos_in] + '&amp;' + text[pos_in + 1:]
+        pos_in = text.find('&', pos_in + 1)
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
     text = text.replace('{[newline]}', '<br/>')
@@ -490,7 +496,6 @@ def toHtml(text):
     text = text.replace('{[/underline]}', '</u>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
-    text = text.replace('& ', '&amp; ')
     return text
 
 
