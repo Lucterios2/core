@@ -251,6 +251,11 @@ def config_core(xfer):
     xfer.params['params'].append('CORE-Wizard')
 
 
+@signal_and_lock.Signal.decorate('auth_action')
+def auth_action_core(actions_basic):
+    actions_basic.append(AskPassword.get_action(_("Password or login forget?")))
+
+
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.admin', _("To view and to modify main parameters."))
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")

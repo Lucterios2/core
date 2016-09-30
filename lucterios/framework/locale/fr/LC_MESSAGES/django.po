@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-16 13:25+0000\n"
+"POT-Creation-Date: 2016-09-30 17:25+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
-#: main_docs.html:5 main_docs.html:112
+#: main_docs.html:5 main_docs.html.py:112
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
@@ -31,21 +31,21 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:404
+#: models.py:402
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:426
+#: models.py:424
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:441
+#: models.py:439
 msgid "session"
 msgstr "session"
 
-#: models.py:442
+#: models.py:440
 msgid "sessions"
 msgstr "sessions"
 

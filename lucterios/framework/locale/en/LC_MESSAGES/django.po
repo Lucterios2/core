@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-16 13:25+0000\n"
+"POT-Creation-Date: 2016-09-30 17:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: main_docs.html:5 main_docs.html:112
+#: main_docs.html:5 main_docs.html.py:112
 msgid "User manual"
 msgstr "User manual"
 
@@ -29,19 +29,19 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: models.py:404
+#: models.py:402
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:426
+#: models.py:424
 msgid "username"
 msgstr "username"
 
-#: models.py:441
+#: models.py:439
 msgid "session"
 msgstr "session"
 
-#: models.py:442
+#: models.py:440
 msgid "sessions"
 msgstr "sessions"
 

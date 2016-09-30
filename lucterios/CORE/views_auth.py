@@ -26,10 +26,12 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import MenuManage
+from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO,\
+    SELECT_NONE, get_actions_xml
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.parameters import Params, secure_mode_connect
+from lucterios.framework import signal_and_lock
 
 
 def get_info_server():
@@ -87,6 +89,15 @@ class Authentification(XferContainerAbstract):
 
     def must_autentificate(self, mess):
         self.responsexml.text = mess
+        if secure_mode_connect():
+            basic_actions = []
+            signal_and_lock.Signal.call_signal("auth_action", basic_actions)
+            actions = []
+            for action in basic_actions:
+                if self.check_action_permission(action):
+                    actions.append((action, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, None))
+            if len(actions) != 0:
+                self.responsexml.append(get_actions_xml(actions))
 
     def get_connection_info(self):
         from lxml import etree
