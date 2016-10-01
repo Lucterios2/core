@@ -217,6 +217,8 @@ var ObserverAuthentification = ObserverAbstract
 			refreshMenu : true,
 
 			acts : null,
+			
+			mActions : null,
 
 			getObserverName : function() {
 				return "core.auth";
@@ -227,6 +229,7 @@ var ObserverAuthentification = ObserverAbstract
 				this.acts = [];
 				this.acts[0] = new ActionInt();
 				this.acts[0].initializeEx(this, null, 'Ok');
+				this.acts[0].mIcon="static/lucterios.CORE/images/ok.png";
 				this.acts[0].callback = $.proxy(function(aParams) {
 					if (this.mGUI !== null) {
 						var login = aParams.get('username'), pass = aParams
@@ -237,9 +240,11 @@ var ObserverAuthentification = ObserverAbstract
 				this.acts[1] = new ActionInt();
 				this.acts[1].initializeEx(this, Singleton().Factory(),
 						Singleton().getTranslate("Cancel"));
+				this.acts[1].mIcon="static/lucterios.CORE/images/cancel.png";
 				this.acts[1].callback = function() {
 					Singleton().setInfoDescription(null, false);
 				};
+				this.mActions = this.mDomXmlContent.getFirstTag("ACTIONS");
 			},
 
 			show : function(aTitle, aGUIType) {
@@ -318,7 +323,7 @@ var ObserverAuthentification = ObserverAbstract
 			},
 
 			show_logon : function(cdate) {
-				var text = "", table = [];
+				var text = "", table = [], index, xml_actions, extra_acts=[], extra_table=[];
 				if (Singleton().Transport().getLastLogin() !== '') {
 					if ("BADAUTH" === cdate) {
 						text = Singleton().getTranslate(
@@ -356,6 +361,17 @@ var ObserverAuthentification = ObserverAbstract
 								+ '</b></span>');
 				table[2][1] = new compBasic(
 						'<input name="password" type="password" style="width:95%;margin:5px;"/>');
+				if (this.mActions !== null) {
+					xml_actions = this.mActions.getElementsByTagName("ACTION");
+					extra_table[0] = [];
+					for (index = 0; index < xml_actions.length; index++) {
+						extra_acts[index] = Singleton().CreateAction();
+						extra_acts[index].initialize(this, Singleton().Factory(),xml_actions[index]);
+						extra_table[0][index] = new compBasic('<center><button id="btn_{0}_{1}"><span style="font-size:10px;">{2}</span></button></center>'.format(this.getId(),index,extra_acts[index].getTitle()));
+					}
+					table[3] = [];
+					table[3][0] = new compBasic(createTable(extra_table),2);
+				}
 				this.mGUI = new GUIManage(this.getId(), Singleton()
 						.getTranslate("Logon"), this);
 				this.mGUI.withForm = true;
@@ -364,6 +380,9 @@ var ObserverAuthentification = ObserverAbstract
 				$('#frm_' + this.mGUI.mId).submit(function(event) {
 					event.preventDefault();
 				});
+				for (index = 0; index < extra_acts.length; index++) {
+					$('#btn_{0}_{1}'.format(this.getId(),index)).click($.proxy(extra_acts[index].actionPerformed, extra_acts[index]));
+				}
 			}
 
 		});
