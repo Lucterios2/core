@@ -190,8 +190,7 @@ class FieldDescItem(object):
             elif isinstance(self.dbfield, DecimalField):
                 self.field_type = TYPE_FLOAT
                 min_value, max_value = get_range_value(self.dbfield)
-                self.field_list = [(six.text_type(min_value), six.text_type(
-                    max_value), six.text_type(self.dbfield.decimal_places))]
+                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(self.dbfield.decimal_places))]
             elif isinstance(self.dbfield, BooleanField):
                 self.field_type = TYPE_BOOL
             elif isinstance(self.dbfield, TextField):
@@ -222,12 +221,9 @@ class FieldDescItem(object):
         return ";".join(res)
 
     def add_from_script(self):
-        script_ref = "findFields['" + self.fieldname + \
-            "']='" + self.field_type + "';\n"
-        if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) \
-                or (self.field_type == TYPE_FLOAT):
-            script_ref += "findLists['" + self.fieldname + \
-                "']='" + self.get_list().replace("'", "\\'") + "';\n"
+        script_ref = "findFields['%s']='%s';\n" % (self.fieldname, self.field_type)
+        if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) or (self.field_type == TYPE_FLOAT):
+            script_ref += "findLists['%s']='%s';\n" % (self.fieldname, self.get_list().replace("'", "\\'"))
         return script_ref
 
     def get_value(self, value, operation):
@@ -432,7 +428,7 @@ parent.get('searchValueList').setVisible(type=='list' || type=='listmult');
         script_ref += get_script_for_operator()
         script_ref += """
 if (type=='float') {
-    var prec=findLists[name].split(';');
+    var prec=findLists[name].split('||');
     parent.get('searchValueFloat').setValue('<FLOAT min=\"'+prec[0]+'\" max=\"'+prec[1]+'\" prec=\"'+prec[2]+'\"></FLOAT>');
 }
 if (type=='str') {
