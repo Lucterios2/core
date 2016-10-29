@@ -508,8 +508,8 @@ class ActionGenerator(ReportGenerator):
 
     def fill_content(self, request):
         self.action._initialize(request)
-        self.action.fillresponse(
-            **self.action._get_params())
+        self.action.params['PRINTING'] = True
+        self.action.fillresponse(**self.action._get_params())
         self.action._finalize()
         self.print_items = []
         self.col_width = {}

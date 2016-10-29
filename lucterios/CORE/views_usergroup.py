@@ -111,7 +111,7 @@ class UsersEdit(XferAddEditor):
 
 
 @ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", condition=lambda xfer: xfer.item.is_active)
+@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
@@ -127,7 +127,7 @@ class UsersDisabled(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(_("Enabled"), "images/ok.png", condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
-@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", condition=lambda xfer: not xfer.item.is_active)
+@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")

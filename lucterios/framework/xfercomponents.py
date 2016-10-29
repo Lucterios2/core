@@ -718,7 +718,7 @@ class XferCompGrid(XferComponent):
                 self.actions.append((action, modal, close, unique, params))
 
     def define_page(self, xfer_custom=None):
-        if xfer_custom is not None:
+        if (xfer_custom is not None) and not xfer_custom.getparam('PRINTING', False):
             order_txt = xfer_custom.getparam(GRID_ORDER + self.name, '')
             if order_txt == '':
                 self.order_list = None
