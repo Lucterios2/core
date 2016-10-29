@@ -94,12 +94,12 @@ class LucteriosUser(User, LucteriosModel):
     @classmethod
     def get_edit_fields(cls):
         return {'': ['username'],
-                _('Informations'): ['is_staff', 'is_superuser', 'first_name', 'last_name', 'email'],
+                _('Informations'): ['is_active', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email'],
                 _('Permissions'): ['groups', 'user_permissions']}
 
     @classmethod
     def get_show_fields(cls):
-        return ['username', 'date_joined', 'last_login', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
+        return ['username', 'date_joined', 'last_login', 'is_active', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
 
     @classmethod
     def get_print_fields(cls):

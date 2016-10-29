@@ -318,6 +318,11 @@ class XferContainerCustom(XferContainerAbstract):
                     if value == key:
                         value = sel_val
                         break
+        elif isinstance(old_obj, XferCompCheck):
+            if value:
+                value = _("Yes")
+            else:
+                value = _("No")
         elif isinstance(old_obj, XferCompDate):
             value = formats.date_format(value, "DATE_FORMAT")
         elif isinstance(old_obj, XferCompDateTime):
