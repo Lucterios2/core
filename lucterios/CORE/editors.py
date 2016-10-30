@@ -55,7 +55,7 @@ class LucteriosUserEditor(LucteriosEditor):
         xfer.add_component(lbl0)
         ckk = XferCompCheck('password_change')
         ckk.set_location(1, new_row + 1, 1, 1)
-        ckk.set_value(False)
+        ckk.set_value(True)
         ckk.java_script = """
 var pwd_change=current.getValue();
 parent.get('password1').setEnabled(pwd_change);
