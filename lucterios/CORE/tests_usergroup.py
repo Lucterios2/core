@@ -278,7 +278,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/EDIT[@name="email"]', None)
 
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_password_change"]', "{[b]}Changer le mot de passe ?{[/b]}")
-        self.assert_xml_equal('COMPONENTS/CHECK[@name="password_change"]', "0")
+        self.assert_xml_equal('COMPONENTS/CHECK[@name="password_change"]', "1")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_password1"]', "{[b]}mot de passe{[/b]}")
         self.assert_xml_equal('COMPONENTS/PASSWD[@name="password1"]', None)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="lbl_password2"]', "{[b]}re-mot de passe{[/b]}")
@@ -403,7 +403,7 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal(
             'COMPONENTS/EDIT[@name="email"]', None, (1, 5, 1, 1, 1))
         self.assert_comp_equal(
-            'COMPONENTS/CHECK[@name="password_change"]', '0', (1, 6, 1, 1, 1))
+            'COMPONENTS/CHECK[@name="password_change"]', '1', (1, 6, 1, 1, 1))
         self.assert_comp_equal(
             'COMPONENTS/PASSWD[@name="password1"]', None, (1, 7, 1, 1))
         self.assert_comp_equal(
