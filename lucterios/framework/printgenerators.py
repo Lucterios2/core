@@ -195,6 +195,7 @@ class PrintTable(PrintItem):
         self.compute_table_size()
         self.size_y, self.size_x = self.get_table_sizes()
         self.height = self.size_y * self.RATIO
+        self.letter_ratio = 1.0
         self.width_ratio = 1.0
 
     def compute_table_size(self):
@@ -238,7 +239,7 @@ class PrintTable(PrintItem):
         return size_y, size_x
 
     def size_ratio(self, init_size):
-        return min(init_size, int(init_size * self.width_ratio))
+        return min(init_size, int(init_size * self.letter_ratio))
 
     def write_columns(self, xml_table):
         for column in self.columns:
@@ -268,17 +269,19 @@ class PrintTable(PrintItem):
             self.size_rows.append(calcul_text_size('')[1])
         xml_table = etree.Element('table')
         self.width_ratio = self.width / self.size_x
+        self.letter_ratio = min(1.33, max(0.66, self.width_ratio))
         self.write_columns(xml_table)
         self.write_rows(xml_table)
-        if self.width_ratio < 1:
-            self.height = self.height * self.width_ratio
+        #if self.width_ratio < 1:
+        #    self.height = self.height * self.letter_ratio
         self.fill_attrib(xml_table)
         return xml_table
 
     def calcul_position(self):
         PrintItem.calcul_position(self)
-        self.owner.top += 3
-        self.top = self.owner.top
+        self.top = self.owner.top + 3
+        self.left -= 1
+        self.width -= 2
 
 
 class PrintTab(PrintItem):
@@ -499,11 +502,8 @@ class ActionGenerator(ReportGenerator):
         for col_idx in range(0, max_col):
             if total_size == 0:
                 new_col_size = 0
-            elif (total_size) < self.content_width:
-                new_col_size = int(round(col_size[col_idx]))
             else:
-                new_col_size = int(
-                    round(self.content_width * col_size[col_idx] / total_size))
+                new_col_size = int(round(self.content_width * col_size[col_idx] / total_size))
             self.col_width[tab_id].append(new_col_size)
 
     def fill_content(self, request):
