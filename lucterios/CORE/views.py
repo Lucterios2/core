@@ -225,9 +225,10 @@ class AskPassword(XferContainerCustom):
         lbl.set_location(1, 1)
         lbl.set_value_as_name(_("email"))
         self.add_component(lbl)
-        pwd = XferCompEdit('email')
-        pwd.set_location(2, 1)
-        self.add_component(pwd)
+        email = XferCompEdit('email')
+        email.set_location(2, 1)
+        email.mask = "[^@]+@[^@]+\.[^@]+"
+        self.add_component(email)
 
         self.add_action(
             AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
@@ -240,8 +241,10 @@ class AskPasswordAct(XferContainerAcknowledge):
     icon = "passwd.png"
 
     def fillresponse(self, email=''):
-        for user in LucteriosUser.objects.filter(email=email):
-            user.generate_password()
+        import re
+        if re.match(r"[^@]+@[^@]+\.[^@]+", email) is not None:
+            for user in LucteriosUser.objects.filter(email=email):
+                user.generate_password()
 
 
 @signal_and_lock.Signal.decorate('config')
