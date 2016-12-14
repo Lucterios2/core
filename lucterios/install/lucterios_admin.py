@@ -257,32 +257,22 @@ class LucteriosGlobal(LucteriosManage):
         except:
             pass
         check_list = {}
-        for dist in get_installed_distributions():
-            requires = [req.key for req in dist.requires()]
-            if (dist.key == 'lucterios') or ('lucterios' in requires):
-                check_list[dist.project_name] = (dist.version, None, False)
         list_command = list_.ListCommand()
         options, _ = list_command.parse_args(self.get_default_args_([]))
-        try:
-            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latest_versions(
-                options)]
-        except AttributeError:
-            packages = [(pack[0], pack[1]) for pack in list_command.find_packages_latests_versions(
-                options)]
-        for dist, remote_version_parsed in packages:
-            if dist.project_name in check_list.keys():
-                check_list[dist.project_name] = (
-                    dist.version, remote_version_parsed.public, remote_version_parsed > dist.parsed_version)
+        unvers_packages = get_installed_distributions(local_only=options.local, user_only=options.user, editables_only=options.editable)
+        packages = list_command.iter_packages_latest_infos(unvers_packages, options)
         must_upgrade = False
         self.print_info_("check list:")
-        for project_name, versions in check_list.items():
-            must_upgrade = must_upgrade or versions[2]
-            if versions[2]:
-                text_version = 'to upgrade'
-            else:
-                text_version = ''
-            self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (
-                project_name, versions[0], versions[1], text_version))
+        for dist in packages:
+            requires = [req.key for req in dist.requires()]
+            if (dist.key == 'lucterios') or ('lucterios' in requires):
+                check_list[dist.project_name] = (dist.version, dist.latest_version, dist.latest_version > dist.parsed_version)
+                must_upgrade = must_upgrade or (dist.latest_version > dist.parsed_version)
+                if dist.latest_version > dist.parsed_version:
+                    text_version = 'to upgrade'
+                else:
+                    text_version = ''
+                self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (dist.project_name, dist.version, dist.latest_version, text_version))
         if must_upgrade:
             self.print_info_("\t\t=> Must upgrade")
         else:
@@ -897,7 +887,10 @@ class LucteriosInstance(LucteriosManage):
             self.run_new_migration(tmp_path)
             self.print_info_("instance restored with '%s'" % self.filename)
             if isdir(join(tmp_path, 'usr')):
-                move(join(tmp_path, 'usr'), get_user_dir())
+                target_dir = get_user_dir()
+                if isdir(target_dir):
+                    delete_path(target_dir)
+                move(join(tmp_path, 'usr'), target_dir)
             success = True
         delete_path(tmp_path)
         self.refresh()
