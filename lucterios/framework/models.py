@@ -433,7 +433,6 @@ class LucteriosSession(Session, LucteriosModel):
             return User.objects.get(id=user_id).username
 
     class Meta(object):
-
         proxy = True
         default_permissions = []
         verbose_name = _('session')

@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.conf.urls import url, include, patterns
+from django.conf.urls import url, include
 from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve

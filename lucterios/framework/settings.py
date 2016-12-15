@@ -106,6 +106,7 @@ DEFAULT_SETTINGS = {
         'lucterios.CORE',
     ),
     'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                   'DIRS': [dirname(__file__)],
                    'OPTIONS': {'context_processors': (
                                'django.core.context_processors.i18n',
                                'django.contrib.auth.context_processors.auth',

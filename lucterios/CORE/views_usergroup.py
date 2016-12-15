@@ -173,3 +173,11 @@ class SessionDelete(XferDelete):
     icon = "session.png"
     model = LucteriosSession
     field_id = 'session'
+
+    def _search_model(self):
+        sess_items = self.model.objects.filter(pk__in=self.getparam(self.field_id, ()))
+        new_sess_ids = []
+        for sess_item in sess_items:
+            if sess_item.session_key != self.request.session.session_key:
+                new_sess_ids.append(sess_item.id)
+        self.items = self.model.objects.filter(pk__in=new_sess_ids)

@@ -28,7 +28,6 @@ from django.utils.module_loading import import_module
 from django.utils.translation import get_language
 
 from os.path import dirname, join, isdir
-from lucterios import CORE
 
 
 def find_doc(appname):
@@ -59,4 +58,4 @@ def defaultDocs(request):
             if help_item is not None:
                 dictionary['menus'].append(help_item)
     dictionary['menus'].append(find_doc('lucterios.CORE'))
-    return render_to_response('main_docs.html', dirs=[dirname(__file__)], dictionary=dictionary)
+    return render_to_response('main_docs.html', context=dictionary)

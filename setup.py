@@ -66,5 +66,5 @@ setup(
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
     install_requires=[
-        "Django ==1.9.*", "lxml ==3.4.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
+        "Django ==1.10.*", "lxml ==3.4.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
 )
