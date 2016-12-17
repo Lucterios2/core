@@ -929,7 +929,7 @@ def main():
     parser.add_option("-e", "--extra",
                       dest="extra",
                       default="",
-                      help="extra parameters (<name>=value,...)",)
+                      help="extra parameters (<name>=value,...).For 'security': 'MODE=<M>,PASSWORD=<xxx>'(<M> equals to 0,1 or 2)",)
     parser.add_option("-f", "--file",
                       dest="filename",
                       default="",

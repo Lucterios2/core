@@ -215,7 +215,7 @@ class CoreMigrate(MigrateAbstract):
                     if (login == "admin") and (password[0] == '*'):
                         new_user.set_password('admin')
                     else:
-                        new_user.password = password
+                        new_user.password = "md5$$%s" % password
                     new_user.first_name = real_name.split(' ')[0]
                     new_user.last_name = ''.join(real_name.split(' ')[1:])
                     new_user.is_active = actif == 'o'
