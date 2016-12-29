@@ -41,6 +41,7 @@ from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CL
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 import warnings
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def get_range_value(model_field):
@@ -382,7 +383,11 @@ class XferContainerCustom(XferContainerAbstract):
         sub_value = self.item
         for fieldname in field_name.split('.'):
             if sub_value is not None:
-                sub_value = getattr(sub_value, fieldname)
+                try:
+                    sub_value = getattr(sub_value, fieldname)
+                except ObjectDoesNotExist:
+                    getLogger("lucterios.core").exception("fieldname '%s' not found", fieldname)
+                    sub_value = None
         value = get_value_converted(sub_value, True)
         dep_field = self.item.get_field_by_name(
             field_name)
@@ -397,7 +402,11 @@ class XferContainerCustom(XferContainerAbstract):
 
     def get_writing_comp(self, field_name):
         def get_value_from_field(default):
-            val = getattr(self.item, field_name)
+            try:
+                val = getattr(self.item, field_name)
+            except ObjectDoesNotExist:
+                getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
+                val = None
             if val is None:
                 if is_needed:
                     if dep_field.default != NOT_PROVIDED:

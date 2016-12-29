@@ -25,20 +25,22 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lxml import etree
 from collections import namedtuple
+from logging import getLogger
+import warnings
 
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import urlquote_plus
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI,\
     CLOSE_YES
-from lucterios.framework.tools import CLOSE_NO, FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
+from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum
-import warnings
 
 
 class XferComponent(object):
@@ -842,7 +844,11 @@ class XferCompGrid(XferComponent):
                     resvalue = child
                     for field_name in fieldname.split('.'):
                         if resvalue is not None:
-                            resvalue = getattr(resvalue, field_name)
+                            try:
+                                resvalue = getattr(resvalue, field_name)
+                            except ObjectDoesNotExist:
+                                getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
+                                resvalue = None
                     try:
                         field_desc = query_set.model.get_field_by_name(
                             fieldname)
