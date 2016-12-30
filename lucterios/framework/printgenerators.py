@@ -272,8 +272,6 @@ class PrintTable(PrintItem):
         self.letter_ratio = min(1.33, max(0.66, self.width_ratio))
         self.write_columns(xml_table)
         self.write_rows(xml_table)
-        #if self.width_ratio < 1:
-        #    self.height = self.height * self.letter_ratio
         self.fill_attrib(xml_table)
         return xml_table
 
