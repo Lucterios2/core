@@ -45,7 +45,8 @@ from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, 
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad,\
     XferCompUpLoad, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER,\
+    action_list_sorted
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
@@ -413,8 +414,7 @@ class PrintModelEdit(XferContainerCustom):
         self.item.mode = int(self.item.mode)
         if self.item.kind == 1:
             self.fill_from_model(1, 3, False, ['mode'])
-            self.get_components('mode').set_action(
-                self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+            self.get_components('mode').set_action(self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
                 self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
@@ -423,11 +423,9 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif (self.item.kind == 2) or ((self.item.kind == 1) and (self.item.mode == 1)):
             self._fill_report_editor()
-        self.add_action(PrintModelReload.get_action(_('Reload'), "images/edit.png"), close=CLOSE_NO)
-        self.add_action(PrintModelExtract.get_action(_("Extract"), "images/left.png"), close=CLOSE_NO)
-        self.add_action(PrintModelImport.get_action(_("Import"), "images/right.png"), close=CLOSE_NO)
-        self.add_action(PrintModelSave.get_action(TITLE_OK, "images/ok.png"))
-        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
+            self.add_action(act, **opt)
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
     def _fill_listing_editor(self):
         lab = XferCompLabelForm('lbl_page_width')
@@ -500,6 +498,46 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
 
+@ActionsManage.affect_grid(_('Reload'), "images/edit.png", close=CLOSE_NO, unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_('Reload'), "images/edit.png", close=CLOSE_NO)
+@MenuManage.describ('CORE.add_printmodel')
+class PrintModelReload(XferContainerAcknowledge):
+    caption = _("reload model")
+    icon = "PrintReportModel.png"
+    model = PrintModel
+    field_id = 'print_model'
+
+    def fillresponse(self):
+        model_module = ".".join(self.item.model_associated().__module__.split('.')[:-1])
+        if self.getparam('SAVE') is None:
+            dlg = self.create_custom(self.model)
+            dlg.item = self.item
+            img = XferCompImage('img')
+            img.set_value(self.icon_path())
+            img.set_location(0, 0, 1, 3)
+            dlg.add_component(img)
+            lbl = XferCompLabelForm('title')
+            lbl.set_value_as_title(self.caption)
+            lbl.set_location(1, 0, 6)
+            dlg.add_component(lbl)
+
+            lbl = XferCompLabelForm('lbl_default_model')
+            lbl.set_value_as_name(_("Model to reload"))
+            lbl.set_location(1, 1)
+            dlg.add_component(lbl)
+            sel = XferCompSelect('default_model')
+            sel.set_select(PrintModel.get_default_model(model_module, self.item.modelname, self.item.kind))
+            sel.set_location(2, 1)
+            dlg.add_component(sel)
+
+            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        else:
+            if self.item.load_model(model_module, self.getparam("default_model", "")):
+                self.message(_('Model reloaded'))
+
+
+@ActionsManage.affect_edit(_("Import"), "images/right.png", close=CLOSE_NO)
 @MenuManage.describ('documents.add_folder')
 class PrintModelImport(XferContainerAcknowledge):
     caption = _("reload model")
@@ -541,6 +579,7 @@ class PrintModelImport(XferContainerAcknowledge):
                     self.message(_('Model loaded'))
 
 
+@ActionsManage.affect_edit(_("Extract"), "images/left.png", close=CLOSE_NO)
 @MenuManage.describ('documents.add_folder')
 class PrintModelExtract(XferContainerCustom):
     caption = _("Extract")
@@ -567,43 +606,7 @@ class PrintModelExtract(XferContainerCustom):
         self.add_component(zipdown)
 
 
-@MenuManage.describ('CORE.add_printmodel')
-class PrintModelReload(XferContainerAcknowledge):
-    caption = _("reload model")
-    icon = "PrintReportModel.png"
-    model = PrintModel
-    field_id = 'print_model'
-
-    def fillresponse(self):
-        model_module = ".".join(self.item.model_associated().__module__.split('.')[:-1])
-        if self.getparam('SAVE') is None:
-            dlg = self.create_custom(self.model)
-            dlg.item = self.item
-            img = XferCompImage('img')
-            img.set_value(self.icon_path())
-            img.set_location(0, 0, 1, 3)
-            dlg.add_component(img)
-            lbl = XferCompLabelForm('title')
-            lbl.set_value_as_title(self.caption)
-            lbl.set_location(1, 0, 6)
-            dlg.add_component(lbl)
-
-            lbl = XferCompLabelForm('lbl_default_model')
-            lbl.set_value_as_name(_("Model to reload"))
-            lbl.set_location(1, 1)
-            dlg.add_component(lbl)
-            sel = XferCompSelect('default_model')
-            sel.set_select(PrintModel.get_default_model(model_module, self.item.modelname, self.item.kind))
-            sel.set_location(2, 1)
-            dlg.add_component(sel)
-
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
-        else:
-            if self.item.load_model(model_module, self.getparam("default_model", "")):
-                self.message(_('Model reloaded'))
-
-
+@ActionsManage.affect_edit(TITLE_OK, "images/ok.png", close=CLOSE_YES)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelSave(XferSave):
     caption = _("print model")
