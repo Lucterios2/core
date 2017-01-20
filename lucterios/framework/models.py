@@ -41,6 +41,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
 from django_fsm.signals import post_transition
 from django.db.models.fields.related import ManyToOneRel
+from datetime import datetime
 
 
 class AbsoluteValue(Transform):
@@ -440,9 +441,7 @@ class LucteriosSession(Session, LucteriosModel):
 
 
 class PrintFieldsPlugIn(object):
-
     _plug_ins = {}
-
     name = "EMPTY"
     title = ""
 
@@ -462,12 +461,32 @@ class PrintFieldsPlugIn(object):
         cls._plug_ins[pluginclass.name] = pluginclass
 
     def get_all_print_fields(self):
-
         return []
 
     def evaluate(self, text_to_evaluate):
-
         return ""
+
+
+class GeneralPrintPlugin(PrintFieldsPlugIn):
+    name = "GENERAL"
+    title = _('General')
+
+    def get_all_print_fields(self):
+        fields = []
+        fields.append(("%s > %s" % (self.title, _('current date')), "%s.%s" % (self.name, 'today_short')))
+        fields.append(("%s > %s" % (self.title, _('current date')), "%s.%s" % (self.name, 'today_long')))
+        fields.append(("%s > %s" % (self.title, _('current hour')), "%s.%s" % (self.name, 'hour')))
+        return fields
+
+    def evaluate(self, text_to_evaluate):
+        current_datetime = datetime.now()
+        res = text_to_evaluate
+        res = res.replace('#today_short', formats.date_format(current_datetime, "SHORT_DATE_FORMAT"))
+        res = res.replace('#today_long', formats.date_format(current_datetime, "DATE_FORMAT"))
+        res = res.replace('#hour', formats.date_format(current_datetime, "TIME_FORMAT"))
+        return res
+
+PrintFieldsPlugIn.add_plugin(GeneralPrintPlugin)
 
 
 def post_after_transition(sender, **kwargs):
