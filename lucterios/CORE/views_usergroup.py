@@ -179,5 +179,5 @@ class SessionDelete(XferDelete):
         new_sess_ids = []
         for sess_item in sess_items:
             if sess_item.session_key != self.request.session.session_key:
-                new_sess_ids.append(sess_item.id)
+                new_sess_ids.append(sess_item.pk)
         self.items = self.model.objects.filter(pk__in=new_sess_ids)
