@@ -28,6 +28,7 @@ import threading
 
 from django.utils.translation import ugettext_lazy
 from django.utils import six
+from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.CORE.models import Parameter
@@ -43,6 +44,11 @@ class ParamCache(object):
         param = Parameter.objects.get(name=name)
         self.name = param.name
         self.type = param.typeparam
+        self.meta_info = param.get_meta_select()
+        if self.meta_info is not None:  # select in object
+            self.value = six.text_type(param.value)
+            self.args = {'oldtype': self.type}
+            self.type = 6
         if self.type == 0:  # String
             self.value = six.text_type(param.value)
             self.args = {'Multi': False}
@@ -98,9 +104,9 @@ class ParamCache(object):
             param_cmp.set_needed(True)
         elif self.type == 4:  # Select
             param_cmp = XferCompSelect(self.name)
-            selection = {}
+            selection = []
             for sel_idx in range(0, self.args['Enum']):
-                selection[sel_idx] = ugettext_lazy(self.name + ".%d" % sel_idx)
+                selection.append((sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)))
             param_cmp.set_select(selection)
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
@@ -108,6 +114,21 @@ class ParamCache(object):
             param_cmp = XferCompPassword(self.name)
             param_cmp.security = 0
             param_cmp.set_value('')
+        elif self.type == 6:  # select in object
+            db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+            param_cmp = XferCompSelect(self.name)
+            param_cmp.set_needed(self.meta_info[4])
+            selection = []
+            if not self.meta_info[4]:
+                if (self.args['oldtype'] == 1) or (self.args['oldtype'] == 2):
+                    selection.append((0, None))
+                else:
+                    selection.append(('', None))
+            for obj_item in db_mdl.objects.filter(self.meta_info[2]):
+                selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
+            param_cmp.set_select(selection)
+            param_cmp.set_value(self.value)
+        param_cmp.description = six.text_type(ugettext_lazy(self.name))
         return param_cmp
 
     def get_read_text(self):
@@ -119,6 +140,13 @@ class ParamCache(object):
                 value_text = ugettext_lazy("No")
         elif self.type == 4:  # Select
             value_text = ugettext_lazy(self.name + ".%d" % self.value)
+        elif self.type == 6:  # selected
+            if self.meta_info[3] == "id":
+                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+                db_obj = db_mdl.objects.get(id=self.value)
+                value_text = six.text_type(db_obj)
+            else:
+                value_text = self.value
         else:
             value_text = self.value
         return value_text
@@ -130,6 +158,16 @@ class ParamCache(object):
         else:
             param_cmp.set_value(self.get_read_text())
         return param_cmp
+
+    def get_object(self):
+        db_obj = None
+        if self.type == 6:
+            try:
+                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+                db_obj = db_mdl.objects.get(**{self.meta_info[3]: self.value})
+            except:
+                db_obj = None
+        return db_obj
 
 
 class Params(object):
@@ -153,9 +191,8 @@ class Params(object):
                 cls._PARAM_CACHE_LIST[name] = ParamCache(name)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
-            except Exception:
-                raise LucteriosException(
-                    GRAVE, "Parameter %s not found!" % name)
+            # except Exception:
+            #    raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
         return cls._PARAM_CACHE_LIST[name]
 
     @classmethod
@@ -163,6 +200,14 @@ class Params(object):
         cls._paramlock.acquire()
         try:
             return cls._get(name).value
+        finally:
+            cls._paramlock.release()
+
+    @classmethod
+    def getobject(cls, name):
+        cls._paramlock.acquire()
+        try:
+            return cls._get(name).get_object()
         finally:
             cls._paramlock.release()
 

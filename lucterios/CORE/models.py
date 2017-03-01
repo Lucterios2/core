@@ -27,6 +27,7 @@ from os.path import dirname, join, exists, isfile
 from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile
+import sys
 try:
     from zipfile import BadZipFile
 except:
@@ -54,18 +55,24 @@ class Parameter(LucteriosModel):
         'Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
+    metaselect = models.TextField('meta', blank=True)
 
     def __str__(self):
         return self.name
 
     @classmethod
-    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None):
+    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
         param, created = Parameter.objects.get_or_create(name=name, typeparam=typeparam)
         if created:
             param.title = title
             param.param_titles = param_titles
             param.args = args
             param.value = value
+            if meta is not None:
+                param.metaselect = meta
+            param.save()
+        elif meta is not None:
+            param.metaselect = meta
             param.save()
         return created
 
@@ -77,6 +84,31 @@ class Parameter(LucteriosModel):
         else:
             db_param.value = pvalue
         db_param.save()
+
+    def get_meta_select(self):
+        from django.db.models import Q
+        import importlib
+        meta_select = None
+        if self.metaselect != "":
+            meta_select = eval(self.metaselect)
+            if (len(meta_select) == 5) and isinstance(meta_select[0], six.text_type) and isinstance(meta_select[1], six.text_type) and isinstance(meta_select[3], six.text_type) and isinstance(meta_select[4], bool):
+                if isinstance(meta_select[2], six.text_type):
+                    meta_select = list(meta_select)
+                    sys_modules = dict(sys.modules)
+                    last = None
+                    for item_val in meta_select[2].split(';'):
+                        if item_val.startswith('import '):
+                            module_name = item_val[7:]
+                            mod_imported = importlib.import_module(module_name)
+                            sys_modules[module_name] = mod_imported
+                        else:
+                            last = eval(item_val, sys_modules)
+                    meta_select[2] = last
+                elif not isinstance(meta_select[2], Q):
+                    meta_select = None
+            else:
+                meta_select = None
+        return meta_select
 
     class Meta(object):
 
