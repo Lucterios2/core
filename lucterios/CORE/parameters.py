@@ -42,6 +42,7 @@ class ParamCache(object):
 
     def __init__(self, name):
         param = Parameter.objects.get(name=name)
+        self.db_obj = None
         self.name = param.name
         self.type = param.typeparam
         self.meta_info = param.get_meta_select()
@@ -142,9 +143,11 @@ class ParamCache(object):
             value_text = ugettext_lazy(self.name + ".%d" % self.value)
         elif self.type == 6:  # selected
             if self.meta_info[3] == "id":
-                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-                db_obj = db_mdl.objects.get(id=self.value)
-                value_text = six.text_type(db_obj)
+                db_obj = self.get_object()
+                if db_obj is not None:
+                    value_text = six.text_type(db_obj)
+                else:
+                    value_text = "---"
             else:
                 value_text = self.value
         else:
@@ -160,14 +163,20 @@ class ParamCache(object):
         return param_cmp
 
     def get_object(self):
-        db_obj = None
-        if self.type == 6:
-            try:
-                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-                db_obj = db_mdl.objects.get(**{self.meta_info[3]: self.value})
-            except:
-                db_obj = None
-        return db_obj
+        if (self.type == 6):
+            if self.db_obj is None:
+                try:
+                    db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+                    db_objs = db_mdl.objects.filter(**{self.meta_info[3]: self.value})
+                    if len(db_objs) > 0:
+                        self.db_obj = (db_objs[0],)
+                    else:
+                        self.db_obj = (None,)
+                except:
+                    self.db_obj = (None,)
+            return self.db_obj[0]
+        else:
+            return None
 
 
 class Params(object):
