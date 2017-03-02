@@ -191,8 +191,8 @@ class Params(object):
                 cls._PARAM_CACHE_LIST[name] = ParamCache(name)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
-            # except Exception:
-            #    raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
+            except Exception:
+                raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
         return cls._PARAM_CACHE_LIST[name]
 
     @classmethod
