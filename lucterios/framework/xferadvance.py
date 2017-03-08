@@ -161,7 +161,7 @@ class XferAddEditor(XferContainerCustom):
             self.add_action(act, **opt)
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
-    def get(self, request, *args, **kwargs):
+    def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:

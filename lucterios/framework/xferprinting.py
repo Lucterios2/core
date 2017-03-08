@@ -112,7 +112,7 @@ class XferContainerPrint(XferContainerAbstract):
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 
-    def get(self, request, *args, **kwargs):
+    def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
@@ -123,7 +123,7 @@ class XferContainerPrint(XferContainerAbstract):
             self.fillresponse(**self._get_params())
             if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
                 dlg = self._get_from_selector()
-                return dlg.get(request, *args, **kwargs)
+                return dlg.get_post(request, *args, **kwargs)
             else:
                 self._finalize()
                 return self.get_response()
@@ -147,9 +147,11 @@ class XferContainerPrint(XferContainerAbstract):
         return six.text_type(self.caption)
 
     def _finalize(self):
-        printxml = etree.SubElement(self.responsexml, "PRINT")
-        printxml.attrib['mode'] = six.text_type(
-            self.report_mode)  # 3=PDF - 4=CSV
-        printxml.text = self.report_content
-        etree.SubElement(printxml, "TITLE").text = self.get_print_name()
+        if self.format == 'JSON':
+            self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content}
+        else:
+            printxml = etree.SubElement(self.responsexml, "PRINT")
+            printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV
+            printxml.text = self.report_content
+            etree.SubElement(printxml, "TITLE").text = self.get_print_name()
         XferContainerAbstract._finalize(self)

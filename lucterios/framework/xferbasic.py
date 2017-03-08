@@ -38,6 +38,7 @@ from lucterios.framework.tools import fill_param_xml, get_icon_path, WrapAction,
     CLOSE_YES
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
+from django.http.response import JsonResponse
 
 NULL_VALUE = 'NULL'
 
@@ -66,10 +67,12 @@ class XferContainerAbstract(View):
         self.params = {}
         self.responsesxml = etree.Element('REPONSES')
         self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
+        self.responsejson = {}
         self.items = None
         self.item = None
         self.is_new = False
         self.has_changed = False
+        self.format = 'XML'
 
     @classmethod
     def initclass(cls, right):
@@ -248,6 +251,9 @@ class XferContainerAbstract(View):
             self.params[key] = request.GET[key]
         for key in request.POST.keys():
             self.params[key] = request.POST[key]
+        if 'FORMAT' in self.params.keys():
+            self.format = self.params['FORMAT']
+            del self.params['FORMAT']
         self.language = translation.get_language_from_request(request)
         translation.activate(self.language)
         self._search_model()
@@ -264,23 +270,33 @@ class XferContainerAbstract(View):
         pass
 
     def _finalize(self):
-        self.responsexml.attrib['observer'] = self.observer_name
-        self.responsexml.attrib['source_extension'] = self.extension
-        self.responsexml.attrib['source_action'] = self.action
-        titlexml = etree.Element("TITLE")
-        titlexml.text = self.caption.replace('_', '')
-        if titlexml.text != '':
-            self.responsexml.insert(0, titlexml)
-        if len(self.params) > 0:
-            context = etree.Element("CONTEXT")
-            fill_param_xml(context, self.params)
-            self.responsexml.insert(1, context)
-        if self.closeaction is not None:
-            etree.SubElement(self.responsexml, "CLOSE_ACTION").append(
-                self.closeaction[0].get_action_xml(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3]))
+        if self.format == 'JSON':
+            self.responsejson['meta'] = {'observer': self.observer_name, 'extension': self.extension, 'action': self.action, 'title': self.caption}
+            self.responsejson['context'] = dict(self.params)
+            if self.closeaction is not None:
+                self.responsejson['close'] = self.closeaction[0].get_action_json(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3])
+            else:
+                self.responsejson['close'] = None
+        else:
+            self.responsexml.attrib['observer'] = self.observer_name
+            self.responsexml.attrib['source_extension'] = self.extension
+            self.responsexml.attrib['source_action'] = self.action
+            titlexml = etree.Element("TITLE")
+            titlexml.text = self.caption.replace('_', '')
+            if titlexml.text != '':
+                self.responsexml.insert(0, titlexml)
+            if len(self.params) > 0:
+                context = etree.Element("CONTEXT")
+                fill_param_xml(context, self.params)
+                self.responsexml.insert(1, context)
+            if self.closeaction is not None:
+                etree.SubElement(self.responsexml, "CLOSE_ACTION").append(self.closeaction[0].get_action_xml(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3]))
 
     def get_response(self):
-        return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+        if self.format == 'JSON':
+            return JsonResponse(self.responsejson, json_dumps_params={'indent': 3})
+        else:
+            return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
 
     def _get_params(self):
         params = {}
@@ -299,23 +315,23 @@ class XferContainerAbstract(View):
             params[arg_name] = self.getparam(arg_name, default_val)
         return params
 
-    def get(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+    def get_post(self, request, *args, **kwargs):
+        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
-            getLogger("lucterios.core.request").debug(
-                "... get params=%s", self.params)
+            getLogger("lucterios.core.request").debug("... get params=%s", self.params)
             self.fillresponse(**self._get_params())
             self._finalize()
             res = self.get_response()
             return res
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.get_post(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.get(request, *args, **kwargs)
+        return self.get_post(request, *args, **kwargs)
 
 
 class XferContainerMenu(XferContainerAbstract):
@@ -324,8 +340,11 @@ class XferContainerMenu(XferContainerAbstract):
 
     def fillresponse(self):
         from lucterios.framework.tools import MenuManage
-        main_menu = etree.SubElement(self.responsexml, "MENUS")
-        MenuManage.fill(self.request, None, main_menu)
+        if self.format == 'JSON':
+            self.responsejson["menus"] = MenuManage.filljson(self.request, None)
+        else:
+            main_menu = etree.SubElement(self.responsexml, "MENUS")
+            MenuManage.fill(self.request, None, main_menu)
 
 
 class XferContainerException(XferContainerAbstract):
@@ -349,10 +368,12 @@ class XferContainerException(XferContainerAbstract):
             code_text = six.text_type(self.exception.code)
         else:
             code_text = '0'
-        expt = etree.SubElement(self.responsexml, "EXCEPTION")
-        etree.SubElement(expt, 'MESSAGE').text = msg_text
-        etree.SubElement(expt, 'CODE').text = code_text
-        etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
-        etree.SubElement(expt, 'TYPE').text = type_text
-        getLogger("lucterios.core.exception").warning(
-            "type %s: code=%s - message=%s", type_text, code_text, msg_text)
+        if self.format == 'JSON':
+            self.responsejson['exception'] = {'message': msg_text, 'code': code_text, 'debug': get_error_trace(), 'type': type_text}
+        else:
+            expt = etree.SubElement(self.responsexml, "EXCEPTION")
+            etree.SubElement(expt, 'MESSAGE').text = msg_text
+            etree.SubElement(expt, 'CODE').text = code_text
+            etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
+            etree.SubElement(expt, 'TYPE').text = type_text
+        getLogger("lucterios.core.exception").warning("type %s: code=%s - message=%s", type_text, code_text, msg_text)

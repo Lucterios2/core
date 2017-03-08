@@ -36,7 +36,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, \
     XferCompDateTime
 from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction,\
-    SELECT_NONE
+    SELECT_NONE, get_actions_json
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
@@ -149,9 +149,9 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
-        return dlg.get(request, *args, **kwargs)
+        return dlg.get_post(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
+    def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
@@ -170,7 +170,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
                 dlg.add_action(WrapAction(_("No"), "images/cancel.png"))
                 dlg.closeaction = self.closeaction
-                return dlg.get(request, *args, **kwargs)
+                return dlg.get_post(request, *args, **kwargs)
             elif self.msg != "":
                 dlg = XferContainerDialogBox()
                 dlg.request = self.request
@@ -178,7 +178,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.set_dialog(self.msg, self.typemsg)
                 dlg.add_action(WrapAction(_("Ok"), "images/ok.png"))
                 dlg.closeaction = self.closeaction
-                return dlg.get(request, *args, **kwargs)
+                return dlg.get_post(request, *args, **kwargs)
             elif self.except_msg != "":
                 dlg = XferContainerDialogBox()
                 dlg.request = self.request
@@ -190,7 +190,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                     if self.check_action_permission(except_action.get_action()):
                         dlg.add_action(except_action.get_action(_("Retry"), ""))
                 dlg.closeaction = self.closeaction
-                return dlg.get(request, *args, **kwargs)
+                return dlg.get_post(request, *args, **kwargs)
             elif self.traitment_data is not None:
                 return self._get_from_custom(request, *args, **kwargs)
             else:
@@ -204,9 +204,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
 
     def _finalize(self):
         if self.redirect_act is not None:
-            act_xml = self.redirect_act[0].get_action_xml(modal=self.redirect_act[1], close=self.redirect_act[2], params=self.redirect_act[3])
-            if act_xml is not None:
-                self.responsexml.append(act_xml)
+            if self.format == 'JSON':
+                self.responsejson['action'] = self.redirect_act[0].get_action_json(modal=self.redirect_act[1], close=self.redirect_act[2], params=self.redirect_act[3])
+            else:
+                self.responsexml.append(self.redirect_act[0].get_action_xml(modal=self.redirect_act[1], close=self.redirect_act[2], params=self.redirect_act[3]))
         XferContainerAbstract._finalize(self)
 
 XFER_DBOX_INFORMATION = 1
@@ -243,11 +244,15 @@ class XferContainerDialogBox(XferContainerAbstract):
             self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def _finalize(self):
-        text_dlg = etree.SubElement(self.responsexml, "TEXT")
-        text_dlg.attrib['type'] = six.text_type(self.msgtype)
-        text_dlg.text = six.text_type(self.msgtext)
-        if len(self.actions) != 0:
-            self.responsexml.append(get_actions_xml(self.actions))
+        if self.format == 'JSON':
+            self.responsejson['data'] = {'text': six.text_type(self.msgtext), 'type': self.msgtype}
+            self.responsejson['actions'] = get_actions_json(self.actions)
+        else:
+            text_dlg = etree.SubElement(self.responsexml, "TEXT")
+            text_dlg.attrib['type'] = six.text_type(self.msgtype)
+            text_dlg.text = six.text_type(self.msgtext)
+            if len(self.actions) != 0:
+                self.responsexml.append(get_actions_xml(self.actions))
         XferContainerAbstract._finalize(self)
 
 
@@ -741,13 +746,23 @@ if (%(comp)s_current !== null) {
         return sortedkey_components, final_components
 
     def _finalize(self):
-        if len(self.components) != 0:
+        if self.format == 'JSON':
             sortedkey_components, final_components = self.get_sort_components()
-            xml_comps = etree.SubElement(self.responsexml, "COMPONENTS")
+            self.responsejson['data'] = {}
+            self.responsejson['comp'] = []
             for key in sortedkey_components:
                 comp = final_components[key]
-                xml_comp = comp.get_reponse_xml()
-                xml_comps.append(xml_comp)
-        if len(self.actions) != 0:
-            self.responsexml.append(get_actions_xml(self.actions))
+                self.responsejson['comp'].append(comp.get_json())
+                self.responsejson['data'][comp.name] = comp.get_json_value()
+            self.responsejson['actions'] = get_actions_json(self.actions)
+        else:
+            if len(self.components) != 0:
+                sortedkey_components, final_components = self.get_sort_components()
+                xml_comps = etree.SubElement(self.responsexml, "COMPONENTS")
+                for key in sortedkey_components:
+                    comp = final_components[key]
+                    xml_comp = comp.get_reponse_xml()
+                    xml_comps.append(xml_comp)
+            if len(self.actions) != 0:
+                self.responsexml.append(get_actions_xml(self.actions))
         XferContainerAbstract._finalize(self)

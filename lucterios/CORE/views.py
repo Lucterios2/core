@@ -86,7 +86,7 @@ signal_and_lock.unlocker_view_class = Unlock
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
 
-    def get(self, request, *args, **kwargs):
+    def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
@@ -118,16 +118,16 @@ class Download(XferContainerAbstract):
 class Menu(XferContainerMenu):
     caption = 'menu'
 
-    def get(self, request, *args, **kwargs):
+    def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
             if request.user.is_authenticated() or not secure_mode_connect():
-                return XferContainerMenu.get(self, request, *args, **kwargs)
+                return XferContainerMenu.get_post(self, request, *args, **kwargs)
             else:
                 from lucterios.CORE.views_auth import Authentification
                 auth = Authentification()
-                return auth.get(request, *args, **kwargs)
+                return auth.get_post(request, *args, **kwargs)
         finally:
             getLogger("lucterios.core.request").debug(
                 "<< get %s [%s]", request.path, request.user)

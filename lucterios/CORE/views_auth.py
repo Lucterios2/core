@@ -55,7 +55,7 @@ def get_info_server():
     os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])
     res.append(six.text_type("{[i]}%s - Python %s - Django %s{[/i]}") %
                (os_version, python_version(), django_version))
-    return six.text_type("{[br/]}").join(res)
+    return res
 
 
 @MenuManage.describ('')
@@ -88,6 +88,7 @@ class Authentification(XferContainerAbstract):
                 self.must_autentificate('NEEDAUTH')
 
     def must_autentificate(self, mess):
+        self.responsejson['data'] = mess
         self.responsexml.text = mess
         if secure_mode_connect():
             basic_actions = []
@@ -100,34 +101,44 @@ class Authentification(XferContainerAbstract):
                 self.responsexml.append(get_actions_xml(actions))
 
     def get_connection_info(self):
-        from lxml import etree
         from django.conf import settings
         import lucterios.CORE
         import os
-        connextion = etree.SubElement(self.responsexml, "CONNECTION")
-        etree.SubElement(connextion, 'TITLE').text = six.text_type(settings.APPLIS_NAME)
-        etree.SubElement(connextion, 'SUBTITLE').text = settings.APPLIS_SUBTITLE()
-        etree.SubElement(connextion, 'VERSION').text = six.text_type(settings.APPLIS_VERSION)
-        etree.SubElement(connextion, 'SERVERVERSION').text = six.text_type(lucterios.CORE.__version__)
-        etree.SubElement(connextion, 'COPYRIGHT').text = six.text_type(settings.APPLIS_COPYRIGHT)
-        etree.SubElement(connextion, 'LOGONAME').text = settings.APPLIS_LOGO
-        etree.SubElement(connextion, 'BACKGROUND').text = settings.APPLIS_BACKGROUND
-        etree.SubElement(connextion, 'SUPPORT_EMAIL').text = six.text_type(settings.APPLI_EMAIL)
-        etree.SubElement(connextion, 'SUPPORT_HTML').text = six.text_type(settings.APPLI_SUPPORT())
-        etree.SubElement(connextion, 'INFO_SERVER').text = get_info_server()
+        info_cnx = {}
+        info_cnx['TITLE'] = six.text_type(settings.APPLIS_NAME)
+        info_cnx['SUBTITLE'] = settings.APPLIS_SUBTITLE()
+        info_cnx['VERSION'] = six.text_type(settings.APPLIS_VERSION)
+        info_cnx['SERVERVERSION'] = six.text_type(lucterios.CORE.__version__)
+        info_cnx['COPYRIGHT'] = six.text_type(settings.APPLIS_COPYRIGHT)
+        info_cnx['LOGONAME'] = settings.APPLIS_LOGO.decode()
+        info_cnx['BACKGROUND'] = settings.APPLIS_BACKGROUND.decode()
+        info_cnx['SUPPORT_EMAIL'] = six.text_type(settings.APPLI_EMAIL)
+        info_cnx['SUPPORT_HTML'] = six.text_type(settings.APPLI_SUPPORT())
+        info_cnx['INFO_SERVER'] = get_info_server()
         setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
-        etree.SubElement(connextion, 'INSTANCE').text = setting_module_name.split('.')[0]
-        etree.SubElement(connextion, 'LANGUAGE').text = self.language
-        etree.SubElement(connextion, 'MODE').text = six.text_type(Params.getvalue("CORE-connectmode"))
+        info_cnx['INSTANCE'] = setting_module_name.split('.')[0]
+        info_cnx['LANGUAGE'] = self.language
+        info_cnx['MODE'] = six.text_type(Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
-            etree.SubElement(connextion, 'LOGIN').text = self.request.user.username
-            etree.SubElement(connextion, 'REALNAME').text = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
-            etree.SubElement(connextion, 'EMAIL').text = self.request.user.email
+            info_cnx['LOGIN'] = self.request.user.username
+            info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
+            info_cnx['EMAIL'] = self.request.user.email
         else:
-            etree.SubElement(connextion, 'LOGIN').text = ''
-            etree.SubElement(connextion, 'REALNAME').text = ''
-            etree.SubElement(connextion, 'EMAIL').text = ''
-        self.responsexml.text = "OK"
+            info_cnx['LOGIN'] = ''
+            info_cnx['REALNAME'] = ''
+            info_cnx['EMAIL'] = ''
+        if self.format == 'JSON':
+            self.responsejson['data'] = "OK"
+            self.responsejson['connexion'] = info_cnx
+        else:
+            from lxml import etree
+            connextion = etree.SubElement(self.responsexml, "CONNECTION")
+            for name, value in info_cnx.items():
+                if isinstance(value, list):
+                    etree.SubElement(connextion, name).text = "{[br/]}".join(value)
+                else:
+                    etree.SubElement(connextion, name).text = value
+            self.responsexml.text = "OK"
 
 
 @MenuManage.describ('')

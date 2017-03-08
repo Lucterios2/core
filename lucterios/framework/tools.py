@@ -91,6 +91,25 @@ class WrapAction(object):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, self.url_text, self.extension)
 
+    def get_action_json(self, desc='', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
+        json_res = {}
+        json_res['id'] = self.url_text
+        if self.icon_path != "":
+            json_res['icon'] = six.text_type(self.icon_path)
+        if self.extension != "":
+            json_res['extension'] = self.extension
+        if self.action != "":
+            json_res['action'] = self.action
+        if desc != "":
+            json_res["help"] = six.text_type(desc)
+        json_res['modal'] = six.text_type(modal)
+        json_res['close'] = six.text_type(close)
+        json_res['unique'] = six.text_type(unique)
+        if isinstance(self.modal, int):
+            json_res['modal'] = six.text_type(self.modal)
+        json_res['params'] = params
+        return json_res
+
     def get_action_xml(self, desc='', tag='ACTION', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         actionxml = etree.Element(tag)
         actionxml.text = six.text_type(self.caption)
@@ -329,6 +348,13 @@ class ActionsManage(object):
         return wrapper
 
 
+def menu_key_to_comp(menu_item):
+    try:
+        return menu_item[0].pos
+    except AttributeError:
+        return 0
+
+
 class MenuManage(object):
 
     _MENU_LIST = {}
@@ -380,12 +406,25 @@ class MenuManage(object):
         return wrapper
 
     @classmethod
+    def filljson(cls, request, parentref):
+        resjson = []
+        cls._menulock.acquire()
+        try:
+            if parentref in cls._MENU_LIST.keys():
+                sub_menus = cls._MENU_LIST[parentref]
+                sub_menus.sort(key=menu_key_to_comp)
+                for sub_menu_item in sub_menus:
+                    if sub_menu_item[0].check_permission(request):
+                        resjson.append(sub_menu_item[0].get_action_json(desc=sub_menu_item[1]))
+                        sub_menu = cls.filljson(request, sub_menu_item[0].url_text)
+                        if len(sub_menu) > 0:
+                            resjson.append(sub_menu)
+        finally:
+            cls._menulock.release()
+        return resjson
+
+    @classmethod
     def fill(cls, request, parentref, parentxml):
-        def menu_key_to_comp(menu_item):
-            try:
-                return menu_item[0].pos
-            except AttributeError:
-                return 0
         cls._menulock.acquire()
         try:
             if parentref in cls._MENU_LIST.keys():
@@ -408,6 +447,13 @@ def get_actions_xml(actions):
         if new_xml is not None:
             actionsxml.append(new_xml)
     return actionsxml
+
+
+def get_actions_json(actions):
+    actionsjson = []
+    for action, modal, close, unique, params in actions:
+        actionsjson.append(action.get_action_json(modal=modal, close=close, unique=unique, params=params))
+    return actionsjson
 
 
 def fill_param_xml(context, params):

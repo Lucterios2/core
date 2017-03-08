@@ -43,6 +43,7 @@ class LucteriosErrorMiddleware(XferContainerException):
                 self.closeaction = (redirectaction, FORMTYPE_MODAL, CLOSE_YES, None)
         self.responsesxml = etree.Element('REPONSES')
         self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
+        self.responsejson = {}
         self._initialize(request)
         self.fillresponse()
         self._finalize()
