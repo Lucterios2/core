@@ -93,6 +93,7 @@ class WrapAction(object):
 
     def get_action_json(self, desc='', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         json_res = {}
+        json_res['text'] = six.text_type(self.caption)
         json_res['id'] = self.url_text
         if self.icon_path != "":
             json_res['icon'] = six.text_type(self.icon_path)

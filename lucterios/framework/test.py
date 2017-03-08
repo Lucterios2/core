@@ -104,6 +104,7 @@ class LucteriosTest(TestCase):
         self.factory = XmlRequestFactory(self.xfer_class, self.language)
         self.client = XmlClient(self.language)
         self.response_xml = None
+        self.response_json = None
         Params.clear()
         notfree_mode_connect()
 
@@ -124,6 +125,16 @@ class LucteriosTest(TestCase):
         self.assertEqual(
             response.status_code, 200, "HTTP error:" + str(response.status_code))
         self.parse_xml(response.content)
+
+    def calljson(self, path, data, is_client=True):
+        import json
+        data['FORMAT'] = 'JSON'
+        if is_client:
+            response = self.client.call(path, data)
+        else:
+            response = self.factory.call(path, data)
+        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
+        self.response_json = json.loads(response.content.decode())
 
     def get_first_xpath(self, xpath):
         if xpath == '':
@@ -160,20 +171,33 @@ class LucteriosTest(TestCase):
                          (xpath, name, attr_value, value))
 
     def assert_observer(self, obsname, extension, action):
-        try:
-            self.assert_attrib_equal('', 'observer', obsname)
-            self.assert_attrib_equal('', 'source_extension', extension)
-            self.assert_attrib_equal('', 'source_action', action)
-        except AssertionError:
-            if self.get_first_xpath('').get('observer') == 'core.exception':
-                six.print_(
-                    "Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
-                six.print_("Call-stack:" + six.text_type(
-                    self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
-            if self.get_first_xpath('').get('observer') == 'core.dialogbox':
-                six.print_(
-                    "Message:" + six.text_type(self.get_first_xpath('TEXT').text))
-            raise
+        if self.response_json is None:
+            try:
+                self.assert_attrib_equal('', 'observer', obsname)
+                self.assert_attrib_equal('', 'source_extension', extension)
+                self.assert_attrib_equal('', 'source_action', action)
+            except AssertionError:
+                if self.get_first_xpath('').get('observer') == 'core.exception':
+                    six.print_(
+                        "Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
+                    six.print_("Call-stack:" + six.text_type(
+                        self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
+                if self.get_first_xpath('').get('observer') == 'core.dialogbox':
+                    six.print_(
+                        "Message:" + six.text_type(self.get_first_xpath('TEXT').text))
+                raise
+        else:
+            try:
+                self.assertEquals(self.response_json['meta']['observer'], obsname)
+                self.assertEquals(self.response_json['meta']['extension'], extension)
+                self.assertEquals(self.response_json['meta']['action'], action)
+            except AssertionError:
+                if self.response_json['meta']['observer'] == 'core.exception':
+                    six.print_("Error:" + self.response_json['exception']['message'])
+                    six.print_("Call-stack:" + self.response_json['exception']['debug'].replace("{[br/]}", "\n"))
+                if self.response_json['meta']['observer'] == 'core.dialogbox':
+                    six.print_("Message:" + self.response_json['data']['text'])
+                raise
 
     def assert_comp_equal(self, xpath, text, coord):
         self.assert_xml_equal(xpath, text)

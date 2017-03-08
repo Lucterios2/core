@@ -148,7 +148,7 @@ class XferContainerPrint(XferContainerAbstract):
 
     def _finalize(self):
         if self.format == 'JSON':
-            self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content}
+            self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content.decode()}
         else:
             printxml = etree.SubElement(self.responsexml, "PRINT")
             printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV

@@ -260,6 +260,7 @@ class XferCompLabelForm(XferComponent):
         self._blank_line_before = True
 
     def _format_label(self):
+        self.value = six.text_type(self.value)
         if self._color != 'black':
             self.set_value('{[font color="%s"]}%s{[/font]}' % (self._color, self.value))
         if self._bold:
@@ -414,6 +415,14 @@ class XferCompFloat(XferCompButton):
         else:
             value_format = "%%.%df" % self.prec
             return value_format % self.value
+
+    def get_json_value(self):
+        if self.value is None:
+            return None
+        elif self.prec == 0:
+            return int(self.value)
+        else:
+            return float(self.value)
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
