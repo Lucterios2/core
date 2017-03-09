@@ -103,6 +103,7 @@ def is_simple_field(dep_field):
 
 class LucteriosModel(models.Model):
 
+    is_simple_gui = False
     TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
 
     @classmethod
@@ -414,7 +415,6 @@ class LucteriosModel(models.Model):
             return LucteriosEditor(self)
 
     class Meta(object):
-
         abstract = True
 
 

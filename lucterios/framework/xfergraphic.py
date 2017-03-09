@@ -259,12 +259,15 @@ class XferContainerDialogBox(XferContainerAbstract):
 class XferContainerCustom(XferContainerAbstract):
 
     observer_name = "core.custom"
+    is_simple_gui = False
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
         self.actions = []
         self.components = {}
         self.tab = 0
+        if self.model is not None:
+            self.is_simple_gui = self.model.is_simple_gui
 
     def add_component(self, component):
         component.tab = self.tab
@@ -349,6 +352,7 @@ class XferContainerCustom(XferContainerAbstract):
         new_lbl.hmin = old_obj.hmin
         new_lbl.colspan = old_obj.colspan
         new_lbl.rowspan = old_obj.rowspan
+        new_lbl.description = old_obj.description
         self.add_component(new_lbl)
 
     def find_tab(self, tab_name):
@@ -421,7 +425,6 @@ class XferContainerCustom(XferContainerAbstract):
             return val
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, CharField
         from django.db.models.fields.related import ForeignKey
-        from django.core.exceptions import ObjectDoesNotExist
         dep_field = self.item.get_field_by_name(field_name)
         is_needed = dep_field.unique or not (dep_field.blank or dep_field.null)
         if isinstance(dep_field, IntegerField):
@@ -477,7 +480,6 @@ class XferContainerCustom(XferContainerAbstract):
             if isinstance(dep_field, CharField):
                 comp.size = dep_field.max_length
         comp.set_needed(is_needed)
-        comp.description = six.text_type(dep_field.verbose_name)
         return comp
 
     def get_maxsize_of_lines(self, field_names):
@@ -501,28 +503,31 @@ class XferContainerCustom(XferContainerAbstract):
                 line_field_name = line_field_name,
             offset = 0
             height = 1
+            if self.is_simple_gui:
+                comp_col_addon = 0
+            else:
+                comp_col_addon = 1
             for field_name in line_field_name:
                 if field_name is None:
                     continue
-                colspan = self.get_current_offset(
-                    maxsize_of_lines, len(line_field_name), offset)
+                colspan = self.get_current_offset(maxsize_of_lines, len(line_field_name), offset)
                 if field_name[-4:] == '_set':  # field is one-to-many relation
                     child = getattr(self.item, field_name).all()
                     if hasattr(self.item, field_name[:-4] + '_query'):
-                        child = child.filter(
-                            getattr(self.item, field_name[:-4] + '_query'))
-                    lbl = XferCompLabelForm('lbl_' + field_name)
-                    lbl.set_location(col + offset, row, 1, 1)
-                    lbl.set_value_as_name(
-                        child.model._meta.verbose_name)
-                    self.add_component(lbl)
+                        child = child.filter(getattr(self.item, field_name[:-4] + '_query'))
+                    if not self.is_simple_gui:
+                        lbl = XferCompLabelForm('lbl_' + field_name)
+                        lbl.set_location(col + offset, row, 1, 1)
+                        lbl.set_value_as_name(child.model._meta.verbose_name)
+                        self.add_component(lbl)
                     comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
                     comp.add_actions(self, model=child.model)
                     comp.add_action_notified(self, model=child.model)
-                    comp.set_location(col + 1 + offset, row, colspan, 1)
+                    comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
+                    comp.description = six.text_type(child.model._meta.verbose_name)
                     self.add_component(comp)
-                    offset += 2
+                    offset += 1 + comp_col_addon
                 else:
                     if isinstance(field_name, tuple):
                         verbose_name, field_name = field_name
@@ -532,36 +537,45 @@ class XferContainerCustom(XferContainerAbstract):
                     # field real in model
                     if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:
                         # field not many-to-many
-                        lbl = XferCompLabelForm('lbl_' + field_name)
-                        lbl.set_location(col + offset, row, 1, 1)
-                        if verbose_name is None:
-                            lbl.set_value_as_name(
-                                six.text_type(dep_field.verbose_name))
-                        else:
-                            lbl.set_value_as_name(
-                                six.text_type(verbose_name))
-                        self.add_component(lbl)
+                        if not self.is_simple_gui:
+                            lbl = XferCompLabelForm('lbl_' + field_name)
+                            lbl.set_location(col + offset, row, 1, 1)
+                            if verbose_name is None:
+                                lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
+                            else:
+                                lbl.set_value_as_name(six.text_type(verbose_name))
+                            self.add_component(lbl)
                         if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):
                             if readonly:
                                 comp = self.get_reading_comp(field_name)
                             else:
                                 comp = self.get_writing_comp(field_name)
-                            comp.set_location(
-                                col + 1 + offset, row, colspan, 1)
+                            comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
+                            if verbose_name is None:
+                                comp.description = six.text_type(dep_field.verbose_name)
+                            else:
+                                comp.description = six.text_type(verbose_name)
                             self.add_component(comp)
                         else:  # field many-to-many
                             if readonly:
                                 child = getattr(self.item, field_name).all()
                                 comp = XferCompGrid(field_name)
                                 comp.set_model(child, None, self)
-                                comp.set_location(
-                                    col + 1 + offset, row, colspan, 1)
+                                comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
+                                if verbose_name is None:
+                                    comp.description = six.text_type(dep_field.verbose_name)
+                                else:
+                                    comp.description = six.text_type(verbose_name)
                                 self.add_component(comp)
                             else:
-                                self.selector_from_model(
-                                    col + offset, row, field_name)
+                                first_ctr = self.selector_from_model(col + comp_col_addon + offset, row, field_name)
+                                if first_ctr is not None:
+                                    if verbose_name is None:
+                                        first_ctr.description = six.text_type(dep_field.verbose_name)
+                                    else:
+                                        first_ctr.description = six.text_type(verbose_name)
                             height = 5
-                        offset += 2
+                        offset += 1 + comp_col_addon
             row += height
 
     def fill_from_model(self, col, row, readonly, desc_fields=None):
@@ -641,8 +655,8 @@ class XferContainerCustom(XferContainerAbstract):
 
     def selector_from_model(self, col, row, field_name):
 
-        dep_field = self.item._meta.get_field(
-            field_name)
+        dep_field = self.item._meta.get_field(field_name)
+        lista = None
         if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
             if hasattr(self.item, field_name + "__titles"):
                 title_available, title_chosen = getattr(
@@ -655,22 +669,22 @@ class XferContainerCustom(XferContainerAbstract):
                 field_name, availables)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_available')
-            lbl.set_location(col + 1, row, 1, 1)
+            lbl.set_location(col, row, 1, 1)
             lbl.set_value_as_header(title_available)
             self.add_component(lbl)
 
             lista = XferCompCheckList(field_name + '_available')
-            lista.set_location(col + 1, row + 1, 1, 5)
+            lista.set_location(col, row + 1, 1, 5)
             lista.set_size(200, 250)
             self.add_component(lista)
 
             lbl = XferCompLabelForm('hd_' + field_name + '_chosen')
-            lbl.set_location(col + 3, row, 1, 1)
+            lbl.set_location(col + 2, row, 1, 1)
             lbl.set_value_as_header(title_chosen)
             self.add_component(lbl)
 
             listc = XferCompCheckList(field_name + '_chosen')
-            listc.set_location(col + 3, row + 1, 1, 5)
+            listc.set_location(col + 2, row + 1, 1, 5)
             listc.set_size(200, 250)
             self.add_component(listc)
 
@@ -716,12 +730,13 @@ if (%(comp)s_current !== null) {
 """)]:
                 btn = XferCompButton(field_name + '_' + button_name)
                 btn.set_action(self.request, WrapAction(button_title, ""), close=CLOSE_NO)
-                btn.set_location(col + 2, row + 1 + btn_idx, 1, 1)
+                btn.set_location(col + 1, row + 1 + btn_idx, 1, 1)
                 btn.set_is_mini(True)
                 btn.java_script = java_script_init + \
                     button_script % {'comp': field_name} + java_script_treat
                 self.add_component(btn)
                 btn_idx += 1
+        return lista
 
     def add_action(self, action, options=None, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
@@ -766,3 +781,7 @@ if (%(comp)s_current !== null) {
             if len(self.actions) != 0:
                 self.responsexml.append(get_actions_xml(self.actions))
         XferContainerAbstract._finalize(self)
+        if self.format == 'JSON':
+            self.responsejson['meta']['is_simple_gui'] = self.is_simple_gui
+        else:
+            self.responsexml.attrib['is_simple_gui'] = "1" if self.is_simple_gui else "0"

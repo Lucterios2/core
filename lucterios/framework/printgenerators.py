@@ -338,6 +338,9 @@ class PrintLabel(PrintItem):
             logging.getLogger("lucterios.core.print").exception(
                 six.text_type(err))
             self.value = six.text_type(self.comp.value)
+        self.init_label()
+
+    def init_label(self):
         self.value = get_value_converted(self.value, True)
         self.size_x, self.height = calcul_text_size(self.value)
         self.height = self.height * 1.1
@@ -476,19 +479,38 @@ class ActionGenerator(ReportGenerator):
                     or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect) or isinstance(comp, XferCompCheck):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
+                lbl_item = None
+                if self.action.is_simple_gui:
+                    new_item.col = 2 * new_item.col
+                    new_item.colspan = 2 * new_item.colspan
+                    if comp.description != '':
+                        lbl_item = PrintLabel(comp, self)
+                        lbl_item.value = "{[b]}%s{[/b]}" % comp.description
+                        lbl_item.col = new_item.col
+                        lbl_item.colspan = 1
+                        lbl_item.init_label()
+                        new_item.col = new_item.col + 1
+                        new_item.colspan = new_item.colspan - 1
                 if new_item.tab not in col_size.keys():
                     col_size[new_item.tab] = []
                 if new_item.tab not in max_col.keys():
                     max_col[new_item.tab] = 0
+                if lbl_item is not None:
+                    self.print_items.append(lbl_item)
+                    lbl_size_x = lbl_item.size_x
+                    for item_idx in range(0, lbl_item.col + 1):
+                        while len(col_size[lbl_item.tab]) <= item_idx:
+                            col_size[lbl_item.tab].append(0)
+                        if item_idx >= lbl_item.col:
+                            col_size[lbl_item.tab][item_idx] = max(col_size[lbl_item.tab][item_idx], lbl_size_x)
+                    max_col[lbl_item.tab] = max(max_col[lbl_item.tab], lbl_item.col + 1)
                 new_size_x = new_item.size_x / new_item.colspan
                 for item_idx in range(0, new_item.col + new_item.colspan):
                     while len(col_size[new_item.tab]) <= item_idx:
                         col_size[new_item.tab].append(0)
                     if item_idx >= new_item.col:
-                        col_size[new_item.tab][item_idx] = max(
-                            col_size[new_item.tab][item_idx], new_size_x)
-                max_col[new_item.tab] = max(
-                    max_col[new_item.tab], new_item.col + new_item.colspan)
+                        col_size[new_item.tab][item_idx] = max(col_size[new_item.tab][item_idx], new_size_x)
+                max_col[new_item.tab] = max(max_col[new_item.tab], new_item.col + new_item.colspan)
                 self.print_items.append(new_item)
         return max_col, col_size
 

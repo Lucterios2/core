@@ -6,6 +6,7 @@ var NULL_VALUE = 'NULL';
 var ObserverCustom = ObserverGUI.extend({
 
 	mCompList : new HashMap(),
+	mIsSimpleGui : false,
 
 	get : function(key) {
 		return this.mCompList[key];
@@ -17,6 +18,7 @@ var ObserverCustom = ObserverGUI.extend({
 
 	setContent : function(aDomXmlContent) {
 		this._super(aDomXmlContent);
+		this.mIsSimpleGui = aDomXmlContent.getXMLAttributInt("is_simple_gui", 0) == 1;
 	},
 
 	savefocusin : function(event) {
@@ -31,7 +33,7 @@ var ObserverCustom = ObserverGUI.extend({
 		this.mGUI = new GUIManage(this.getId(), this.mTitle, this);
 		this.mGUI.addcontent(this.getHtmlFromComponent(), this.buildButtons());
 		this.mGUI.showGUI(aGUIType === FORM_MODAL);
-		for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {			
+		for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
 			gui_val = this.mCompList.val(comp_idx);
 			if (gui_val !== null) {
 				gui_val.addAction();
@@ -78,7 +80,7 @@ var ObserverCustom = ObserverGUI.extend({
 	},
 
 	getHtmlFromComponent : function() {
-		var compArray = [], hasTabs = false, tabs = [], tabContent = [], actualTab = -1, compType, components, iComp, component, comp, html;
+		var compArray = [], hasTabs = false, tabs = [], tabContent = [], actualTab = -1, compType, components, iComp, component, comp, lbl, html;
 
 		this.mCompList = new HashMap();
 		components = this.mDomXmlContent.getElementsByTagName("COMPONENTS");
@@ -157,16 +159,40 @@ var ObserverCustom = ObserverGUI.extend({
 					}
 					if (compType !== "TAB") {
 						comp.initial(component);
+						lbl = null;
+						if (this.mIsSimpleGui) {
+							comp.x = 2 * comp.x;
+							comp.colspan = 2 * comp.colspan;
+							if (comp.description !== '') {
+								lbl = new compLabelForm(this);
+								lbl.initial(component);
+								lbl.x = comp.x;
+								lbl.colspan = 1;
+								lbl.name = 'lbl_' + lbl.name;
+								lbl.label = "<b>" + comp.description + "</b>";
+								comp.x = comp.x + 1;
+								comp.colspan = comp.colspan - 1;
+							}
+						}
 						if (hasTabs) {
 							if (tabContent[actualTab][comp.y] === undefined) {
 								tabContent[actualTab][comp.y] = [];
 							}
 							tabContent[actualTab][comp.y][comp.x] = comp;
+							if (lbl !== null) {
+								tabContent[actualTab][lbl.y][lbl.x] = lbl;
+							}
 						} else {
 							if (compArray[comp.y] === undefined) {
 								compArray[comp.y] = [];
 							}
 							compArray[comp.y][comp.x] = comp;
+							if (lbl !== null) {
+								compArray[lbl.y][lbl.x] = lbl;
+							}
+						}
+						if (lbl !== null) {
+							this.mCompList.put(lbl.name, lbl);
 						}
 						this.mCompList.put(comp.name, comp);
 					}

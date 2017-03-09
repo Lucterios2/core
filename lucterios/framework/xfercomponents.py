@@ -83,7 +83,7 @@ class XferComponent(object):
 
     def _get_attribut(self, compxml):
         compxml.attrib['name'] = self.name
-        compxml.attrib['description'] = self.description
+        compxml.attrib['description'] = six.text_type(self.description)
         if isinstance(self.tab, six.integer_types):
             compxml.attrib['tab'] = six.text_type(self.tab)
         if isinstance(self.col, six.integer_types):
@@ -115,7 +115,7 @@ class XferComponent(object):
     def get_json(self):
         compjson = {}
         compjson['name'] = self.name
-        compjson['type'] = self._component_ident
+        compjson['component'] = self._component_ident
         compjson['description'] = self.description
         if isinstance(self.tab, six.integer_types):
             compjson['tab'] = self.tab

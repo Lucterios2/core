@@ -170,12 +170,14 @@ class LucteriosTest(TestCase):
         self.assertEqual(attr_value, value, "%s/@%s: %s => %s" %
                          (xpath, name, attr_value, value))
 
-    def assert_observer(self, obsname, extension, action):
+    def assert_observer(self, obsname, extension, action, is_simple_gui=None):
         if self.response_json is None:
             try:
                 self.assert_attrib_equal('', 'observer', obsname)
                 self.assert_attrib_equal('', 'source_extension', extension)
                 self.assert_attrib_equal('', 'source_action', action)
+                if is_simple_gui is not None:
+                    self.assert_attrib_equal('', 'is_simple_gui', six.text_type(is_simple_gui))
             except AssertionError:
                 if self.get_first_xpath('').get('observer') == 'core.exception':
                     six.print_(

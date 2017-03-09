@@ -409,11 +409,11 @@ class PrintModelEdit(XferContainerCustom):
         lab.set_location(1, 0, 2)
         lab.set_value_as_title(_("Print models"))
         self.add_component(lab)
-        self.fill_from_model(1, 1, False, ['name'])
-        self.fill_from_model(1, 2, True, ['kind'])
+        self.fill_from_model(2, 1, False, ['name'])
+        self.fill_from_model(2, 2, True, ['kind'])
         self.item.mode = int(self.item.mode)
         if self.item.kind == 1:
-            self.fill_from_model(1, 3, False, ['mode'])
+            self.fill_from_model(2, 3, False, ['mode'])
             self.get_components('mode').set_action(self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
                 self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
@@ -428,21 +428,15 @@ class PrintModelEdit(XferContainerCustom):
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
     def _fill_listing_editor(self):
-        lab = XferCompLabelForm('lbl_page_width')
-        lab.set_location(1, 3)
-        lab.set_value_as_name(_("list page width"))
-        self.add_component(lab)
         edt = XferCompFloat('page_width', 0, 9999, 0)
         edt.set_location(2, 3, 2)
         edt.set_value(self.item.page_width)
+        edt.description = _("list page width")
         self.add_component(edt)
-        lab = XferCompLabelForm('lbl_page_height')
-        lab.set_location(1, 4)
-        lab.set_value_as_name(_("list page height"))
-        self.add_component(lab)
         edt = XferCompFloat('page_heigth', 0, 9999, 0)
         edt.set_location(2, 4, 2)
         edt.set_value(self.item.page_height)
+        edt.description = _("list page height")
         self.add_component(edt)
 
         lab = XferCompLabelForm('lbl_col_size')
