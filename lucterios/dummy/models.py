@@ -31,7 +31,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Example(LucteriosModel):
     is_simple_gui = True
-    
+
     name = models.CharField(max_length=75, unique=True)
     value = models.IntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(20)])

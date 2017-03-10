@@ -187,7 +187,7 @@ class LucteriosGroup(Group, LucteriosModel):
 
 class Label(LucteriosModel):
     is_simple_gui = True
-    
+
     name = models.CharField(_('name'), max_length=100, unique=True)
 
     page_width = models.IntegerField(
@@ -243,7 +243,7 @@ class Label(LucteriosModel):
 
 class PrintModel(LucteriosModel):
     is_simple_gui = True
-    
+
     name = models.CharField(_('name'), max_length=100, unique=False)
     kind = models.IntegerField(
         _('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
@@ -430,7 +430,7 @@ class PrintModel(LucteriosModel):
 
 class SavedCriteria(LucteriosModel):
     is_simple_gui = True
-    
+
     name = models.CharField(_('name'), max_length=100, unique=False)
     modelname = models.CharField(_('model'), max_length=100)
     criteria = models.TextField(_('criteria'), blank=True)

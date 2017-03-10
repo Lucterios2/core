@@ -18,7 +18,7 @@ var ObserverCustom = ObserverGUI.extend({
 
 	setContent : function(aDomXmlContent) {
 		this._super(aDomXmlContent);
-		this.mIsSimpleGui = aDomXmlContent.getXMLAttributInt("is_simple_gui", 0) == 1;
+		this.mIsSimpleGui = (aDomXmlContent.getXMLAttributInt("is_simple_gui", 0) === 1);
 	},
 
 	savefocusin : function(event) {

@@ -96,7 +96,7 @@ class PrintTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="kind"]', "Liste", (2, 2, 1, 1))
         self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_width"]', "210", (2, 3, 2, 1))
         self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_heigth"]', "297", (2, 4, 2, 1))
-        
+
         self.assert_comp_equal('COMPONENTS/FLOAT[@name="col_size_0"]', "10", (1, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/MEMO[@name="col_title_0"]', "Name", (2, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/MEMO[@name="col_text_0"]', "#name", (3, 6, 1, 1))
