@@ -493,7 +493,10 @@ class XferContainerCustom(XferContainerAbstract):
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
         colspan = 1
         if offset == (line_field_size - 1):
-            colspan = 2 * maxsize_of_lines - (1 + offset)
+            if not self.is_simple_gui:
+                colspan = 2 * maxsize_of_lines - (1 + offset)
+            else:
+                colspan = maxsize_of_lines - offset
         return colspan
 
     def filltab_from_model(self, col, row, readonly, field_names):

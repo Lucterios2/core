@@ -172,6 +172,7 @@ var ObserverCustom = ObserverGUI.extend({
 								lbl.label = "<b>" + comp.description + "</b>";
 								comp.x = comp.x + 1;
 								comp.colspan = comp.colspan - 1;
+								comp.descComp = lbl; 
 							}
 						}
 						if (hasTabs) {
@@ -218,6 +219,7 @@ var compGeneric = compBasic.extend({
 	description : "",
 	owner : null,
 	tag : '',
+	descComp : null,
 
 	init : function(aOwner) {
 		this.owner = aOwner;
@@ -229,6 +231,9 @@ var compGeneric = compBasic.extend({
 
 	setEnabled : function(isEnabled) {
 		this.getGUIComp().prop("disabled", !isEnabled);
+		if (this.descComp !== null) {
+			this.descComp.setEnabled (isEnabled);
+		}
 	},
 
 	setVisible : function(isVisible) {
@@ -244,6 +249,9 @@ var compGeneric = compBasic.extend({
 				cell_cont.style.visibility = "hidden";
 				cell_cont.style.fontSize = "0px";
 			}
+		}
+		if (this.descComp !== null) {
+			this.descComp.setVisible(isVisible);
 		}
 	},
 

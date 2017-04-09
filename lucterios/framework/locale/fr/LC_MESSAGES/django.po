@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-30 17:25+0000\n"
+"POT-Creation-Date: 2017-04-09 11:55+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -19,25 +19,25 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
-#: main_docs.html:5 main_docs.html.py:112
+#: main_docs.html:5 main_docs.html:112
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:73 xfergraphic.py:169
+#: models.py:74 xfergraphic.py:170 xfergraphic.py:332
 msgid "Yes"
 msgstr "Oui"
 
-#: models.py:75 xfergraphic.py:170
+#: models.py:76 xfergraphic.py:171 xfergraphic.py:334
 msgid "No"
 msgstr "Non"
 
-#: models.py:402
+#: models.py:404
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:424
+#: models.py:425
 msgid "username"
 msgstr "nom d'utilisateur"
 
@@ -49,62 +49,74 @@ msgstr "session"
 msgid "sessions"
 msgstr "sessions"
 
+#: models.py:472
+msgid "General"
+msgstr ""
+
+#: models.py:476 models.py:477
+msgid "current date"
+msgstr ""
+
+#: models.py:478
+msgid "current hour"
+msgstr ""
+
 #: signal_and_lock.py:115
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:137
+#: tools.py:157
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:139
+#: tools.py:159
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:460
+#: tools.py:507
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:462
+#: tools.py:509
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:464
+#: tools.py:511
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:466
+#: tools.py:513
 msgid "Can"
 msgstr "Pouvoir"
 
-#: xferadvance.py:41 xfergraphic.py:178
+#: xferadvance.py:41 xfergraphic.py:179
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:42 xfergraphic.py:150
+#: xferadvance.py:42 xfergraphic.py:151
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:43 xferadvance.py:219 xfergraphic.py:139 xferprinting.py:112
-#: xfersearch.py:576
+#: xferadvance.py:43 xferadvance.py:219 xfergraphic.py:140 xferprinting.py:112
+#: xfersearch.py:572
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:44 xfercomponents.py:664
+#: xferadvance.py:44 xfercomponents.py:782
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:45 xferadvance.py:199 xfercomponents.py:664
+#: xferadvance.py:45 xferadvance.py:199 xfercomponents.py:782
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:46 xfercomponents.py:665
+#: xferadvance.py:46 xfercomponents.py:783
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:47 xfercomponents.py:665
+#: xferadvance.py:47 xfercomponents.py:783
 msgid "Add"
 msgstr "Ajouter"
 
@@ -116,15 +128,15 @@ msgstr "clone"
 msgid "Print"
 msgstr "Imprimer"
 
-#: xferadvance.py:50 xferadvance.py:85 xfersearch.py:373
+#: xferadvance.py:50 xferadvance.py:85 xfersearch.py:369
 msgid "Listing"
 msgstr "Liste"
 
-#: xferadvance.py:51 xferadvance.py:86 xfersearch.py:374
+#: xferadvance.py:51 xferadvance.py:86 xfersearch.py:370
 msgid "Label"
 msgstr "Étiquette"
 
-#: xferadvance.py:53 xfersearch.py:568
+#: xferadvance.py:53 xfersearch.py:564
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
@@ -164,7 +176,7 @@ msgstr "Transaction impossible!{[br/]}Une condition ne doit pas être vérifiée
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
-#: xferbasic.py:157
+#: xferbasic.py:160
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -172,19 +184,19 @@ msgstr ""
 "Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xfergraphic.py:146
+#: xfergraphic.py:147
 msgid "Traitment..."
 msgstr "Traitement..."
 
-#: xfergraphic.py:190
+#: xfergraphic.py:191
 msgid "Retry"
 msgstr "Recommencer"
 
-#: xfergraphic.py:632
+#: xfergraphic.py:668
 msgid "Available"
 msgstr "Disponible"
 
-#: xfergraphic.py:632
+#: xfergraphic.py:668
 msgid "Chosen"
 msgstr "Choisi"
 

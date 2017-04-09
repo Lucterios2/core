@@ -331,7 +331,7 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal("page/body/text[2]", 'zzzz')
         self.assert_attrib_equal("page/body/text[2]", "top", "0.0")
         self.assert_attrib_equal("page/body/text[2]", "left", "90.0" if six.PY3 else "89.0")
-        self.assert_attrib_equal("page/body/text[2]", "width", "100.0" if six.PY3 else "102.0")
+        self.assert_attrib_equal("page/body/text[2]", "width", "99.0" if six.PY3 else "101.0")
         self.assert_attrib_equal("page/body/text[2]", "height", "5.0")
 
         self.assert_xml_equal("page/body/text[3]/b", 'value')

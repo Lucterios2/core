@@ -882,6 +882,9 @@ var compTime = compAbstractEvent.extend({
 		} else {
 			this.getGUIComp().timespinner("disable");
 		}
+		if (this.descComp !== null) {
+			this.descComp.setEnabled (isEnabled);
+		}
 	},
 
 	initialVal : function() {
@@ -959,6 +962,9 @@ var compDateTime = compAbstractEvent
 					this.getGUICompTime().timespinner("enable");
 				} else {
 					this.getGUICompTime().timespinner("disable");
+				}
+				if (this.descComp !== null) {
+					this.descComp.setEnabled (isEnabled);
 				}
 			},
 

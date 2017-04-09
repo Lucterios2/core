@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-30 17:25+0000\n"
+"POT-Creation-Date: 2017-04-09 11:55+0000\n"
 "PO-Revision-Date: 2016-01-14 21:55+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
 
-#: lucterios_admin.py:612 lucterios_gui.py:219
+#: lucterios_admin.py:602 lucterios_gui.py:219
 msgid "CORE-connectmode"
 msgstr "Mode de connexion"
 
