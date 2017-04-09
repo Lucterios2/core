@@ -236,14 +236,18 @@ class Params(object):
             for name in names:
                 param = cls._get(name)
                 if param is not None:
-                    lbl = param.get_label_comp()
-                    lbl.set_location(col + coloffset * 2, row, 1, 1)
-                    xfer.add_component(lbl)
                     if readonly:
                         param_cmp = param.get_read_comp()
                     else:
                         param_cmp = param.get_write_comp()
-                    param_cmp.set_location(col + 1 + coloffset * 2, row, 1, 1)
+                    if not xfer.is_simple_gui:
+                        param_cmp.set_location(col + 1 + coloffset * 2, row, 1, 1)
+                        lbl = param.get_label_comp()
+                        lbl.set_location(col + coloffset * 2, row, 1, 1)
+                        xfer.add_component(lbl)
+                    else:
+                        param_cmp.set_location(col + coloffset, row, 1, 1)
+                        param_cmp.description = ugettext_lazy(param.name) 
                     xfer.add_component(param_cmp)
                     coloffset += 1
                     if coloffset == nb_col:
