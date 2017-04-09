@@ -54,7 +54,7 @@ class AbsoluteValue(Transform):
 RegisterLookupMixin.register_lookup(AbsoluteValue)
 
 
-def get_value_converted(value, bool_textual=False):
+def get_value_converted(value, bool_textual=False, convert_datetime=True):
 
     import datetime
     if hasattr(value, 'all'):
@@ -62,11 +62,11 @@ def get_value_converted(value, bool_textual=False):
         for val_item in value.all():
             values.append(six.text_type(val_item))
         return "{[br/]}".join(values)
-    elif isinstance(value, datetime.datetime):
+    elif isinstance(value, datetime.datetime) and convert_datetime:
         return formats.date_format(value, "DATETIME_FORMAT")
-    elif isinstance(value, datetime.date):
+    elif isinstance(value, datetime.date) and convert_datetime:
         return formats.date_format(value, "DATE_FORMAT")
-    elif isinstance(value, datetime.time):
+    elif isinstance(value, datetime.time) and convert_datetime:
         return formats.date_format(value, "TIME_FORMAT")
     elif isinstance(value, bool):
         if bool_textual:

@@ -916,9 +916,12 @@ class XferCompGrid(XferComponent):
     def get_json_value(self):
         compjson = []
         for key in self.record_ids:
-            record = dict(self.records[key])
-            record['id'] = key
-            compjson.append(record)
+            record = self.records[key]
+            json_record = {}
+            json_record['id'] = key
+            for header in self.headers:
+                json_record[header.name] = six.text_type(get_value_converted(record[header.name], convert_datetime=False))
+            compjson.append(json_record)
         return compjson
 
     def _add_header_from_model(self, query_set, fieldnames, has_xfer):

@@ -247,7 +247,7 @@ class Params(object):
                         xfer.add_component(lbl)
                     else:
                         param_cmp.set_location(col + coloffset, row, 1, 1)
-                        param_cmp.description = ugettext_lazy(param.name) 
+                        param_cmp.description = ugettext_lazy(param.name)
                     xfer.add_component(param_cmp)
                     coloffset += 1
                     if coloffset == nb_col:
