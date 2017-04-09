@@ -814,6 +814,7 @@ def right_show_wizard(request):
 
 @MenuManage.describ("CORE.change_parameter")
 class ConfigurationWizard(XferListEditor):
+    is_simple_gui = True
     caption = _("Configuration wizard")
     icon = "images/config.png"
     model = None
