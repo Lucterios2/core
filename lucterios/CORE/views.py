@@ -42,17 +42,17 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, 
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad,\
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, \
     XferCompUpLoad, XferCompButton
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE,\
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER,\
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, \
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, \
     action_list_sorted
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
 
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser,\
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, \
     LucteriosGroup
 from lucterios.CORE.views_usergroup import UsersList, GroupsList
 
@@ -710,7 +710,7 @@ class ObjectMerge(XferContainerAcknowledge):
         self.items = self.model.objects.filter(id__in=self.getparam(field_id, ()))
         if len(self.items) < 2:
             raise LucteriosException(IMPORTANT, _("Impossible: you must to select many records!"))
-        item_id = self.getparam('mrg_'+field_id, 0)
+        item_id = self.getparam('mrg_' + self.field_id, 0)
         if item_id != 0:
             self.item = self.model.objects.get(id=item_id)
         if (self.item is None) or (self.item.id is None):
@@ -721,7 +721,7 @@ class ObjectMerge(XferContainerAcknowledge):
             lbl.set_value_as_title(self.caption)
             lbl.set_location(1, 0)
             dlg.add_component(lbl)
-            grid = XferCompGrid('mrg_'+self.field_id)
+            grid = XferCompGrid('mrg_' + self.field_id)
             grid.add_header('value', _('designation'))
             grid.add_header('select', _('is main?'), 'bool')
             for item in self.items:
@@ -734,7 +734,7 @@ class ObjectMerge(XferContainerAcknowledge):
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
             dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
-                           params={'CONFIRME': 'YES', 'mrg_'+self.field_id: self.item.id})
+                           params={'CONFIRME': 'YES', 'mrg_' + self.field_id: self.item.id})
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
             alias_objects = []
