@@ -707,11 +707,12 @@ class ObjectMerge(XferContainerAcknowledge):
         XferContainerAcknowledge._search_model(self)
 
     def fillresponse(self, field_id):
-        self.items = self.model.objects.filter(
-            id__in=self.getparam(field_id, ()))
+        self.items = self.model.objects.filter(id__in=self.getparam(field_id, ()))
         if len(self.items) < 2:
-            raise LucteriosException(
-                IMPORTANT, _("Impossible: you must to select many records!"))
+            raise LucteriosException(IMPORTANT, _("Impossible: you must to select many records!"))
+        item_id = self.getparam('mrg_'+field_id, 0)
+        if item_id != 0:
+            self.item = self.model.objects.get(id=item_id)
         if (self.item is None) or (self.item.id is None):
             self.item = self.items[0]
         if self.getparam("CONFIRME") is None:
@@ -720,7 +721,7 @@ class ObjectMerge(XferContainerAcknowledge):
             lbl.set_value_as_title(self.caption)
             lbl.set_location(1, 0)
             dlg.add_component(lbl)
-            grid = XferCompGrid(self.field_id)
+            grid = XferCompGrid('mrg_'+self.field_id)
             grid.add_header('value', _('designation'))
             grid.add_header('select', _('is main?'), 'bool')
             for item in self.items:
@@ -733,7 +734,7 @@ class ObjectMerge(XferContainerAcknowledge):
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
             dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
-                           params={'CONFIRME': 'YES', self.field_id: self.item.id})
+                           params={'CONFIRME': 'YES', 'mrg_'+self.field_id: self.item.id})
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
             alias_objects = []

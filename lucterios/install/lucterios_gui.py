@@ -734,6 +734,7 @@ class LucteriosMainForm(Tk):
 
     @ThreadRun
     def open_inst(self):
+        global FIRST_HTTP_PORT
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
             try:
@@ -744,17 +745,25 @@ class LucteriosMainForm(Tk):
                     for inst_obj in self.running_instance.values():
                         if (inst_obj is not None) and (inst_obj.port >= port):
                             port = inst_obj.port + 1
-                    self.running_instance[instance_name] = RunServer(
-                        instance_name, port)
+                    self.running_instance[instance_name] = RunServer(instance_name, port)
                     self.running_instance[instance_name].start()
                 else:
                     self.running_instance[instance_name].stop()
                     self.running_instance[instance_name] = None
+            except RunException:
+                FIRST_HTTP_PORT += 10
+                raise
             finally:
                 self.set_select_instance_name(instance_name)
 
+    def stop_current_instance(self, instance_name):
+        if (instance_name != '') and (self.running_instance[instance_name] is not None) and self.running_instance[instance_name].is_running():
+            self.running_instance[instance_name].stop()
+            self.running_instance[instance_name] = None
+
     @ThreadRun
     def save_instance(self, instance_name, file_name):
+        self.stop_current_instance(instance_name)
         inst = LucteriosInstance(instance_name)
         inst.filename = file_name
         if inst.archive():
@@ -775,6 +784,7 @@ class LucteriosMainForm(Tk):
 
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
+        self.stop_current_instance(instance_name)
         if file_name[-4:] == '.bkf':
             rest_inst = MigrateFromV1(instance_name, withlog=True)
         else:

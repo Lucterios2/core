@@ -35,7 +35,7 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI,\
-    CLOSE_YES
+    CLOSE_YES, get_actions_json
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
@@ -911,6 +911,7 @@ class XferCompGrid(XferComponent):
         compjson['page_num'] = self.page_num
         compjson['order'] = self.order_list
         compjson['headers'] = list(self.headers)
+        compjson['actions'] = get_actions_json(self.actions)
         return compjson
 
     def get_json_value(self):
