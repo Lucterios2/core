@@ -521,7 +521,7 @@ class GroupTest(LucteriosTest):
 
         self.assert_count_equal('COMPONENTS/*', 10)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/group.png', (0, 0, 1, 6))
-        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (1, 0, 3, 1))
 
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (1, 1, 1, 1))
         self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_available"]', (1, 2, 1, 5))
@@ -568,7 +568,7 @@ class GroupTest(LucteriosTest):
         self.call('/CORE/groupsEdit', {'group': '1'}, False)
         self.assert_observer('core.custom', 'CORE', 'groupsEdit', 1)
         self.assert_xml_equal('TITLE', 'Modifier un groupe')
-        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (1, 0, 3, 1))
 
     def test_groupedit_notexist(self):
         self.factory.xfer = GroupsEdit()
@@ -601,7 +601,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('CONTEXT/PARAM[@name="permissions"]', '1;3;5;7')
         self.assert_count_equal('ACTIONS/ACTION', 2)
 
-        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (1, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'mygroup', (1, 0, 3, 1))
 
     def test_concurentedit(self):
         user1 = add_user("user1")
