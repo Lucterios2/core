@@ -488,14 +488,11 @@ class XferContainerCustom(XferContainerAbstract):
             if isinstance(line_field_name, tuple):
                 nb_current_line = 0
                 for sub_field_name in line_field_name:
-                    if isinstance(sub_field_name, tuple):
-                        nb_current_line += 1
-                    else:
+                    nb_current_line += 1
+                    if isinstance(sub_field_name, six.text_type):
                         dep_field = self.item.get_field_by_name(sub_field_name)
                         if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
-                            nb_current_line += 3
-                        else:
-                            nb_current_line += 1
+                            nb_current_line += 2
                 maxsize_of_lines = max((maxsize_of_lines, nb_current_line))
             else:
                 dep_field = self.item.get_field_by_name(line_field_name)
