@@ -175,6 +175,7 @@ class XferContainerAbstract(View):
                     self.items = self.model.objects.filter(id__in=ids)
             else:
                 self.item = self.model()
+                self.item.set_context(self)
                 self.is_new = True
                 self.fill_simple_fields()
 

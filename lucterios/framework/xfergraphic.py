@@ -486,8 +486,21 @@ class XferContainerCustom(XferContainerAbstract):
         maxsize_of_lines = 1
         for line_field_name in field_names:
             if isinstance(line_field_name, tuple):
-                maxsize_of_lines = max(
-                    (maxsize_of_lines, len(line_field_name)))
+                nb_current_line = 0
+                for sub_field_name in line_field_name:
+                    if isinstance(sub_field_name, tuple):
+                        nb_current_line += 1
+                    else:
+                        dep_field = self.item.get_field_by_name(sub_field_name)
+                        if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
+                            nb_current_line += 3
+                        else:
+                            nb_current_line += 1
+                maxsize_of_lines = max((maxsize_of_lines, nb_current_line))
+            else:
+                dep_field = self.item.get_field_by_name(line_field_name)
+                if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
+                    maxsize_of_lines = max((maxsize_of_lines, 3))
         return maxsize_of_lines
 
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
@@ -561,9 +574,15 @@ class XferContainerCustom(XferContainerAbstract):
                             self.add_component(comp)
                         else:  # field many-to-many
                             if readonly:
-                                child = getattr(self.item, field_name).all()
-                                comp = XferCompGrid(field_name)
-                                comp.set_model(child, None, self)
+                                if not self.is_simple_gui:
+                                    lbl = XferCompLabelForm('lbl_' + field_name)
+                                    lbl.set_location(col + offset, row, 1, 1)
+                                    if verbose_name is None:
+                                        lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
+                                    else:
+                                        lbl.set_value_as_name(six.text_type(verbose_name))
+                                    self.add_component(lbl)
+                                comp = self.get_reading_comp(field_name)
                                 comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
                                 if verbose_name is None:
                                     comp.description = six.text_type(dep_field.verbose_name)
