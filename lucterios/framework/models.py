@@ -179,6 +179,7 @@ class LucteriosModel(models.Model):
                     new_item = search[0]
             for fieldname, fieldvalue in rowdata.items():
                 dep_field = cls.get_field_by_name(fieldname)
+                value_to_saved = not (dep_field.is_relation and dep_field.many_to_many)
                 if isinstance(dep_field, IntegerField):
                     if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                         for choice in dep_field.choices:
@@ -192,7 +193,8 @@ class LucteriosModel(models.Model):
                     for sub_item in dep_field.remote_field.model.objects.all():
                         if six.text_type(sub_item) == six.text_type(sub_value):
                             fieldvalue = sub_item
-                setattr(new_item, fieldname, fieldvalue)
+                if value_to_saved:
+                    setattr(new_item, fieldname, fieldvalue)
             new_item.save()
             return new_item
         except:

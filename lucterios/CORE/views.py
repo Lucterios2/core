@@ -25,6 +25,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os.path import isfile, join, dirname
 from logging import getLogger
+from datetime import datetime
+from _io import StringIO, TextIOWrapper
+from csv import DictReader
+from _csv import QUOTE_NONE, QUOTE_ALL
+from copy import deepcopy
 import mimetypes
 import stat
 import os
@@ -35,6 +40,7 @@ from django.utils import six
 from django.http.response import StreamingHttpResponse
 from django.apps.registry import apps
 from django.conf import settings
+from django.db.models.fields import DateField
 from django.db.models import Q
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
@@ -42,18 +48,15 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, 
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, \
-    XferCompUpLoad, XferCompButton
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, \
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, \
-    action_list_sorted
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
 
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, \
-    LucteriosGroup
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, LucteriosGroup
 from lucterios.CORE.views_usergroup import UsersList, GroupsList
 
 
@@ -805,6 +808,244 @@ class ObjectPromote(XferContainerAcknowledge):
             new_object.__dict__.update(self.item.__dict__)
             new_object.save()
             self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), 'Show', self))
+
+
+class ObjectImport(XferContainerCustom):
+    is_simple_gui = True
+
+    def __init__(self, **kwargs):
+        XferContainerCustom.__init__(self, **kwargs)
+        self.model = None
+        self.quotechar = ""
+        self.delimiter = ""
+        self.encoding = ""
+        self.dateformat = ""
+        self.spamreader = None
+
+    def get_select_models(self):
+        return []
+
+    def _select_csv_parameters(self):
+        model_select = XferCompSelect('modelname')
+        if self.model is not None:
+            model_select.set_value(self.model.get_long_name())
+        model_select.set_select(self.get_select_models())
+        model_select.set_location(1, 0, 3)
+        model_select.description = _('model')
+        self.add_component(model_select)
+        upld = XferCompUpLoad('csvcontent')
+        upld.http_file = True
+        upld.add_filter(".csv")
+        upld.set_location(1, 1, 2)
+        upld.description = _('CSV file')
+        self.add_component(upld)
+        lbl = XferCompEdit('encoding')
+        lbl.set_value(self.encoding)
+        lbl.set_location(1, 2)
+        lbl.description = _('encoding')
+        self.add_component(lbl)
+        lbl = XferCompEdit('dateformat')
+        lbl.set_value(self.dateformat)
+        lbl.set_location(2, 2)
+        lbl.description = _('date format')
+        self.add_component(lbl)
+        lbl = XferCompEdit('delimiter')
+        lbl.set_value(self.delimiter)
+        lbl.set_location(1, 3)
+        lbl.description = _('delimiter')
+        self.add_component(lbl)
+        lbl = XferCompEdit('quotechar')
+        lbl.set_value(self.quotechar)
+        lbl.set_location(2, 3)
+        lbl.description = _('quotechar')
+        self.add_component(lbl)
+        return lbl
+
+    def _read_csv(self):
+        if self.quotechar == '':
+            current_quoting = QUOTE_NONE
+        else:
+            current_quoting = QUOTE_ALL
+        if 'csvcontent' in self.request.FILES.keys():
+            csvfile = TextIOWrapper(
+                self.request.FILES['csvcontent'].file, encoding=self.encoding, errors='replace')
+            csvcontent = "".join(csvfile.readlines())
+            for param_idx in range(0, int(len(csvcontent) / 2048) + 2):
+                self.params['csvcontent%d' % param_idx] = csvcontent[
+                    2048 * param_idx:2048 * (param_idx + 1)]
+            csvfile.seek(0)
+        else:
+            csvcontent = ""
+            for param_idx in range(0, 1000):
+                curent_content = self.getparam('csvcontent%d' % param_idx)
+                if curent_content is None:
+                    break
+                else:
+                    csvcontent += "" + curent_content
+            csvfile = StringIO(csvcontent)
+        self.spamreader = DictReader(csvfile, delimiter=self.delimiter, quotechar=self.quotechar, quoting=current_quoting)
+        try:
+            if (self.spamreader.fieldnames is None) or (len(self.spamreader.fieldnames) == 0):
+                raise Exception("")
+        except:
+            raise LucteriosException(IMPORTANT, _('CSV file unvalid!'))
+
+    def _select_fields(self):
+        select_list = [('', None)]
+        for fieldname in self.spamreader.fieldnames:
+            if fieldname != '':
+                select_list.append((fieldname, fieldname))
+        row = 0
+        for fieldname in self.model.get_import_fields():
+            if isinstance(fieldname, tuple):
+                fieldname, title = fieldname
+                is_need = False
+            else:
+                dep_field = self.model.get_field_by_name(fieldname)
+                title = dep_field.verbose_name
+                is_need = not dep_field.blank and not dep_field.null
+                fieldnames = fieldname.split('.')
+                if is_need and (len(fieldnames) > 1):
+                    init_field = self.model.get_field_by_name(fieldnames[0])
+                    if not (init_field.is_relation and init_field.many_to_many):
+                        is_need = not init_field.null
+            lbl = XferCompSelect('fld_' + fieldname)
+            lbl.set_select(deepcopy(select_list))
+            lbl.set_value("")
+            lbl.set_needed(is_need)
+            lbl.set_location(1, row)
+            lbl.description = title
+            self.add_component(lbl)
+            row += 1
+
+    def _show_initial_csv(self):
+        tbl = XferCompGrid('CSV')
+        for fieldname in self.spamreader.fieldnames:
+            if fieldname != '':
+                tbl.add_header(fieldname, fieldname)
+        row_idx = 1
+        for row in self.spamreader:
+            if row[self.spamreader.fieldnames[0]] is not None:
+                for fieldname in self.spamreader.fieldnames:
+                    if fieldname != '':
+                        tbl.set_value(row_idx, fieldname, row[fieldname])
+                row_idx += 1
+        tbl.set_location(1, 1, 2)
+        self.add_component(tbl)
+        lbl = XferCompLabelForm('nb_line')
+        lbl.set_value(_("Total number of items: %d") % (row_idx - 1))
+        lbl.set_location(1, 2, 2)
+        self.add_component(lbl)
+
+    def _read_csv_and_convert(self):
+        fields_association = {}
+        for param_key in self.params.keys():
+            if (param_key[:4] == 'fld_') and (self.params[param_key] != ""):
+                fields_association[param_key[4:]] = self.params[param_key]
+        fields_description = []
+        for fieldname in self.model.get_import_fields():
+            if isinstance(fieldname, tuple):
+                fieldname, title = fieldname
+            else:
+                dep_field = self.model.get_field_by_name(fieldname)
+                title = dep_field.verbose_name
+                is_date = isinstance(dep_field, DateField)
+            if fieldname in fields_association.keys():
+                fields_description.append(
+                    (fieldname, title, is_date))
+        self._read_csv()
+        csv_readed = []
+        for row in self.spamreader:
+            if row[self.spamreader.fieldnames[0]] is not None:
+                new_row = {}
+                for field_description in fields_description:
+                    if field_description[2]:
+                        try:
+                            new_row[field_description[0]] = datetime.strptime(
+                                row[fields_association[field_description[0]]], self.dateformat).date()
+                        except (TypeError, ValueError):
+                            new_row[field_description[0]] = datetime.today()
+                    else:
+                        new_row[field_description[0]] = row[
+                            fields_association[field_description[0]]]
+                csv_readed.append(new_row)
+        return fields_description, csv_readed
+
+    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
+        if modelname is not None:
+            self.model = apps.get_model(modelname)
+        if six.PY2:
+            self.quotechar = six.binary_type(quotechar)
+            self.delimiter = six.binary_type(delimiter)
+        else:
+            self.quotechar = quotechar
+            self.delimiter = delimiter
+        self.encoding = encoding
+        self.dateformat = dateformat
+
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        if step == 0:
+            lbl = self._select_csv_parameters()
+            step = 1
+        elif step == 1:
+            lbl = XferCompLabelForm('modelname')
+            lbl.set_value(self.model._meta.verbose_name.title())
+            lbl.set_location(1, 0)
+            lbl.description = _('model')
+            self.add_component(lbl)
+            self._read_csv()
+            self.new_tab(_("Fields"))
+            self._select_fields()
+            self.new_tab(_("Current content"))
+            self._show_initial_csv()
+            step = 2
+        elif step == 2:
+            lbl = XferCompLabelForm('modelname')
+            lbl.set_value(self.model._meta.verbose_name.title())
+            lbl.set_location(1, 0)
+            lbl.description = _('model')
+            self.add_component(lbl)
+            fields_description, csv_readed = self._read_csv_and_convert()
+            tbl = XferCompGrid('CSV')
+            for field_description in fields_description:
+                tbl.add_header(field_description[0], field_description[1])
+            row_idx = 1
+            for row in csv_readed:
+                for field_description in fields_description:
+                    tbl.set_value(row_idx, field_description[0], row[field_description[0]])
+                row_idx += 1
+            tbl.set_location(1, 1, 2)
+            self.add_component(tbl)
+            lbl = XferCompLabelForm('nb_line')
+            lbl.set_value(_("Total number of items: %d") % (row_idx - 1))
+            lbl.set_location(1, 2, 2)
+            self.add_component(lbl)
+            step = 3
+        elif step == 3:
+            fields_description, csv_readed = self._read_csv_and_convert()
+            items_imported = {}
+            for rowdata in csv_readed:
+                new_item = self.model.import_data(rowdata, dateformat)
+                if new_item is not None:
+                    items_imported[new_item.id] = new_item
+            lbl = XferCompLabelForm('result')
+            lbl.set_value_as_header(_("%d items are been imported") % len(items_imported))
+            lbl.set_location(1, 2, 2)
+            self.add_component(lbl)
+            step = 4
+        if step < 4:
+            if step > 1:
+                self.add_action(self.get_action(_('Back'), "images/left.png"),
+                                close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
+            self.add_action(self.get_action(_('Ok'), "images/ok.png"),
+                            close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
+            self.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
+        else:
+            self.add_action(WrapAction(_("Close"), "images/close.png"))
+
 
 tools.bad_permission_redirect_classaction = Menu
 

@@ -725,7 +725,7 @@ class XferCompUpLoad(XferComponent):
         return compxml
 
     def get_json(self):
-        compjson = XferCompButton.get_json(self)
+        compjson = XferComponent.get_json(self)
         compjson['filter'] = list(self.filter)
         compjson['compress'] = self.compress
         compjson['http_file'] = self.http_file
