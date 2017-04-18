@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-09 11:55+0000\n"
+"POT-Creation-Date: 2017-04-18 08:50+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -31,33 +31,33 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:404
+#: models.py:406
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:425
+#: models.py:427
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:439
+#: models.py:441
 msgid "session"
 msgstr "session"
 
-#: models.py:440
+#: models.py:442
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:472
+#: models.py:474
 msgid "General"
 msgstr ""
 
-#: models.py:476 models.py:477
+#: models.py:478 models.py:479
 msgid "current date"
 msgstr ""
 
-#: models.py:478
+#: models.py:480
 msgid "current hour"
 msgstr ""
 
@@ -192,11 +192,11 @@ msgstr "Traitement..."
 msgid "Retry"
 msgstr "Recommencer"
 
-#: xfergraphic.py:668
+#: xfergraphic.py:684
 msgid "Available"
 msgstr "Disponible"
 
-#: xfergraphic.py:668
+#: xfergraphic.py:684
 msgid "Chosen"
 msgstr "Choisi"
 

@@ -179,7 +179,7 @@ class LucteriosModel(models.Model):
                     new_item = search[0]
             for fieldname, fieldvalue in rowdata.items():
                 dep_field = cls.get_field_by_name(fieldname)
-                value_to_saved = not (dep_field.is_relation and dep_field.many_to_many)
+                value_to_saved = (dep_field is not None) and not (dep_field.is_relation and dep_field.many_to_many)
                 if isinstance(dep_field, IntegerField):
                     if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
                         for choice in dep_field.choices:
