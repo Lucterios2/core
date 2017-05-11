@@ -324,7 +324,7 @@ class XferContainerCustom(XferContainerAbstract):
                 value = old_obj.select_list[value]
             if isinstance(old_obj.select_list, list):
                 for key, sel_val in old_obj.select_list:
-                    if value == key:
+                    if six.text_type(value) == six.text_type(key):
                         value = sel_val
                         break
         elif isinstance(old_obj, XferCompCheck):
