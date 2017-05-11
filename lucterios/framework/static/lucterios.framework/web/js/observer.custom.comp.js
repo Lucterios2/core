@@ -674,8 +674,7 @@ var compMemo = compAbstractEvent.extend({
 
 	initial : function(component) {
 		this._super(component);
-		this.value = component.getTextFromXmlNode().replace(/\{\[newline\]\}/g,
-				"\n");
+		this.value = component.getTextFromXmlNode().replace(/\{\[newline\]\}/g,"\n").replace(/\{\[br\/\]\}/g,"\n");
 		this.editor = new editorHypertext(this.owner.getId(), this.name,
 				component.getXMLAttributInt('with_hypertext', 0), component
 						.getElementsByTagName("SUBMENU"));
@@ -693,7 +692,7 @@ var compMemo = compAbstractEvent.extend({
 
 	fillValue : function(params) {
 		var val = this.getValue();
-		params.put(this.name, val.replace(/\n/g, '{[newline]}'));
+		params.put(this.name, val.replace(/\n/g, '{[br/]}'));
 	},
 
 	addAction : function() {

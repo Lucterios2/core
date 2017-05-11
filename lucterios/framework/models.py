@@ -51,6 +51,7 @@ class AbsoluteValue(Transform):
         lhs, params = compiler.compile(self.lhs)
         return "ABS(%s)" % lhs, params
 
+
 RegisterLookupMixin.register_lookup(AbsoluteValue)
 
 
@@ -488,6 +489,7 @@ class GeneralPrintPlugin(PrintFieldsPlugIn):
         res = res.replace('#hour', formats.date_format(current_datetime, "TIME_FORMAT"))
         return res
 
+
 PrintFieldsPlugIn.add_plugin(GeneralPrintPlugin)
 
 
@@ -495,5 +497,6 @@ def post_after_transition(sender, **kwargs):
     if 'exception' not in kwargs:
         instance = kwargs['instance']
         instance.save()
+
 
 post_transition.connect(post_after_transition)
