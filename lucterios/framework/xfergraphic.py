@@ -332,6 +332,8 @@ class XferContainerCustom(XferContainerAbstract):
                 value = _("Yes")
             else:
                 value = _("No")
+        elif value is None:
+            value = "---"
         elif isinstance(old_obj, XferCompDate):
             value = formats.date_format(value, "DATE_FORMAT")
         elif isinstance(old_obj, XferCompDateTime):
@@ -340,8 +342,6 @@ class XferContainerCustom(XferContainerAbstract):
             value = formats.date_format(value, "TIME_FORMAT")
         elif isinstance(old_obj, XferCompFloat) and (value is not None):
             value = ("%%.%df" % old_obj.prec) % value
-        if value is None:
-            value = "---"
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
         new_lbl = XferCompLabelForm(cmp_name)
