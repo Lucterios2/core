@@ -309,8 +309,8 @@ test(
 			equal(this.mObsFactory.CallList.get(0), expected_cmd, "Call #1");
 			var expected_cmd = "org_lucterios_contacts->personneMorale_APAS_AddModifyAct(";
 			expected_cmd += "personneMorale='1',ORIGINE='personneMorale_APAS_AddModify',TABLE_NAME='org_lucterios_contacts_personneMorale',RECORD_ID='1',";
-			expected_cmd += "raisonSociale='AAA',adresse='BBB{[newline]}CCC',codePostal='123456',ville='DDDD',pays='EEEE',";
-					expected_cmd += "fixe='FFFFF',portable='GGGGG',fax='HHHHH',mail='IIIII',siren='JJ{[newline]}KKKK',commentaire='LL{[newline]}MMMM{[newline]}NN',newpass='abc123',",
+			expected_cmd += "raisonSociale='AAA',adresse='BBB{[br/]}CCC',codePostal='123456',ville='DDDD',pays='EEEE',";
+					expected_cmd += "fixe='FFFFF',portable='GGGGG',fax='HHHHH',mail='IIIII',siren='JJ{[br/]}KKKK',commentaire='LL{[br/]}MMMM{[br/]}NN',newpass='abc123',",
 					expected_cmd += ")";
 			equal(this.mObsFactory.CallList.get(1), expected_cmd, "Call #2");
 		});
