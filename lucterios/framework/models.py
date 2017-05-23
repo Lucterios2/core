@@ -188,12 +188,13 @@ class LucteriosModel(models.Model):
                                 fieldvalue = choice[0]
                     if not isinstance(fieldvalue, int):
                         fieldvalue = 0
-                elif isinstance(dep_field, ForeignKey):
+                elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
                     fieldvalue = None
                     for sub_item in dep_field.remote_field.model.objects.all():
                         if six.text_type(sub_item) == six.text_type(sub_value):
                             fieldvalue = sub_item
+                            break
                 if value_to_saved:
                     setattr(new_item, fieldname, fieldvalue)
             new_item.save()
