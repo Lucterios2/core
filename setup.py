@@ -41,8 +41,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.9',
+        'Framework :: Django :: 1.11',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -66,5 +65,5 @@ setup(
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
     install_requires=[
-        "Django ==1.10.*", "lxml ==3.4.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
+        "Django ==1.11.*", "lxml ==3.4.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
 )

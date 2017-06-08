@@ -69,7 +69,7 @@
 		<exec executable="/bin/bash" outputproperty="build.tstmp" failifexecutionfails="false" errorproperty="">
 			<arg line="-c 'git log -1 --format=%at'" />
 		</exec>
-		<exec executable="python" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
+		<exec executable="python3" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
 			<arg value="-c" />
 			<arg value="import datetime;print(datetime.datetime.fromtimestamp(int('${build.tstmp}')).strftime('%y%m%d%H'))" />
 		</exec>
@@ -120,7 +120,7 @@
 
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --" />
-		<exec executable="python" dir="${sub_path}" failonerror="true">
+		<exec executable="python3" dir="${sub_path}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="makemessages" />
@@ -133,7 +133,7 @@
 
 	<target name="i18n_build">
 		<echo message="-- compile --" />
-		<exec executable="python" dir="${basedir}" failonerror="true">
+		<exec executable="python3" dir="${basedir}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="compilemessages" />

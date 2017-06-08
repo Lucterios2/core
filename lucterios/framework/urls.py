@@ -34,6 +34,8 @@ import inspect
 import pkgutil
 from lucterios.framework.docs import defaultDocs
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.utils import six
+from django.urls.resolvers import RegexURLPattern
 
 
 def defaultblank(request, *args):
@@ -98,7 +100,7 @@ def get_url_patterns():
                             res.append(url_pattern)
                         else:
                             res.append(url(r"^%s/%s" % (module_items[-1], url_pattern._regex[1:]),
-                                           url_pattern._callback or url_pattern._callback_str,
+                                           url_pattern.callback,
                                            url_pattern.default_args, url_pattern.name))
             except ImportError:
                 pass
