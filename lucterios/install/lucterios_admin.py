@@ -578,7 +578,7 @@ class LucteriosInstance(LucteriosManage):
             del mod_set
             del sys.modules[self.setting_module_name]
         import_module(self.setting_module_name)
-        reload(django.conf)
+        import_module("django.conf")
         django.setup()
         self.secret_key = django.conf.settings.SECRET_KEY
         self.extra = django.conf.settings.EXTRA
