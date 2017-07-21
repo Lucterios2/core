@@ -164,7 +164,7 @@ class LucteriosModel(models.Model):
     @classmethod
     def import_data(cls, rowdata, dateformat):
         from django.db.models.fields import IntegerField
-        from django.db.models.fields.related import ForeignKey
+        from django.db.models.fields.related import ForeignKey, OneToOneField
         try:
             new_item = cls()
             if cls._meta.ordering is not None:
@@ -197,6 +197,15 @@ class LucteriosModel(models.Model):
                             break
                 if value_to_saved:
                     setattr(new_item, fieldname, fieldvalue)
+                    
+            for fieldname in cls.get_edit_fields():
+                if isinstance(fieldname, tuple):
+                    fieldname=fieldname[1]
+                dep_field = cls.get_field_by_name(fieldname)        
+                if (dep_field is not None) and not dep_field.null and not dep_field.blank:
+                    val = getattr(new_item, fieldname) 
+                    if val in [None, '']:
+                        return None
             new_item.save()
             return new_item
         except:
