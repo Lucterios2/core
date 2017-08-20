@@ -342,3 +342,14 @@ var ObserverAuthentification = ObserverAbstract.extend({
 	}
 
 });
+
+var WrongObserverAuthentification = ObserverAuthentification.extend({
+
+	getObserverName : function() {
+		return "core.auth";
+	},
+
+	show_logon : function(cdate) {
+		throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Logon not allowed!'));
+	}
+});

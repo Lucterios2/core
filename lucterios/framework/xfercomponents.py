@@ -1011,11 +1011,13 @@ class XferCompGrid(XferComponent):
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_GRID, xfer_custom, model, key=action_list_sorted, gridname=self.name):
             self.add_action(xfer_custom.request, act, **opt)
 
-    def delete_action(self, url_text):
-        modify_idx = 0
+    def delete_action(self, url_text, lastitem=False):
+        action_idx = 0
+        modify_idx = None
         for action in self.actions:
             if action[0].url_text == url_text:
-                break
-            modify_idx += 1
-        if modify_idx < len(self.actions):
+                if (modify_idx is None) or lastitem:
+                    modify_idx = action_idx 
+            action_idx += 1
+        if modify_idx is not None:
             del self.actions[modify_idx]

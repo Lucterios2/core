@@ -200,6 +200,8 @@ class XferShowEditor(XferContainerCustom):
                             ('print', _("Print"), "images/print.png", CLOSE_NO)]
 
     def fillresponse(self):
+        if self.item.id is None:
+            raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
         max_row = self.get_max_row() + 1
         img = XferCompImage('img')
         img.set_value(self.icon_path())

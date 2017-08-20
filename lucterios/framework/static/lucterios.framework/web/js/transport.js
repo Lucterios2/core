@@ -37,12 +37,7 @@ var HttpTransportAbstract = Class
 			setSession : function(session) {
 				if (session === '') {
 					$.removeCookie("lucterios_session");
-					$.cookie('sessionid', '', {
-						path : '/'
-					});
-					$.cookie('sessionid', '', {
-						path : '/web/'
-					});
+					$.removeCookie("sessionid");
 				} else {
 					$.cookie("lucterios_session", session, {
 						expires : 1
@@ -78,7 +73,7 @@ var HttpTransportAbstract = Class
 var HttpTransportImpl = HttpTransportAbstract.extend({
 
 	transfertFileFromServerString : function(aWebFile, aParams) {
-		var reponsetext = "", formdata = new FormData(), error_num = -1;
+		var reponsetext = "", formdata = new FormData(), error_num = -1, code_error;
 		if (aParams !== null) {
 			aParams.keys().forEach(function(key) {
 				formdata.append(key, aParams.get(key));
@@ -100,17 +95,19 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 				post_log('HTTP ERROR:' + xhr.statusText + "/" + textStatus
 						+ "/" + errorThrown);
 				error_num = xhr.readyState;
+				code_error = xhr.status;
 				reponsetext = errorThrown;
 			}
 		});
 		if (error_num !== -1) {
 			if (error_num === 0) {
-				throw new LucteriosException(IMPORTANT, Singleton()
-						.getTranslate('Lost connection!'), aWebFile,
+				throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Lost connection!'), aWebFile,
 						reponsetext);
 			} else {
-				throw new LucteriosException(CRITIC, 'Http error', aWebFile,
-						reponsetext);
+				if (code_error === 404)
+					throw new LucteriosException(GRAVE, Singleton().getTranslate('Command unknown!'), aWebFile, reponsetext);
+				else
+					throw new LucteriosException(CRITIC, 'Http error '+code_error, aWebFile, reponsetext);
 			}
 		}
 		return reponsetext;
