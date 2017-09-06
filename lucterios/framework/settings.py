@@ -224,11 +224,11 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     if 'APPLIS_LOGO_NAME' in dir(setting_module):
         setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
-        setattr(module_to_setup, 'APPLIS_LOGO', '')
+        setattr(module_to_setup, 'APPLIS_LOGO', b'')
     if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
         setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
     else:
-        setattr(module_to_setup, 'APPLIS_BACKGROUND', '')
+        setattr(module_to_setup, 'APPLIS_BACKGROUND', b'')
     if 'APPLI_SUPPORT' in dir(setting_module):
         setattr(module_to_setup, 'APPLI_SUPPORT', setting_module.APPLI_SUPPORT)
     else:
