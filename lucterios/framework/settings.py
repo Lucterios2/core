@@ -202,6 +202,15 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
             my_log['handlers']['file']['filename'] = join(dirname(setup_path), 'error.log')
     except KeyError:
         pass
+    try:
+        my_template = getattr(module_to_setup, 'TEMPLATES', [])
+        dir_list = []
+        for addon_module in addon_modules:
+            module = import_module(addon_module)
+            dir_list.append(dirname(module.__file__))
+        my_template[0]['DIRS'].extend(dir_list)
+    except KeyError:
+        pass
     my_database = getattr(module_to_setup, 'DATABASES', {})
     if ('default' in my_database.keys()):
         if 'ATOMIC_REQUESTS' not in my_database['default']:

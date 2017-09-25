@@ -103,6 +103,7 @@ class LucteriosTest(TestCase):
     def setUp(self):
         self.factory = XmlRequestFactory(self.xfer_class, self.language)
         self.client = XmlClient(self.language)
+        self.response = None
         self.response_xml = None
         self.response_json = None
         Params.clear()
@@ -117,24 +118,23 @@ class LucteriosTest(TestCase):
         self.assertEqual(root.tag, root_tag, "NOT %s" % root_tag)
         self.response_xml = root
 
-    def call(self, path, data, is_client=True):
+
+    def call_ex(self, path, data, is_client=True):
         if is_client:
-            response = self.client.call(path, data)
+            self.response = self.client.call(path, data)
         else:
-            response = self.factory.call(path, data)
-        self.assertEqual(
-            response.status_code, 200, "HTTP error:" + str(response.status_code))
-        self.parse_xml(response.content)
+            self.response = self.factory.call(path, data)
+        self.assertEqual(self.response.status_code, 200, "HTTP error:" + str(self.response.status_code))
+
+    def call(self, path, data, is_client=True):
+        self.call_ex(path, data, is_client)
+        self.parse_xml(self.response.content)
 
     def calljson(self, path, data, is_client=True):
         import json
         data['FORMAT'] = 'JSON'
-        if is_client:
-            response = self.client.call(path, data)
-        else:
-            response = self.factory.call(path, data)
-        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
-        self.response_json = json.loads(response.content.decode())
+        self.call_ex(path, data, is_client)
+        self.response_json = json.loads(self.response.content.decode())
 
     def get_first_xpath(self, xpath):
         if xpath == '':
