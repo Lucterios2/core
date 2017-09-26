@@ -119,12 +119,12 @@ class LucteriosTest(TestCase):
         self.response_xml = root
 
 
-    def call_ex(self, path, data, is_client=True):
+    def call_ex(self, path, data, is_client, status_expected=200):
         if is_client:
             self.response = self.client.call(path, data)
         else:
             self.response = self.factory.call(path, data)
-        self.assertEqual(self.response.status_code, 200, "HTTP error:" + str(self.response.status_code))
+        self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
 
     def call(self, path, data, is_client=True):
         self.call_ex(path, data, is_client)
