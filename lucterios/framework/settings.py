@@ -49,7 +49,7 @@ def get_lan_ip():
                     if_name_short = six.binary_type(ifname[:15], 'utf-8')
                 except TypeError:
                     if_name_short = six.binary_type(ifname[:15])
-                return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack('256s', if_name_short))[20:24])
+                return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack(b'256s', if_name_short))[20:24])
             finally:
                 scket.close()
     ip_address = socket.gethostbyname(socket.gethostname())
