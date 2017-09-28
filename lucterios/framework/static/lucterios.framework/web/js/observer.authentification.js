@@ -1,4 +1,4 @@
-/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack */
+/*global $,Class,navigator,ObserverAbstract,G_Version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack,LucteriosException,IMPORTANT */
 
 var ApplicationDescription = Class.extend({
 
@@ -350,6 +350,7 @@ var WrongObserverAuthentification = ObserverAuthentification.extend({
 	},
 
 	show_logon : function(cdate) {
+		unusedVariables(cdate);
 		throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Logon not allowed!'));
 	}
 });

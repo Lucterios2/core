@@ -2,11 +2,11 @@
  * User: lag Date: 26/11/13 Time: 13:49 Config unit for lucterios client
  */
 
-var G_Version = '1.0.6.16070816';
+var G_Version = '1.0.8.17092810';
 
 var G_With_Extra_Menu = false;
 
-var G_Active_Log = true;
+var G_Active_Log = false;
 
 function get_serverurl() {
 	var fullurl = window.location.href;

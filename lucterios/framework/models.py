@@ -40,8 +40,6 @@ from django.utils.module_loading import import_module
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
 from django_fsm.signals import post_transition
-from django.db.models.fields.related import ManyToOneRel
-from datetime import datetime
 
 
 class AbsoluteValue(Transform):
@@ -56,7 +54,6 @@ RegisterLookupMixin.register_lookup(AbsoluteValue)
 
 
 def get_value_converted(value, bool_textual=False, convert_datetime=True):
-
     import datetime
     if hasattr(value, 'all'):
         values = []
@@ -164,7 +161,7 @@ class LucteriosModel(models.Model):
     @classmethod
     def import_data(cls, rowdata, dateformat):
         from django.db.models.fields import IntegerField
-        from django.db.models.fields.related import ForeignKey, OneToOneField
+        from django.db.models.fields.related import ForeignKey
         try:
             new_item = cls()
             if cls._meta.ordering is not None:
@@ -197,13 +194,13 @@ class LucteriosModel(models.Model):
                             break
                 if value_to_saved:
                     setattr(new_item, fieldname, fieldvalue)
-                    
+
             for fieldname in cls.get_edit_fields():
                 if isinstance(fieldname, tuple):
-                    fieldname=fieldname[1]
-                dep_field = cls.get_field_by_name(fieldname)        
+                    fieldname = fieldname[1]
+                dep_field = cls.get_field_by_name(fieldname)
                 if (dep_field is not None) and not dep_field.null and not dep_field.blank:
-                    val = getattr(new_item, fieldname) 
+                    val = getattr(new_item, fieldname)
                     if val in [None, '']:
                         return None
             new_item.save()
@@ -306,7 +303,6 @@ class LucteriosModel(models.Model):
                 field_val.append(
                     sub_model.evaluate("#" + ".".join(field_list[1:])))
             return "{[br/]}".join(field_val)
-        from django.db.models.fields.related import ForeignKey
         if text == '#':
             return six.text_type(self)
         value = text
@@ -492,6 +488,7 @@ class GeneralPrintPlugin(PrintFieldsPlugIn):
         return fields
 
     def evaluate(self, text_to_evaluate):
+        from datetime import datetime
         current_datetime = datetime.now()
         res = text_to_evaluate
         res = res.replace('#today_short', formats.date_format(current_datetime, "SHORT_DATE_FORMAT"))

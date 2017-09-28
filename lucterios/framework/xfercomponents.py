@@ -772,6 +772,7 @@ class XferCompDownLoad(XferCompButton):
         compjson['maxsize'] = self.maxsize
         return compjson
 
+
 MAX_GRID_RECORD = 25
 if hasattr(settings, 'MAX_GRID_RECORD'):
     MAX_GRID_RECORD = settings.MAX_GRID_RECORD
@@ -1017,7 +1018,7 @@ class XferCompGrid(XferComponent):
         for action in self.actions:
             if action[0].url_text == url_text:
                 if (modify_idx is None) or lastitem:
-                    modify_idx = action_idx 
+                    modify_idx = action_idx
             action_idx += 1
         if modify_idx is not None:
             del self.actions[modify_idx]

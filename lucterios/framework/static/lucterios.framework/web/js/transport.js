@@ -1,4 +1,4 @@
-/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC*/
+/*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC,GRAVE */
 
 var HttpTransportAbstract = Class
 		.extend({
@@ -104,10 +104,12 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 				throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Lost connection!'), aWebFile,
 						reponsetext);
 			} else {
-				if (code_error === 404)
+				if (code_error === 404) {
 					throw new LucteriosException(GRAVE, Singleton().getTranslate('Command unknown!'), aWebFile, reponsetext);
-				else
+				}
+				else {
 					throw new LucteriosException(CRITIC, 'Http error '+code_error, aWebFile, reponsetext);
+				}
 			}
 		}
 		return reponsetext;

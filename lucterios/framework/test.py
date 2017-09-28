@@ -118,7 +118,6 @@ class LucteriosTest(TestCase):
         self.assertEqual(root.tag, root_tag, "NOT %s" % root_tag)
         self.response_xml = root
 
-
     def call_ex(self, path, data, is_client, status_expected=200):
         if is_client:
             self.response = self.client.call(path, data)
