@@ -210,6 +210,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 self.responsexml.append(self.redirect_act[0].get_action_xml(modal=self.redirect_act[1], close=self.redirect_act[2], params=self.redirect_act[3]))
         XferContainerAbstract._finalize(self)
 
+
 XFER_DBOX_INFORMATION = 1
 XFER_DBOX_CONFIRMATION = 2
 XFER_DBOX_WARNING = 3
@@ -381,7 +382,7 @@ class XferContainerCustom(XferContainerAbstract):
                     if comp.tab >= num:
                         comp.tab = comp.tab + 1
                 self.tab = num
-            new_tab = XferCompTab()
+            new_tab = XferCompTab("__tab_%d" % self.tab)
             new_tab.set_value(six.text_type(tab_name))
             new_tab.set_location(-1, -1)
             self.add_component(new_tab)

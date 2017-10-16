@@ -137,8 +137,8 @@ class XferComponent(object):
 
 class XferCompTab(XferComponent):
 
-    def __init__(self):
-        XferComponent.__init__(self, '')
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
         self._component_ident = "TAB"
 
     def set_value(self, value):
