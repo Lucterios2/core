@@ -83,6 +83,7 @@ class Unlock(XferContainerAcknowledge):
     def fillresponse(self):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)
 
+
 signal_and_lock.unlocker_view_class = Unlock
 
 
@@ -267,6 +268,7 @@ def auth_action_core(actions_basic):
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
+    is_simple_gui = True
 
     def fillresponse(self):
         img_title = XferCompImage('img')
@@ -322,6 +324,7 @@ class ParamSave(XferContainerAcknowledge):
             Parameter.change_value(pname, pvalue)
         Params.clear()
         signal_and_lock.Signal.call_signal("param_change", params)
+
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
                    _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)

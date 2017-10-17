@@ -688,6 +688,9 @@ class XferCompCheckList(XferCompButton):
             xml_case.text = six.text_type(val)
         return compxml
 
+    def get_json_value(self):
+        return self.value
+
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         if isinstance(self.select_list, dict):
