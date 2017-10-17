@@ -82,9 +82,6 @@ class XferListEditor(XferContainerCustom):
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.fieldnames = None
-        self.action_list = [('listing', _("Listing"), "images/print.png"),
-                            ('label', _("Label"), "images/print.png")]
-        self.action_grid = deepcopy(DEFAULT_ACTION_LIST)
         self.filter = None
 
     def fillresponse_header(self):
@@ -105,7 +102,6 @@ class XferListEditor(XferContainerCustom):
         else:
             xfer = None
         grid.set_model(items, self.fieldnames, xfer)
-        grid.add_actions(self, action_list=self.action_grid, model=model)
         grid.add_action_notified(self, model=model)
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
@@ -132,8 +128,6 @@ class XferListEditor(XferContainerCustom):
         self.fillresponse_header()
         self.fillresponse_body()
         if self.model is not None:
-            for act_type, title, icon in self.action_list:
-                self.add_action(ActionsManage.get_act_changed(self.model.__name__, act_type, title, icon), close=CLOSE_NO)
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
@@ -196,8 +190,6 @@ class XferShowEditor(XferContainerCustom):
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
-        self.action_list = [('modify', _("Modify"), "images/edit.png", CLOSE_YES),
-                            ('print', _("Print"), "images/print.png", CLOSE_NO)]
 
     def fillresponse(self):
         if self.item.id is None:
@@ -208,14 +200,6 @@ class XferShowEditor(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, max_row, True)
-        for action_item in self.action_list:
-            act_type, title, icon, close = action_item[:4]
-            if len(action_item) > 4:
-                params = action_item[4]
-            else:
-                params = {}
-            self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), close=close, params=params)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
