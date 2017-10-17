@@ -344,16 +344,14 @@ class ConfigTest(LucteriosTest):
         self.assert_count_equal('ACTIONS/ACTION', 2)
         self.assert_action_equal('ACTIONS/ACTION[1]', ('Modifier', 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
-        self.assert_count_equal('COMPONENTS/*', 7)
+        self.assert_count_equal('COMPONENTS/*', 5)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 10))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]',
-                               "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connexion toujours nécessaire", (2, 1, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="lbl_CORE-Wizard"]',
-                               "{[b]}Toujours ouvrir l'assistant de configuration au démarrage.{[/b]}", (1, 2, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', "Oui", (2, 2, 1, 1))
+        self.assert_attrib_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', 'description', "Mode de connexion")
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connexion toujours nécessaire", (1, 1, 1, 1))
+        self.assert_attrib_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', 'description', "Toujours ouvrir l'assistant de configuration au démarrage.")
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', "Oui", (1, 2, 1, 1))
         self.assert_action_equal('COMPONENTS/BUTTON[@name="conf_wizard"]/ACTIONS/ACTION', ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
 
     def test_config_edit(self):

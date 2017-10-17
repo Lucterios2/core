@@ -79,6 +79,7 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 				formdata.append(key, aParams.get(key));
 			});
 		}
+		formdata.append('FORMAT', 'XML');
 
 		$.ajax({
 			url : this.getServerUrl() + aWebFile,
