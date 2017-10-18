@@ -71,6 +71,7 @@ MenuManage.add_sub('core.admin', None, 'images/admin.png',
 class StatusMenu(XferContainerCustom):
     caption = _("Summary")
     icon = "status.png"
+    is_simple_gui = True
 
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("summary", self)
@@ -147,6 +148,7 @@ def right_changepassword(request):
 class ChangePassword(XferContainerCustom):
     caption = _("Password")
     icon = "passwd.png"
+    is_simple_gui = True
 
     def fillresponse(self):
         img = XferCompImage('img')
@@ -214,6 +216,7 @@ def right_askpassword(request):
 class AskPassword(XferContainerCustom):
     caption = _("Ask password")
     icon = "passwd.png"
+    is_simple_gui = True
 
     def fillresponse(self):
         img = XferCompImage('img')
@@ -298,6 +301,7 @@ class Configuration(XferContainerCustom):
 class ParamEdit(XferContainerCustom):
     caption = _("Parameters")
     icon = "config.png"
+    is_simple_gui = True
 
     def fillresponse(self, params=(), nb_col=1):
         img_title = XferCompImage('img')
@@ -706,6 +710,7 @@ class ObjectMerge(XferContainerAcknowledge):
     icon = ""
     model = None
     field_id = 'object'
+    is_simple_gui = True
 
     def _search_model(self):
         modelname = self.getparam('modelname')
@@ -759,6 +764,7 @@ class ObjectPromote(XferContainerAcknowledge):
     icon = "images/config.png"
     model = None
     field_id = ''
+    is_simple_gui = True
 
     def _search_model(self):
         modelname = self.getparam('modelname')
