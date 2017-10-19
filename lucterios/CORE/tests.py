@@ -361,42 +361,28 @@ class ConfigTest(LucteriosTest):
 
         self.assert_xml_equal('TITLE', 'Paramètres')
         self.assert_count_equal('CONTEXT/PARAM', 1)
-        self.assert_xml_equal(
-            'CONTEXT/PARAM[@name="params"]', 'CORE-connectmode')
+        self.assert_xml_equal('CONTEXT/PARAM[@name="params"]', 'CORE-connectmode')
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal(
-            'ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'paramSave', 1, 1, 1))
-        self.assert_action_equal(
-            'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'paramSave', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('COMPONENTS/*', 3)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
 
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_CORE-connectmode"]', "{[b]}Mode de connexion{[/b]}", (1, 1, 1, 1))
-        self.assert_comp_equal(
-            'COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (2, 1, 1, 1))
-        self.assert_count_equal(
-            'COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
-        self.assert_xml_equal(
-            'COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connexion toujours nécessaire")
-        self.assert_xml_equal(
-            'COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert en tant qu'anonyme")
-        self.assert_xml_equal(
-            'COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
+        self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (1, 1, 1, 1))
+        self.assert_attrib_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', 'description', "Mode de connexion")
+        self.assert_count_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connexion toujours nécessaire")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert en tant qu'anonyme")
+        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
 
     def test_config_save(self):
-        param = Parameter.objects.get(
-            name='CORE-connectmode')
+        param = Parameter.objects.get(name='CORE-connectmode')
         self.assertEqual("0", param.value)
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'CORE-connectmode', 'CORE-connectmode': '1'}, False)
+        self.call('/CORE/paramSave', {'params': 'CORE-connectmode', 'CORE-connectmode': '1'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
 
-        param = Parameter.objects.get(
-            name='CORE-connectmode')
+        param = Parameter.objects.get(name='CORE-connectmode')
         self.assertEqual("1", param.value)
