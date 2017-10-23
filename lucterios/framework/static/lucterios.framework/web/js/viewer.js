@@ -1,13 +1,15 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu,unusedVariables,atob,FORM_MODAL*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,WrongObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 
 var G_params = {};
 try {
-	window.location.href.replace(location.hash, '').replace(/[?&]+([^=&]+)=?([^&]*)?/gi, // regexp
-	function(m, key, value) { // callback
-		G_params[key] = (value !== undefined) ? value : '';
-	});
-	G_params = atob(G_params['CODE']);
+	window.location.href.replace(location.hash, '').replace(
+			/[?&]+([^=&]+)=?([^&]*)?/gi, // regexp
+			function(m, key, value) { // callback
+				unusedVariables(m);
+				G_params[key] = (value !== undefined) ? value : '';
+			});
+	G_params = atob(G_params.CODE);
 	G_params = jQuery.parseJSON(G_params);
 } catch ($exept) {
 	G_params = null;
@@ -49,7 +51,8 @@ function standard_initial() {
 
 	Singleton().Factory().clearObserverList();
 
-	Singleton().Factory().AddObserver("core.auth", WrongObserverAuthentification);
+	Singleton().Factory().AddObserver("core.auth",
+			WrongObserverAuthentification);
 	Singleton().Factory().AddObserver("core.dialogbox", ObserverDialogBox);
 	Singleton().Factory().AddObserver("core.custom", ObserverCustom);
 	Singleton().Factory().AddObserver("core.acknowledge", ObserverAcknowledge);
@@ -60,9 +63,9 @@ function standard_initial() {
 function first_action() {
 	var session;
 	standard_initial();
-	if ((G_params !== null) && (G_params['ses'] !== undefined)) {
+	if ((G_params !== null) && (G_params.ses !== undefined)) {
 		Singleton().Transport().setSession("");
-		Singleton().Transport().setSession(G_params['ses']);
+		Singleton().Transport().setSession(G_params.ses);
 		$.cookie('sessionid', session, {
 			path : '/',
 			expires : 0.007
@@ -81,23 +84,25 @@ function initial_function() {
 		Singleton().close();
 		first_action();
 	} else {
-		var html, act;
-		if (Singleton().mDesc.getLogin() === '') {
-			disconnect_title = Singleton().getTranslate('Logon');
-		}
-		document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(), Singleton().mDesc.getSubTitle());
+		var act;
+		document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(),
+				Singleton().mDesc.getSubTitle());
 		if (G_params !== null) {
-			if (G_params['bcg'] === undefined) {
-				$('body').css('background', '#EEE url(' + Singleton().mDesc.mBackground + ') repeat');
+			if (G_params.bcg === undefined) {
+				$('body').css(
+						'background',
+						'#EEE url(' + Singleton().mDesc.mBackground
+								+ ') repeat');
 			} else {
-				$('body').css('background', G_params['bcg']);
+				$('body').css('background', G_params.bcg);
 			}
 			act = Singleton().CreateAction();
 			act.mFormType = FORM_MODAL;
-			act.initializeEx(null, Singleton().Factory(), '', G_params['ext'], G_params['act']);
+			act.initializeEx(null, Singleton().Factory(), '', G_params.ext,
+					G_params.act);
 			act.getParameters = function() {
 				var param = new HashMap();
-				jQuery.each(G_params['params'], function(key, data) {
+				jQuery.each(G_params.params, function(key, data) {
 					param.put(key, data);
 				});
 				return param;
@@ -120,10 +125,17 @@ window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 		type_error = error_desc[0].substr(0, 1);
 		error_desc[0] = error_desc[0].substr(2);
 	}
-	obs.setContent(("<Error><EXCEPTION>" + "<MESSAGE><![CDATA[{0}]]></MESSAGE>".format(error_desc[0]) + "<CODE>{0}</CODE>".format(type_error)
-			+ "<DEBUG_INFO>|{0}</DEBUG_INFO>".format(stack) + "<TYPE>Ajax exception</TYPE>"
-			+ "<REQUETTE>{0}</REQUETTE>".format(error_desc[1] ? encodeURIComponent(error_desc[1]) : '')
-			+ "<REPONSE>{0}</REPONSE>".format(error_desc[2] ? encodeURIComponent(error_desc[2]) : '') + "</EXCEPTION></Error>").parseXML());
+	obs.setContent(("<Error><EXCEPTION>"
+			+ "<MESSAGE><![CDATA[{0}]]></MESSAGE>".format(error_desc[0])
+			+ "<CODE>{0}</CODE>".format(type_error)
+			+ "<DEBUG_INFO>|{0}</DEBUG_INFO>".format(stack)
+			+ "<TYPE>Ajax exception</TYPE>"
+			+ "<REQUETTE>{0}</REQUETTE>"
+					.format(error_desc[1] ? encodeURIComponent(error_desc[1])
+							: '')
+			+ "<REPONSE>{0}</REPONSE>"
+					.format(error_desc[2] ? encodeURIComponent(error_desc[2])
+							: '') + "</EXCEPTION></Error>").parseXML());
 	obs.show('Exception');
 	return false;
 };
