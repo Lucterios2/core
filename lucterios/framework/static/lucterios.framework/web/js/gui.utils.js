@@ -176,6 +176,12 @@ var GUIManage = GUIBasic
 					width : 'auto',
 					height : 'auto',
 					modal : isModal,
+					classes: {
+					    "ui-dialog": "lct-dialog",
+					    "ui-dialog-content": "lct-dlgcontent",
+					    "ui-dialog-buttonpane": "lct-dlgbtnpn",
+				        "ui-dialog-buttonset": "lct-dlgbtnset"
+					},
 					buttons : this.get_button_list(),
 					close : $.proxy(function(event, ui) {
 						unusedVariables(event, ui);
@@ -188,16 +194,10 @@ var GUIManage = GUIBasic
 				}
 				$("#" + this.mId).dialog(args);
 				if (this.mCallback !== null) {
-					titlebar = $("#" + this.mId).parent().find(
-							'.ui-dialog-titlebar');
-					$(
-							'<button id="refresh_'
-									+ this.mId
-									+ '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
-							.append(
-									'<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
-							.append(
-									'<span class="ui-button-text">refresh</span>')
+					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
+					$('<button id="refresh_'+ this.mId+ '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
+							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
+							.append('<span class="ui-button-text">refresh</span>')
 							.appendTo(titlebar).hover(function() {
 								$(this).addClass('ui-state-hover');
 							}, function() {
@@ -255,10 +255,8 @@ var GUIManage = GUIBasic
 				});
 				for (iAct = 0; iAct < this.mButtons.length; iAct++) {
 					if (this.mButtons[iAct].getIcon() !== '') {
-						btn_icon = Singleton().Transport().getIconUrl(
-								this.mButtons[iAct].getIcon());
-						btn = parent.find("div > div > button:eq({0}) > span"
-								.format(iAct));
+						btn_icon = Singleton().Transport().getIconUrl(this.mButtons[iAct].getIcon());
+						btn = parent.find("div > div > button:eq({0})".format(iAct));
 						btn.find('img').remove();
 						btn.prepend('<img src="{0}" />'.format(btn_icon));
 					}
