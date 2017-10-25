@@ -5,14 +5,14 @@ var g_translation = new HashMap();
 g_translation.put("fr", new HashMap());
 g_translation.fr.put("Configuration", "Configuration");
 g_translation.fr.put("Describ your problem.<br>Thanks<br><br>",
-		"D&eacute;crivez le plus pr&eacute;cis&eacute;ment possible, comment vous avez obtenu ce probl&egrave;me.<br>Merci de votre aide.<br><br>");
+        "D&eacute;crivez le plus pr&eacute;cis&eacute;ment possible, comment vous avez obtenu ce probl&egrave;me.<br>Merci de votre aide.<br><br>");
 g_translation.fr.put("Bug report", "Rapport de bogue");
 g_translation.fr.put("Version", "Version");
 g_translation.fr.put("Use the <i>Lucterios</i> framework", "Utilise le cadre d'application <i>Lucterios</i>");
 g_translation.fr.put("Server", "Serveur");
 g_translation.fr.put("AJAX client", "Client AJAX");
 g_translation.fr.put("Tool of customize management on GPL license", "Outil de gestion personnalis&eacute; sous licence GPL");
-g_translation.fr.put("ask support", "Demande de support");
+g_translation.fr.put("ask support", "Support...");
 g_translation.fr.put("About...", "A propos...");
 g_translation.fr.put("Logon", "Connexion");
 g_translation.fr.put("Logoff", "D&eacute;connexion");
@@ -28,8 +28,7 @@ g_translation.fr.put("Sent to support", "Envoyer au support");
 g_translation.fr.put("Page #", "Page N°");
 g_translation.fr.put("Select one line before!", "S&eacute;lectionnez une ligne avant !");
 g_translation.fr.put("Select only one line!", "Ne s&eacute;lectionnez qu'une ligne !");
-g_translation.fr.put("Upload impossible<br/>The file must be less than {0}Mo ",
-		"T&eacute;l&eacute;chargement impossible<br/>Le fichier doit faire moins de {0}Mo ");
+g_translation.fr.put("Upload impossible<br/>The file must be less than {0}Mo ", "T&eacute;l&eacute;chargement impossible<br/>Le fichier doit faire moins de {0}Mo ");
 g_translation.fr.put("Loading...", "Chargement...");
 g_translation.fr.put("Save as...", "Enregistrer sous...");
 g_translation.fr.put("Browser", "Navigateur");
@@ -54,7 +53,9 @@ g_translation.fr.put("Password too simple!", "Mot de passe trop simple!");
 g_translation.fr.put("Help", "Aide");
 g_translation.fr.put("Info", "Info");
 g_translation.fr.put("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.",
-		"Ce navigateur Web ne support pas cette fonctionnalité!{[br/]}Utilisez Firefox, Chrome, Safari ou Edge.");
+        "Ce navigateur Web ne support pas cette fonctionnalité!{[br/]}Utilisez Firefox, Chrome, Safari ou Edge.");
+g_translation.fr.put("Thank you for supporting our work.", "Merci de soutenir notre travail.");
+g_translation.fr.put("More...", "Plus...");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -105,5 +106,6 @@ g_translation.en.put("Password too short!", "Password too short!");
 g_translation.en.put("Password too simple!", "Password too simple!");
 g_translation.en.put("Help", "Help");
 g_translation.en.put("Info", "Info");
-g_translation.en.put("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.",
-		"This Web browser don't support this feature!{[br/]}Use Firefox, Chrome, Safari or Edge.");
+g_translation.en.put("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.", "This Web browser don't support this feature!{[br/]}Use Firefox, Chrome, Safari or Edge.");
+g_translation.en.put("Thank you for supporting our work.", "Thank you for supporting our work.");
+g_translation.en.put("More...", "More...");

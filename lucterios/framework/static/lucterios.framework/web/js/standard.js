@@ -1,4 +1,4 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 
 function clean_function() {
@@ -85,18 +85,6 @@ function aboutmore_function() {
     this.mGUI.showGUI(true);
 }
 
-function info_function() {
-    var val_display = $("#asideMenu").css('display');
-    if (val_display === 'none') {
-        $("#asideMenu").css('display', 'block');
-        $("#menuContainer").removeClass("menupos");
-    } else {
-        $("#asideMenu").css('display', 'none');
-        $("#menuContainer").addClass("menupos");
-    }
-
-}
-
 function help_function() {
     var win = window.open(Singleton().Transport().getIconUrl("Docs"), '_blank');
     win.focus();
@@ -108,7 +96,7 @@ function sendsupport_function() {
 }
 
 function about_function() {
-    var mDescription = Singleton().mDesc, table = [];
+    var mDescription = Singleton().mDesc, table = [], html, acts = [];
     table[0] = [];
     table[0][0] = new compBasic("<img src='" + mDescription.getLogoIconName() + "'>", 1, 2);
     table[0][1] = new compBasic("<center><h1>" + mDescription.getTitle() + "</h1></center>", 2, 1);
@@ -126,20 +114,37 @@ function about_function() {
     table[4] = [];
     table[4][0] = new compBasic("<center><font size='-1'><center><i>" + Singleton().getTranslate("Tool of customize management on GPL license") + "</i></center></font></center>", 3);
     table[5] = [];
-    table[5][0] = new compBasic("<center><a href='http://www.lucterios.org'>http://www.lucterios.org</a></center><hr/>", 3);
+    html = "<center>";
+    html += "<a target='_blank' href='http://www.lucterios.org' style='margin-right:5px;'>http://www.lucterios.org</a> ";
+    html += "<a target='_blank' href='http://www.sd-libre.fr' style='margin-left:5px;'>http://www.sd-libre.fr</a><br/>";
+    html += Singleton().getTranslate("Thank you for supporting our work.");
+    html += '<form id="formDon" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post">';
+    html += '<input name="cmd" value="_s-xclick" type="hidden">';
+    html += '<input name="hosted_button_id" value="BDGPMSZGYLWT6" type="hidden">';
+    html += '<input style="border: 0;" alt="PayPal" name="submit" src="images/bouton-don-v.png" type="image"></form>';
+    html += '</center><hr/>';
+    table[5][0] = new compBasic(html, 3);
 
     table[6] = [];
     table[6][0] = new compBasic(mDescription.mSupportHTML.convertLuctoriosFormatToHtml(), 3);
 
-    table[7] = [];
-    table[7][1] = new compBasic("<input type='button' id='send_support' value='" + Singleton().getTranslate("ask support") + "'>", 1, 1, 'width:100%;');
-    table[7][2] = new compBasic("<input type='button' id='aboutmore' value='...'/>", 1);
-
     this.mGUI = new GUIManage(createGuid(), Singleton().getTranslate("About..."), null);
-    this.mGUI.addcontent(createTable(table), []);
+
+    acts[0] = new ActionInt();
+    acts[0].initializeEx(null, null, Singleton().getTranslate("ask support"));
+    acts[0].mIcon = "static/lucterios.CORE/images/right.png";
+    acts[0].callback = sendsupport_function;
+    acts[1] = new ActionInt();
+    acts[1].initializeEx(null, null, Singleton().getTranslate("More..."));
+    acts[1].mIcon = "static/lucterios.CORE/images/info.png";
+    acts[1].callback = aboutmore_function;
+    acts[2] = new ActionInt();
+    acts[2].initializeEx(null, null, Singleton().getTranslate("Close"));
+    acts[2].mIcon = "static/lucterios.CORE/images/close.png";
+    acts[2].callback = $.proxy(this.mGUI.close, this.mGUI);
+
+    this.mGUI.addcontent(createTable(table), acts);
     this.mGUI.showGUI(true);
-    $("#aboutmore").click(aboutmore_function);
-    $("#send_support").click(sendsupport_function);
 }
 
 function initial_function() {
@@ -168,7 +173,7 @@ function initial_function() {
         }
         $("#about").click(about_function);
         $("#help").click(help_function);
-        $("#showmenu").click(info_function);
+        $("#showmenu").click(info_openclose);
         document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(), Singleton().mDesc.getSubTitle());
         if (Singleton().mRefreshMenu) {
             act = Singleton().CreateAction();
@@ -178,25 +183,6 @@ function initial_function() {
         $('body').css('background', '#EEE url(' + Singleton().mDesc.mBackground + ') repeat');
     }
 }
-
-window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-    var error_desc = errorMsg.split('#'), stack = '', obs, type_error;
-    if (lineNumber > 0) {
-        stack = url + "->" + lineNumber;
-    }
-    obs = new ObserverException();
-    type_error = FAILURE;
-    error_desc[0] = error_desc[0].replace(/uncaught exception: /gi, '');
-    if (/[0-9]~/.test(error_desc[0].substr(0, 2))) {
-        type_error = error_desc[0].substr(0, 1);
-        error_desc[0] = error_desc[0].substr(2);
-    }
-    obs.setContent(("<Error><EXCEPTION>" + "<MESSAGE><![CDATA[{0}]]></MESSAGE>".format(error_desc[0]) + "<CODE>{0}</CODE>".format(type_error) + "<DEBUG_INFO>|{0}</DEBUG_INFO>".format(stack)
-            + "<TYPE>Ajax exception</TYPE>" + "<REQUETTE>{0}</REQUETTE>".format(error_desc[1] ? encodeURIComponent(error_desc[1]) : '')
-            + "<REPONSE>{0}</REPONSE>".format(error_desc[2] ? encodeURIComponent(error_desc[2]) : '') + "</EXCEPTION></Error>").parseXML());
-    obs.show('Exception');
-    return false;
-};
 
 set_InitialCallBack(initial_function);
 set_CleanCallBack(clean_function);

@@ -19,6 +19,18 @@ function resizeContentTabs() {
     // post_log("{0}".format($(window).width()));
 }
 
+function info_openclose() {
+    var val_display = $("#asideMenu").css('display');
+    if (val_display === 'none') {
+        $("#asideMenu").css('display', 'block');
+        $("#menuContainer").removeClass("menupos");
+        $("#asideMenu").accordion('option', 'active', 0);
+    } else {
+        $("#asideMenu").css('display', 'none');
+        $("#menuContainer").addClass("menupos");
+    }
+}
+
 var Menu = Class.extend({
 
     id : '',
@@ -258,7 +270,14 @@ var ObserverMenu = ObserverAbstract.extend({
             html += '</div>';
             $("#mainMenu").append(html);
             $("#asideMenu").accordion({
-                collapsible : true
+                collapsible : true,
+                activate : function (event, ui) {
+                    unusedVariables(event, ui);
+                    var opened = $(this).find('.ui-state-active').length;
+                    if (opened === 0) {
+                        info_openclose();
+                    }
+                }
             });
             size = 481 - this.aside_menu.submenu.length * 26;
             for (submenu_idx = 0; submenu_idx < this.aside_menu.submenu.length; submenu_idx++) {
