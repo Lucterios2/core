@@ -133,6 +133,7 @@ var GUIManage = GUIBasic
 		.extend({
 			mButtons : [],
 			withForm : false,
+			defaultbtn : '',
 
 			addcontent : function(aHtmlBody, aButtons) {
 				if (this.withForm) {
@@ -206,6 +207,17 @@ var GUIManage = GUIBasic
 								this.refresh();
 							}, this.mCallback));
 				}
+				$("#" + this.mId).keyup($.proxy(this.manageKey,this));
+			},
+			
+			manageKey : function(event) {
+                var btn;
+                if ((event.keyCode == 13) && (this.defaultbtn!=='')) {
+                    btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
+                    if (btn.length===1) {
+                        btn.click();
+                    } 
+                }
 			},
 
 			correctStruct : function() {

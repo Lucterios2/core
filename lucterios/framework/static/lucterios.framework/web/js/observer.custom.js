@@ -7,6 +7,7 @@ var ObserverCustom = ObserverGUI.extend({
 
     mCompList : new HashMap(),
     mIsSimpleGui : false,
+    mDefaultBtn : '',
 
     get : function (key) {
         return this.mCompList[key];
@@ -32,6 +33,7 @@ var ObserverCustom = ObserverGUI.extend({
         var comp_idx, fieldname, gui_val;
         this.mGUI = new GUIManage(this.getId(), this.mTitle, this);
         this.mGUI.addcontent(this.getHtmlFromComponent(), this.buildButtons());
+        this.mGUI.defaultbtn = this.mDefaultBtn;
         this.mGUI.showGUI(aGUIType === FORM_MODAL);
         for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
             gui_val = this.mCompList.val(comp_idx);

@@ -410,7 +410,7 @@ class XferSearchEditor(XferContainerCustom):
         self.add_component(img)
         lbl = XferCompLabelForm('title')
         lbl.set_value_as_title(self.caption)
-        lbl.set_location(1, 0)
+        lbl.set_location(1, 0, 5)
         self.add_component(lbl)
 
     def fillresponse_search_select(self):
@@ -475,6 +475,7 @@ if ((type=='list') || (type=='listmult')) {
 
     def fillresponse_search_values(self):
         comp = XferCompButton("searchButtonAdd")
+        comp.is_default = True
         comp.set_is_mini(True)
         comp.set_location(4, 10, 1, 7)
         comp.set_action(self.request, self.get_action("", "images/add.png"), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
@@ -556,11 +557,11 @@ if ((type=='list') || (type=='listmult')) {
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_actions(self, action_list=self.action_grid)
         grid.add_action_notified(self)
-        grid.set_location(0, row + 4, 4)
+        grid.set_location(0, row + 4, 6)
         grid.set_size(200, 500)
         self.add_component(grid)
         lbl = XferCompLabelForm("nb")
-        lbl.set_location(0, row + 5, 4)
+        lbl.set_location(0, row + 5, 6)
         lbl.set_value(_("Total number of %(name)s: %(count)d") % {
                       'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
         self.add_component(lbl)

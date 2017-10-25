@@ -241,6 +241,9 @@ var compButton = compAbstractEvent.extend({
         this.isMini = (component.getXMLAttributInt("isMini", 0) === 1);
         this.needed = 0;
         this.tag = 'button';
+        if (component.getXMLAttributInt("isDefault", 0) === 1) {
+            this.owner.mDefaultBtn = "button[name='{0}']".format(this.name);
+        }
     },
 
     actionPerformed : function () {

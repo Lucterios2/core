@@ -312,6 +312,7 @@ class XferCompButton(XferComponent):
         self.action = None
         self.java_script = ""
         self.is_mini = False
+        self.is_default = False
 
     def set_is_mini(self, is_mini):
         if is_mini:
@@ -333,6 +334,8 @@ class XferCompButton(XferComponent):
         XferComponent._get_attribut(self, compxml)
         if self.is_mini:
             compxml.attrib['isMini'] = '1'
+        if self.is_default:
+            compxml.attrib['isDefault'] = '1'
 
     def get_reponse_xml(self):
         compxml = XferComponent.get_reponse_xml(self)
@@ -351,6 +354,7 @@ class XferCompButton(XferComponent):
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['is_mini'] = self.is_mini
+        compjson['is_default'] = self.is_default
         compjson['javascript'] = self.java_script
         if self.action is not None:
             compjson['action'] = self.action[0].get_action_json(modal=self.action[1], close=self.action[2], unique=SELECT_NONE, params=self.action[3])
