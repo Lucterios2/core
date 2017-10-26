@@ -73,7 +73,7 @@ class Multi(XferContainerAcknowledge):
 
     def fillresponse(self):
         if self.confirme("Do you want?"):
-            if self.traitment("lucterios.dummy/images/4.png", "Waiting...", "Done!"):
+            if self.traitment("static/lucterios.dummy/images/4.png", "Waiting...", "Done!"):
                 import time
                 time.sleep(3)
 
@@ -84,7 +84,7 @@ class TestComposants(XferContainerCustom):
     icon = "4.png"
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
-                     ck1=False, slct1='1', flt2=5, cl1=['1', '2'], stm1='2008-07-12 23:47:31'):
+                     ck1=False, slct1='1', flt2=5, cl1=['1', '2'], cl2=['b', 'd', 'f'], stm1='2008-07-12 23:47:31'):
         act_modif = self.get_action('Modify', '')
 
         lbl = XferCompLabelForm('Lbl2')
@@ -198,6 +198,19 @@ class TestComposants(XferContainerCustom):
         checklist.set_value(cl1)
         checklist.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         checklist.set_location(1, 10)
+        self.add_component(checklist)
+
+        lbl = XferCompLabelForm('Lbl12')
+        lbl.set_value('CheckList 2=' + six.text_type(cl2))
+        lbl.set_location(0, 11)
+        self.add_component(lbl)
+        checklist = XferCompCheckList('cl2')
+        checklist.simple = 2
+        checklist.set_select(
+            {'a': '123', 'b': '456', 'c': '789', 'd': '147', 'e': '258', 'f': '369'})
+        checklist.set_value(cl2)
+        checklist.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        checklist.set_location(1, 11)
         self.add_component(checklist)
 
         lbl = XferCompLabelForm('Lbl12')

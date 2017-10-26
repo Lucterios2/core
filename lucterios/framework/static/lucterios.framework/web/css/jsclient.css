@@ -43,26 +43,6 @@ italic {
 	margin: 1px 3px 1px 2px;
 }
 
-.fa-refresh:before {
-	content: "\f021";
-}
-
-.fa-logon:before {
-	content: "\f011";
-}
-
-.fa-about:before {
-	content: "\f05A";
-}
-
-.fa-help:before {
-	content: "\f059";
-}
-
-.fa-menu:before {
-	content: "\f022";
-}
-
 #status {
 	width: 100%;
 	top: 0px;
@@ -414,6 +394,57 @@ button>span>img {
 	height: 25px;
 	margin-bottom: 3px;
 	width: 170px;
+}
+
+@media screen and (max-width: 623px) {
+	.multiselect select {
+		min-height: 80px;
+		width: 90%;
+		margin: 5px;
+	}
+	.multiselect div {
+		width: 90%;
+		align-text: center;
+	}
+	.multiselect div button {
+		width: 30px;
+		padding: 0px;
+		margin: 3px;
+	}
+}
+
+@media screen and (min-width: 623px) {
+	.multiselect select {
+		float: left;
+		min-height: 140px;
+		min-width: 65px;
+		margin: 5px;
+		max-width: 40%;
+	}
+	.multiselect div {
+		float: left;
+		position: relative;
+		width: 35px;
+		min-height: 140px;
+	}
+	.multiselect div button {
+		width: 30px;
+		padding: 0px;
+		margin: 3px;
+		position: absolute;
+	}
+	.multiselect div button.addall {
+		top: 0px;
+	}
+	.multiselect div button.add {
+		top: 30px;
+	}
+	.multiselect div button.del {
+		top: 60px;
+	}
+	.multiselect div button.delall {
+		top: 90px;
+	}
 }
 
 .waiting {

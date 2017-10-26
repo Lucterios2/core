@@ -671,8 +671,10 @@ class XferCompCheckList(XferCompButton):
 
     def _get_attribut(self, compxml):
         XferCompButton._get_attribut(self, compxml)
-        if self.simple:
+        if (self.simple and (self.simple != 2)) or (self.simple == 1):
             compxml.attrib['simple'] = '1'
+        elif self.simple == 2:
+            compxml.attrib['simple'] = '2'
         else:
             compxml.attrib['simple'] = '0'
 
@@ -830,14 +832,8 @@ class XferCompGrid(XferComponent):
             self.headers[head_idx] = XferCompHeader(self.headers[head_idx].name, self.headers[
                                                     head_idx].descript, htype, self.headers[head_idx].orderable)
 
-    def add_action(self, request, action, options=None, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
+    def add_action(self, request, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         if isinstance(action, WrapAction) and action.check_permission(request):
-            if isinstance(options, dict):
-                warnings.warn("[XferCompGrid.add_action] Deprecated in Lucterios 2.2", DeprecationWarning)
-                modal = options.get('modal', FORMTYPE_MODAL)
-                close = options.get('close', CLOSE_YES)
-                unique = options.get('unique', SELECT_NONE)
-                params = options.get('params', None)
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, modal, close, unique, params))
             else:

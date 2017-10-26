@@ -303,7 +303,7 @@ var compGeneric = compBasic.extend({
         }
         args.cssclass += ' class_controle';
         if (isJustify) {
-            args.style = "width:95%;margin:5px;";
+            args.style = "width:90%;margin:5px;";
         }
         if (this.hmin !== -1) {
             args.style += "min-width: {0}px;".format(this.hmin);

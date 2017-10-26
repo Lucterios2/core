@@ -156,14 +156,44 @@ function initial_function() {
         if (Singleton().mDesc.getLogin() === '') {
             disconnect_title = Singleton().getTranslate('Logon');
         }
-        html = "<div id='status'>" + "<div class='header-left'>" + "<label id='showmenu' class='ui-widget-header ui-corner-all'>" + "<span class='fa fa-menu'/>" + "<span name='headertle'>"
-                + Singleton().getTranslate('Info') + "</span>" + "</label>" + "<img src='{0}' style='height:48px'>".format(Singleton().mDesc.getLogoIconName()) + "<label id='statususer'>"
-                + Singleton().mDesc.getConnectUser() + "</label>" + "</div>" + "<div class='header-right'>" + "<label id='disconnect' class='ui-widget-header ui-corner-all' >"
-                + "<span class='fa fa-logon'/>" + "<span name='headertle'>" + disconnect_title + "</span>" + "</label>" + "<label id='refresh' class='ui-widget-header ui-corner-all' >"
-                + "<span class='fa fa-refresh'/>" + "<span name='headertle'>" + Singleton().getTranslate('Refresh') + "</span>" + "</label>"
-                + "<label id='about' class='ui-widget-header ui-corner-all' >" + "<span class='fa fa-about'/>" + "<span name='headertle'>" + Singleton().getTranslate("About...") + "</span>"
-                + "</label>" + "<label id='help' class='ui-widget-header ui-corner-all' >" + "<span class='fa fa-help'/>" + "<span name='headertle'>" + Singleton().getTranslate("Help") + "</span>"
-                + "</label>" + "</div>" + "</div>";
+        html = "<div id='status'>";
+        html += "<div class='header-left'>";
+        html += "<label id='showmenu' class='ui-widget-header ui-corner-all'>";
+        html += "<span class='fa fa-list-alt'/>" + "<span name='headertle'>";
+        html += Singleton().getTranslate('Info');
+        html += "</span>";
+        html += "</label>";
+        html += "<img src='{0}' style='height:48px'>".format(Singleton().mDesc.getLogoIconName());
+        html += "<label id='statususer'>";
+        html += Singleton().mDesc.getConnectUser();
+        html += "</label>";
+        html += "</div>";
+        html += "<div class='header-right'>";
+        html += "<label id='disconnect' class='ui-widget-header ui-corner-all' >";
+        html += "<span class='fa fa-power-off'/>" + "<span name='headertle'>";
+        html += disconnect_title;
+        html += "</span>";
+        html += "</label>";
+        html += "<label id='refresh' class='ui-widget-header ui-corner-all' >";
+        html += "<span class='fa fa-refresh'/>";
+        html += "<span name='headertle'>";
+        html += Singleton().getTranslate('Refresh');
+        html += "</span>";
+        html += "</label>";
+        html += "<label id='about' class='ui-widget-header ui-corner-all' >";
+        html += "<span class='fa fa-info-circle'/>";
+        html += "<span name='headertle'>";
+        html += Singleton().getTranslate("About...");
+        html += "</span>";
+        html += "</label>";
+        html += "<label id='help' class='ui-widget-header ui-corner-all' >";
+        html += "<span class='fa fa-question-circle'/>";
+        html += "<span name='headertle'>";
+        html += Singleton().getTranslate("Help");
+        html += "</span>";
+        html += "</label>";
+        html += "</div>";
+        html += "</div>";
         $("#lucteriosClient").append(html);
         $("#refresh").click(refresh_function);
         if (Singleton().mDesc.getMode() === '2') {

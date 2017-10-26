@@ -470,10 +470,23 @@ class XferContainerCustom(XferContainerAbstract):
             else:
                 comp.set_value(value.id)
             if hasattr(self.item, fieldname + '_query'):
-                sub_select = getattr(self.item, field_name + '_query')
+                sub_select = getattr(self.item, fieldname + '_query')
             else:
                 sub_select = dep_field.remote_field.model.objects.all()
             comp.set_needed(not dep_field.null)
+            comp.set_select_query(sub_select)
+        elif (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
+            comp = XferCompCheckList(field_name)
+            comp.simple = 2
+            if self.item.id is not None:
+                values = []
+                for item in getattr(self.item, field_name).all():
+                    values.append(item.id)
+                comp.set_value(values)
+            if hasattr(self.item, field_name + '_query'):
+                sub_select = getattr(self.item, field_name + '_query')
+            else:
+                sub_select = get_corrected_setquery(dep_field.remote_field.model.objects.all())
             comp.set_select_query(sub_select)
         else:
             comp = XferCompEdit(field_name)
@@ -559,42 +572,16 @@ class XferContainerCustom(XferContainerAbstract):
                             else:
                                 lbl.set_value_as_name(six.text_type(verbose_name))
                             self.add_component(lbl)
-                        if (dep_field is None) or (not (dep_field.is_relation and dep_field.many_to_many)):
-                            if readonly:
-                                comp = self.get_reading_comp(field_name)
-                            else:
-                                comp = self.get_writing_comp(field_name)
-                            comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
-                            if verbose_name is None:
-                                comp.description = six.text_type(dep_field.verbose_name)
-                            else:
-                                comp.description = six.text_type(verbose_name)
-                            self.add_component(comp)
-                        else:  # field many-to-many
-                            if readonly:
-                                if not self.is_simple_gui:
-                                    lbl = XferCompLabelForm('lbl_' + field_name)
-                                    lbl.set_location(col + offset, row, 1, 1)
-                                    if verbose_name is None:
-                                        lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
-                                    else:
-                                        lbl.set_value_as_name(six.text_type(verbose_name))
-                                    self.add_component(lbl)
-                                comp = self.get_reading_comp(field_name)
-                                comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
-                                if verbose_name is None:
-                                    comp.description = six.text_type(dep_field.verbose_name)
-                                else:
-                                    comp.description = six.text_type(verbose_name)
-                                self.add_component(comp)
-                            else:
-                                first_ctr = self.selector_from_model(col + comp_col_addon + offset, row, field_name)
-                                if first_ctr is not None:
-                                    if verbose_name is None:
-                                        first_ctr.description = six.text_type(dep_field.verbose_name)
-                                    else:
-                                        first_ctr.description = six.text_type(verbose_name)
-                            height = 5
+                        if readonly:
+                            comp = self.get_reading_comp(field_name)
+                        else:
+                            comp = self.get_writing_comp(field_name)
+                        comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
+                        if verbose_name is None:
+                            comp.description = six.text_type(dep_field.verbose_name)
+                        else:
+                            comp.description = six.text_type(verbose_name)
+                        self.add_component(comp)
                         offset += 1 + comp_col_addon
             row += height
 
@@ -623,148 +610,8 @@ class XferContainerCustom(XferContainerAbstract):
             else:
                 self.item.editor.edit(self)
 
-    def _get_scripts_for_selectors(self, field_name, availables):
-        sela = get_dico_from_setquery(availables)
-        selval = []
-        if self.item.id is not None:
-            values = getattr(self.item, field_name).all()
-            for value in values:
-                selval.append(six.text_type(value.id))
-
-        java_script_init = """
-    var %(comp)s_current = parent.mContext.get('%(comp)s');
-    var %(comp)s_dico = %(sela)s;
-    var %(comp)s_valid = '%(selc)s';
-    if (%(comp)s_current !== null) {
-        %(comp)s_valid = %(comp)s_current;
-    }
-    """ % {'comp': field_name, 'sela': six.text_type(sela), 'selc': ";".join(selval)}
-        java_script_init = java_script_init.replace(
-            "u'", "'").replace('u"', '"')
-        java_script_treat = """
-    var valid_list = %(comp)s_valid.split(";")
-    var %(comp)s_xml_available = "<SELECT>";
-    var %(comp)s_xml_chosen = "<SELECT>";
-    for (var key in %(comp)s_dico) {
-        var value = %(comp)s_dico[key];
-        if (valid_list.indexOf(key) > -1) {
-            %(comp)s_xml_chosen += "<CASE id='"+key+"'>"+value+"</CASE>";
-
-        } else {
-            %(comp)s_xml_available += "<CASE id='"+key+"'>"+value+"</CASE>";
-        }
-
-    }
-    %(comp)s_xml_available += "</SELECT>";
-    %(comp)s_xml_chosen += "</SELECT>";
-    parent.get('%(comp)s_available').setValue(%(comp)s_xml_available);
-    parent.get('%(comp)s_chosen').setValue(%(comp)s_xml_chosen);
-    if (%(comp)s_current === null) {
-        var tmp_cpt = parent.mContext.get('%(comp)s_cpt');
-        if (tmp_cpt === null) tmp_cpt=0;
-        tmp_cpt += 1;
-        if (tmp_cpt === 4) {
-            parent.mContext.put('%(comp)s',%(comp)s_valid);
-        }
-        else {
-             parent.mContext.put('%(comp)s_cpt',tmp_cpt);
-        }
-    }
-    """ % {'comp': field_name}
-        return java_script_init, java_script_treat
-
-    def selector_from_model(self, col, row, field_name):
-
-        dep_field = self.item._meta.get_field(field_name)
-        lista = None
-        if (not dep_field.auto_created or dep_field.concrete) and (dep_field.is_relation and dep_field.many_to_many):
-            if hasattr(self.item, field_name + "__titles"):
-                title_available, title_chosen = getattr(
-                    self.item, field_name + "__titles")
-            else:
-                title_available, title_chosen = _("Available"), _("Chosen")
-            availables = get_corrected_setquery(
-                dep_field.remote_field.model.objects.all())
-            java_script_init, java_script_treat = self._get_scripts_for_selectors(
-                field_name, availables)
-
-            lbl = XferCompLabelForm('hd_' + field_name + '_available')
-            lbl.set_location(col, row, 1, 1)
-            lbl.set_value_as_header(title_available)
-            self.add_component(lbl)
-
-            lista = XferCompCheckList(field_name + '_available')
-            lista.set_location(col, row + 1, 1, 5)
-            lista.set_size(200, 250)
-            self.add_component(lista)
-
-            lbl = XferCompLabelForm('hd_' + field_name + '_chosen')
-            lbl.set_location(col + 2, row, 1, 1)
-            lbl.set_value_as_header(title_chosen)
-            self.add_component(lbl)
-
-            listc = XferCompCheckList(field_name + '_chosen')
-            listc.set_location(col + 2, row + 1, 1, 5)
-            listc.set_size(200, 250)
-            self.add_component(listc)
-
-            btn_idx = 0
-            for (button_name, button_title, button_script) in [("addall", ">>", """
-if (%(comp)s_current !== null) {
-    %(comp)s_valid ='';
-    for (var key in %(comp)s_dico) {
-        if (%(comp)s_valid !== '')
-            %(comp)s_valid +=';';
-        %(comp)s_valid +=key;
-    }
-    parent.mContext.put('%(comp)s',%(comp)s_valid);
-}
-"""), ("add", ">", """
-if (%(comp)s_current !== null) {
-    var value = parent.get('%(comp)s_available').getValue();
-    if (%(comp)s_valid !== '')
-        %(comp)s_valid +=';';
-    %(comp)s_valid +=value;
-parent.mContext.put('%(comp)s',%(comp)s_valid);
-}
-"""), ("del", "<", """
-if (%(comp)s_current !== null) {
-    var values = parent.get('%(comp)s_chosen').getValue().split(';');
-    var valid_list = %(comp)s_valid.split(';');
-    %(comp)s_valid ='';
-    for (var key in valid_list) {
-        selected_val = valid_list[key];
-        if (values.indexOf(selected_val) === -1) {
-            if (%(comp)s_valid !== '')
-                %(comp)s_valid +=';';
-            %(comp)s_valid +=selected_val;
-        }
-    }
-    parent.mContext.put('%(comp)s',%(comp)s_valid);
-}
-"""), ("delall", "<<", """
-if (%(comp)s_current !== null) {
-    %(comp)s_valid ='';
-    parent.mContext.put('%(comp)s',%(comp)s_valid);
-}
-""")]:
-                btn = XferCompButton(field_name + '_' + button_name)
-                btn.set_action(self.request, WrapAction(button_title, ""), close=CLOSE_NO)
-                btn.set_location(col + 1, row + 1 + btn_idx, 1, 1)
-                btn.set_is_mini(True)
-                btn.java_script = java_script_init + \
-                    button_script % {'comp': field_name} + java_script_treat
-                self.add_component(btn)
-                btn_idx += 1
-        return lista
-
-    def add_action(self, action, options=None, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
+    def add_action(self, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
-            if isinstance(options, dict):
-                warnings.warn("[XferContainerCustom.add_action] Deprecated in Lucterios 2.2", DeprecationWarning)
-                modal = options.get('modal', FORMTYPE_MODAL)
-                close = options.get('close', CLOSE_YES)
-                params = options.get('params', None)
             if pos_act != -1:
                 self.actions.insert(pos_act, (action, modal, close, SELECT_NONE, params))
             else:

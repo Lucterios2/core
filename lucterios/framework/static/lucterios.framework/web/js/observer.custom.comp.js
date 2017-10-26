@@ -966,7 +966,7 @@ var compSelect = compAbstractEvent.extend({
     getHtml : function () {
         var html = this.getBuildHtml(this.args, true, false);
         html += this.getOptionVal();
-        html += '</select>';
+        html += '</{0}>'.format(this.tag);
         return html;
     },
 
@@ -988,54 +988,145 @@ var compCheckList = compSelect.extend({
 
     initial : function (component) {
         this._super(component);
-        this.simple = (component.getXMLAttributInt('simple', 0) === 1);
+        this.simple = component.getXMLAttributInt('simple', 0);
         this.args = {
             'class' : "checklist"
         };
         this.args.multiple = 'multiple';
+        if (this.simple === 2) {
+            this.tag = 'span';
+            this.args['class'] = 'multiselect';
+        }
         this.value = [];
-    },
-
-    getOptionVal : function () {
-        var html = '', iHead;
         for (iHead = 0; iHead < this.cases.length; iHead++) {
-            html += this.cases[iHead].getHtml(null);
             if (this.cases[iHead].checked === '1') {
                 this.value.push(this.cases[iHead].id);
             }
-        }
-        return html;
-    },
-
-    addAction : function () {
-        if (this.simple) {
-            this.addActionEx(2);
-        } else {
-            this.addActionEx(0);
         }
     },
 
     initialVal : function () {
         if (this.value.length === 0) {
-            return null;
+            return '';
         }
         return this.value.join(';');
     },
 
     fillValue : function (params) {
-        var res = this.getGUIComp().val();
-        if ((res !== null) && (res !== this.value)) {
-            params.put(this.name, res.join(';'));
+        var res = this.getValue();
+        if (res !== this.initialVal()) {
+            params.put(this.name, res);
         }
     },
 
     getValue : function () {
-        if (this.getGUIComp().val() === null) {
+        var res;
+        if (this.simple === 2) {
+            res = [];
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                if (this.cases[iHead].checked === '1') {
+                    res.push(this.cases[iHead].id);
+                }
+            }
+        } else {
+            res = this.getGUIComp().val();
+        }
+        if (res === null) {
             return "";
         }
-        var res = this.getGUIComp().val();
         return res.join(';');
-    }
+    },
+
+    getOptionVal : function () {
+        var html = '', iHead;
+        if (this.simple !== 2) {
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                html += this.cases[iHead].getHtml(null);
+            }
+        } else {
+            html += '<select name="{0}_available" multiple = "multiple">'.format(this.name);
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                if (this.cases[iHead].checked !== '1') {
+                    html += this.cases[iHead].getHtml(0);
+                }
+            }
+            html += '</select>';
+            html += '<div>';
+            html += '<button class="addall" name="{0}_addall"><span class="fa fa-plus-square"/></button>'.format(this.name);
+            html += '<button class="add" name="{0}_add"><span class="fa fa-plus-square-o"/></button>'.format(this.name);
+            html += '<button class="del" name="{0}_del"><span class="fa fa-minus-square-o"/></button>'.format(this.name);
+            html += '<button class="delall" name="{0}_delall"><span class="fa fa-minus-square"/></button>'.format(this.name);
+            html += '</div>';
+            html += '<select name="{0}_chosen" multiple = "multiple">'.format(this.name);
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                if (this.cases[iHead].checked === '1') {
+                    html += this.cases[iHead].getHtml(0);
+                }
+            }
+            html += '</select>';
+        }
+        return html;
+    },
+
+    addAction : function () {
+        if (this.simple === 1) {
+            this.addActionEx(2);
+        } else if (this.simple === 2) {
+            this.getGUIComp().find("button[name='{0}_addall']:eq(0)".format(this.name)).click($.proxy(this.addallbtn, this));
+            this.getGUIComp().find("button[name='{0}_add']:eq(0)".format(this.name)).click($.proxy(this.addbtn, this));
+            this.getGUIComp().find("button[name='{0}_del']:eq(0)".format(this.name)).click($.proxy(this.delbtn, this));
+            this.getGUIComp().find("button[name='{0}_delall']:eq(0)".format(this.name)).click($.proxy(this.delallbtn, this));
+        } else {
+            this.addActionEx(0);
+        }
+    },
+
+    clickafterbtn : function () {
+        var act_function = this.get_act_function();
+        this.getGUIComp().html(this.getOptionVal());
+        this.addAction();
+        if (act_function !== null) {
+            $.proxy(act_function, this)();
+        }
+    },
+
+    addallbtn : function () {
+        for (iHead = 0; iHead < this.cases.length; iHead++) {
+            this.cases[iHead].checked = '1';
+        }
+        this.clickafterbtn();
+    },
+
+    addbtn : function () {
+        var val_available = this.getGUIComp().find("select[name='{0}_available']:eq(0)".format(this.name)).val();
+        if (val_available !== null) {
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                if (val_available.indexOf(this.cases[iHead].id) !== -1) {
+                    this.cases[iHead].checked = '1';
+                }
+            }
+        }
+        this.clickafterbtn();
+    },
+
+    delbtn : function () {
+        var val_chosen = this.getGUIComp().find("select[name='{0}_chosen']:eq(0)".format(this.name)).val();
+        if (val_chosen !== null) {
+            for (iHead = 0; iHead < this.cases.length; iHead++) {
+                if (val_chosen.indexOf(this.cases[iHead].id) !== -1) {
+                    this.cases[iHead].checked = '0';
+                }
+            }
+        }
+        this.clickafterbtn();
+    },
+
+    delallbtn : function () {
+        for (iHead = 0; iHead < this.cases.length; iHead++) {
+            this.cases[iHead].checked = '0';
+        }
+        this.clickafterbtn();
+    },
 
 });
 
