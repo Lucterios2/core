@@ -165,14 +165,14 @@ var Menu = Class.extend({
 
 var ObserverMenu = ObserverAbstract.extend({
 
-    menu_xml : null,
+    menu_json : null,
     menu_list : null,
 
     aside_menu : null,
 
-    setContent : function (aDomXmlContent) {
-        this._super(aDomXmlContent);
-        this.menu_xml = this.mDomXmlContent.getElementsByTagName("MENUS")[0];
+    setContent : function (aJSON) {
+        this._super(aJSON);
+        this.menu_json = aJSON.menus;
         this.mRefresh = null;
     },
 

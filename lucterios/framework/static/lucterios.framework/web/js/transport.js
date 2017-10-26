@@ -79,13 +79,13 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 				formdata.append(key, aParams.get(key));
 			});
 		}
-		formdata.append('FORMAT', 'XML');
+		formdata.append('FORMAT', 'JSON');
 
 		$.ajax({
 			url : this.getServerUrl() + aWebFile,
 			type : "POST",
 			data : formdata,
-			dataType : "text",
+			dataType : "json",
 			processData : false,
 			contentType : false,
 			async : false,
