@@ -38,8 +38,7 @@ var FileManager = Class.extend({
 		hyperlink.download = aFileName;
 
 		mouseEvent = document.createEvent('MouseEvent');
-		mouseEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 80, 20,
-				false, false, false, false, 0, null);
+		mouseEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 80, 20, false, false, false, false, 0, null);
 		hyperlink.dispatchEvent(mouseEvent);
 		if (window.URL) {
 			window.URL.revokeObjectURL(hyperlink.href);
@@ -69,8 +68,7 @@ var SingletonClass = Class.extend({
 		var languages = navigator.languages, lang_idx, sub_language;
 		this.mSelectLang = null;
 		if ((languages !== undefined) && (languages !== null)) {
-			for (lang_idx = 0; (this.mSelectLang === null)
-					&& (lang_idx < languages.length); lang_idx++) {
+			for (lang_idx = 0; (this.mSelectLang === null) && (lang_idx < languages.length); lang_idx++) {
 				sub_language = languages[lang_idx].split('-')[0];
 				if (g_translation.hasOwnProperty(languages[lang_idx])) {
 					this.mSelectLang = languages[lang_idx];
@@ -82,22 +80,20 @@ var SingletonClass = Class.extend({
 		if (this.mSelectLang === null) {
 			this.mSelectLang = 'fr';
 		}
-		post_log("Lang:" + navigator.languages + " - select:"
-				+ this.mSelectLang);
 		if ($.datepicker.regional.hasOwnProperty(this.mSelectLang)) {
 			$.datepicker.setDefaults($.datepicker.regional[this.mSelectLang]);
 		}
 	},
-	
+
 	getSelectLang : function() {
-		if ((this.mDesc!==null) && (this.mDesc.getLanguage()!=='')) {
+		if ((this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
 			return this.mDesc.getLanguage();
-		}   
+		}
 		return this.mSelectLang;
 	},
 
 	getTranslate : function(name) {
-		var res = null, select_lang=this.getSelectLang();
+		var res = null, select_lang = this.getSelectLang();
 		if (g_translation.get(select_lang) !== null) {
 			res = g_translation.get(select_lang).get(name);
 		}
@@ -158,7 +154,6 @@ var SingletonClass = Class.extend({
 
 var Singleton = function() {
 	if (SingletonObj === null) {
-		post_log("Create Singleton");
 		SingletonObj = new SingletonClass();
 	}
 	return SingletonObj;
@@ -167,7 +162,6 @@ var Singleton = function() {
 var SingletonClose = function() {
 	if (SingletonObj !== null) {
 		SingletonObj.close();
-		post_log("Close Singleton");
 	}
 	SingletonObj = null;
 };

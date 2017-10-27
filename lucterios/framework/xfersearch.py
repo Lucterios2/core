@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
+import json
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
@@ -73,14 +74,14 @@ LIST_OP_BY_TYPE = {
 
 
 def get_script_for_operator():
-    script = "var new_operator='';\n"
+    script = "var new_operator=[];\n"
     for current_type, op_list in LIST_OP_BY_TYPE.items():
         script += "if (type=='%(type)s') {\n" % {'type': current_type}
         for op_id, op_title, __op_q in op_list:
-            script += "    new_operator+='<CASE id=\"%(op_id)s\">%(op_title)s</CASE>';\n" % {
+            script += "    new_operator.push(['%(op_id)s','%(op_title)s']);\n" % {
                 'op_id': op_id, 'op_title': op_title}
         script += "}\n"
-    script += "parent.get('searchOperator').setValue('<SELECT>'+new_operator+'</SELECT>');\n"
+    script += "parent.get('searchOperator').setValue({case:new_operator,value:0});\n"
     return script
 
 
@@ -214,16 +215,13 @@ class FieldDescItem(object):
             return False
 
     def get_list(self):
-        # list => 'xxx||yyyy;xxx||yyyy;xxx||yyyy'
-        res = []
-        for item in self.field_list:
-            res.append("||".join(item))
-        return ";".join(res)
+        # list => '[["xxx",yyyy],["xxx","yyyy"],[xxx,yyyy]]'
+        return json.dumps(self.field_list)
 
     def add_from_script(self):
         script_ref = "findFields['%s']='%s';\n" % (self.fieldname, self.field_type)
         if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) or (self.field_type == TYPE_FLOAT):
-            script_ref += "findLists['%s']='%s';\n" % (self.fieldname, self.get_list().replace("'", "\\'"))
+            script_ref += "findLists['%s']=%s;\n" % (self.fieldname, self.get_list().replace("'", "\\'"))
         return script_ref
 
     def get_value(self, value, operation):
@@ -323,8 +321,7 @@ class FieldDescList(object):
         script_ref = "findFields=new Array();\n"
         script_ref += "findLists=new Array();\n"
         for field_desc_item in self.field_desc_list:
-            selector.append(
-                (field_desc_item.fieldname, field_desc_item.description))
+            selector.append((field_desc_item.fieldname, field_desc_item.description))
             script_ref += field_desc_item.add_from_script()
         return selector, script_ref
 
@@ -428,31 +425,24 @@ parent.get('searchValueList').setVisible(type=='list' || type=='listmult');
         script_ref += get_script_for_operator()
         script_ref += """
 if (type=='float') {
-    var prec=findLists[name].split('||');
-    parent.get('searchValueFloat').setValue('<FLOAT min=\"'+prec[0]+'\" max=\"'+prec[1]+'\" prec=\"'+prec[2]+'\"></FLOAT>');
+    var prec=findLists[name];
+    parent.get('searchValueFloat').setValue({min:prec[0],max:prec[1],prec:prec[2],value:0});
 }
 if (type=='str') {
-    parent.get('searchValueStr').setValue('<STR></STR>');
+    parent.get('searchValueStr').setValue({value:''});
 }
 if (type=='bool') {
-    parent.get('searchValueBool').setValue('<BOOL>n</BOOL>');
+    parent.get('searchValueBool').setValue({value:false});
 }
 if (type=='date' || type=='datetime') {
-    parent.get('searchValueDate').setValue('<DATE>1900/01/01</DATE>');
+    parent.get('searchValueDate').setValue({value:'2000-01-01'});
 }
 if (type=='time' || type=='datetime') {
-    parent.get('searchValueTime').setValue('<DATE>00:00:00</DATE>');
+    parent.get('searchValueTime').setValue({value:'00:00'});
 }
 if ((type=='list') || (type=='listmult')) {
-    var list=findLists[name].split(';');
-    var list_txt='';
-    for(i=0;i<list.length;i++) {
-        var val=list[i].split('||');
-        if (val.length>1) {
-            list_txt+='<CASE id=\"'+val[0]+'\">'+val[1]+'</CASE>';
-        }
-    }
-    parent.get('searchValueList').setValue('<SELECT>'+list_txt+'</SELECT>');
+    var select_case=findLists[name];
+    parent.get('searchValueList').setValue({case:select_case,value:0});
 }
 """
         label = XferCompLabelForm('labelsearchSelector')

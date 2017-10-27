@@ -97,6 +97,9 @@ var ApplicationDescription = Class.extend({
 
 	setInfoServer : function(aInfoServer) {
 		this.mInfoServer = aInfoServer;
+		if (Array.isArray(this.mInfoServer)) {
+			this.mInfoServer = this.mInfoServer.join('{[br/]}')
+		}
 	},
 
 	setSupportEmail : function(aSupportEmail) {
@@ -201,8 +204,8 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		return "core.auth";
 	},
 
-	setContent : function(aDomXmlContent) {
-		this._super(aDomXmlContent);
+	setContent : function(aJSON) {
+		this._super(aJSON);
 		this.acts = [];
 		this.acts[0] = new ActionInt();
 		this.acts[0].initializeEx(this, null, 'Ok');
@@ -219,37 +222,34 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		this.acts[1].callback = function() {
 			Singleton().setInfoDescription(null, false);
 		};
-		this.mActions = this.mDomXmlContent.getFirstTag("ACTIONS");
+		this.mActions = this.mJSON.actions;
 	},
 
 	show : function(aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
-		var cdate = this.mDomXmlContent.getTextFromXmlNode().trim(), xml_connection, desc, xml_params, param_idx;
+		var cdate = this.mJSON.data, json_connection, desc, xml_params, param_idx;
 		if (cdate !== "OK") {
 			Singleton().Transport().setSession("");
 			run_CleanCallBack();
 			this.show_logon(cdate);
 			this.refreshMenu = true;
 		} else {
-			xml_connection = this.mDomXmlContent.getElementsByTagName("CONNECTION")[0];
-			desc = new ApplicationDescription(xml_connection.getCDataOfFirstTag("TITLE"), xml_connection.getCDataOfFirstTag("COPYRIGHT"),
-					xml_connection.getCDataOfFirstTag("VERSION"), xml_connection.getCDataOfFirstTag("SERVERVERSION"));
-			desc.setLogoIconName(xml_connection.getCDataOfFirstTag("LOGONAME"));
-			desc.setBackground(xml_connection.getCDataOfFirstTag("BACKGROUND"));
-			desc.setSupportEmail(xml_connection.getCDataOfFirstTag("SUPPORT_EMAIL"));
-			desc.setSupportHTML(xml_connection.getCDataOfFirstTag("SUPPORT_HTML"));
-			desc.setInfoServer(xml_connection.getCDataOfFirstTag("INFO_SERVER"));
-			desc.setSubTitle(xml_connection.getCDataOfFirstTag("SUBTITLE"));
-			desc.setLogin(xml_connection.getCDataOfFirstTag("LOGIN"));
-			desc.setRealName(xml_connection.getCDataOfFirstTag("REALNAME"));
-			desc.setMode(xml_connection.getCDataOfFirstTag("MODE"));
-			desc.setInstanceName(xml_connection.getCDataOfFirstTag("INSTANCE"));
-			desc.setLanguage(xml_connection.getCDataOfFirstTag("LANGUAGE"));
-			xml_params = this.mDomXmlContent.getElementsByTagName("PARAM");
-			for (param_idx = 0; param_idx < xml_params.length; param_idx++) {
-				if (xml_params[param_idx].getAttribute('name') === 'ses') {
-					Singleton().Transport().setSession(xml_params[param_idx].getTextFromXmlNode());
-				}
+			json_connection = this.mJSON.connexion;
+			desc = new ApplicationDescription(json_connection["TITLE"], json_connection["COPYRIGHT"], json_connection["VERSION"],
+					json_connection["SERVERVERSION"]);
+			desc.setLogoIconName(json_connection["LOGONAME"]);
+			desc.setBackground(json_connection["BACKGROUND"]);
+			desc.setSupportEmail(json_connection["EMAIL"]);
+			desc.setSupportHTML(json_connection["SUPPORT_HTML"]);
+			desc.setInfoServer(json_connection["INFO_SERVER"]);
+			desc.setSubTitle(json_connection["SUBTITLE"]);
+			desc.setLogin(json_connection["LOGIN"]);
+			desc.setRealName(json_connection["REALNAME"].trim());
+			desc.setMode(json_connection["MODE"]);
+			desc.setInstanceName(json_connection["INSTANCE"]);
+			desc.setLanguage(json_connection["LANGUAGE"]);
+			if ((this.mJSON.context !== undefined) && (this.mJSON.context.ses !== undefined)) {
+				Singleton().Transport().setSession(this.mJSON.context.ses);
 			}
 			Singleton().setInfoDescription(desc, this.refreshMenu);
 			this.refreshMenu = false;
@@ -287,10 +287,6 @@ var ObserverAuthentification = ObserverAbstract.extend({
 				text = Singleton().getTranslate("Login or password wrong!", "Alias ou Mot de passe incorrect!");
 			} else if ("NEEDAUTH" === cdate) {
 				text = Singleton().getTranslate("Please, identify you");
-			} else if ("BADSESS" === cdate) {
-				text = Singleton().getTranslate("Expired session!");
-			} else if ("BADFROMLOCATION" === cdate) {
-				text = Singleton().getTranslate("Connection forbideen in this localisation!");
 			} else if (cdate !== '') {
 				text = "'" + cdate + "'";
 			}
@@ -306,12 +302,11 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		table[2] = [];
 		table[2][0] = new compBasic('<span style="width:95%;margin:5px;"><b>' + Singleton().getTranslate("Password") + '</b></span>');
 		table[2][1] = new compBasic('<input name="password" type="password" style="width:95%;margin:5px;"/>');
-		if (this.mActions !== null) {
-			xml_actions = this.mActions.getElementsByTagName("ACTION");
+		if (this.mActions) {
 			extra_table[0] = [];
-			for (index = 0; index < xml_actions.length; index++) {
+			for (index = 0; index < this.mActions.length; index++) {
 				extra_acts[index] = Singleton().CreateAction();
-				extra_acts[index].initialize(this, Singleton().Factory(), xml_actions[index]);
+				extra_acts[index].initialize(this, Singleton().Factory(), this.mActions[index]);
 				extra_table[0][index] = new compBasic('<center><button id="btn_{0}_{1}"><span style="font-size:10px;">{2}</span></button></center>'
 						.format(this.getId(), index, extra_acts[index].getTitle()));
 			}
@@ -333,9 +328,9 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			var result, keycode = (event.keyCode || event.which || event.charCode);
 			if (keycode === 13) {
 				$("button.ui-button-text-only")[0].click();
-				result=false;
+				result = false;
 			} else {
-				result=true;
+				result = true;
 			}
 			return result;
 		});

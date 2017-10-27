@@ -1,143 +1,104 @@
 /*global Class,HashMap,unusedVariables,LucteriosException,GRAVE,IMPORTANT,POST_VARIABLE,post_log*/
 
-var ObserverFactoryAbstract = Class
-		.extend({
-			mTransport : null,
-			mObserverList : new HashMap(),
+var ObserverFactoryAbstract = Class.extend({
+	m_Parameters : "",
+	mTransport : null,
+	mObserverList : new HashMap(),
 
-			init : function() {
-				return undefined;
-			},
+	init : function() {
+		return undefined;
+	},
 
-			setHttpTransport : function(aHttpTransport) {
-				this.mTransport = aHttpTransport;
-			},
+	setHttpTransport : function(aHttpTransport) {
+		this.mTransport = aHttpTransport;
+	},
 
-			clearObserverList : function() {
-				this.mObserverList = new HashMap();
-			},
+	clearObserverList : function() {
+		this.mObserverList = new HashMap();
+	},
 
-			AddObserver : function(aObsName, aObserverClass) {
-				this.mObserverList.put(aObsName, aObserverClass);
-			},
+	AddObserver : function(aObsName, aObserverClass) {
+		this.mObserverList.put(aObsName, aObserverClass);
+	},
 
-			factoryObserver : function(aObserverName, aParamTxt, aXmlText) {
-				unusedVariables(aParamTxt, aXmlText);
-				var observer_class = this.mObserverList.get(aObserverName);
-				return new observer_class();
-			},
+	factoryObserver : function(aObserverName) {
+		var observer_class = this.mObserverList.get(aObserverName);
+		return new observer_class();
+	},
 
-			transfertFromServer : function(aExtension, aAction, aParam) {
-				unusedVariables(aExtension, aAction, aParam);
-				return null;
-			},
-			
-			callAction : function(aExtension, aAction, aParam) {
-				unusedVariables(aExtension, aAction, aParam);
-				return null;
-			},
+	transfertFromServer : function(aExtension, aAction, aParam) {
+		unusedVariables(aExtension, aAction, aParam);
+		return null;
+	},
 
-			setAuthentification : function(aLogin, aPassWord) {
-				var res = false, param = new HashMap(), aut, xml_aut, xml_params, session;
-				if ((aLogin === null)) {
-					param.put('ses', aPassWord);
-					param.put('info', "1");
-				} else {
-					param.put('username', aLogin);
-					param.put('password', aPassWord);
-					this.mTransport.setLastLogin(aLogin);
+	callAction : function(aExtension, aAction, aParam) {
+		unusedVariables(aExtension, aAction, aParam);
+		return null;
+	},
+
+	setAuthentification : function(aLogin, aPassWord) {
+		var res = false, param = new HashMap(), aut, xml_aut, xml_params, session;
+		if ((aLogin === null)) {
+			param.put('ses', aPassWord);
+			param.put('info', "1");
+		} else {
+			param.put('username', aLogin);
+			param.put('password', aPassWord);
+			this.mTransport.setLastLogin(aLogin);
+		}
+		aut = this.callAction('CORE', "authentification", param, null);
+		if (aut.getObserverName() === "core.auth") {
+			xml_aut = aut.getContent();
+			if (xml_aut.context && xml_aut.context.ses) {
+				session = xml_aut.context.ses;
+				res = (session !== '');
+				if (res) {
+					this.mTransport.setSession(session);
 				}
-				aut = this.callAction('CORE', "authentification",
-						param, null);
-				if (aut.getObserverName() === "core.auth") {
-					xml_aut = aut.getContent();
-					xml_params = xml_aut.getElementsByTagName("PARAM");
-					if (xml_params.length > 0) {
-						session = xml_params[0].childNodes.length > 0 ? xml_params[0].childNodes[0].nodeValue
-								: '';
-						res = (session !== '');
-						if (res) {
-							this.mTransport.setSession(session);
-						}
-					}
-					aut.show("");
-				}
-				return res;
 			}
-		});
+			aut.show("");
+		}
+		return res;
+	}
+});
 
 var ObserverFactoryImpl = ObserverFactoryAbstract
 		.extend({
 
 			callAction : function(aExtension, aAction, aParam, aObserver) {
-				var res_obs = null, xml_text = this.transfertFromServer(
-						aExtension, aAction, aParam), reps = xml_text
-						.parseXML(), rep = null, idx, observer_name, titles, source_extension, source_action, errorMsg;
-				post_log("==>  reponse :" + xml_text);
-				for (idx = 0; (reps !== null) && (rep === null)
-						&& (idx < reps.childNodes.length); idx++) {
-					if (reps.childNodes[idx].nodeName === 'REPONSE') {
-						rep = reps.childNodes[idx];
-					}
-				}
-				if (rep !== null) {
-					observer_name = rep.getAttribute("observer");
+				var res_obs = null, json_rep = this.transfertFromServer(aExtension, aAction, aParam), idx, observer_name, titles, source_extension, source_action, errorMsg;
+				if (json_rep && json_rep.meta) {
+					observer_name = json_rep.meta.observer;
 					if (this.mObserverList.hasOwnProperty(observer_name)) {
-						source_extension = rep.getAttribute("source_extension");
-						source_action = rep.getAttribute("source_action");
+						source_extension = json_rep.meta.extension;
+						source_action = json_rep.meta.action;
 						if (aObserver === null) {
-							res_obs = this.factoryObserver(observer_name,
-									this.m_XMLParameters, xml_text);
+							res_obs = this.factoryObserver(observer_name);
 							res_obs.setSource(source_extension, source_action);
 						} else {
 							res_obs = aObserver;
-							if ((res_obs.getObserverName() !== observer_name)
-									|| (source_action === "")
-									|| (source_extension === "")) {
-								if ((observer_name === "core.auth")
-										|| (observer_name === "core.exception")) {
-									res_obs = this.factoryObserver(
-											observer_name,
-											this.m_XMLParameters, xml_text);
-									res_obs.setSource(source_extension,
-											source_action);
+							if ((res_obs.getObserverName() !== observer_name) || (source_action === "") || (source_extension === "")) {
+								if ((observer_name === "core.auth") || (observer_name === "core.exception")) {
+									res_obs = this.factoryObserver(observer_name);
+									res_obs.setSource(source_extension, source_action);
 								} else {
-									throw new LucteriosException(GRAVE,
-											"Erreur de parsing xml (refresh)"
-													+ aObserver
-															.getObserverName()
-													+ " -> " + observer_name,
-											this.m_XMLParameters, xml_text);
+									throw new LucteriosException(GRAVE, "Erreur de parsing (refresh)" + aObserver.getObserverName() + " -> "
+											+ observer_name, this.m_Parameters, JSON.stringify(json_rep));
 								}
 							}
 						}
-						titles = rep.getElementsByTagName("TITLE");
-						if (titles.length > 0) {
-							res_obs.setCaption(titles[0].getTextFromXmlNode());
+						if (json_rep.meta.title) {
+							res_obs.setCaption(json_rep.meta.title);
 						} else {
 							res_obs.setCaption("");
 						}
-						res_obs.setContent(rep);
+						res_obs.setContent(json_rep);
 					} else {
-						throw new LucteriosException(
-								IMPORTANT,
-								"Observeur '"
-										+ observer_name
-										+ "' inconnu{[newline]}Veuillez utiliser le client Java.",
-								this.m_XMLParameters, xml_text);
+						throw new LucteriosException(IMPORTANT, "Observeur '" + observer_name + "' inconnu.", this.m_Parameters, JSON
+								.stringify(json_rep));
 					}
 				} else {
-					errorMsg = "**";
-					if (reps === null) {
-						errorMsg = "null response";
-					} else if (reps.length > 0) {
-						errorMsg = reps[0].nodeValue;
-					} else {
-						errorMsg = reps.nodeName;
-					}
-					throw new LucteriosException(GRAVE,
-							"Erreur de parsing xml", this.m_XMLParameters,
-							xml_text + "\nMsg:" + errorMsg);
+					throw new LucteriosException(GRAVE, "Erreur inconnu", this.m_Parameters, json_rep.toString());
 				}
 				return res_obs;
 			}
@@ -146,24 +107,24 @@ var ObserverFactoryImpl = ObserverFactoryAbstract
 var ObserverFactoryRestImpl = ObserverFactoryImpl.extend({
 	transfertFromServer : function(aExtension, aAction, aParam) {
 		var val, self = this, web_file = aExtension + "/" + aAction;
-		this.m_XMLParameters = web_file + "?";
+		this.m_Parameters = web_file + "?";
 		aParam.keys().forEach(function(key) {
 			val = aParam.get(key);
 			if (typeof val === 'string') {
-				if (self.m_XMLParameters !== '') {
-					self.m_XMLParameters += '&';
+				if (self.m_Parameters !== '') {
+					self.m_Parameters += '&';
 				}
-				self.m_XMLParameters += key + "=" + val;
+				self.m_Parameters += key + "=" + val;
 			} else {
 				if (val instanceof Blob) {
-					if (self.m_XMLParameters !== '') {
-						self.m_XMLParameters += '&';
+					if (self.m_Parameters !== '') {
+						self.m_Parameters += '&';
 					}
-					self.m_XMLParameters += key + "=" + val.name;
+					self.m_Parameters += key + "=" + val.name;
 				}
 			}
 		});
-		post_log("Ask " + self.m_XMLParameters);
+		post_log("Ask " + self.m_Parameters);
 		return this.mTransport.transfertFileFromServerString(web_file, aParam);
 	}
 });

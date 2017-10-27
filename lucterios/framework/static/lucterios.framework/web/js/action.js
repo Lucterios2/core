@@ -17,7 +17,6 @@ var ActionAbstract = Class.extend({
     mExtension : '',
     mAction : '',
     mTitle : '',
-    mMnemonic : '',
     mID : '',
     mFormType : FORM_NOMODAL,
     mClose : true,
@@ -51,7 +50,7 @@ var ActionAbstract = Class.extend({
         this.mIcon = aJSON.icon ? aJSON.icon : '';
         this.mSizeIcon = aJSON.sizeicon ? parseInt(aJSON.sizeicon) : 0;
         this.mKeyStroke = aJSON.shortcut;
-        if (aJSON.params !== undefined) {
+        if (aJSON.params) {
             xmlparams = Object.keys(aJSON.params);
             for (index = 0; index < xmlparams.length; index++) {
                 this.mExtraParam.put(xmlparams[index], aJSON.params[xmlparams[index]]);
@@ -64,10 +63,6 @@ var ActionAbstract = Class.extend({
         this.mFactory = aFactory;
         this.mTitle = aTitle ? aTitle : '';
         this.mExtraParam = new HashMap();
-        var pos = this.mTitle.indexOf(MNEMONIC_CHAR);
-        if ((pos !== -1) && (this.mTitle.length > 0)) {
-            this.mMnemonic = this.mTitle.charAt(this.mTitle.indexOf(MNEMONIC_CHAR) + 1);
-        }
         this.mTitle = this.mTitle.replace(MNEMONIC_CHAR, '');
         this.mExtension = aExtension ? aExtension : '';
         this.mAction = aAction ? aAction : '';
@@ -84,10 +79,6 @@ var ActionAbstract = Class.extend({
 
     getTitle : function () {
         return this.mTitle;
-    },
-
-    getMnemonic : function () {
-        return this.mMnemonic;
     },
 
     getExtension : function () {

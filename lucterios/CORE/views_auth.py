@@ -27,7 +27,7 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO,\
-    SELECT_NONE, get_actions_xml
+    SELECT_NONE, get_actions_xml, get_actions_json
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.parameters import Params, secure_mode_connect
@@ -98,6 +98,7 @@ class Authentification(XferContainerAbstract):
                 if self.check_action_permission(action):
                     actions.append((action, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, None))
             if len(actions) != 0:
+                self.responsejson['actions'] = get_actions_json(actions)
                 self.responsexml.append(get_actions_xml(actions))
 
     def get_connection_info(self):

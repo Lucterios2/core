@@ -416,10 +416,11 @@ class MenuManage(object):
                 sub_menus.sort(key=menu_key_to_comp)
                 for sub_menu_item in sub_menus:
                     if sub_menu_item[0].check_permission(request):
-                        resjson.append(sub_menu_item[0].get_action_json(desc=sub_menu_item[1]))
+                        new_act = sub_menu_item[0].get_action_json(desc=sub_menu_item[1])
                         sub_menu = cls.filljson(request, sub_menu_item[0].url_text)
                         if len(sub_menu) > 0:
-                            resjson.append(sub_menu)
+                            new_act['menus'] = sub_menu
+                        resjson.append(new_act)
         finally:
             cls._menulock.release()
         return resjson

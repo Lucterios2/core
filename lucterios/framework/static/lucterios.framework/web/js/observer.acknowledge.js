@@ -8,13 +8,11 @@ var ObserverAcknowledge = ObserverAbstract.extend({
 		return this.mRedirectAction;
 	},
 
-	setContent : function(aDomXmlContent) {
-		this._super(aDomXmlContent);
-		var acts = this.mDomXmlContent.getElementsByTagName("ACTION");
-		if (acts.length > 0) {
+	setContent : function(aJSON) {
+		this._super(aJSON);
+		if (this.mJSON.action) {
 			this.mRedirectAction = Singleton().CreateAction();
-			this.mRedirectAction.initialize(this, Singleton().Factory(),
-					acts[0]);
+			this.mRedirectAction.initialize(this, Singleton().Factory(), this.mJSON.action);
 			this.mRedirectAction.setClose(true);
 		} else {
 			this.mRedirectAction = null;

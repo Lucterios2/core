@@ -703,6 +703,12 @@ class XferCompCheckList(XferCompButton):
             compjson['case'] = list(self.select_list.items())
         else:
             compjson['case'] = list(self.select_list)
+        if (self.simple and (self.simple != 2)) or (self.simple == 1):
+            compjson['simple'] = '1'
+        elif self.simple == 2:
+            compjson['simple'] = '2'
+        else:
+            compjson['simple'] = '0'
         return compjson
 
 

@@ -213,7 +213,7 @@ class TestComposants(XferContainerCustom):
         checklist.set_location(1, 11)
         self.add_component(checklist)
 
-        lbl = XferCompLabelForm('Lbl12')
+        lbl = XferCompLabelForm('Lbl13')
         lbl.set_value('Bouton')
         lbl.set_location(0, 20)
         self.add_component(lbl)

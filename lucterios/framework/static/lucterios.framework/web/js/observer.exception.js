@@ -13,33 +13,33 @@ var ObserverException = ObserverAbstract.extend({
         return "core.exception";
     },
 
-    setContent : function (aDomXmlContent) {
-        this._super(aDomXmlContent);
-        var xml_error = this.mDomXmlContent.getElementsByTagName("EXCEPTION")[0];
-        this.message = xml_error.getCDataOfFirstTag("MESSAGE").convertLuctoriosFormatToHtml();
-        this.code = parseInt("0" + xml_error.getCDataOfFirstTag("CODE"), 10);
-        this.debug_info = xml_error.getCDataOfFirstTag("DEBUG_INFO").replace(/\{\[br\/\]\}/g, "{[newline]}");
-        this.type = xml_error.getCDataOfFirstTag("TYPE");
+    setContent : function (aJSON) {
+        this._super(aJSON);
+        var json_error = this.mJSON.exception;
+        this.message = json_error.message;
+        this.code = parseInt("0" + json_error.code, 10);
+        this.debug_info = json_error.debug;
+        this.type = json_error.type;
 
-        this.requette = decodeURIComponent(xml_error.getCDataOfFirstTag("REQUETTE").replace('+', ' '));
+        this.requette = json_error.requette?json_error.requette:'';
         if (this.requette === '') {
-            this.requette = Singleton().Factory().m_XMLParameters;
+            this.requette = Singleton().Factory().m_Parameters;
         }
         if (this.requette === '*') {
             this.requette = '';
         }
-        this.reponse = decodeURIComponent(xml_error.getCDataOfFirstTag("REPONSE").replace('+', ' '));
+        this.reponse = json_error.response?json_error.response:'';
         this.stack_text = this.get_stack_text();
     },
 
     get_info : function (aInfo) {
-        var res = aInfo.replace(/\n/g, '***');
-        res = $('<div />').text(res).html();
-        return res.replace(/\*\*\*/g, '\n').replace(/></g, '>\n<');
+		var res = aInfo.replace(/\n/g, '***');
+		res = $('<div />').text(res).html();
+		return res.replace(/\*\*\*/g, '\n').replace(/></g, '>\n<');
     },
 
     get_stack_text : function () {
-        var stack_text = "", stack_texts = this.debug_info.split("{[newline]}"), s_idx, stack_lines;
+        var stack_text = "", stack_texts = this.debug_info.split("{[br/]}"), s_idx, stack_lines;
         for (s_idx = 0; s_idx < stack_texts.length; s_idx++) {
             stack_lines = stack_texts[s_idx].split("|");
             if (stack_lines.length === 1) {
@@ -191,10 +191,15 @@ window.onerror = function myErrorHandler(errorMsg, source, lineno, columnNo, err
         stack = source + "->" + lineno + ':' + columnNo;
         type_error = FAILURE;
     }
+    error_desc[1]=error_desc[1] ? encodeURIComponent(error_desc[1]) : '';
+    error_desc[2]=error_desc[2] ? encodeURIComponent(error_desc[2]) : '';
     obs = new ObserverException();
-    obs.setContent(("<Error><EXCEPTION>" + "<MESSAGE><![CDATA[{0}]]></MESSAGE>".format(error_desc[0]) + "<CODE>{0}</CODE>".format(type_error) + "<DEBUG_INFO>|{0}</DEBUG_INFO>".format(stack)
-            + "<TYPE>{0}</TYPE>".format(errname) + "<REQUETTE>{0}</REQUETTE>".format(error_desc[1] ? encodeURIComponent(error_desc[1]) : '')
-            + "<REPONSE>{0}</REPONSE>".format(error_desc[2] ? encodeURIComponent(error_desc[2]) : '') + "</EXCEPTION></Error>").parseXML());
+    obs.setContent({"exception": {"message":error_desc[0],"code":type_error,"debug":stack,"type":errname,"requette":error_desc[1],"reponse":error_desc[2]}});
+/*
+ * + "<TYPE>{0}</TYPE>".format(errname) + "<REQUETTE>{0}</REQUETTE>".format(error_desc[1] ?
+ * encodeURIComponent(error_desc[1]) : '') + "<REPONSE>{0}</REPONSE>".format(error_desc[2] ?
+ * encodeURIComponent(error_desc[2]) : '') + "</EXCEPTION></Error>").parseXML());
+ */
     obs.show('Exception');
     return false;
 };

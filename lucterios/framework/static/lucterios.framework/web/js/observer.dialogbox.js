@@ -6,11 +6,11 @@ var ObserverDialogBox = ObserverGUI.extend({
 		return "core.dialogbox";
 	},
 
-	setContent : function(aDomXmlContent) {
-		this._super(aDomXmlContent);
-		var xml_text = this.mDomXmlContent.getElementsByTagName("TEXT")[0];
-		this.mText = xml_text.getTextFromXmlNode();
-		this.mType = xml_text.getXMLAttributInt("type", 0);
+	setContent : function(aJSON) {
+		this._super(aJSON);
+		var json_text = this.mJSON.data;
+		this.mText = json_text.text;
+		this.mType = json_text.type?parseInt(json_text.type):0;
 	},
 
 	show : function(aTitle, aGUIType) {
