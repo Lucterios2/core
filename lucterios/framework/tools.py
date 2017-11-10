@@ -519,10 +519,7 @@ def get_dico_from_setquery(setquery):
 
 
 def get_binay(text):
-    if six.PY2:
-        return six.binary_type(text)
-    else:
-        return six.binary_type(text, 'ascii')
+    return six.binary_type(text, 'ascii')
 
 
 def toHtml(text):

@@ -5,7 +5,7 @@ setup module to pip integration of Lucterios
 @author: Laurent GAY
 @organization: sd-libre.fr
 @contact: info@sd-libre.fr
-@copyright: 2015 sd-libre.fr
+@copyright: 2017 sd-libre.fr
 @license: This file is part of Lucterios.
 
 Lucterios is free software: you can redistribute it and/or modify
@@ -48,9 +48,9 @@ setup(
         'Natural Language :: English',
         'Natural Language :: French',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Database :: Front-Ends',
     ],
     packages=["lucterios", "lucterios.CORE",
@@ -65,5 +65,5 @@ setup(
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
     install_requires=[
-        "Django ==1.10.*", "lxml ==3.4.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
+        "Django ==1.11.*", "lxml ==4.1.*", 'pycrypto >=2.6', 'reportlab >=3.1', 'django-fsm', 'pip ==9.0.*'],
 )

@@ -107,10 +107,7 @@ class DummyTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl8"]', 'Coche=False')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl9"]', 'Select=1')
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl10"]', 'Integer=5')
-        if six.PY2:
-            self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl11"]', "CheckList=[u'1', u'2']")
-        else:
-            self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl11"]', "CheckList=['1', '2']")
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl11"]', "CheckList=['1', '2']")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl12"]', "CheckList 2=['b', 'd', 'f']")
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="Lbl13"]', 'Bouton')
 

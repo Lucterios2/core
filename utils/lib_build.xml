@@ -13,7 +13,6 @@
 	<property name="project.appli" value="lucterios.standard" />
 	<property environment="env" />
 
-	<available file="/usr/local/bin/coverage2" property="python2.present" />
 	<available file="/usr/local/bin/coverage3" property="python3.present" />
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
@@ -205,25 +204,12 @@
 		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 	</target>
 
-	<target name="test_py2" if="python2.present">
-		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py2.xml" append="false" />
-		<antcall target="test">
-			<param name="testversion" value="coverage2" />
-		</antcall>
-		<replace file="${basedir}/junit_py2.xml" token="${project.name}." value="${project.name}-py2." />
-	</target>
-
-	<target name="test_py3" if="python3.present">
+	<target name="tests" if="python3.present">
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
 		<antcall target="test">
 			<param name="testversion" value="coverage3" />
 		</antcall>
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
-	</target>
-
-	<target name="tests">
-		<antcall target="test_py2" />
-		<antcall target="test_py3" />
 	</target>
 
 	<target name="docs_comp">

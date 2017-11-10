@@ -983,12 +983,8 @@ class ObjectImport(XferContainerCustom):
     def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
         if modelname is not None:
             self.model = apps.get_model(modelname)
-        if six.PY2:
-            self.quotechar = six.binary_type(quotechar)
-            self.delimiter = six.binary_type(delimiter)
-        else:
-            self.quotechar = quotechar
-            self.delimiter = delimiter
+        self.quotechar = quotechar
+        self.delimiter = delimiter
         self.encoding = encoding
         self.dateformat = dateformat
 
