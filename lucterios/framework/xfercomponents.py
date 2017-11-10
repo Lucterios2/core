@@ -508,6 +508,8 @@ class XferCompXML(XferCompButton):
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['submenu'] = list(self.sub_menu)
+        if isinstance(self.schema, six.binary_type):
+            self.schema = self.schema.decode()
         compjson['schema'] = self.schema
         return compjson
 

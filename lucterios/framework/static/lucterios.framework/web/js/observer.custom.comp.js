@@ -524,8 +524,8 @@ var editorHypertext = Class.extend({
 		this.submenus = {};
 		for (isub_menu = 0; isub_menu < aSub_menu.length; isub_menu++) {
 			sub_menu = aSub_menu[isub_menu];
-			this.submenus[sub_menu[0]] = {
-				name : sub_menu[1]
+			this.submenus[sub_menu[1]] = {
+				name : sub_menu[0]
 			};
 		}
 	},
@@ -900,6 +900,9 @@ var compSelectCase = Class.extend({
 	initial : function(component) {
 		this.id = component[0];
 		this.label = component[1];
+		if (this.label === null) {
+			this.label = '---';
+		}
 	},
 
 	getHtml : function(value) {

@@ -281,7 +281,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 	},
 
 	show_logon : function(cdate) {
-		var text = "", table = [], index, xml_actions, extra_acts = [], extra_table = [];
+		var text = "", table = [], index, logbox_id, extra_acts = [], extra_table = [];
 		if (Singleton().Transport().getLastLogin() !== '') {
 			if ("BADAUTH" === cdate) {
 				text = Singleton().getTranslate("Login or password wrong!", "Alias ou Mot de passe incorrect!");
@@ -320,14 +320,16 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		for (index = 0; index < extra_acts.length; index++) {
 			$('#btn_{0}_{1}'.format(this.getId(), index)).click($.proxy(extra_acts[index].actionPerformed, extra_acts[index]));
 		}
-		$('#frm_' + this.mGUI.mId).submit(function(event) {
+		logbox_id = this.mGUI.mId;
+		$('#frm_' + logbox_id).submit(function(event) {
 			event.preventDefault();
 		});
 
-		$('#frm_' + this.mGUI.mId).find("[name='password'],[name='username']").bind("keydown", function(event) {
-			var result, keycode = (event.keyCode || event.which || event.charCode);
+		$('#frm_' + logbox_id).find("[name='password'],[name='username']").bind("keydown", function(event) {
+			var result, btns, keycode = (event.keyCode || event.which || event.charCode);
 			if (keycode === 13) {
-				$("button.ui-button-text-only")[0].click();
+				btns = $("div.ui-dialog-buttonset > button.ui-button");
+				btns[0].click();
 				result = false;
 			} else {
 				result = true;

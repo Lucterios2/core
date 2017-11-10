@@ -272,6 +272,11 @@ class FieldDescItem(object):
 
                 for value_item in val_ids:
                     query_res = query_res & Q(**{field_with_op: value_item})
+        elif (self.field_type == TYPE_FLOAT) and operation == int(OP_EQUAL[0]):
+            value = float(value)
+            field_with_op1 = self.dbfieldname + OP_LESS[2]
+            field_with_op2 = self.dbfieldname + OP_MORE[2]
+            query_res = self.initial_q & Q(**{field_with_op1: value + 1e-4}) & Q(**{field_with_op2: value - 1e-4})
         else:
             if operation == int(OP_DIFFERENT[0]):
                 query_res = self.initial_q & ~Q(**{field_with_op: value})

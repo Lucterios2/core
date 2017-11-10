@@ -234,34 +234,8 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('COMPONENTS/PASSWD[@name="password2"]', None)
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
-
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[i]}Groupes disponibles{[/i]}{[/center]}", (0, 0, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_available"]', (0, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[i]}Groupes choisis{[/i]}{[/center]}", (2, 0, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_chosen"]', (2, 1, 1, 5))
-
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="groups_addall"]', (1, 1, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="groups_add"]', (1, 2, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="groups_del"]', (1, 3, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="groups_delall"]', (1, 4, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_addall"]/ACTIONS/ACTION', ('>>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_add"]/ACTIONS/ACTION', ('>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_del"]/ACTIONS/ACTION', ('<', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="groups_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
-
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (0, 5, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_available"]', (0, 6, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (2, 5, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (2, 6, 1, 5))
-
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="user_permissions_addall"]', (1, 6, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="user_permissions_add"]', (1, 7, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="user_permissions_del"]', (1, 8, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="user_permissions_delall"]', (1, 9, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="user_permissions_addall"]/ACTIONS/ACTION', ('>>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="user_permissions_add"]/ACTIONS/ACTION', ('>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="user_permissions_del"]/ACTIONS/ACTION', ('<', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="user_permissions_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/CHECKLIST[@name="groups"]', None, (0, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/CHECKLIST[@name="user_permissions"]', None, (0, 1, 3, 1))
 
     def test_usermodif(self):
         add_user("user1")
@@ -292,7 +266,7 @@ class UserTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Ajouter un utilisateur')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_count_equal('COMPONENTS/*', 29)
+        self.assert_count_equal('COMPONENTS/*', 15)
         self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'usersEdit', 1, 1, 1, {'SAVE': 'YES'}))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
@@ -317,14 +291,8 @@ class UserTest(LucteriosTest):
         self.assert_comp_equal('COMPONENTS/PASSWD[@name="password2"]', None, (0, 8, 1, 1))
 
         self.assert_xml_equal('COMPONENTS/TAB[2]', "Permissions")
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_available"]', "{[center]}{[i]}Groupes disponibles{[/i]}{[/center]}", (0, 0, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_available"]', (0, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_groups_chosen"]', "{[center]}{[i]}Groupes choisis{[/i]}{[/center]}", (2, 0, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="groups_chosen"]', (2, 1, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (0, 5, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_available"]', (0, 6, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_user_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (2, 5, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="user_permissions_chosen"]', (2, 6, 1, 5))
+        self.assert_comp_equal('COMPONENTS/CHECKLIST[@name="groups"]', None, (0, 0, 3, 1))
+        self.assert_comp_equal('COMPONENTS/CHECKLIST[@name="user_permissions"]', None, (0, 1, 3, 1))
 
     def test_useraddsave(self):
         group = LucteriosGroup.objects.create(name="my_group")
@@ -519,23 +487,10 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'groupsEdit', 1, 1, 1, {'SAVE': 'YES'}))
         self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
 
-        self.assert_count_equal('COMPONENTS/*', 10)
+        self.assert_count_equal('COMPONENTS/*', 3)
         self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/group.png', (0, 0, 1, 6))
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', None, (1, 0, 3, 1))
-
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_available"]', "{[center]}{[i]}Permissions disponibles{[/i]}{[/center]}", (1, 1, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_available"]', (1, 2, 1, 5))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="hd_permissions_chosen"]', "{[center]}{[i]}Permissions choisies{[/i]}{[/center]}", (3, 1, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/CHECKLIST[@name="permissions_chosen"]', (3, 2, 1, 5))
-
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_addall"]', (2, 2, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_add"]', (2, 3, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_del"]', (2, 4, 1, 1))
-        self.assert_coordcomp_equal('COMPONENTS/BUTTON[@name="permissions_delall"]', (2, 5, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_addall"]/ACTIONS/ACTION', ('>>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_add"]/ACTIONS/ACTION', ('>', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_del"]/ACTIONS/ACTION', ('<', None, None, None, 0, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="permissions_delall"]/ACTIONS/ACTION', ('<<', None, None, None, 0, 1, 1))
+        self.assert_comp_equal('COMPONENTS/CHECKLIST[@name="permissions"]', None, (1, 1, 3, 1))
 
     def test_useraddsave(self):
         groups = LucteriosGroup.objects.all()
