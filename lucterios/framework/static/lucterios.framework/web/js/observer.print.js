@@ -20,7 +20,7 @@ var ObserverPrint = ObserverAbstract.extend({
 		this.print_content = null;
 		var print_elements = this.mJSON.print;
 		this.title = print_elements.title;
-		this.mode = print_elements.mode ? parseInt(print_elements.mode) : MODE_PREVIEW;
+		this.mode = parseInt(print_elements.mode, 10) || MODE_PREVIEW;
 		this.print_content = print_elements.content;
 	},
 

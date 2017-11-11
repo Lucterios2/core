@@ -17,117 +17,102 @@ $.widget("ui.timespinner", $.ui.spinner, {
 
 	_format : function(value) {
 		"use strict";
-		var current_hour = Math.floor(value / 60), current_min = value
-				- current_hour * 60;
-		return "{0}:{1}".format(current_hour.toString().lpad('0', 2),
-				current_min.toString().lpad('0', 2));
+		var current_hour = Math.floor(value / 60), current_min = value - current_hour * 60;
+		return "{0}:{1}".format(current_hour.toString().lpad('0', 2), current_min.toString().lpad('0', 2));
 	}
 });
 
-$(document)
-		.delegate(
-				'.ui-dialog',
-				'keyup',
-				function(e) {
-					var tagName = e.target.tagName.toLowerCase();
-					tagName = (tagName === 'input' && e.target.type === 'button') ? 'button'
-							: tagName;
-					if (e.which === $.ui.keyCode.ENTER
-							&& tagName !== 'textarea' && tagName !== 'select'
-							&& tagName !== 'button') {
-						$(this).find('.ui-dialog-buttonset button').eq(0)
-								.trigger('click');
-						return false;
-					}
-				});
+$(document).delegate('.ui-dialog', 'keyup', function(e) {
+	var tagName = e.target.tagName.toLowerCase();
+	tagName = (tagName === 'input' && e.target.type === 'button') ? 'button' : tagName;
+	if (e.which === $.ui.keyCode.ENTER && tagName !== 'textarea' && tagName !== 'select' && tagName !== 'button') {
+		$(this).find('.ui-dialog-buttonset button').eq(0).trigger('click');
+		return false;
+	}
+});
 
-var GUIBasic = Class
-		.extend({
-			mId : '',
-			mTitle : '',
-			mHtmlBody : '',
+var GUIBasic = Class.extend({
+	mId : '',
+	mTitle : '',
+	mHtmlBody : '',
 
-			init : function(aId, aTitle, aCallback) {
-				this.mId = aId;
-				this.mTitle = aTitle;
-				this.mCallback = aCallback;
-			},
+	init : function(aId, aTitle, aCallback) {
+		this.mId = aId;
+		this.mTitle = aTitle;
+		this.mCallback = aCallback;
+	},
 
-			isExist : function() {
-				var item = document.getElementById(this.mId);
-				return (item !== null);
-			},
+	isExist : function() {
+		var item = document.getElementById(this.mId);
+		return (item !== null);
+	},
 
-			close : function() {
-				if (this.mCallback !== null) {
-					this.mCallback.close(true);
-				} else {
-					this.dispose();
-				}
-			},
+	close : function() {
+		if (this.mCallback !== null) {
+			this.mCallback.close(true);
+		} else {
+			this.dispose();
+		}
+	},
 
-			dispose : function() {
-				if (document.getElementById(this.mId) !== null) {
-					$("#" + this.mId).remove();
-				}
-			},
+	dispose : function() {
+		if (document.getElementById(this.mId) !== null) {
+			$("#" + this.mId).remove();
+		}
+	},
 
-			getHtmlDom : function() {
-				return $("#" + this.mId);
-			},
+	getHtmlDom : function() {
+		return $("#" + this.mId);
+	},
 
-			buildStruct : function(isModal) {
-				unusedVariables(isModal);
-			},
+	buildStruct : function(isModal) {
+		unusedVariables(isModal);
+	},
 
-			correctStruct : function() {
-				return undefined;
-			},
+	correctStruct : function() {
+		return undefined;
+	},
 
-			buildFinal : function() {
-				return undefined;
-			},
+	buildFinal : function() {
+		return undefined;
+	},
 
-			showGUI : function(isModal) {
-				var not_exist = !this.isExist(), html = "";
-				if (not_exist) {
-					html += '<div id="{0}" title="{1}">'.format(this.mId,
-							this.mTitle);
-				}
-				html += this.mHtmlBody;
-				if (not_exist) {
-					html += '</div>';
-					$("#lucteriosClient").append(html);
-					this.buildStruct(isModal);
-				} else {
-					$("#" + this.mId).html(html);
-					this.correctStruct();
-				}
-				this.buildFinal();
-			},
+	showGUI : function(isModal) {
+		var not_exist = !this.isExist(), html = "";
+		if (not_exist) {
+			html += '<div id="{0}" title="{1}">'.format(this.mId, this.mTitle);
+		}
+		html += this.mHtmlBody;
+		if (not_exist) {
+			html += '</div>';
+			$("#lucteriosClient").append(html);
+			this.buildStruct(isModal);
+		} else {
+			$("#" + this.mId).html(html);
+			this.correctStruct();
+		}
+		this.buildFinal();
+	},
 
-			setActive : function(aIsActive) {
-				$("#" + this.mId).prop("disabled", !aIsActive);
-				$("#{0} .class_controle".format(this.mId)).prop("disabled",
-						!aIsActive);
-				if (aIsActive) {
-					$("#" + this.mId).css("cursor", "default");
-				} else {
-					$("#" + this.mId).css("cursor", "progress");
-				}
-			},
+	setActive : function(aIsActive) {
+		$("#" + this.mId).prop("disabled", !aIsActive);
+		$("#{0} .class_controle".format(this.mId)).prop("disabled", !aIsActive);
+		if (aIsActive) {
+			$("#" + this.mId).css("cursor", "default");
+		} else {
+			$("#" + this.mId).css("cursor", "progress");
+		}
+	},
 
-			moveCenter : function() {
-				var dlg = $("#" + this.mId).parent(), new_left = (screen.width / 2)
-						- (dlg.width() / 2), new_top = (screen.height / 2)
-						- (dlg.height() / 2);
-				dlg.offset({
-					top : new_top,
-					left : new_left
-				});
-			}
-
+	moveCenter : function() {
+		var dlg = $("#" + this.mId).parent(), new_left = (screen.width / 2) - (dlg.width() / 2), new_top = (screen.height / 2) - (dlg.height() / 2);
+		dlg.offset({
+			top : new_top,
+			left : new_left
 		});
+	}
+
+});
 
 var GUIManage = GUIBasic
 		.extend({
@@ -137,8 +122,7 @@ var GUIManage = GUIBasic
 
 			addcontent : function(aHtmlBody, aButtons) {
 				if (this.withForm) {
-					this.mHtmlBody = '<form id="frm_{0}">{1}</form>'.format(
-							this.mId, aHtmlBody);
+					this.mHtmlBody = '<form id="frm_{0}">{1}</form>'.format(this.mId, aHtmlBody);
 				} else {
 					this.mHtmlBody = aHtmlBody;
 				}
@@ -148,8 +132,7 @@ var GUIManage = GUIBasic
 			get_button_list : function() {
 				var buttonlist = [], iAct, new_button = {};
 				for (iAct = 0; iAct < this.mButtons.length; iAct += 1) {
-					buttonlist[buttonlist.length] = this.mButtons[iAct]
-							.get_button();
+					buttonlist[buttonlist.length] = this.mButtons[iAct].get_button();
 				}
 
 				if (buttonlist.length === 0) {
@@ -177,11 +160,11 @@ var GUIManage = GUIBasic
 					width : 'auto',
 					height : 'auto',
 					modal : isModal,
-					classes: {
-					    "ui-dialog": "lct-dialog",
-					    "ui-dialog-content": "lct-dlgcontent",
-					    "ui-dialog-buttonpane": "lct-dlgbtnpn",
-				        "ui-dialog-buttonset": "lct-dlgbtnset"
+					classes : {
+						"ui-dialog" : "lct-dialog",
+						"ui-dialog-content" : "lct-dlgcontent",
+						"ui-dialog-buttonpane" : "lct-dlgbtnpn",
+						"ui-dialog-buttonset" : "lct-dlgbtnset"
 					},
 					buttons : this.get_button_list(),
 					close : $.proxy(function(event, ui) {
@@ -196,10 +179,12 @@ var GUIManage = GUIBasic
 				$("#" + this.mId).dialog(args);
 				if (this.mCallback !== null) {
 					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
-					$('<button id="refresh_'+ this.mId+ '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
-							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
-							.append('<span class="ui-button-text">refresh</span>')
-							.appendTo(titlebar).hover(function() {
+					$(
+							'<button id="refresh_'
+									+ this.mId
+									+ '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
+							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>').append(
+									'<span class="ui-button-text">refresh</span>').appendTo(titlebar).hover(function() {
 								$(this).addClass('ui-state-hover');
 							}, function() {
 								$(this).removeClass('ui-state-hover');
@@ -207,23 +192,22 @@ var GUIManage = GUIBasic
 								this.refresh();
 							}, this.mCallback));
 				}
-				$("#" + this.mId).keyup($.proxy(this.manageKey,this));
+				$("#" + this.mId).keyup($.proxy(this.manageKey, this));
 			},
-			
+
 			manageKey : function(event) {
-                var btn;
-                if ((event.keyCode == 13) && (this.defaultbtn!=='')) {
-                    btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
-                    if (btn.length===1) {
-                        btn.click();
-                    } 
-                }
+				var btn;
+				if ((event.keyCode === 13) && (this.defaultbtn !== '')) {
+					btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
+					if (btn.length === 1) {
+						btn.click();
+					}
+				}
 			},
 
 			correctStruct : function() {
 				if ($("#" + this.mId).hasClass("ui-dialog-content")) {
-					$("#" + this.mId).dialog('option', 'buttons',
-							this.get_button_list());
+					$("#" + this.mId).dialog('option', 'buttons', this.get_button_list());
 				}
 			},
 
@@ -235,23 +219,18 @@ var GUIManage = GUIBasic
 
 			buildFinal : function() {
 				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn;
-				$(".tabContent").each(
-						function() {
-							$(this).tabs(
-									{
-										activate : $.proxy(function(event, ui) {
-											unusedVariables(event);
-											this.parent().prop('tabid',
-													ui.newTab.index());
-										}, $(this))
-									});
-							var tabid = $(this).parent().prop('tabid');
-							if (tabid !== undefined) {
-								$(this).find(
-										'ul > li:eq({0}) > a'.format(tabid))
-										.click();
-							}
-						});
+				$(".tabContent").each(function() {
+					$(this).tabs({
+						activate : $.proxy(function(event, ui) {
+							unusedVariables(event);
+							this.parent().prop('tabid', ui.newTab.index());
+						}, $(this))
+					});
+					var tabid = $(this).parent().prop('tabid');
+					if (tabid !== undefined) {
+						$(this).find('ul > li:eq({0}) > a'.format(tabid)).click();
+					}
+				});
 				$(".datepicker").each(function() {
 					$(this).datepicker({
 						showOn : "button",
@@ -273,13 +252,13 @@ var GUIManage = GUIBasic
 						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
 					}
 				}
-				if (this.mButtons.length===0) {
-				    btn = parent.find("div > div > button:eq(0)");
-				    if ((btn.length === 1) && (parent.find("div > div > button:eq(1)").length === 0)) {
-				        btn_icon = Singleton().Transport().getIconUrl("static/lucterios.CORE/images/close.png");
-                        btn.find('img').remove();
-                        btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
-				    }
+				if (this.mButtons.length === 0) {
+					btn = parent.find("div > div > button:eq(0)");
+					if ((btn.length === 1) && (parent.find("div > div > button:eq(1)").length === 0)) {
+						btn_icon = Singleton().Transport().getIconUrl("static/lucterios.CORE/images/close.png");
+						btn.find('img').remove();
+						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
+					}
 				}
 			},
 
@@ -352,24 +331,20 @@ function createTable(compArray) {
 	// traitement de la grille de placement des elements
 	var line, compo, html = '<table width="100%">', row_idx, col_idx, colspan_idx, rowspan_idx;
 	for (row_idx = 0; row_idx < compArray.length; row_idx++) {
-		if ((compArray[row_idx] instanceof Array)
-				&& (compArray[row_idx].length > 0)) {
+		if ((compArray[row_idx] instanceof Array) && (compArray[row_idx].length > 0)) {
 			html += '<tr>';
 			line = compArray[row_idx];
 			for (col_idx = 0; col_idx < line.length; col_idx++) {
 				if ((line[col_idx] !== undefined) && (line[col_idx] !== null)) {
 					compo = line[col_idx];
-					html += '<td rowspan="{0}" colspan="{1}" style="{2}">{3}</td>'
-							.format(compo.rowspan, compo.colspan, compo.style,
-									compo.getHtml());
+					html += '<td rowspan="{0}" colspan="{1}" style="{2}">{3}</td>'.format(compo.rowspan, compo.colspan, compo.style, compo.getHtml());
 					for (colspan_idx = 0; colspan_idx < compo.colspan; colspan_idx++) {
 						line[col_idx + colspan_idx] = null;
 						for (rowspan_idx = 0; rowspan_idx < compo.rowspan; rowspan_idx++) {
 							if (!(compArray[row_idx + rowspan_idx] instanceof Array)) {
 								compArray[row_idx + rowspan_idx] = [];
 							}
-							compArray[row_idx + rowspan_idx][col_idx
-									+ colspan_idx] = null;
+							compArray[row_idx + rowspan_idx][col_idx + colspan_idx] = null;
 						}
 					}
 				} else if (line[col_idx] === undefined) {
@@ -387,8 +362,7 @@ function createTab(tabs, tabcontents) {
 	var tab_Id = createGuid(), html = "<div class='tabContent'>", t_idx, tabcontentvalue;
 	html += "<ul>";
 	for (t_idx = 0; t_idx < tabs.length; t_idx++) {
-		html += '<li><a href="#tab_{0}_{1}">{2}</a></li>'.format(tab_Id, t_idx,
-				tabs[t_idx]);
+		html += '<li><a href="#tab_{0}_{1}">{2}</a></li>'.format(tab_Id, t_idx, tabs[t_idx]);
 	}
 	html += "</ul>";
 	for (t_idx = 0; t_idx < tabcontents.length; t_idx++) {
@@ -396,8 +370,7 @@ function createTab(tabs, tabcontents) {
 		if (tabcontentvalue instanceof Array) {
 			tabcontentvalue = createTable(tabcontentvalue);
 		}
-		html += '<div id="tab_{0}_{1}">{2}</div>'.format(tab_Id, t_idx,
-				tabcontentvalue);
+		html += '<div id="tab_{0}_{1}">{2}</div>'.format(tab_Id, t_idx, tabcontentvalue);
 	}
 	html += "</div>";
 	return html;

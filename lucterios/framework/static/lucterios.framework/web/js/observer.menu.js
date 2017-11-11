@@ -57,12 +57,12 @@ var Menu = Class.extend({
 		if (this.id !== "coremenu") {
 			this.id += '_' + createGuid();
 		}
-		this.icon = menu.icon ? menu.icon : '';
-		this.extension = menu.extension ? menu.extension : '';
-		this.action = menu.action ? menu.action : '';
-		this.modal = menu.modal ? parseInt(menu.modal) : 0;
-		this.help = menu.help ? menu.help : '';
-		this.txt = menu.text ? menu.text : '';
+		this.icon = menu.icon || '';
+		this.extension = menu.extension || '';
+		this.action = menu.action || '';
+		this.modal = parseInt(menu.modal, 10) || 0;
+		this.help = menu.help || '';
+		this.txt = menu.text || '';
 
 		if (this.action !== '') {
 			this.act = Singleton().CreateAction();
@@ -70,7 +70,7 @@ var Menu = Class.extend({
 			this.act.setClose(false);
 		}
 		if (menu.menus !== undefined) {
-			var issMen, ssMenu, menu_item;
+			var issMen, menu_item;
 			for (issMen = 0; issMen < menu.menus.length; issMen++) {
 				menu_item = new Menu(menu.menus[issMen], ++level, owner);
 				if ((((menu_item.icon !== '') || G_With_Extra_Menu) && (menu_item.action !== null)) || (menu_item.submenu.length > 0)) {
@@ -193,7 +193,7 @@ var ObserverMenu = ObserverAbstract.extend({
 		this.setActive(true);
 
 		this.aside_menu = null;
-		var roothtml = [], html = [], iMen, menu, menu_item, menu_idx;
+		var roothtml = [], html = [], iMen, menu_item, menu_idx;
 		this.menu_list = [];
 		for (iMen = 0; iMen < this.menu_json.length; iMen++) {
 			menu_item = new Menu(this.menu_json[iMen], 0, this);

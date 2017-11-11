@@ -98,7 +98,7 @@ var ApplicationDescription = Class.extend({
 	setInfoServer : function(aInfoServer) {
 		this.mInfoServer = aInfoServer;
 		if (Array.isArray(this.mInfoServer)) {
-			this.mInfoServer = this.mInfoServer.join('{[br/]}')
+			this.mInfoServer = this.mInfoServer.join('{[br/]}');
 		}
 	},
 
@@ -227,7 +227,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 
 	show : function(aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
-		var cdate = this.mJSON.data, json_connection, desc, xml_params, param_idx;
+		var cdate = this.mJSON.data, json_connection, desc;
 		if (cdate !== "OK") {
 			Singleton().Transport().setSession("");
 			run_CleanCallBack();
@@ -235,19 +235,19 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			this.refreshMenu = true;
 		} else {
 			json_connection = this.mJSON.connexion;
-			desc = new ApplicationDescription(json_connection["TITLE"], json_connection["COPYRIGHT"], json_connection["VERSION"],
-					json_connection["SERVERVERSION"]);
-			desc.setLogoIconName(json_connection["LOGONAME"]);
-			desc.setBackground(json_connection["BACKGROUND"]);
-			desc.setSupportEmail(json_connection["EMAIL"]);
-			desc.setSupportHTML(json_connection["SUPPORT_HTML"]);
-			desc.setInfoServer(json_connection["INFO_SERVER"]);
-			desc.setSubTitle(json_connection["SUBTITLE"]);
-			desc.setLogin(json_connection["LOGIN"]);
-			desc.setRealName(json_connection["REALNAME"].trim());
-			desc.setMode(json_connection["MODE"]);
-			desc.setInstanceName(json_connection["INSTANCE"]);
-			desc.setLanguage(json_connection["LANGUAGE"]);
+			desc = new ApplicationDescription(json_connection.TITLE, json_connection.COPYRIGHT, json_connection.VERSION,
+					json_connection.SERVERVERSION);
+			desc.setLogoIconName(json_connection.LOGONAME);
+			desc.setBackground(json_connection.BACKGROUND);
+			desc.setSupportEmail(json_connection.EMAIL);
+			desc.setSupportHTML(json_connection.SUPPORT_HTML);
+			desc.setInfoServer(json_connection.INFO_SERVER);
+			desc.setSubTitle(json_connection.SUBTITLE);
+			desc.setLogin(json_connection.LOGIN);
+			desc.setRealName(json_connection.REALNAME.trim());
+			desc.setMode(json_connection.MODE);
+			desc.setInstanceName(json_connection.INSTANCE);
+			desc.setLanguage(json_connection.LANGUAGE);
 			if ((this.mJSON.context !== undefined) && (this.mJSON.context.ses !== undefined)) {
 				Singleton().Transport().setSession(this.mJSON.context.ses);
 			}

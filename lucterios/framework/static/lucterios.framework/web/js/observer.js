@@ -163,7 +163,7 @@ var ObserverGUI = ObserverAbstract.extend({
 	},
 
 	buildButtons : function() {
-		var btns = [], xml_actions, index, new_act;
+		var btns = [], index, new_act;
 		if (this.mActions) {
 			for (index = 0; index < this.mActions.length; index++) {
 				new_act = Singleton().CreateAction();

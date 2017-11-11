@@ -37,7 +37,7 @@ var ObserverFactoryAbstract = Class.extend({
 	},
 
 	setAuthentification : function(aLogin, aPassWord) {
-		var res = false, param = new HashMap(), aut, xml_aut, xml_params, session;
+		var res = false, param = new HashMap(), aut, xml_aut, session;
 		if ((aLogin === null)) {
 			param.put('ses', aPassWord);
 			param.put('info', "1");
@@ -62,47 +62,45 @@ var ObserverFactoryAbstract = Class.extend({
 	}
 });
 
-var ObserverFactoryImpl = ObserverFactoryAbstract
-		.extend({
+var ObserverFactoryImpl = ObserverFactoryAbstract.extend({
 
-			callAction : function(aExtension, aAction, aParam, aObserver) {
-				var res_obs = null, json_rep = this.transfertFromServer(aExtension, aAction, aParam), idx, observer_name, titles, source_extension, source_action, errorMsg;
-				if (json_rep && json_rep.meta) {
-					observer_name = json_rep.meta.observer;
-					if (this.mObserverList.hasOwnProperty(observer_name)) {
-						source_extension = json_rep.meta.extension;
-						source_action = json_rep.meta.action;
-						if (aObserver === null) {
+	callAction : function(aExtension, aAction, aParam, aObserver) {
+		var res_obs = null, json_rep = this.transfertFromServer(aExtension, aAction, aParam), observer_name, source_extension, source_action;
+		if (json_rep && json_rep.meta) {
+			observer_name = json_rep.meta.observer;
+			if (this.mObserverList.hasOwnProperty(observer_name)) {
+				source_extension = json_rep.meta.extension;
+				source_action = json_rep.meta.action;
+				if (aObserver === null) {
+					res_obs = this.factoryObserver(observer_name);
+					res_obs.setSource(source_extension, source_action);
+				} else {
+					res_obs = aObserver;
+					if ((res_obs.getObserverName() !== observer_name) || (source_action === "") || (source_extension === "")) {
+						if ((observer_name === "core.auth") || (observer_name === "core.exception")) {
 							res_obs = this.factoryObserver(observer_name);
 							res_obs.setSource(source_extension, source_action);
 						} else {
-							res_obs = aObserver;
-							if ((res_obs.getObserverName() !== observer_name) || (source_action === "") || (source_extension === "")) {
-								if ((observer_name === "core.auth") || (observer_name === "core.exception")) {
-									res_obs = this.factoryObserver(observer_name);
-									res_obs.setSource(source_extension, source_action);
-								} else {
-									throw new LucteriosException(GRAVE, "Erreur de parsing (refresh)" + aObserver.getObserverName() + " -> "
-											+ observer_name, this.m_Parameters, JSON.stringify(json_rep));
-								}
-							}
+							throw new LucteriosException(GRAVE, "Erreur de parsing (refresh)" + aObserver.getObserverName() + " -> " + observer_name,
+									this.m_Parameters, JSON.stringify(json_rep));
 						}
-						if (json_rep.meta.title) {
-							res_obs.setCaption(json_rep.meta.title);
-						} else {
-							res_obs.setCaption("");
-						}
-						res_obs.setContent(json_rep);
-					} else {
-						throw new LucteriosException(IMPORTANT, "Observeur '" + observer_name + "' inconnu.", this.m_Parameters, JSON
-								.stringify(json_rep));
 					}
-				} else {
-					throw new LucteriosException(GRAVE, "Erreur inconnu", this.m_Parameters, json_rep.toString());
 				}
-				return res_obs;
+				if (json_rep.meta.title) {
+					res_obs.setCaption(json_rep.meta.title);
+				} else {
+					res_obs.setCaption("");
+				}
+				res_obs.setContent(json_rep);
+			} else {
+				throw new LucteriosException(IMPORTANT, "Observeur '" + observer_name + "' inconnu.", this.m_Parameters, JSON.stringify(json_rep));
 			}
-		});
+		} else {
+			throw new LucteriosException(GRAVE, "Erreur inconnu", this.m_Parameters, json_rep.toString());
+		}
+		return res_obs;
+	}
+});
 
 var ObserverFactoryRestImpl = ObserverFactoryImpl.extend({
 	transfertFromServer : function(aExtension, aAction, aParam) {

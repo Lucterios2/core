@@ -11,7 +11,7 @@ var compGridHeader = Class.extend({
 		this.name = component[0];
 		this.label = component[1];
 		this.type = component[2];
-		this.orderable = component[3] ? parseInt(component[3]) : 0;
+		this.orderable = parseInt(component[3], 10) || 0;
 		this.grid = grid;
 	},
 
@@ -148,10 +148,10 @@ var compGrid = compGeneric.extend({
 
 	initial : function(component) {
 		this._super(component);
-		this.order = component.order ? component.order : '';
-		this.page_max = component.page_max ? parseInt(component.page_max) : 1;
-		this.page_num = component.page_num ? parseInt(component.page_num) : 0;
-		var heads = component.headers, rows = component.value, iChild, row, header, actions, acts, btn;
+		this.order = component.order || '';
+		this.page_max = parseInt(component.page_max, 10) || 1;
+		this.page_num = parseInt(component.page_num, 10) || 0;
+		var heads = component.headers, rows = component.value, iChild, row, header, btn;
 
 		// traitement des HEADER
 		this.gridHeaders = [];

@@ -21,14 +21,14 @@ var ObserverException = ObserverAbstract.extend({
         this.debug_info = json_error.debug;
         this.type = json_error.type;
 
-        this.requette = json_error.requette?json_error.requette:'';
+        this.requette = json_error.requette || '';
         if (this.requette === '') {
             this.requette = Singleton().Factory().m_Parameters;
         }
         if (this.requette === '*') {
             this.requette = '';
         }
-        this.reponse = json_error.response?json_error.response:'';
+        this.reponse = json_error.response || '';
         this.stack_text = this.get_stack_text();
     },
 

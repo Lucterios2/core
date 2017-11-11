@@ -10,7 +10,7 @@ var ObserverDialogBox = ObserverGUI.extend({
 		this._super(aJSON);
 		var json_text = this.mJSON.data;
 		this.mText = json_text.text;
-		this.mType = json_text.type?parseInt(json_text.type):0;
+		this.mType = parseInt(json_text.type, 10) || 0;
 	},
 
 	show : function(aTitle, aGUIType) {
@@ -35,8 +35,7 @@ var ObserverDialogBox = ObserverGUI.extend({
 		this.mText = this.mText.convertLuctoriosFormatToHtml();
 
 		table[0] = [];
-		table[0][0] = new compBasic("<img src='" + image_name + "' alt='"
-				+ image_name + "'></img>");
+		table[0][0] = new compBasic("<img src='" + image_name + "' alt='" + image_name + "'></img>");
 		table[0][1] = new compBasic("<label>" + this.mText + "</label>");
 
 		this.mGUI = new GUIManage(this.getId(), this.mTitle, this);

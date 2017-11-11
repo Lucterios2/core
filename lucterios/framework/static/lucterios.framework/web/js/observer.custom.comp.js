@@ -289,7 +289,7 @@ var compButton = compAbstractEvent.extend({
 			throw new LucteriosException(CRITIC, "Bad type!");
 		}
 		this.setEnabled(enabled);
-	},
+	}
 
 });
 
@@ -302,7 +302,7 @@ var compCheck = compAbstractEvent.extend({
 		this._super(component);
 
 		var val = component.value;
-		this.checked = (parseInt(val) === 1) || (val === 'o');
+		this.checked = (parseInt(val, 10) === 1) || (val === 'o');
 		this.tag = 'input';
 	},
 
@@ -380,7 +380,7 @@ var compEdit = compAbstractEvent.extend({
 		var regex;
 		this._super(component);
 		this.value = component.value;
-		this.size = component.size ? component.size : -1;
+		this.size = component.size || -1;
 		regex = component.reg_expr;
 		if (regex !== '') {
 			this.mask = new RegExp(regex, 'i');
@@ -447,7 +447,7 @@ var compFloat = compAbstractEvent.extend({
 
 	initial : function(component) {
 		this._super(component);
-		var text_value = '', nb_dec = (component.prec ? component.prec : 0), dec_i;
+		var text_value = '', nb_dec = (component.prec || 0), dec_i;
 		if (this.is_null === false) {
 			text_value = component.value;
 		}
@@ -517,7 +517,7 @@ var editorHypertext = Class.extend({
 	with_hypertext : false,
 	submenus : {},
 	init : function(aOwnerId, aName, aWith_hypertext, aSub_menu) {
-		var isub_menu, sub_menu, sub_menu_name, sub_menu_value;
+		var isub_menu, sub_menu;
 		this.ownerId = aOwnerId;
 		this.name = aName;
 		this.with_hypertext = aWith_hypertext;
@@ -669,7 +669,7 @@ var compPassword = compAbstractEvent.extend({
 	initial : function(component) {
 		this._super(component);
 		this.value = component.value;
-		this.security = component.security ? component.security : 0;
+		this.security = component.security || 0;
 		this.tag = 'input';
 	},
 
@@ -931,7 +931,7 @@ var compSelect = compAbstractEvent.extend({
 			cas.initial(component['case'][iChild]);
 			this.cases[this.cases.length] = cas;
 		}
-		this.value = component.value ? component.value : '';
+		this.value = component.value || '';
 		this.tag = 'select';
 	},
 
@@ -967,8 +967,9 @@ var compSelect = compAbstractEvent.extend({
 var compCheckList = compSelect.extend({
 
 	initial : function(component) {
+		var iHead;
 		this._super(component);
-		this.simple = component.simple ? parseInt(component.simple) : 0;
+		this.simple = parseInt(component.simple, 10) || 0;
 		this.args = {
 			'class' : "checklist"
 		};
@@ -997,7 +998,7 @@ var compCheckList = compSelect.extend({
 	},
 
 	getValue : function() {
-		var res;
+		var res, iHead;
 		if (this.simple === 2) {
 			res = [];
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
@@ -1068,6 +1069,7 @@ var compCheckList = compSelect.extend({
 	},
 
 	addallbtn : function() {
+		var iHead;
 		for (iHead = 0; iHead < this.cases.length; iHead++) {
 			this.cases[iHead].checked = true;
 		}
@@ -1075,7 +1077,7 @@ var compCheckList = compSelect.extend({
 	},
 
 	addbtn : function() {
-		var val_available = this.getGUIComp().find("select[name='{0}_available']:eq(0)".format(this.name)).val();
+		var iHead, val_available = this.getGUIComp().find("select[name='{0}_available']:eq(0)".format(this.name)).val();
 		if (val_available !== null) {
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
 				if (val_available.indexOf(this.cases[iHead].id) !== -1) {
@@ -1087,7 +1089,7 @@ var compCheckList = compSelect.extend({
 	},
 
 	delbtn : function() {
-		var val_chosen = this.getGUIComp().find("select[name='{0}_chosen']:eq(0)".format(this.name)).val();
+		var iHead, val_chosen = this.getGUIComp().find("select[name='{0}_chosen']:eq(0)".format(this.name)).val();
 		if (val_chosen !== null) {
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
 				if (val_chosen.indexOf(this.cases[iHead].id) !== -1) {
@@ -1099,11 +1101,12 @@ var compCheckList = compSelect.extend({
 	},
 
 	delallbtn : function() {
+		var iHead;
 		for (iHead = 0; iHead < this.cases.length; iHead++) {
 			this.cases[iHead].checked = false;
 		}
 		this.clickafterbtn();
-	},
+	}
 
 });
 
@@ -1120,7 +1123,7 @@ var compUpload = compGeneric
 			initial : function(component) {
 				this._super(component);
 				this.filter = '';
-				var filters = component.filter, msg_text, iChild, textreader = new FileReader();
+				var filters = component.filter, msg_text, textreader = new FileReader();
 				if (typeof textreader.readAsBinaryString !== "function") {
 					msg_text = Singleton().getTranslate("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.");
 					throw new LucteriosException(IMPORTANT, msg_text);
@@ -1128,7 +1131,7 @@ var compUpload = compGeneric
 				this.filter = filters.join(',');
 				this.compress = component.compress;
 				this.httpFile = component.http_file;
-				this.maxsize = component.maxsize ? component.maxsize : 0;
+				this.maxsize = component.maxsize || 0;
 				this.tag = 'input';
 			},
 
@@ -1223,7 +1226,7 @@ var compdownload = compGeneric
 				this._super(component);
 				this.compress = component.compress;
 				this.httpFile = component.http_file;
-				this.maxsize = component.maxsize ? component.maxsize : 0;
+				this.maxsize = component.maxsize || 0;
 				this.file_name = component.value.trim();
 				this.link_file_name = component.filename;
 				this.needed = 0;
