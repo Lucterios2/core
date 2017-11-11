@@ -302,7 +302,7 @@ var compCheck = compAbstractEvent.extend({
 		this._super(component);
 
 		var val = component.value;
-		this.checked = (val === '1') || (val === 'o');
+		this.checked = (parseInt(val) === 1) || (val === 'o');
 		this.tag = 'input';
 	},
 
