@@ -7,7 +7,6 @@ var ObserverCustom = ObserverGUI
 		.extend({
 
 			mCompList : new HashMap(),
-			mIsSimpleGui : false,
 			mDefaultBtn : '',
 
 			get : function(key) {
@@ -16,11 +15,6 @@ var ObserverCustom = ObserverGUI
 
 			getObserverName : function() {
 				return "core.custom";
-			},
-
-			setContent : function(aJSON) {
-				this._super(aJSON);
-				this.mIsSimpleGui = aJSON.meta.is_simple_gui;
 			},
 
 			savefocusin : function(event) {
@@ -164,21 +158,19 @@ var ObserverCustom = ObserverGUI
 							if (compType !== "TAB") {
 								comp.initial(component);
 								lbl = null;
-								if (this.mIsSimpleGui) {
-									comp.x = 2 * comp.x;
-									comp.colspan = 2 * comp.colspan;
-									if (comp.description !== '') {
-										new_component = JSON.parse(JSON.stringify(component));
-										new_component.name = 'lbl_' + comp.name;
-										new_component.value = "{[b]}{0}{[/b]}".format(comp.description);
-										new_component.x = comp.x;
-										new_component.colspan = 1;
-										lbl = new compLabelForm(this);
-										lbl.initial(new_component);
-										comp.x = comp.x + 1;
-										comp.colspan = comp.colspan - 1;
-										comp.descComp = lbl;
-									}
+								comp.x = 2 * comp.x;
+								comp.colspan = 2 * comp.colspan;
+								if (comp.description !== '') {
+									new_component = JSON.parse(JSON.stringify(component));
+									new_component.name = 'lbl_' + comp.name;
+									new_component.value = "{[b]}{0}{[/b]}".format(comp.description);
+									new_component.x = comp.x;
+									new_component.colspan = 1;
+									lbl = new compLabelForm(this);
+									lbl.initial(new_component);
+									comp.x = comp.x + 1;
+									comp.colspan = comp.colspan - 1;
+									comp.descComp = lbl;
 								}
 								if (hasTabs) {
 									if (tabContent[actualTab][comp.y] === undefined) {

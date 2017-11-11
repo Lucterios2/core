@@ -50,7 +50,7 @@ class UserTest(LucteriosTest):
     def test_userlist(self):
         self.factory.xfer = UsersList()
         self.call('/CORE/usersList', {}, False)
-        self.assert_observer('core.custom', 'CORE', 'usersList', 1)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
         self.assert_xml_equal('TITLE', 'Utilisateurs')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -202,7 +202,7 @@ class UserTest(LucteriosTest):
         add_user("user1")
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {'user_actif': '3'}, False)
-        self.assert_observer('core.custom', 'CORE', 'usersEdit', 1)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assert_xml_equal('TITLE', 'Modifier un utilisateur')
         self.assert_count_equal('CONTEXT', 1)
         self.assert_xml_equal('CONTEXT/PARAM[@name="user_actif"]', '3')
@@ -262,7 +262,7 @@ class UserTest(LucteriosTest):
     def test_useradd(self):
         self.factory.xfer = UsersEdit()
         self.call('/CORE/usersEdit', {}, False)
-        self.assert_observer('core.custom', 'CORE', 'usersEdit', 1)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assert_xml_equal('TITLE', 'Ajouter un utilisateur')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
@@ -458,7 +458,7 @@ class GroupTest(LucteriosTest):
     def test_grouplist(self):
         self.factory.xfer = GroupsList()
         self.call('/CORE/groupsList', {}, False)
-        self.assert_observer('core.custom', 'CORE', 'groupsList', 1)
+        self.assert_observer('core.custom', 'CORE', 'groupsList')
         self.assert_xml_equal('TITLE', 'Les groupes')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 1)
@@ -480,7 +480,7 @@ class GroupTest(LucteriosTest):
     def test_groupadd(self):
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit', {}, False)
-        self.assert_observer('core.custom', 'CORE', 'groupsEdit', 1)
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_xml_equal('TITLE', 'Ajouter un groupe')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
@@ -521,7 +521,7 @@ class GroupTest(LucteriosTest):
 
         self.factory.xfer = GroupsEdit()
         self.call('/CORE/groupsEdit', {'group': '1'}, False)
-        self.assert_observer('core.custom', 'CORE', 'groupsEdit', 1)
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_xml_equal('TITLE', 'Modifier un groupe')
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', 'my_group', (1, 0, 3, 1))
 
@@ -571,7 +571,7 @@ class GroupTest(LucteriosTest):
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/groupsEdit', {'group': '1'})
-        self.assert_observer('core.custom', 'CORE', 'groupsEdit', 1)
+        self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assert_count_equal('CLOSE_ACTION/ACTION', 1)
         self.assert_action_equal('CLOSE_ACTION/ACTION', ('unlock', None, "CORE", "unlock", 1, 1, 1))
         self.assert_count_equal('CONTEXT/PARAM', 2)

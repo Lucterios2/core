@@ -898,7 +898,7 @@ var compSelectCase = Class.extend({
 	checked : false,
 
 	initial : function(component) {
-		this.id = component[0];
+		this.id = component[0].toString();
 		this.label = component[1];
 		if (this.label === null) {
 			this.label = '---';
@@ -907,7 +907,7 @@ var compSelectCase = Class.extend({
 
 	getHtml : function(value) {
 		var html = '<option value="' + this.id + '"';
-		if (((value !== null) && (value === this.id)) || ((value === null) && this.checked)) {
+		if (((value !== null) && (value.toString() === this.id)) || ((value === null) && this.checked)) {
 			html += ' selected';
 		}
 		html += '>' + this.label + '</option>';

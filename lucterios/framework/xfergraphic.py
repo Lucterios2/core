@@ -260,15 +260,12 @@ class XferContainerDialogBox(XferContainerAbstract):
 class XferContainerCustom(XferContainerAbstract):
 
     observer_name = "core.custom"
-    is_simple_gui = False
 
     def __init__(self, **kwargs):
         XferContainerAbstract.__init__(self, **kwargs)
         self.actions = []
         self.components = {}
         self.tab = 0
-        if self.model is not None:
-            self.is_simple_gui = self.model.is_simple_gui
 
     def add_component(self, component):
         component.tab = self.tab
@@ -517,10 +514,7 @@ class XferContainerCustom(XferContainerAbstract):
     def get_current_offset(self, maxsize_of_lines, line_field_size, offset):
         colspan = 1
         if offset == (line_field_size - 1):
-            if not self.is_simple_gui:
-                colspan = 2 * maxsize_of_lines - (1 + offset)
-            else:
-                colspan = maxsize_of_lines - offset
+            colspan = maxsize_of_lines - offset
         return colspan
 
     def filltab_from_model(self, col, row, readonly, field_names):
@@ -530,10 +524,7 @@ class XferContainerCustom(XferContainerAbstract):
                 line_field_name = line_field_name,
             offset = 0
             height = 1
-            if self.is_simple_gui:
-                comp_col_addon = 0
-            else:
-                comp_col_addon = 1
+            comp_col_addon = 0
             for field_name in line_field_name:
                 if field_name is None:
                     continue
@@ -542,11 +533,6 @@ class XferContainerCustom(XferContainerAbstract):
                     child = getattr(self.item, field_name).all()
                     if hasattr(self.item, field_name[:-4] + '_query'):
                         child = child.filter(getattr(self.item, field_name[:-4] + '_query'))
-                    if not self.is_simple_gui:
-                        lbl = XferCompLabelForm('lbl_' + field_name)
-                        lbl.set_location(col + offset, row, 1, 1)
-                        lbl.set_value_as_name(child.model._meta.verbose_name)
-                        self.add_component(lbl)
                     comp = XferCompGrid(field_name[:-4])
                     comp.set_model(child, None, self)
                     comp.add_actions(self, model=child.model)
@@ -564,14 +550,6 @@ class XferContainerCustom(XferContainerAbstract):
                     # field real in model
                     if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:
                         # field not many-to-many
-                        if not self.is_simple_gui:
-                            lbl = XferCompLabelForm('lbl_' + field_name)
-                            lbl.set_location(col + offset, row, 1, 1)
-                            if verbose_name is None:
-                                lbl.set_value_as_name(six.text_type(dep_field.verbose_name))
-                            else:
-                                lbl.set_value_as_name(six.text_type(verbose_name))
-                            self.add_component(lbl)
                         if readonly:
                             comp = self.get_reading_comp(field_name)
                         else:
@@ -648,7 +626,3 @@ class XferContainerCustom(XferContainerAbstract):
             if len(self.actions) != 0:
                 self.responsexml.append(get_actions_xml(self.actions))
         XferContainerAbstract._finalize(self)
-        if self.format == 'JSON':
-            self.responsejson['meta']['is_simple_gui'] = self.is_simple_gui
-        else:
-            self.responsexml.attrib['is_simple_gui'] = "1" if self.is_simple_gui else "0"

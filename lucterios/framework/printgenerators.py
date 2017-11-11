@@ -480,17 +480,16 @@ class ActionGenerator(ReportGenerator):
                 new_item = PrintLabel(comp, self)
             if new_item is not None:
                 lbl_item = None
-                if self.action.is_simple_gui:
-                    new_item.col = 2 * new_item.col
-                    new_item.colspan = 2 * new_item.colspan
-                    if comp.description != '':
-                        lbl_item = PrintLabel(comp, self)
-                        lbl_item.value = "{[b]}%s{[/b]}" % comp.description
-                        lbl_item.col = new_item.col
-                        lbl_item.colspan = 1
-                        lbl_item.init_label()
-                        new_item.col = new_item.col + 1
-                        new_item.colspan = new_item.colspan - 1
+                new_item.col = 2 * new_item.col
+                new_item.colspan = 2 * new_item.colspan
+                if comp.description != '':
+                    lbl_item = PrintLabel(comp, self)
+                    lbl_item.value = "{[b]}%s{[/b]}" % comp.description
+                    lbl_item.col = new_item.col
+                    lbl_item.colspan = 1
+                    lbl_item.init_label()
+                    new_item.col = new_item.col + 1
+                    new_item.colspan = new_item.colspan - 1
                 if new_item.tab not in col_size.keys():
                     col_size[new_item.tab] = []
                 if new_item.tab not in max_col.keys():

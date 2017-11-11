@@ -49,9 +49,6 @@ from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 
 
 class Parameter(LucteriosModel):
-
-    is_simple_gui = True
-
     name = models.CharField(_('name'), max_length=100, unique=True)
     typeparam = models.IntegerField(choices=((0, _('String')), (1, _(
         'Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
@@ -121,8 +118,6 @@ class Parameter(LucteriosModel):
 
 class LucteriosUser(User, LucteriosModel):
 
-    is_simple_gui = True
-
     @classmethod
     def get_default_fields(cls):
         return ['username', 'first_name', 'last_name', 'last_login']
@@ -165,8 +160,6 @@ class LucteriosUser(User, LucteriosModel):
 
 class LucteriosGroup(Group, LucteriosModel):
 
-    is_simple_gui = True
-
     @classmethod
     def get_edit_fields(cls):
         return ['name', 'permissions']
@@ -186,8 +179,6 @@ class LucteriosGroup(Group, LucteriosModel):
 
 
 class Label(LucteriosModel):
-    is_simple_gui = True
-
     name = models.CharField(_('name'), max_length=100, unique=True)
 
     page_width = models.IntegerField(
@@ -242,8 +233,6 @@ class Label(LucteriosModel):
 
 
 class PrintModel(LucteriosModel):
-    is_simple_gui = True
-
     name = models.CharField(_('name'), max_length=100, unique=False)
     kind = models.IntegerField(
         _('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
@@ -429,8 +418,6 @@ class PrintModel(LucteriosModel):
 
 
 class SavedCriteria(LucteriosModel):
-    is_simple_gui = True
-
     name = models.CharField(_('name'), max_length=100, unique=False)
     modelname = models.CharField(_('model'), max_length=100)
     criteria = models.TextField(_('criteria'), blank=True)

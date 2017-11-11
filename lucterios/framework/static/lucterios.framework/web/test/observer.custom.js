@@ -35,7 +35,6 @@ test("Custom_Simple", function() {
 			"dummy_time" : "{[center]}{[font color=\"blue\"]}Thu Oct 26 19:42:12 2017{[/font]}{[/center]}"
 		},
 		"meta" : {
-			"is_simple_gui" : true,
 			"action" : "statusMenu",
 			"title" : "R\u00e9sum\u00e9",
 			"extension" : "CORE",
@@ -362,7 +361,6 @@ test(
 					"action" : "currentStructureAddModify",
 					"title" : "Nos coordonn\u00e9es",
 					"extension" : "lucterios.contacts",
-					"is_simple_gui" : true,
 					"observer" : "core.custom"
 				},
 				"data" : {
@@ -523,7 +521,6 @@ asyncTest("Custom_Upload", function() {
 		"meta" : {
 			"action" : "documentAddModify",
 			"title" : "Ajouter un document",
-			"is_simple_gui" : true,
 			"observer" : "core.custom",
 			"extension" : "lucterios.documents"
 		},
@@ -660,7 +657,6 @@ test("Custom_Download", function() {
 		"meta" : {
 			"action" : "documentShow",
 			"title" : "Afficher le document",
-			"is_simple_gui" : true,
 			"observer" : "core.custom",
 			"extension" : "lucterios.documents"
 		},
@@ -795,7 +791,6 @@ test("Custom_Grid", function() {
 		"meta" : {
 			"action" : "postalCodeList",
 			"title" : "Code postal",
-			"is_simple_gui" : true,
 			"observer" : "core.custom",
 			"extension" : "lucterios.contacts"
 		},

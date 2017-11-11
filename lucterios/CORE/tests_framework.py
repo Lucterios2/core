@@ -175,17 +175,12 @@ class GenericTest(LucteriosTest):
         Params.fill(self.xfer, ['param_text'], 1, 1, True)
         Params.fill(self.xfer, ['param_text'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_text"]', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="param_text"]', 'my value')
-        self.assert_xml_equal(
-            'COMPONENTS/EDIT[@name="param_text"]', 'my value')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_text"]', 'my value')
+        self.assert_xml_equal('COMPONENTS/EDIT[@name="param_text"]', 'my value')
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_text', 'param_text': 'new value'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_text', 'param_text': 'new value'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_text'), 'new value')
 
@@ -198,17 +193,12 @@ class GenericTest(LucteriosTest):
         Params.fill(self.xfer, ['param_memo'], 1, 1, True)
         Params.fill(self.xfer, ['param_memo'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_memo"]', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="param_memo"]', 'other value')
-        self.assert_xml_equal(
-            'COMPONENTS/MEMO[@name="param_memo"]', 'other value')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_memo"]', 'other value')
+        self.assert_xml_equal('COMPONENTS/MEMO[@name="param_memo"]', 'other value')
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_memo', 'param_memo': 'new special value'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_memo', 'param_memo': 'new special value'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_memo'), 'new special value')
 
@@ -221,50 +211,35 @@ class GenericTest(LucteriosTest):
         Params.fill(self.xfer, ['param_int'], 1, 1, True)
         Params.fill(self.xfer, ['param_int'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_int"]', 2)
+        self.assert_count_equal('COMPONENTS/*', 2)
         self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_int"]', '5')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="param_int"]', '5')
-
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_int"]', 'min', '5.0')
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_int"]', 'max', '25.0')
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_int"]', 'prec', '0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'min', '5.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'max', '25.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_int"]', 'prec', '0')
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_int', 'param_int': '13'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_int', 'param_int': '13'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_int'), 13)
 
     def test_parameters_float(self):
-        param = Parameter.objects.create(
-            name='param_float', typeparam=2)
+        param = Parameter.objects.create(name='param_float', typeparam=2)
         param.args = "{'Min':20, 'Max':30, 'Prec':2}"
         param.value = '22.25'
         param.save()
         Params.fill(self.xfer, ['param_float'], 1, 1, True)
         Params.fill(self.xfer, ['param_float'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_float"]', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="param_float"]', '22.25')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_float"]', '22.25')
         self.assert_xml_equal('COMPONENTS/FLOAT[@name="param_float"]', '22.25')
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_float"]', 'min', '20.0')
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_float"]', 'max', '30.0')
-        self.assert_attrib_equal(
-            'COMPONENTS/FLOAT[@name="param_float"]', 'prec', '2')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'min', '20.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'max', '30.0')
+        self.assert_attrib_equal('COMPONENTS/FLOAT[@name="param_float"]', 'prec', '2')
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_float', 'param_float': '26.87'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_float', 'param_float': '26.87'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_float'), 26.87)
 
@@ -277,16 +252,12 @@ class GenericTest(LucteriosTest):
         Params.fill(self.xfer, ['param_bool'], 1, 1, True)
         Params.fill(self.xfer, ['param_bool'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_bool"]', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="param_bool"]', 'Non')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_bool"]', 'Non')
         self.assert_xml_equal('COMPONENTS/CHECK[@name="param_bool"]', '0')
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_bool', 'param_bool': '1'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_bool', 'param_bool': '1'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_bool'), True)
 
@@ -299,17 +270,12 @@ class GenericTest(LucteriosTest):
         Params.fill(self.xfer, ['param_select'], 1, 1, True)
         Params.fill(self.xfer, ['param_select'], 1, 2, False)
         self.callparam()
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_count_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_param_select"]', 2)
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="param_select"]', 'param_select.2')
+        self.assert_count_equal('COMPONENTS/*', 2)
+        self.assert_xml_equal('COMPONENTS/LABELFORM[@name="param_select"]', 'param_select.2')
         self.assert_xml_equal('COMPONENTS/SELECT[@name="param_select"]', '2')
-        self.assert_count_equal(
-            'COMPONENTS/SELECT[@name="param_select"]/CASE', 4)
+        self.assert_count_equal('COMPONENTS/SELECT[@name="param_select"]/CASE', 4)
 
         self.factory.xfer = ParamSave()
-        self.call(
-            '/CORE/paramSave', {'params': 'param_select', 'param_select': '1'}, False)
+        self.call('/CORE/paramSave', {'params': 'param_select', 'param_select': '1'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_select'), 1)
