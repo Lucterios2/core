@@ -237,8 +237,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_count_equal("MENUS/MENU", 4)
 
     def test_menu_reconnected(self):
-        self.call(
-            '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.call('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/authentification', {})
@@ -246,8 +245,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
         self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
 
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_xml_equal('', 'OK')
 
         self.call('/CORE/authentification', {'info': 'true'})
@@ -259,8 +257,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_attrib_equal('', 'observer', 'core.acknowledge')
 
     def test_password(self):
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
 
         self.call('/CORE/changePassword', {})
@@ -268,59 +265,42 @@ class AuthentificationTest(LucteriosTest):
         self.assert_xml_equal('TITLE', 'Mot de passe')
         self.assert_count_equal('CONTEXT', 0)
         self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal(
-            'ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'modifyPassword', 1, 1, 1))
-        self.assert_action_equal(
-            'ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
-        self.assert_count_equal('COMPONENTS/*', 7)
-        self.assert_comp_equal(
-            'COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/passwd.png', ('0', '0', '1', '3'))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_oldpass"]', '{[b]}ancien mot de passe{[/b]}', ('1', '0', '1', '1'))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_newpass1"]', '{[b]}nouveau mot de passe{[/b]}', ('1', '1', '1', '1'))
-        self.assert_comp_equal(
-            'COMPONENTS/LABELFORM[@name="lbl_newpass2"]', '{[b]}re-nouveau mot de passe{[/b]}', ('1', '2', '1', '1'))
-        self.assert_comp_equal(
-            'COMPONENTS/PASSWD[@name="oldpass"]', None, ('2', '0', '1', '1'))
-        self.assert_comp_equal(
-            'COMPONENTS/PASSWD[@name="newpass1"]', None, ('2', '1', '1', '1'))
-        self.assert_comp_equal(
-            'COMPONENTS/PASSWD[@name="newpass2"]', None, ('2', '2', '1', '1'))
+        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'modifyPassword', 1, 1, 1))
+        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('COMPONENTS/*', 4)
+        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/passwd.png', ('0', '0', '1', '3'))
+        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="oldpass"]', 'description', 'ancien mot de passe')
+        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="newpass1"]', 'description', 'nouveau mot de passe')
+        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="newpass2"]', 'description', 're-nouveau mot de passe')
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="oldpass"]', None, ('1', '0', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass1"]', None, ('1', '1', '1', '1'))
+        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass2"]', None, ('1', '2', '1', '1'))
 
     def test_changepassword(self):
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
-        self.call('/CORE/modifyPassword',
-                  {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
+        self.call('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_xml_equal(
-            'EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel erroné!'))
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel erroné!'))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
-        self.call('/CORE/modifyPassword',
-                  {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
+        self.call('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_xml_equal(
-            'EXCEPTION/MESSAGE', six.text_type('Les mots de passes sont différents!'))
+        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Les mots de passes sont différents!'))
         self.assert_xml_equal('EXCEPTION/CODE', '3')
 
-        self.call('/CORE/modifyPassword',
-                  {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
+        self.call('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.dialogbox', 'CORE', 'modifyPassword')
         # self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
         self.assert_attrib_equal('TEXT', 'type', '1')
 
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'BADAUTH')
 
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': '123'})
+        self.call('/CORE/authentification', {'username': 'empty', 'password': '123'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_xml_equal('', 'OK')
 
