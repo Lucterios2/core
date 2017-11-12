@@ -484,7 +484,7 @@ class XferContainerCustom(XferContainerAbstract):
                 sub_select = getattr(self.item, field_name + '_query')
             else:
                 sub_select = get_dico_from_setquery(get_corrected_setquery(dep_field.remote_field.model.objects.all()))
-            comp.set_select_query(sub_select)
+            comp.set_select(sub_select)
         else:
             comp = XferCompEdit(field_name)
             comp.set_value(get_value_from_field(""))

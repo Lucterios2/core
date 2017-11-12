@@ -331,6 +331,11 @@ button>span>img {
 	max-height: 24px;
 }
 
+.lct-dlgcontent table tbody tr td label {
+	font-weight: bold;
+	width: 50%;
+}
+
 .grid {
 	min-height: 200px;
 	width: 100%;

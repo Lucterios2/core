@@ -19,7 +19,7 @@ var compGridHeader = Class.extend({
 		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name.replace('.', '__'));
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var extra = '';
 		if (this.orderable === 1) {
 			extra = "class='class_header'";
@@ -51,7 +51,7 @@ var compGridValue = Class.extend({
 		this.parentGrid = grid;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		if (this.value === "") {
 			return '<td></td>';
 		}
@@ -88,10 +88,10 @@ var compGridRow = Class.extend({
 		}
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var html = '<tr id="{0}_{1}" >'.format(this.grid.name, this.id), idx_val;
 		for (idx_val = 0; idx_val < this.values.length; idx_val++) {
-			html += this.values[idx_val].getHtml();
+			html += this.values[idx_val].get_Html();
 		}
 		html += '</tr>';
 		return html;
@@ -201,7 +201,7 @@ var compGrid = compGeneric.extend({
 		return html;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var html = '<table class="grid">', iHead, iRow, iBtn;
 		if (this.buttons.length === 0) {
 			html += '<tr><td style="text-align: right;">';
@@ -212,12 +212,12 @@ var compGrid = compGeneric.extend({
 		html += '<table id="{0}"><thead><tr>'.format(this.name);
 		// parcours des headers
 		for (iHead = 0; iHead < this.gridHeaders.length; iHead++) {
-			html += this.gridHeaders[iHead].getHtml();
+			html += this.gridHeaders[iHead].get_Html();
 		}
 		html += '</tr></thead><tbody>';
 		// parcours des rows
 		for (iRow = 0; iRow < this.gridRows.length; iRow++) {
-			html += this.gridRows[iRow].getHtml();
+			html += this.gridRows[iRow].get_Html();
 		}
 		html += '</tbody></table>';
 
@@ -228,7 +228,7 @@ var compGrid = compGeneric.extend({
 			html += this.addPageSelector();
 			// parcours des boutons
 			for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-				html += this.buttons[iBtn].getHtml();
+				html += this.buttons[iBtn].get_Html();
 			}
 			html += '</td>';
 		}
@@ -347,7 +347,7 @@ var compGrid = compGeneric.extend({
 
 	setValue : function(xmlValue) {
 		this.initial(xmlValue.parseXML());
-		this.getGUIComp().html(this.getHtml());
+		this.getGUIComp().html(this.get_Html());
 	},
 
 	fillValue : function(params) {

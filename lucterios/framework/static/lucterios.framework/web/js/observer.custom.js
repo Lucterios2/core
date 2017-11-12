@@ -77,7 +77,7 @@ var ObserverCustom = ObserverGUI
 			},
 
 			getHtmlFromComponent : function() {
-				var compArray = [], hasTabs = false, tabs = [], tabContent = [], actualTab = -1, compType, components, iComp, component, new_component, comp, lbl, html;
+				var compArray = [], hasTabs = false, tabs = [], tabContent = [], actualTab = -1, compType, components, iComp, component, comp, html;
 
 				this.mCompList = new HashMap();
 				components = this.mJSON.comp;
@@ -157,40 +157,16 @@ var ObserverCustom = ObserverGUI
 							}
 							if (compType !== "TAB") {
 								comp.initial(component);
-								lbl = null;
-								comp.x = 2 * comp.x;
-								comp.colspan = 2 * comp.colspan;
-								if (comp.description !== '') {
-									new_component = JSON.parse(JSON.stringify(component));
-									new_component.name = 'lbl_' + comp.name;
-									new_component.value = "{[b]}{0}{[/b]}".format(comp.description);
-									new_component.x = comp.x;
-									new_component.colspan = 1;
-									lbl = new compLabelForm(this);
-									lbl.initial(new_component);
-									comp.x = comp.x + 1;
-									comp.colspan = comp.colspan - 1;
-									comp.descComp = lbl;
-								}
 								if (hasTabs) {
 									if (tabContent[actualTab][comp.y] === undefined) {
 										tabContent[actualTab][comp.y] = [];
 									}
 									tabContent[actualTab][comp.y][comp.x] = comp;
-									if (lbl !== null) {
-										tabContent[actualTab][lbl.y][lbl.x] = lbl;
-									}
 								} else {
 									if (compArray[comp.y] === undefined) {
 										compArray[comp.y] = [];
 									}
 									compArray[comp.y][comp.x] = comp;
-									if (lbl !== null) {
-										compArray[lbl.y][lbl.x] = lbl;
-									}
-								}
-								if (lbl !== null) {
-									this.mCompList.put(lbl.name, lbl);
 								}
 								this.mCompList.put(comp.name, comp);
 							}
@@ -309,6 +285,17 @@ var compGeneric = compBasic.extend({
 				html += ' {0}="{1}"'.format(element.replace('cssclass', 'class'), args[element]);
 			}
 		}
+		return html;
+	},
+
+	getHtml : function() {
+		var html = "";
+		if (this.description !== '') {
+			html += "<label>";
+			html += this.description;
+			html += "</label>";
+		}
+		html += this.get_Html();
 		return html;
 	},
 

@@ -22,7 +22,7 @@ var compImage = compGeneric.extend({
 		return;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var src_img = this.src;
 		if (this.type === '') {
 			src_img = Singleton().Transport().getIconUrl(this.src + "?val=" + Math.floor(Math.random() * 1000));
@@ -55,7 +55,7 @@ var compLabelForm = compGeneric.extend({
 		return;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		return this.getBuildHtml({}, false, false) + this.label + '</span>';
 	}
 });
@@ -85,7 +85,7 @@ var compCaptcha = compGeneric.extend({
 		}
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "text",
 			'style' : "width:20px"
@@ -251,7 +251,7 @@ var compButton = compAbstractEvent.extend({
 		return;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		if (this.action !== null) {
 			var arg = {}, title, btn_icon;
 			this.btnaction = this.action;
@@ -306,7 +306,7 @@ var compCheck = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "checkbox"
 		};
@@ -363,7 +363,7 @@ var compLink = compGeneric.extend({
 		return;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		return this.getBuildHtml({
 			'href' : this.link,
 			'target' : '_blank'
@@ -388,7 +388,7 @@ var compEdit = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "text"
 		};
@@ -464,7 +464,7 @@ var compFloat = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "text"
 		};
@@ -532,7 +532,7 @@ var editorHypertext = Class.extend({
 	getGUIComp : function() {
 		return $("#" + this.ownerId).find("textarea[name='{0}']:eq(0)".format(this.name));
 	},
-	getHtml : function(attribut, value) {
+	get_Html : function(attribut, value) {
 		var html = "";
 		if (this.with_hypertext) {
 			html += '<div class="ui-widget-header">';
@@ -615,8 +615,8 @@ var compMemo = compAbstractEvent.extend({
 		this.tag = 'textarea';
 	},
 
-	getHtml : function() {
-		return this.editor.getHtml(this.getAttribHtml({}, true), this.initialVal());
+	get_Html : function() {
+		return this.editor.get_Html(this.getAttribHtml({}, true), this.initialVal());
 	},
 
 	initialVal : function() {
@@ -644,8 +644,8 @@ var compXML = compAbstractEvent.extend({
 		this.tag = 'textarea';
 	},
 
-	getHtml : function() {
-		return this.editor.getHtml(this.getAttribHtml({}, true), this.initialVal());
+	get_Html : function() {
+		return this.editor.get_Html(this.getAttribHtml({}, true), this.initialVal());
 	},
 
 	initialVal : function() {
@@ -673,7 +673,7 @@ var compPassword = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "password"
 		};
@@ -723,7 +723,7 @@ var compDate = compAbstractEvent.extend({
 		this.tag = 'input';
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "text",
 			'class' : "datepicker",
@@ -783,7 +783,7 @@ var compTime = compAbstractEvent.extend({
 		return this._super();
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var args = {
 			'type' : "text",
 			'class' : "timespinner"
@@ -834,7 +834,7 @@ var compDateTime = compAbstractEvent.extend({
 		return $("#" + this.owner.getId()).find("{0}[name='{1}']:eq(1)".format(this.tag, this.name));
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var date_time = this.initialVal().split(' '), date_nums = date_time[0].split('-'), args_dt = {
 			'type' : "text",
 			'class' : "datepicker",
@@ -905,7 +905,7 @@ var compSelectCase = Class.extend({
 		}
 	},
 
-	getHtml : function(value) {
+	get_Html : function(value) {
 		var html = '<option value="' + this.id + '"';
 		if (((value !== null) && (value.toString() === this.id)) || ((value === null) && this.checked)) {
 			html += ' selected';
@@ -938,12 +938,12 @@ var compSelect = compAbstractEvent.extend({
 	getOptionVal : function() {
 		var html = '', iHead;
 		for (iHead = 0; iHead < this.cases.length; iHead++) {
-			html += this.cases[iHead].getHtml(this.value);
+			html += this.cases[iHead].get_Html(this.value);
 		}
 		return html;
 	},
 
-	getHtml : function() {
+	get_Html : function() {
 		var html = this.getBuildHtml(this.args, true, false);
 		html += this.getOptionVal();
 		html += '</{0}>'.format(this.tag);
@@ -1019,13 +1019,13 @@ var compCheckList = compSelect.extend({
 		var html = '', iHead;
 		if (this.simple !== 2) {
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
-				html += this.cases[iHead].getHtml(null);
+				html += this.cases[iHead].get_Html(null);
 			}
 		} else {
 			html += '<select name="{0}_available" multiple = "multiple">'.format(this.name);
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
 				if (!this.cases[iHead].checked) {
-					html += this.cases[iHead].getHtml(0);
+					html += this.cases[iHead].get_Html(0);
 				}
 			}
 			html += '</select>';
@@ -1038,7 +1038,7 @@ var compCheckList = compSelect.extend({
 			html += '<select name="{0}_chosen" multiple = "multiple">'.format(this.name);
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
 				if (this.cases[iHead].checked) {
-					html += this.cases[iHead].getHtml(0);
+					html += this.cases[iHead].get_Html(0);
 				}
 			}
 			html += '</select>';
@@ -1135,7 +1135,7 @@ var compUpload = compGeneric
 				this.tag = 'input';
 			},
 
-			getHtml : function() {
+			get_Html : function() {
 				var args = {
 					'type' : "file",
 					'accept' : this.filter
@@ -1237,7 +1237,7 @@ var compdownload = compGeneric
 				return;
 			},
 
-			getHtml : function() {
+			get_Html : function() {
 				var args = {
 					'id' : 'download_{0}_{1}'.format(this.owner.getId(), this.name)
 				};

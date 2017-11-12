@@ -154,33 +154,23 @@ class ChangePassword(XferContainerCustom):
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
 
-        lbl = XferCompLabelForm('lbl_oldpass')
-        lbl.set_location(1, 0, 1, 1)
-        lbl.set_value_as_name(_("old password"))
-        self.add_component(lbl)
         pwd = XferCompPassword('oldpass')
-        pwd.set_location(2, 0, 1, 1)
+        pwd.set_location(1, 0, 1, 1)
         pwd.security = 0
+        pwd.description = _("old password")
         self.add_component(pwd)
 
-        lbl = XferCompLabelForm('lbl_newpass1')
-        lbl.set_location(1, 1, 1, 1)
-        lbl.set_value_as_name(_("new password"))
-        self.add_component(lbl)
         pwd = XferCompPassword('newpass1')
-        pwd.set_location(2, 1, 1, 1)
+        pwd.set_location(1, 1, 1, 1)
+        pwd.description = _("new password")
         self.add_component(pwd)
 
-        lbl = XferCompLabelForm('lbl_newpass2')
-        lbl.set_location(1, 2, 1, 1)
-        lbl.set_value_as_name(_("new password (again)"))
-        self.add_component(lbl)
         pwd = XferCompPassword('newpass2')
-        pwd.set_location(2, 2, 1, 1)
+        pwd.set_location(1, 2, 1, 1)
+        pwd.description = _("new password (again)")
         self.add_component(pwd)
 
-        self.add_action(
-            ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
@@ -226,13 +216,10 @@ class AskPassword(XferContainerCustom):
             _("To receive by email your login and a new password."))
         self.add_component(lbl)
 
-        lbl = XferCompLabelForm('lbl_email')
-        lbl.set_location(1, 1)
-        lbl.set_value_as_name(_("email"))
-        self.add_component(lbl)
         email = XferCompEdit('email')
-        email.set_location(2, 1)
+        email.set_location(1, 1)
         email.mask = "[^@]+@[^@]+\.[^@]+"
+        email.description = _("email")
         self.add_component(email)
 
         self.add_action(
