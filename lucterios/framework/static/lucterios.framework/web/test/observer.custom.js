@@ -417,82 +417,82 @@ test(
 			var img = comp.attr("src");
 			equal(img.substring(0, img.indexOf('=')), "STUB//static/lucterios.contacts/images/ourDetails.png?val", "comp 1");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > span");
-			equal(comp.html(), "<b>nom</b>", "comp 2");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > label");
+			equal(comp.html(), "nom", "comp 2");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(2) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > input");
 			equal(comp.val(), "Association Multi-sport de démonstration", "comp 3");
 			comp.focus();
 			comp.val("AAA");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > span");
-			equal(comp.html(), "<b>adresse</b>", "comp 4");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > label");
+			equal(comp.html(), "adresse", "comp 4");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(1) > textarea");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > textarea");
 			equal(comp.text(), "place central", "comp 5");
 			comp.focus();
 			comp.text("BBB\nCCC");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(0) > span");
-			equal(comp.html(), "<b>code postal</b>", "comp 6");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(0) > label");
+			equal(comp.html(), "code postal", "comp 6");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(1) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(0) > input");
 			equal(comp.val(), "99000", "comp 7");
 			comp.focus();
 			comp.val("123456");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(2) > span");
-			equal(comp.html(), "<b>ville</b>", "comp 8");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(1) > label");
+			equal(comp.html(), "ville", "comp 8");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(3) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(3) > td:eq(1) > input");
 			equal(comp.val(), "TRIFOUILLY", "comp 9");
 			comp.focus();
 			comp.val("DDDD");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(4) > td:eq(0) > span");
-			equal(comp.html(), "<b>pays</b>", "comp 10");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(4) > td:eq(0) > label");
+			equal(comp.html(), "pays", "comp 10");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(4) > td:eq(1) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(4) > td:eq(0) > input");
 			equal(comp.val(), "", "comp 11");
 			comp.focus();
 			comp.val("EEEE");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(0) > span");
-			equal(comp.html(), "<b>tel1</b>", "comp 12");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(0) > label");
+			equal(comp.html(), "tel1", "comp 12");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(0) > input");
 			equal(comp.val(), "0987654321", "comp 13");
 			comp.focus();
 			comp.val("FFFFF");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(2) > span");
-			equal(comp.html(), "<b>tel2</b>", "comp 14");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > label");
+			equal(comp.html(), "tel2", "comp 14");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(3) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(5) > td:eq(1) > input");
 			equal(comp.val(), "", "comp 15");
 			comp.focus();
 			comp.val("GGGGG");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(6) > td:eq(2) > span");
-			equal(comp.html(), "<b>courriel</b>", "comp 18");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(6) > td:eq(1) > label");
+			equal(comp.html(), "courriel", "comp 18");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(6) > td:eq(3) > input");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(6) > td:eq(1) > input");
 			equal(comp.val(), "info@sd-libre.fr", "comp 19");
 			comp.focus();
 			comp.val("IIIII");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(7) > td:eq(2) > span");
-			equal(comp.html(), "<b>commentaire</b>", "comp 22");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(7) > td:eq(1) > label");
+			equal(comp.html(), "commentaire", "comp 22");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(7) > td:eq(3) > textarea");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(7) > td:eq(1) > textarea");
 			equal(comp.text(), "", "comp 23");
 			comp.focus();
 			comp.text("LL\nMMMM\nNN");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(8) > td:eq(2) > span");
-			equal(comp.html(), "<b>N° SIRET/SIREN</b>", "comp 20");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(8) > td:eq(1) > label");
+			equal(comp.html(), "N° SIRET/SIREN", "comp 20");
 
-			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(8) > td:eq(3) > textarea");
+			var comp = jcnt.find("table:eq(0) > tbody > tr:eq(8) > td:eq(1) > textarea");
 			equal(comp.text(), "", "comp 21");
 			comp.focus();
 			comp.text("JJ\nKKKK");
@@ -620,14 +620,14 @@ asyncTest("Custom_Upload", function() {
 	ok(gui.isExist(), "GUI exist");
 	var jcnt = gui.getHtmlDom();
 
-	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(2) > input");
+	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > input");
 	equal(comp.attr("accept"), ".jpg,.png,.gif", "comp upload");
 	comp.change();
 
-	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(2) > span");
-	equal(comp.html(), "<b>description</b>", "comp 20");
+	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > label");
+	equal(comp.html(), "description", "comp 20");
 
-	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(3) > textarea");
+	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > textarea");
 	equal(comp.text(), "", "comp desc");
 	comp.focus();
 	comp.text("JJ\nKKKK");
@@ -762,9 +762,9 @@ test("Custom_Download", function() {
 	ok(gui.isExist(), "GUI exist");
 	var jcnt = gui.getHtmlDom();
 
-	var comp_lbl = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(2) > label");
+	var comp_lbl = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > label");
 	equal(comp_lbl.html(), 'modelstatus.doc', "comp filename");
-	var comp_download = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(2) > button");
+	var comp_download = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(1) > button");
 	equal(comp_download.text(), 'Enregistrer sous...', "comp download");
 
 	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
