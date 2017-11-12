@@ -13,13 +13,21 @@
 	<property name="project.appli" value="lucterios.standard" />
 	<property environment="env" />
 
-	<available file="/usr/local/bin/coverage3" property="python3.present" />
-
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
 			<pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar" />
 		</classpath>
 	</taskdef>
+
+	<if>
+		<available file="${basedir}/../virt/bin/python" />
+		<then>
+			<property name="project.pythonexe" value="${basedir}/../virt/bin/python" />
+		</then>
+		<else>
+			<property name="project.pythonexe" value="python3" />
+		</else>
+	</if>
 
 	<target name="all">
 		<antcall target="clear" />
@@ -65,10 +73,11 @@
 	</target>
 
 	<target name="init">
+		<echo message="python = ${project.pythonexe}" />
 		<exec executable="/bin/bash" outputproperty="build.tstmp" failifexecutionfails="false" errorproperty="">
 			<arg line="-c 'git log -1 --format=%at'" />
 		</exec>
-		<exec executable="python3" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
+		<exec executable="${project.pythonexe}" outputproperty="build.num" failifexecutionfails="false" errorproperty="">
 			<arg value="-c" />
 			<arg value="import datetime;print(datetime.datetime.fromtimestamp(int('${build.tstmp}')).strftime('%y%m%d%H'))" />
 		</exec>
@@ -119,7 +128,7 @@
 
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --" />
-		<exec executable="python3" dir="${sub_path}" failonerror="true">
+		<exec executable="${project.pythonexe}" dir="${sub_path}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="makemessages" />
@@ -132,7 +141,7 @@
 
 	<target name="i18n_build">
 		<echo message="-- compile --" />
-		<exec executable="python3" dir="${basedir}" failonerror="true">
+		<exec executable="${project.pythonexe}" dir="${basedir}" failonerror="true">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="compilemessages" />
@@ -142,12 +151,12 @@
 	<target name="i18n">
 		<if>
 			<available file="${basedir}/manage_${project.test.instance}.py" />
-			<then/>
+			<then />
 			<else>
 				<antcall target="add_instance" />
 			</else>
 		</if>
-	
+
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
 				<antcall target="i18n_comp">
@@ -159,7 +168,7 @@
 	</target>
 
 	<target name="add_instance">
-		<exec executable="python3">
+		<exec executable="${project.pythonexe}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
 			<arg value="add" />
@@ -171,7 +180,7 @@
 	</target>
 
 	<target name="del_instance">
-		<exec executable="python3" failonerror="true">
+		<exec executable="${project.pythonexe}" failonerror="true">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
 			<arg value="delete" />
@@ -180,35 +189,32 @@
 		</exec>
 	</target>
 
-	<target name="test">
-		<echo message="-- test with ${testversion} --" />
+	<target name="tests">
+		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
+		<echo message="-- test with converage3 --" />
 		<delete file=".converage" />
 		<delete file="converage.xml" />
-		<delete file="${testversion}.xml" />
-		<exec executable="${testversion}" dir="${basedir}">
+		<delete file="converage3.xml" />
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg value="/usr/local/bin/coverage" />
 			<arg value="erase" />
 		</exec>
-		<exec executable="${testversion}" dir="${basedir}">
+		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
-			<arg line="run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
+			<arg line="/usr/local/bin/coverage run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
-		<exec executable="${testversion}" dir="${basedir}">
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg value="/usr/local/bin/coverage" />
 			<arg value="report" />
 		</exec>
-		<exec executable="${testversion}" dir="${basedir}">
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg value="/usr/local/bin/coverage" />
 			<arg value="xml" />
 		</exec>
-		<move file="coverage.xml" tofile="${testversion}.xml" />
-		<replaceregexp file="${testversion}.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
-		<replace file="${testversion}.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
-		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
-	</target>
-
-	<target name="tests" if="python3.present">
-		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
-		<antcall target="test">
-			<param name="testversion" value="coverage3" />
-		</antcall>
+		<move file="coverage.xml" tofile="converage3.xml" />
+		<replaceregexp file="converage3.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
+		<replace file="converage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
+		<replaceregexp file="converage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
 	</target>
 
@@ -219,12 +225,12 @@
 			<then>
 				<property name="module_name_" value="${packageitem}" />
 				<loadresource property="module_name">
-				  <propertyresource name="module_name_" />
-				  <filterchain>
-				    <tokenfilter>
-				      <replaceregex pattern="/" replace="\." flags="g"/>
-				    </tokenfilter>
-				  </filterchain>
+					<propertyresource name="module_name_" />
+					<filterchain>
+						<tokenfilter>
+							<replaceregex pattern="/" replace="\." flags="g" />
+						</tokenfilter>
+					</filterchain>
 				</loadresource>
 				<basename property="module_name" file="${sub_path}" />
 				<tstamp>
@@ -253,8 +259,8 @@
 			<sequential>
 				<loadfile property="build_file" srcfile="@{packageitem}/build" />
 				<loadfile property="init_file" srcfile="@{packageitem}/__init__.py" />
-				
-					<for param="line" delimiter="${line.separator}" list="${init_file}">
+
+				<for param="line" delimiter="${line.separator}" list="${init_file}">
 					<sequential>
 						<propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
 						<propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
@@ -285,18 +291,18 @@
 
 	<target name="package">
 		<delete file="MANIFEST" />
-		<exec executable="python3" failonerror="true">
+		<exec executable="${project.pythonexe}" failonerror="true">
 			<arg value="setup.py" />
 			<arg value="sdist" />
 			<arg value="bdist_wheel" />
 		</exec>
 		<delete dir="${basedir}/build" />
 		<antcall target="package_del" />
-		<move todir="dist">				
+		<move todir="dist">
 			<fileset dir=".">
-		      <include name="*.version"/>
-		    </fileset>		
-    	</move>
+				<include name="*.version" />
+			</fileset>
+		</move>
 	</target>
 
 </project>
