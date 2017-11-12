@@ -1,7 +1,7 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
 	<property name="core.path" value="${basedir}/../lct-core" />
 	<property name="project.test.source" value="" />
-	<property name="project.test.omit" value="test/*,*/virt/lib/*,manage_test.py" />
+	<property name="project.test.omit" value="*/from_v1.py,*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
 	<property name="project.test.include" value="" />
 	<property name="project.test.instance" value="test" />
 	<property name="project.packagepath" value="" />
