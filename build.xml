@@ -24,7 +24,7 @@
 		</jslint>
 	</target>
 
-	<target name="testaddon">
+	<target name="test_addon">
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="/usr/local/bin/coverage" />
