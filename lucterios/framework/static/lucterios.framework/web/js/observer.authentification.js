@@ -8,6 +8,7 @@ var ApplicationDescription = Class.extend({
 	mCopyRigth : '',
 	mLogoIconName : '',
 	mBackground : '',
+	mStyle : '',
 	mLogin : '',
 	mInfoServer : '',
 	mSupportEmail : '',
@@ -31,6 +32,10 @@ var ApplicationDescription = Class.extend({
 
 	setBackground : function(aBackground) {
 		this.mBackground = aBackground;
+	},
+
+	setStyle : function(aStyle) {
+		this.mStyle = aStyle;
 	},
 
 	getTitle : function() {
@@ -239,6 +244,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 					json_connection.SERVERVERSION);
 			desc.setLogoIconName(json_connection.LOGONAME);
 			desc.setBackground(json_connection.BACKGROUND);
+			desc.setStyle(json_connection.STYLE);
 			desc.setSupportEmail(json_connection.EMAIL);
 			desc.setSupportHTML(json_connection.SUPPORT_HTML);
 			desc.setInfoServer(json_connection.INFO_SERVER);

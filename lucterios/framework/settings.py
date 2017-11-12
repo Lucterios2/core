@@ -34,7 +34,7 @@ from importlib import import_module
 
 from django.utils import six
 
-from lucterios.framework.filetools import readimage_to_base64
+from lucterios.framework.filetools import readimage_to_base64, read_file
 
 
 def get_lan_ip():
@@ -234,6 +234,10 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(module_to_setup, 'APPLIS_LOGO', b'')
+    if 'APPLIS_STYLE_NAME' in dir(setting_module):
+        setattr(module_to_setup, 'APPLIS_STYLE', read_file(setting_module.APPLIS_STYLE_NAME))
+    else:
+        setattr(module_to_setup, 'APPLIS_STYLE', b'')
     if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
         setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
     else:

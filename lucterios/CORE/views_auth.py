@@ -113,6 +113,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['COPYRIGHT'] = six.text_type(settings.APPLIS_COPYRIGHT)
         info_cnx['LOGONAME'] = settings.APPLIS_LOGO.decode()
         info_cnx['BACKGROUND'] = settings.APPLIS_BACKGROUND.decode()
+        info_cnx['STYLE'] = settings.APPLIS_STYLE.decode()
         info_cnx['SUPPORT_EMAIL'] = six.text_type(settings.APPLI_EMAIL)
         info_cnx['SUPPORT_HTML'] = six.text_type(settings.APPLI_SUPPORT())
         info_cnx['INFO_SERVER'] = get_info_server()
