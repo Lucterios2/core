@@ -91,7 +91,7 @@ test("Actions", function() {
 		title : "menu",
 		extension : "CORE"
 	}, "3eme reponse - meta");
-	equal(json_retour.menus.length, 3, "3eme reponse menu size");
+	equal(json_retour.menus.length, 4, "3eme reponse menu size");
 	post_log('cookie after:' + document.cookie);
 });
 
