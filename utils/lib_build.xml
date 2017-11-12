@@ -194,10 +194,10 @@
 	
 	<target name="tests">
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
-		<echo message="-- test with converage3 --" />
-		<delete file=".converage" />
-		<delete file="converage.xml" />
-		<delete file="converage3.xml" />
+		<echo message="-- test with coverage3 --" />
+		<delete file=".coverage" />
+		<delete file="coverage.xml" />
+		<delete file="coverage3.xml" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<arg value="/usr/local/bin/coverage" />
 			<arg value="erase" />
@@ -215,10 +215,10 @@
 			<arg value="/usr/local/bin/coverage" />
 			<arg value="xml" />
 		</exec>
-		<move file="coverage.xml" tofile="converage3.xml" />
-		<replaceregexp file="converage3.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
-		<replace file="converage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
-		<replaceregexp file="converage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
+		<move file="coverage.xml" tofile="coverage3.xml" />
+		<replaceregexp file="coverage3.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
+		<replace file="coverage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
+		<replaceregexp file="coverage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
 	</target>
 
