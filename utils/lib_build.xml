@@ -1,7 +1,7 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
 	<property name="core.path" value="${basedir}/../lct-core" />
 	<property name="project.test.source" value="" />
-	<property name="project.test.omit" value="" />
+	<property name="project.test.omit" value="test/*,*/virt/lib/*,manage_test.py" />
 	<property name="project.test.include" value="" />
 	<property name="project.test.instance" value="test" />
 	<property name="project.packagepath" value="" />
@@ -189,6 +189,9 @@
 		</exec>
 	</target>
 
+	<target name="test_addon">
+	</target>
+	
 	<target name="tests">
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
 		<echo message="-- test with converage3 --" />
@@ -203,6 +206,7 @@
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
 			<arg line="/usr/local/bin/coverage run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
+		<antcall target="test_addon" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<arg value="/usr/local/bin/coverage" />
 			<arg value="report" />

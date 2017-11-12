@@ -24,53 +24,19 @@
 		</jslint>
 	</target>
 
-	<target name="test">
-		<echo message="-- test with ${testversion} --" />
-		<delete file=".converage" />
-		<delete file="converage.xml" />
-		<delete file="${testversion}.xml" />
-		<exec executable="${testversion}">
-			<arg value="erase" />
-		</exec>
-		<exec executable="${testversion}">
-			<env key="PYTHONPATH" value="${project.pythonpath}" />
+	<target name="testaddon">
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
+			<arg value="/usr/local/bin/coverage" />
 			<arg value="run" />
+			<arg value="--append" />
 			<arg value="--branch" />
 			<arg value="--source=lucterios" />
 			<arg value="--omit=lucterios/install/lucterios_gui.py" />
-			<arg value="./manage_${project.test.instance}.py" />
-			<arg value="test" />
-			<arg value="lucterios.CORE" />
-			<arg value="lucterios.dummy" />
+			<arg value="lucterios/install/admin_test.py" />
 		</exec>
-		<if>
-			<equals arg1="${testversion}" arg2="coverage3" />
-			<then>
-				<exec executable="${testversion}">
-					<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
-					<arg value="run" />
-					<arg value="--append" />
-					<arg value="--branch" />
-					<arg value="--source=lucterios" />
-					<arg value="--omit=lucterios/install/lucterios_gui.py" />
-					<arg value="lucterios/install/admin_test.py" />
-				</exec>
-				<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
-				<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
-			</then>
-			<else>
-				<echo message="not addon test" />
-			</else>
-		</if>
-		<exec executable="${testversion}">
-			<arg value="report" />
-		</exec>
-		<exec executable="${testversion}">
-			<arg value="xml" />
-		</exec>
-		<move file="coverage.xml" tofile="${testversion}.xml" />
-		<replace file="${testversion}.xml" token='filename="lucterios' value='filename="${basedir}/lucterios' />
-		<replaceregexp file="${testversion}.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
+		<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
+		<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
 	</target>
 
 </project>
