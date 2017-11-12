@@ -7,6 +7,8 @@ grep 'install_requires' */setup.py  | sed 's|.*install_requires=\[||g' | sed 's|
 echo "coverage" >> requirement.txt
 echo "wheel" >> requirement.txt
 echo "Sphinx" >> requirement.txt
+echo "mysqlclient" >> requirement.txt
+echo "psycopg2" >> requirement.txt
 
 [ -d virt ] && rm -rf
 
