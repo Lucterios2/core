@@ -14,34 +14,10 @@ italic {
 	font-style: italic;
 }
 
-#lucteriosClient { /*width: 1220px;
-	height: 600px;
-	display: block;
-	margin: auto;*/
+#lucteriosClient {
 	
 }
 
-@font-face {
-	font-family: 'FontAwesome';
-	src: url('fontawesome-webfont.eot?v=4.2.0');
-	src: url('fontawesome-webfont.eot?#iefix&v=4.2.0')
-		format('embedded-opentype'), url('fontawesome-webfont.woff?v=4.2.0')
-		format('woff'), url('fontawesome-webfont.ttf?v=4.2.0')
-		format('truetype'),
-		url('fontawesome-webfont.svg?v=4.2.0#fontawesomeregular')
-		format('svg');
-	font-weight: normal;
-	font-style: normal;
-}
-
-.fa {
-	display: inline-block;
-	font: normal normal normal 14px/1 FontAwesome;
-	text-rendering: auto;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	margin: 1px 3px 1px 2px;
-}
 
 #status {
 	width: 100%;
@@ -79,6 +55,11 @@ italic {
 
 #status img {
 	margin: 0px 0px 0px 10px;
+}
+
+#status label {
+	display: inline-block;
+	font-size: 0.8em;
 }
 
 .header-left {
@@ -276,7 +257,7 @@ italic {
 }
 
 .lct-dlgcontent {
-	max-width: 90%;
+	
 }
 
 .ui-dialog div.lct-dlgbtnpn {
@@ -303,11 +284,6 @@ italic {
 	height: 20px
 }
 
-label {
-	display: inline-block;
-	font-size: 0.8em;
-}
-
 .class_header {
 	cursor: pointer;
 }
@@ -322,18 +298,52 @@ label {
 }
 
 /* end .roundedOne */
-button {
+.lct-dlgbtnset button {
 	width: 170px
 }
 
-button>span>img {
+.lctbtn {
+	width: 170px;
+}
+
+.lctbtnmini {
+	width: 30px;
+	padding: 0px;
+}
+
+button span img {
 	margin: 0em 0.4em 0.0em 0px;
 	max-height: 24px;
 }
 
 .lct-dlgcontent table tbody tr td label {
 	font-weight: bold;
-	width: 50%;
+	width: 40%;
+	display: inline-block;
+}
+
+.lctdate {
+	margin: 5px 0px 5px 5px;
+}
+
+.lcttime {
+	margin: 5px;
+}
+
+.lctdateneeded {
+	margin: 5px 0px 5px 0px;
+}
+
+.lctcapcha {
+	width: 20px;
+}
+
+.lctjustify {
+	width: 55%;
+}
+
+.lctjustifynodesc {
+	width: 95%;
 }
 
 .grid {
@@ -401,6 +411,10 @@ button>span>img {
 	width: 170px;
 }
 
+.multiselect {
+	display: block;
+}
+
 @media screen and (max-width: 623px) {
 	.multiselect select {
 		min-height: 80px;
@@ -422,7 +436,7 @@ button>span>img {
 	.multiselect select {
 		float: left;
 		min-height: 140px;
-		min-width: 65px;
+		min-width: 160px;
 		margin: 5px;
 		max-width: 40%;
 	}

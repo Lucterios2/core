@@ -421,12 +421,12 @@ class PrintModelEdit(XferContainerCustom):
 
     def _fill_listing_editor(self):
         edt = XferCompFloat('page_width', 0, 9999, 0)
-        edt.set_location(2, 3, 2)
+        edt.set_location(2, 3)
         edt.set_value(self.item.page_width)
         edt.description = _("list page width")
         self.add_component(edt)
         edt = XferCompFloat('page_heigth', 0, 9999, 0)
-        edt.set_location(2, 4, 2)
+        edt.set_location(2, 4)
         edt.set_value(self.item.page_height)
         edt.description = _("list page height")
         self.add_component(edt)
@@ -467,7 +467,7 @@ class PrintModelEdit(XferContainerCustom):
     def _fill_label_editor(self):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
-        edit.set_location(1, 4, 2)
+        edit.set_location(2, 4)
         edit.set_size(100, 500)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
@@ -477,7 +477,7 @@ class PrintModelEdit(XferContainerCustom):
         edit = XferCompXML('value')
         edit.set_value(self.item.value)
         edit.schema = read_file(join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
-        edit.set_location(1, 4, 2)
+        edit.set_location(2, 4)
         edit.set_size(400, 700)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)

@@ -94,8 +94,8 @@ class PrintTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 2 + 7 + 6 * 3)
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', "listing", (2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="kind"]', "Liste", (2, 2, 1, 1))
-        self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_width"]', "210", (2, 3, 2, 1))
-        self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_heigth"]', "297", (2, 4, 2, 1))
+        self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_width"]', "210", (2, 3, 1, 1))
+        self.assert_comp_equal('COMPONENTS/FLOAT[@name="page_heigth"]', "297", (2, 4, 1, 1))
 
         self.assert_comp_equal('COMPONENTS/FLOAT[@name="col_size_0"]', "10", (1, 6, 1, 1))
         self.assert_comp_equal('COMPONENTS/MEMO[@name="col_title_0"]', "Name", (2, 6, 1, 1))
@@ -139,9 +139,9 @@ class PrintTest(LucteriosTest):
         self.call('/CORE/printModelEdit', {'print_model': 1}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelEdit')
         self.assert_comp_equal(
-            'COMPONENTS/FLOAT[@name="page_width"]', "297", (2, 3, 2, 1))
+            'COMPONENTS/FLOAT[@name="page_width"]', "297", (2, 3, 1, 1))
         self.assert_comp_equal(
-            'COMPONENTS/FLOAT[@name="page_heigth"]', "210", (2, 4, 2, 1))
+            'COMPONENTS/FLOAT[@name="page_heigth"]', "210", (2, 4, 1, 1))
         self.assert_comp_equal(
             'COMPONENTS/FLOAT[@name="col_size_0"]', "10", (1, 6, 1, 1))
         self.assert_comp_equal(
@@ -175,7 +175,7 @@ class PrintTest(LucteriosTest):
         self.assert_count_equal('COMPONENTS/*', 6)
         self.assert_comp_equal('COMPONENTS/EDIT[@name="name"]', "label", (2, 1, 1, 1))
         self.assert_comp_equal('COMPONENTS/LABELFORM[@name="kind"]', "Etiquette", (2, 2, 1, 1))
-        self.assert_comp_equal('COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time", (1, 4, 2, 1))
+        self.assert_comp_equal('COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#value:#price{[newline]}#date #time", (2, 4, 1, 1))
 
     def testsave_label(self):
         self.factory.xfer = PrintModelSave()
@@ -186,8 +186,7 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelEdit()
         self.call('/CORE/printModelEdit', {'print_model': 2}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelEdit')
-        self.assert_comp_equal(
-            'COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#date #time{[newline]}#value:#price", (1, 4, 2, 1))
+        self.assert_comp_equal('COMPONENTS/MEMO[@name="value"]', "#name{[newline]}#date #time{[newline]}#value:#price", (2, 4, 1, 1))
 
     def testclonedel_listing(self):
         self.factory.xfer = PrintModelClone()

@@ -88,7 +88,7 @@ var compCaptcha = compGeneric.extend({
 	get_Html : function() {
 		var args = {
 			'type' : "text",
-			'style' : "width:20px"
+			'cssclass' : 'lctcapcha'
 		};
 		args.value = '';
 		return "{0} {1} {2} = {3}".format(this.num1, this.operation_txt, this.getBuildHtml(args, false, true), this.total);
@@ -257,7 +257,9 @@ var compButton = compAbstractEvent.extend({
 			this.btnaction = this.action;
 			this.action = this;
 			if (this.isMini) {
-				arg.style = 'width:30px;padding: 0px;';
+				arg.cssclass = 'lctbtnmini';
+			} else {
+				arg.cssclass = 'lctbtn';
 			}
 			if (!this.isMini || (this.btnaction.getIcon() === '')) {
 				title = this.btnaction.getTitle();
@@ -713,7 +715,7 @@ var compDate = compAbstractEvent.extend({
 	initial : function(component) {
 		this._super(component);
 		if (this.is_null === false) {
-			this.value = component.value;
+			this.value = component.value || '';
 		}
 		if (this.value === '') {
 			var today = new Date();
@@ -726,12 +728,13 @@ var compDate = compAbstractEvent.extend({
 	get_Html : function() {
 		var args = {
 			'type' : "text",
-			'class' : "datepicker",
-			'style' : "width:80%;margin:5px 0px 5px 5px;"
+			'cssclass' : "datepicker",
 		}, date_nums = this.initialVal().split('-');
 		args.value = "{0}/{1}/{2}".format(date_nums[2], date_nums[1], date_nums[0]);
 		if (this.needed === false) {
-			args.style = "width:70%;margin:5px 0px 5px 0px;";
+			args.cssclass += ' lctdateneeded';
+		} else {
+			args.cssclass += ' lctdate';
 		}
 		return this.addnullcheck() + this.getBuildHtml(args, false, true);
 	},
@@ -837,12 +840,10 @@ var compDateTime = compAbstractEvent.extend({
 	get_Html : function() {
 		var date_time = this.initialVal().split(' '), date_nums = date_time[0].split('-'), args_dt = {
 			'type' : "text",
-			'class' : "datepicker",
-			'style' : "width:40%;margin:5px;"
+			'cssclass' : "datepicker lctdate",
 		}, args_tm = {
 			'type' : "text",
-			'class' : "timespinner",
-			'style' : "width:30%;margin:5px;"
+			'cssclass' : "timespinner lcttime",
 		};
 		args_dt.value = "{0}/{1}/{2}".format(date_nums[2], date_nums[1], date_nums[0]);
 		args_tm.value = date_time[1];
@@ -918,7 +919,9 @@ var compSelectCase = Class.extend({
 var compSelect = compAbstractEvent.extend({
 	cases : null,
 	value : "",
-	args : {},
+	args : {
+		'cssclass' : ''
+	},
 
 	initial : function(component) {
 		this._super(component);
@@ -944,7 +947,7 @@ var compSelect = compAbstractEvent.extend({
 	},
 
 	get_Html : function() {
-		var html = this.getBuildHtml(this.args, true, false);
+		var html = this.getBuildHtml(this.args, this.args.cssclass.indexOf("lctjustify") !== -1, false);
 		html += this.getOptionVal();
 		html += '</{0}>'.format(this.tag);
 		return html;
@@ -971,12 +974,12 @@ var compCheckList = compSelect.extend({
 		this._super(component);
 		this.simple = parseInt(component.simple, 10) || 0;
 		this.args = {
-			'class' : "checklist"
+			'cssclass' : "checklist lctjustify"
 		};
 		this.args.multiple = 'multiple';
 		if (this.simple === 2) {
 			this.tag = 'span';
-			this.args['class'] = 'multiselect';
+			this.args.cssclass = 'multiselect lctjustifynodesc';
 		}
 		for (iHead = 0; iHead < this.cases.length; iHead++) {
 			this.cases[iHead].checked = (this.value.indexOf(this.cases[iHead].id) !== -1);
