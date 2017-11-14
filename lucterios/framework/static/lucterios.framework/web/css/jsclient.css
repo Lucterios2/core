@@ -18,7 +18,6 @@ italic {
 	
 }
 
-
 #status {
 	width: 100%;
 	top: 0px;
@@ -307,8 +306,13 @@ italic {
 }
 
 .lctbtnmini {
-	width: 30px;
+	width: 32px;
 	padding: 0px;
+}
+
+.lctbtnmini img {
+	position: relative;
+	left: -10px;
 }
 
 button span img {
@@ -316,10 +320,42 @@ button span img {
 	max-height: 24px;
 }
 
-.lct-dlgcontent table tbody tr td label {
-	font-weight: bold;
-	width: 40%;
-	display: inline-block;
+.lct-dlgcontent table tbody tr td {
+	padding: 2px;
+}
+
+@media screen and (max-width:1024px) {
+	.lct-dlgcontent table tbody tr td label {
+		width: 100%;
+		display: block;
+		font-weight: bold;
+	}
+	.lct-dlgcontent table tbody tr td lct-ctrl {
+		width: 100%;
+		display: block;
+	}
+}
+
+@media screen and (min-width:1024px) {
+	.lct-dlgcontent table tbody tr td label {
+		width: 150px;
+		display: inline-block;
+		font-weight: bold;
+	}
+	.lct-dlgcontent table tbody tr td lct-ctrl { #
+		background-color: grey;
+		display: inline-block;
+		width: 100%;
+		box-sizing: border-box;
+		padding-left: 150px;
+		position: relative;
+		top: -18px;
+		height: 2px;
+	}
+}
+
+.checklist {
+	min-width: 150px;
 }
 
 .lctdate {
@@ -339,10 +375,6 @@ button span img {
 }
 
 .lctjustify {
-	width: 55%;
-}
-
-.lctjustifynodesc {
 	width: 95%;
 }
 
@@ -385,23 +417,24 @@ button span img {
 }
 
 .gridActions {
-	background-color: #CCC;
-	border: 1px solid;
-	padding: 5px;
+	padding: 2px;
 	text-align: center;
 	vertical-align: top;
-	width: 150px;
+	width: 97%;
+	background-color: #EEEEEE;
+	border: 1px gray solid;
 }
 
 .gridActions button {
-	font-size: 0.8em;
-	height: 25px;
-	margin-bottom: 3px;
+	display: inline-block;
+	width: 140px;
+	margin: 2px;
 }
 
 .gridActions button img {
-	width: 15px;
-	margin: 0em 0.4em 0.0em 0px;
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
 }
 
 .grid select {
@@ -488,4 +521,9 @@ body.loading .waiting {
 
 img.memobtn {
 	margin: 2px 2px 0px 2px;
+}
+
+.lctjustify table.pq-wrap>tbody>tr>td.pq-grid-cell, .lctjustify table.pq-wrap>tbody>tr>td.pq-grid-col
+	{
+	word-wrap: normal;
 }

@@ -196,6 +196,10 @@ var compGeneric = compBasic.extend({
 	init : function(aOwner) {
 		this.owner = aOwner;
 	},
+	
+	get_id : function() {
+		return "{0}_{1}".format(this.owner.getId(), this.name);
+	},
 
 	getGUIComp : function() {
 		return $("#" + this.owner.getId()).find("{0}[name='{1}']:eq(0)".format(this.tag, this.name));
@@ -264,17 +268,14 @@ var compGeneric = compBasic.extend({
 
 	getAttribHtml : function(args, isJustify) {
 		args.name = this.name;
+		args.id = this.get_id(); 
 		args.description = this.description;
 		if (args.cssclass === undefined) {
 			args.cssclass = '';
 		}
 		args.cssclass += ' class_controle';
 		if (isJustify) {
-			if (this.description === '') {
-				args.cssclass += ' lctjustifynodesc';
-			} else {
-				args.cssclass += ' lctjustify';
-			}
+			args.cssclass += ' lctjustify';
 		}
 		if (this.hmin !== -1) {
 			args.style += "min-width: {0}px;".format(this.hmin);
@@ -294,11 +295,17 @@ var compGeneric = compBasic.extend({
 	getHtml : function() {
 		var html = "";
 		if (this.description !== '') {
-			html += "<label>";
+			html += "<label for='{0}'>".format(this.get_id());
 			html += this.description;
 			html += "</label>";
+			html += "<lct-ctrl>";
+			html += this.get_Html();
+			html += "</lct-ctrl>";
+		} else {
+			html += "<div>";
+			html += this.get_Html();
+			html += "</div>";
 		}
-		html += this.get_Html();
 		return html;
 	},
 

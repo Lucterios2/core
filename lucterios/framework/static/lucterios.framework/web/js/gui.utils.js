@@ -247,13 +247,13 @@ var GUIManage = GUIBasic
 				for (iAct = 0; iAct < this.mButtons.length; iAct++) {
 					if (this.mButtons[iAct].getIcon() !== '') {
 						btn_icon = Singleton().Transport().getIconUrl(this.mButtons[iAct].getIcon());
-						btn = parent.find("div > div > button:eq({0})".format(iAct));
+						btn = parent.find("div > div.lct-dlgbtnset > button:eq({0})".format(iAct));
 						btn.find('img').remove();
 						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
 					}
 				}
 				if (this.mButtons.length === 0) {
-					btn = parent.find("div > div > button:eq(0)");
+					btn = parent.find("div > div.lct-dlgbtnset > button:eq(0)");
 					if ((btn.length === 1) && (parent.find("div > div > button:eq(1)").length === 0)) {
 						btn_icon = Singleton().Transport().getIconUrl("static/lucterios.CORE/images/close.png");
 						btn.find('img').remove();

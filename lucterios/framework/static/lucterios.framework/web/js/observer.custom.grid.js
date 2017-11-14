@@ -1,173 +1,118 @@
-/*global $,Class,compGeneric,Singleton,compButton,LucteriosException,MINOR,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI*/
-
-var compGridHeader = Class.extend({
-	name : "",
-	type : "",
-	orderable : 0,
-	label : "",
-	grid : null,
-
-	initial : function(component, grid) {
-		this.name = component[0];
-		this.label = component[1];
-		this.type = component[2];
-		this.orderable = parseInt(component[3], 10) || 0;
-		this.grid = grid;
-	},
-
-	getid : function() {
-		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name.replace('.', '__'));
-	},
-
-	get_Html : function() {
-		var extra = '';
-		if (this.orderable === 1) {
-			extra = "class='class_header'";
-		}
-		return '<th id="{0}" {1}>{2}</th>'.format(this.getid(), extra, this.label);
-	},
-
-	addAction : function() {
-		if (this.orderable === 1) {
-			var current_comp = $("#" + this.getid());
-			current_comp.click($.proxy(function() {
-				this.grid.order_col(this.name.replace('.', '__'));
-			}, this));
-		}
-	}
-});
-
-var compGridValue = Class.extend({
-	name : "",
-	value : "",
-	parentGrid : "",
-
-	initial : function(name, value) {
-		this.name = name;
-		this.value = value;
-	},
-
-	setParentGrid : function(grid) {
-		this.parentGrid = grid;
-	},
-
-	get_Html : function() {
-		if (this.value === "") {
-			return '<td></td>';
-		}
-		switch (this.parentGrid.getValueType(this.name)) {
-		case 'icon':
-			return '<td><img src="{0}"></td>'.format(Singleton().Transport().getIconUrl(this.value));
-		case 'bool':
-			if ((this.value === '0') || (this.value.toLowerCase() === 'false') || (this.value === 'n')) {
-				return '<td><input type="checkbox" disabled="1" ></input></td>';
-			}
-			return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
-		default:
-			return '<td>{0}</td>'.format(this.value.convertLuctoriosFormatToHtml());
-		}
-	}
-});
-
-var compGridRow = Class.extend({
-	id : 0,
-	values : null,
-	grid : "",
-
-	initial : function(component, grd) {
-		var idx_val, val_key, val;
-		this.grid = grd;
-		this.values = [];
-		this.id = component.id;
-		for (idx_val = 0; idx_val < this.grid.gridHeaders.length; idx_val++) {
-			val_key = this.grid.gridHeaders[idx_val].name;
-			val = new compGridValue();
-			val.initial(val_key, component[val_key]);
-			val.setParentGrid(this.grid);
-			this.values[this.values.length] = val;
-		}
-	},
-
-	get_Html : function() {
-		var html = '<tr id="{0}_{1}" >'.format(this.grid.name, this.id), idx_val;
-		for (idx_val = 0; idx_val < this.values.length; idx_val++) {
-			html += this.values[idx_val].get_Html();
-		}
-		html += '</tr>';
-		return html;
-	},
-
-	selectGridRow : function() {
-		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-		if (row.hasClass("selected")) {
-			row.removeClass("selected");
-		} else {
-			this.grid.clear_select_row();
-			row.addClass("selected");
-		}
-		this.grid.selectChange();
-	},
-
-	dbClickRow : function() {
-		this.grid.clear_select_row();
-		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-		row.addClass("selected");
-		this.grid.dbclick();
-	},
-
-	setSelected : function(select) {
-		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-		if (select) {
-			row.addClass("selected");
-		} else {
-			row.removeClass("selected");
-		}
-	},
-
-	isSelected : function() {
-		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-		return row.hasClass("selected");
-	},
-
-	addAction : function() {
-		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-		row.click($.proxy(this.selectGridRow, this));
-		row.dblclick($.proxy(this.dbClickRow, this));
-	}
-
-});
-
 var compGrid = compGeneric.extend({
 
+	args : {},
 	buttons : null,
-	gridHeaders : null,
-	gridRows : null,
 	has_multi : false,
+	has_select : false,
 	page_max : 1,
 	page_num : 0,
+	gridHeaders : null,
+	gridRows : null,
+	sortIndx : [],
+	sortDir : [],
 
 	initial : function(component) {
 		this._super(component);
-		this.order = component.order || '';
+		this.order = component.order || [];
 		this.page_max = parseInt(component.page_max, 10) || 1;
 		this.page_num = parseInt(component.page_num, 10) || 0;
-		var heads = component.headers, rows = component.value, iChild, row, header, btn;
+		this.tag = 'div';
+		var heads = component.headers, iChild, header, btn, sum_size = 0, nb_size = 0, tot_size;
+
+		// traitement des order
+		this.sortIndx = [];
+		this.sortDir = [];
+		for (iChild = 0; iChild < this.order.length; iChild++) {
+			if (this.order[iChild].substring(0, 1) === '-') {
+				this.sortIndx.push(this.order[iChild].substring(1));
+				this.sortDir.push('down');
+			} else {
+				this.sortIndx.push(this.order[iChild]);
+				this.sortDir.push('up');
+			}
+		}
 
 		// traitement des HEADER
 		this.gridHeaders = [];
 		for (iChild = 0; iChild < heads.length; iChild++) {
-			header = new compGridHeader();
-			header.initial(heads[iChild], this);
+			header = {
+				title : heads[iChild][1],
+				dataIndx : heads[iChild][0],
+				resizable : true,
+				orderable : heads[iChild][3],
+			};
+			switch (heads[iChild][2]) {
+			case 'int':
+				header.dataType = "integer";
+				header.width = '5%';
+				sum_size += 5;
+				nb_size += 1;
+				break;
+			case 'float':
+				header.dataType = "float";
+				header.width = '5%';
+				sum_size += 5;
+				nb_size += 1;
+				break;
+			case 'date':
+				header.width = '15%';
+				sum_size += 15;
+				nb_size += 1;
+				header.render = function(ui) {
+					var options = {
+						year : 'numeric',
+						month : 'long',
+						day : 'numeric'
+					}, value = ui.rowData[ui.dataIndx], date;
+					if (value !== '---') {
+						date = new Date(value);
+						return date.toLocaleDateString(Singleton().getSelectLang(), options);
+					} else {
+						return "---";
+					}
+				}
+				break;
+			case 'bool':
+				header.width = '5%';
+				sum_size += 5;
+				nb_size += 1;
+				header.render = function(ui) {
+					var value = ui.rowData[ui.dataIndx];
+					if ((value === '0') || (value.toLowerCase() === 'false') || (value === 'n')) {
+						return '<input type="checkbox" disabled="1" ></input>';
+					}
+					return '<input type="checkbox"  disabled="1" checked="1" ></input>';
+				}
+				break;
+			case 'icon':
+				header.render = function(ui) {
+					var value = ui.rowData[ui.dataIndx];
+					return '<img src="{0}">'.format(Singleton().Transport().getIconUrl(value));
+				}
+				break;
+			default:
+				if (heads[iChild][1].length <= 2) {
+					header.width = '3%';
+					sum_size += 3;
+					nb_size += 1;
+				}
+				header.render = function(ui) {
+					return ui.rowData[ui.dataIndx].convertLuctoriosFormatToHtml();
+				}
+				break;
+			}
 			this.gridHeaders[this.gridHeaders.length] = header;
 		}
+		/*
+		 * tot_size = this.gridHeaders.length - nb_size; for (iChild = 0; iChild <
+		 * this.gridHeaders.length; iChild++) { if
+		 * ((this.gridHeaders[iChild].width === undefined) && (tot_size > 2)) {
+		 * this.gridHeaders[iChild].width = "{0}%".format((100 - sum_size) /
+		 * (this.gridHeaders.length - nb_size)); tot_size -= 1; } }
+		 */
 
 		// traitement des RECORD
-		this.gridRows = [];
-		for (iChild = 0; iChild < rows.length; iChild++) {
-			row = new compGridRow();
-			row.initial(rows[iChild], this);
-			this.gridRows[this.gridRows.length] = row;
-		}
+		this.gridRows = component.value;
 
 		// traitement des ACTIONS
 		this.buttons = [];
@@ -182,67 +127,143 @@ var compGrid = compGeneric.extend({
 				if (btn.action.mSelect === SELECT_MULTI) {
 					this.has_multi = true;
 				}
+				if (btn.action.mSelect !== SELECT_NONE) {
+					this.has_select = true;
+				}
 				this.buttons[this.buttons.length] = btn;
 			}
 		}
 		this.selectedList = [];
 	},
 
-	addPageSelector : function() {
-		var html = '', idx, opt_select, option_text = '<option value="{0}" {1}>' + Singleton().getTranslate("Page #") + '{2}</option>';
-		if (this.page_max > 1) {
-			html += "<select id='PAGE_{0}'>".format(this.name);
-			for (idx = 0; idx < this.page_max; idx++) {
-				opt_select = (idx === this.page_num) ? 'selected' : '';
-				html += option_text.format(idx, opt_select, idx + 1);
-			}
-			html += "</select>";
-		}
-		return html;
+	getValue : function() {
+		var selectedList = this.getSelectedId();
+		return selectedList.join(';');
+	},
+
+	initialVal : function() {
+		return '';
+	},
+
+	setValue : function(xmlValue) {
+		this.initial(xmlValue.parseXML());
+		this.getGUIComp().html(this.get_Html());
 	},
 
 	get_Html : function() {
-		var html = '<table class="grid">', iHead, iRow, iBtn;
-		if (this.buttons.length === 0) {
-			html += '<tr><td style="text-align: right;">';
-			html += this.addPageSelector();
-			html += '</td></tr>';
-		}
-		html += '<tr><td class="gridContent">';
-		html += '<table id="{0}"><thead><tr>'.format(this.name);
-		// parcours des headers
-		for (iHead = 0; iHead < this.gridHeaders.length; iHead++) {
-			html += this.gridHeaders[iHead].get_Html();
-		}
-		html += '</tr></thead><tbody>';
-		// parcours des rows
-		for (iRow = 0; iRow < this.gridRows.length; iRow++) {
-			html += this.gridRows[iRow].get_Html();
-		}
-		html += '</tbody></table>';
-
-		html += '</td>';
-
+		var html = '';
 		if (this.buttons.length > 0) {
-			html += '<td class="gridActions" id="' + this.name + '_actions">';
-			html += this.addPageSelector();
-			// parcours des boutons
+			html += '<div class="gridActions" id="' + this.name + '_actions">';
 			for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
 				html += this.buttons[iBtn].get_Html();
 			}
-			html += '</td>';
+			html += '</div>';
 		}
-
-		html += '</tr></table>';
+		html += this.getBuildHtml(this.args, true, true);
 		return html;
 	},
 
-	getSelectedId : function() {
-		var selectedList = [], iRow;
-		for (iRow = 0; iRow < this.gridRows.length; iRow++) {
-			if (this.gridRows[iRow].isSelected()) {
-				selectedList.push(this.gridRows[iRow].id);
+	addAction : function() {
+		var iCol, iRow, iBtn, select_name, obj, grid, pageModel, pqPager;
+		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
+			this.buttons[iBtn].addAction();
+			this.buttons[iBtn].setSelectType(SELECT_NONE);
+		}
+	
+		pageModel = {
+			type : "remote",
+			rPP : 25,
+			rPPOptions : [ 25 ],
+			totalPages : this.page_max,
+			curPage : this.page_num + 1,
+			change : $.proxy(this.changePage, this)
+		};
+		obj = {
+			width : '98%',
+			collapsible : false,
+			showTop : true,
+			showBottom : false,
+			resizable : true,
+			editable : false,
+			virtualX : false,
+			hoverMode : 'row',
+			wrap : false,
+			scrollModel : {
+				autoFit : true
+			},
+			numberCell : {
+				show : false
+			},
+			selectionModel : {
+				type : 'null',
+			},
+			// flexWidth : true,
+			flexHeight : true,
+			create : function(ui) {
+				var $grid = $(this), $pager = $grid.find(".pq-grid-bottom").find(".pq-pager");
+				if ($pager && $pager.length) {
+					$pager = $pager.detach();
+					$grid.find(".pq-grid-top").append($pager);
+					$grid.find(".pq-grid-title").detach();
+				}
+			},
+			pageModel : pageModel
+		};
+		obj.showTop = (this.page_max > 1);
+		if (this.has_select) {
+			obj.selectionModel.type = 'row';
+			if (!this.has_multi) {
+				obj.selectionModel.mode = 'single';
 			}
+		}
+		obj.colModel = this.gridHeaders;
+		obj.columnTemplate = {
+			minWidth : '1%',
+			maxWidth : '99%'
+		};
+		obj.dataModel = {
+			data : this.gridRows,
+			location : "local",
+			sorting : "remote",
+			sortIndx : this.sortIndx,
+			sortDir : this.sortDir,
+		};
+		obj.rowSelect = $.proxy(this.selectChange, this);
+		obj.rowUnSelect = $.proxy(this.selectChange, this);
+		obj.rowDblClick = $.proxy(this.dbclick, this);
+		obj.beforeSort = $.proxy(this.order_col, this);
+		$.extend(obj, $.paramquery.pqGrid.regional[Singleton().getSelectLang()]);		
+		grid = this.getGUIComp().pqGrid(obj);
+		pqPager = grid.find("div.pq-pager").pqPager();
+		pqPager.find("button:last").detach();
+		pqPager.find("span.pq-separator:last").detach();
+		$.extend(pageModel, $.paramquery.pqPager.regional[Singleton().getSelectLang()]);		
+		pqPager.pqPager(pageModel);
+	},
+
+	dbclick : function() {
+		if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
+			var iBtn, sel_btn = -1;
+			this.selectChange();
+			for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {
+				if (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE) {
+					sel_btn = iBtn;
+				}
+			}
+			if (sel_btn !== -1) {
+				this.buttons[sel_btn].actionPerformed();
+			}
+		}
+	},
+
+	getSelectedId : function() {
+		var selectedList = [], iSel, selectionArray;
+		selectionArray = this.getGUIComp().pqGrid("selection", {
+			type : 'row',
+			method : 'getSelection'
+		});
+		for (iSel = 0; iSel < selectionArray.length; iSel++) {
+			selectedList.push(selectionArray[iSel].rowData.id);
 		}
 		return selectedList;
 	},
@@ -261,93 +282,31 @@ var compGrid = compGeneric.extend({
 		}
 	},
 
-	clear_select_row : function() {
-		if (!this.has_multi) {
-			var iRow;
-			for (iRow = 0; iRow < this.gridRows.length; iRow++) {
-				this.gridRows[iRow].setSelected(false);
+	changePage : function(event, ui) {
+		if (ui.curPage) {
+			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), ui.curPage - 1);
+			this.owner.refresh();
+		}
+	},
+
+	order_col : function(event, ui) {
+		if (ui.column.orderable === 1) {
+			var order_txt, colname = ui.dataIndx.replace('.', '__'), order_list = this.order;
+			if (order_list.indexOf(colname) !== -1) {
+				order_list.splice(order_list.indexOf(colname), 1);
+				colname = '-' + colname;
+			} else if (order_list.indexOf('-' + colname) !== -1) {
+				order_list.splice(order_list.indexOf('-' + colname), 1);
 			}
-		}
-	},
-
-	getValueType : function(name) {
-		var iCol;
-		for (iCol = 0; iCol < this.gridHeaders.length; iCol++) {
-			if (this.gridHeaders[iCol].name === name) {
-				return this.gridHeaders[iCol].type;
+			order_txt = order_list.join();
+			if (order_txt !== '') {
+				order_txt = colname + ',' + order_txt;
+			} else {
+				order_txt = colname;
 			}
+			this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name), order_txt);
+			this.owner.refresh();
 		}
-		// ne devrait jamais arriver mais par defaut, on retourne 'str'
-		return 'str';
-	},
-
-	addAction : function() {
-		var iCol, iRow, iBtn, select_name;
-		for (iCol = 0; iCol < this.gridHeaders.length; iCol++) {
-			this.gridHeaders[iCol].addAction();
-		}
-		for (iRow = 0; iRow < this.gridRows.length; iRow++) {
-			this.gridRows[iRow].addAction();
-		}
-		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-			this.buttons[iBtn].addAction();
-			this.buttons[iBtn].setSelectType(SELECT_NONE);
-		}
-		select_name = 'PAGE_{0}'.format(this.name);
-		if ($("#" + select_name).length) {
-			$("#" + select_name).change($.proxy(function() {
-				var page_val = $("#" + select_name).val();
-				this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), page_val);
-				this.owner.refresh();
-			}, this));
-		}
-	},
-
-	order_col : function(colname) {
-		var order_txt, order_list = this.order.split(',');
-		if (order_list.indexOf(colname) !== -1) {
-			order_list.splice(order_list.indexOf(colname), 1);
-			colname = '-' + colname;
-		} else if (order_list.indexOf('-' + colname) !== -1) {
-			order_list.splice(order_list.indexOf('-' + colname), 1);
-		}
-		order_txt = order_list.join();
-		if (order_txt !== '') {
-			order_txt = colname + ',' + order_txt;
-		} else {
-			order_txt = colname;
-		}
-		this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name), order_txt);
-		this.owner.refresh();
-	},
-
-	dbclick : function() {
-		if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
-			var iBtn, sel_btn = -1;
-			this.selectChange();
-			for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {
-				if (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE) {
-					sel_btn = iBtn;
-				}
-			}
-			if (sel_btn !== -1) {
-				this.buttons[sel_btn].actionPerformed();
-			}
-		}
-	},
-
-	getValue : function() {
-		var selectedList = this.getSelectedId();
-		return selectedList.join(';');
-	},
-
-	initialVal : function() {
-		return '';
-	},
-
-	setValue : function(xmlValue) {
-		this.initial(xmlValue.parseXML());
-		this.getGUIComp().html(this.get_Html());
 	},
 
 	fillValue : function(params) {

@@ -947,7 +947,7 @@ var compSelect = compAbstractEvent.extend({
 	},
 
 	get_Html : function() {
-		var html = this.getBuildHtml(this.args, this.args.cssclass.indexOf("lctjustify") !== -1, false);
+		var html = this.getBuildHtml(this.args, true, false);
 		html += this.getOptionVal();
 		html += '</{0}>'.format(this.tag);
 		return html;
@@ -974,12 +974,12 @@ var compCheckList = compSelect.extend({
 		this._super(component);
 		this.simple = parseInt(component.simple, 10) || 0;
 		this.args = {
-			'cssclass' : "checklist lctjustify"
+			'cssclass' : "checklist"
 		};
 		this.args.multiple = 'multiple';
 		if (this.simple === 2) {
 			this.tag = 'span';
-			this.args.cssclass = 'multiselect lctjustifynodesc';
+			this.args.cssclass = 'multiselect';
 		}
 		for (iHead = 0; iHead < this.cases.length; iHead++) {
 			this.cases[iHead].checked = (this.value.indexOf(this.cases[iHead].id) !== -1);
