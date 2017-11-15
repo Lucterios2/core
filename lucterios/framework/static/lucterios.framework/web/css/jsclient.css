@@ -325,6 +325,9 @@ button span img {
 }
 
 @media screen and (max-width:1024px) {
+	.lct-dlgcontent table tbody tr td lct-cell {
+		width: 100%;
+	}
 	.lct-dlgcontent table tbody tr td label {
 		width: 100%;
 		display: block;
@@ -337,20 +340,18 @@ button span img {
 }
 
 @media screen and (min-width:1024px) {
+	.lct-dlgcontent table tbody tr td lct-cell {
+		display: inline-table;
+		width: 100%;
+	}
 	.lct-dlgcontent table tbody tr td label {
 		width: 150px;
-		display: inline-block;
+		display: table-cell;
 		font-weight: bold;
 	}
-	.lct-dlgcontent table tbody tr td lct-ctrl { #
-		background-color: grey;
-		display: inline-block;
-		width: 100%;
-		box-sizing: border-box;
-		padding-left: 150px;
-		position: relative;
-		top: -18px;
-		height: 2px;
+	.lct-dlgcontent table tbody tr td lct-ctrl {
+		display: table-cell;
+		vertical-align: middle;
 	}
 }
 
@@ -466,36 +467,26 @@ button span img {
 }
 
 @media screen and (min-width: 623px) {
+	.multiselect lct-checklist{
+	    display: inline-table;
+	    width: 100%;
+	    vertical-align: top;
+	}
 	.multiselect select {
-		float: left;
+		display: table-cell;
 		min-height: 140px;
 		min-width: 160px;
 		margin: 5px;
-		max-width: 40%;
+		width: 100%;
 	}
 	.multiselect div {
-		float: left;
-		position: relative;
-		width: 35px;
-		min-height: 140px;
+		display:table-cell;
+		width: 40px;
+		vertical-align: top;
 	}
 	.multiselect div button {
-		width: 30px;
 		padding: 0px;
-		margin: 3px;
-		position: absolute;
-	}
-	.multiselect div button.addall {
-		top: 0px;
-	}
-	.multiselect div button.add {
-		top: 30px;
-	}
-	.multiselect div button.del {
-		top: 60px;
-	}
-	.multiselect div button.delall {
-		top: 90px;
+		margin: 5px 5px 5px 15px;
 	}
 }
 

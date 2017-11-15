@@ -293,7 +293,7 @@ var compGeneric = compBasic.extend({
 	},
 
 	getHtml : function() {
-		var html = "";
+		var html = "<lct-cell>";
 		if (this.description !== '') {
 			html += "<label for='{0}'>".format(this.get_id());
 			html += this.description;
@@ -302,10 +302,9 @@ var compGeneric = compBasic.extend({
 			html += this.get_Html();
 			html += "</lct-ctrl>";
 		} else {
-			html += "<div>";
 			html += this.get_Html();
-			html += "</div>";
 		}
+		html += "</lct-cell>";
 		return html;
 	},
 

@@ -78,7 +78,7 @@ test("Actions", function() {
 		title : "info",
 		extension : "CORE"
 	}, "2eme reponse - meta");
-	equal(Object.keys(json_retour.connexion).length, 16, "2eme reponse connexion size");
+	equal(Object.keys(json_retour.connexion).length, 17, "2eme reponse connexion size");
 	this.transport.setSession(json_retour.context.session);
 
 	json_retour = this.transport.transfertFileFromServerString('CORE/menu', new HashMap());

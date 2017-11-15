@@ -173,7 +173,7 @@ var GUIManage = GUIBasic
 					}, this)
 				};
 				if (!isModal) {
-					args.width = 1000;
+					args.width = 1200;
 					args.height = 600;
 				}
 				$("#" + this.mId).dialog(args);
@@ -193,6 +193,7 @@ var GUIManage = GUIBasic
 							}, this.mCallback));
 				}
 				$("#" + this.mId).keyup($.proxy(this.manageKey, this));
+				$("#" + this.mId).css("padding", "0em");
 			},
 
 			manageKey : function(event) {

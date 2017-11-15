@@ -169,7 +169,7 @@ var compGrid = compGeneric.extend({
 			this.buttons[iBtn].addAction();
 			this.buttons[iBtn].setSelectType(SELECT_NONE);
 		}
-	
+
 		pageModel = {
 			type : "remote",
 			rPP : 25,
@@ -199,14 +199,7 @@ var compGrid = compGeneric.extend({
 			},
 			// flexWidth : true,
 			flexHeight : true,
-			create : function(ui) {
-				var $grid = $(this), $pager = $grid.find(".pq-grid-bottom").find(".pq-pager");
-				if ($pager && $pager.length) {
-					$pager = $pager.detach();
-					$grid.find(".pq-grid-top").append($pager);
-					$grid.find(".pq-grid-title").detach();
-				}
-			},
+			create : $.proxy(this.createGrid, this),
 			pageModel : pageModel
 		};
 		obj.showTop = (this.page_max > 1);
@@ -223,7 +216,9 @@ var compGrid = compGeneric.extend({
 		};
 		obj.dataModel = {
 			data : this.gridRows,
+			type : "local",
 			location : "local",
+			url : null,
 			sorting : "remote",
 			sortIndx : this.sortIndx,
 			sortDir : this.sortDir,
@@ -232,13 +227,32 @@ var compGrid = compGeneric.extend({
 		obj.rowUnSelect = $.proxy(this.selectChange, this);
 		obj.rowDblClick = $.proxy(this.dbclick, this);
 		obj.beforeSort = $.proxy(this.order_col, this);
-		$.extend(obj, $.paramquery.pqGrid.regional[Singleton().getSelectLang()]);		
+
+		obj.strLoading = Singleton().getTranslate("Loading");
+		obj.strNoRows = Singleton().getTranslate("NoRows");
+
+		pageModel.strFirstPage = Singleton().getTranslate("FirstPage");
+		pageModel.strPrevPage = Singleton().getTranslate("PrevPage");
+		pageModel.strNextPage = Singleton().getTranslate("NextPage");
+		pageModel.strLastPage = Singleton().getTranslate("LastPage");
+		pageModel.strRefresh = Singleton().getTranslate("Refresh");
+		pageModel.strRpp = Singleton().getTranslate("Rpp");
+		pageModel.strDisplay = Singleton().getTranslate("Display");
+
 		grid = this.getGUIComp().pqGrid(obj);
 		pqPager = grid.find("div.pq-pager").pqPager();
 		pqPager.find("button:last").detach();
 		pqPager.find("span.pq-separator:last").detach();
-		$.extend(pageModel, $.paramquery.pqPager.regional[Singleton().getSelectLang()]);		
 		pqPager.pqPager(pageModel);
+	},
+
+	createGrid : function() {
+		var $grid = this.getGUIComp().pqGrid(), $pager = $grid.find(".pq-grid-bottom").find(".pq-pager");
+		if ($pager && $pager.length) {
+			$pager = $pager.detach();
+			$grid.find(".pq-grid-top").append($pager);
+		}
+		$grid.find(".pq-grid-title").detach();
 	},
 
 	dbclick : function() {
@@ -326,6 +340,24 @@ var compGrid = compGeneric.extend({
 			}
 			params.put(this.name, this.getValue());
 		}
+	},
+
+	getHtml : function() {
+		var html = "";
+		if (this.description !== '') {
+			html += "<label for='{0}'>".format(this.get_id());
+			html += this.description;
+			html += "</label>";
+			html += "<lct-cell>";
+			html += "<lct-ctrl>";
+			html += this.get_Html();
+			html += "</lct-ctrl>";
+		} else {
+			html += "<lct-cell>";
+			html += this.get_Html();
+		}
+		html += "</lct-cell>";
+		return html;
 	}
 
 });

@@ -1025,6 +1025,7 @@ var compCheckList = compSelect.extend({
 				html += this.cases[iHead].get_Html(null);
 			}
 		} else {
+			html += '<lct-checklist>';
 			html += '<select name="{0}_available" multiple = "multiple">'.format(this.name);
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
 				if (!this.cases[iHead].checked) {
@@ -1045,6 +1046,7 @@ var compCheckList = compSelect.extend({
 				}
 			}
 			html += '</select>';
+			html += '</lct-checklist>';
 		}
 		return html;
 	},
@@ -1249,8 +1251,7 @@ var compdownload = compGeneric
 			},
 
 			addAction : function() {
-				var gui_btn = $('#download_{0}_{1}'.format(this.owner.getId(), this.name));
-				gui_btn.click($.proxy(this.open_file, this));
+				this.getGUIComp().click($.proxy(this.open_file, this));
 			},
 
 			open_file : function() {
