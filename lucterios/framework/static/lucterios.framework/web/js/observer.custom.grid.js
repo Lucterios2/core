@@ -6,6 +6,8 @@ var compGrid = compGeneric.extend({
 	has_select : false,
 	page_max : 1,
 	page_num : 0,
+	size_by_page : 25,
+	nb_lines : 0,
 	gridHeaders : null,
 	gridRows : null,
 	sortIndx : [],
@@ -16,6 +18,9 @@ var compGrid = compGeneric.extend({
 		this.order = component.order || [];
 		this.page_max = parseInt(component.page_max, 10) || 1;
 		this.page_num = parseInt(component.page_num, 10) || 0;
+		this.size_by_page = parseInt(component.size_by_page, 10) || 25;
+		this.nb_lines = parseInt(component.nb_lines, 10) || 0;
+		this.no_pager = component.no_pager || false;
 		this.tag = 'div';
 		var heads = component.headers, iChild, header, btn, sum_size = 0, nb_size = 0, tot_size;
 
@@ -172,16 +177,18 @@ var compGrid = compGeneric.extend({
 
 		pageModel = {
 			type : "remote",
-			rPP : 25,
-			rPPOptions : [ 25 ],
+			rPP : this.size_by_page,
+			rPPOptions : [ 25, 50, 100, 250 ],
 			totalPages : this.page_max,
 			curPage : this.page_num + 1,
+			totalRecords : this.nb_lines,
 			change : $.proxy(this.changePage, this)
 		};
 		obj = {
 			width : '98%',
 			collapsible : false,
-			showTop : true,
+			showTop : !this.no_pager,
+			showTitle : false,
 			showBottom : false,
 			resizable : true,
 			editable : false,
@@ -202,7 +209,6 @@ var compGrid = compGeneric.extend({
 			create : $.proxy(this.createGrid, this),
 			pageModel : pageModel
 		};
-		obj.showTop = (this.page_max > 1);
 		if (this.has_select) {
 			obj.selectionModel.type = 'row';
 			if (!this.has_multi) {
@@ -252,7 +258,6 @@ var compGrid = compGeneric.extend({
 			$pager = $pager.detach();
 			$grid.find(".pq-grid-top").append($pager);
 		}
-		$grid.find(".pq-grid-title").detach();
 	},
 
 	dbclick : function() {
@@ -299,6 +304,11 @@ var compGrid = compGeneric.extend({
 	changePage : function(event, ui) {
 		if (ui.curPage) {
 			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), ui.curPage - 1);
+			this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), this.size_by_page);
+			this.owner.refresh();
+		} else if (ui.rPP) {
+			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), 0);
+			this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), ui.rPP);
 			this.owner.refresh();
 		}
 	},

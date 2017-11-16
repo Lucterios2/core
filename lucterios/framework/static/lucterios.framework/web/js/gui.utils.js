@@ -154,7 +154,7 @@ var GUIManage = GUIBasic
 			},
 
 			buildStruct : function(isModal) {
-				var args = {}, titlebar = null;
+				var args = {}, titlebar = null, dlg_width;
 				args = {
 					title : this.mTitle,
 					width : 'auto',

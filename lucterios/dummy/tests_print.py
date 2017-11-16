@@ -43,7 +43,7 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = PrintModelList()
         self.call('/CORE/printModelList', {}, False)
         self.assert_observer('core.custom', 'CORE', 'printModelList')
-        self.assert_count_equal('COMPONENTS/*', 6)
+        self.assert_count_equal('COMPONENTS/*', 5)
         self.assert_comp_equal(
             'COMPONENTS/SELECT[@name="modelname"]', "dummy.Example", (1, 1, 1, 1))
         self.assert_count_equal('COMPONENTS/SELECT[@name="modelname"]/CASE', 1)

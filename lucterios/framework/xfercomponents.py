@@ -790,11 +790,12 @@ class XferCompDownLoad(XferCompButton):
         return compjson
 
 
-MAX_GRID_RECORD = 25
-if hasattr(settings, 'MAX_GRID_RECORD'):
-    MAX_GRID_RECORD = settings.MAX_GRID_RECORD
+SIZE_BY_PAGE = 25
+if hasattr(settings, 'SIZE_BY_PAGE'):
+    SIZE_BY_PAGE = settings.SIZE_BY_PAGE
 
 GRID_PAGE = 'GRID_PAGE%'
+GRID_SIZE = 'GRID_SIZE%'
 GRID_ORDER = 'GRID_ORDER%'
 
 DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png",
@@ -808,15 +809,16 @@ class XferCompGrid(XferComponent):
     def __init__(self, name):
         XferComponent.__init__(self, name)
         self._component_ident = "GRID"
-        self.max_grid_record = MAX_GRID_RECORD
+        self.size_by_page = SIZE_BY_PAGE
+        self.nb_lines = 0
         self.headers = []
         self.record_ids = []
         self.records = {}
         self.actions = []
         self.page_max = 0
         self.page_num = 0
-        self.nb_lines = 0
         self.order_list = None
+        self.no_pager = False
 
     def add_header(self, name, descript, htype="", horderable=0):
         self.headers.append(XferCompHeader(name, descript, htype, horderable))
@@ -854,12 +856,13 @@ class XferCompGrid(XferComponent):
                 self.order_list = None
             else:
                 self.order_list = order_txt.split(',')
-            self.page_max = int(self.nb_lines / self.max_grid_record) + 1
+            self.size_by_page = xfer_custom.getparam(GRID_SIZE + self.name, self.size_by_page)
             self.page_num = xfer_custom.getparam(GRID_PAGE + self.name, 0)
+            self.page_max = int(self.nb_lines / self.size_by_page) + 1
             if self.page_max < self.page_num:
                 self.page_num = 0
-            record_min = self.page_num * self.max_grid_record
-            record_max = (self.page_num + 1) * self.max_grid_record
+            record_min = self.page_num * self.size_by_page
+            record_max = (self.page_num + 1) * self.size_by_page
         else:
             record_min = 0
             record_max = self.nb_lines
@@ -894,6 +897,12 @@ class XferCompGrid(XferComponent):
             compxml.attrib['PageNum'] = six.text_type(self.page_num)
         if self.order_list is not None:
             compxml.attrib['order'] = ",".join(self.order_list)
+        compxml.attrib['size_by_page'] = six.text_type(self.size_by_page)
+        compxml.attrib['nb_lines'] = six.text_type(self.nb_lines)
+        if self.no_pager:
+            compxml.attrib['no_pager'] = '1'
+        else:
+            compxml.attrib['no_pager'] = '0'
 
     def get_reponse_xml(self):
         compxml = XferComponent.get_reponse_xml(self)
@@ -924,6 +933,9 @@ class XferCompGrid(XferComponent):
         compjson['order'] = self.order_list
         compjson['headers'] = list(self.headers)
         compjson['actions'] = get_actions_json(self.actions)
+        compjson['size_by_page'] = self.size_by_page
+        compjson['nb_lines'] = self.nb_lines
+        compjson['no_pager'] = self.no_pager
         return compjson
 
     def get_json_value(self):

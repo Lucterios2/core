@@ -106,10 +106,6 @@ class XferListEditor(XferContainerCustom):
         grid.set_location(0, row + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
-        lbl = XferCompLabelForm("nb_" + field_id)
-        lbl.set_location(0, row + 2, 2)
-        lbl.set_value(TEXT_TOTAL_NUMBER % {'name': model._meta.verbose_name_plural, 'count': grid.nb_lines})
-        self.add_component(lbl)
 
     def fillresponse_body(self):
         self.items = self.get_items_from_filter()

@@ -354,6 +354,7 @@ button span img {
 	.lct-dlgcontent table tbody tr td lct-ctrl {
 		display: table-cell;
 		vertical-align: middle;
+		min-width: 100px;
 	}
 }
 
@@ -362,7 +363,7 @@ button span img {
 }
 
 .lctdate {
-	margin: 5px 0px 5px 5px;
+	width: 74px;
 }
 
 .lcttime {
