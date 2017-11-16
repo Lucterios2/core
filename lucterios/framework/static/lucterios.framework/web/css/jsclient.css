@@ -324,14 +324,17 @@ button span img {
 	padding: 2px;
 }
 
+.lct-dlgcontent table tbody tr td label {
+	font-weight: bold;
+}
+
 @media screen and (max-width:1024px) {
 	.lct-dlgcontent table tbody tr td lct-cell {
 		width: 100%;
 	}
-	.lct-dlgcontent table tbody tr td label {
+	.lct-dlgcontent table tbody tr td lct-cell label {
 		width: 100%;
 		display: block;
-		font-weight: bold;
 	}
 	.lct-dlgcontent table tbody tr td lct-ctrl {
 		width: 100%;
@@ -344,10 +347,9 @@ button span img {
 		display: inline-table;
 		width: 100%;
 	}
-	.lct-dlgcontent table tbody tr td label {
+	.lct-dlgcontent table tbody tr td lct-cell label {
 		width: 150px;
 		display: table-cell;
-		font-weight: bold;
 	}
 	.lct-dlgcontent table tbody tr td lct-ctrl {
 		display: table-cell;
@@ -467,10 +469,10 @@ button span img {
 }
 
 @media screen and (min-width: 623px) {
-	.multiselect lct-checklist{
-	    display: inline-table;
-	    width: 100%;
-	    vertical-align: top;
+	.multiselect lct-checklist {
+		display: inline-table;
+		width: 100%;
+		vertical-align: top;
 	}
 	.multiselect select {
 		display: table-cell;
@@ -480,7 +482,7 @@ button span img {
 		width: 100%;
 	}
 	.multiselect div {
-		display:table-cell;
+		display: table-cell;
 		width: 40px;
 		vertical-align: top;
 	}

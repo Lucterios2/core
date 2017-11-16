@@ -70,33 +70,19 @@ class GroupsDelete(XferDelete):
 
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferListEditor):
-    caption = _("_Users")
+    caption = _('Users of the software')
     icon = "user.png"
     model = LucteriosUser
     field_id = 'user_actif'
 
-    def fillresponse_header(self):
-        lbl = XferCompLabelForm('lbl_actifs')
-        lbl.set_value_as_name(_("List of active users"))
-        lbl.set_location(0, 1, 2)
-        self.add_component(lbl)
-        self.filter = Q(is_active=True)
-
     def fillresponse(self):
+        self.filter = Q(is_active=True)
         XferListEditor.fillresponse(self)
-        self.get_components('title').set_value(_('Users of the software'))
-        row = self.get_max_row() + 1
-        lbl = XferCompLabelForm('separator')
-        lbl.set_value('')
-        lbl.set_location(0, row)
-        self.add_component(lbl)
-
-        lbl = XferCompLabelForm('lbl_inactif')
-        lbl.set_value_as_name(_("List of inactive users"))
-        lbl.set_location(0, row + 1, 2)
-        self.add_component(lbl)
+        row = self.get_max_row()
         self.fieldnames = ['username', 'first_name', 'last_name']
         self.fill_grid(row + 1, self.model, 'user_inactif', LucteriosUser.objects.filter(is_active=False))
+        self.get_components('user_actif').description = _("List of active users")
+        self.get_components('user_inactif').description = _("List of inactive users")
 
 
 @ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
