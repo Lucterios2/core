@@ -52,7 +52,7 @@ var compGrid = compGeneric.extend({
 		if (value !== '---') {
 			return new Date(value).toLocaleDateString(Singleton().getSelectLang(), {
 				year : 'numeric',
-				month : 'long',
+				month : 'short',
 				day : 'numeric'
 			});
 		}
