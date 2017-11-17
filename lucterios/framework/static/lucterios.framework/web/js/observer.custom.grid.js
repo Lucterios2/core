@@ -1,3 +1,5 @@
+/*global $,unusedVariables,compGeneric,Singleton,compButton,SELECT_MULTI,SELECT_SINGLE,SELECT_NONE,LucteriosException,MINOR*/
+
 var compGrid = compGeneric.extend({
 
 	args : {},
@@ -15,16 +17,23 @@ var compGrid = compGeneric.extend({
 
 	initial : function(component) {
 		this._super(component);
-		this.order = component.order || [];
+		this.tag = 'div';
 		this.page_max = parseInt(component.page_max, 10) || 1;
 		this.page_num = parseInt(component.page_num, 10) || 0;
 		this.size_by_page = parseInt(component.size_by_page, 10) || 25;
 		this.nb_lines = parseInt(component.nb_lines, 10) || 0;
 		this.no_pager = component.no_pager || false;
-		this.tag = 'div';
-		var heads = component.headers, iChild, header, btn, sum_size = 0, nb_size = 0, tot_size;
+		this.selectedList = [];
 
-		// traitement des order
+		this.gridRows = component.value;
+		this._order_manage(component);
+		this._header_manage(component);
+		this._action_manage(component);
+	},
+
+	_order_manage : function(component) {
+		var iChild;
+		this.order = component.order || [];
 		this.sortIndx = [];
 		this.sortDir = [];
 		for (iChild = 0; iChild < this.order.length; iChild++) {
@@ -36,90 +45,80 @@ var compGrid = compGeneric.extend({
 				this.sortDir.push('up');
 			}
 		}
+	},
 
-		// traitement des HEADER
+	_date_render : function(ui) {
+		var value = ui.rowData[ui.dataIndx];
+		if (value !== '---') {
+			return new Date(value).toLocaleDateString(Singleton().getSelectLang(), {
+				year : 'numeric',
+				month : 'long',
+				day : 'numeric'
+			});
+		}
+		return "---";
+	},
+
+	_bool_render : function(ui) {
+		var value = ui.rowData[ui.dataIndx];
+		if ((value === '0') || (value.toLowerCase() === 'false') || (value === 'n')) {
+			return '<input type="checkbox" disabled="1" ></input>';
+		}
+		return '<input type="checkbox"  disabled="1" checked="1" ></input>';
+	},
+
+	_icon_render : function(ui) {
+		var value = ui.rowData[ui.dataIndx];
+		return '<img src="{0}">'.format(Singleton().Transport().getIconUrl(value));
+	},
+
+	_default_render : function(ui) {
+		return ui.rowData[ui.dataIndx].convertLuctoriosFormatToHtml();
+	},
+
+	_header_manage : function(component) {
+		var heads = component.headers, iChild, header;
 		this.gridHeaders = [];
 		for (iChild = 0; iChild < heads.length; iChild++) {
 			header = {
 				title : heads[iChild][1],
 				dataIndx : heads[iChild][0],
 				resizable : true,
-				orderable : heads[iChild][3],
+				orderable : heads[iChild][3]
 			};
 			switch (heads[iChild][2]) {
 			case 'int':
 				header.dataType = "integer";
 				header.width = '5%';
-				sum_size += 5;
-				nb_size += 1;
 				break;
 			case 'float':
 				header.dataType = "float";
 				header.width = '5%';
-				sum_size += 5;
-				nb_size += 1;
 				break;
 			case 'date':
 				header.width = '15%';
-				sum_size += 15;
-				nb_size += 1;
-				header.render = function(ui) {
-					var options = {
-						year : 'numeric',
-						month : 'long',
-						day : 'numeric'
-					}, value = ui.rowData[ui.dataIndx], date;
-					if (value !== '---') {
-						date = new Date(value);
-						return date.toLocaleDateString(Singleton().getSelectLang(), options);
-					} else {
-						return "---";
-					}
-				}
+				header.render = this._date_render;
 				break;
 			case 'bool':
 				header.width = '5%';
-				sum_size += 5;
-				nb_size += 1;
-				header.render = function(ui) {
-					var value = ui.rowData[ui.dataIndx];
-					if ((value === '0') || (value.toLowerCase() === 'false') || (value === 'n')) {
-						return '<input type="checkbox" disabled="1" ></input>';
-					}
-					return '<input type="checkbox"  disabled="1" checked="1" ></input>';
-				}
+				header.render = this._bool_render;
 				break;
 			case 'icon':
-				header.render = function(ui) {
-					var value = ui.rowData[ui.dataIndx];
-					return '<img src="{0}">'.format(Singleton().Transport().getIconUrl(value));
-				}
+				header.render = this._icon_render;
 				break;
 			default:
 				if (heads[iChild][1].length <= 2) {
 					header.width = '3%';
-					sum_size += 3;
-					nb_size += 1;
 				}
-				header.render = function(ui) {
-					return ui.rowData[ui.dataIndx].convertLuctoriosFormatToHtml();
-				}
+				header.render = this._default_render;
 				break;
 			}
 			this.gridHeaders[this.gridHeaders.length] = header;
 		}
-		/*
-		 * tot_size = this.gridHeaders.length - nb_size; for (iChild = 0; iChild <
-		 * this.gridHeaders.length; iChild++) { if
-		 * ((this.gridHeaders[iChild].width === undefined) && (tot_size > 2)) {
-		 * this.gridHeaders[iChild].width = "{0}%".format((100 - sum_size) /
-		 * (this.gridHeaders.length - nb_size)); tot_size -= 1; } }
-		 */
+	},
 
-		// traitement des RECORD
-		this.gridRows = component.value;
-
-		// traitement des ACTIONS
+	_action_manage : function(component) {
+		var iChild, btn;
 		this.buttons = [];
 		if (component.actions) {
 			for (iChild = 0; iChild < component.actions.length; iChild++) {
@@ -138,7 +137,6 @@ var compGrid = compGeneric.extend({
 				this.buttons[this.buttons.length] = btn;
 			}
 		}
-		this.selectedList = [];
 	},
 
 	getValue : function() {
@@ -156,7 +154,7 @@ var compGrid = compGeneric.extend({
 	},
 
 	get_Html : function() {
-		var html = '';
+		var iBtn, html = '';
 		if (this.buttons.length > 0) {
 			html += '<div class="gridActions" id="' + this.name + '_actions">';
 			for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
@@ -169,7 +167,7 @@ var compGrid = compGeneric.extend({
 	},
 
 	addAction : function() {
-		var iCol, iRow, iBtn, select_name, obj, grid, pageModel, pqPager;
+		var iBtn, obj, grid, pageModel, pqPager;
 		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
 			this.buttons[iBtn].addAction();
 			this.buttons[iBtn].setSelectType(SELECT_NONE);
@@ -202,7 +200,7 @@ var compGrid = compGeneric.extend({
 				show : false
 			},
 			selectionModel : {
-				type : 'null',
+				type : 'null'
 			},
 			// flexWidth : true,
 			flexHeight : true,
@@ -227,7 +225,7 @@ var compGrid = compGeneric.extend({
 			url : null,
 			sorting : "remote",
 			sortIndx : this.sortIndx,
-			sortDir : this.sortDir,
+			sortDir : this.sortDir
 		};
 		obj.rowSelect = $.proxy(this.selectChange, this);
 		obj.rowUnSelect = $.proxy(this.selectChange, this);
@@ -302,6 +300,7 @@ var compGrid = compGeneric.extend({
 	},
 
 	changePage : function(event, ui) {
+		unusedVariables(event);
 		if (ui.curPage) {
 			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), ui.curPage - 1);
 			this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), this.size_by_page);
@@ -314,6 +313,7 @@ var compGrid = compGeneric.extend({
 	},
 
 	order_col : function(event, ui) {
+		unusedVariables(event);
 		if (ui.column.orderable === 1) {
 			var order_txt, colname = ui.dataIndx.replace('.', '__'), order_list = this.order;
 			if (order_list.indexOf(colname) !== -1) {

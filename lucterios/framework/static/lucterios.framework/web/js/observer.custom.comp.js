@@ -728,7 +728,7 @@ var compDate = compAbstractEvent.extend({
 	get_Html : function() {
 		var args = {
 			'type' : "text",
-			'cssclass' : "datepicker",
+			'cssclass' : "datepicker"
 		}, date_nums = this.initialVal().split('-');
 		args.value = "{0}/{1}/{2}".format(date_nums[2], date_nums[1], date_nums[0]);
 		if (this.needed === false) {
@@ -840,10 +840,10 @@ var compDateTime = compAbstractEvent.extend({
 	get_Html : function() {
 		var date_time = this.initialVal().split(' '), date_nums = date_time[0].split('-'), args_dt = {
 			'type' : "text",
-			'cssclass' : "datepicker lctdate",
+			'cssclass' : "datepicker lctdate"
 		}, args_tm = {
 			'type' : "text",
-			'cssclass' : "timespinner lcttime",
+			'cssclass' : "timespinner lcttime"
 		};
 		args_dt.value = "{0}/{1}/{2}".format(date_nums[2], date_nums[1], date_nums[0]);
 		args_tm.value = date_time[1];
