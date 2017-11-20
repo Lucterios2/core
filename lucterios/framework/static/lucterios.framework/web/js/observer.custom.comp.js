@@ -935,6 +935,9 @@ var compSelect = compAbstractEvent.extend({
 			this.cases[this.cases.length] = cas;
 		}
 		this.value = component.value || '';
+		if ((this.value === '') && (this.cases.length > 0)) {
+			this.value = this.cases[0].id;
+		}
 		this.tag = 'select';
 	},
 
@@ -1128,11 +1131,7 @@ var compUpload = compGeneric
 			initial : function(component) {
 				this._super(component);
 				this.filter = '';
-				var filters = component.filter, msg_text, textreader = new FileReader();
-				if (typeof textreader.readAsBinaryString !== "function") {
-					msg_text = Singleton().getTranslate("This Web browser don't support this feature!\nUse Firefox, Chrome, Safari or Edge.");
-					throw new LucteriosException(IMPORTANT, msg_text);
-				}
+				var filters = component.filter, msg_text;
 				this.filter = filters.join(',');
 				this.compress = component.compress;
 				this.httpFile = component.http_file;
@@ -1160,12 +1159,25 @@ var compUpload = compGeneric
 					this.content_isloading = false;
 				} else {
 					reader = new FileReader();
-					reader.onload = $.proxy(function(readerEvt) {
-						var binaryString = readerEvt.target.result;
-						this.content = fileToSend.name + ";" + btoa(binaryString);
-						this.content_isloading = false;
-					}, this);
-					reader.readAsBinaryString(fileToSend);
+					if (typeof reader.readAsBinaryString === "function") {
+						reader.onload = $.proxy(function(readerEvt) {
+							var binaryString = readerEvt.target.result;
+							this.content = fileToSend.name + ";" + btoa(binaryString);
+							this.content_isloading = false;
+						}, this);
+						reader.readAsBinaryString(fileToSend);
+					} else {
+						reader.addEventListener("loadend", function() {
+							var binary = "";
+							var bytes = new Uint8Array(reader.result);
+							var length = bytes.byteLength;
+							for (var i = 0; i < length; i++) {
+								binary += String.fromCharCode(bytes[i]);
+							}
+							this.content = fileToSend.name + ";" + btoa(binary);
+						});
+						reader.readAsArrayBuffer(fileToSend);
+					}
 				}
 			},
 

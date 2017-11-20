@@ -17,14 +17,14 @@ var ObserverCustom = ObserverGUI.extend({
 	},
 
 	savefocusin : function(event) {
-		$("#" + this.mId).prop('fieldname', event.target.getAttribute("name"));
+		$("#" + this.getId()).prop('fieldname', event.target.getAttribute("name"));
 	},
 
 	show : function(aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
 		this.setActive(true);
 
-		var comp_idx, fieldname, gui_val;
+		var comp_idx, fieldname, gui_val, tabid;
 		this.mGUI = new GUIManage(this.getId(), this.mTitle, this);
 		this.mGUI.addcontent(this.getHtmlFromComponent(), this.buildButtons());
 		this.mGUI.defaultbtn = this.mDefaultBtn;
@@ -39,9 +39,13 @@ var ObserverCustom = ObserverGUI.extend({
 		if (aGUIType === FORM_MODAL) {
 			this.mGUI.memorize_size();
 		}
-		fieldname = $("#" + this.mId).prop('fieldname');
+		tabid = $("#" + this.getId()).prop('tabid');
+		if (tabid !== undefined) {
+			$("#" + this.getId()).find('ul > li:eq({0}) > a'.format(tabid)).click();
+		}		
+		fieldname = $("#" + this.getId()).prop('fieldname');
 		if (fieldname !== undefined) {
-			$("#" + this.mId).find("[name='{0}']:eq(0)".format(fieldname)).focus();
+			$("#" + this.getId()).find("[name='{0}']:eq(0)".format(fieldname)).focus();
 		}
 
 	},

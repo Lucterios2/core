@@ -232,10 +232,6 @@ var GUIManage = GUIBasic
 							}				
 						}, $(this))
 					});
-					var tabid = $(this).parent().prop('tabid');
-					if (tabid !== undefined) {
-						$(this).find('ul > li:eq({0}) > a'.format(tabid)).click();
-					}
 				});
 				$(".datepicker").each(function() {
 					$(this).datepicker({
