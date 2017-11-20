@@ -935,10 +935,16 @@ var compSelect = compAbstractEvent.extend({
 			this.cases[this.cases.length] = cas;
 		}
 		this.value = component.value || '';
+		this.tag = 'select';
+
+		this.after_initial(component);
+	},
+
+	after_initial : function(component) {
+		unusedVariables(component);
 		if ((this.value === '') && (this.cases.length > 0)) {
 			this.value = this.cases[0].id;
 		}
-		this.tag = 'select';
 	},
 
 	getOptionVal : function() {
@@ -972,9 +978,8 @@ var compSelect = compAbstractEvent.extend({
 
 var compCheckList = compSelect.extend({
 
-	initial : function(component) {
+	after_initial : function(component) {
 		var iHead;
-		this._super(component);
 		this.simple = parseInt(component.simple, 10) || 0;
 		this.args = {
 			'cssclass' : "checklist"
