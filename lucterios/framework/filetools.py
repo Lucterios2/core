@@ -29,13 +29,14 @@ from lxml.etree import XMLSyntaxError
 from base64 import b64encode, b64decode
 from os.path import join, exists, dirname, isfile
 from os import makedirs, environ
-from Crypto.Hash.MD5 import new
+from hashlib import md5
 from _io import BytesIO
 import io
 
 from django.utils import six
 
 from lucterios.framework.tools import get_binay
+
 
 BASE64_PREFIX = 'data:image/*;base64,'
 
@@ -49,7 +50,7 @@ def save_file(file_path, data):
     with io.open(file_path, mode="w", encoding='utf-8') as savefile:
         try:
             savefile.write(data.encode('utf-8'))
-        except:
+        except Exception:
             savefile.write(data)
 
 
@@ -75,9 +76,11 @@ def get_user_dir():
 
 
 def md5sum(filename):
+    md5res = md5()
     full_path = join(get_user_dir(), filename)
     with open(full_path, 'rb') as readfile:
-        return new(readfile.read()).hexdigest()
+        md5res.update(readfile.read())
+    return md5res.hexdigest()
 
 
 def get_user_path(rootpath, filename):
@@ -98,7 +101,9 @@ def readimage_to_base64(file_path, with_prefix=True):
 def save_from_base64(base64stream):
     if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
         stream = base64stream[len(BASE64_PREFIX):]
-        file_name = new(stream).hexdigest() + ".jpg"
+        md5res = md5()
+        md5res.update(stream)
+        file_name = md5res.hexdigest() + ".jpg"
     else:
         file_name, stream = base64stream.split(";")
     file_path = join(get_tmp_dir(), file_name)
@@ -149,7 +154,7 @@ def get_image_absolutepath(icon_path):
                 from importlib import import_module
                 module = import_module(root_dir)
                 icon_path = join(dirname(module.__file__), icon_path)
-            except:
+            except Exception:
                 pass
     return icon_path
 
