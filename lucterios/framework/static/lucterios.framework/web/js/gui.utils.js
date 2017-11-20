@@ -175,6 +175,7 @@ var GUIManage = GUIBasic
 				if (!isModal) {
 					args.width = 1200;
 					args.height = 600;
+					
 				}
 				$("#" + this.mId).dialog(args);
 				if (this.mCallback !== null) {
@@ -219,12 +220,16 @@ var GUIManage = GUIBasic
 			},
 
 			buildFinal : function() {
-				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn;
+				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
 				$(".tabContent").each(function() {
 					$(this).tabs({
 						activate : $.proxy(function(event, ui) {
+							var tabid = ui.newTab.index();
 							unusedVariables(event);
-							this.parent().prop('tabid', ui.newTab.index());
+							this.parent().prop('tabid', tabid);
+							if ((callback !== null) && (callback.gui_finalize !== undefined)) {
+								callback.gui_finalize(tabid+1);
+							}				
 						}, $(this))
 					});
 					var tabid = $(this).parent().prop('tabid');

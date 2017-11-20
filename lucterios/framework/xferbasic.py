@@ -72,7 +72,7 @@ class XferContainerAbstract(View):
         self.item = None
         self.is_new = False
         self.has_changed = False
-        self.format = 'XML'
+        self.format = 'JSON'
 
     @classmethod
     def initclass(cls, right):

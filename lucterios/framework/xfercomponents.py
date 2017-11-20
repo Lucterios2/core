@@ -866,9 +866,11 @@ class XferCompGrid(XferComponent):
         else:
             record_min = 0
             record_max = self.nb_lines
+            self.size_by_page = self.nb_lines
             self.order_list = None
             self.page_max = 1
             self.page_num = 0
+            self.no_pager = True
         return (record_min, record_max)
 
     def _new_record(self, compid):

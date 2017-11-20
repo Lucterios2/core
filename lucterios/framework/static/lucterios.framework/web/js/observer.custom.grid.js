@@ -250,6 +250,11 @@ var compGrid = compGeneric.extend({
 		pqPager.pqPager(pageModel);
 	},
 
+	gui_finalize : function() {
+		this.getGUIComp().pqGrid("refresh");
+		return;
+	},
+
 	createGrid : function() {
 		var $grid = this.getGUIComp().pqGrid(), $pager = $grid.find(".pq-grid-bottom").find(".pq-pager");
 		if ($pager && $pager.length) {

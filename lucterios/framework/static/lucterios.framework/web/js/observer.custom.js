@@ -178,6 +178,16 @@ var ObserverCustom = ObserverGUI.extend({
 			html += createTab(tabs, tabContent);
 		}
 		return html;
+	},
+
+	gui_finalize : function(tabid) {
+		var cmp, comp_idx;
+		for (comp_idx = 0; comp_idx < this.mCompList.size(); comp_idx++) {
+			cmp = this.mCompList.val(comp_idx);
+			if (cmp.tab === tabid) {
+				cmp.gui_finalize();
+			}
+		}
 	}
 
 });
@@ -196,7 +206,7 @@ var compGeneric = compBasic.extend({
 	init : function(aOwner) {
 		this.owner = aOwner;
 	},
-	
+
 	get_id : function() {
 		return "{0}_{1}".format(this.owner.getId(), this.name);
 	},
@@ -268,7 +278,7 @@ var compGeneric = compBasic.extend({
 
 	getAttribHtml : function(args, isJustify) {
 		args.name = this.name;
-		args.id = this.get_id(); 
+		args.id = this.get_id();
 		args.description = this.description;
 		if (args.cssclass === undefined) {
 			args.cssclass = '';
@@ -337,5 +347,9 @@ var compGeneric = compBasic.extend({
 
 	addAction : function() {
 		return undefined;
+	},
+
+	gui_finalize : function() {
+		return;
 	}
 });
