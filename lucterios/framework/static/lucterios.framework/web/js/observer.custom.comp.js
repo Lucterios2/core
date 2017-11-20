@@ -1,4 +1,4 @@
-/*global $,LucteriosException,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+/*global $,LucteriosException,Uint8Array,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
 /*jslint regexp: true */
 
 // image
@@ -1136,7 +1136,7 @@ var compUpload = compGeneric
 			initial : function(component) {
 				this._super(component);
 				this.filter = '';
-				var filters = component.filter, msg_text;
+				var filters = component.filter;
 				this.filter = filters.join(',');
 				this.compress = component.compress;
 				this.httpFile = component.http_file;
@@ -1173,11 +1173,11 @@ var compUpload = compGeneric
 						reader.readAsBinaryString(fileToSend);
 					} else {
 						reader.addEventListener("loadend", function() {
-							var binary = "";
-							var bytes = new Uint8Array(reader.result);
-							var length = bytes.byteLength;
-							for (var i = 0; i < length; i++) {
-								binary += String.fromCharCode(bytes[i]);
+							var binary = "", bytes, length, iLetter;
+							bytes = new Uint8Array(reader.result);
+							length = bytes.byteLength;
+							for (iLetter = 0; iLetter < length; iLetter++) {
+								binary += String.fromCharCode(bytes[iLetter]);
 							}
 							this.content = fileToSend.name + ";" + btoa(binary);
 						});
