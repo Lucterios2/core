@@ -363,13 +363,10 @@ class XferSearchEditor(XferContainerCustom):
 
     def __init__(self):
         XferContainerCustom.__init__(self)
-        self.action_grid = None
         self.fieldnames = None
         self.fields_desc = FieldDescList()
         self.criteria_list = []
         self.filter = None
-        self.action_list = [('listing', _("Listing"), "images/print.png"),
-                            ('label', _("Label"), "images/print.png")]
 
     def read_criteria_from_params(self):
         criteria = self.getparam('CRITERIA')
@@ -550,19 +547,10 @@ if ((type=='list') || (type=='listmult')) {
             self.items = self.model.objects.all()
         grid = XferCompGrid(self.field_id)
         grid.set_model(self.items, self.fieldnames, self)
-        grid.add_actions(self, action_list=self.action_grid)
         grid.add_action_notified(self)
         grid.set_location(0, row + 4, 6)
         grid.set_size(200, 500)
         self.add_component(grid)
-        lbl = XferCompLabelForm("nb")
-        lbl.set_location(0, row + 5, 6)
-        lbl.set_value(_("Total number of %(name)s: %(count)d") % {
-                      'name': self.model._meta.verbose_name_plural, 'count': grid.nb_lines})
-        self.add_component(lbl)
-        for act_type, title, icon in self.action_list:
-            self.add_action(ActionsManage.get_act_changed(
-                self.model.__name__, act_type, title, icon), {'close': CLOSE_NO})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))

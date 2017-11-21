@@ -1021,15 +1021,6 @@ class XferCompGrid(XferComponent):
                         pass
                 self.set_value(pk_id, fieldname, resvalue)
 
-    def add_actions(self, xfer_custom, model=None, action_list=None):
-        if model is None:
-            model = xfer_custom.model
-        if action_list is None:
-            action_list = DEFAULT_ACTION_LIST
-        for act_type, title, icon, unique in action_list:
-            self.add_action(xfer_custom.request, ActionsManage.get_act_changed(
-                model.__name__, act_type, title, icon), modal=FORMTYPE_MODAL, unique=unique)
-
     def add_action_notified(self, xfer_custom, model=None):
         from lucterios.framework.xferadvance import action_list_sorted
         if model is None:

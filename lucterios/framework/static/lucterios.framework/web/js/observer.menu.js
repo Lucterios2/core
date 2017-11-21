@@ -23,10 +23,12 @@ function info_openclose() {
 	var val_display = $("#asideMenu").css('display');
 	if (val_display === 'none') {
 		$("#asideMenu").css('display', 'block');
+		$("#support").css('display', 'block');
 		$("#menuContainer").removeClass("menupos");
 		$("#asideMenu").accordion('option', 'active', 0);
 	} else {
 		$("#asideMenu").css('display', 'none');
+		$("#support").css('display', 'none');
 		$("#menuContainer").addClass("menupos");
 	}
 }

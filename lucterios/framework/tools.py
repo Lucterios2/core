@@ -197,21 +197,6 @@ class ActionsManage(object):
         return wrapper
 
     @classmethod
-    def get_act_changed(cls, model_name, action_type, title, icon):
-        cls._actlock.acquire()
-        try:
-            ident = "%s@%s" % (model_name, action_type)
-            if ident in cls._VIEW_LIST.keys():
-                warnings.warn("[ActionsManage.get_act_changed('%s','%s','%s','%s')] Deprecated in Lucterios 2.2" %
-                              (model_name, action_type, title, icon), DeprecationWarning)
-                view_class = cls._VIEW_LIST[ident]
-                return view_class.get_action(title, icon)
-            else:
-                return None
-        finally:
-            cls._actlock.release()
-
-    @classmethod
     def get_actions(cls, ident, xfer, model_name=None, key=None, **args):
         cls._actlock.acquire()
         try:
