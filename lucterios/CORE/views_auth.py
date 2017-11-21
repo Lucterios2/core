@@ -150,4 +150,5 @@ class ExitConnection(XferContainerAcknowledge):
     def fillresponse(self):
         from django.contrib.auth import logout
         self.caption = _("Disconnect")
+        signal_and_lock.RecordLocker.unlock(self.request)
         logout(self.request)

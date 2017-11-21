@@ -74,6 +74,7 @@ class Signal(object):
             "<< call_signal %s", name)
         return nb_call
 
+
 unlocker_view_class = None
 
 
@@ -150,14 +151,18 @@ class RecordLocker(object):
             logging.getLogger("lucterios.core.record").debug("<< has_item_lock %s", model_class)
 
     @classmethod
-    def unlock(cls, request, params):
+    def unlock(cls, request, params=None):
         logging.getLogger("lucterios.core.record").debug(
             ">> unlock [%s] %s", request.user, params)
         cls._lock.acquire()
         try:
             from django.conf import settings
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
-            if (session_key is not None) and ('LOCK_IDENT' in params.keys()):
+            if (session_key is not None) and (params is None):
+                for lock_ident in cls._lock_list.keys():
+                    if (cls._lock_list[lock_ident] == session_key):
+                        del cls._lock_list[lock_ident]
+            elif (session_key is not None) and ('LOCK_IDENT' in params.keys()):
                 lock_ident = params['LOCK_IDENT']
                 if (lock_ident in cls._lock_list.keys()) and (cls._lock_list[lock_ident] == session_key):
                     del cls._lock_list[lock_ident]
