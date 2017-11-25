@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 import re
 import logging
+from django_fsm.signals import post_transition
 
 from django.db import models, transaction
 from django.db.models import Transform, Count, Q
@@ -33,13 +34,12 @@ from django.db.models.lookups import RegisterLookupMixin
 from django.core.exceptions import FieldDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
-from django.utils import six, formats
+from django.utils import six, formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.editors import LucteriosEditor
-from django_fsm.signals import post_transition
 
 
 class AbsoluteValue(Transform):
@@ -204,7 +204,7 @@ class LucteriosModel(models.Model):
                         return None
             new_item.save()
             return new_item
-        except:
+        except Exception:
             logging.getLogger('lucterios.framwork').exception("import_data")
             return None
 
@@ -428,24 +428,42 @@ class LucteriosModel(models.Model):
 
 class LucteriosSession(Session, LucteriosModel):
 
+    def __init__(self, *args, **kwargs):
+        Session.__init__(self, *args, **kwargs)
+        self._data = None
+
     @classmethod
     def get_default_fields(cls):
-        return [(_('username'), 'username'), 'expire_date']
+        return [(_('is active'), 'is_active'), (_('username'), 'username'), 'expire_date']
+
+    def _get_data(self):
+        if self._data is None:
+            self._data = self.get_decoded()
+        return self._data
 
     @property
     def username(self):
-        data = self.get_decoded()
+        data = self._get_data()
         user_id = data.get('_auth_user_id', None)
         if user_id is None:
             return "---"
         else:
             return User.objects.get(id=user_id).username
 
+    def get_is_active(self):
+        dt_now = timezone.now()
+        return self.expire_date > dt_now
+
+    @property
+    def is_active(self):
+        return get_value_converted(self.get_is_active(), bool_textual=True)
+
     class Meta(object):
         proxy = True
         default_permissions = []
         verbose_name = _('session')
         verbose_name_plural = _('sessions')
+        ordering = ['-expire_date']
 
 
 class PrintFieldsPlugIn(object):

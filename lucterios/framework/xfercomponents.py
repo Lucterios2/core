@@ -952,7 +952,7 @@ class XferCompGrid(XferComponent):
         return compjson
 
     def _add_header_from_model(self, query_set, fieldnames, has_xfer):
-        from django.db.models.fields import IntegerField, FloatField, BooleanField, DateField
+        from django.db.models.fields import IntegerField, FloatField, BooleanField, DateField, DateTimeField
         for fieldname in fieldnames:
             horderable = 0
             if isinstance(fieldname, tuple):
@@ -972,6 +972,8 @@ class XferCompGrid(XferComponent):
                     hfield = 'float'
                 elif isinstance(dep_field, BooleanField):
                     hfield = 'bool'
+                elif isinstance(dep_field, DateTimeField):
+                    hfield = 'datetime'
                 elif isinstance(dep_field, DateField):
                     hfield = 'date'
                 else:

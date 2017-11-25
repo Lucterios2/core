@@ -59,6 +59,20 @@ var compGrid = compGeneric.extend({
 		return "---";
 	},
 
+	_datetime_render : function(ui) {
+		var value = ui.rowData[ui.dataIndx];
+		if (value !== '---') {
+			return new Date(value).toLocaleDateString(Singleton().getSelectLang(), {
+				year : 'numeric',
+				month : 'short',
+				day : 'numeric',
+				hour : 'numeric',
+				minute : 'numeric'
+			});
+		}
+		return "---";
+	},
+
 	_bool_render : function(ui) {
 		var value = ui.rowData[ui.dataIndx];
 		if ((value === '0') || (value.toLowerCase() === 'false') || (value === 'n')) {
@@ -94,6 +108,10 @@ var compGrid = compGeneric.extend({
 			case 'float':
 				header.dataType = "float";
 				header.width = '5%';
+				break;
+			case 'datetime':
+				header.width = '15%';
+				header.render = this._datetime_render;
 				break;
 			case 'date':
 				header.width = '15%';

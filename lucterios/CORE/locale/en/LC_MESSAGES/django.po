@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-12 18:31+0000\n"
+"POT-Creation-Date: 2017-11-25 20:49+0000\n"
 "PO-Revision-Date: 2015-09-17 15:53+0000\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -686,65 +686,64 @@ msgid "To manage users."
 msgstr "Manage users."
 
 #: views_usergroup.py:73
-msgid "_Users"
-msgstr "_Users"
-
-#: views_usergroup.py:80
-msgid "List of active users"
-msgstr "List of active users"
-
-#: views_usergroup.py:87
 msgid "Users of the software"
 msgstr "Users of the software"
 
-#: views_usergroup.py:95
+#: views_usergroup.py:84
+msgid "List of active users"
+msgstr "List of active users"
+
+#: views_usergroup.py:85
 msgid "List of inactive users"
 msgstr "List of inactive users"
 
-#: views_usergroup.py:106
+#: views_usergroup.py:92
 msgid "Add an users"
 msgstr "Add an user"
 
-#: views_usergroup.py:107
+#: views_usergroup.py:93
 msgid "Modify an user"
 msgstr "Modify an user"
 
-#: views_usergroup.py:113 views_usergroup.py:114
+#: views_usergroup.py:99 views_usergroup.py:100
 msgid "Disabled"
 msgstr "Disabled"
 
-#: views_usergroup.py:117
+#: views_usergroup.py:103
 msgid "Disabled an user"
 msgstr "Disabled an user"
 
-#: views_usergroup.py:124
+#: views_usergroup.py:110
 msgid "You can disabled yourself!"
 msgstr "You can't disabled yourself!"
 
-#: views_usergroup.py:129 views_usergroup.py:130
+#: views_usergroup.py:115 views_usergroup.py:116
 msgid "Enabled"
 msgstr "Enabled"
 
-#: views_usergroup.py:133
+#: views_usergroup.py:119
 msgid "Enabled an user"
 msgstr "Enabled an user"
 
-#: views_usergroup.py:148
+#: views_usergroup.py:134
 msgid "Delete users"
 msgstr "Delete users"
 
-#: views_usergroup.py:157
+#: views_usergroup.py:143
 msgid "You can delete yourself!"
 msgstr "You can't delete yourself!"
 
-#: views_usergroup.py:161
+#: views_usergroup.py:147
 msgid "To manage session."
 msgstr "Manage session."
 
-#: views_usergroup.py:163
+#: views_usergroup.py:149
 msgid "Sessions"
 msgstr "Sessions"
 
-#: views_usergroup.py:172
+#: views_usergroup.py:158
 msgid "Delete session"
 msgstr "Delete session"
+
+#~ msgid "_Users"
+#~ msgstr "_Users"

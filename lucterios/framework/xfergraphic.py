@@ -102,14 +102,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
         else:
             return False
 
-    def redirect_action(self, action, option=None, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
+    def redirect_action(self, action, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
         if self.check_action_permission(action):
-            self.redirect_act = (action, option)
-            if isinstance(option, dict):
-                warnings.warn("[XferContainerAcknowledge.redirect_action] Deprecated in Lucterios 2.2", DeprecationWarning)
-                modal = option.get('modal', FORMTYPE_MODAL)
-                close = option.get('close', CLOSE_YES)
-                params = option.get('params', None)
             self.redirect_act = (action, modal, close, params)
 
     def raise_except(self, error_msg, action=None):

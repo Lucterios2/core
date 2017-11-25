@@ -110,10 +110,11 @@ class RecordLocker(object):
                     old_session_key = cls._lock_list[lock_ident]
                     if old_session_key != session_key:
                         try:
-                            old_session = LucteriosSession.objects.get(
-                                pk=old_session_key)
-                            raise LucteriosException(
-                                IMPORTANT, _("Record locked by '%s'!") % old_session.username)
+                            old_session = LucteriosSession.objects.get(pk=old_session_key)
+                            if old_session.get_is_active():
+                                raise LucteriosException(IMPORTANT, _("Record locked by '%s'!") % old_session.username)
+                            else:
+                                old_session.flush()
                         except ObjectDoesNotExist:
                             pass
                 cls._lock_list[lock_ident] = session_key
@@ -133,8 +134,7 @@ class RecordLocker(object):
             return lock_ident in cls._lock_list.keys()
         finally:
             cls._lock.release()
-            logging.getLogger("lucterios.core.record").debug(
-                "<< is_lock %s", model_item)
+            logging.getLogger("lucterios.core.record").debug("<< is_lock %s", model_item)
 
     @classmethod
     def has_item_lock(cls, model_class):

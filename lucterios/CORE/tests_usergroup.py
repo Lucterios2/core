@@ -609,12 +609,14 @@ class SessionTest(LucteriosTest):
         self.assert_coordcomp_equal('COMPONENTS/LABELFORM[@name="title"]', ('1', '0', '1', '1'))
         self.assert_coordcomp_equal('COMPONENTS/GRID[@name="session"]', ('0', '1', '2', '1'))
 
-        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/HEADER', 2)
+        self.assert_count_equal('COMPONENTS/GRID[@name="session"]/HEADER', 3)
 
         self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="username"]', "nom d'utilisateur")
         self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="expire_date"]', "date d'expiration")
+        self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/HEADER[@name="is_active"]', "actif ?")
         self.assert_count_equal('COMPONENTS/GRID[@name="session"]/RECORD', 1)
         self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/RECORD[1]/VALUE[@name="username"]', 'admin')
+        self.assert_xml_equal('COMPONENTS/GRID[@name="session"]/RECORD[1]/VALUE[@name="is_active"]', 'Oui')
         self.assert_attrib_equal('COMPONENTS/GRID[@name="session"]', "nb_lines", '1')
 
     def test_sessiondel(self):
