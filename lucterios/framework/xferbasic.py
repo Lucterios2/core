@@ -111,8 +111,7 @@ class XferContainerAbstract(View):
             param_value = self.params[key]
             try:
                 if isinstance(default_value, bool):
-                    param_value = (param_value != 'False') and (param_value != '0') and (
-                        param_value != '') and (param_value != 'n')
+                    param_value = (("%s" % param_value).lower() != 'false') and (param_value != '0') and (param_value != '') and (param_value != 'n')
                 elif isinstance(default_value, int):
                     if param_value == NULL_VALUE:
                         param_value = None

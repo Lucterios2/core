@@ -380,6 +380,16 @@ class XferContainerCustom(XferContainerAbstract):
         else:
             self.tab = old_num
 
+    def del_tab(self, tab_name):
+        tab_names = tab_name.split('@')
+        comp_id = None
+        for (key, comp) in self.components.items():
+            if isinstance(comp, XferCompTab):
+                if (comp.value == tab_name) or ((len(tab_names) > 1) and (comp.value == tab_names[1])):
+                    comp_id = key
+        if comp_id is not None:
+            del self.components[comp_id]
+
     def get_reading_comp(self, field_name):
         sub_value = self.item
         for fieldname in field_name.split('.'):
