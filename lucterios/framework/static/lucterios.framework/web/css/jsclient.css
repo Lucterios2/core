@@ -112,6 +112,10 @@ italic {
 	left: 0px;
 }
 
+#asideMenu div { 
+	padding: 1em 0.5em; 
+}
+
 .asideprop {
 	display: block;
 }
