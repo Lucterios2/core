@@ -39,9 +39,12 @@ var ObserverCustom = ObserverGUI.extend({
 		if (aGUIType === FORM_MODAL) {
 			this.mGUI.memorize_size();
 		}
+		this.gui_finalize(0);
 		tabid = $("#" + this.getId()).prop('tabid');
 		if (tabid !== undefined) {
 			$("#" + this.getId()).find('ul > li:eq({0}) > a'.format(tabid)).click();
+		} else {
+			this.gui_finalize(1);
 		}		
 		fieldname = $("#" + this.getId()).prop('fieldname');
 		if (fieldname !== undefined) {
