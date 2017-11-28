@@ -166,6 +166,17 @@ var GUIManage = GUIBasic
 						"ui-dialog-buttonpane" : "lct-dlgbtnpn",
 						"ui-dialog-buttonset" : "lct-dlgbtnset"
 					},
+					resize: $.proxy(function(event, ui) {
+						if ((this.mCallback !== null) && (this.mCallback.gui_finalize !== undefined)) {
+							this.mCallback.gui_finalize(0);
+							tabid = $("#" + this.mCallback.getId()).prop('tabid');
+							if (tabid !== undefined) {
+								this.mCallback.gui_finalize(tabid+1);
+							} else {
+								this.mCallback.gui_finalize(1);
+							}																
+						}				
+					},this),
 					buttons : this.get_button_list(),
 					close : $.proxy(function(event, ui) {
 						unusedVariables(event, ui);
