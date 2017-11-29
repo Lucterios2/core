@@ -934,7 +934,10 @@ var compSelect = compAbstractEvent.extend({
 			cas.initial(component['case'][iChild]);
 			this.cases[this.cases.length] = cas;
 		}
-		this.value = component.value || '';
+		this.value = component.value
+		if (this.value === undefined) {
+			this.value = '';
+		}
 		this.tag = 'select';
 
 		this.after_initial(component);
