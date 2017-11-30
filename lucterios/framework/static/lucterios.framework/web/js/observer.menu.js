@@ -258,7 +258,7 @@ var ObserverMenu = ObserverAbstract.extend({
 			html += '</div>';
 			$("#mainMenu").append(html);
 			$("#asideMenu").accordion({
-				collapsible : true,
+				collapsible : false,
 				activate : function(event, ui) {
 					unusedVariables(event, ui);
 					var opened = $(this).find('.ui-state-active').length;
@@ -280,10 +280,13 @@ var ObserverMenu = ObserverAbstract.extend({
 });
 
 function refreshCurrentAcideMenu() {
-	var first = $('#asideMenu div[aria-expanded="true"]:eq(0)'), acide_menu_id, title;
+	var first = $('#asideMenu h3[aria-expanded="true"]:eq(0)'), acide_menu_id, title;
 	if (first.length) {
 		acide_menu_id = first.prop('id');
-		title = $('#title_' + acide_menu_id);
+		if (acide_menu_id.substring(0, 6) !== 'title_') {
+			acide_menu_id = 'title_' + acide_menu_id;
+		}
+		title = $('#' + acide_menu_id);
 		title.click();
 	}
 }

@@ -987,6 +987,9 @@ var compCheckList = compSelect.extend({
 		this.args = {
 			'cssclass' : "checklist"
 		};
+		if (!Array.isArray(this.value)) {
+			this.value = [];
+		}
 		this.args.multiple = 'multiple';
 		if (this.simple === 2) {
 			this.tag = 'span';
