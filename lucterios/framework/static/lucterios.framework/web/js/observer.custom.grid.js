@@ -193,7 +193,7 @@ var compGrid = compGeneric.extend({
 
 		pageModel = {
 			type : "remote",
-			rPP : this.size_by_page,
+			rPP : this.no_pager ? this.gridRows.length : this.size_by_page,
 			rPPOptions : [ 25, 50, 100, 250 ],
 			totalPages : this.page_max,
 			curPage : this.page_num + 1,
