@@ -122,7 +122,7 @@ var compAbstractEvent = compGeneric.extend({
 			this.action.initialize(this.owner, Singleton().Factory(), component.action);
 			this.action.setCheckNull(false);
 		}
-		this.java_script_content = component.javascript ? decodeURIComponent(component.javascript.replace(/\+/g, " ")) : '';
+		this.java_script_content = component.javascript || '';
 	},
 
 	addAction : function() {

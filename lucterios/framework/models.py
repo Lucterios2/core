@@ -31,15 +31,16 @@ from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
 
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
+from django.forms.fields import FloatField
 
 
 class AbsoluteValue(Transform):
@@ -97,6 +98,14 @@ def get_value_if_choices(value, dep_field):
 def is_simple_field(dep_field):
     from django.db.models.fields.related import ForeignKey
     return (not dep_field.auto_created or dep_field.concrete) and not (dep_field.is_relation and dep_field.many_to_many) and not isinstance(dep_field, ForeignKey)
+
+
+def get_obj_contains(new_item):
+    field_val = []
+    for key, val in new_item.__dict__.items():
+        if (key != 'id') and (key[0] != '_'):
+            field_val.append("%s=%s" % (key, six.text_type(val).replace('{[br/]}', "\n").strip().replace("\n", '<br/>')))
+    return field_val
 
 
 class LucteriosModel(models.Model):
@@ -159,7 +168,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def import_data(cls, rowdata, dateformat):
-        from django.db.models.fields import IntegerField
+        from django.db.models.fields import IntegerField, FloatField, DecimalField
         from django.db.models.fields.related import ForeignKey
         try:
             new_item = cls()
@@ -182,8 +191,15 @@ class LucteriosModel(models.Model):
                         for choice in dep_field.choices:
                             if fieldvalue == choice[1]:
                                 fieldvalue = choice[0]
-                    if not isinstance(fieldvalue, int):
+                    try:
+                        fieldvalue = int(fieldvalue)
+                    except ValueError:
                         fieldvalue = 0
+                elif isinstance(dep_field, FloatField) or isinstance(dep_field, DecimalField):
+                    try:
+                        fieldvalue = float(fieldvalue)
+                    except ValueError:
+                        fieldvalue = 0.0
                 elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
                     fieldvalue = None
@@ -204,9 +220,12 @@ class LucteriosModel(models.Model):
                         return None
             new_item.save()
             return new_item
+        except ValidationError:
+            logging.getLogger('lucterios.framwork').exception("import_data")
+            raise LucteriosException(GRAVE, "Data error in this line:<br/> %s" % "<br/>".join(get_obj_contains(new_item)))
         except Exception:
             logging.getLogger('lucterios.framwork').exception("import_data")
-            return None
+            raise
 
     @classmethod
     def get_query_for_duplicate(cls):
