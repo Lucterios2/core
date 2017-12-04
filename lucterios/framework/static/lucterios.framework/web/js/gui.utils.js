@@ -167,6 +167,8 @@ var GUIManage = GUIBasic
 						"ui-dialog-buttonset" : "lct-dlgbtnset"
 					},
 					resize: $.proxy(function(event, ui) {
+						unusedVariables(event, ui);
+						var tabid;
 						if ((this.mCallback !== null) && (this.mCallback.gui_finalize !== undefined)) {
 							this.mCallback.gui_finalize(0);
 							tabid = $("#" + this.mCallback.getId()).prop('tabid');

@@ -200,17 +200,17 @@ class LucteriosModel(models.Model):
                         fieldvalue = float(fieldvalue)
                     except ValueError:
                         fieldvalue = 0.0
-                elif isinstance(dep_field, DateField):
+                elif isinstance(dep_field, DateField) and isinstance(fieldvalue, six.text_type):
                     try:
                         fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
                     except ValueError:
                         fieldvalue = datetime.now().date()
-                elif isinstance(dep_field, TimeField):
+                elif isinstance(dep_field, TimeField) and isinstance(fieldvalue, six.text_type):
                     try:
                         fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
                     except ValueError:
                         fieldvalue = datetime.now().time()
-                elif isinstance(dep_field, DateTimeField):
+                elif isinstance(dep_field, DateTimeField) and isinstance(fieldvalue, six.text_type):
                     try:
                         fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
                     except ValueError:

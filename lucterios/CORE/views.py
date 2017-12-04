@@ -939,8 +939,7 @@ class ObjectImport(XferContainerCustom):
                 title = dep_field.verbose_name
                 is_date = isinstance(dep_field, DateField)
             if fieldname in fields_association.keys():
-                fields_description.append(
-                    (fieldname, title, is_date))
+                fields_description.append((fieldname, title, is_date))
         self._read_csv()
         csv_readed = []
         for row in self.spamreader:
@@ -949,13 +948,11 @@ class ObjectImport(XferContainerCustom):
                 for field_description in fields_description:
                     if field_description[2]:
                         try:
-                            new_row[field_description[0]] = datetime.strptime(
-                                row[fields_association[field_description[0]]], self.dateformat).date()
+                            new_row[field_description[0]] = datetime.strptime(row[fields_association[field_description[0]]], self.dateformat).date()
                         except (TypeError, ValueError):
                             new_row[field_description[0]] = datetime.today()
                     else:
-                        new_row[field_description[0]] = row[
-                            fields_association[field_description[0]]]
+                        new_row[field_description[0]] = row[fields_association[field_description[0]]]
                 csv_readed.append(new_row)
         return fields_description, csv_readed
 
