@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 import re
 import logging
+from datetime import datetime
 from django_fsm.signals import post_transition
 
 from django.db import models, transaction
@@ -40,7 +41,6 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
-from django.forms.fields import FloatField
 
 
 class AbsoluteValue(Transform):
@@ -168,7 +168,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def import_data(cls, rowdata, dateformat):
-        from django.db.models.fields import IntegerField, FloatField, DecimalField
+        from django.db.models.fields import IntegerField, FloatField, DecimalField, DateField, TimeField, DateTimeField, BoolField
         from django.db.models.fields.related import ForeignKey
         try:
             new_item = cls()
@@ -200,6 +200,23 @@ class LucteriosModel(models.Model):
                         fieldvalue = float(fieldvalue)
                     except ValueError:
                         fieldvalue = 0.0
+                elif isinstance(dep_field, DateField):
+                    try:
+                        fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
+                    except ValueError:
+                        fieldvalue = datetime.now().date()
+                elif isinstance(dep_field, TimeField):
+                    try:
+                        fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
+                    except ValueError:
+                        fieldvalue = datetime.now().time()
+                elif isinstance(dep_field, DateTimeField):
+                    try:
+                        fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
+                    except ValueError:
+                        fieldvalue = datetime.now()
+                elif isinstance(dep_field, BoolField):
+                    fieldvalue = (six.type_text(fieldvalue) == 'True') or (six.type_text(fieldvalue).lower() == 'yes') or (six.type_text(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
                 elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
                     fieldvalue = None
