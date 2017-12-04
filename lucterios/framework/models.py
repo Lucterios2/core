@@ -168,7 +168,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def import_data(cls, rowdata, dateformat):
-        from django.db.models.fields import IntegerField, FloatField, DecimalField, DateField, TimeField, DateTimeField, BoolField
+        from django.db.models.fields import IntegerField, FloatField, DecimalField, DateField, TimeField, DateTimeField, BooleanField
         from django.db.models.fields.related import ForeignKey
         try:
             new_item = cls()
@@ -215,7 +215,7 @@ class LucteriosModel(models.Model):
                         fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
                     except ValueError:
                         fieldvalue = datetime.now()
-                elif isinstance(dep_field, BoolField):
+                elif isinstance(dep_field, BooleanField):
                     fieldvalue = (six.type_text(fieldvalue) == 'True') or (six.type_text(fieldvalue).lower() == 'yes') or (six.type_text(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
                 elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
