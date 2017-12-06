@@ -45,7 +45,7 @@ var ObserverCustom = ObserverGUI.extend({
 			$("#" + this.getId()).find('ul > li:eq({0}) > a'.format(tabid)).click();
 		} else {
 			this.gui_finalize(1);
-		}		
+		}
 		fieldname = $("#" + this.getId()).prop('fieldname');
 		if (fieldname !== undefined) {
 			$("#" + this.getId()).find("[name='{0}']:eq(0)".format(fieldname)).focus();
@@ -295,9 +295,15 @@ var compGeneric = compBasic.extend({
 			args.cssclass += ' lctjustify';
 		}
 		if (this.hmin !== -1) {
+			if (args.style === undefined) {
+				args.style = "";
+			}
 			args.style += "min-width: {0}px;".format(this.hmin);
 		}
 		if (this.vmin !== -1) {
+			if (args.style === undefined) {
+				args.style = "";
+			}
 			args.style += "min-height: {0}px;".format(this.vmin);
 		}
 		var html = "", element;

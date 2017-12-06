@@ -194,7 +194,9 @@ var compAbstractEvent = compGeneric.extend({
 				}
 				this.setEnabled(!nullcheck[0].checked);
 			}, this));
-			this.setEnabled(!this.is_null);
+			if (this.is_null) {
+				this.setEnabled(false);
+			}
 		}
 	},
 
