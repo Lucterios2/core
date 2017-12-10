@@ -227,6 +227,55 @@ class TestComposants(XferContainerCustom):
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
 
+@MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Null test of composants."))
+class TestNullComposants(XferContainerCustom):
+    caption = _("Null test of composants.")
+    icon = "5.png"
+
+    def fillresponse(self, flt1=0.0, flt2=0, dt1='01-01-2010', tm1='12:00', stm1='01-01-2010 12:00'):
+        act_modif = self.get_action('Modify', '')
+
+        flt = XferCompFloat('flt1')
+        flt.set_value(flt1)
+        flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        flt.set_location(0, 1)
+        flt.needed = False
+        flt.description = 'Real=' + six.text_type(flt1)
+        self.add_component(flt)
+
+        flt = XferCompFloat('flt2', 0, 100, 0)
+        flt.set_value(flt2)
+        flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        flt.set_location(0, 2)
+        flt.needed = False
+        flt.description = 'Integer=' + six.text_type(flt2)
+        self.add_component(flt)
+
+        date = XferCompDate('dt1')
+        date.set_value(dt1)
+        date.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        date.set_location(0, 3)
+        date.needed = False
+        date.description = 'Date=' + six.text_type(dt1)
+        self.add_component(date)
+
+        time = XferCompTime('tm1')
+        time.set_value(tm1)
+        time.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        time.set_location(0, 4)
+        time.needed = False
+        time.description = 'Hour=' + six.text_type(tm1)
+        self.add_component(time)
+
+        datetime = XferCompDateTime('stm1')
+        datetime.set_value(stm1)
+        datetime.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        datetime.set_location(0, 5)
+        datetime.needed = False
+        datetime.description = 'Date Hour=' + six.text_type(stm1)
+        self.add_component(datetime)
+
+
 @MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
 class SimpleGrid(XferContainerCustom):
     caption = _("_Test of grid")

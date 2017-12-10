@@ -489,7 +489,7 @@ var compFloat = compAbstractEvent.extend({
 	},
 
 	initialVal : function() {
-		return this.value;
+		return "{0}".format(this.value);
 	},
 
 	setEnabled : function(isEnabled) {

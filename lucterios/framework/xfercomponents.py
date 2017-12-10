@@ -422,7 +422,7 @@ class XferCompFloat(XferCompButton):
 
     def get_json_value(self):
         if self.value is None:
-            return None
+            return NULL_VALUE
         elif self.prec == 0:
             return int(self.value)
         else:
