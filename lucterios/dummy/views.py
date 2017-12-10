@@ -392,15 +392,18 @@ class OtherDel(XferDelete):
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_dummy(xfer):
-    row = xfer.get_max_row() + 1
-    lab = XferCompLabelForm('dummytitle')
-    lab.set_value_as_infocenter("Dummy")
-    lab.set_location(0, row, 4)
-    xfer.add_component(lab)
-    lbl = XferCompLabelForm('dummy_time')
-    lbl.set_color('blue')
-    lbl.set_location(0, row + 1, 4)
-    lbl.set_centered()
-    lbl.set_value(datetime.now().ctime())
-    xfer.add_component(lbl)
-    return True
+    if not hasattr(xfer, 'add_component'):
+        return True
+    else:
+        row = xfer.get_max_row() + 1
+        lab = XferCompLabelForm('dummytitle')
+        lab.set_value_as_infocenter("Dummy")
+        lab.set_location(0, row, 4)
+        xfer.add_component(lab)
+        lbl = XferCompLabelForm('dummy_time')
+        lbl.set_color('blue')
+        lbl.set_location(0, row + 1, 4)
+        lbl.set_centered()
+        lbl.set_value(datetime.now().ctime())
+        xfer.add_component(lbl)
+        return True

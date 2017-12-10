@@ -405,7 +405,8 @@ class MenuManage(object):
                         sub_menu = cls.filljson(request, sub_menu_item[0].url_text)
                         if len(sub_menu) > 0:
                             new_act['menus'] = sub_menu
-                        resjson.append(new_act)
+                        if (len(sub_menu) > 0) or ('extension' in new_act.keys()):
+                            resjson.append(new_act)
         finally:
             cls._menulock.release()
         return resjson

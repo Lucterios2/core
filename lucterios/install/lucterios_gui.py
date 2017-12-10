@@ -29,20 +29,26 @@ from __future__ import unicode_literals
 import sys
 import os
 import webbrowser
+from os.path import join, dirname
 from subprocess import Popen, PIPE, STDOUT
 from time import sleep
 from traceback import print_exc
 from threading import Thread
+from re import compile
 
 from django.utils.module_loading import import_module
 from django.utils.translation import ugettext
 from django.utils import six
 
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title,\
-    setup_from_none
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title, setup_from_none
 from lucterios.install.lucterios_migration import MigrateFromV1
 from lucterios.framework.settings import get_lan_ip
-from os.path import join, dirname
+
+from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
+from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
+from tkinter.messagebox import showerror, showinfo, askokcancel
+from tkinter.filedialog import asksaveasfilename, askopenfilename
+from tkinter import Image
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -50,20 +56,6 @@ if 'FIRST_HTTP_PORT' in os.environ.keys():
 
 READLONY = 'readonly'
 VALUES = 'values'
-
-try:
-    from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
-    from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
-    from tkinter.messagebox import showerror, showinfo, askokcancel
-    from tkinter.filedialog import asksaveasfilename, askopenfilename
-    from tkinter import Image
-except ImportError:
-    from Tkinter import Image
-    from Tkinter import Toplevel, Tk, Label, Entry, Frame, Button, Listbox, Text, StringVar
-    from Tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
-    from tkMessageBox import showerror, showinfo, askokcancel
-    from tkFileDialog import asksaveasfilename, askopenfilename
-    import ttk
 
 
 class RunException(Exception):
@@ -76,7 +68,7 @@ def ProvideException(func):
             return func(*args)
         except Exception as e:
             print_exc()
-            showerror(ugettext("Lucterios installer"), e)
+            showerror(ugettext("Lucterios launcher"), e)
     return wrapper
 
 
@@ -142,6 +134,7 @@ class InstanceEditor(Toplevel):
 
     def __init__(self):
         Toplevel.__init__(self)
+        self.name_rull = compile("[a-z0-9_\-]+")
         self.focus_set()
         self.grab_set()
 
@@ -266,8 +259,8 @@ class InstanceEditor(Toplevel):
 
     def apply(self):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
-        if self.name.get() == '':
-            showerror(ugettext("Instance editor"), ugettext("Name empty!"))
+        if (self.name.get() == '') or (self.name_rull.match(self.name.get()) is None):
+            showerror(ugettext("Instance editor"), ugettext("Name invalid!"))
             return
         if self.applis.get() == '':
             showerror(ugettext("Instance editor"), ugettext("No application!"))
@@ -383,10 +376,10 @@ class LucteriosMainForm(Tk):
             img = Image("photo", file=join(
                 dirname(import_module('lucterios.install').__file__), "lucterios.png"))
             self.tk.call('wm', 'iconphoto', self._w, img)
-        except:
+        except Exception:
             pass
         self.has_checked = False
-        self.title(ugettext("Lucterios installer"))
+        self.title(ugettext("Lucterios launcher"))
         self.minsize(475, 260)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -608,14 +601,14 @@ class LucteriosMainForm(Tk):
             value = proc.communicate()[0]
             try:
                 value = value.decode('ascii')
-            except:
+            except Exception:
                 pass
             six.print_(value)
             if proc.returncode != 0:
                 getLogger("lucterios.admin").error(value)
             else:
                 getLogger("lucterios.admin").info(value)
-            showinfo(ugettext("Lucterios installer"), ugettext(
+            showinfo(ugettext("Lucterios launcher"), ugettext(
                 "The application must restart"))
             python = sys.executable
             os.execl(python, python, *sys.argv)
@@ -767,11 +760,11 @@ class LucteriosMainForm(Tk):
         inst = LucteriosInstance(instance_name)
         inst.filename = file_name
         if inst.archive():
-            showinfo(ugettext("Lucterios installer"), ugettext(
+            showinfo(ugettext("Lucterios launcher"), ugettext(
                 "Instance saved to %s") % file_name)
         else:
             showerror(
-                ugettext("Lucterios installer"), ugettext("Instance not saved!"))
+                ugettext("Lucterios launcher"), ugettext("Instance not saved!"))
         self.refresh(instance_name)
 
     def save_inst(self):
@@ -791,11 +784,11 @@ class LucteriosMainForm(Tk):
             rest_inst = LucteriosInstance(instance_name)
         rest_inst.filename = file_name
         if rest_inst.restore():
-            showinfo(ugettext("Lucterios installer"), ugettext(
+            showinfo(ugettext("Lucterios launcher"), ugettext(
                 "Instance restore from %s") % file_name)
         else:
             showerror(
-                ugettext("Lucterios installer"), ugettext("Instance not restored!"))
+                ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
         self.refresh(instance_name)
 
     def restore_inst(self):
@@ -816,6 +809,7 @@ def main():
     setup_from_none()
     lct_form = LucteriosMainForm()
     lct_form.execute()
+
 
 if __name__ == '__main__':
     main()

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-25 20:49+0000\n"
+"POT-Creation-Date: 2017-12-10 15:05+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -23,45 +23,45 @@ msgstr ""
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: models.py:72 xfergraphic.py:164 xfergraphic.py:324
+#: models.py:73 xfergraphic.py:164 xfergraphic.py:324
 msgid "Yes"
 msgstr "Oui"
 
-#: models.py:74 xfergraphic.py:165 xfergraphic.py:326
+#: models.py:75 xfergraphic.py:165 xfergraphic.py:326
 msgid "No"
 msgstr "Non"
 
-#: models.py:412
+#: models.py:448
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:437
+#: models.py:473
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:437
+#: models.py:473
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:464
+#: models.py:500
 msgid "session"
 msgstr "session"
 
-#: models.py:465
+#: models.py:501
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:498
+#: models.py:534
 msgid "General"
 msgstr "Général"
 
-#: models.py:502 models.py:503
+#: models.py:538 models.py:539
 msgid "current date"
 msgstr "date courante"
 
-#: models.py:504
+#: models.py:540
 msgid "current hour"
 msgstr "heure courante"
 
@@ -79,19 +79,19 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:493
+#: tools.py:494
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:495
+#: tools.py:496
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:497
+#: tools.py:498
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:499
+#: tools.py:500
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -145,7 +145,7 @@ msgstr "Étiquette"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:192 xferbasic.py:160
+#: xferadvance.py:192 xferbasic.py:159
 msgid ""
 "This record not exist!\n"
 "Refresh your application."

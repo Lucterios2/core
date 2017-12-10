@@ -67,13 +67,30 @@ MenuManage.add_sub('core.admin', None, 'images/admin.png',
                    _('Management'), _('Manage settings and configurations.'), 100)
 
 
-@MenuManage.describ('', FORMTYPE_MODAL, 'core.menu', _("Summary"))
+def right_status(request):
+    return signal_and_lock.Signal.call_signal("summary", request) > 0
+
+
+@MenuManage.describ(right_status, FORMTYPE_MODAL, 'core.menu', _("Summary"))
 class StatusMenu(XferContainerCustom):
     caption = _("Summary")
     icon = "status.png"
 
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("summary", self)
+
+
+def right_situation(request):
+    return signal_and_lock.Signal.call_signal("situation", request) > 0
+
+
+@MenuManage.describ(right_situation, FORMTYPE_MODAL, 'core.menu', _("Situation"))
+class SituationMenu(XferContainerCustom):
+    caption = _("Situation")
+    icon = "status.png"
+
+    def fillresponse(self):
+        signal_and_lock.Signal.call_signal("situation", self)
 
 
 @MenuManage.describ('')
@@ -1106,7 +1123,9 @@ def get_wizard_step_list():
 
 @signal_and_lock.Signal.decorate('summary')
 def summary_core(xfer):
-    if right_show_wizard(xfer.request):
+    if not hasattr(xfer, 'add_component'):
+        return  right_show_wizard(xfer) and (get_wizard_step_list() != '') and ConfigurationWizard.get_action().check_permission(xfer)
+    elif right_show_wizard(xfer.request):
         steplist = get_wizard_step_list()
         if steplist != '':
             btn = XferCompButton("conf_wizard")

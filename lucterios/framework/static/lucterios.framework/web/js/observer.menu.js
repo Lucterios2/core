@@ -238,7 +238,7 @@ var ObserverMenu = ObserverAbstract.extend({
 	},
 
 	buildAsideMenu : function() {
-		var html = '', submenu_idx, current_menu, menu_content, size;
+		var html = '', submenu_idx, current_menu, menu_content, last_menu, size;
 		if (this.aside_menu !== null) {
 			html = '<div id="asideMenu" class="asideprop">';
 			for (submenu_idx = 0; submenu_idx < this.aside_menu.submenu.length; submenu_idx++) {
@@ -273,6 +273,8 @@ var ObserverMenu = ObserverAbstract.extend({
 				menu_content.style.height = size + 'px';
 				menu_content.style.display = null;
 			}
+			last_menu = this.aside_menu.submenu[this.aside_menu.submenu.length - 1];
+			$('#title_{0}'.format(last_menu.obs.getId())).click();
 		}
 		return html;
 	}
