@@ -1124,7 +1124,7 @@ def get_wizard_step_list():
 @signal_and_lock.Signal.decorate('summary')
 def summary_core(xfer):
     if not hasattr(xfer, 'add_component'):
-        return  right_show_wizard(xfer) and (get_wizard_step_list() != '') and ConfigurationWizard.get_action().check_permission(xfer)
+        return right_show_wizard(xfer) and (get_wizard_step_list() != '') and ConfigurationWizard.get_action().check_permission(xfer)
     elif right_show_wizard(xfer.request):
         steplist = get_wizard_step_list()
         if steplist != '':
