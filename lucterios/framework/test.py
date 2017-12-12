@@ -164,6 +164,9 @@ class LucteriosTest(TestCase):
 
     def get_json_path(self, path):
         values = self.json_data
+        if (len(path) > 0) and (path[0] == '#'):
+            path = path[1:]
+            values = self.json_comp
         for path_item in path.split('/'):
             if path_item != '':
                 if path_item[0] == '@':
@@ -299,25 +302,28 @@ class LucteriosTest(TestCase):
                 self.assert_attrib_equal(path, "modal", six.text_type(1))
                 self.assert_attrib_equal(path, "unique", six.text_type(1))
         else:
-            self.assertEqual(path['text'], act_desc[0])
+            act = path
+            if isinstance(path, six.text_type):
+                act = self.get_json_path(path)
+            self.assertEqual(act['text'], act_desc[0])
             if act_desc[1] is None:
-                self.assertTrue('icon' not in path.keys())
+                self.assertTrue('icon' not in act.keys())
             elif act_desc[1].startswith('images/'):
-                self.assertEqual(path['icon'], '/static/lucterios.CORE/' + act_desc[1])
+                self.assertEqual(act['icon'], '/static/lucterios.CORE/' + act_desc[1])
             else:
-                self.assertEqual(path['icon'], '/static/' + act_desc[1])
+                self.assertEqual(act['icon'], '/static/' + act_desc[1])
             if len(act_desc) > 2:
-                self.assertEqual(path['extension'], act_desc[2])
-                self.assertEqual(path['action'], act_desc[3])
-                self.assertEqual(path['close'], six.text_type(act_desc[4]))
-                self.assertEqual(path['modal'], six.text_type(act_desc[5]))
-                self.assertEqual(path['unique'], six.text_type(act_desc[6]))
+                self.assertEqual(act['extension'], act_desc[2])
+                self.assertEqual(act['action'], act_desc[3])
+                self.assertEqual(act['close'], six.text_type(act_desc[4]))
+                self.assertEqual(act['modal'], six.text_type(act_desc[5]))
+                self.assertEqual(act['unique'], six.text_type(act_desc[6]))
                 if len(act_desc) > 7:
                     for key, value in act_desc[7].items():
                         self.assertEqual(path['params'][key], value)
             else:
-                self.assertTrue('extension' not in path.keys())
-                self.assertTrue('action' not in path.keys())
+                self.assertTrue('extension' not in act.keys())
+                self.assertTrue('action' not in act.keys())
                 self.assertEqual(path['close'], six.text_type(1))
                 self.assertEqual(path['modal'], six.text_type(1))
                 self.assertEqual(path['unique'], six.text_type(1))
@@ -340,9 +346,13 @@ class LucteriosTest(TestCase):
             self.assertTrue(self.response_xml is None)
             self.assertEqual(self.json_comp[path]['component'], tag)
             self.assertEqual(len(self.json_comp[path]['case']), len(selects))
-            for case in self.json_comp[path]['case']:
-                vid = case[0]
-                self.assertEqual(selects[vid], case[1])
+            try:
+                for case in self.json_comp[path]['case']:
+                    vid = case[0]
+                    self.assertEqual(selects[vid], case[1])
+            except Exception:
+                six.print_(self.json_comp[path]['case'])
+                raise
 
     def assert_grid_equal(self, path, headers, nb_records):
         if self.response_json is None:

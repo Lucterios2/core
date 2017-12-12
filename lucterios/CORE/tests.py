@@ -45,264 +45,242 @@ class AuthentificationTest(LucteriosTest):
 
     def test_menu_noconnect(self):
 
-        self.call('/CORE/menu', {})
+        self.calljson('/CORE/menu', {})
         self.assert_observer('core.auth', 'CORE', 'menu')
-        self.assert_xml_equal('', 'NEEDAUTH')
-        self.assert_count_equal('CONNECTION', 0)
+        self.assert_json_equal('', '', 'NEEDAUTH')
+        self.assertFalse('connexion' in self.response_json.keys())
 
     def test_badconnect(self):
-        self.call('/CORE/authentification', {})
+        self.calljson('/CORE/authentification', {})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'NEEDAUTH')
-        self.assert_count_equal('CONNECTION', 0)
+        self.assert_json_equal('', '', 'NEEDAUTH')
+        self.assertFalse('connexion' in self.response_json.keys())
 
-        self.call('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'BADAUTH')
-        self.assert_count_equal('CONNECTION', 0)
+        self.assert_json_equal('', '', 'BADAUTH')
+        self.assertFalse('connexion' in self.response_json.keys())
 
-        self.call(
-            '/CORE/authentification', {'username': 'aaa', 'password': 'bbb'})
+        self.calljson('/CORE/authentification', {'username': 'aaa', 'password': 'bbb'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'BADAUTH')
-        self.assert_count_equal('CONNECTION', 0)
+        self.assert_json_equal('', '', 'BADAUTH')
+        self.assertFalse('connexion' in self.response_json.keys())
 
     def test_connect(self):
-        self.call(
-            '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'OK')
-        self.assert_xml_equal('CONNECTION/TITLE', 'Lucterios standard')
-        self.assert_xml_equal(
-            'CONNECTION/SUBTITLE', six.text_type('Application générique de gestion'))
-        self.assert_xml_equal('CONNECTION/VERSION', '2.2.', (0, 4))
-        self.assert_xml_equal('CONNECTION/SERVERVERSION', '2.2.', (0, 4))
-        self.assert_xml_equal('CONNECTION/COPYRIGHT', '(c) ', (0, 4))
-        self.assert_xml_equal(
-            'CONNECTION/LOGONAME', 'data:image/*;base64,', (0, 20))
-        self.assert_xml_equal('CONNECTION/SUPPORT_EMAIL', 'support@', (0, 8))
-        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
-        self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
-        self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
-        self.assert_xml_equal('CONNECTION/MODE', '0')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
+        self.assertEqual(self.response_json['connexion']['SUBTITLE'], six.text_type('Application générique de gestion'))
+        self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.2.')
+        self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.2.')
+        self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
+        self.assertEqual(self.response_json['connexion']['LOGONAME'][0:20], 'data:image/*;base64,')
+        self.assertEqual(self.response_json['connexion']['SUPPORT_EMAIL'][0:8], 'support@')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
+        self.assertEqual(self.response_json['connexion']['MODE'], '0')
 
-        self.call('/CORE/exitConnection', {})
+        self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_menu_connected(self):
-        self.call(
-            '/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_xml_equal('', 'OK')
+        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.assert_json_equal('', '', 'OK')
 
-        self.call('/CORE/menu', {})
+        self.calljson('/CORE/menu', {})
         self.assert_observer('core.menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 4)
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']", six.text_type('Général'))
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de passe')
-        self.assert_xml_equal("MENUS/MENU[@id='core.admin']", 'Administration')
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']", 'Gestion des droits')
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU[@id='CORE/groupsList']", 'Les groupes')
-        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
-        self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
+        self.assertEqual(len(self.response_json['menus']), 4)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
+        self.assertEqual(len(self.response_json['menus'][0]['menus']), 1)
 
-        self.call('/CORE/menu', {})
-        self.assert_attrib_equal('', 'observer', 'core.auth')
-        self.assert_xml_equal('', 'NEEDAUTH')
+        self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
+        self.assertEqual(self.response_json['menus'][1]['text'], six.text_type('Général'))
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['text'], 'Mot de passe')
+
+        self.assertEqual(self.response_json['menus'][2]['id'], 'dummy.foo')
+
+        self.assertEqual(self.response_json['menus'][3]['id'], 'core.admin')
+        self.assertEqual(self.response_json['menus'][3]['text'], 'Administration')
+        self.assertEqual(self.response_json['menus'][3]['menus'][3]['id'], 'core.right')
+        self.assertEqual(self.response_json['menus'][3]['menus'][3]['text'], 'Gestion des droits')
+        self.assertEqual(self.response_json['menus'][3]['menus'][3]['menus'][0]['id'], 'CORE/groupsList')
+        self.assertEqual(self.response_json['menus'][3]['menus'][3]['menus'][0]['text'], 'Les groupes')
+
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+        self.calljson('/CORE/menu', {})
+        self.assert_observer('core.auth', 'CORE', 'menu')
+        self.assert_json_equal('', '', 'NEEDAUTH')
 
     def test_menu_connected_with_empty(self):
-        self.call(
-            '/CORE/authentification', {'username': 'empty', 'password': 'empty'})
-        self.assert_xml_equal('', 'OK')
-        self.assert_xml_equal('CONNECTION/LOGIN', 'empty')
-        self.assert_xml_equal('CONNECTION/REALNAME', 'empty NOFULL')
-        self.assert_xml_equal('CONNECTION/MODE', '0')
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.assert_json_equal('', "", 'OK')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'empty')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
+        self.assertEqual(self.response_json['connexion']['MODE'], '0')
 
-        self.call('/CORE/menu', {})
+        self.calljson('/CORE/menu', {})
         self.assert_observer('core.menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 4)
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']", six.text_type('Général'))
-        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 1)
-        self.assert_xml_equal(
-            "MENUS/MENU[@id='core.general']/MENU[@id='CORE/changePassword']", 'Mot de passe')
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 0)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
 
-        self.call('/CORE/configuration', {})
+        self.assertEqual(len(self.response_json['menus']), 3)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
+        self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
+        self.assertEqual(self.response_json['menus'][1]['text'], six.text_type('Général'))
+        self.assertEqual(len(self.response_json['menus'][1]['menus']), 1)
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['text'], 'Mot de passe')
+        self.assertEqual(self.response_json['menus'][2]['id'], 'dummy.foo')
+
+        self.calljson('/CORE/configuration', {})
         self.assert_observer('core.exception', 'CORE', 'configuration')
-        self.assert_xml_equal(
-            "EXCEPTION/MESSAGE", "Mauvaise permission pour 'empty'")
+        self.assert_json_equal('', "message", "Mauvaise permission pour 'empty'")
 
-        self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_connect_anonymous(self):
         Params.clear()
-        self.call('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'BADAUTH')
+        self.assert_json_equal('', '', 'BADAUTH')
 
-        param = Parameter.objects.get(
-            name='CORE-connectmode')
+        param = Parameter.objects.get(name='CORE-connectmode')
         param.value = '1'
         param.save()
         Params.clear()
 
-        self.call('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'OK')
-        self.assert_xml_equal('CONNECTION/LOGIN', None)
-        self.assert_xml_equal('CONNECTION/REALNAME', None)
-        self.assert_xml_equal('CONNECTION/MODE', '1')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], '')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
+        self.assertEqual(self.response_json['connexion']['MODE'], '1')
 
-        self.call('/CORE/menu', {})
+        self.calljson('/CORE/menu', {})
         self.assert_observer('core.menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU", 3)
-        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 3)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 0)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 0)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 0)
+
+        self.assertEqual(len(self.response_json['menus']), 1)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'dummy.foo')
+        self.assertEqual(self.response_json['menus'][0]['text'], six.text_type('Dummy'))
+        self.assertEqual(len(self.response_json['menus'][0]['menus']), 6)
 
     def test_connect_free(self):
         Params.clear()
-        self.call('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'BADAUTH')
+        self.assert_json_equal('', '', 'BADAUTH')
 
-        param = Parameter.objects.get(
-            name='CORE-connectmode')
+        param = Parameter.objects.get(name='CORE-connectmode')
         param.value = '2'
         param.save()
         Params.clear()
 
-        self.call('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'OK')
-        self.assert_xml_equal('CONNECTION/LOGIN', None)
-        self.assert_xml_equal('CONNECTION/REALNAME', None)
-        self.assert_xml_equal('CONNECTION/MODE', '2')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], '')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
+        self.assertEqual(self.response_json['connexion']['MODE'], '2')
 
-        self.assertTrue(
-            WrapAction.mode_connect_notfree is not None, "mode_connect_notfree is not None")
-        self.assertFalse(
-            WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree()")
-        self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction(
-            '', '').mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
+        self.assertTrue(WrapAction.mode_connect_notfree is not None, "mode_connect_notfree is not None")
+        self.assertFalse(WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree()")
+        self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
         request = RequestFactory().post('/')
         request.user = AnonymousUser()
         act1 = WrapAction('free', 'free', is_view_right=None)
         self.assertEqual(act1.is_view_right, None, 'act1.is_view_right')
-        self.assertFalse(
-            act1.check_permission(request), 'check_permission None')
-        act2 = WrapAction(
-            'free', 'free', is_view_right='CORE.change_parameter')
+        self.assertFalse(act1.check_permission(request), 'check_permission None')
+        act2 = WrapAction('free', 'free', is_view_right='CORE.change_parameter')
         act2.with_log = True
-        self.assertEqual(
-            act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
-        self.assertTrue(
-            act2.check_permission(request), 'check_permission CORE.change_parameter')
+        self.assertEqual(act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
+        self.assertTrue(act2.check_permission(request), 'check_permission CORE.change_parameter')
 
-        self.call('/CORE/configuration', {})
+        self.calljson('/CORE/configuration', {})
         self.assert_observer('core.custom', 'CORE', 'configuration')
-        self.assert_xml_equal(
-            'COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Accès libre")
+        self.assert_json_equal('LABELFORM', "CORE-connectmode", "Accès libre")
 
-        self.call('/CORE/menu', {})
+        self.calljson('/CORE/menu', {})
         self.assert_observer('core.menu', 'CORE', 'menu')
-        self.assert_count_equal("MENUS/MENU[@id='core.general']/MENU", 0)
-        self.assert_count_equal("MENUS/MENU[@id='core.admin']/MENU", 4)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.extensions']/MENU", 1)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.print']/MENU", 2)
-        self.assert_count_equal(
-            "MENUS/MENU[@id='core.admin']/MENU[@id='core.right']/MENU", 3)
-        self.assert_count_equal("MENUS/MENU[@id='core.menu']/MENU", 1)
-        self.assert_count_equal("MENUS/MENU", 4)
+        self.assertEqual(len(self.response_json['menus']), 3)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
+        self.assertEqual(self.response_json['menus'][1]['id'], 'dummy.foo')
+        self.assertEqual(len(self.response_json['menus'][1]['menus']), 9)
+        self.assertEqual(self.response_json['menus'][2]['id'], 'core.admin')
+        self.assertEqual(self.response_json['menus'][2]['text'], 'Administration')
+        self.assertEqual(self.response_json['menus'][2]['menus'][3]['id'], 'core.right')
+        self.assertEqual(self.response_json['menus'][2]['menus'][3]['text'], 'Gestion des droits')
+        self.assertEqual(self.response_json['menus'][2]['menus'][3]['menus'][0]['id'], 'CORE/groupsList')
+        self.assertEqual(self.response_json['menus'][2]['menus'][3]['menus'][0]['text'], 'Les groupes')
 
     def test_menu_reconnected(self):
-        self.call('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
-        self.assert_xml_equal('', 'OK')
+        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.assert_json_equal('', '', 'OK')
 
-        self.call('/CORE/authentification', {})
-        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
-        self.assert_xml_equal('CONNECTION/LOGIN', 'admin')
-        self.assert_xml_equal('CONNECTION/REALNAME', 'administrator ADMIN')
+        self.calljson('/CORE/authentification', {})
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
 
-        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
-        self.assert_xml_equal('', 'OK')
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.assert_json_equal('', '', 'OK')
 
-        self.call('/CORE/authentification', {'info': 'true'})
-        # self.assert_xml_equal('CONNECTION/INFO_SERVER', '')
-        self.assert_xml_equal('CONNECTION/LOGIN', 'empty')
-        self.assert_xml_equal('CONNECTION/REALNAME', 'empty NOFULL')
+        self.calljson('/CORE/authentification', {'info': 'true'})
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'empty')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
 
-        self.call('/CORE/exitConnection', {})
-        self.assert_attrib_equal('', 'observer', 'core.acknowledge')
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_password(self):
-        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
 
-        self.call('/CORE/changePassword', {})
+        self.calljson('/CORE/changePassword', {})
         self.assert_observer('core.custom', 'CORE', 'changePassword')
-        self.assert_xml_equal('TITLE', 'Mot de passe')
-        self.assert_count_equal('CONTEXT', 0)
-        self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'modifyPassword', 1, 1, 1))
-        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
-        self.assert_count_equal('COMPONENTS/*', 4)
-        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/passwd.png', ('0', '0', '1', '3'))
-        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="oldpass"]', 'description', 'ancien mot de passe')
-        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="newpass1"]', 'description', 'nouveau mot de passe')
-        self.assert_attrib_equal('COMPONENTS/PASSWD[@name="newpass2"]', 'description', 're-nouveau mot de passe')
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="oldpass"]', None, ('1', '0', '1', '1'))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass1"]', None, ('1', '1', '1', '1'))
-        self.assert_comp_equal('COMPONENTS/PASSWD[@name="newpass2"]', None, ('1', '2', '1', '1'))
+        self.assertEqual(self.json_meta['title'], 'Mot de passe')
+        self.assertEqual(len(self.json_context), 0)
+        self.assertEqual(len(self.json_actions), 2)
+        self.assert_action_equal(self.json_actions[0], ('Ok', 'images/ok.png', 'CORE', 'modifyPassword', 1, 1, 1))
+        self.assert_action_equal(self.json_actions[1], ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('', 4)
+        self.assert_comp_equal(('IMAGE', "img"), '/static/lucterios.CORE/images/passwd.png', ('0', '0', '1', '3'))
+        self.assert_attrib_equal("oldpass", 'description', 'ancien mot de passe')
+        self.assert_attrib_equal("newpass1", 'description', 'nouveau mot de passe')
+        self.assert_attrib_equal("newpass2", 'description', 're-nouveau mot de passe')
+        self.assert_comp_equal(('PASSWD', "oldpass"), '', ('1', '0', '1', '1'))
+        self.assert_comp_equal(('PASSWD', "newpass1"), '', ('1', '1', '1', '1'))
+        self.assert_comp_equal(('PASSWD', "newpass2"), '', ('1', '2', '1', '1'))
 
     def test_changepassword(self):
-        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'OK')
+        self.assert_json_equal('', '', 'OK')
 
-        self.call('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Mot de passe actuel erroné!'))
-        self.assert_xml_equal('EXCEPTION/CODE', '3')
+        self.assert_json_equal('', 'message', six.text_type('Mot de passe actuel erroné!'))
+        self.assert_json_equal('', 'code', '3')
 
-        self.call('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_xml_equal('EXCEPTION/MESSAGE', six.text_type('Les mots de passes sont différents!'))
-        self.assert_xml_equal('EXCEPTION/CODE', '3')
+        self.assert_json_equal('', 'message', six.text_type('Les mots de passes sont différents!'))
+        self.assert_json_equal('', 'code', '3')
 
-        self.call('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.dialogbox', 'CORE', 'modifyPassword')
-        # self.assert_xml_equal('TEXT', six.text_type('Mot de passe modifié'))
-        self.assert_attrib_equal('TEXT', 'type', '1')
+        self.assert_json_equal('', 'text', six.text_type('Mot de passe modifié'))
+        self.assert_json_equal('', 'type', '1')
 
-        self.call('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'BADAUTH')
+        self.assert_json_equal('', '', 'BADAUTH')
 
-        self.call('/CORE/authentification', {'username': 'empty', 'password': '123'})
+        self.calljson('/CORE/authentification', {'username': 'empty', 'password': '123'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
-        self.assert_xml_equal('', 'OK')
+        self.assert_json_equal('', '', 'OK')
 
 
 class ConfigTest(LucteriosTest):
@@ -313,52 +291,49 @@ class ConfigTest(LucteriosTest):
 
     def test_config(self):
         self.factory.xfer = Configuration()
-        self.call('/CORE/configuration', {}, False)
+        self.calljson('/CORE/configuration', {}, False)
         self.assert_observer('core.custom', 'CORE', 'configuration')
-        self.assert_xml_equal('TITLE', 'Configuration générale')
-        self.assert_count_equal('CONTEXT/PARAM', 1)
-        self.assert_xml_equal('CONTEXT/PARAM[@name="params"]', 'CORE-connectmode;CORE-Wizard')
-        self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Modifier', 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1))
-        self.assert_action_equal('ACTIONS/ACTION[2]', ('Fermer', 'images/close.png'))
-        self.assert_count_equal('COMPONENTS/*', 5)
-        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 10))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
+        self.assertEqual(self.json_meta['title'], 'Configuration générale')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['params'], ['CORE-connectmode', 'CORE-Wizard'])
+        self.assertEqual(len(self.json_actions), 2)
+        self.assert_action_equal(self.json_actions[0], ('Modifier', 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[1], ('Fermer', 'images/close.png'))
+        self.assert_count_equal('', 5)
+        self.assert_comp_equal(('IMAGE', "img"), '/static/lucterios.CORE/images/config.png', (0, 0, 1, 10))
+        self.assert_comp_equal(('LABELFORM', "title"), "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
-        self.assert_attrib_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', 'description', "Mode de connexion")
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-connectmode"]', "Connexion toujours nécessaire", (1, 1, 1, 1))
-        self.assert_attrib_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', 'description', "Toujours ouvrir l'assistant de configuration au démarrage.")
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="CORE-Wizard"]', "Oui", (1, 2, 1, 1))
-        self.assert_action_equal('COMPONENTS/BUTTON[@name="conf_wizard"]/ACTIONS/ACTION', ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
+        self.assert_attrib_equal("CORE-connectmode", 'description', "Mode de connexion")
+        self.assert_comp_equal(('LABELFORM', "CORE-connectmode"), "Connexion toujours nécessaire", (1, 1, 1, 1))
+        self.assert_attrib_equal("CORE-Wizard", 'description', "Toujours ouvrir l'assistant de configuration au démarrage.")
+        self.assert_comp_equal(('LABELFORM', "CORE-Wizard"), "Oui", (1, 2, 1, 1))
+        self.assert_action_equal(self.json_comp["conf_wizard"]['action'], ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
 
     def test_config_edit(self):
         self.factory.xfer = ParamEdit()
-        self.call('/CORE/paramEdit', {'params': 'CORE-connectmode'}, False)
+        self.calljson('/CORE/paramEdit', {'params': 'CORE-connectmode'}, False)
         self.assert_observer('core.custom', 'CORE', 'paramEdit')
 
-        self.assert_xml_equal('TITLE', 'Paramètres')
-        self.assert_count_equal('CONTEXT/PARAM', 1)
-        self.assert_xml_equal('CONTEXT/PARAM[@name="params"]', 'CORE-connectmode')
-        self.assert_count_equal('ACTIONS/ACTION', 2)
-        self.assert_action_equal('ACTIONS/ACTION[1]', ('Ok', 'images/ok.png', 'CORE', 'paramSave', 1, 1, 1))
-        self.assert_action_equal('ACTIONS/ACTION[2]', ('Annuler', 'images/cancel.png'))
-        self.assert_count_equal('COMPONENTS/*', 3)
-        self.assert_comp_equal('COMPONENTS/IMAGE[@name="img"]', '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
-        self.assert_comp_equal('COMPONENTS/LABELFORM[@name="title"]', "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
+        self.assertEqual(self.json_meta['title'], 'Paramètres')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['params'], 'CORE-connectmode')
+        self.assertEqual(len(self.json_actions), 2)
+        self.assert_action_equal(self.json_actions[0], ('Ok', 'images/ok.png', 'CORE', 'paramSave', 1, 1, 1))
+        self.assert_action_equal(self.json_actions[1], ('Annuler', 'images/cancel.png'))
+        self.assert_count_equal('', 3)
+        self.assert_comp_equal(('IMAGE', "img"), '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
+        self.assert_comp_equal(('LABELFORM', "title"), "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
 
-        self.assert_comp_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', "0", (1, 1, 1, 1))
-        self.assert_attrib_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]', 'description', "Mode de connexion")
-        self.assert_count_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE', 3)
-        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=0]', "Connexion toujours nécessaire")
-        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=1]', "Ouvert en tant qu'anonyme")
-        self.assert_xml_equal('COMPONENTS/SELECT[@name="CORE-connectmode"]/CASE[@id=2]', "Accès libre")
+        self.assert_comp_equal(('SELECT', "CORE-connectmode"), "0", (1, 1, 1, 1))
+        self.assert_attrib_equal("CORE-connectmode", 'description', "Mode de connexion")
+        self.assert_select_equal("CORE-connectmode", {0: "Connexion toujours nécessaire", 1: "Ouvert en tant qu'anonyme", 2: "Accès libre"})
 
     def test_config_save(self):
         param = Parameter.objects.get(name='CORE-connectmode')
         self.assertEqual("0", param.value)
 
         self.factory.xfer = ParamSave()
-        self.call('/CORE/paramSave', {'params': 'CORE-connectmode', 'CORE-connectmode': '1'}, False)
+        self.calljson('/CORE/paramSave', {'params': 'CORE-connectmode', 'CORE-connectmode': '1'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
 
         param = Parameter.objects.get(name='CORE-connectmode')
