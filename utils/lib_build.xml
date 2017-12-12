@@ -54,7 +54,7 @@
 		<delete file="*.version" />
 		<delete file="MANIFEST" />
 		<delete>
-			<fileset dir="." includes="**/*.pyc" />
+			<fileset dir="." includes="**/*.pyc" excludes="virt/**/*.pyc" />
 		</delete>
 		<delete dir="*/__pycache__" />
 		<for param="packageitem" list="${project.packagepath}">
