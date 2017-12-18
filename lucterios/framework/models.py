@@ -197,7 +197,7 @@ class LucteriosModel(models.Model):
                         fieldvalue = 0
                 elif isinstance(dep_field, FloatField) or isinstance(dep_field, DecimalField):
                     try:
-                        fieldvalue = float(fieldvalue)
+                        fieldvalue = float(fieldvalue.replace(',', '.'))
                     except ValueError:
                         fieldvalue = 0.0
                 elif isinstance(dep_field, DateField) and isinstance(fieldvalue, six.text_type):
