@@ -135,6 +135,7 @@ class InstanceEditor(Toplevel):
     def __init__(self):
         Toplevel.__init__(self)
         self.name_rull = compile("[a-z0-9_\-]+")
+        self.is_new_instance = True
         self.focus_set()
         self.grab_set()
 
@@ -259,7 +260,7 @@ class InstanceEditor(Toplevel):
 
     def apply(self):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
-        if (self.name.get() == '') or (self.name_rull.match(self.name.get()) is None):
+        if self.is_new_instance and ((self.name.get() == '') or (self.name_rull.match(self.name.get()) is None)):
             showerror(ugettext("Instance editor"), ugettext("Name invalid!"))
             return
         if self.applis.get() == '':
@@ -284,6 +285,7 @@ class InstanceEditor(Toplevel):
 
     def _load_current_data(self, instance_name):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
+        self.is_new_instance = False
         lct_inst = LucteriosInstance(instance_name)
         lct_inst.read()
         self.name.delete(0, END)
