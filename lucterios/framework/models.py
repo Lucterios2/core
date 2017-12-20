@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 import re
 import logging
-from datetime import datetime
+from datetime import datetime, date, time
 from django_fsm.signals import post_transition
 
 from django.db import models, transaction
@@ -55,17 +55,16 @@ RegisterLookupMixin.register_lookup(AbsoluteValue)
 
 
 def get_value_converted(value, bool_textual=False, convert_datetime=True):
-    import datetime
     if hasattr(value, 'all'):
         values = []
         for val_item in value.all():
             values.append(six.text_type(val_item))
         return "{[br/]}".join(values)
-    elif isinstance(value, datetime.datetime) and convert_datetime:
+    elif isinstance(value, datetime) and convert_datetime:
         return formats.date_format(value, "DATETIME_FORMAT")
-    elif isinstance(value, datetime.date) and convert_datetime:
+    elif isinstance(value, date) and convert_datetime:
         return formats.date_format(value, "DATE_FORMAT")
-    elif isinstance(value, datetime.time) and convert_datetime:
+    elif isinstance(value, time) and convert_datetime:
         return formats.date_format(value, "TIME_FORMAT")
     elif isinstance(value, bool):
         if bool_textual:
@@ -216,14 +215,18 @@ class LucteriosModel(models.Model):
                     except ValueError:
                         fieldvalue = datetime.now()
                 elif isinstance(dep_field, BooleanField):
-                    fieldvalue = (six.type_text(fieldvalue) == 'True') or (six.type_text(fieldvalue).lower() == 'yes') or (six.type_text(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
+                    fieldvalue = (six.text_type(fieldvalue) == 'True') or (six.text_type(fieldvalue).lower() == 'yes') or (six.text_type(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
                 elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
                     sub_value = fieldvalue
                     fieldvalue = None
                     for sub_item in dep_field.remote_field.model.objects.all():
-                        if six.text_type(sub_item) == six.text_type(sub_value):
+                        if six.text_type(sub_item.get_final_child()) == six.text_type(sub_value):
                             fieldvalue = sub_item
                             break
+                    if fieldvalue is None:
+                        base_dep_field = cls.get_field_by_name(fieldname.split('.')[0])
+                        if not base_dep_field.null:
+                            return None
                 if value_to_saved:
                     setattr(new_item, fieldname, fieldvalue)
 
@@ -541,7 +544,6 @@ class GeneralPrintPlugin(PrintFieldsPlugIn):
         return fields
 
     def evaluate(self, text_to_evaluate):
-        from datetime import datetime
         current_datetime = datetime.now()
         res = text_to_evaluate
         res = res.replace('#today_short', formats.date_format(current_datetime, "SHORT_DATE_FORMAT"))
