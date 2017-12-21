@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-10 15:05+0000\n"
+"POT-Creation-Date: 2017-12-21 12:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,43 +21,43 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:73 xfergraphic.py:164 xfergraphic.py:324
+#: models.py:72 xfergraphic.py:164 xfergraphic.py:324
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:75 xfergraphic.py:165 xfergraphic.py:326
+#: models.py:74 xfergraphic.py:165 xfergraphic.py:326
 msgid "No"
 msgstr "No"
 
-#: models.py:448
+#: models.py:451
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:473
+#: models.py:476
 msgid "is active"
 msgstr "is active"
 
-#: models.py:473
+#: models.py:476
 msgid "username"
 msgstr "username"
 
-#: models.py:500
+#: models.py:503
 msgid "session"
 msgstr "session"
 
-#: models.py:501
+#: models.py:504
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:534
+#: models.py:537
 msgid "General"
 msgstr "General"
 
-#: models.py:538 models.py:539
+#: models.py:541 models.py:542
 msgid "current date"
 msgstr "current date"
 
-#: models.py:540
+#: models.py:543
 msgid "current hour"
 msgstr "current hour"
 

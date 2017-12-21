@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-10 15:05+0000\n"
+"POT-Creation-Date: 2017-12-21 12:47+0000\n"
 "PO-Revision-Date: 2016-01-11 22:43+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -276,7 +276,7 @@ msgstr "Accès libre"
 
 #: models.py:463
 msgid "CORE-Wizard"
-msgstr "Toujours ouvrir l'assistant de configuration au démarrage."
+msgstr "Ouvrir l'assistant de configuration au démarrage."
 
 #: parameters.py:110 parameters.py:143
 #, python-format
@@ -652,7 +652,7 @@ msgstr ""
 "prochaines configurations sont également accessibles depuis le menu "
 "d'administration."
 
-#: views.py:1171
+#: views.py:1177
 msgid "Groups and users"
 msgstr "Groupes et utilisateurs"
 

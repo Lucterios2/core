@@ -1166,7 +1166,13 @@ def conf_wizard_core(wizard_ident, xfer):
         lbl.set_location(0, 5, 6)
         xfer.add_component(lbl)
         Params.fill(xfer, ['CORE-Wizard'], 1, 6, False)
-        xfer.get_components("CORE-Wizard").set_action(xfer.request, xfer.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        check = xfer.get_components("CORE-Wizard")
+        check.set_action(xfer.request, xfer.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        lbl = XferCompLabelForm('lbl_wizard')
+        lbl.set_value_as_name(check.description)
+        lbl.set_location(2, 6)
+        xfer.add_component(lbl)
+        check.description = ""
     elif (xfer is not None) and (wizard_ident == "core_users"):
         xfer.add_title(six.text_type(settings.APPLIS_NAME), _("Groups and users"))
         param_lists = ['CORE-connectmode', 'CORE-Wizard']

@@ -29,7 +29,7 @@ from __future__ import unicode_literals
 import sys
 import os
 import webbrowser
-from os.path import join, dirname
+from os.path import join, dirname, expanduser
 from subprocess import Popen, PIPE, STDOUT
 from time import sleep
 from traceback import print_exc
@@ -772,8 +772,7 @@ class LucteriosMainForm(Tk):
     def save_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = asksaveasfilename(
-                parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')])
+            file_name = asksaveasfilename(parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')], initialdir=expanduser('~'))
             if file_name != '':
                 self.save_instance(instance_name, file_name)
 
@@ -796,8 +795,7 @@ class LucteriosMainForm(Tk):
     def restore_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = askopenfilename(
-                parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')])
+            file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')], initialdir=expanduser('~'))
             if file_name != '':
                 self.restore_instance(instance_name, file_name)
 
