@@ -305,7 +305,7 @@ class ConfigTest(LucteriosTest):
 
         self.assert_attrib_equal("CORE-connectmode", 'description', "Mode de connexion")
         self.assert_comp_equal(('LABELFORM', "CORE-connectmode"), "Connexion toujours nécessaire", (1, 1, 1, 1))
-        self.assert_attrib_equal("CORE-Wizard", 'description', "Toujours ouvrir l'assistant de configuration au démarrage.")
+        self.assert_attrib_equal("CORE-Wizard", 'description', "Ouvrir l'assistant de configuration au démarrage.")
         self.assert_comp_equal(('LABELFORM', "CORE-Wizard"), "Oui", (1, 2, 1, 1))
         self.assert_action_equal(self.json_comp["conf_wizard"]['action'], ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
 
