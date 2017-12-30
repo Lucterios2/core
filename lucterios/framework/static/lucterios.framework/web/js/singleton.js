@@ -1,4 +1,4 @@
-/*global $,Class,HashMap,post_log,g_translation*/
+/*global $,Class,HashMap,post_log,g_translation, Uint8Array, URL*/
 
 var SingletonObj = null;
 var g_InitialCallBack = null;
@@ -32,6 +32,39 @@ var FileManager = Class.extend({
 	},
 
 	saveFile : function(aContent, aFileName) {
+		var offset, blob, sliceSize = 512, byteCharacters = atob(aContent), byteArrays, idx, byteArray, byteNumbers, slice, mouseEvent, hyperlink;
+		byteArrays = new [].constructor();
+		for (offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+			slice = byteCharacters.slice(offset, offset + sliceSize);
+			byteNumbers = new [].constructor(slice.length);
+			for (idx = 0; idx < slice.length; idx++) {
+				byteNumbers[idx] = slice.charCodeAt(idx);
+			}
+			byteArray = new Uint8Array(byteNumbers);
+			byteArrays.push(byteArray);
+		}
+		blob = new Blob(byteArrays, {
+			type : 'application/x-json'
+		});
+		if (window.navigator.msSaveOrOpenBlob) {
+			window.navigator.msSaveOrOpenBlob(blob, aFileName);
+		} else {
+			hyperlink = document.createElement('a');
+			hyperlink.href = URL.createObjectURL(blob);
+			hyperlink.target = '_blank';
+			hyperlink.download = aFileName;
+			mouseEvent = document.createEvent('MouseEvent');
+			mouseEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 80, 20, false, false, false, false, 0, null);
+			hyperlink.dispatchEvent(mouseEvent);
+			if (window.URL) {
+				window.URL.revokeObjectURL(hyperlink.href);
+			} else if (window.webkitURL) {
+				window.webkitURL.revokeObjectURL(hyperlink.href);
+			}
+		}
+	},
+
+	old_saveFile : function(aContent, aFileName) {
 		var hyperlink = document.createElement('a'), mouseEvent;
 		hyperlink.href = 'data:application/x-json;base64,' + aContent;
 		hyperlink.target = '_blank';

@@ -30,8 +30,10 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO,\
     SELECT_NONE, get_actions_xml, get_actions_json
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.framework import signal_and_lock
+from lucterios.framework.models import LucteriosSession
+
+from lucterios.CORE.parameters import Params, secure_mode_connect
 
 
 def get_info_server():
@@ -105,6 +107,7 @@ class Authentification(XferContainerAbstract):
         from django.conf import settings
         import lucterios.CORE
         import os
+        LucteriosSession.clean_anonymous()
         info_cnx = {}
         info_cnx['TITLE'] = six.text_type(settings.APPLIS_NAME)
         info_cnx['SUBTITLE'] = settings.APPLIS_SUBTITLE()

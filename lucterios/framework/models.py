@@ -497,6 +497,20 @@ class LucteriosSession(Session, LucteriosModel):
     def is_active(self):
         return get_value_converted(self.get_is_active(), bool_textual=True)
 
+    @classmethod
+    def clean_anonymous(cls):
+        dt_now = timezone.now()
+        for sess in LucteriosSession.objects.filter(expire_date__lt=dt_now):
+            if sess.username == '---':
+                sess.delete()
+
+    def flush(self):
+        try:
+            if hasattr(Session, "flush"):
+                Session.flush(self)
+        except Exception:
+            pass
+
     class Meta(object):
         proxy = True
         default_permissions = []
