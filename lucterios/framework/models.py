@@ -280,7 +280,7 @@ class LucteriosModel(models.Model):
             self, field.attname) in [None, '']])
 
         for alias_object in alias_objects:
-            for related_object in alias_object._meta.get_fields(include_hidden=True):
+            for related_object in alias_object._meta.get_fields(include_hidden=False):
                 if related_object.one_to_many and related_object.auto_created:
                     alias_varname = related_object.get_accessor_name()
                     obj_varname = related_object.field.name
@@ -288,18 +288,23 @@ class LucteriosModel(models.Model):
                     for obj in related_objects.all():
                         setattr(obj, obj_varname, self)
                         obj.save()
-                if related_object.many_to_many and related_object.auto_created:
-                    alias_varname = related_object.get_accessor_name()
-                    obj_varname = related_object.field.name
-                    if alias_varname is not None:
-                        related_many_objects = getattr(
-                            alias_object, alias_varname).all()
+                if related_object.many_to_many:
+                    if related_object.auto_created:
+                        alias_varname = related_object.get_accessor_name()
+                        obj_varname = related_object.field.name
+                        if alias_varname is not None:
+                            related_many_objects = getattr(alias_object, alias_varname).all()
+                        else:
+                            related_many_objects = getattr(alias_object, obj_varname).all()
+                        for obj in related_many_objects.all():
+                            getattr(obj, obj_varname).remove(alias_object)
+                            getattr(obj, obj_varname).add(self)
                     else:
-                        related_many_objects = getattr(
-                            alias_object, obj_varname).all()
-                    for obj in related_many_objects.all():
-                        getattr(obj, obj_varname).remove(alias_object)
-                        getattr(obj, obj_varname).add(self)
+                        obj_varname = related_object.name
+                        mergedlist = []
+                        mergedlist.extend(getattr(self, obj_varname).all())
+                        mergedlist.extend(getattr(alias_object, obj_varname).all())
+                        setattr(self, obj_varname, mergedlist)
 
             for field in generic_fields:
                 filter_kwargs = {}
