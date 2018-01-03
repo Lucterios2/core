@@ -320,7 +320,7 @@ class LucteriosTest(TestCase):
                 self.assertEqual(act['unique'], six.text_type(act_desc[6]))
                 if len(act_desc) > 7:
                     for key, value in act_desc[7].items():
-                        self.assertEqual(path['params'][key], value)
+                        self.assertEqual(six.text_type(path['params'][key]), six.text_type(value))
             else:
                 self.assertTrue('extension' not in act.keys())
                 self.assertTrue('action' not in act.keys())
@@ -345,14 +345,17 @@ class LucteriosTest(TestCase):
         else:
             self.assertTrue(self.response_xml is None)
             self.assertEqual(self.json_comp[path]['component'], tag)
-            self.assertEqual(len(self.json_comp[path]['case']), len(selects))
-            try:
-                for case in self.json_comp[path]['case']:
-                    vid = case[0]
-                    self.assertEqual(selects[vid], case[1])
-            except Exception:
-                six.print_(self.json_comp[path]['case'])
-                raise
+            if isinstance(selects, dict):
+                self.assertEqual(len(self.json_comp[path]['case']), len(selects))
+                try:
+                    for case in self.json_comp[path]['case']:
+                        vid = case[0]
+                        self.assertEqual(selects[vid], case[1])
+                except Exception:
+                    six.print_(self.json_comp[path]['case'])
+                    raise
+            else:
+                self.assertEqual(len(self.json_comp[path]['case']), selects)
 
     def assert_grid_equal(self, path, headers, nb_records):
         if self.response_json is None:
@@ -361,9 +364,10 @@ class LucteriosTest(TestCase):
                 self.assert_xml_equal('COMPONENTS/GRID[@name="%s"]/HEADER[@name="%s"]' % (path, header_key), header_val)
             self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD' % path, nb_records)
         else:
+            import json
             self.assertTrue(self.response_xml is None)
             self.assertEqual(self.json_comp[path]['component'], 'GRID')
-            self.assertEqual(len(self.json_comp[path]['headers']), len(headers))
+            self.assertEqual(len(self.json_comp[path]['headers']), len(headers), json.dumps(self.json_comp[path]['headers']))
             for header in self.json_comp[path]['headers']:
                 header_name = header[0]
                 self.assertEqual(headers[header_name], header[1])
