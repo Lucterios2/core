@@ -100,10 +100,7 @@ class LucteriosTest(TestCase):
         TestCase.__init__(self, methodName)
         self.xfer_class = None
 
-    def setUp(self):
-        self.factory = XmlRequestFactory(self.xfer_class, self.language)
-        self.client = XmlClient(self.language)
-        self.response = None
+    def clean_resp(self):
         self.response_xml = None
         self.response_json = None
         self.json_meta = {}
@@ -111,6 +108,12 @@ class LucteriosTest(TestCase):
         self.json_comp = {}
         self.json_context = {}
         self.json_actions = []
+
+    def setUp(self):
+        self.factory = XmlRequestFactory(self.xfer_class, self.language)
+        self.client = XmlClient(self.language)
+        self.response = None
+        self.clean_resp()
         Params.clear()
         notfree_mode_connect()
 
@@ -128,6 +131,7 @@ class LucteriosTest(TestCase):
             self.response = self.client.call(path, data)
         else:
             self.response = self.factory.call(path, data)
+        self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
 
     def call(self, path, data, is_client=True):
@@ -319,8 +323,12 @@ class LucteriosTest(TestCase):
                 self.assertEqual(act['modal'], six.text_type(act_desc[5]))
                 self.assertEqual(act['unique'], six.text_type(act_desc[6]))
                 if len(act_desc) > 7:
-                    for key, value in act_desc[7].items():
-                        self.assertEqual(six.text_type(path['params'][key]), six.text_type(value))
+                    try:
+                        for key, value in act_desc[7].items():
+                            self.assertEqual(six.text_type(act['params'][key]), six.text_type(value))
+                    except:
+                        six.print_(six.text_type(act['params']))
+                        raise
             else:
                 self.assertTrue('extension' not in act.keys())
                 self.assertTrue('action' not in act.keys())
