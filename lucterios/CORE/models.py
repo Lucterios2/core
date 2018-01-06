@@ -73,6 +73,9 @@ class Parameter(LucteriosModel):
         elif meta is not None:
             param.metaselect = meta
             param.save()
+        elif param.args != args:
+            param.args = args
+            param.save()
         return created
 
     @classmethod
@@ -110,7 +113,6 @@ class Parameter(LucteriosModel):
         return meta_select
 
     class Meta(object):
-
         verbose_name = _('parameter')
         verbose_name_plural = _('parameters')
         default_permissions = ['add', 'change']
@@ -461,6 +463,7 @@ def core_checkparam():
     Parameter.check_and_create(name='CORE-connectmode', typeparam=4, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
                                param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
     Parameter.check_and_create(name='CORE-Wizard', typeparam=3, title=_("CORE-Wizard"), args="{}", value='True')
+    Parameter.check_and_create(name='CORE-MessageBefore', typeparam=0, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
 
 
 def post_after_migrate(sender, **kwargs):
@@ -469,5 +472,6 @@ def post_after_migrate(sender, **kwargs):
         translation.activate(settings.LANGUAGE_CODE)
         six.print_('check parameters')
         Signal.call_signal("checkparam")
+
 
 post_migrate.connect(post_after_migrate)

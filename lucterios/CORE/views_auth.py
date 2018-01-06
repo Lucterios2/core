@@ -27,7 +27,7 @@ from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO,\
-    SELECT_NONE, get_actions_xml, get_actions_json
+    SELECT_NONE, get_actions_xml, get_actions_json, CLOSE_YES
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
@@ -67,41 +67,29 @@ class Authentification(XferContainerAbstract):
 
     def fillresponse(self, username, password, info):
         from django.contrib.auth import authenticate, login, logout
-        if (username is not None) and (password is not None):
+        if (username == '') and (password is None):
+            self.must_autentificate('')
+        elif (username is not None) and (password is not None):
             if self.request.user.is_authenticated():
                 logout(self.request)
             if (username == '') and (password == '') and not secure_mode_connect():
                 self.params["ses"] = 'null'
-                self.get_connection_info()
+                self.connection_success()
             else:
                 user = authenticate(username=username, password=password)
                 if user is not None:
                     login(self.request, user)
                     self.params["ses"] = user.username
-                    self.get_connection_info()
+                    self.connection_success()
                 else:
                     self.must_autentificate('BADAUTH')
         elif info is not None:
-            self.get_connection_info()
+            self.connection_success()
         else:
             if self.request.user.is_authenticated() or not secure_mode_connect():
-                self.get_connection_info()
+                self.connection_success()
             else:
                 self.must_autentificate('NEEDAUTH')
-
-    def must_autentificate(self, mess):
-        self.responsejson['data'] = mess
-        self.responsexml.text = mess
-        if secure_mode_connect():
-            basic_actions = []
-            signal_and_lock.Signal.call_signal("auth_action", basic_actions)
-            actions = []
-            for action in basic_actions:
-                if self.check_action_permission(action):
-                    actions.append((action, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, None))
-            if len(actions) != 0:
-                self.responsejson['actions'] = get_actions_json(actions)
-                self.responsexml.append(get_actions_xml(actions))
 
     def get_connection_info(self):
         from django.conf import settings
@@ -122,6 +110,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['INFO_SERVER'] = get_info_server()
         setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
         info_cnx['INSTANCE'] = setting_module_name.split('.')[0]
+        info_cnx['MESSAGE_BEFORE'] = Params.getvalue("CORE-MessageBefore")
         info_cnx['LANGUAGE'] = self.language
         info_cnx['MODE'] = six.text_type(Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated():
@@ -133,7 +122,6 @@ class Authentification(XferContainerAbstract):
             info_cnx['REALNAME'] = ''
             info_cnx['EMAIL'] = ''
         if self.format == 'JSON':
-            self.responsejson['data'] = "OK"
             self.responsejson['connexion'] = info_cnx
         else:
             from lxml import etree
@@ -143,6 +131,29 @@ class Authentification(XferContainerAbstract):
                     etree.SubElement(connextion, name).text = "{[br/]}".join(value)
                 else:
                     etree.SubElement(connextion, name).text = value
+
+    def must_autentificate(self, mess):
+        self.get_connection_info()
+        if self.format == 'JSON':
+            self.responsejson['data'] = mess
+        else:
+            self.responsexml.text = mess
+        if secure_mode_connect():
+            basic_actions = []
+            signal_and_lock.Signal.call_signal("auth_action", basic_actions)
+            actions = []
+            for action in basic_actions:
+                if self.check_action_permission(action):
+                    actions.append((action, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, None))
+            if len(actions) != 0:
+                self.responsejson['actions'] = get_actions_json(actions)
+                self.responsexml.append(get_actions_xml(actions))
+
+    def connection_success(self):
+        self.get_connection_info()
+        if self.format == 'JSON':
+            self.responsejson['data'] = "OK"
+        else:
             self.responsexml.text = "OK"
 
 
@@ -155,3 +166,4 @@ class ExitConnection(XferContainerAcknowledge):
         self.caption = _("Disconnect")
         signal_and_lock.RecordLocker.unlock(self.request)
         logout(self.request)
+        self.redirect_action(Authentification.get_action(), close=CLOSE_YES, params={'username': ''})

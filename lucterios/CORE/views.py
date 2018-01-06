@@ -258,9 +258,10 @@ class AskPasswordAct(XferContainerAcknowledge):
 
 @signal_and_lock.Signal.decorate('config')
 def config_core(xfer):
-    Params.fill(xfer, ['CORE-connectmode', 'CORE-Wizard'], 1, 1)
+    Params.fill(xfer, ['CORE-connectmode', 'CORE-Wizard', 'CORE-MessageBefore'], 1, 1)
     xfer.params['params'].append('CORE-connectmode')
     xfer.params['params'].append('CORE-Wizard')
+    xfer.params['params'].append('CORE-MessageBefore')
 
 
 @signal_and_lock.Signal.decorate('auth_action')

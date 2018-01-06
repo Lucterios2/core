@@ -16,6 +16,7 @@ var ApplicationDescription = Class.extend({
 	mSubTitle : '',
 	mRealName : '',
 	mInstanceName : '',
+	mMessageBefore : '',
 	mMode : 0,
 	mLanguage : '',
 
@@ -131,6 +132,10 @@ var ApplicationDescription = Class.extend({
 		this.mInstanceName = aInstanceName;
 	},
 
+	setMessageBefore : function(aMessageBefore) {
+		this.mMessageBefore = aMessageBefore;
+	},
+
 	getLanguage : function() {
 		return this.mLanguage;
 	},
@@ -233,12 +238,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 	show : function(aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
 		var cdate = this.mJSON.data, json_connection, desc;
-		if (cdate !== "OK") {
-			Singleton().Transport().setSession("");
-			run_CleanCallBack();
-			this.show_logon(cdate);
-			this.refreshMenu = true;
-		} else {
+		if (this.mJSON.connexion !== undefined) {
 			json_connection = this.mJSON.connexion;
 			desc = new ApplicationDescription(json_connection.TITLE, json_connection.COPYRIGHT, json_connection.VERSION,
 					json_connection.SERVERVERSION);
@@ -253,11 +253,20 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			desc.setRealName(json_connection.REALNAME.trim());
 			desc.setMode(json_connection.MODE);
 			desc.setInstanceName(json_connection.INSTANCE);
+			desc.setMessageBefore(json_connection.MESSAGE_BEFORE);
 			desc.setLanguage(json_connection.LANGUAGE);
+		}
+		if (cdate !== "OK") {
+			Singleton().Transport().setSession("");
+			run_CleanCallBack();
+			this.show_logon(cdate);
+			Singleton().setInfoDescription(desc, false, false);
+			this.refreshMenu = true;
+		} else {
 			if ((this.mJSON.context !== undefined) && (this.mJSON.context.ses !== undefined)) {
 				Singleton().Transport().setSession(this.mJSON.context.ses);
 			}
-			Singleton().setInfoDescription(desc, this.refreshMenu);
+			Singleton().setInfoDescription(desc, this.refreshMenu, true);
 			this.refreshMenu = false;
 		}
 	},
@@ -322,7 +331,9 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		this.mGUI = new GUIManage(this.getId(), Singleton().getTranslate("Logon"), this);
 		this.mGUI.withForm = true;
 		this.mGUI.addcontent(createTable(table), this.acts);
-		this.mGUI.showGUI(true);
+		this.mGUI.showGUI(false);
+		$("#" + this.getId()).dialog('option', 'height', 'auto');
+		$("#" + this.getId()).dialog('option', 'width', 'auto');
 		for (index = 0; index < extra_acts.length; index++) {
 			$('#btn_{0}_{1}'.format(this.getId(), index)).click($.proxy(extra_acts[index].actionPerformed, extra_acts[index]));
 		}

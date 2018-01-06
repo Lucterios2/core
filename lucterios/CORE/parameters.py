@@ -52,7 +52,7 @@ class ParamCache(object):
             self.type = 6
         if self.type == 0:  # String
             self.value = six.text_type(param.value)
-            self.args = {'Multi': False}
+            self.args = {'Multi': False, 'HyperText': False}
         elif self.type == 1:  # Integer
             self.args = {'Min': 0, 'Max': 10000000}
             self.value = int(param.value)
@@ -86,6 +86,7 @@ class ParamCache(object):
         if self.type == 0:  # String
             if self.args['Multi']:
                 param_cmp = XferCompMemo(self.name)
+                param_cmp.with_hypertext = self.args['HyperText']
             else:
                 param_cmp = XferCompEdit(self.name)
             param_cmp.set_value(self.value)
@@ -260,5 +261,6 @@ def notfree_mode_connect(*args):
 def secure_mode_connect():
     mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection == 0
+
 
 tools.WrapAction.mode_connect_notfree = notfree_mode_connect

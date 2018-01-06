@@ -182,12 +182,15 @@ test("Authentification 3", function() {
 			"extension" : "CORE"
 		}
 	};
+	equal(this.mCalled, 0, "Initial");
 
 	var obs = new ObserverAuthentification();
 	obs.setSource('CORE', "authentification");
 	obs.setContent(json_receive);
 	obs.show("Connexion");
 
+	equal(this.mCalled, 1, "Begin");
+	
 	var gui = obs.getGUI();
 	ok(gui != null, "getGUI");
 	ok(gui.isExist(), "GUI exist");
@@ -204,14 +207,14 @@ test("Authentification 3", function() {
 
 	Singleton().mDesc = 0;
 	equal(this.mObsFactory.CallList.size(), 0, "Call A Nb");
-	equal(this.mCalled, 0, "Called B");
+	equal(this.mCalled, 1, "Called A");
 
 	btn2.click();
 
 	ok(!gui.isExist(), "GUI exist again");
 	equal(this.mObsFactory.CallList.size(), 0, "Call B Nb");
 
-	equal(this.mCalled, 1, "Called B");
+	equal(this.mCalled, 2, "Called B");
 	equal(Singleton().mDesc, null, 'Desc null');
 });
 

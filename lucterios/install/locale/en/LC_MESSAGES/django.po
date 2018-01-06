@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-21 12:47+0000\n"
+"POT-Creation-Date: 2018-01-06 20:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,8 +22,8 @@ msgid "CORE-connectmode"
 msgstr "Connection mode"
 
 #: lucterios_gui.py:71 lucterios_gui.py:384 lucterios_gui.py:613
-#: lucterios_gui.py:765 lucterios_gui.py:769 lucterios_gui.py:789
-#: lucterios_gui.py:793
+#: lucterios_gui.py:765 lucterios_gui.py:769 lucterios_gui.py:788
+#: lucterios_gui.py:792
 msgid "Lucterios launcher"
 msgstr "Lucterios launcher"
 
@@ -223,11 +223,11 @@ msgstr "Instance saved to %s"
 msgid "Instance not saved!"
 msgstr "Instance not saved!"
 
-#: lucterios_gui.py:790
+#: lucterios_gui.py:789
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restore from %s"
 
-#: lucterios_gui.py:793
+#: lucterios_gui.py:792
 msgid "Instance not restored!"
 msgstr "Instance not restored!"

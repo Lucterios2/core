@@ -36,7 +36,16 @@
 	border: 1px solid #dddddd;
 	background: #ffffff;
 	color: #333333;
+}
+
+div.lct-dlgcontent div.tabContent .ui-widget-content {
 	overflow: hidden;
+}
+
+@media screen and (max-height: 690px) {
+	div.lct-dlgcontent {
+		overflow: hidden;
+	}
 }
 
 .ui-widget-content a {

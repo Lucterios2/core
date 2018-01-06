@@ -67,10 +67,9 @@ function standard_initial() {
 }
 
 function disconnect_function() {
-	standard_initial();
-	var obs = new ObserverAuthentification();
-	obs.setContent('<NULL/>'.parseXML());
-	obs.show_logon('');
+	var act = Singleton().CreateAction();
+	act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'exitConnection');
+	act.actionPerformed();
 }
 
 function first_action() {
@@ -156,69 +155,80 @@ function about_function() {
 	this.mGUI.showGUI(true);
 }
 
-function initial_function() {
+function initial_function(aInitialHeader) {
 	if (Singleton().mDesc === null) {
 		Singleton().close();
 		first_action();
 	} else {
-		var disconnect_title = Singleton().getTranslate('Logoff'), html, act;
-		if (Singleton().mDesc.getLogin() === '') {
-			disconnect_title = Singleton().getTranslate('Logon');
-		}
-		html = "<div id='status'>";
-		html += "<div class='header-left'>";
-		html += "<label id='showmenu' class='ui-widget-header ui-corner-all'>";
-		html += "<span class='fa fa-list-alt'/>" + "<span name='headertle'>";
-		html += Singleton().getTranslate('Info');
-		html += "</span>";
-		html += "</label>";
-		html += "<img src='{0}' style='height:48px'>".format(Singleton().mDesc.getLogoIconName());
-		html += "<label id='statususer'>";
-		html += Singleton().mDesc.getConnectUser();
-		html += "</label>";
-		html += "</div>";
-		html += "<div class='header-right'>";
-		html += "<label id='disconnect' class='ui-widget-header ui-corner-all' >";
-		html += "<span class='fa fa-power-off'/>" + "<span name='headertle'>";
-		html += disconnect_title;
-		html += "</span>";
-		html += "</label>";
-		html += "<label id='refresh' class='ui-widget-header ui-corner-all' >";
-		html += "<span class='fa fa-refresh'/>";
-		html += "<span name='headertle'>";
-		html += Singleton().getTranslate('Refresh');
-		html += "</span>";
-		html += "</label>";
-		html += "<label id='about' class='ui-widget-header ui-corner-all' >";
-		html += "<span class='fa fa-info-circle'/>";
-		html += "<span name='headertle'>";
-		html += Singleton().getTranslate("About...");
-		html += "</span>";
-		html += "</label>";
-		html += "<label id='help' class='ui-widget-header ui-corner-all' >";
-		html += "<span class='fa fa-question-circle'/>";
-		html += "<span name='headertle'>";
-		html += Singleton().getTranslate("Help");
-		html += "</span>";
-		html += "</label>";
-		html += "</div>";
-		html += "</div>";
-		$("#lucteriosClient").append(html);
-		$("#refresh").click(refresh_function);
-		if (Singleton().mDesc.getMode() === '2') {
-			$("#disconnect").css('visibility', 'hidden');
+		var disconnect_title, html, act;
+		if (aInitialHeader) {
+			$("div#message_before").remove();
+			disconnect_title = Singleton().getTranslate('Logoff');
+			if (Singleton().mDesc.getLogin() === '') {
+				disconnect_title = Singleton().getTranslate('Logon');
+			}
+			html = "<div id='status'>";
+			html += "<div class='header-left'>";
+			html += "<label id='showmenu' class='ui-widget-header ui-corner-all'>";
+			html += "<span class='fa fa-list-alt'/>" + "<span name='headertle'>";
+			html += Singleton().getTranslate('Info');
+			html += "</span>";
+			html += "</label>";
+			html += "<img src='{0}' style='height:48px'>".format(Singleton().mDesc.getLogoIconName());
+			html += "<label id='statususer'>";
+			html += Singleton().mDesc.getConnectUser();
+			html += "</label>";
+			html += "</div>";
+			html += "<div class='header-right'>";
+			html += "<label id='disconnect' class='ui-widget-header ui-corner-all' >";
+			html += "<span class='fa fa-power-off'/>" + "<span name='headertle'>";
+			html += disconnect_title;
+			html += "</span>";
+			html += "</label>";
+			html += "<label id='refresh' class='ui-widget-header ui-corner-all' >";
+			html += "<span class='fa fa-refresh'/>";
+			html += "<span name='headertle'>";
+			html += Singleton().getTranslate('Refresh');
+			html += "</span>";
+			html += "</label>";
+			html += "<label id='about' class='ui-widget-header ui-corner-all' >";
+			html += "<span class='fa fa-info-circle'/>";
+			html += "<span name='headertle'>";
+			html += Singleton().getTranslate("About...");
+			html += "</span>";
+			html += "</label>";
+			html += "<label id='help' class='ui-widget-header ui-corner-all' >";
+			html += "<span class='fa fa-question-circle'/>";
+			html += "<span name='headertle'>";
+			html += Singleton().getTranslate("Help");
+			html += "</span>";
+			html += "</label>";
+			html += "</div>";
+			html += "</div>";
+			$("#lucteriosClient").append(html);
+			$("#refresh").click(refresh_function);
+			if (Singleton().mDesc.getMode() === '2') {
+				$("#disconnect").css('visibility', 'hidden');
+			} else {
+				$("#disconnect").click(disconnect_function);
+			}
+			$("#about").click(about_function);
+			$("#help").click(help_function);
+			$("#showmenu").click(info_openclose);
+			if (Singleton().mRefreshMenu) {
+				act = Singleton().CreateAction();
+				act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'menu');
+				act.actionPerformed();
+			}
 		} else {
-			$("#disconnect").click(disconnect_function);
+			if (Singleton().mDesc.mMessageBefore !== '') {
+				html = "<div id='message_before'>";
+				html += Singleton().mDesc.mMessageBefore.convertLuctoriosFormatToHtml();
+				html += "</div>";
+				$("#lucteriosClient").append(html);
+			}
 		}
-		$("#about").click(about_function);
-		$("#help").click(help_function);
-		$("#showmenu").click(info_openclose);
 		document.title = "{0} - {1}".format(Singleton().mDesc.getTitle(), Singleton().mDesc.getSubTitle());
-		if (Singleton().mRefreshMenu) {
-			act = Singleton().CreateAction();
-			act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'menu');
-			act.actionPerformed();
-		}
 		if (Singleton().mDesc.mBackground !== '') {
 			$('body').css('background', '#EEE url(' + Singleton().mDesc.mBackground + ') repeat');
 		} else {

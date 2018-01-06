@@ -166,11 +166,11 @@ var SingletonClass = Class.extend({
 		return null;
 	},
 
-	setInfoDescription : function(aDesc, aRefreshMenu) {
+	setInfoDescription : function(aDesc, aRefreshMenu, aInitialHeader) {
 		this.mDesc = aDesc;
 		this.mRefreshMenu = aRefreshMenu;
 		if (g_InitialCallBack !== null) {
-			g_InitialCallBack();
+			g_InitialCallBack(aInitialHeader);
 		}
 	},
 

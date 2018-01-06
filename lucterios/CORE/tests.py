@@ -44,27 +44,30 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(response.content, six.binary_type('', 'ascii'))
 
     def test_menu_noconnect(self):
-
         self.calljson('/CORE/menu', {})
         self.assert_observer('core.auth', 'CORE', 'menu')
         self.assert_json_equal('', '', 'NEEDAUTH')
-        self.assertFalse('connexion' in self.response_json.keys())
+        self.assertTrue('connexion' in self.response_json.keys())
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
     def test_badconnect(self):
         self.calljson('/CORE/authentification', {})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'NEEDAUTH')
-        self.assertFalse('connexion' in self.response_json.keys())
+        self.assertTrue('connexion' in self.response_json.keys())
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
         self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
-        self.assertFalse('connexion' in self.response_json.keys())
+        self.assertTrue('connexion' in self.response_json.keys())
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
         self.calljson('/CORE/authentification', {'username': 'aaa', 'password': 'bbb'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
-        self.assertFalse('connexion' in self.response_json.keys())
+        self.assertTrue('connexion' in self.response_json.keys())
+        self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
     def test_connect(self):
         self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
@@ -295,11 +298,11 @@ class ConfigTest(LucteriosTest):
         self.assert_observer('core.custom', 'CORE', 'configuration')
         self.assertEqual(self.json_meta['title'], 'Configuration générale')
         self.assertEqual(len(self.json_context), 1)
-        self.assertEqual(self.json_context['params'], ['CORE-connectmode', 'CORE-Wizard'])
+        self.assertEqual(self.json_context['params'], ['CORE-connectmode', 'CORE-Wizard', 'CORE-MessageBefore'])
         self.assertEqual(len(self.json_actions), 2)
         self.assert_action_equal(self.json_actions[0], ('Modifier', 'images/edit.png', 'CORE', 'paramEdit', 0, 1, 1))
         self.assert_action_equal(self.json_actions[1], ('Fermer', 'images/close.png'))
-        self.assert_count_equal('', 5)
+        self.assert_count_equal('', 6)
         self.assert_comp_equal(('IMAGE', "img"), '/static/lucterios.CORE/images/config.png', (0, 0, 1, 10))
         self.assert_comp_equal(('LABELFORM', "title"), "{[br/]}{[center]}{[b]}{[u]}Configuration du logiciel{[/u]}{[/b]}{[/center]}", (1, 0, 3, 1))
 
@@ -307,6 +310,8 @@ class ConfigTest(LucteriosTest):
         self.assert_comp_equal(('LABELFORM', "CORE-connectmode"), "Connexion toujours nécessaire", (1, 1, 1, 1))
         self.assert_attrib_equal("CORE-Wizard", 'description', "Ouvrir l'assistant de configuration au démarrage.")
         self.assert_comp_equal(('LABELFORM', "CORE-Wizard"), "Oui", (1, 2, 1, 1))
+        self.assert_attrib_equal("CORE-MessageBefore", 'description', "Message avant connexion")
+        self.assert_comp_equal(('LABELFORM', "CORE-MessageBefore"), "", (1, 3, 1, 1))
         self.assert_action_equal(self.json_comp["conf_wizard"]['action'], ("Assistant", 'images/config.png', 'CORE', 'configurationWizard', 0, 1, 1))
 
     def test_config_edit(self):

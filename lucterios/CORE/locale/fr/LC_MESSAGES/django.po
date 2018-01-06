@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-21 12:47+0000\n"
+"POT-Creation-Date: 2018-01-06 20:25+0000\n"
 "PO-Revision-Date: 2016-01-11 22:43+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -277,6 +277,10 @@ msgstr "Accès libre"
 #: models.py:463
 msgid "CORE-Wizard"
 msgstr "Ouvrir l'assistant de configuration au démarrage."
+
+#: models.py:464
+msgid "CORE-MessageBefore"
+msgstr "Message avant connexion"
 
 #: parameters.py:110 parameters.py:143
 #, python-format
@@ -656,7 +660,7 @@ msgstr ""
 msgid "Groups and users"
 msgstr "Groupes et utilisateurs"
 
-#: views_auth.py:152
+#: views_auth.py:166
 msgid "Disconnect"
 msgstr "Déconnexion"
 
