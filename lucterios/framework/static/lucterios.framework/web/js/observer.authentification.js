@@ -303,11 +303,11 @@ var ObserverAuthentification = ObserverAbstract.extend({
 
 		table[1] = [];
 		table[1][0] = new compBasic('<span style="width:95%;margin:5px;"><b>' + Singleton().getTranslate("Login") + '</b></span>');
-		table[1][1] = new compBasic('<input name="username" type="text" style="width:95%;margin:5px;"/>');
+		table[1][1] = new compBasic('<input name="username" type="text" style="width:95%;"/>');
 
 		table[2] = [];
 		table[2][0] = new compBasic('<span style="width:95%;margin:5px;"><b>' + Singleton().getTranslate("Password") + '</b></span>');
-		table[2][1] = new compBasic('<input name="password" type="password" style="width:95%;margin:5px;"/>');
+		table[2][1] = new compBasic('<input name="password" type="password" style="width:95%;"/>');
 		if (this.mActions) {
 			extra_table[0] = [];
 			for (index = 0; index < this.mActions.length; index++) {

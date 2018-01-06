@@ -36,6 +36,7 @@
 	border: 1px solid #dddddd;
 	background: #ffffff;
 	color: #333333;
+	overflow: hidden;
 }
 
 .ui-widget-content a {
@@ -943,4 +944,8 @@ works properly when clicked or hovered */ html .ui-button.ui-state-disabled:hove
 .ui-widget-shadow {
 	-webkit-box-shadow: 0px 0px 5px #666666;
 	box-shadow: 0px 0px 5px #666666;
+}
+
+.ui-tabs .ui-tabs-panel {
+	padding: .0em .0em;
 }

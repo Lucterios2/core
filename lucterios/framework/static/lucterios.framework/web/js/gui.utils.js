@@ -187,8 +187,7 @@ var GUIManage = GUIBasic
 				};
 				if (!isModal) {
 					args.width = 1200;
-					args.height = 600;
-					
+					args.height = 600;					
 				}
 				$("#" + this.mId).dialog(args);
 				if (this.mCallback !== null) {
@@ -207,7 +206,7 @@ var GUIManage = GUIBasic
 							}, this.mCallback));
 				}
 				$("#" + this.mId).keyup($.proxy(this.manageKey, this));
-				$("#" + this.mId).css("padding", "0em");
+				$("#" + this.mId).css("padding", "0em .5em 2em .5em");
 			},
 
 			manageKey : function(event) {
