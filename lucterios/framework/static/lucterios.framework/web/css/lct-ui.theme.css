@@ -39,8 +39,9 @@
 }
 
 div.lct-dlgcontent div.tabContent .ui-widget-content {
-	overflow: hidden;
+	/* overflow: hidden; */
 }
+
 
 @media screen and (max-height: 690px) {
 	div.lct-dlgcontent {
