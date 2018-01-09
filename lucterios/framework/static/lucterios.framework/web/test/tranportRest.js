@@ -48,6 +48,8 @@ test("Actions", function() {
 	var json_retour;
 	post_log('cookie before:' + document.cookie);
 	json_retour = this.transport.transfertFileFromServerString('CORE/menu', new HashMap());
+        equal(json_retour.connexion.INSTANCE, "test", "1er response connexion");
+        delete json_retour.connexion;
 	propEqual(json_retour, {
 		data : "NEEDAUTH",
 		close : null,
@@ -78,7 +80,7 @@ test("Actions", function() {
 		title : "info",
 		extension : "CORE"
 	}, "2eme reponse - meta");
-	equal(Object.keys(json_retour.connexion).length, 17, "2eme reponse connexion size");
+	equal(Object.keys(json_retour.connexion).length, 18, "2eme reponse connexion size");
 	this.transport.setSession(json_retour.context.session);
 
 	json_retour = this.transport.transfertFileFromServerString('CORE/menu', new HashMap());
