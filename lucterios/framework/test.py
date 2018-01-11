@@ -190,6 +190,8 @@ class LucteriosTest(TestCase):
         import json
         if path is None:
             path = self.response_json
+        elif isinstance(path, six.text_type):
+            path = self.get_json_path(path)
         six.print_(json.dumps(path, cls=DjangoJSONEncoder, indent=3))
 
     def assert_count_equal(self, path, size):
