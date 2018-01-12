@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 '''
@@ -33,10 +33,7 @@ from optparse import OptionParser
 from importlib import import_module
 from django.utils import six
 from time import sleep
-try:
-    from importlib import reload
-except ImportError:
-    pass
+
 import sys
 import os
 
@@ -59,7 +56,7 @@ def delete_path(path, ignore_error=False):
             if isfile(path):
                 remove(path)
             break
-        except:
+        except Exception:
             if max_loop == loop_id:
                 if ignore_error:
                     if isdir(path):
@@ -79,7 +76,7 @@ def clear_modules():
             for template in django.conf.settings.TEMPLATES:
                 framework_classes += template['OPTIONS']['loaders']
                 framework_classes += template['OPTIONS']['context_processors']
-        except:
+        except Exception:
             pass
     module_list = list(sys.modules.keys())
     for module_item in module_list:
@@ -143,7 +140,7 @@ def get_package_list():
                         current_applis.append(get_module_desc(py_mod_name))
                     elif file_item.endswith('models.py'):
                         current_modules.append(get_module_desc(py_mod_name))
-                except:
+                except Exception:
                     pass
             current_applis.sort()
             current_modules.sort()
@@ -254,7 +251,7 @@ class LucteriosGlobal(LucteriosManage):
         try:
             import pip.utils.logging
             pip.utils.logging._log_state.indentation = 0
-        except:
+        except Exception:
             pass
         check_list = {}
         list_command = list_.ListCommand()
@@ -284,7 +281,7 @@ class LucteriosGlobal(LucteriosManage):
         try:
             import pip.utils.logging
             pip.utils.logging._log_state.indentation = 0
-        except:
+        except Exception:
             pass
         module_list = []
         for dist in pip.get_installed_distributions():
@@ -508,7 +505,7 @@ class LucteriosInstance(LucteriosManage):
             try:
                 with connection.cursor() as curs:
                     curs.execute('SET foreign_key_checks = 0;')
-            except:
+            except Exception:
                 option = 'CASCADE'
         loop = 10
         while loop > 0:
@@ -521,10 +518,10 @@ class LucteriosInstance(LucteriosManage):
                         try:
                             with connection.cursor() as curs:
                                 curs.execute(sql_cmd % (table, option))
-                        except:
+                        except Exception:
                             with connection.cursor() as curs:
                                 curs.execute(sql_cmd % (table, ''))
-                    except:
+                    except Exception:
                         no_error = False
             if no_error:
                 loop = -1
@@ -534,7 +531,7 @@ class LucteriosInstance(LucteriosManage):
             try:
                 with connection.cursor() as curs:
                     curs.execute('SET foreign_key_checks = 1;')
-            except:
+            except Exception:
                 pass
         if loop == 0:
             raise Exception("not clear!!")
@@ -625,7 +622,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('\n')
         self.write_setting_()
         with open(self.instance_conf, "w") as file_py:
-            file_py.write('#!/usr/bin/env python\n')
+            file_py.write('#!/usr/bin/env python3\n')
             file_py.write('import os\n')
             file_py.write('import sys\n')
             file_py.write('if __name__ == "__main__":\n')
@@ -815,7 +812,7 @@ class LucteriosInstance(LucteriosManage):
         if "sqlite3" in self.databases['default']['ENGINE']:
             try:
                 delete_path(self.databases['default']['NAME'])
-            except:
+            except Exception:
                 self.clear(False)
                 setup_from_none()
             self.read()
@@ -858,7 +855,7 @@ class LucteriosInstance(LucteriosManage):
                         six.print_("run %s.%s.%s" %
                                    (target[0], target[1], migr_obj[0]))
                         migr_obj[1]()
-            except:
+            except Exception:
                 pass
 
     def restore(self):
@@ -993,6 +990,7 @@ def setup_from_none():
     from django import db
     django.setup()
     db.close_old_connections()
+
 
 if __name__ == '__main__':
     main()
