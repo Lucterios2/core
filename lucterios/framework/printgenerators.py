@@ -211,7 +211,7 @@ class PrintTable(PrintItem):
                 while len(self.size_rows) <= (row_idx + 1):
                     self.size_rows.append(0)
                 value = get_value_converted(record[header.name], True)
-                if header.type == 'icon':
+                if header.htype == 'icon':
                     value = BASE64_PREFIX + value
                     img_size = get_image_size(value)
                     size_x = int(round(img_size[0] * DPI))
