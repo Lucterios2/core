@@ -64,6 +64,7 @@ def get_lan_ip():
                 pass
     return ip_address
 
+
 DEFAULT_LANGUAGES = (
     ('en', six.text_type('English')),
     ('fr', six.text_type('Français')),
@@ -82,6 +83,7 @@ def get_locale_lang():
     except TypeError:
         pass
     return lang_result
+
 
 DEFAULT_SETTINGS = {
     'MIDDLEWARE_CLASSES': (
@@ -234,14 +236,16 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
     else:
         setattr(module_to_setup, 'APPLIS_LOGO', b'')
-    if 'APPLIS_STYLE_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_STYLE', read_file(setting_module.APPLIS_STYLE_NAME))
-    else:
-        setattr(module_to_setup, 'APPLIS_STYLE', b'')
-    if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
-    else:
-        setattr(module_to_setup, 'APPLIS_BACKGROUND', b'')
+    if not hasattr(module_to_setup, 'APPLIS_STYLE'):
+        if 'APPLIS_STYLE_NAME' in dir(setting_module):
+            setattr(module_to_setup, 'APPLIS_STYLE', read_file(setting_module.APPLIS_STYLE_NAME))
+        else:
+            setattr(module_to_setup, 'APPLIS_STYLE', b'')
+    if not hasattr(module_to_setup, 'APPLIS_BACKGROUND'):
+        if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
+            setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
+        else:
+            setattr(module_to_setup, 'APPLIS_BACKGROUND', b'')
     if 'APPLI_SUPPORT' in dir(setting_module):
         setattr(module_to_setup, 'APPLI_SUPPORT', setting_module.APPLI_SUPPORT)
     else:

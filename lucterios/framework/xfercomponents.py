@@ -801,7 +801,17 @@ GRID_ORDER = 'GRID_ORDER%'
 DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png",
                                                                                SELECT_SINGLE), ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
 
-XferCompHeader = namedtuple('XferCompHeader', 'name descript type orderable')
+
+class XferCompHeader(object):
+
+    def __init__(self, name, descript, htype, orderable):
+        self.name = name
+        self.descript = descript
+        self.htype = htype
+        self.orderable = orderable
+
+    def get_json(self):
+        return [self.name, self.descript, self.htype, self.orderable]
 
 
 class XferCompGrid(XferComponent):
@@ -823,6 +833,14 @@ class XferCompGrid(XferComponent):
     def add_header(self, name, descript, htype="", horderable=0):
         self.headers.append(XferCompHeader(name, descript, htype, horderable))
 
+    def get_header(self, name):
+        head_idx = 0
+        for header in self.headers:
+            if header.name == name:
+                return self.headers[head_idx]
+            head_idx += 1
+        return None
+
     def delete_header(self, name):
         head_idx = 0
         for header in self.headers:
@@ -833,14 +851,9 @@ class XferCompGrid(XferComponent):
             del self.headers[head_idx]
 
     def change_type_header(self, name, htype):
-        head_idx = 0
-        for header in self.headers:
-            if header.name == name:
-                break
-            head_idx += 1
-        if head_idx < len(self.headers):
-            self.headers[head_idx] = XferCompHeader(self.headers[head_idx].name, self.headers[
-                                                    head_idx].descript, htype, self.headers[head_idx].orderable)
+        head = self.get_header(name)
+        if head is not None:
+            head.htype = htype
 
     def add_action(self, request, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         if isinstance(action, WrapAction) and action.check_permission(request):
@@ -877,11 +890,11 @@ class XferCompGrid(XferComponent):
         if compid not in self.records.keys():
             new_record = {}
             for header in self.headers:
-                if header.type == 'int':
+                if header.htype == 'int':
                     new_record[header.name] = 0
-                elif header.type == 'float':
+                elif header.htype == 'float':
                     new_record[header.name] = 0.0
-                elif header.type == 'bool':
+                elif header.htype == 'bool':
                     new_record[header.name] = False
                 else:
                     new_record[header.name] = ""
@@ -912,7 +925,7 @@ class XferCompGrid(XferComponent):
             xml_header = etree.SubElement(compxml, "HEADER")
             xml_header.attrib['name'] = six.text_type(header.name)
             if header.type != "":
-                xml_header.attrib['type'] = six.text_type(header.type)
+                xml_header.attrib['type'] = six.text_type(header.htype)
             xml_header.attrib['orderable'] = six.text_type(header.orderable)
             xml_header.text = six.text_type(header.descript)
         for key in self.record_ids:
@@ -933,7 +946,7 @@ class XferCompGrid(XferComponent):
         compjson['page_max'] = self.page_max
         compjson['page_num'] = self.page_num
         compjson['order'] = self.order_list
-        compjson['headers'] = list(self.headers)
+        compjson['headers'] = [head.get_json() for head in self.headers]
         compjson['actions'] = get_actions_json(self.actions)
         compjson['size_by_page'] = self.size_by_page
         compjson['nb_lines'] = self.nb_lines
@@ -959,13 +972,11 @@ class XferCompGrid(XferComponent):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
-                dep_field = query_set.model.get_field_by_name(
-                    fieldname[:-4])
+                dep_field = query_set.model.get_field_by_name(fieldname[:-4])
                 hfield = 'str'
                 verbose_name = dep_field.related_model._meta.verbose_name
             else:
-                dep_field = query_set.model.get_field_by_name(
-                    fieldname)
+                dep_field = query_set.model.get_field_by_name(fieldname)
                 if isinstance(dep_field, IntegerField) and (dep_field.choices is None):
                     hfield = 'int'
                 elif isinstance(dep_field, FloatField):
@@ -986,8 +997,7 @@ class XferCompGrid(XferComponent):
     def set_model(self, query_set, fieldnames, xfer_custom=None):
         if fieldnames is None:
             fieldnames = query_set.model.get_default_fields()
-        self._add_header_from_model(
-            query_set, fieldnames, xfer_custom is not None)
+        self._add_header_from_model(query_set, fieldnames, xfer_custom is not None)
         self.nb_lines = len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname
         record_min, record_max = self.define_page(xfer_custom)
@@ -1016,8 +1026,7 @@ class XferCompGrid(XferComponent):
                                 getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
                                 resvalue = None
                     try:
-                        field_desc = query_set.model.get_field_by_name(
-                            fieldname)
+                        field_desc = query_set.model.get_field_by_name(fieldname)
                         resvalue = get_value_if_choices(resvalue, field_desc)
                     except FieldDoesNotExist:
                         pass
