@@ -123,9 +123,9 @@ var compAbstractEvent = compGeneric.extend({
 			this.action.setCheckNull(false);
 		}
 		this.java_script_content = component.javascript || '';
-                if (component.is_default) {
-                        this.owner.mDefaultBtn = "{0}[name='{1}']".format(this.tag, this.name);
-                }
+		if (component.is_default) {
+			this.owner.mDefaultBtn = "{0}[name='{1}']".format(this.tag, this.name);
+		}
 	},
 
 	addAction : function() {
@@ -231,7 +231,7 @@ var compButton = compAbstractEvent.extend({
 	isMini : false,
 	hasBeenClicked : false,
 	btnaction : null,
-        tag : 'button',
+	tag : 'button',
 
 	initial : function(component) {
 		this._super(component);
@@ -302,7 +302,7 @@ var compButton = compAbstractEvent.extend({
 var compCheck = compAbstractEvent.extend({
 	// generiques
 	checked : 0,
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -356,7 +356,7 @@ var compCheck = compAbstractEvent.extend({
 var compLink = compGeneric.extend({
 	link : "",
 	label : "",
-        tag : 'a',
+	tag : 'a',
 
 	initial : function(component) {
 		this._super(component);
@@ -382,7 +382,7 @@ var compEdit = compAbstractEvent.extend({
 	value : "",
 	mask : null,
 	size : -1,
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		var regex;
@@ -452,7 +452,7 @@ var compFloat = compAbstractEvent.extend({
 	min : 0,
 	max : 1000,
 	prec : 1,
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -616,7 +616,7 @@ var editorHypertext = Class.extend({
 
 var compMemo = compAbstractEvent.extend({
 	value : "",
-        tag : 'textarea',
+	tag : 'textarea',
 
 	initial : function(component) {
 		this._super(component);
@@ -646,7 +646,7 @@ var compMemo = compAbstractEvent.extend({
 
 var compXML = compAbstractEvent.extend({
 	value : "",
-        tag : 'textarea',
+	tag : 'textarea',
 
 	initial : function(component) {
 		this._super(component);
@@ -676,7 +676,7 @@ var compXML = compAbstractEvent.extend({
 
 var compPassword = compAbstractEvent.extend({
 	value : "",
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -721,7 +721,7 @@ var compPassword = compAbstractEvent.extend({
 
 var compDate = compAbstractEvent.extend({
 	value : "",
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -776,7 +776,7 @@ var compDate = compAbstractEvent.extend({
 
 var compTime = compAbstractEvent.extend({
 	value : "",
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -829,7 +829,7 @@ var compTime = compAbstractEvent.extend({
 
 var compDateTime = compAbstractEvent.extend({
 	value : "",
-        tag : 'input',
+	tag : 'input',
 
 	initial : function(component) {
 		this._super(component);
@@ -930,7 +930,7 @@ var compSelectCase = Class.extend({
 var compSelect = compAbstractEvent.extend({
 	cases : null,
 	value : "",
-        tag : 'select',
+	tag : 'select',
 	args : {
 		'cssclass' : ''
 	},

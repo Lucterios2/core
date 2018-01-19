@@ -200,16 +200,18 @@ class PrintTable(PrintItem):
 
     def compute_table_size(self):
         for header in self.comp.headers:
-            size_cx, size_cy = calcul_text_size(
-                header.descript, 9, 10, "center", True)
-            column = [header.descript, size_cx * self.RATIO]
+            size_cx, size_cy = calcul_text_size(header.descript, 9, 10, "center", True)
             self.size_rows[0] = max(self.size_rows[0], size_cy)
-            row_idx = 0
-            for record in self.comp.records.values():
-                while len(self.rows) <= row_idx:
-                    self.rows.append([])
-                while len(self.size_rows) <= (row_idx + 1):
-                    self.size_rows.append(0)
+            self.columns.append([header.descript, size_cx * self.RATIO])
+        row_idx = 0
+        for recordid in self.comp.record_ids:
+            record = self.comp.records[recordid]
+            while len(self.rows) <= row_idx:
+                self.rows.append([])
+            while len(self.size_rows) <= (row_idx + 1):
+                self.size_rows.append(0)
+            hd_idx = 0
+            for header in self.comp.headers:
                 value = get_value_converted(record[header.name], True)
                 if header.htype == 'icon':
                     value = BASE64_PREFIX + value
@@ -217,14 +219,12 @@ class PrintTable(PrintItem):
                     size_x = int(round(img_size[0] * DPI))
                     size_y = int(round(img_size[1] * DPI))
                 else:
-                    size_x, size_y = calcul_text_size(
-                        value, 9, 10, "start", True)
+                    size_x, size_y = calcul_text_size(value, 9, 10, "start", True)
                 self.rows[row_idx].append(six.text_type(value))
-                self.size_rows[
-                    row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
-                column[1] = max(column[1], size_x * self.RATIO)
-                row_idx += 1
-            self.columns.append(column)
+                self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
+                hd_idx += 1
+            self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
+            row_idx += 1
 
     def get_table_sizes(self):
         size_x = 0

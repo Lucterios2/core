@@ -215,8 +215,8 @@ var GUIManage = GUIBasic
 					btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
 					if (btn.length === 1) {
 						btn.click();
-                                                btn.focusout();                                                                  
-                                                btn.change();                                               
+                        btn.focusout();                                                                  
+                        btn.change();                                               
 					}
 				}
 			},
