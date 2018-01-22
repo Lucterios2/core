@@ -532,6 +532,12 @@ if ((type=='list') || (type=='listmult')) {
             self.add_component(comp)
             row += 1
 
+    def filter_items(self):
+        if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
+            self.items = self.model.objects.filter(self.filter)
+        else:
+            self.items = self.model.objects.all()
+
     def fillresponse(self):
         self.fields_desc.initial(self.item)
         self.read_criteria_from_params()
@@ -540,11 +546,7 @@ if ((type=='list') || (type=='listmult')) {
         self.fillresponse_search_values()
         self.fillresponse_show_criteria()
         row = self.get_max_row()
-        if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            self.items = self.model.objects.filter(
-                self.filter)
-        else:
-            self.items = self.model.objects.all()
+        self.filter_items()
         grid = XferCompGrid(self.field_id)
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_action_notified(self)
