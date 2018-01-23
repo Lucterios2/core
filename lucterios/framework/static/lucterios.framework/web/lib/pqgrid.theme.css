@@ -47,7 +47,7 @@ div.pq-grid-footer{
     background: -moz-linear-gradient(top,  #fefefe,  #e6e6e6); /* for firefox 3.6+ */	
 }
 .pq-grid-header td.pq-col-sort-asc,.pq-grid-header td.pq-col-sort-desc{
-    background: url(images/header-hover.gif) #ebf3fd repeat-x 0px top;								
+    background: url(../images/header-hover.gif) #ebf3fd repeat-x 0px top;								
 }
 .pq-grid td.pq-grid-col, .pq-grid td.pq-grid-number-col{/*header cell*/
     font-weight:bold;

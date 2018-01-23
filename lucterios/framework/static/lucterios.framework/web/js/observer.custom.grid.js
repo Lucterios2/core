@@ -201,16 +201,15 @@ var compGrid = compGeneric.extend({
 			change : $.proxy(this.changePage, this)
 		};
 		obj = {
-			width : '98%',
+			width : '97%',
+			height: 300,
 			collapsible : false,
 			showTop : !this.no_pager,
 			showTitle : false,
 			showBottom : false,
-			resizable : true,
 			editable : false,
 			virtualX : false,
 			hoverMode : 'row',
-			wrap : false,
 			scrollModel : {
 				autoFit : true
 			},
@@ -220,10 +219,12 @@ var compGrid = compGeneric.extend({
 			selectionModel : {
 				type : 'null'
 			},
-			// flexWidth : true,
-			flexHeight : true,
+			flexWidth : false,
+			flexHeight : false,
 			create : $.proxy(this.createGrid, this),
-			pageModel : pageModel
+			pageModel : pageModel,
+			resizable: true,
+			wrap: true
 		};
 		if (this.has_select) {
 			obj.selectionModel.type = 'row';
@@ -354,6 +355,7 @@ var compGrid = compGeneric.extend({
 			this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name), order_txt);
 			this.owner.refresh();
 		}
+		return false;
 	},
 
 	fillValue : function(params) {
