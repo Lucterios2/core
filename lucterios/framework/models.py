@@ -32,7 +32,8 @@ from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError,\
+    ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
@@ -492,7 +493,10 @@ class LucteriosSession(Session, LucteriosModel):
         if user_id is None:
             return "---"
         else:
-            return User.objects.get(id=user_id).username
+            try:
+                return User.objects.get(id=user_id).username
+            except ObjectDoesNotExist:
+                return "---"
 
     def get_is_active(self):
         dt_now = timezone.now()
