@@ -391,10 +391,55 @@ button span img {
 	width: 100%;
 }
 
+.gridpager {
+	border: 1px solid #cfcfcf;
+	background: rgb(211, 211, 211);
+	color: #666;
+	padding: 5px 0px;
+	font-family: Arial;
+	font-size: 12px;
+	margin: 0px;
+	line-height: normal;
+	width: 100%;
+}
+
+.gridpager button.ui-button-icon-only {
+	width: 22px;
+	margin-right: 5px;
+	padding: 0.4em 0em;
+}
+
+div.gridpager span, div.gridpager select {
+	margin-right: 5px;
+	border-width: 1px;
+}
+
+div.gridpager span {
+	font-weight: bold;
+}
+
+.gridpager input {
+	padding: 0px 1px;
+	text-align: center;
+	width: 35px;
+	margin-right: 5px;
+	height: 16px;
+	border-width: 1px;
+}
+
+.gridpager span.gridseparator {
+	border-right: 1px solid #fff;
+}
+
 .gridContent {
-	border: 1px solid;
+	border: 1px solid #cfcfcf;
 	vertical-align: top;
 	display: block;
+	width: 100%;
+	padding: 0px 0px;
+}
+
+.gridscroll {
 	max-height: 250px;
 	overflow-y: auto;
 }
@@ -404,33 +449,47 @@ button span img {
 }
 
 .gridContent table thead {
-	background-color: #CCC;
+	background: -moz-linear-gradient(top, #fefefe, #e6e6e6);
+	font-family: Arial;
+	font-size: 12px;
+	line-height: normal;
+	color: #666;
 }
 
 .gridContent table thead th {
-	font-size: 0.8em;
-	padding: 0px 5px 0px 5px;
+	overflow: hidden;
+	border-right: 1px solid #cfcfcf;
+	border-top: 1px solid #cfcfcf;
+	padding: 5px 0px;
+}
+
+.gridContent tbody tr.odd {
+	background-color: #fbfbfb;
 }
 
 .gridContent tbody tr:hover {
-	background-color: #dee;
+	background-color: #efefef;
 }
 
 .gridContent tbody tr.selected {
-	background-color: #DDD;
+	background-color: #d0d0d0;
 }
 
-.gridContent tbody td {
+div.gridContent table tbody tr td {
 	font-size: 0.8em;
+	border-right: 1px solid #cfcfcf;
+	border-top: 1px solid #cfcfcf;	
+	padding: 4px 0px;
 }
 
 .gridActions {
 	padding: 2px;
 	text-align: center;
 	vertical-align: top;
-	width: 97%;
+	width: 100%;
 	background-color: #EEEEEE;
-	border: 1px gray solid;
+	border: 1px #cfcfcf solid;
+	padding: 0px;
 }
 
 .gridActions button {

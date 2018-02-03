@@ -938,33 +938,33 @@ test("Custom_Grid", function() {
 	var jcnt = gui.getHtmlDom();
 
 	var table_comp = jcnt.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0) > lct-cell");
-	var table_header = table_comp.find("div.pq-grid > div > div > span > table.pq-grid-header-table > tbody > tr:eq(1)");
-	var table_content = table_comp.find("div.pq-grid > div > div > div > div > table.pq-grid-table > tbody");
+	var table_header = table_comp.find("div.gridContent > table > thead > tr:eq(0)");
+	var table_content = table_comp.find("div.gridContent > table > tbody");
 	var table_buttons = table_comp.find("div.gridActions");
 
-	var comp = table_header.find("td:eq(0) > div");
+	var comp = table_header.find("th:eq(0)");
 	equal(comp.text().trim(), "code postal", "head 1");
-	var comp = table_header.find("td:eq(1) > div");
+	var comp = table_header.find("th:eq(1)");
 	equal(comp.text().trim(), "ville", "head 2");
-	var comp = table_header.find("td:eq(2) > div");
+	var comp = table_header.find("th:eq(2)");
 	equal(comp.text().trim(), "pays", "head 3");
 
-	var cell1 = table_content.find("tr:eq(1) > td:eq(0)");
+	var cell1 = table_content.find("tr:eq(0) > td:eq(0)");
 	equal(cell1.text(), "38420", "cell 1");
-	var cell2 = table_content.find("tr:eq(2) > td:eq(1)");
+	var cell2 = table_content.find("tr:eq(1) > td:eq(1)");
 	equal(cell2.text(), "LE VERSOUD", "cell 2");
-	var cell3 = table_content.find("tr:eq(3) > td:eq(2)");
+	var cell3 = table_content.find("tr:eq(2) > td:eq(2)");
 	equal(cell3.text(), "France", "cell 3");
 
 	var btn1 = table_buttons.find('button:eq(0)');
 	equal(btn1.text(), 'Ajouter', 'btn 1');
 	equal(btn1.prop("disabled"), true, 'btn 1 disabled');
 
-	var row2 = table_content.find("tr:eq(2)");
-	equal(row2.hasClass("pq-row-select"), false, 'row 2 no-select');
-	row2.mousedown();
+	var row2 = table_content.find("tr:eq(1)");
+	equal(row2.hasClass("selected"), false, 'row 2 no-select');
+	row2.click();
 
-	equal(row2.hasClass("pq-row-select"), true, 'row 2:' + row2.attr('class'));
+	equal(row2.hasClass("selected"), true, 'row 2:' + row2.attr('class'));
 	equal(btn1.prop("disabled"), false, 'btn 1 enabled');
 
 	equal(this.mObsFactory.CallList.size(), 0, "Call A Nb :" + this.mObsFactory.CallList.toString());

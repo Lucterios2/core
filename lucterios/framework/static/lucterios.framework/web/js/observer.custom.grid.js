@@ -1,398 +1,507 @@
-/*global $,unusedVariables,compGeneric,Singleton,compButton,SELECT_MULTI,SELECT_SINGLE,SELECT_NONE,LucteriosException,MINOR*/
+/*global $,unusedVariables,Class,compGeneric,Singleton,compButton,SELECT_MULTI,SELECT_SINGLE,SELECT_NONE,LucteriosException,MINOR*/
 
-var compGrid = compGeneric.extend({
+var compGridHeader = Class.extend({
+	name : "",
+	type : "",
+	orderable : 0,
+	label : "",
+	grid : null,
 
-	args : {},
-	buttons : null,
-	has_multi : false,
-	has_select : false,
-	page_max : 1,
-	page_num : 0,
-	size_by_page : 25,
-	nb_lines : 0,
-	gridHeaders : null,
-	gridRows : null,
-	sortIndx : [],
-	sortDir : [],
-
-	initial : function(component) {
-		this._super(component);
-		this.tag = 'div';
-		this.page_max = parseInt(component.page_max, 10) || 1;
-		this.page_num = parseInt(component.page_num, 10) || 0;
-		this.size_by_page = parseInt(component.size_by_page, 10) || 25;
-		this.nb_lines = parseInt(component.nb_lines, 10) || 0;
-		this.no_pager = component.no_pager || false;
-		this.selectedList = [];
-
-		this.gridRows = component.value;
-		this._order_manage(component);
-		this._header_manage(component);
-		this._action_manage(component);
+	initial : function(headcomp, grid) {
+		this.name = headcomp[0];
+		this.label = headcomp[1];
+		this.type = headcomp[2];
+		this.orderable = headcomp[3];
+		this.grid = grid;
 	},
 
-	_order_manage : function(component) {
-		var iChild;
-		this.order = component.order || [];
-		this.sortIndx = [];
-		this.sortDir = [];
-		for (iChild = 0; iChild < this.order.length; iChild++) {
-			if (this.order[iChild].substring(0, 1) === '-') {
-				this.sortIndx.push(this.order[iChild].substring(1));
-				this.sortDir.push('down');
-			} else {
-				this.sortIndx.push(this.order[iChild]);
-				this.sortDir.push('up');
-			}
-		}
-	},
-
-	_date_render : function(ui) {
-		var value = ui.rowData[ui.dataIndx];
-		if (value !== '---') {
-			return new Date(value).toLocaleDateString(Singleton().getSelectLang(), {
-				year : 'numeric',
-				month : 'short',
-				day : 'numeric'
-			});
-		}
-		return "---";
-	},
-
-	_datetime_render : function(ui) {
-		var value = ui.rowData[ui.dataIndx];
-		if (value !== '---') {
-			return new Date(value).toLocaleDateString(Singleton().getSelectLang(), {
-				year : 'numeric',
-				month : 'short',
-				day : 'numeric',
-				hour : 'numeric',
-				minute : 'numeric'
-			});
-		}
-		return "---";
-	},
-
-	_bool_render : function(ui) {
-		var value = ui.rowData[ui.dataIndx];
-		if ((value === '0') || (value.toLowerCase() === 'false') || (value === 'n')) {
-			return '<input type="checkbox" disabled="1" ></input>';
-		}
-		return '<input type="checkbox"  disabled="1" checked="1" ></input>';
-	},
-
-	_icon_render : function(ui) {
-		var value = ui.rowData[ui.dataIndx];
-		return '<img src="{0}">'.format(Singleton().Transport().getIconUrl(value));
-	},
-
-	_default_render : function(ui) {
-		return ui.rowData[ui.dataIndx].convertLuctoriosFormatToHtml();
-	},
-
-	_header_manage : function(component) {
-		var heads = component.headers, iChild, header;
-		this.gridHeaders = [];
-		for (iChild = 0; iChild < heads.length; iChild++) {
-			header = {
-				title : heads[iChild][1],
-				dataIndx : heads[iChild][0],
-				resizable : true,
-				orderable : heads[iChild][3]
-			};
-			switch (heads[iChild][2]) {
-			case 'int':
-				header.dataType = "integer";
-				header.width = '5%';
-				break;
-			case 'float':
-				header.dataType = "float";
-				header.width = '5%';
-				break;
-			case 'datetime':
-				header.width = '15%';
-				header.render = this._datetime_render;
-				break;
-			case 'date':
-				header.width = '15%';
-				header.render = this._date_render;
-				break;
-			case 'bool':
-				header.width = '5%';
-				header.render = this._bool_render;
-				break;
-			case 'icon':
-				header.render = this._icon_render;
-				break;
-			default:
-				if (heads[iChild][1].length <= 2) {
-					header.width = '3%';
-				}
-				header.render = this._default_render;
-				break;
-			}
-			this.gridHeaders[this.gridHeaders.length] = header;
-		}
-	},
-
-	_action_manage : function(component) {
-		var iChild, btn;
-		this.buttons = [];
-		if (component.actions) {
-			for (iChild = 0; iChild < component.actions.length; iChild++) {
-				btn = new compButton(this.owner);
-				btn.initial(component.actions[iChild]);
-				btn.name = "{0}_{1}".format(this.name, iChild);
-				btn.description = '';
-				btn.action = Singleton().CreateAction();
-				btn.action.initialize(this.owner, Singleton().Factory(), component.actions[iChild]);
-				if (btn.action.mSelect === SELECT_MULTI) {
-					this.has_multi = true;
-				}
-				if (btn.action.mSelect !== SELECT_NONE) {
-					this.has_select = true;
-				}
-				this.buttons[this.buttons.length] = btn;
-			}
-		}
-	},
-
-	getValue : function() {
-		var selectedList = this.getSelectedId();
-		return selectedList.join(';');
-	},
-
-	initialVal : function() {
-		return '';
-	},
-
-	setValue : function(xmlValue) {
-		this.initial(xmlValue.parseXML());
-		this.getGUIComp().html(this.get_Html());
-	},
-
-	get_Html : function() {
-		var iBtn, html = '';
-		if (this.buttons.length > 0) {
-			html += '<div class="gridActions" id="' + this.name + '_actions">';
-			for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-				html += this.buttons[iBtn].get_Html();
-			}
-			html += '</div>';
-		}
-		html += this.getBuildHtml(this.args, true, true);
-		return html;
-	},
-
-	addAction : function() {
-		var iBtn, obj, grid, pageModel, pqPager;
-		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-			this.buttons[iBtn].addAction();
-			this.buttons[iBtn].setSelectType(SELECT_NONE);
-		}
-
-		pageModel = {
-			type : "remote",
-			rPP : this.no_pager ? this.gridRows.length : this.size_by_page,
-			rPPOptions : [ 25, 50, 100, 250 ],
-			totalPages : this.page_max,
-			curPage : this.page_num + 1,
-			totalRecords : this.nb_lines,
-			change : $.proxy(this.changePage, this)
-		};
-		obj = {
-			width : '97%',
-			height: 300,
-			collapsible : false,
-			showTop : !this.no_pager,
-			showTitle : false,
-			showBottom : false,
-			editable : false,
-			virtualX : false,
-			hoverMode : 'row',
-			scrollModel : {
-				autoFit : true
-			},
-			numberCell : {
-				show : false
-			},
-			selectionModel : {
-				type : 'null'
-			},
-			flexWidth : false,
-			flexHeight : false,
-			create : $.proxy(this.createGrid, this),
-			pageModel : pageModel,
-			resizable: true,
-			wrap: true
-		};
-		if (this.has_select) {
-			obj.selectionModel.type = 'row';
-			if (!this.has_multi) {
-				obj.selectionModel.mode = 'single';
-			}
-		}
-		obj.colModel = this.gridHeaders;
-		obj.columnTemplate = {
-			minWidth : '1%',
-			maxWidth : '99%'
-		};
-		obj.dataModel = {
-			data : this.gridRows,
-			type : "local",
-			location : "local",
-			url : null,
-			sorting : "remote",
-			sortIndx : this.sortIndx,
-			sortDir : this.sortDir
-		};
-		obj.rowSelect = $.proxy(this.selectChange, this);
-		obj.rowUnSelect = $.proxy(this.selectChange, this);
-		obj.rowDblClick = $.proxy(this.dbclick, this);
-		obj.beforeSort = $.proxy(this.order_col, this);
-
-		obj.strLoading = Singleton().getTranslate("Loading");
-		obj.strNoRows = Singleton().getTranslate("NoRows");
-
-		pageModel.strFirstPage = Singleton().getTranslate("FirstPage");
-		pageModel.strPrevPage = Singleton().getTranslate("PrevPage");
-		pageModel.strNextPage = Singleton().getTranslate("NextPage");
-		pageModel.strLastPage = Singleton().getTranslate("LastPage");
-		pageModel.strRefresh = Singleton().getTranslate("Refresh");
-		pageModel.strRpp = Singleton().getTranslate("Rpp");
-		pageModel.strDisplay = Singleton().getTranslate("Display");
-
-		grid = this.getGUIComp().pqGrid(obj);
-		pqPager = grid.find("div.pq-pager").pqPager();
-		pqPager.find("button:last").detach();
-		pqPager.find("span.pq-separator:last").detach();
-		pqPager.pqPager(pageModel);
-	},
-
-	gui_finalize : function() {
-		this.getGUIComp().pqGrid("refresh");
-		return;
-	},
-
-	createGrid : function() {
-		var $grid = this.getGUIComp().pqGrid(), $pager = $grid.find(".pq-grid-bottom").find(".pq-pager");
-		if ($pager && $pager.length) {
-			$pager = $pager.detach();
-			$grid.find(".pq-grid-top").append($pager);
-		}
-	},
-
-	dbclick : function() {
-		if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
-			var iBtn, sel_btn = -1;
-			this.selectChange();
-			for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {
-				if (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE) {
-					sel_btn = iBtn;
-				}
-			}
-			if (sel_btn !== -1) {
-				this.buttons[sel_btn].actionPerformed();
-			}
-		}
-	},
-
-	getSelectedId : function() {
-		var selectedList = [], iSel, selectionArray;
-		selectionArray = this.getGUIComp().pqGrid("selection", {
-			type : 'row',
-			method : 'getSelection'
-		});
-		for (iSel = 0; iSel < selectionArray.length; iSel++) {
-			selectedList.push(selectionArray[iSel].rowData.id);
-		}
-		return selectedList;
-	},
-
-	selectChange : function() {
-		var selectedList = this.getSelectedId(), select_type, iBtn;
-		if (selectedList.length === 0) {
-			select_type = SELECT_NONE;
-		} else if (selectedList.length === 1) {
-			select_type = SELECT_SINGLE;
-		} else {
-			select_type = SELECT_MULTI;
-		}
-		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-			this.buttons[iBtn].setSelectType(select_type);
-		}
-	},
-
-	changePage : function(event, ui) {
-		unusedVariables(event);
-		if (ui.curPage) {
-			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), ui.curPage - 1);
-			this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), this.size_by_page);
-			this.owner.refresh();
-		} else if (ui.rPP) {
-			this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), 0);
-			this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), ui.rPP);
-			this.owner.refresh();
-		}
-	},
-
-	order_col : function(event, ui) {
-		unusedVariables(event);
-		if (ui.column.orderable === 1) {
-			var order_txt, colname = ui.dataIndx.replace('.', '__'), order_list = this.order;
-			if (order_list.indexOf(colname) !== -1) {
-				order_list.splice(order_list.indexOf(colname), 1);
-				colname = '-' + colname;
-			} else if (order_list.indexOf('-' + colname) !== -1) {
-				order_list.splice(order_list.indexOf('-' + colname), 1);
-			}
-			order_txt = order_list.join();
-			if (order_txt !== '') {
-				order_txt = colname + ',' + order_txt;
-			} else {
-				order_txt = colname;
-			}
-			this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name), order_txt);
-			this.owner.refresh();
-		}
-		return false;
-	},
-
-	fillValue : function(params) {
-		var with_gridval = false, is_multi = false, iBtn;
-		for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
-			if ((this.buttons[iBtn].hasBeenClicked) && (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE)) {
-				with_gridval = true;
-				is_multi = (this.buttons[iBtn].btnaction.mSelect === SELECT_MULTI);
-			}
-		}
-		if (with_gridval) {
-			if (this.getValue() === '') {
-				throw new LucteriosException(MINOR, Singleton().getTranslate("Select one line before!"));
-			}
-			if (!is_multi && (this.getSelectedId().length > 1)) {
-				throw new LucteriosException(MINOR, Singleton().getTranslate("Select only one line!"));
-			}
-			params.put(this.name, this.getValue());
-		}
+	getid : function() {
+		return 'grid-{0}_head-{1}'.format(this.grid.name, this.name.replace('.', '__'));
 	},
 
 	getHtml : function() {
-		var html = "";
-		if (this.description !== '') {
-			html += "<label for='{0}'>".format(this.get_id());
-			html += this.description;
-			html += "</label>";
-			html += "<lct-cell>";
-			html += "<lct-ctrl>";
-			html += this.get_Html();
-			html += "</lct-ctrl>";
-		} else {
-			html += "<lct-cell>";
-			html += this.get_Html();
+		var headclass = '', sort_val, sort = '';
+		if (this.orderable === 1) {
+			headclass = " class_header";
+			sort_val = this.grid.get_column_order(this.name.replace('.', '__'));
+			if (sort_val > 0) {
+				sort = '<span class="ui-icon ui-icon-triangle-1-n">&nbsp;</span>';
+			}
+			if (sort_val < 0) {
+				sort = '<span class="ui-icon ui-icon-triangle-1-s">&nbsp;</span>';
+			}
 		}
-		html += "</lct-cell>";
-		return html;
-	}
+		return '<th id="{0}" class="{1}">{2}{3}</th>'.format(this.getid(), headclass, this.label, sort);
+	},
 
+	addAction : function() {
+		if (this.orderable === 1) {
+			var current_comp = $("#" + this.getid());
+			current_comp.click($.proxy(function() {
+				this.grid.order_column(this.name.replace('.', '__'));
+			}, this));
+		}
+	}
 });
+
+var compGridValue = Class.extend({
+	name : "",
+	value : "",
+	parentGrid : "",
+
+	initial : function(name, value) {
+		this.name = name;
+		this.value = value;
+	},
+
+	setParentGrid : function(grid) {
+		this.parentGrid = grid;
+	},
+
+	getHtml : function() {
+		var html_val;
+		if (this.value === "") {
+			return '<td></td>';
+		}
+		switch (this.parentGrid.getValueType(this.name)) {
+		case 'datetime':
+			html_val = "---";
+			if (this.value !== '---') {
+				html_val = new Date(this.value).toLocaleDateString(Singleton().getSelectLang(), {
+					year : 'numeric',
+					month : 'short',
+					day : 'numeric',
+					hour : 'numeric',
+					minute : 'numeric'
+				});
+			}
+			return '<td>{0}</td>'.format(html_val);
+		case 'date':
+			html_val = "---";
+			if (this.value !== '---') {
+				html_val = new Date(this.value).toLocaleDateString(Singleton().getSelectLang(), {
+					year : 'numeric',
+					month : 'short',
+					day : 'numeric'
+				});
+			}
+			return '<td>{0}</td>'.format(html_val);
+		case 'icon':
+			return '<td><img src="{0}"></td>'.format(Singleton().Transport().getIconUrl(this.value));
+		case 'bool':
+			if ((this.value === '0') || (this.value.toLowerCase() === 'false') || (this.value === 'n')) {
+				return '<td><input type="checkbox" disabled="1" ></input></td>';
+			}
+			return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
+		default:
+			return '<td>{0}</td>'.format(this.value.convertLuctoriosFormatToHtml());
+		}
+	}
+});
+
+var compGridRow = Class
+		.extend({
+			id : 0,
+			values : null,
+			grid : "",
+			row_idx : 0,
+
+			initial : function(row_idx, rowcomp, grid) {
+				this.row_idx = row_idx;
+				this.grid = grid;
+				this.id = rowcomp.id;
+
+				var iCol, col_name, val;
+				this.values = [];
+				for (iCol = 0; iCol < this.grid.grid_headers.length; iCol++) {
+					col_name = this.grid.grid_headers[iCol].name;
+					val = new compGridValue();
+					val.initial(col_name, rowcomp[col_name]);
+					val.setParentGrid(this.grid);
+					this.values[this.values.length] = val;
+				}
+			},
+
+			getHtml : function() {
+				var html, idx_val;
+				html = '<tr id="{0}_{1}" pq-row-indx="{2}" class="{3}">'.format(this.grid.name, this.id, this.row_idx,
+						(this.row_idx % 2) === 0 ? "odd" : "");
+				for (idx_val = 0; idx_val < this.values.length; idx_val++) {
+					html += this.values[idx_val].getHtml();
+				}
+				html += '</tr>';
+				return html;
+			},
+
+			selectGridRow : function() {
+				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+				if (row.hasClass("selected")) {
+					row.removeClass("selected");
+				} else {
+					this.grid.clear_select_row();
+					row.addClass("selected");
+				}
+				this.grid.selectChange();
+			},
+
+			dbClickRow : function() {
+				this.grid.clear_select_row();
+				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+				row.addClass("selected");
+				this.grid.dbclick();
+			},
+
+			setSelected : function(select) {
+				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+				if (select) {
+					row.addClass("selected");
+				} else {
+					row.removeClass("selected");
+				}
+			},
+
+			isSelected : function() {
+				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+				return row.hasClass("selected");
+			},
+
+			addAction : function() {
+				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+				row.click($.proxy(this.selectGridRow, this));
+				row.dblclick($.proxy(this.dbClickRow, this));
+			}
+
+		});
+
+var compGrid = compGeneric
+		.extend({
+
+			args : {},
+			buttons : null,
+			has_multi : false,
+			has_select : false,
+			page_max : 1,
+			page_num : 0,
+			size_by_page : 25,
+			nb_lines : 0,
+			grid_headers : null,
+			grid_Rows : null,
+			sortIndx : [],
+			sortDir : [],
+
+			initial : function(component) {
+				this._super(component);
+				this.tag = 'div';
+				this.page_max = parseInt(component.page_max, 10) || 1;
+				this.page_num = parseInt(component.page_num, 10) || 0;
+				this.size_by_page = parseInt(component.size_by_page, 10) || 25;
+				this.nb_lines = parseInt(component.nb_lines, 10) || 0;
+				this.no_pager = component.no_pager || false;
+				this.selectedList = [];
+
+				this._order_manage(component);
+				this._header_manage(component);
+				this._rows_manage(component);
+				this._action_manage(component);
+			},
+
+			_order_manage : function(component) {
+				var iChild;
+				this.order = component.order || [];
+				this.sortIndx = [];
+				this.sortDir = [];
+				for (iChild = 0; iChild < this.order.length; iChild++) {
+					if (this.order[iChild].substring(0, 1) === '-') {
+						this.sortIndx.push(this.order[iChild].substring(1));
+						this.sortDir.push('down');
+					} else {
+						this.sortIndx.push(this.order[iChild]);
+						this.sortDir.push('up');
+					}
+				}
+			},
+
+			_header_manage : function(component) {
+				var heads = component.headers, iChild, header;
+				this.grid_headers = [];
+				for (iChild = 0; iChild < heads.length; iChild++) {
+					header = new compGridHeader();
+					header.initial(heads[iChild], this);
+					this.grid_headers[this.grid_headers.length] = header;
+				}
+			},
+
+			getValueType : function(name) {
+				var iCol;
+				for (iCol = 0; iCol < this.grid_headers.length; iCol++) {
+					if (this.grid_headers[iCol].name === name) {
+						return this.grid_headers[iCol].type;
+					}
+				}
+				// ne devrait jamais arriver mais par defaut, on retourne 'str'
+				return 'str';
+			},
+
+			_rows_manage : function(component) {
+				var iChild, row;
+				this.grid_Rows = [];
+				for (iChild = 0; iChild < component.value.length; iChild++) {
+					row = new compGridRow();
+					row.initial(iChild, component.value[iChild], this);
+					this.grid_Rows[this.grid_Rows.length] = row;
+				}
+			},
+
+			_action_manage : function(component) {
+				var iChild, btn;
+				this.buttons = [];
+				if (component.actions) {
+					for (iChild = 0; iChild < component.actions.length; iChild++) {
+						btn = new compButton(this.owner);
+						btn.initial(component.actions[iChild]);
+						btn.name = "{0}_{1}".format(this.name, iChild);
+						btn.description = '';
+						btn.action = Singleton().CreateAction();
+						btn.action.initialize(this.owner, Singleton().Factory(), component.actions[iChild]);
+						if (btn.action.mSelect === SELECT_MULTI) {
+							this.has_multi = true;
+						}
+						if (btn.action.mSelect !== SELECT_NONE) {
+							this.has_select = true;
+						}
+						this.buttons[this.buttons.length] = btn;
+					}
+				}
+			},
+
+			getValue : function() {
+				var selectedList = this.getSelectedId();
+				return selectedList.join(';');
+			},
+
+			initialVal : function() {
+				return '';
+			},
+
+			setValue : function(jsonvalue) {
+				this.initial(jsonvalue);
+				this.getGUIComp().html(this.get_Html());
+			},
+
+			get_pager_html : function() {
+				var rppindex, rPPOptions = [ 25, 50, 100, 250 ], html = '', attribdisabled = 'ui-button-disabled ui-state-disabled" disabled=""';
+				if (!this.no_pager) {
+					html = '<div class="gridpager" id="' + this.name + '_pager">';
+					html += '<button type="button" title="{0}" class="ui-button ui-corner-all ui-widget ui-button-icon-only {1} style="margin-left: 10px;"><span class="ui-button-icon ui-icon ui-icon-seek-first"></span><span class="ui-button-icon-space"></span></button>'
+							.format(Singleton().getTranslate("FirstPage"), this.page_num === 0 ? attribdisabled : '"');
+					html += '<button type="button" title="{0}" class="ui-button ui-corner-all ui-widget ui-button-icon-only {1}><span class="ui-button-icon ui-icon ui-icon-seek-prev"></span><span class="ui-button-icon-space"></span></button>'
+							.format(Singleton().getTranslate("PrevPage"), this.page_num === 0 ? attribdisabled : '"');
+					html += '<span class="gridseparator"></span>';
+					html += '<span>Page</span><input tabindex="0" class="ui-corner-all" type="text" value="{0}"><span>/</span><span class="total">{1}</span></span>'
+							.format(this.page_num + 1, this.page_max);
+					html += '<span class="gridseparator"></span>';
+					html += '<button type="button" title="{0}" class="ui-button ui-corner-all ui-widget ui-button-icon-only {1}"><span class="ui-button-icon ui-icon ui-icon-seek-next"></span><span class="ui-button-icon-space"> </span></button>'
+							.format(Singleton().getTranslate("NextPage"), (this.page_num + 1) === this.page_max ? attribdisabled : '"');
+					html += '<button type="button" title="{0}" class="ui-button ui-corner-all ui-widget ui-button-icon-only {1}"><span class="ui-button-icon ui-icon ui-icon-seek-end"></span><span class="ui-button-icon-space"> </span></button>'
+							.format(Singleton().getTranslate("LastPage"), (this.page_num + 1) === this.page_max ? attribdisabled : '"');
+					html += '<span class="gridseparator"></span>';
+					html += '<span>{0}</span><select class="ui-corner-all">'.format(Singleton().getTranslate("Rpp")).format('');
+					for (rppindex = 0; rppindex < rPPOptions.length; rppindex++) {
+						html += '<option value="{0}" {1}>{0}</option>'.format(rPPOptions[rppindex],
+								rPPOptions[rppindex] === this.size_by_page ? "selected" : "");
+					}
+					html += '</select></span>';
+					html += '<span class="gridseparator"></span>';
+					html += '<span class="pq-pager-msg">{0}</span>'.format(Singleton().getTranslate("Display")).format(
+							this.page_num * this.size_by_page + 1, Math.min((this.page_num + 1) * this.size_by_page, this.nb_lines), this.nb_lines);
+					html += '</div>';
+				}
+				return html;
+			},
+
+			get_Html : function() {
+				var iBtn, iRow, iHead, html = '';
+				if (this.buttons.length > 0) {
+					html += '<div class="gridActions" id="' + this.name + '_actions">';
+					for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
+						html += this.buttons[iBtn].get_Html();
+					}
+					html += '</div>';
+				}
+				html += this.get_pager_html();
+				html += '<div class="gridContent {0}">'.format(!this.no_pager ? 'gridscroll' : '');
+				html += '<table id="{0}" cellspacing="0" cellpadding="0"><thead><tr>'.format(this.name);
+				for (iHead = 0; iHead < this.grid_headers.length; iHead++) {
+					html += this.grid_headers[iHead].getHtml();
+				}
+				html += '</tr></thead><tbody>';
+				for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
+					html += this.grid_Rows[iRow].getHtml();
+				}
+				html += '</tbody></table></div>';
+				return html;
+			},
+
+			addAction : function() {
+				var iCol, iRow, iBtn, pqPager;
+				for (iCol = 0; iCol < this.grid_headers.length; iCol++) {
+					this.grid_headers[iCol].addAction();
+				}
+				for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
+					this.grid_Rows[iRow].addAction();
+				}
+				for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
+					this.buttons[iBtn].addAction();
+					this.buttons[iBtn].setSelectType(SELECT_NONE);
+				}
+				pqPager = $("#" + this.owner.getId()).find("div[id='{0}_pager']:eq(0)".format(this.name));
+				pqPager.find("span.ui-icon-seek-first").parent().click($.proxy(function() {
+					this.change_numpage(0);
+				}, this));
+				pqPager.find("span.ui-icon-seek-prev").parent().click($.proxy(function() {
+					this.change_numpage(this.page_num - 1);
+				}, this));
+				pqPager.find("span.ui-icon-seek-next").parent().click($.proxy(function() {
+					this.change_numpage(this.page_num + 1);
+				}, this));
+				pqPager.find("span.ui-icon-seek-end").parent().click($.proxy(function() {
+					this.change_numpage(this.page_max - 1);
+				}, this));
+				pqPager.find("input").change($.proxy(function(event) {
+					this.change_numpage(parseInt(event.currentTarget.value, 10) - 1);
+				}, this));
+				pqPager.find("select").change($.proxy(function(event) {
+					this.change_sizepage(event.currentTarget.value);
+				}, this));
+			},
+
+			gui_finalize : function() {
+				return;
+			},
+
+			clear_select_row : function() {
+				if (!this.has_multi) {
+					var iRow;
+					for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
+						this.grid_Rows[iRow].setSelected(false);
+					}
+				}
+			},
+
+			getSelectedId : function() {
+				var selectedList = [], iRow;
+				for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
+					if (this.grid_Rows[iRow].isSelected()) {
+						selectedList.push(this.grid_Rows[iRow].id);
+					}
+				}
+				return selectedList;
+			},
+
+			selectChange : function() {
+				var selectedList = this.getSelectedId(), select_type, iBtn;
+				if (selectedList.length === 0) {
+					select_type = SELECT_NONE;
+				} else if (selectedList.length === 1) {
+					select_type = SELECT_SINGLE;
+				} else {
+					select_type = SELECT_MULTI;
+				}
+				for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
+					this.buttons[iBtn].setSelectType(select_type);
+				}
+			},
+
+			change_numpage : function(newPage) {
+				this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), newPage);
+				this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), this.size_by_page);
+				this.owner.refresh();
+			},
+
+			change_sizepage : function(rpp) {
+				this.owner.getContext().put('GRID_PAGE%{0}'.format(this.name), 0);
+				this.owner.getContext().put('GRID_SIZE%{0}'.format(this.name), rpp);
+				this.owner.refresh();
+			},
+
+			order_column : function(colname) {
+				var order_txt, order_list = this.order;
+				if (order_list.indexOf(colname) !== -1) {
+					order_list.splice(order_list.indexOf(colname), 1);
+					colname = '-' + colname;
+				} else if (order_list.indexOf('-' + colname) !== -1) {
+					order_list.splice(order_list.indexOf('-' + colname), 1);
+				}
+				order_txt = order_list.join();
+				if (order_txt !== '') {
+					order_txt = colname + ',' + order_txt;
+				} else {
+					order_txt = colname;
+				}
+				this.owner.getContext().put('GRID_ORDER%{0}'.format(this.name), order_txt);
+				this.owner.refresh();
+			},
+
+			get_column_order : function(colname) {
+				var ret = 0;
+				if (this.order.indexOf(colname) !== -1) {
+					ret = 1;
+				} else if (this.order.indexOf('-' + colname) !== -1) {
+					ret = -1;
+				}
+				return ret;
+			},
+
+			dbclick : function() {
+				if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
+					var iBtn, sel_btn = -1;
+					this.selectChange();
+					for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {
+						if (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE) {
+							sel_btn = iBtn;
+						}
+					}
+					if (sel_btn !== -1) {
+						this.buttons[sel_btn].actionPerformed();
+					}
+				}
+			},
+
+			fillValue : function(params) {
+				var with_gridval = false, is_multi = false, iBtn;
+				for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
+					if ((this.buttons[iBtn].hasBeenClicked) && (this.buttons[iBtn].btnaction.mSelect !== SELECT_NONE)) {
+						with_gridval = true;
+						is_multi = (this.buttons[iBtn].btnaction.mSelect === SELECT_MULTI);
+					}
+				}
+				if (with_gridval) {
+					if (this.getValue() === '') {
+						throw new LucteriosException(MINOR, Singleton().getTranslate("Select one line before!"));
+					}
+					if (!is_multi && (this.getSelectedId().length > 1)) {
+						throw new LucteriosException(MINOR, Singleton().getTranslate("Select only one line!"));
+					}
+					params.put(this.name, this.getValue());
+				}
+			},
+
+			getHtml : function() {
+				var html = "";
+				if (this.description !== '') {
+					html += "<label for='{0}'>".format(this.get_id());
+					html += this.description;
+					html += "</label>";
+					html += "<lct-cell>";
+					html += "<lct-ctrl>";
+					html += this.get_Html();
+					html += "</lct-ctrl>";
+				} else {
+					html += "<lct-cell>";
+					html += this.get_Html();
+				}
+				html += "</lct-cell>";
+				return html;
+			}
+
+		});
