@@ -313,8 +313,13 @@ var compGrid = compGeneric
 					}
 					html += '</select></span>';
 					html += '<span class="gridseparator"></span>';
-					html += '<span class="pq-pager-msg">{0}</span>'.format(Singleton().getTranslate("Display")).format(
-							this.page_num * this.size_by_page + 1, Math.min((this.page_num + 1) * this.size_by_page, this.nb_lines), this.nb_lines);
+					if (this.nb_lines > 0) {
+						html += '<span class="pq-pager-msg">{0}</span>'.format(Singleton().getTranslate("Display")).format(
+								this.page_num * this.size_by_page + 1, Math.min((this.page_num + 1) * this.size_by_page, this.nb_lines),
+								this.nb_lines);
+					} else {
+						html += '<span class="pq-pager-msg"></span>';
+					}
 					html += '</div>';
 				}
 				return html;
