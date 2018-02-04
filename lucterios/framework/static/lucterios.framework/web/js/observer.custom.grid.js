@@ -89,10 +89,11 @@ var compGridValue = Class.extend({
 		case 'icon':
 			return '<td><img src="{0}"></td>'.format(Singleton().Transport().getIconUrl(this.value));
 		case 'bool':
+			html_val = 'checked="1"';
 			if ((this.value === '0') || (this.value.toLowerCase() === 'false') || (this.value === 'n')) {
-				return '<td><input type="checkbox" disabled="1" ></input></td>';
+				html_val = '';
 			}
-			return '<td><input type="checkbox"  disabled="1" checked="1" ></input></td>';
+			return '<td><center><input type="checkbox" {0} disabled="1"></input></center></td>'.format(html_val);
 		default:
 			return '<td>{0}</td>'.format(this.value.convertLuctoriosFormatToHtml());
 		}
@@ -138,14 +139,14 @@ var compGridRow = Class
 				if (row.hasClass("selected")) {
 					row.removeClass("selected");
 				} else {
-					this.grid.clear_select_row();
+					this.grid.clear_select_row(false);
 					row.addClass("selected");
 				}
 				this.grid.selectChange();
 			},
 
 			dbClickRow : function() {
-				this.grid.clear_select_row();
+				this.grid.clear_select_row(true);
 				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
 				row.addClass("selected");
 				this.grid.dbclick();
@@ -321,6 +322,7 @@ var compGrid = compGeneric
 
 			get_Html : function() {
 				var iBtn, iRow, iHead, html = '';
+				html = '<div name="{0}">'.format(this.name);
 				if (this.buttons.length > 0) {
 					html += '<div class="gridActions" id="' + this.name + '_actions">';
 					for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {
@@ -330,7 +332,7 @@ var compGrid = compGeneric
 				}
 				html += this.get_pager_html();
 				html += '<div class="gridContent {0}">'.format(!this.no_pager ? 'gridscroll' : '');
-				html += '<table id="{0}" cellspacing="0" cellpadding="0"><thead><tr>'.format(this.name);
+				html += '<table cellspacing="0" cellpadding="0"><thead><tr>';
 				for (iHead = 0; iHead < this.grid_headers.length; iHead++) {
 					html += this.grid_headers[iHead].getHtml();
 				}
@@ -339,6 +341,7 @@ var compGrid = compGeneric
 					html += this.grid_Rows[iRow].getHtml();
 				}
 				html += '</tbody></table></div>';
+				html += '</div>';
 				return html;
 			},
 
@@ -379,8 +382,8 @@ var compGrid = compGeneric
 				return;
 			},
 
-			clear_select_row : function() {
-				if (!this.has_multi) {
+			clear_select_row : function(allclear) {
+				if (!this.has_multi || allclear) {
 					var iRow;
 					for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
 						this.grid_Rows[iRow].setSelected(false);
