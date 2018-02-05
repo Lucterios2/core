@@ -56,8 +56,8 @@ var ObserverFactoryAbstract = Class.extend({
 					this.mTransport.setSession(session);
 				}
 			}
-			aut.show("");
 		}
+		aut.show("");
 		return res;
 	}
 });
