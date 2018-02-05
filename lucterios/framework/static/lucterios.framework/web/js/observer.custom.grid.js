@@ -135,7 +135,7 @@ var compGridRow = Class
 			},
 
 			selectGridRow : function(event) {
-				this.grid.changeSelectRow(this.row_idx, !this.isSelected(), event.ctrlKey);
+				this.grid.changeSelectRow(this.row_idx, !this.isSelected(), event.shiftKey);
 			},
 
 			dbClickRow : function() {
