@@ -449,7 +449,10 @@ div.gridpager span {
 }
 
 .gridContent table thead {
-	background: -moz-linear-gradient(top, #fefefe, #e6e6e6);
+	background-image: linear-gradient(#fefefe,#e6e6e6);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefefe', endColorstr='#e6e6e6');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#e6e6e6));
+	background: -moz-linear-gradient(top,  #fefefe,  #e6e6e6); /* for firefox 3.6+ */
 	font-family: Arial;
 	font-size: 12px;
 	line-height: normal;
@@ -473,6 +476,11 @@ div.gridpager span {
 
 .gridContent tbody tr.selected {
 	background-color: #d0d0d0;
+}
+
+.gridempty td {
+	text-align: center; 
+	padding: 3px;
 }
 
 div.gridContent table tbody tr td {

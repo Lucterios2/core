@@ -134,15 +134,8 @@ var compGridRow = Class
 				return html;
 			},
 
-			selectGridRow : function() {
-				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-				if (row.hasClass("selected")) {
-					row.removeClass("selected");
-				} else {
-					this.grid.clear_select_row(false);
-					row.addClass("selected");
-				}
-				this.grid.selectChange();
+			selectGridRow : function(event) {
+				this.grid.changeSelectRow(this.row_idx, !this.isSelected(), event.ctrlKey);
 			},
 
 			dbClickRow : function() {
@@ -189,6 +182,7 @@ var compGrid = compGeneric
 			grid_Rows : null,
 			sortIndx : [],
 			sortDir : [],
+			last_row_selected : -1,
 
 			initial : function(component) {
 				this._super(component);
@@ -342,9 +336,13 @@ var compGrid = compGeneric
 					html += this.grid_headers[iHead].getHtml();
 				}
 				html += '</tr></thead><tbody>';
-				for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
-					html += this.grid_Rows[iRow].getHtml();
-				}
+				if (this.grid_Rows.length === 0) {
+					html += '<tr class="gridempty"><td colspan="{0}">{1}</td></tr>'.format(this.grid_headers.length, Singleton().getTranslate("NoRows"));
+				} else {
+					for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
+						html += this.grid_Rows[iRow].getHtml();
+					}	
+				}			
 				html += '</tbody></table></div>';
 				html += '</div>';
 				return html;
@@ -404,6 +402,25 @@ var compGrid = compGeneric
 					}
 				}
 				return selectedList;
+			},
+
+			changeSelectRow : function(rowidx, new_select_val, with_range) {
+				if (!this.has_select) {
+					return;
+				}
+				if (new_select_val) {
+					this.clear_select_row(false);
+				}
+				if (with_range && (this.last_row_selected !== -1) && (this.last_row_selected !==rowidx)) {
+					var row_idx, min_row=Math.min(this.last_row_selected+1,rowidx), max_row=Math.max(this.last_row_selected-1,rowidx);
+					for(row_idx=min_row;row_idx<=max_row;row_idx++) {
+						this.grid_Rows[row_idx].setSelected(new_select_val);
+					}
+				} else {
+					this.grid_Rows[rowidx].setSelected(new_select_val);
+				}
+				this.last_row_selected = rowidx;
+				this.selectChange();
 			},
 
 			selectChange : function() {
