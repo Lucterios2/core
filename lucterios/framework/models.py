@@ -150,14 +150,22 @@ class LucteriosModel(models.Model):
                     query.children[q_idx] = convertQ(query.children[q_idx])
                 return query
             elif isinstance(query, tuple) and (len(query) == 2):
-                return (fieldname + '__' + query[0], query[1])
+                return (field_name + '__' + query[0], query[1])
             else:
                 return None
         if isinstance(fieldsearched, six.text_type):
             return fieldname + "." + fieldsearched
         elif len(fieldsearched) == 4:
-            fieldsearched[1].verbose_name = cls.get_field_by_name(fieldname).verbose_name + ' > ' + fieldsearched[1].verbose_name
-            return (fieldname + "." + fieldsearched[0], fieldsearched[1], fieldname + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
+            if fieldname[-4:] == '_set':
+                field_name = fieldname[:-4]
+            else:
+                field_name = fieldname
+            field = cls.get_field_by_name(field_name)
+            if hasattr(field, 'verbose_name'):
+                fieldsearched[1].verbose_name = field.verbose_name + ' > ' + fieldsearched[1].verbose_name
+            else:
+                fieldsearched[1].verbose_name = field.model._meta.verbose_name + ' > ' + fieldsearched[1].verbose_name
+            return (fieldname + "." + fieldsearched[0], fieldsearched[1], field_name + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
 
     @classmethod
     def get_print_fields(cls):
