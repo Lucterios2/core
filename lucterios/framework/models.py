@@ -140,6 +140,23 @@ class LucteriosModel(models.Model):
         return cls.get_default_fields()
 
     @classmethod
+    def convert_field_for_search(cls, fieldname, fieldsearched):
+        def convertQ(query):
+            if isinstance(query, Q):
+                for q_idx in range(len(query.children)):
+                    query.children[q_idx] = convertQ(query.children[q_idx])
+                return query
+            elif isinstance(query, tuple) and (len(query) == 2):
+                return (fieldname + '__' + query[0], query[1])
+            else:
+                return None
+        if isinstance(fieldsearched, six.text_type):
+            return fieldname + "." + fieldsearched
+        elif len(fieldsearched) == 4:
+            fieldsearched[1].verbose_name = cls.get_field_by_name(fieldname).verbose_name + ' > ' + fieldsearched[1].verbose_name
+            return (fieldname + "." + fieldsearched[0], fieldsearched[1], fieldname + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
+
+    @classmethod
     def get_print_fields(cls):
         return cls.get_default_fields()
 
