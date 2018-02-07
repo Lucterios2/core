@@ -32,8 +32,7 @@ from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
-from django.core.exceptions import FieldDoesNotExist, ValidationError,\
-    ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
@@ -164,7 +163,7 @@ class LucteriosModel(models.Model):
             if hasattr(field, 'verbose_name'):
                 fieldsearched[1].verbose_name = field.verbose_name + ' > ' + fieldsearched[1].verbose_name
             else:
-                fieldsearched[1].verbose_name = field.model._meta.verbose_name + ' > ' + fieldsearched[1].verbose_name
+                fieldsearched[1].verbose_name = field.related_model._meta.verbose_name + ' > ' + fieldsearched[1].verbose_name
             return (fieldname + "." + fieldsearched[0], fieldsearched[1], field_name + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
 
     @classmethod
