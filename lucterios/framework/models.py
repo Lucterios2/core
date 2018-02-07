@@ -92,6 +92,9 @@ def get_value_if_choices(value, dep_field):
             if choices_key == int(value):
                 value = six.text_type(choices_value)
                 break
+    elif hasattr(dep_field, 'decimal_places'):
+        format_txt = "%%.%df" % dep_field.decimal_places
+        value = format_txt % float(value)
     return value
 
 
