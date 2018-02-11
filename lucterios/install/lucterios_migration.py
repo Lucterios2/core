@@ -274,6 +274,7 @@ class MigrateFromV1(LucteriosInstance, MigrateAbstract):
             raise
 
     def restore(self):
+        from lucterios.framework.signal_and_lock import Signal
         begin_time = time()
         self.old_db.initial(join(self.instance_path, self.name))
         self.extract_archive()
@@ -286,11 +287,11 @@ class MigrateFromV1(LucteriosInstance, MigrateAbstract):
                 for modulename in modulenames:
                     self.run_module_migrate(modulename)
         self.old_db.clear()
+        Signal.call_signal("checkparam")
         duration_sec = time() - begin_time
         duration_min = int(duration_sec / 60)
         duration_sec = duration_sec - duration_min * 60
-        self.print_info(
-            "Migration duration: %d min %d sec", (duration_min, duration_sec))
+        self.print_info("Migration duration: %d min %d sec", (duration_min, duration_sec))
         return True
 
 
@@ -321,6 +322,7 @@ def main():
     mirg = MigrateFromV1(options.name, options.instance_path, options.debug)
     mirg.filename = options.archive
     mirg.restore()
+
 
 if __name__ == '__main__':
     main()
