@@ -204,7 +204,7 @@
 		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
-			<arg line="/usr/local/bin/coverage run --branch --source=${project.test.source} --omit=${project.test.omit} --include=${project.test.include} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
+			<arg line="/usr/local/bin/coverage run --branch --source=${project.test.source} --omit=${project.test.omit} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
 		<antcall target="test_addon" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
@@ -216,7 +216,8 @@
 			<arg value="xml" />
 		</exec>
 		<move file="coverage.xml" tofile="coverage3.xml" />
-		<replaceregexp file="coverage3.xml" match='name="\..*\.workspace\.lct-core\.lucterios' replace='name="lucterios' byline="true" />
+		<replaceregexp file="coverage3.xml" match='name="\..*\.lucterios' replace='name="lucterios' byline="true" />
+                <replaceregexp file="coverage3.xml" match='name="\..*\.diacamma' replace='name="diacamma' byline="true" />
 		<replace file="coverage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
 		<replaceregexp file="coverage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
