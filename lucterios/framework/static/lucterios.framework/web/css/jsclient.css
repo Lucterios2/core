@@ -467,15 +467,20 @@ div.gridpager span {
 }
 
 .gridContent tbody tr.odd {
-	background-color: #fbfbfb;
+	background-color: #f0f0f0;
 }
 
 .gridContent tbody tr:hover {
-	background-color: #efefef;
+	background-color: #a0a0a0;
+	color: #fff;
 }
 
 .gridContent tbody tr.selected {
 	background-color: #d0d0d0;
+}
+
+.gridContent tbody tr.selected td { 
+	border-top: 1px solid #fff; 
 }
 
 .gridempty td {

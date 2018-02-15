@@ -173,6 +173,9 @@ class LucteriosModel(models.Model):
     def set_context(self, xfer):
         pass
 
+    def get_color_ref(self):
+        return None
+
     @classmethod
     def get_select_contact_type(cls, with_current=True):
         select_list = []

@@ -106,9 +106,11 @@ var compGridRow = Class
 			values : null,
 			grid : "",
 			row_idx : 0,
+			color_idx : 0,
 
-			initial : function(row_idx, rowcomp, grid) {
+			initial : function(row_idx, rowcomp, grid, color_idx) {
 				this.row_idx = row_idx;
+                                this.color_idx = color_idx;
 				this.grid = grid;
 				this.id = rowcomp.id;
 
@@ -126,7 +128,7 @@ var compGridRow = Class
 			getHtml : function() {
 				var html, idx_val;
 				html = '<tr id="{0}_{1}" pq-row-indx="{2}" class="{3}">'.format(this.grid.name, this.id, this.row_idx,
-						(this.row_idx % 2) === 0 ? "odd" : "");
+						(this.color_idx % 2) === 0 ? "odd" : "");
 				for (idx_val = 0; idx_val < this.values.length; idx_val++) {
 					html += this.values[idx_val].getHtml();
 				}
@@ -238,11 +240,16 @@ var compGrid = compGeneric
 			},
 
 			_rows_manage : function(component) {
-				var iChild, row;
+				var iChild, row, color_idx=0;
 				this.grid_Rows = [];
 				for (iChild = 0; iChild < component.value.length; iChild++) {
+					if (iChild > 0) {
+						if ((component.value[iChild].__color_ref__ === null) || (component.value[iChild].__color_ref__ !== component.value[iChild-1].__color_ref__)) {
+							color_idx++;
+						}
+					}
 					row = new compGridRow();
-					row.initial(iChild, component.value[iChild], this);
+					row.initial(iChild, component.value[iChild], this, color_idx);
 					this.grid_Rows[this.grid_Rows.length] = row;
 				}
 			},

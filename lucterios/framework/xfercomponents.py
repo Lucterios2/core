@@ -900,6 +900,7 @@ class XferCompGrid(XferComponent):
                     new_record[header.name] = ""
             self.records[compid] = new_record
             self.record_ids.append(compid)
+            self.records[compid]['__color_ref__'] = None
 
     def set_value(self, compid, name, value):
         self._new_record(compid)
@@ -961,7 +962,11 @@ class XferCompGrid(XferComponent):
             json_record['id'] = key
             for header in self.headers:
                 json_record[header.name] = six.text_type(get_value_converted(record[header.name], convert_datetime=False))
+            for rec_name in record.keys():
+                if rec_name.startswith('__') and (rec_name not in self.headers):
+                    json_record[rec_name] = record[rec_name]
             compjson.append(json_record)
+        six.print_(compjson)
         return compjson
 
     def _add_header_from_model(self, query_set, fieldnames, has_xfer):
@@ -1007,6 +1012,7 @@ class XferCompGrid(XferComponent):
             child = value.get_final_child()
             child.set_context(xfer_custom)
             pk_id = getattr(child, primary_key_fieldname)
+            self.set_value(pk_id, '__color_ref__', child.get_color_ref())
             for fieldname in fieldnames:
                 if isinstance(fieldname, tuple):
                     _, fieldname = fieldname
