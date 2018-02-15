@@ -966,7 +966,6 @@ class XferCompGrid(XferComponent):
                 if rec_name.startswith('__') and (rec_name not in self.headers):
                     json_record[rec_name] = record[rec_name]
             compjson.append(json_record)
-        six.print_(compjson)
         return compjson
 
     def _add_header_from_model(self, query_set, fieldnames, has_xfer):
