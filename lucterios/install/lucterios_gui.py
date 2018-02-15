@@ -807,6 +807,8 @@ class LucteriosMainForm(Tk):
 
 def main():
     setup_from_none()
+    luct_glo = LucteriosGlobal()
+    luct_glo.refreshall()
     lct_form = LucteriosMainForm()
     lct_form.execute()
 
