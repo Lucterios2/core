@@ -109,6 +109,22 @@ def get_obj_contains(new_item):
             field_val.append("%s=%s" % (key, six.text_type(val).replace('{[br/]}', "\n").strip().replace("\n", '<br/>')))
     return field_val
 
+def get_subfield_show(initial_fields, subtable):
+    fields = []
+    for item in initial_fields:
+        if isinstance(item, six.text_type):
+            fields.append("%s.%s" % (subtable,item))
+        if isinstance(item, tuple):
+            colres = []
+            for colitem in item:
+                if isinstance(colitem, tuple):
+                    colitem = (colitem[0], "%s.%s" % (subtable,colitem[1]))
+                else:
+                    colitem = "%s.%s" % (subtable, colitem)
+                colres.append(colitem)
+            fields.append(tuple(colres))
+    return fields
+
 
 class LucteriosModel(models.Model):
 
