@@ -109,16 +109,17 @@ def get_obj_contains(new_item):
             field_val.append("%s=%s" % (key, six.text_type(val).replace('{[br/]}', "\n").strip().replace("\n", '<br/>')))
     return field_val
 
+
 def get_subfield_show(initial_fields, subtable):
     fields = []
     for item in initial_fields:
         if isinstance(item, six.text_type):
-            fields.append("%s.%s" % (subtable,item))
+            fields.append("%s.%s" % (subtable, item))
         if isinstance(item, tuple):
             colres = []
             for colitem in item:
                 if isinstance(colitem, tuple):
-                    colitem = (colitem[0], "%s.%s" % (subtable,colitem[1]))
+                    colitem = (colitem[0], "%s.%s" % (subtable, colitem[1]))
                 else:
                     colitem = "%s.%s" % (subtable, colitem)
                 colres.append(colitem)
@@ -430,8 +431,7 @@ class LucteriosModel(models.Model):
     def get_field_for_print(cls, with_plugin, field_name):
         def add_sub_field(field_name, field_title, model):
             for sub_title, sub_name in model.get_all_print_fields(False):
-                fields.append(
-                    ("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
+                fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
         fields = []
         item = cls()
         if PrintFieldsPlugIn.is_plugin(field_name):
@@ -458,15 +458,25 @@ class LucteriosModel(models.Model):
             for (sub_title, __new_field) in child.model.get_field_for_print(with_plugin, last_field_name):
                 fields.append(("%s > %s" % (field_title, sub_title), field_name))
         else:
+            sub_fields = field_name.split('.')
             try:
-                dep_field = item._meta.get_field(field_name)
+                dep_field = item._meta.get_field(sub_fields[0])
                 field_title = dep_field.verbose_name
-                if is_simple_field(dep_field):
-                    fields.append((field_title, field_name))
+                if len(sub_fields) == 1:
+                    if is_simple_field(dep_field):
+                        fields.append((field_title, field_name))
+                    else:
+                        add_sub_field(field_name, field_title, dep_field.remote_field.model)
                 else:
-                    add_sub_field(field_name, field_title, dep_field.remote_field.model)
+                    for (sub_title, __new_field) in dep_field.remote_field.model.get_field_for_print(with_plugin, ".".join(sub_fields[1:])):
+                        if sub_title != '':
+                            fields.append(("%s > %s" % (field_title, sub_title), field_name))
+                        else:
+                            fields.append((field_title, field_name))
             except (FieldDoesNotExist, AttributeError):
-                if hasattr(item, field_name):
+                if (field_name == 'str'):
+                    fields.append(("", field_name))
+                elif hasattr(item, field_name):
                     fields.append((field_name, field_name))
         return fields
 
