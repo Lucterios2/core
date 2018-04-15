@@ -313,6 +313,12 @@ class ParamEdit(XferContainerCustom):
         lab.set_value_as_title(_("Edition of parameters"))
         self.add_component(lab)
         Params.fill(self, params, 1, 1, False, nb_col)
+        titles = {}
+        signal_and_lock.Signal.call_signal('get_param_titles', params, titles)
+        for paramname in titles.keys():
+            param_item = self.get_components(paramname)
+            if param_item is not None:
+                param_item.description = titles[paramname]
         self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'))
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 

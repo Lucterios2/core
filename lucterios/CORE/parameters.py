@@ -35,7 +35,7 @@ from lucterios.CORE.models import Parameter
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect,\
     XferCompPassword
 from lucterios.framework.error import LucteriosException, GRAVE
-from lucterios.framework import tools
+from lucterios.framework import tools, signal_and_lock
 
 
 class ParamCache(object):
@@ -234,6 +234,8 @@ class Params(object):
         cls._paramlock.acquire()
         try:
             coloffset = 0
+            titles = {}
+            signal_and_lock.Signal.call_signal('get_param_titles', names, titles)
             for name in names:
                 param = cls._get(name)
                 if param is not None:
@@ -242,7 +244,10 @@ class Params(object):
                     else:
                         param_cmp = param.get_write_comp()
                     param_cmp.set_location(col + coloffset, row, 1, 1)
-                    param_cmp.description = ugettext_lazy(param.name)
+                    if param.name in titles:
+                        param_cmp.description = titles[param.name]
+                    else:
+                        param_cmp.description = ugettext_lazy(param.name)
                     xfer.add_component(param_cmp)
                     coloffset += 1
                     if coloffset == nb_col:
@@ -253,7 +258,6 @@ class Params(object):
 
 
 def notfree_mode_connect(*args):
-
     mode_connection = Params.getvalue("CORE-connectmode")
     return mode_connection != 2
 
