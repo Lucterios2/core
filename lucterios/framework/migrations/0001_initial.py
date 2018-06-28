@@ -37,14 +37,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.CreateModel(
             name='LucteriosSession',
-            fields=[
-            ],
-            options={
-                'default_permissions': [],
-                'proxy': True,
-                'verbose_name': 'session',
-                'verbose_name_plural': 'sessions'
-            },
+            fields=[],
+            options={'default_permissions': [],
+                     'proxy': True,
+                     'ordering': ['-expire_date'],
+                     'verbose_name': 'session',
+                     'verbose_name_plural': 'sessions'},
             bases=('sessions.session',),
         ),
     ]

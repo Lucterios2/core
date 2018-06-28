@@ -196,7 +196,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_e", self.path_dir)
-        inst.set_extra("DEBUG=True,ALLOWED_HOSTS=[localhost]")
+        inst.set_extra("DEBUG=True,ALLOWED_HOSTS=[localhost;127.0.0.1],DEFAULT_PAGE=cms/,NBMAX=5,PIVALUE=3.1415")
         inst.add()
         self.assertEqual(["inst_e"], self.luct_glo.listing())
 
@@ -204,8 +204,13 @@ class TestAdminSQLite(BaseTest):
 
         inst = LucteriosInstance("inst_e", self.path_dir)
         inst.read()
-        self.assertEqual({'DEBUG': True, '': {'mode': (
-            0, 'Connexion toujours nécessaire')}, 'ALLOWED_HOSTS': ['localhost']}, inst.extra)
+        self.assertEqual({'DEBUG': True, '': {'mode': (0, 'Connexion toujours nécessaire')},
+                          'ALLOWED_HOSTS': ['localhost', '127.0.0.1'], 'DEFAULT_PAGE': 'cms/',
+                          "NBMAX": 5, 'PIVALUE': 3.1415}, inst.extra)
+        inst.modif()
+
+        inst = LucteriosInstance("inst_e", self.path_dir)
+        inst.read()
 
     def test_archive(self):
         self.assertEqual([], self.luct_glo.listing())
@@ -473,6 +478,7 @@ class TestAdminPostGreSQL(BaseTest):
         mirg.filename = join(
             dirname(self.path_dir), 'data', 'archive_demo.bkf')
         mirg.restore()
+
 
 if __name__ == "__main__":
     suite = TestSuite()

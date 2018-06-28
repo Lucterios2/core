@@ -347,10 +347,12 @@ class LucteriosInstance(LucteriosManage):
                 key, value = item.split('=')[:2]
                 if (value.lower() == 'true') or (value.lower() == 'false'):
                     self.extra[key] = value.lower() == 'true'
-                elif isinstance(value, float):
+                elif value.isnumeric():
+                    self.extra[key] = int(value)
+                elif value.replace('.', '').isnumeric():
                     self.extra[key] = float(value)
                 elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
-                    self.extra[key] = value[1:-1].split(',')
+                    self.extra[key] = value[1:-1].split(';')
                 else:
                     self.extra[key] = value
 
@@ -481,7 +483,10 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('# extra\n')
             for key, value in self.extra.items():
                 if key != '':
-                    file_py.write('%s = %s\n' % (key, value))
+                    if isinstance(value, six.text_type):
+                        file_py.write('%s = "%s"\n' % (key, value))
+                    else:
+                        file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
             file_py.write('fill_appli_settings("%s", (%s)) \n' %
                           (self.appli_name, self._get_module_text()))

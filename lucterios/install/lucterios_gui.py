@@ -49,6 +49,7 @@ from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
 from tkinter.messagebox import showerror, showinfo, askokcancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter import Image
+import logging
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -807,8 +808,11 @@ class LucteriosMainForm(Tk):
 
 def main():
     setup_from_none()
-    luct_glo = LucteriosGlobal()
-    luct_glo.refreshall()
+    try:
+        luct_glo = LucteriosGlobal()
+        luct_glo.refreshall()
+    except Exception:
+        logging.getLogger(__name__).exception("refreshall")
     lct_form = LucteriosMainForm()
     lct_form.execute()
 
