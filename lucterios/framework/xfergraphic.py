@@ -33,11 +33,9 @@ from django.utils import six, formats
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
-    XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, \
-    XferCompDateTime
-from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction,\
-    SELECT_NONE, get_actions_json
-from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES, CLOSE_NO
+    XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, XferCompDateTime
+from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json
+from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 import warnings
