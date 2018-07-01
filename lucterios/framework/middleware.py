@@ -33,6 +33,14 @@ from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 
 class LucteriosErrorMiddleware(XferContainerException):
 
+    def __init__(self, get_response):
+        self.get_origin_response = get_response
+        XferContainerException.__init__(self)
+
+    def __call__(self, request):
+        response = self.get_origin_response(request)
+        return response
+
     def process_exception(self, request, exception):
         self.request = request
         self.set_except(exception)

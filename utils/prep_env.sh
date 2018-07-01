@@ -10,12 +10,14 @@ echo "Sphinx" >> requirement.txt
 echo "mysqlclient" >> requirement.txt
 echo "psycopg2" >> requirement.txt
 
-[ -d virt ] && rm -rf
+[ -d virt ] && rm -rf virt
 
 python3 $(which virtualenv) virt
 
 source virt/bin/activate
 
 pip install -U -r requirement.txt
+
+pip list
 
 deactivate

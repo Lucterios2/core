@@ -70,7 +70,7 @@ class Authentification(XferContainerAbstract):
         if (username == '') and (password is None):
             self.must_autentificate('')
         elif (username is not None) and (password is not None):
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated:
                 logout(self.request)
             if (username == '') and (password == '') and not secure_mode_connect():
                 self.params["ses"] = 'null'
@@ -86,7 +86,7 @@ class Authentification(XferContainerAbstract):
         elif info is not None:
             self.connection_success()
         else:
-            if self.request.user.is_authenticated() or not secure_mode_connect():
+            if self.request.user.is_authenticated or not secure_mode_connect():
                 self.connection_success()
             else:
                 self.must_autentificate('NEEDAUTH')
@@ -113,7 +113,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['MESSAGE_BEFORE'] = Params.getvalue("CORE-MessageBefore")
         info_cnx['LANGUAGE'] = self.language
         info_cnx['MODE'] = six.text_type(Params.getvalue("CORE-connectmode"))
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             info_cnx['LOGIN'] = self.request.user.username
             info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
             info_cnx['EMAIL'] = self.request.user.email

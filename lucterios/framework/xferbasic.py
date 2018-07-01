@@ -233,7 +233,7 @@ class XferContainerAbstract(View):
                             id__in=new_value.split(';'))
                     else:
                         new_value = relation_model.objects.filter(id__in=[])
-                    setattr(self.item, field_name, new_value)
+                    getattr(self.item, field_name).set(new_value)
                     self.has_changed = True
         return self.has_changed
 

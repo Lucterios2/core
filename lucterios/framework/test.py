@@ -88,7 +88,7 @@ class XmlRequestFactory(RequestFactory):
         except Exception as expt:
             if request is None:
                 request = self.post(path, {})
-            err = LucteriosErrorMiddleware()
+            err = LucteriosErrorMiddleware(None)
             return err.process_exception(request, expt)
 
 

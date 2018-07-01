@@ -138,11 +138,11 @@ class WrapAction(object):
             view_right_fct = self.is_view_right[0]
             right_result = view_right_fct(request)
         elif self.is_view_right is None:
-            right_result = request.user.is_authenticated()
+            right_result = request.user.is_authenticated
         elif self.mode_connect_notfree is None or self.mode_connect_notfree():
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
                 right_result = False
-            if (self.caption == '') and not request.user.is_authenticated():
+            if (self.caption == '') and not request.user.is_authenticated:
                 right_result = False
         logging.getLogger("lucterios.core.right").info(
             "check_permission for '%s' : is_view_right='%s' user='%s' => '%s'", self.url_text, self.is_view_right, request.user, right_result)
@@ -151,7 +151,7 @@ class WrapAction(object):
     def raise_bad_permission(self, request):
         if not self.check_permission(request):
             from lucterios.framework.error import LucteriosRedirectException
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 username = request.user.username
             else:
                 username = _("Anonymous user")

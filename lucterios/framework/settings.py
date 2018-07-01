@@ -86,12 +86,11 @@ def get_locale_lang():
 
 
 DEFAULT_SETTINGS = {
-    'MIDDLEWARE_CLASSES': (
+    'MIDDLEWARE': (
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.common.CommonMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'lucterios.framework.middleware.LucteriosErrorMiddleware',

@@ -125,9 +125,9 @@ def get_package_list():
             return (modname, appmodule.__version__, appmodule.link())
         else:
             return (modname, appmodule.__version__, [])
-    import pip
+    from pip._internal.utils.misc import get_installed_distributions
     package_list = {}
-    dists = pip.get_installed_distributions()
+    dists = get_installed_distributions()
     for dist in dists:
         requires = [req.key for req in dist.requires()]
         if (dist.key == 'lucterios') or ('lucterios' in requires):
@@ -246,15 +246,10 @@ class LucteriosGlobal(LucteriosManage):
         return args
 
     def check(self):
-        from pip import get_installed_distributions
-        from pip.commands import list as list_
-        try:
-            import pip.utils.logging
-            pip.utils.logging._log_state.indentation = 0
-        except Exception:
-            pass
+        from pip._internal.utils.misc import get_installed_distributions
+        from pip._internal.commands.list import ListCommand
         check_list = {}
-        list_command = list_.ListCommand()
+        list_command = ListCommand()
         options, _ = list_command.parse_args(self.get_default_args_([]))
         unvers_packages = get_installed_distributions(local_only=options.local, user_only=options.user, editables_only=options.editable)
         packages = list_command.iter_packages_latest_infos(unvers_packages, options)
@@ -277,14 +272,10 @@ class LucteriosGlobal(LucteriosManage):
         return check_list, must_upgrade
 
     def update(self):
-        import pip
-        try:
-            import pip.utils.logging
-            pip.utils.logging._log_state.indentation = 0
-        except Exception:
-            pass
+        from pip._internal import main
+        from pip._internal.utils.misc import get_installed_distributions
         module_list = []
-        for dist in pip.get_installed_distributions():
+        for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
             if (dist.key == 'lucterios') or ('lucterios' in requires):
                 module_list.append(dist.project_name)
@@ -294,7 +285,7 @@ class LucteriosGlobal(LucteriosManage):
                                  ",".join(module_list))
                 options = self.get_default_args_(['install', '-U'])
                 options.extend(module_list)
-                pip.main(options)
+                main(options)
             finally:
                 self.refreshall()
             return True
