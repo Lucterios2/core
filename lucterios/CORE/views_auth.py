@@ -26,8 +26,7 @@ from __future__ import unicode_literals
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
-from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO,\
-    SELECT_NONE, get_actions_xml, get_actions_json, CLOSE_YES
+from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, get_actions_json, CLOSE_YES
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.framework import signal_and_lock
@@ -121,23 +120,11 @@ class Authentification(XferContainerAbstract):
             info_cnx['LOGIN'] = ''
             info_cnx['REALNAME'] = ''
             info_cnx['EMAIL'] = ''
-        if self.format == 'JSON':
-            self.responsejson['connexion'] = info_cnx
-        else:
-            from lxml import etree
-            connextion = etree.SubElement(self.responsexml, "CONNECTION")
-            for name, value in info_cnx.items():
-                if isinstance(value, list):
-                    etree.SubElement(connextion, name).text = "{[br/]}".join(value)
-                else:
-                    etree.SubElement(connextion, name).text = value
+        self.responsejson['connexion'] = info_cnx
 
     def must_autentificate(self, mess):
         self.get_connection_info()
-        if self.format == 'JSON':
-            self.responsejson['data'] = mess
-        else:
-            self.responsexml.text = mess
+        self.responsejson['data'] = mess
         if secure_mode_connect():
             basic_actions = []
             signal_and_lock.Signal.call_signal("auth_action", basic_actions)
@@ -147,7 +134,6 @@ class Authentification(XferContainerAbstract):
                     actions.append((action, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, None))
             if len(actions) != 0:
                 self.responsejson['actions'] = get_actions_json(actions)
-                self.responsexml.append(get_actions_xml(actions))
 
     def connection_success(self):
         self.get_connection_info()

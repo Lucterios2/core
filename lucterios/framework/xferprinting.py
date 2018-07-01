@@ -24,7 +24,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 
 from __future__ import unicode_literals
-from lxml import etree
 from base64 import b64encode
 from logging import getLogger
 
@@ -147,11 +146,5 @@ class XferContainerPrint(XferContainerAbstract):
         return six.text_type(self.caption)
 
     def _finalize(self):
-        if self.format == 'JSON':
-            self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content.decode()}
-        else:
-            printxml = etree.SubElement(self.responsexml, "PRINT")
-            printxml.attrib['mode'] = six.text_type(self.report_mode)  # 3=PDF - 4=CSV
-            printxml.text = self.report_content
-            etree.SubElement(printxml, "TITLE").text = self.get_print_name()
+        self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content.decode()}
         XferContainerAbstract._finalize(self)

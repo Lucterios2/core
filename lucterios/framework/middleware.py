@@ -25,7 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from lxml import etree
 from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
@@ -49,8 +48,6 @@ class LucteriosErrorMiddleware(XferContainerException):
             redirectaction = exception.redirectclassview.get_action()
             if self.check_action_permission(redirectaction):
                 self.closeaction = (redirectaction, FORMTYPE_MODAL, CLOSE_YES, None)
-        self.responsesxml = etree.Element('REPONSES')
-        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
         self.responsejson = {}
         self._initialize(request)
         self.fillresponse()

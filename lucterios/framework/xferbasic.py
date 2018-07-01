@@ -23,19 +23,16 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lxml import etree
 from inspect import isfunction
 from logging import getLogger
 
 from django.utils.translation import ugettext as _
 from django.utils import translation, six
-from django.http import HttpResponse
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
 
-from lucterios.framework.tools import fill_param_xml, get_icon_path, WrapAction, FORMTYPE_MODAL,\
-    CLOSE_YES
+from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.http.response import JsonResponse
@@ -65,8 +62,6 @@ class XferContainerAbstract(View):
         self.language = ''
         self.request = None
         self.params = {}
-        self.responsesxml = etree.Element('REPONSES')
-        self.responsexml = etree.SubElement(self.responsesxml, 'REPONSE')
         self.responsejson = {}
         self.items = None
         self.item = None
@@ -270,33 +265,15 @@ class XferContainerAbstract(View):
         pass
 
     def _finalize(self):
-        if self.format == 'JSON':
-            self.responsejson['meta'] = {'observer': self.observer_name, 'extension': self.extension, 'action': self.action, 'title': self.caption}
-            self.responsejson['context'] = dict(self.params)
-            if self.closeaction is not None:
-                self.responsejson['close'] = self.closeaction[0].get_action_json(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3])
-            else:
-                self.responsejson['close'] = None
+        self.responsejson['meta'] = {'observer': self.observer_name, 'extension': self.extension, 'action': self.action, 'title': self.caption}
+        self.responsejson['context'] = dict(self.params)
+        if self.closeaction is not None:
+            self.responsejson['close'] = self.closeaction[0].get_action_json(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3])
         else:
-            self.responsexml.attrib['observer'] = self.observer_name
-            self.responsexml.attrib['source_extension'] = self.extension
-            self.responsexml.attrib['source_action'] = self.action
-            titlexml = etree.Element("TITLE")
-            titlexml.text = self.caption.replace('_', '')
-            if titlexml.text != '':
-                self.responsexml.insert(0, titlexml)
-            if len(self.params) > 0:
-                context = etree.Element("CONTEXT")
-                fill_param_xml(context, self.params)
-                self.responsexml.insert(1, context)
-            if self.closeaction is not None:
-                etree.SubElement(self.responsexml, "CLOSE_ACTION").append(self.closeaction[0].get_action_xml(modal=self.closeaction[1], close=self.closeaction[2], params=self.closeaction[3]))
+            self.responsejson['close'] = None
 
     def get_response(self):
-        if self.format == 'JSON':
-            return JsonResponse(self.responsejson, json_dumps_params={'indent': 3})
-        else:
-            return HttpResponse(etree.tostring(self.responsesxml, xml_declaration=True, pretty_print=True, encoding='utf-8'))
+        return JsonResponse(self.responsejson, json_dumps_params={'indent': 3})
 
     def _get_params(self):
         params = {}
@@ -340,11 +317,7 @@ class XferContainerMenu(XferContainerAbstract):
 
     def fillresponse(self):
         from lucterios.framework.tools import MenuManage
-        if self.format == 'JSON':
-            self.responsejson["menus"] = MenuManage.filljson(self.request, None)
-        else:
-            main_menu = etree.SubElement(self.responsexml, "MENUS")
-            MenuManage.fill(self.request, None, main_menu)
+        self.responsejson["menus"] = MenuManage.filljson(self.request, None)
 
 
 class XferContainerException(XferContainerAbstract):
@@ -368,12 +341,5 @@ class XferContainerException(XferContainerAbstract):
             code_text = six.text_type(self.exception.code)
         else:
             code_text = '0'
-        if self.format == 'JSON':
-            self.responsejson['exception'] = {'message': msg_text, 'code': code_text, 'debug': get_error_trace(), 'type': type_text}
-        else:
-            expt = etree.SubElement(self.responsexml, "EXCEPTION")
-            etree.SubElement(expt, 'MESSAGE').text = msg_text
-            etree.SubElement(expt, 'CODE').text = code_text
-            etree.SubElement(expt, 'DEBUG_INFO').text = get_error_trace()
-            etree.SubElement(expt, 'TYPE').text = type_text
+        self.responsejson['exception'] = {'message': msg_text, 'code': code_text, 'debug': get_error_trace(), 'type': type_text}
         getLogger("lucterios.core.exception").warning("type %s: code=%s - message=%s", type_text, code_text, msg_text)

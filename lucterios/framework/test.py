@@ -134,11 +134,6 @@ class LucteriosTest(TestCase):
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
 
-    def call(self, path, data, is_client=True):
-        data['FORMAT'] = 'XML'
-        self.call_ex(path, data, is_client)
-        self.parse_xml(self.response.content)
-
     def calljson(self, path, data, is_client=True):
         import json
         data['FORMAT'] = 'JSON'
