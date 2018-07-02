@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-06 20:25+0000\n"
+"POT-Creation-Date: 2018-07-02 20:16+0000\n"
 "PO-Revision-Date: 2015-09-17 15:53+0000\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -50,7 +50,8 @@ msgstr "Passwords are differents!"
 msgid "saved criteria"
 msgstr "saved criteria"
 
-#: models.py:52 models.py:182 models.py:236 models.py:421
+#: models.py:52 models.py:184 models.py:238 models.py:423
+#: views_usergroup.py:163
 msgid "name"
 msgstr "name"
 
@@ -70,7 +71,7 @@ msgstr "Real"
 msgid "Boolean"
 msgstr "Boolean"
 
-#: models.py:54 views.py:742
+#: models.py:54 views.py:749
 msgid "Select"
 msgstr "Select"
 
@@ -78,219 +79,219 @@ msgstr "Select"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:56 models.py:240
+#: models.py:56 models.py:242
 msgid "value"
 msgstr "value"
 
-#: models.py:114
+#: models.py:116
 msgid "parameter"
 msgstr "parameter"
 
-#: models.py:115
+#: models.py:117
 msgid "parameters"
 msgstr "parameters"
 
-#: models.py:128
+#: models.py:130
 msgid "Informations"
 msgstr "Informations"
 
-#: models.py:129
+#: models.py:131
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:151
+#: models.py:153
 msgid "Available groups"
 msgstr "Available groups"
 
-#: models.py:151
+#: models.py:153
 msgid "Chosen groups"
 msgstr "Chosen groups"
 
-#: models.py:153 models.py:167
+#: models.py:155 models.py:169
 msgid "Available permissions"
 msgstr "Available permissions"
 
-#: models.py:153 models.py:167
+#: models.py:155 models.py:169
 msgid "Chosen permissions"
 msgstr "Chosen permissions"
 
-#: models.py:177
+#: models.py:179
 msgid "group"
 msgstr "group"
 
-#: models.py:178
+#: models.py:180
 msgid "groups"
 msgstr "groups"
 
-#: models.py:185
+#: models.py:187
 msgid "page width"
 msgstr "page width (L)"
 
-#: models.py:187
+#: models.py:189
 msgid "page height"
 msgstr "page height (H)"
 
-#: models.py:189
+#: models.py:191
 msgid "cell width"
 msgstr "cell width (l)"
 
-#: models.py:191
+#: models.py:193
 msgid "cell height"
 msgstr "cell height (h)"
 
-#: models.py:193
+#: models.py:195
 msgid "number of columns"
 msgstr "number of columns"
 
-#: models.py:195
+#: models.py:197
 msgid "number of rows"
 msgstr "number of rows"
 
-#: models.py:197
+#: models.py:199
 msgid "left marge"
 msgstr "left marge (a)"
 
-#: models.py:199
+#: models.py:201
 msgid "top marge"
 msgstr "top marge (b)"
 
-#: models.py:201
+#: models.py:203
 msgid "horizontal space"
 msgstr "horizontal space (c)"
 
-#: models.py:203
+#: models.py:205
 msgid "vertical space"
 msgstr "vertical space (d)"
 
-#: models.py:221 models.py:231
+#: models.py:223 models.py:233
 msgid "label"
 msgstr "label"
 
-#: models.py:221
+#: models.py:223
 msgid "# of first label"
 msgstr "# of first label"
 
-#: models.py:232
+#: models.py:234
 msgid "labels"
 msgstr "labels"
 
-#: models.py:238
+#: models.py:240
 msgid "kind"
 msgstr "kind"
 
-#: models.py:238
+#: models.py:240
 msgid "Listing"
 msgstr "Listing"
 
-#: models.py:238
+#: models.py:240
 msgid "Label"
 msgstr "Label"
 
-#: models.py:238
+#: models.py:240
 msgid "Report"
 msgstr "Report"
 
-#: models.py:239 models.py:274 models.py:416 models.py:422 models.py:450
-#: views.py:377 views.py:839 views.py:995 views.py:1007
+#: models.py:241 models.py:276 models.py:418 models.py:424 models.py:452
+#: views.py:384 views.py:846 views.py:1002 views.py:1014
 msgid "model"
 msgstr "model"
 
-#: models.py:242
+#: models.py:244
 msgid "mode"
 msgstr "mode"
 
-#: models.py:242
+#: models.py:244
 msgid "Simple"
 msgstr "Simple"
 
-#: models.py:242
+#: models.py:244
 msgid "Advanced"
 msgstr "Advanced"
 
-#: models.py:243
+#: models.py:245
 msgid "default"
 msgstr "default"
 
-#: models.py:264
+#: models.py:266
 msgid "Last model of this kind!"
 msgstr "Last model of this kind!"
 
-#: models.py:273
+#: models.py:275
 msgid "No model!"
 msgstr "No model!"
 
-#: models.py:282
+#: models.py:284
 #, python-format
 msgid "No default model for %s!"
 msgstr "No default model for %s!"
 
-#: models.py:291
+#: models.py:293
 msgid "No model selected!"
 msgstr "No model selected!"
 
-#: models.py:294
+#: models.py:296
 #, python-format
 msgid "copy of %s"
 msgstr "copy of %s"
 
-#: models.py:371
+#: models.py:373
 msgid "Model file is invalid!"
 msgstr "Model file is invalid!"
 
-#: models.py:417
+#: models.py:419
 msgid "models"
 msgstr "models"
 
-#: models.py:423 models.py:450
+#: models.py:425 models.py:452
 msgid "criteria"
 msgstr "criteria"
 
-#: models.py:453
+#: models.py:455
 msgid "Saved criteria"
 msgstr "Saved criteria"
 
-#: models.py:454 views.py:341
+#: models.py:456 views.py:348
 msgid "Saved criterias"
 msgstr "Saved criterias"
 
-#: models.py:460
+#: models.py:462
 msgid "CORE-GUID"
 msgstr "Software serial number"
 
-#: models.py:461
+#: models.py:463
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
-#: models.py:462
+#: models.py:464
 msgid "CORE-connectmode.0"
 msgstr "Connection always needed"
 
-#: models.py:462
+#: models.py:464
 msgid "CORE-connectmode.1"
 msgstr "Open in anonymous"
 
-#: models.py:462
+#: models.py:464
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:463
+#: models.py:465
 msgid "CORE-Wizard"
 msgstr "Open the configuration wizard at startup"
 
-#: models.py:464
+#: models.py:466
 msgid "CORE-MessageBefore"
 msgstr "Message before login"
 
-#: parameters.py:110 parameters.py:143
+#: parameters.py:111 parameters.py:144
 #, python-format
 msgid ".%d"
 msgstr ".%d"
 
-#: parameters.py:139
+#: parameters.py:140
 msgid "Yes"
 msgstr "Yes"
 
-#: parameters.py:141
+#: parameters.py:142
 msgid "No"
 msgstr "No"
 
@@ -346,13 +347,13 @@ msgstr "new password"
 msgid "new password (again)"
 msgstr "new password (again)"
 
-#: views.py:190 views.py:243 views.py:315 views.py:745 views.py:807
-#: views.py:1041
+#: views.py:190 views.py:243 views.py:322 views.py:752 views.py:814
+#: views.py:1048
 msgid "Ok"
 msgstr "Ok"
 
-#: views.py:191 views.py:244 views.py:316 views.py:747 views.py:808
-#: views.py:1043
+#: views.py:191 views.py:244 views.py:323 views.py:754 views.py:815
+#: views.py:1050
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -364,7 +365,7 @@ msgstr "Bad current password!"
 msgid "Password modify"
 msgstr "Password modify"
 
-#: views.py:220 views.py:268
+#: views.py:220 views.py:269
 msgid "Password or login forget?"
 msgstr "Password or login forget?"
 
@@ -380,375 +381,391 @@ msgstr "To receive by email your login and a new password."
 msgid "email"
 msgstr "email"
 
-#: views.py:271
+#: views.py:272
 msgid "To view and to modify main parameters."
 msgstr "View and modify main parameters."
 
-#: views.py:273
+#: views.py:274
 msgid "Main configuration"
 msgstr "Main configuration"
 
-#: views.py:284
+#: views.py:285
 msgid "Software configuration"
 msgstr "Software configuration"
 
-#: views.py:293 views.py:1134
+#: views.py:294 views.py:1141
 msgid "Wizard"
 msgstr "Wizard"
 
-#: views.py:296
+#: views.py:297
 msgid "Modify"
 msgstr "Modify"
 
-#: views.py:297 views.py:1045
+#: views.py:298 views.py:1052
 msgid "Close"
 msgstr "Close"
 
-#: views.py:302 views.py:321
+#: views.py:303 views.py:328
 msgid "Parameters"
 msgstr "Parameters"
 
-#: views.py:312
+#: views.py:313
 msgid "Edition of parameters"
 msgstr "Edition of parameters"
 
-#: views.py:333
+#: views.py:340
 msgid "_Extensions (conf.)"
 msgstr "_Modules (conf.)"
 
-#: views.py:333
+#: views.py:340
 msgid "To manage of modules configurations."
 msgstr "Manage of modules configurations."
 
-#: views.py:336
+#: views.py:343
 msgid "Saved criteria list for searching tools"
 msgstr "Saved criteria list for searching tools"
 
-#: views.py:349
+#: views.py:356
 msgid "Add saved criteria"
 msgstr "Add saved criteria"
 
-#: views.py:350
+#: views.py:357
 msgid "Modify saved criteria"
 msgstr "Modify saved criteria"
 
-#: views.py:359
+#: views.py:366
 msgid "Delete Saved criteria"
 msgstr "Delete Saved criteria"
 
-#: views.py:363
+#: views.py:370
 msgid "Report and print"
 msgstr "Report and print"
 
-#: views.py:363
+#: views.py:370
 msgid "To manage reports and tools of printing."
 msgstr "Manage reports and tools of printing."
 
-#: views.py:366
+#: views.py:373
 msgid "To Manage printing models."
 msgstr "Manage printing models."
 
-#: views.py:368 views.py:419
+#: views.py:375 views.py:426
 msgid "Print models"
 msgstr "Print models"
 
-#: views.py:402 views.py:648
+#: views.py:409 views.py:655
 msgid "Add a print model"
 msgstr "Add a print model"
 
-#: views.py:403
+#: views.py:410
 msgid "Modify a print model"
 msgstr "Modify a print model"
 
-#: views.py:443
+#: views.py:450
 msgid "list page width"
 msgstr "page width"
 
-#: views.py:448
+#: views.py:455
 msgid "list page height"
 msgstr "page height"
 
-#: views.py:453
+#: views.py:460
 msgid "size"
 msgstr "size"
 
-#: views.py:457
+#: views.py:464
 msgid "title"
 msgstr "title"
 
-#: views.py:461
+#: views.py:468
 msgid "text"
 msgstr "text"
 
-#: views.py:504 views.py:505
+#: views.py:511 views.py:512
 msgid "Reload"
 msgstr "Reload"
 
-#: views.py:508 views.py:546
+#: views.py:515 views.py:553
 msgid "reload model"
 msgstr "reload model"
 
-#: views.py:528
+#: views.py:535
 msgid "Model to reload"
 msgstr "Model to reload"
 
-#: views.py:540
+#: views.py:547
 msgid "Model reloaded"
 msgstr "Model reloaded"
 
-#: views.py:543
+#: views.py:550
 msgid "Import"
 msgstr "Import"
 
-#: views.py:565
+#: views.py:572
 msgid "file to load"
 msgstr "file to load"
 
-#: views.py:582
+#: views.py:589
 msgid "Model loaded"
 msgstr "Model loaded"
 
-#: views.py:585 views.py:588
+#: views.py:592 views.py:595
 msgid "Extract"
 msgstr "Extract"
 
-#: views.py:615
+#: views.py:622
 msgid "print model"
 msgstr "print model"
 
-#: views.py:660
+#: views.py:667
 msgid "Delete print model"
 msgstr "Delete print model"
 
-#: views.py:666
+#: views.py:673
 msgid "Default"
 msgstr "Default"
 
-#: views.py:669
+#: views.py:676
 msgid "Set default print model"
 msgstr "Set default print model"
 
-#: views.py:678
+#: views.py:685
 msgid "To manage boards of labels"
 msgstr "Manage boards of labels"
 
-#: views.py:680
+#: views.py:687
 msgid "Labels"
 msgstr "Labels"
 
-#: views.py:690
+#: views.py:697
 msgid "Add a label"
 msgstr "Add a label"
 
-#: views.py:691
+#: views.py:698
 msgid "Modify a label"
 msgstr "Modify a label"
 
-#: views.py:700
+#: views.py:707
 msgid "Delete label"
 msgstr "Delete label"
 
-#: views.py:708
+#: views.py:715
 msgid "Merge"
 msgstr "Merge"
 
-#: views.py:721
+#: views.py:728
 msgid "Impossible: you must to select many records!"
 msgstr "Impossible: you must to select many records!"
 
-#: views.py:734
+#: views.py:741
 msgid "designation"
 msgstr "designation"
 
-#: views.py:735
+#: views.py:742
 msgid "is main?"
 msgstr "is main?"
 
-#: views.py:740
+#: views.py:747
 msgid "Edit"
 msgstr "Edit"
 
-#: views.py:761
+#: views.py:768
 msgid "Promote"
 msgstr "Promote"
 
-#: views.py:784
+#: views.py:791
 msgid "record"
 msgstr "record"
 
-#: views.py:792
+#: views.py:799
 msgid "current model"
 msgstr "current model"
 
-#: views.py:800
+#: views.py:807
 msgid "new model"
 msgstr "new model"
 
-#: views.py:845
+#: views.py:852
 msgid "CSV file"
 msgstr "CSV file"
 
-#: views.py:850
+#: views.py:857
 msgid "encoding"
 msgstr "encoding"
 
-#: views.py:855
+#: views.py:862
 msgid "date format"
 msgstr "date format"
 
-#: views.py:860
+#: views.py:867
 msgid "delimiter"
 msgstr "delimiter"
 
-#: views.py:865
+#: views.py:872
 msgid "quotechar"
 msgstr "quotechar"
 
-#: views.py:896
+#: views.py:903
 msgid "CSV file unvalid!"
 msgstr "CSV file unvalid!"
 
-#: views.py:941 views.py:1021
+#: views.py:948 views.py:1028
 #, python-format
 msgid "Total number of items: %d"
 msgstr "Total number of items: %d"
 
-#: views.py:998
+#: views.py:1005
 msgid "Fields"
 msgstr "Fields"
 
-#: views.py:1000
+#: views.py:1007
 msgid "Current content"
 msgstr "Current content"
 
-#: views.py:1033
+#: views.py:1040
 #, python-format
 msgid "%d items are been imported"
 msgstr "%d items are been imported"
 
-#: views.py:1039
+#: views.py:1046
 msgid "Back"
 msgstr "Back"
 
-#: views.py:1057
+#: views.py:1064
 msgid "Configuration wizard"
 msgstr "Configuration wizard"
 
-#: views.py:1091
+#: views.py:1098
 msgid "Prec"
 msgstr "Prec"
 
-#: views.py:1096
+#: views.py:1103
 #, python-format
 msgid "progress steps: %(current)d/%(max)d"
 msgstr "progress steps: %(current)d/%(max)d"
 
-#: views.py:1103
+#: views.py:1110
 msgid "Next"
 msgstr "Next"
 
-#: views.py:1165
+#: views.py:1172
 msgid "This wizard will help you to configure this software."
 msgstr ""
 "This wizard will help you to configure this software.{[br/]}All the next "
 "configurations are accessible in administrator menu."
 
-#: views.py:1177
+#: views.py:1184
 msgid "Groups and users"
 msgstr "Groups and users"
 
-#: views_auth.py:166
+#: views_auth.py:152
 msgid "Disconnect"
 msgstr "Disconnect"
 
-#: views_usergroup.py:39
+#: views_usergroup.py:40
 msgid "_Rights manage"
 msgstr "_Rights manage"
 
-#: views_usergroup.py:39
+#: views_usergroup.py:40
 msgid "To manage users, groups and permissions."
 msgstr "Manage users, groups and permissions."
 
-#: views_usergroup.py:42
+#: views_usergroup.py:43
 msgid "To manage permissions groupes."
 msgstr "Manage permissions groups."
 
-#: views_usergroup.py:44
+#: views_usergroup.py:45
 msgid "Groups"
 msgstr "Groups"
 
-#: views_usergroup.py:54
+#: views_usergroup.py:55
 msgid "Add a group"
 msgstr "Add a group"
 
-#: views_usergroup.py:55
+#: views_usergroup.py:56
 msgid "Modify a group"
 msgstr "Modify a group"
 
-#: views_usergroup.py:65
+#: views_usergroup.py:66
 msgid "Delete group"
 msgstr "Delete group"
 
-#: views_usergroup.py:71
+#: views_usergroup.py:72
 msgid "To manage users."
 msgstr "Manage users."
 
-#: views_usergroup.py:73
+#: views_usergroup.py:74
 msgid "Users of the software"
 msgstr "Users of the software"
 
-#: views_usergroup.py:84
+#: views_usergroup.py:85
 msgid "List of active users"
 msgstr "List of active users"
 
-#: views_usergroup.py:85
+#: views_usergroup.py:86
 msgid "List of inactive users"
 msgstr "List of inactive users"
 
-#: views_usergroup.py:92
+#: views_usergroup.py:93
 msgid "Add an users"
 msgstr "Add an user"
 
-#: views_usergroup.py:93
+#: views_usergroup.py:94
 msgid "Modify an user"
 msgstr "Modify an user"
 
-#: views_usergroup.py:99 views_usergroup.py:100
+#: views_usergroup.py:100 views_usergroup.py:101
 msgid "Disabled"
 msgstr "Disabled"
 
-#: views_usergroup.py:103
+#: views_usergroup.py:104
 msgid "Disabled an user"
 msgstr "Disabled an user"
 
-#: views_usergroup.py:110
+#: views_usergroup.py:111
 msgid "You can disabled yourself!"
 msgstr "You can't disabled yourself!"
 
-#: views_usergroup.py:115 views_usergroup.py:116
+#: views_usergroup.py:116 views_usergroup.py:117
 msgid "Enabled"
 msgstr "Enabled"
 
-#: views_usergroup.py:119
+#: views_usergroup.py:120
 msgid "Enabled an user"
 msgstr "Enabled an user"
 
-#: views_usergroup.py:134
+#: views_usergroup.py:135
 msgid "Delete users"
 msgstr "Delete users"
 
-#: views_usergroup.py:143
+#: views_usergroup.py:144
 msgid "You can delete yourself!"
 msgstr "You can't delete yourself!"
 
-#: views_usergroup.py:147
-msgid "To manage session."
-msgstr "Manage session."
+#: views_usergroup.py:148
+msgid "To manage session and tasks."
+msgstr "To manage session and tasks."
 
-#: views_usergroup.py:149
+#: views_usergroup.py:150
+msgid "Sessions & tasks"
+msgstr "Sessions & tasks"
+
+#: views_usergroup.py:156
 msgid "Sessions"
 msgstr "Sessions"
 
-#: views_usergroup.py:158
+#: views_usergroup.py:160
+msgid "Tasks"
+msgstr "Tasks"
+
+#: views_usergroup.py:164
+msgid "trigger"
+msgstr "trigger"
+
+#: views_usergroup.py:165
+msgid "next date"
+msgstr "next date"
+
+#: views_usergroup.py:178
 msgid "Delete session"
 msgstr "Delete session"

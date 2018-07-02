@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
@@ -36,10 +36,15 @@ from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, X
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete,\
     TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT,\
     TITLE_LISTING, TITLE_LABEL
-from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel, XferPrintReporting
-from lucterios.dummy.models import Example, Other
 from lucterios.framework import signal_and_lock
+from lucterios.framework.models import LucteriosScheduler
+
+from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel, XferPrintReporting
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
+from lucterios.CORE.parameters import Params
+from lucterios.CORE.models import Parameter
+
+from lucterios.dummy.models import Example, Other
 
 MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
@@ -439,6 +444,34 @@ class OtherDel(XferDelete):
     caption = _("Delete other")
 
 
+def run_simple_action(timetxt):
+    """Run simple action"""
+    if timetxt is None:
+        Parameter.change_value('dummy-value', '')
+        Params.clear()
+    else:
+        value = Params.getvalue('dummy-value')
+        size = len(value.split('{[br/]}'))
+        if size >= 10:
+            LucteriosScheduler.remove(run_simple_action)
+            LucteriosScheduler.add_date(run_simple_action, datetime=datetime.now() + timedelta(seconds=20), timetxt=None)
+        else:
+            value += timetxt + "{[br/]}"
+            Parameter.change_value('dummy-value', value)
+            Params.clear()
+
+
+@MenuManage.describ('dummy.delete_other')
+class AddSchedulerTask(XferContainerAcknowledge):
+    icon = "11.png"
+    caption = _("add scheduler task")
+
+    def fillresponse(self):
+        Parameter.change_value('dummy-value', '')
+        Params.clear()
+        LucteriosScheduler.add_task(run_simple_action, minutes=1.0 / 6, timetxt=datetime.now().ctime())
+
+
 @signal_and_lock.Signal.decorate('summary')
 def summary_dummy(xfer):
     if not hasattr(xfer, 'add_component'):
@@ -454,5 +487,14 @@ def summary_dummy(xfer):
         lbl.set_location(0, row + 1, 4)
         lbl.set_centered()
         lbl.set_value(datetime.now().ctime())
+        xfer.add_component(lbl)
+
+        btn = XferCompButton('btnscheduler')
+        btn.set_action(xfer.request, AddSchedulerTask.get_action('Task', ''))
+        btn.set_location(0, row + 2, 4)
+        xfer.add_component(btn)
+        lbl = XferCompLabelForm('dummy-value')
+        lbl.set_location(0, row + 3, 4)
+        lbl.set_value(Params.getvalue('dummy-value'))
         xfer.add_component(lbl)
         return True

@@ -41,6 +41,10 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
+from apscheduler.schedulers.background import BackgroundScheduler
+import sys
+from apscheduler.util import datetime_repr
+from apscheduler.jobstores.base import ConflictingIdError
 
 
 class AbsoluteValue(Transform):
@@ -629,6 +633,52 @@ class GeneralPrintPlugin(PrintFieldsPlugIn):
         res = res.replace('#today_long', formats.date_format(current_datetime, "DATE_FORMAT"))
         res = res.replace('#hour', formats.date_format(current_datetime, "TIME_FORMAT"))
         return res
+
+
+class LucteriosScheduler(object):
+
+    _scheduler = None
+
+    @classmethod
+    def get_scheduler(cls):
+        if LucteriosScheduler._scheduler is None:
+            LucteriosScheduler._scheduler = BackgroundScheduler()
+            LucteriosScheduler._scheduler.start()
+        return LucteriosScheduler._scheduler
+
+    @classmethod
+    def add_task(cls, callback, minutes, **kwargs):
+        scheduler = cls.get_scheduler()
+        try:
+            scheduler.add_job(callback, 'interval', minutes=minutes, id=callback.__name__, kwargs=kwargs)
+        except ConflictingIdError:
+            pass
+
+    @classmethod
+    def add_date(cls, callback, datetime, **kwargs):
+        scheduler = cls.get_scheduler()
+        try:
+            scheduler.add_job(callback, 'date', run_date=datetime, id=callback.__name__, kwargs=kwargs)
+        except ConflictingIdError:
+            pass
+
+    @classmethod
+    def remove(cls, callback):
+        scheduler = cls.get_scheduler()
+        if scheduler.get_job(callback.__name__) is not None:
+            scheduler.remove_job(callback.__name__)
+
+    @classmethod
+    def get_list(cls):
+        job_list = []
+        scheduler = cls.get_scheduler()
+        for job in scheduler.get_jobs():
+            if hasattr(job, 'next_run_time'):
+                status = job.next_run_time
+            else:
+                status = 'pending'
+            job_list.append((job.name, job.func.__doc__, job.trigger, status))
+        return job_list
 
 
 PrintFieldsPlugIn.add_plugin(GeneralPrintPlugin)

@@ -63,5 +63,5 @@ setup(
         "lucterios.framework": ['locale/*/*/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["Django ==2.0.*", "lxml ==4.2.*", "Pillow ==4.3.*", "reportlab ==3.4.*", "django-fsm ==2.6.*", "pip ==10.0.*"],
+    install_requires=["pip ==10.0.*", "Django ==2.0.*", "django-fsm ==2.6.*", "lxml ==4.2.*", "Pillow ==4.3.*", "reportlab ==3.4.*", "APScheduler ==3.5.*"],
 )

@@ -29,11 +29,12 @@ from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompLabelForm
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompGrid
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
+from lucterios.framework.models import LucteriosScheduler
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png",
                    _("_Rights manage"), _("To manage users, groups and permissions."), 40)
@@ -144,12 +145,31 @@ class UsersDelete(XferDelete):
         XferDelete.fillresponse(self)
 
 
-@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session."))
+@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session and tasks."))
 class SessionList(XferListEditor):
-    caption = _("Sessions")
+    caption = _("Sessions & tasks")
     icon = "session.png"
     model = LucteriosSession
     field_id = 'session'
+
+    def fillresponse_header(self):
+        self.new_tab(_("Sessions"))
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        self.new_tab(_('Tasks'))
+        grid = XferCompGrid('tasks')
+        grid.no_pager = True
+        grid.add_header('name', _('name'))
+        grid.add_header('trigger', _('trigger'))
+        grid.add_header('nextdate', _('next date'), 'datetime')
+        for job_desc in LucteriosScheduler.get_list():
+            grid.set_value(job_desc[0], 'name', job_desc[1])
+            grid.set_value(job_desc[0], 'trigger', '%s' % job_desc[2])
+            grid.set_value(job_desc[0], 'nextdate', job_desc[3])
+        grid.set_location(0, self.get_max_row() + 1, 2)
+        grid.set_size(200, 500)
+        self.add_component(grid)
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)

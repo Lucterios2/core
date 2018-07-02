@@ -25,8 +25,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.db import models
-from lucterios.framework.models import LucteriosModel
+from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+
+from lucterios.framework.models import LucteriosModel
+from lucterios.framework.signal_and_lock import Signal
+from lucterios.CORE.models import Parameter
 
 
 class Example(LucteriosModel):
@@ -69,3 +73,8 @@ class Other(LucteriosModel):
     real = models.DecimalField(max_digits=6, decimal_places=2, validators=[
                                MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
     bool = models.BooleanField(default=False)
+
+
+@Signal.decorate('checkparam')
+def dummy_checkparam():
+    Parameter.check_and_create(name="dummy-value", typeparam=0, title=_("dummy-value"), args="{}", value='')
