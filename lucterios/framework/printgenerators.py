@@ -38,8 +38,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import toHtml
-from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, \
-    get_image_size
+from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size
 from lucterios.framework.models import get_value_converted
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract

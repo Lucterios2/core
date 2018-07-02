@@ -143,7 +143,7 @@ class Menu(XferContainerMenu):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
-            if request.user.is_authenticated() or not secure_mode_connect():
+            if request.user.is_authenticated or not secure_mode_connect():
                 return XferContainerMenu.get_post(self, request, *args, **kwargs)
             else:
                 from lucterios.CORE.views_auth import Authentification
@@ -157,7 +157,7 @@ class Menu(XferContainerMenu):
 def right_changepassword(request):
     if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
         return False
-    return request.user.is_authenticated()
+    return request.user.is_authenticated
 
 
 @MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
@@ -214,7 +214,7 @@ def right_askpassword(request):
         return False
     if (signal_and_lock.Signal.call_signal("send_connection", None, None, None) == 0):
         return False
-    return not request.user.is_authenticated()
+    return not request.user.is_authenticated
 
 
 @MenuManage.describ(right_askpassword, FORMTYPE_MODAL, 'core.general', _("Password or login forget?"))

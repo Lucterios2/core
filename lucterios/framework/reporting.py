@@ -37,7 +37,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 import re
 from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
-from reportlab.lib.utils import simpleSplit
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
@@ -77,6 +76,7 @@ def extract_text(xmltext):
     para_text = re.sub(pattern, ' ', para_text)
     para_text = para_text.strip()
     return para_text
+
 
 TABLE_STYLE = TableStyle([
     ('GRID', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0)),
@@ -352,6 +352,7 @@ def main():
     file_name = sys.argv[1]
     if transform_file_xml2pdf(file_name, file_name + '.pdf'):
         system("acroread %s.pdf" % file_name)
+
 
 if __name__ == '__main__':
     main()

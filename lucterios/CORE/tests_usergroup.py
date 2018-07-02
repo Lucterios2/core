@@ -265,7 +265,7 @@ class UserTest(LucteriosTest):
 
     def test_useraddsave(self):
         group = LucteriosGroup.objects.create(name="my_group")
-        group.permissions = Permission.objects.filter(id__in=[1, 3])
+        group.permissions.set(Permission.objects.filter(id__in=[1, 3]))
         group.save()
 
         add_user("user1")
@@ -481,7 +481,7 @@ class GroupTest(LucteriosTest):
 
     def test_groupedit(self):
         group = LucteriosGroup.objects.create(name="my_group")
-        group.permissions = Permission.objects.filter(id__in=[1, 3])
+        group.permissions.set(Permission.objects.filter(id__in=[1, 3]))
         group.save()
 
         self.factory.xfer = GroupsEdit()

@@ -352,7 +352,7 @@ class LucteriosModel(models.Model):
                         mergedlist = []
                         mergedlist.extend(getattr(self, obj_varname).all())
                         mergedlist.extend(getattr(alias_object, obj_varname).all())
-                        setattr(self, obj_varname, mergedlist)
+                        getattr(self, obj_varname).set(mergedlist)
 
             for field in generic_fields:
                 filter_kwargs = {}

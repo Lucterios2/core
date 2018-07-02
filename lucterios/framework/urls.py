@@ -35,23 +35,22 @@ import pkgutil
 from lucterios.framework.docs import defaultDocs
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.utils import six
-from django.urls.resolvers import RegexURLPattern
 
 
 def defaultblank(request, *args):
-    from django.http import HttpResponse
+    from http.client import HTTPResponse
     if request.path == '/favicon.ico':
         if hasattr(settings, 'APPLIS_FAVICON'):
             return serve(request, basename(settings.APPLIS_FAVICON), document_root=dirname(settings.APPLIS_FAVICON))
-    return HttpResponse('')
+    return HTTPResponse('')
 
 
 def defaultview(*args):
-    from django.http import HttpResponseRedirect
+    from django.shortcuts import redirect
     web_page = settings.DEFAULT_PAGE
     if settings.USE_X_FORWARDED_HOST:
         web_page = settings.FORCE_SCRIPT_NAME + web_page
-    return HttpResponseRedirect(web_page)
+    return redirect(web_page)
 
 
 def _init_url_patterns():
@@ -65,7 +64,7 @@ def _init_url_patterns():
     res.append(url(r'^web/STUB/(.*)$', defaultblank))
     res.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
     res.append(url(r'^Docs$', defaultDocs))
-    res.append(url(r'^admin/', include(admin.site.get_urls(), 'admin')))
+    res.append(url(r'^admin/', include(admin.site.get_urls())))
     return res
 
 
@@ -113,5 +112,6 @@ def get_url_patterns():
     logging.getLogger('lucterios.core.init').debug(
         "Urls:" + '\n'.join(str(res_item) for res_item in res))
     return res
+
 
 urlpatterns = get_url_patterns()

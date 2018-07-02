@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 from datetime import datetime, date
 from calendar import monthrange
 
-from lxml import etree
 import threading
 import logging
 import warnings
@@ -111,38 +110,17 @@ class WrapAction(object):
         json_res['params'] = params
         return json_res
 
-    def get_action_xml(self, desc='', tag='ACTION', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
-        actionxml = etree.Element(tag)
-        actionxml.text = six.text_type(self.caption)
-        actionxml.attrib['id'] = self.url_text
-        if self.icon_path != "":
-            actionxml.attrib['icon'] = six.text_type(self.icon_path)
-        if self.extension != "":
-            actionxml.attrib['extension'] = self.extension
-        if self.action != "":
-            actionxml.attrib['action'] = self.action
-        if desc != "":
-            etree.SubElement(actionxml, "HELP").text = six.text_type(desc)
-        actionxml.attrib['modal'] = six.text_type(modal)
-        actionxml.attrib['close'] = six.text_type(close)
-        actionxml.attrib['unique'] = six.text_type(unique)
-        if isinstance(self.modal, int):
-            actionxml.attrib['modal'] = six.text_type(self.modal)
-        if isinstance(params, dict):
-            fill_param_xml(actionxml, params)
-        return actionxml
-
     def check_permission(self, request):
         right_result = True
         if isinstance(self.is_view_right, tuple):
             view_right_fct = self.is_view_right[0]
             right_result = view_right_fct(request)
         elif self.is_view_right is None:
-            right_result = request.user.is_authenticated()
+            right_result = request.user.is_authenticated
         elif self.mode_connect_notfree is None or self.mode_connect_notfree():
             if (self.is_view_right != '') and not request.user.has_perm(self.is_view_right):
                 right_result = False
-            if (self.caption == '') and not request.user.is_authenticated():
+            if (self.caption == '') and not request.user.is_authenticated:
                 right_result = False
         logging.getLogger("lucterios.core.right").info(
             "check_permission for '%s' : is_view_right='%s' user='%s' => '%s'", self.url_text, self.is_view_right, request.user, right_result)
@@ -151,7 +129,7 @@ class WrapAction(object):
     def raise_bad_permission(self, request):
         if not self.check_permission(request):
             from lucterios.framework.error import LucteriosRedirectException
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 username = request.user.username
             else:
                 username = _("Anonymous user")
@@ -208,7 +186,7 @@ class ActionsManage(object):
                     try:
                         if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
                             acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
-                    except:
+                    except Exception:
                         six.print_('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
                         raise
             if key is not None:
@@ -428,30 +406,11 @@ class MenuManage(object):
             cls._menulock.release()
 
 
-def get_actions_xml(actions):
-    actionsxml = etree.Element("ACTIONS")
-    for action, modal, close, unique, params in actions:
-        new_xml = action.get_action_xml(modal=modal, close=close, unique=unique, params=params)
-        if new_xml is not None:
-            actionsxml.append(new_xml)
-    return actionsxml
-
-
 def get_actions_json(actions):
     actionsjson = []
     for action, modal, close, unique, params in actions:
         actionsjson.append(action.get_action_json(modal=modal, close=close, unique=unique, params=params))
     return actionsjson
-
-
-def fill_param_xml(context, params):
-    for key, value in params.items():
-        new_param = etree.SubElement(context, 'PARAM')
-        if isinstance(value, tuple) or isinstance(value, list):
-            new_param.text = ";".join(value)
-        else:
-            new_param.text = six.text_type(value)
-        new_param.attrib['name'] = key
 
 
 def ifplural(count, test_singular, test_plural):

@@ -88,7 +88,7 @@ class XmlRequestFactory(RequestFactory):
         except Exception as expt:
             if request is None:
                 request = self.post(path, {})
-            err = LucteriosErrorMiddleware()
+            err = LucteriosErrorMiddleware(None)
             return err.process_exception(request, expt)
 
 
@@ -133,11 +133,6 @@ class LucteriosTest(TestCase):
             self.response = self.factory.call(path, data)
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
-
-    def call(self, path, data, is_client=True):
-        data['FORMAT'] = 'XML'
-        self.call_ex(path, data, is_client)
-        self.parse_xml(self.response.content)
 
     def calljson(self, path, data, is_client=True):
         import json
@@ -237,41 +232,24 @@ class LucteriosTest(TestCase):
         self.assertEqual(six.text_type(attr_value), six.text_type(value), "%s/@%s: %s => %s" % (path, name, attr_value, value))
 
     def assert_observer(self, obsname, extension, action):
-        if self.response_json is None:
-            try:
-                self.assert_attrib_equal('', 'observer', obsname)
-                self.assert_attrib_equal('', 'source_extension', extension)
-                self.assert_attrib_equal('', 'source_action', action)
-            except AssertionError:
-                if self.get_first_xpath('').get('observer') == 'core.exception':
-                    six.print_(
-                        "Error:" + six.text_type(self.get_first_xpath('EXCEPTION/MESSAGE').text))
-                    six.print_("Call-stack:" + six.text_type(
-                        self.get_first_xpath('EXCEPTION/DEBUG_INFO').text).replace("{[br/]}", "\n"))
-                if self.get_first_xpath('').get('observer') == 'core.dialogbox':
-                    six.print_("Message:" + six.text_type(self.get_first_xpath('TEXT').text))
-                raise
-        else:
-            self.assertTrue(self.response_xml is None)
-            try:
-                self.assertEquals(self.json_meta['observer'], obsname)
-                self.assertEquals(self.json_meta['extension'], extension)
-                self.assertEquals(self.json_meta['action'], action)
-            except AssertionError:
-                if self.json_meta['observer'] == 'core.exception':
-                    six.print_("Error:" + self.response_json['exception']['message'])
-                    six.print_("Call-stack:" + self.response_json['exception']['debug'].replace("{[br/]}", "\n"))
-                if self.json_meta['observer'] == 'core.dialogbox':
-                    six.print_("Message:" + self.json_data['text'])
-                raise
+        self.assertTrue(self.response_json is not None)
+        self.assertTrue(self.response_xml is None)
+        try:
+            self.assertEquals(self.json_meta['observer'], obsname)
+            self.assertEquals(self.json_meta['extension'], extension)
+            self.assertEquals(self.json_meta['action'], action)
+        except AssertionError:
+            if self.json_meta['observer'] == 'core.exception':
+                six.print_("Error:" + self.response_json['exception']['message'])
+                six.print_("Call-stack:" + self.response_json['exception']['debug'].replace("{[br/]}", "\n"))
+            if self.json_meta['observer'] == 'core.dialogbox':
+                six.print_("Message:" + self.json_data['text'])
+            raise
 
     def assert_comp_equal(self, path, text, coord):
-        if self.response_json is None:
-            self.assertTrue(self.response_xml is not None)
-            self.assert_xml_equal(path, text)
-        else:
-            self.assert_json_equal(path[0], path[1], text)
-            path = path[1]
+        self.assertTrue(self.response_json is not None)
+        self.assert_json_equal(path[0], path[1], text)
+        path = path[1]
         self.assert_coordcomp_equal(path, coord)
 
     def assert_coordcomp_equal(self, path, coord):
@@ -283,102 +261,64 @@ class LucteriosTest(TestCase):
             self.assert_attrib_equal(path, "tab", six.text_type(coord[4]))
 
     def assert_action_equal(self, path, act_desc):
-        if self.response_json is None:
-            self.assertTrue(self.response_xml is not None)
-            self.assert_xml_equal(path, act_desc[0])
-            if act_desc[1] is None:
-                self.assert_attrib_equal(path, "icon", None)
-            elif act_desc[1].startswith('images/'):
-                self.assert_attrib_equal(path, "icon", '/static/lucterios.CORE/' + act_desc[1])
-            else:
-                self.assert_attrib_equal(path, "icon", '/static/' + act_desc[1])
-            if len(act_desc) > 2:
-                self.assert_attrib_equal(path, "extension", act_desc[2])
-                self.assert_attrib_equal(path, "action", act_desc[3])
-                self.assert_attrib_equal(path, "close", six.text_type(act_desc[4]))
-                self.assert_attrib_equal(path, "modal", six.text_type(act_desc[5]))
-                self.assert_attrib_equal(path, "unique", six.text_type(act_desc[6]))
-                if len(act_desc) > 7:
-                    for key, value in act_desc[7].items():
-                        self.assert_xml_equal("%s/PARAM[@name='%s']" % (path, key), value)
-            else:
-                self.assert_attrib_equal(path, "extension", None)
-                self.assert_attrib_equal(path, "action", None)
-                self.assert_attrib_equal(path, "close", six.text_type(1))
-                self.assert_attrib_equal(path, "modal", six.text_type(1))
-                self.assert_attrib_equal(path, "unique", six.text_type(1))
+        self.assertTrue(self.response_json is not None)
+        act = path
+        if isinstance(path, six.text_type):
+            act = self.get_json_path(path)
+        self.assertEqual(act['text'], act_desc[0])
+        if act_desc[1] is None:
+            self.assertTrue('icon' not in act.keys())
+        elif act_desc[1].startswith('images/'):
+            self.assertEqual(act['icon'], '/static/lucterios.CORE/' + act_desc[1])
         else:
-            act = path
-            if isinstance(path, six.text_type):
-                act = self.get_json_path(path)
-            self.assertEqual(act['text'], act_desc[0])
-            if act_desc[1] is None:
-                self.assertTrue('icon' not in act.keys())
-            elif act_desc[1].startswith('images/'):
-                self.assertEqual(act['icon'], '/static/lucterios.CORE/' + act_desc[1])
-            else:
-                self.assertEqual(act['icon'], '/static/' + act_desc[1])
-            if len(act_desc) > 2:
-                self.assertEqual(act['extension'], act_desc[2])
-                self.assertEqual(act['action'], act_desc[3])
-                self.assertEqual(act['close'], six.text_type(act_desc[4]))
-                self.assertEqual(act['modal'], six.text_type(act_desc[5]))
-                self.assertEqual(act['unique'], six.text_type(act_desc[6]))
-                if len(act_desc) > 7:
-                    try:
-                        for key, value in act_desc[7].items():
-                            self.assertEqual(six.text_type(act['params'][key]), six.text_type(value))
-                    except:
-                        six.print_(six.text_type(act['params']))
-                        raise
-            else:
-                self.assertTrue('extension' not in act.keys())
-                self.assertTrue('action' not in act.keys())
-                self.assertEqual(path['close'], six.text_type(1))
-                self.assertEqual(path['modal'], six.text_type(1))
-                self.assertEqual(path['unique'], six.text_type(1))
+            self.assertEqual(act['icon'], '/static/' + act_desc[1])
+        if len(act_desc) > 2:
+            self.assertEqual(act['extension'], act_desc[2])
+            self.assertEqual(act['action'], act_desc[3])
+            self.assertEqual(act['close'], six.text_type(act_desc[4]))
+            self.assertEqual(act['modal'], six.text_type(act_desc[5]))
+            self.assertEqual(act['unique'], six.text_type(act_desc[6]))
+            if len(act_desc) > 7:
+                try:
+                    for key, value in act_desc[7].items():
+                        self.assertEqual(six.text_type(act['params'][key]), six.text_type(value))
+                except Exception:
+                    six.print_(six.text_type(act['params']))
+                    raise
+        else:
+            self.assertTrue('extension' not in act.keys())
+            self.assertTrue('action' not in act.keys())
+            self.assertEqual(path['close'], six.text_type(1))
+            self.assertEqual(path['modal'], six.text_type(1))
+            self.assertEqual(path['unique'], six.text_type(1))
 
     def assert_select_equal(self, path, selects, checked=None):
         if checked is None:
             tag = 'SELECT'
         else:
             tag = 'CHECKLIST'
-        if self.response_json is None:
-            self.assert_count_equal('COMPONENTS/%s[@name="%s"]/CASE' % (tag, path), len(selects))
-            for vid, val in selects.items():
-                self.assert_xml_equal('COMPONENTS/%s[@name="%s"]/CASE[@id="%s"]' % (tag, path, vid), val)
-                if checked is not None:
-                    if vid in checked:
-                        self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/CASE[@id="%s"]' % (tag, path, vid), '1')
-                    else:
-                        self.assert_attrib_equal('COMPONENTS/%s[@name="%s"]/CASE[@id="%s"]' % (tag, path, vid), '0')
+        self.assertTrue(self.response_json is not None)
+        self.assertTrue(self.response_xml is None)
+        self.assertEqual(self.json_comp[path]['component'], tag)
+        if isinstance(selects, dict):
+            self.assertEqual(len(self.json_comp[path]['case']), len(selects))
+            try:
+                for case in self.json_comp[path]['case']:
+                    vid = case[0]
+                    self.assertEqual(selects[vid], case[1])
+            except Exception:
+                six.print_(self.json_comp[path]['case'])
+                raise
         else:
-            self.assertTrue(self.response_xml is None)
-            self.assertEqual(self.json_comp[path]['component'], tag)
-            if isinstance(selects, dict):
-                self.assertEqual(len(self.json_comp[path]['case']), len(selects))
-                try:
-                    for case in self.json_comp[path]['case']:
-                        vid = case[0]
-                        self.assertEqual(selects[vid], case[1])
-                except Exception:
-                    six.print_(self.json_comp[path]['case'])
-                    raise
-            else:
-                self.assertEqual(len(self.json_comp[path]['case']), selects)
+            self.assertEqual(len(self.json_comp[path]['case']), selects)
 
     def assert_grid_equal(self, path, headers, nb_records):
-        if self.response_json is None:
-            self.assert_count_equal('COMPONENTS/GRID[@name="%s"]/HEADER' % path, len(headers))
-            for header_key, header_val in headers.items():
-                self.assert_xml_equal('COMPONENTS/GRID[@name="%s"]/HEADER[@name="%s"]' % (path, header_key), header_val)
-            self.assert_count_equal('COMPONENTS/GRID[@name="example"]/RECORD' % path, nb_records)
-        else:
-            import json
-            self.assertTrue(self.response_xml is None)
-            self.assertEqual(self.json_comp[path]['component'], 'GRID')
-            self.assertEqual(len(self.json_comp[path]['headers']), len(headers), json.dumps(self.json_comp[path]['headers']))
-            for header in self.json_comp[path]['headers']:
-                header_name = header[0]
-                self.assertEqual(headers[header_name], header[1])
-            self.assert_count_equal(path, nb_records)
+        import json
+        self.assertTrue(self.response_json is not None)
+        self.assertTrue(self.response_xml is None)
+        self.assertEqual(self.json_comp[path]['component'], 'GRID')
+        self.assertEqual(len(self.json_comp[path]['headers']), len(headers), json.dumps(self.json_comp[path]['headers']))
+        for header in self.json_comp[path]['headers']:
+            header_name = header[0]
+            self.assertEqual(headers[header_name], header[1])
+        self.assert_count_equal(path, nb_records)

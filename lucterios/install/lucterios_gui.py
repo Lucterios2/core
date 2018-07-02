@@ -41,7 +41,6 @@ from django.utils.translation import ugettext
 from django.utils import six
 
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title, setup_from_none
-from lucterios.install.lucterios_migration import MigrateFromV1
 from lucterios.framework.settings import get_lan_ip
 
 from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
@@ -780,23 +779,18 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        if file_name[-4:] == '.bkf':
-            rest_inst = MigrateFromV1(instance_name, withlog=True)
-        else:
-            rest_inst = LucteriosInstance(instance_name)
+        rest_inst = LucteriosInstance(instance_name)
         rest_inst.filename = file_name
         if rest_inst.restore():
-            showinfo(ugettext("Lucterios launcher"), ugettext(
-                "Instance restore from %s") % file_name)
+            showinfo(ugettext("Lucterios launcher"), ugettext("Instance restore from %s") % file_name)
         else:
-            showerror(
-                ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
+            showerror(ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
         self.refresh(instance_name)
 
     def restore_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('bkf', '.bkf'), ('*', '.*')], initialdir=expanduser('~'))
+            file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')], initialdir=expanduser('~'))
             if file_name != '':
                 self.restore_instance(instance_name, file_name)
 

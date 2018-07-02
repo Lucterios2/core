@@ -38,13 +38,8 @@ try:
 except ImportError:
     pass
 
-try:
-    from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
-    from tkinter.messagebox import showerror, showinfo
-except:
-    from Tkinter import Tk, StringVar, IntVar, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
-    from tkMessageBox import showerror, showinfo
-    import ttk
+from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
+from tkinter.messagebox import showerror, showinfo
 
 LIST_VIEWER = {'0List': ('XferListEditor', 'list'), '1AddModify': ('XferAddEditor', 'edit', 'modify', 'add'), '2Show': ('XferShowEditor', 'show'),
                '3Del': ('XferDelete', 'delete'), '4Search': ('XferSearchEditor', 'search'), '5Print': ('XferPrintAction', 'print'),
@@ -211,7 +206,7 @@ class Generator(object):
     def writedata(self, text):
         try:
             self.viewfile.write(six.binary_type(text, 'UTF-8'))
-        except:
+        except Exception:
             self.viewfile.write(six.binary_type(text))
 
     def _write_header(self, model_name, item_actions, is_new):
@@ -303,6 +298,7 @@ def main():
     else:
         raise GeneratorException(
             "Bad argument: %s <model module file>" % basename(sys.argv[0]))
+
 
 if __name__ == '__main__':
     try:

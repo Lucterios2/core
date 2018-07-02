@@ -23,7 +23,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lxml import etree
 import datetime
 from logging import getLogger
 
@@ -34,7 +33,7 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, XferCompDateTime
-from lucterios.framework.tools import get_actions_xml, get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json
+from lucterios.framework.tools import get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from lucterios.framework.models import get_value_converted, get_value_if_choices
@@ -237,15 +236,8 @@ class XferContainerDialogBox(XferContainerAbstract):
             self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def _finalize(self):
-        if self.format == 'JSON':
-            self.responsejson['data'] = {'text': six.text_type(self.msgtext), 'type': self.msgtype}
-            self.responsejson['actions'] = get_actions_json(self.actions)
-        else:
-            text_dlg = etree.SubElement(self.responsexml, "TEXT")
-            text_dlg.attrib['type'] = six.text_type(self.msgtype)
-            text_dlg.text = six.text_type(self.msgtext)
-            if len(self.actions) != 0:
-                self.responsexml.append(get_actions_xml(self.actions))
+        self.responsejson['data'] = {'text': six.text_type(self.msgtext), 'type': self.msgtype}
+        self.responsejson['actions'] = get_actions_json(self.actions)
         XferContainerAbstract._finalize(self)
 
 
@@ -607,23 +599,12 @@ class XferContainerCustom(XferContainerAbstract):
         return sortedkey_components, final_components
 
     def _finalize(self):
-        if self.format == 'JSON':
-            sortedkey_components, final_components = self.get_sort_components()
-            self.responsejson['data'] = {}
-            self.responsejson['comp'] = []
-            for key in sortedkey_components:
-                comp = final_components[key]
-                self.responsejson['comp'].append(comp.get_json())
-                self.responsejson['data'][comp.name] = comp.get_json_value()
-            self.responsejson['actions'] = get_actions_json(self.actions)
-        else:
-            if len(self.components) != 0:
-                sortedkey_components, final_components = self.get_sort_components()
-                xml_comps = etree.SubElement(self.responsexml, "COMPONENTS")
-                for key in sortedkey_components:
-                    comp = final_components[key]
-                    xml_comp = comp.get_reponse_xml()
-                    xml_comps.append(xml_comp)
-            if len(self.actions) != 0:
-                self.responsexml.append(get_actions_xml(self.actions))
+        sortedkey_components, final_components = self.get_sort_components()
+        self.responsejson['data'] = {}
+        self.responsejson['comp'] = []
+        for key in sortedkey_components:
+            comp = final_components[key]
+            self.responsejson['comp'].append(comp.get_json())
+            self.responsejson['data'][comp.name] = comp.get_json_value()
+        self.responsejson['actions'] = get_actions_json(self.actions)
         XferContainerAbstract._finalize(self)

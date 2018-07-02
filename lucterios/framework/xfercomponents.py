@@ -23,17 +23,15 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lxml import etree
 from logging import getLogger
 import warnings
 
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
-from django.utils.http import urlquote_plus
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import get_actions_xml, WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json
+from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
@@ -97,15 +95,6 @@ class XferComponent(object):
         if isinstance(self.hmin, six.integer_types):
             compxml.attrib['HMin'] = six.text_type(self.hmin)
         compxml.attrib['needed'] = six.text_type(1) if self.needed else six.text_type(0)
-
-    def get_reponse_xml(self):
-        compxml = etree.Element(self._component_ident)
-        self._get_attribut(compxml)
-        if self._get_content() is None:
-            compxml.text = NULL_VALUE
-        else:
-            compxml.text = six.text_type(self._get_content())
-        return compxml
 
     def get_json_value(self):
         return self._get_content()
@@ -291,11 +280,6 @@ class XferCompLinkLabel(XferCompLabelForm):
     def set_link(self, link):
         self.link = link.strip()
 
-    def get_reponse_xml(self):
-        compxml = XferCompLabelForm.get_reponse_xml(self)
-        etree.SubElement(compxml, "LINK").text = six.text_type(self.link)
-        return compxml
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['link'] = self.link
@@ -335,20 +319,6 @@ class XferCompButton(XferComponent):
         if self.is_default:
             compxml.attrib['isDefault'] = '1'
 
-    def get_reponse_xml(self):
-        compxml = XferComponent.get_reponse_xml(self)
-        if self.action is not None:
-            xml_acts = etree.SubElement(compxml, "ACTIONS")
-            new_xml = self.action[0].get_action_xml(modal=self.action[1], close=self.action[2], unique=SELECT_NONE, params=self.action[3])
-            if new_xml is not None:
-                new_xml.attrib['id'] = self.name
-                new_xml.attrib['name'] = self.name
-                xml_acts.append(new_xml)
-        if self.java_script != "":
-            etree.SubElement(compxml, "JavaScript").text = six.text_type(
-                urlquote_plus(self.java_script))
-        return compxml
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['is_mini'] = self.is_mini
@@ -380,12 +350,6 @@ class XferCompEdit(XferCompButton):
             return ""
         else:
             return self.value
-
-    def get_reponse_xml(self):
-        compxml = XferCompButton.get_reponse_xml(self)
-        if self.mask != '':
-            etree.SubElement(compxml, "REG_EXPR").text = six.text_type(self.mask)
-        return compxml
 
     def get_json(self):
         compjson = XferCompButton.get_json(self)
@@ -466,14 +430,6 @@ class XferCompMemo(XferCompButton):
         else:
             return self.value
 
-    def get_reponse_xml(self):
-        compxml = XferCompButton.get_reponse_xml(self)
-        for sub_menu in self.sub_menu:
-            xml_menu = etree.SubElement(compxml, "SUBMENU")
-            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
-            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
-        return compxml
-
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['submenu'] = list(self.sub_menu)
@@ -493,15 +449,6 @@ class XferCompXML(XferCompButton):
 
     def add_sub_menu(self, name, value):
         self.sub_menu.append((name, value))
-
-    def get_reponse_xml(self):
-        compxml = XferCompButton.get_reponse_xml(self)
-        etree.SubElement(compxml, "SCHEMA").text = self.schema
-        for sub_menu in self.sub_menu:
-            xml_menu = etree.SubElement(compxml, "SUBMENU")
-            etree.SubElement(xml_menu, "NAME").text = six.text_type(sub_menu[0])
-            etree.SubElement(xml_menu, "VALUE").text = six.text_type(sub_menu[1])
-        return compxml
 
     def get_json(self):
         compjson = XferCompButton.get_json(self)
@@ -622,18 +569,6 @@ class XferCompSelect(XferCompButton):
                 self.value = list_of_select[0][0]
         return list_of_select
 
-    def get_reponse_xml(self):
-        list_of_select = self._check_case()
-        compxml = XferCompButton.get_reponse_xml(self)
-        for (key, val) in list_of_select:
-            xml_case = etree.SubElement(compxml, "CASE")
-            xml_case.attrib['id'] = six.text_type(key)
-            if val is None:
-                xml_case.text = "---"
-            else:
-                xml_case.text = six.text_type(val)
-        return compxml
-
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['case'] = self._check_case()
@@ -678,22 +613,6 @@ class XferCompCheckList(XferCompButton):
         else:
             compxml.attrib['simple'] = '0'
 
-    def get_reponse_xml(self):
-        compxml = XferCompButton.get_reponse_xml(self)
-        if isinstance(self.select_list, dict):
-            list_of_select = list(self.select_list.items())
-        else:
-            list_of_select = list(self.select_list)
-        for (key, val) in list_of_select:
-            xml_case = etree.SubElement(compxml, "CASE")
-            xml_case.attrib['id'] = six.text_type(key)
-            if six.text_type(key) in self.value:
-                xml_case.attrib['checked'] = '1'
-            else:
-                xml_case.attrib['checked'] = '0'
-            xml_case.text = six.text_type(val)
-        return compxml
-
     def get_json_value(self):
         return self.value
 
@@ -733,12 +652,6 @@ class XferCompUpLoad(XferComponent):
             compxml.attrib['HttpFile'] = '1'
         compxml.attrib['maxsize'] = six.text_type(self.maxsize)
 
-    def get_reponse_xml(self):
-        compxml = XferComponent.get_reponse_xml(self)
-        for filter_item in self.filter:
-            etree.SubElement(compxml, "FILTER").text = six.text_type(filter_item)
-        return compxml
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['filter'] = list(self.filter)
@@ -773,11 +686,6 @@ class XferCompDownLoad(XferCompButton):
         if self.http_file:
             compxml.attrib['HttpFile'] = '1'
         compxml.attrib['maxsize'] = six.text_type(self.maxsize)
-
-    def get_reponse_xml(self):
-        compxml = XferComponent.get_reponse_xml(self)
-        etree.SubElement(compxml, "FILENAME").text = self.filename
-        return compxml
 
     def get_json(self):
         compjson = XferCompButton.get_json(self)
@@ -917,28 +825,6 @@ class XferCompGrid(XferComponent):
             compxml.attrib['no_pager'] = '1'
         else:
             compxml.attrib['no_pager'] = '0'
-
-    def get_reponse_xml(self):
-        compxml = XferComponent.get_reponse_xml(self)
-        for header in self.headers:
-            xml_header = etree.SubElement(compxml, "HEADER")
-            xml_header.attrib['name'] = six.text_type(header.name)
-            if header.type != "":
-                xml_header.attrib['type'] = six.text_type(header.htype)
-            xml_header.attrib['orderable'] = six.text_type(header.orderable)
-            xml_header.text = six.text_type(header.descript)
-        for key in self.record_ids:
-            record = self.records[key]
-            xml_record = etree.SubElement(compxml, "RECORD")
-            xml_record.attrib['id'] = six.text_type(key)
-            for header in self.headers:
-                xml_value = etree.SubElement(xml_record, "VALUE")
-                xml_value.attrib['name'] = six.text_type(header.name)
-                xml_value.text = six.text_type(
-                    get_value_converted(record[header.name]))
-        if len(self.actions) != 0:
-            compxml.append(get_actions_xml(self.actions))
-        return compxml
 
     def get_json(self):
         compjson = XferComponent.get_json(self)

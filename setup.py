@@ -41,7 +41,7 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django :: 1.11',
+        'Framework :: Django :: 2.0',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
@@ -55,8 +55,7 @@ setup(
     ],
     packages=["lucterios", "lucterios.CORE",
               "lucterios.framework", "lucterios.install"],
-    scripts=['lucterios/install/lucterios_admin.py',
-             'lucterios/install/lucterios_gui.py', 'lucterios/install/lucterios_migration.py'],
+    scripts=['lucterios/install/lucterios_admin.py', 'lucterios/install/lucterios_gui.py'],
     package_data={
         "lucterios.CORE.migrations": ['*'],
         "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
@@ -64,5 +63,5 @@ setup(
         "lucterios.framework": ['locale/*/*/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["Django ==1.11.*", "lxml ==4.1.*", "Pillow >=4.3", "reportlab >=3.4", "django-fsm >=2.6", "pip ==9.0.*"],
+    install_requires=["Django ==2.0.*", "lxml ==4.2.*", "Pillow ==4.3.*", "reportlab ==3.4.*", "django-fsm ==2.6.*", "pip ==10.0.*"],
 )
