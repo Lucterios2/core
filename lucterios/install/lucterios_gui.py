@@ -675,7 +675,7 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def add_modif_inst_result(self, result, to_create):
         inst = LucteriosInstance(result[0])
-        inst.set_extra("LANGUAGE_CODE='%s'" % result[5])
+        inst.set_extra("LANGUAGE_CODE=%s" % result[5])
         inst.set_appli(result[1])
         inst.set_module(result[2])
         inst.set_database(result[4])
