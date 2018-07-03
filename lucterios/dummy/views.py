@@ -452,7 +452,7 @@ def run_simple_action(timetxt):
     else:
         value = Params.getvalue('dummy-value')
         size = len(value.split('{[br/]}'))
-        if size >= 10:
+        if size >= 5:
             LucteriosScheduler.remove(run_simple_action)
             LucteriosScheduler.add_date(run_simple_action, datetime=datetime.now() + timedelta(seconds=20), timetxt=None)
         else:
@@ -461,7 +461,7 @@ def run_simple_action(timetxt):
             Params.clear()
 
 
-@MenuManage.describ('dummy.delete_other')
+@MenuManage.describ('')
 class AddSchedulerTask(XferContainerAcknowledge):
     icon = "11.png"
     caption = _("add scheduler task")

@@ -25,7 +25,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from lucterios.framework.test import LucteriosTest
+from lucterios.framework.test import LucteriosTest, AsychronousLucteriosTest
+from lucterios.framework.models import LucteriosScheduler
+from lucterios.CORE.parameters import Params
+from time import sleep
+from django.utils import six
+from django.test.testcases import TransactionTestCase
+from lucterios.CORE.views_usergroup import SessionList
+from datetime import datetime
 
 
 class DummyTest(LucteriosTest):
@@ -149,3 +156,54 @@ class DummyTest(LucteriosTest):
         self.assert_json_equal("", "grid/@1/col2", '789.644')
         self.assert_json_equal("", "grid/@1/col3", '0')
         self.assert_json_equal("", "grid/@1/col4", 'string')
+
+
+class DummyTestAsynchronous(AsychronousLucteriosTest):
+
+    def test_scheduler(self):
+        six.print_('-- Begin test_scheduler --')
+        self.assertEqual(len(LucteriosScheduler.get_list()), 0)
+        self.factory.xfer = SessionList()
+        self.calljson('/CORE/sessionList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
+        self.assert_grid_equal('tasks', {"name": "nom", "trigger": "déclencheur", "nextdate": "date suivante"}, 0)
+
+        self.calljson('/lucterios.dummy/addSchedulerTask', {})
+        self.assert_observer('core.acknowledge', 'lucterios.dummy', 'addSchedulerTask')
+
+        self.assertEqual(len(LucteriosScheduler.get_list()), 1)
+        value = Params.getvalue('dummy-value')
+        self.assertEqual(value, "")
+
+        self.factory.xfer = SessionList()
+        self.calljson('/CORE/sessionList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
+        self.assert_count_equal('tasks', 1)
+        self.assert_json_equal('', 'tasks/@0/name', 'Run simple action')
+        self.assert_json_equal('', 'tasks/@0/trigger', 'interval[0:00:10]')
+        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
+
+        sleep(6 * 10 + .2)
+        self.assertEqual(len(LucteriosScheduler.get_list()), 1)
+        value = Params.getvalue('dummy-value')
+        self.assertEqual(len(value.split('{[br/]}')), 5)
+
+        self.factory.xfer = SessionList()
+        self.calljson('/CORE/sessionList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
+        self.assert_count_equal('tasks', 1)
+        self.assert_json_equal('', 'tasks/@0/name', 'Run simple action')
+        self.assert_json_equal('', 'tasks/@0/trigger', 'date[' + datetime.now().strftime('%Y-%m-%d %H:'), True)
+        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
+
+        sleep(10 + .2)
+        self.assertEqual(len(LucteriosScheduler.get_list()), 0)
+        value = Params.getvalue('dummy-value')
+        self.assertEqual(value, "")
+
+        self.factory.xfer = SessionList()
+        self.calljson('/CORE/sessionList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'sessionList')
+        self.assert_count_equal('tasks', 0)
+
+        six.print_('-- End test_scheduler --')

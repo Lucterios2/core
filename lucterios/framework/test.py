@@ -31,6 +31,7 @@ from django.utils import six, timezone
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.parameters import notfree_mode_connect, Params
+from django.test.testcases import TransactionTestCase
 
 
 def add_user(username):
@@ -92,12 +93,11 @@ class XmlRequestFactory(RequestFactory):
             return err.process_exception(request, expt)
 
 
-class LucteriosTest(TestCase):
+class LucteriosTestAbstract(object):
 
     language = 'fr'
 
-    def __init__(self, methodName):
-        TestCase.__init__(self, methodName)
+    def __init__(self):
         self.xfer_class = None
 
     def clean_resp(self):
@@ -322,3 +322,23 @@ class LucteriosTest(TestCase):
             header_name = header[0]
             self.assertEqual(headers[header_name], header[1])
         self.assert_count_equal(path, nb_records)
+
+
+class AsychronousLucteriosTest(TransactionTestCase, LucteriosTestAbstract):
+
+    def __init__(self, methodName):
+        TransactionTestCase.__init__(self, methodName)
+        LucteriosTestAbstract.__init__(self)
+
+    def setUp(self):
+        LucteriosTestAbstract.setUp(self)
+
+
+class LucteriosTest(TestCase, LucteriosTestAbstract):
+
+    def __init__(self, methodName):
+        TestCase.__init__(self, methodName)
+        LucteriosTestAbstract.__init__(self)
+
+    def setUp(self):
+        LucteriosTestAbstract.setUp(self)
