@@ -32,6 +32,7 @@ from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 from django.test.testcases import TransactionTestCase
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 
 def add_user(username):
@@ -98,7 +99,7 @@ class LucteriosTestAbstract(object):
     language = 'fr'
 
     def __init__(self):
-        self.xfer_class = None
+        self.xfer_class = XferContainerAcknowledge
 
     def clean_resp(self):
         self.response_xml = None
@@ -130,6 +131,7 @@ class LucteriosTestAbstract(object):
         if is_client:
             self.response = self.client.call(path, data)
         else:
+            self.assertEqual('/' + self.factory.xfer.url_text, path)
             self.response = self.factory.call(path, data)
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))

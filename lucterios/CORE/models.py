@@ -28,10 +28,7 @@ from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile
 import sys
-try:
-    from zipfile import BadZipFile
-except:
-    from zipfile import BadZipfile as BadZipFile
+from zipfile import BadZipFile
 from imp import load_source
 
 from django.core.validators import MinValueValidator, MaxValueValidator

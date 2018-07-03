@@ -24,15 +24,14 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from datetime import datetime
+from time import sleep
+
+from django.utils import six
 
 from lucterios.framework.test import LucteriosTest, AsychronousLucteriosTest
-from lucterios.framework.models import LucteriosScheduler
 from lucterios.CORE.parameters import Params
-from time import sleep
-from django.utils import six
-from django.test.testcases import TransactionTestCase
 from lucterios.CORE.views_usergroup import SessionList
-from datetime import datetime
 
 
 class DummyTest(LucteriosTest):
@@ -162,7 +161,6 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
 
     def test_scheduler(self):
         six.print_('-- Begin test_scheduler --')
-        self.assertEqual(len(LucteriosScheduler.get_list()), 0)
         self.factory.xfer = SessionList()
         self.calljson('/CORE/sessionList', {}, False)
         self.assert_observer('core.custom', 'CORE', 'sessionList')
@@ -171,7 +169,6 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.calljson('/lucterios.dummy/addSchedulerTask', {})
         self.assert_observer('core.acknowledge', 'lucterios.dummy', 'addSchedulerTask')
 
-        self.assertEqual(len(LucteriosScheduler.get_list()), 1)
         value = Params.getvalue('dummy-value')
         self.assertEqual(value, "")
 
@@ -184,7 +181,6 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
 
         sleep(6 * 10 + .2)
-        self.assertEqual(len(LucteriosScheduler.get_list()), 1)
         value = Params.getvalue('dummy-value')
         self.assertEqual(len(value.split('{[br/]}')), 5)
 
@@ -197,7 +193,6 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
 
         sleep(10 + .2)
-        self.assertEqual(len(LucteriosScheduler.get_list()), 0)
         value = Params.getvalue('dummy-value')
         self.assertEqual(value, "")
 

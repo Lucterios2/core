@@ -42,7 +42,6 @@ class GenericTest(LucteriosTest):
         self.xfer = None
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         self.xfer_class.url_text = "customer/details"
         self.xfer_class.is_view_right = ''
         LucteriosTest.setUp(self)
@@ -52,7 +51,7 @@ class GenericTest(LucteriosTest):
 
     def callparam(self):
         self.factory.xfer = self.xfer
-        self.calljson("CORE/params", {}, False)
+        self.calljson("/", {}, False)
 
     def test_help(self):
         response = self.client.get('/Docs', {})

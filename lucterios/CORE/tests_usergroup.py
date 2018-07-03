@@ -41,7 +41,6 @@ from lucterios.CORE import parameters
 class UserTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
@@ -414,7 +413,6 @@ class GroupTest(LucteriosTest):
 
     def setUp(self):
         tools.WrapAction.mode_connect_notfree = None
-        self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
         signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
@@ -560,7 +558,6 @@ class GroupTest(LucteriosTest):
 class SessionTest(LucteriosTest):
 
     def setUp(self):
-        self.xfer_class = XferContainerAcknowledge
         LucteriosTest.setUp(self)
         add_empty_user()
 
