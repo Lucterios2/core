@@ -23,6 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+import sys
 import re
 import logging
 from datetime import datetime, date, time
@@ -42,8 +43,6 @@ from django.utils.module_loading import import_module
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
 from apscheduler.schedulers.background import BackgroundScheduler
-import sys
-from apscheduler.util import datetime_repr
 from apscheduler.jobstores.base import ConflictingIdError
 
 

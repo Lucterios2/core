@@ -267,14 +267,17 @@ class XferTransition(XferContainerAcknowledge):
         XferContainerAcknowledge.__init__(self, **kwargs)
         self.trans_result = None
 
+    def _confirmed(self, transition):
+        try:
+            transit_function = getattr(self.item, transition)
+            setattr(self.item, 'xfer', self)
+            self.trans_result = transit_function()
+        except TransitionNotAllowed:
+            raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
+
     def fill_confirm(self, transition, trans):
         if self.confirme(_("Do you want to change this %(name)s to '%(state)s'?") % {'name': self.model._meta.verbose_name, 'state': trans[3]}):
-            try:
-                transit_function = getattr(self.item, transition)
-                setattr(self.item, 'xfer', self)
-                self.trans_result = transit_function()
-            except TransitionNotAllowed:
-                raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
+            self._confirmed(transition)
 
     def fillresponse(self):
         transition = self.getparam('TRANSITION', '')
