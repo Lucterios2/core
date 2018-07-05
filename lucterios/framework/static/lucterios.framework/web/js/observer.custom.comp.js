@@ -521,15 +521,19 @@ var compFloat = compAbstractEvent.extend({
 
 });
 
-var editorHypertext = Class.extend({
-	name : '',
-	with_hypertext : false,
+var editorMenu = Class.extend({
+	ownerId : '',
 	submenus : {},
-	init : function(aOwnerId, aName, aWith_hypertext, aSub_menu) {
+	callback : null,
+	init : function(ownerId, selector, aSub_menu, callback) {
 		var isub_menu, sub_menu;
-		this.ownerId = aOwnerId;
-		this.name = aName;
-		this.with_hypertext = aWith_hypertext;
+		this.ownerId = ownerId;
+		this.selector = selector;
+		if (callback) {
+			this.callback = callback;
+		} else {
+			this.callback = $.proxy(this.default_callback, this);
+		}
 		this.submenus = {};
 		for (isub_menu = 0; isub_menu < aSub_menu.length; isub_menu++) {
 			sub_menu = aSub_menu[isub_menu];
@@ -538,43 +542,158 @@ var editorHypertext = Class.extend({
 			};
 		}
 	},
+
 	getGUIComp : function() {
-		return $("#" + this.ownerId).find("textarea[name='{0}']:eq(0)".format(this.name));
+		return $("#" + this.ownerId).find(this.selector);
+	},
+
+	addMenuAction : function() {
+		if (Object.keys(this.submenus).length > 0) {
+			$("#" + this.ownerId).contextMenu({
+				selector : this.selector,
+				items : this.submenus,
+				callback : this.callback
+			});
+		}
+	},
+
+	default_callback : function(key, options) {
+		unusedVariables(options);
+		var cursorPos, val_area, variable_text, textBefore, textAfter;
+		variable_text = "#" + key;
+		cursorPos = this.getGUIComp().prop('selectionStart');
+		val_area = this.getGUIComp().val();
+		textBefore = val_area.substring(0, cursorPos);
+		textAfter = val_area.substring(cursorPos, val_area.length);
+		this.getGUIComp().val(textBefore + variable_text + textAfter);
+	},
+
+});
+
+var compMemo = compAbstractEvent.extend({
+	value : "",
+	tag : 'textarea',
+
+	initial : function(component) {
+		this._super(component);
+		this.value = component.value.replace(/\{\[newline\]\}/g, "\n").replace(/\{\[br\/\]\}/g, "\n");
+		this.with_hypertext = component.with_hypertext;
+		this.tag = 'textarea';
+		this.submenu = component.submenu;
+		this.is_focused = false;
+	},
+
+	get_Html : function() {
+		var isub_menu, sub_menu, html = '';
+		html += '<textarea {0}">{1}</textarea>'.format(this.getAttribHtml({}, true), this.initialVal());
+		if (this.with_hypertext && (this.submenu.length > 0)) {
+			html += '<ul id="menu_{0}" style="width: 30px">'.format(this.get_id());
+			html += '<li>';
+			html += '<div>+</div>';
+			html += '<ul>';
+			for (isub_menu = 0; isub_menu < this.submenu.length; isub_menu++) {
+				sub_menu = this.submenu[isub_menu];
+				html += '<li value="{0}"><div>{1}</div></li>'.format(sub_menu[1], sub_menu[0]);
+			}
+			html += '</ul>';
+			html += '</li>';
+			html += '</ul>';
+		}
+		return html;
+	},
+
+	initialVal : function() {
+		var value = this.value;
+		if (this.with_hypertext) {
+			value = value.convertLuctoriosFormatToHtml();
+		}
+		return value;
+	},
+
+	getAttribHtml : function(args, isJustify) {
+		var html = "", element;
+		if (this.with_hypertext) {
+			args.id = this.get_id();
+			for (element in args) {
+				if (args.hasOwnProperty(element)) {
+					html += ' {0}="{1}"'.format(element, args[element]);
+				}
+			}
+		} else {
+			html = this._super(args, isJustify);
+		}
+		return html;
+	},
+
+	fillValue : function(params) {
+		var val;
+		if (this.with_hypertext) {
+			val = $('#' + this.get_id()).val();
+			params.put(this.name, val.replace(/</g, "{[").replace(/>/g, "]}"));
+		} else {
+			val = this.getValue();
+			params.put(this.name, val.replace(/\n/g, '{[br/]}'));
+		}
+	},
+
+	checkValid : function() {
+		if (this.is_focused) {
+			throw new LucteriosException(MINOR, '');
+		}
+		this._super();
+	},
+
+	addAction : function() {
+		var self = this;
+		this.addActionEx(0);
+		if (this.with_hypertext) {
+			$('#' + this.get_id()).jqte({
+				focus : function() {
+					self.is_focused = true;
+				},
+				blur : function() {
+					self.is_focused = false;
+				}
+			});
+		}
+		if (this.with_hypertext && (this.submenu.length > 0)) {
+			$("#menu_{0}".format(this.get_id())).menu({
+				select : function(event, ui) {
+					unusedVariables(event);
+					var text, value;
+					value = ui.item[0].attributes.value;
+					if (value) {
+						text = $('#' + self.get_id()).val();
+						$('#' + self.get_id()).jqteVal(text + "#" + value.nodeValue);
+					}
+				}
+			});
+		}
+	}
+});
+
+var editorHypertext = Class.extend({
+	name : '',
+	init : function(aOwnerId, aName) {
+		this.ownerId = aOwnerId;
+		this.name = aName;
 	},
 	get_Html : function(attribut, value) {
 		var html = "";
-		if (this.with_hypertext) {
-			html += '<div class="ui-widget-header">';
-			html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'.format(this.name);
-			html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'.format(this.name);
-			html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'.format(this.name);
-			html += '<img id="black_{0}" src="images/black.png" class="memobtn">'.format(this.name);
-			html += '<img id="blue_{0}" src="images/blue.png" class="memobtn">'.format(this.name);
-			html += '<img id="red_{0}" src="images/red.png" class="memobtn">'.format(this.name);
-			html += '<img id="green_{0}" src="images/green.png" class="memobtn">'.format(this.name);
-			html += '</div>';
-		}
+		html += '<div class="ui-widget-header">';
+		html += '<img id="bold_{0}" src="images/bold.png" class="memobtn">'.format(this.name);
+		html += '<img id="italic_{0}" src="images/italic.png" class="memobtn">'.format(this.name);
+		html += '<img id="underline_{0}" src="images/underline.png" class="memobtn">'.format(this.name);
+		html += '<img id="black_{0}" src="images/black.png" class="memobtn">'.format(this.name);
+		html += '<img id="blue_{0}" src="images/blue.png" class="memobtn">'.format(this.name);
+		html += '<img id="red_{0}" src="images/red.png" class="memobtn">'.format(this.name);
+		html += '<img id="green_{0}" src="images/green.png" class="memobtn">'.format(this.name);
+		html += '</div>';
 		html += '<textarea ' + attribut + '>' + value + '</textarea>';
 		return html;
 	},
 	addEditorAction : function() {
-		var area_name = "textarea[name='{0}']".format(this.name), self = this;
-		if (Object.keys(this.submenus).length > 0) {
-			$("#" + this.ownerId).contextMenu({
-				selector : area_name,
-				items : this.submenus,
-				callback : function(key, options) {
-					unusedVariables(options);
-					var cursorPos, val_area, variable_text, textBefore, textAfter;
-					variable_text = "#" + key;
-					cursorPos = self.getGUIComp().prop('selectionStart');
-					val_area = self.getGUIComp().val();
-					textBefore = val_area.substring(0, cursorPos);
-					textAfter = val_area.substring(cursorPos, val_area.length);
-					self.getGUIComp().val(textBefore + variable_text + textAfter);
-				}
-			});
-		}
+		var self = this;
 		$("#bold_{0}".format(this.name)).click(function() {
 			self.add_text_tag('b', '');
 		});
@@ -598,6 +717,10 @@ var editorHypertext = Class.extend({
 		});
 	},
 
+	getGUIComp : function() {
+		return $("#" + this.ownerId).find("textarea[name='{0}']:eq(0)".format(this.name));
+	},
+
 	add_text_tag : function(tagname, extra) {
 		var cursorPosBegin, cursorPosEnd, val_area, select_val, textBefore, textAfter;
 		if (extra !== '') {
@@ -611,37 +734,6 @@ var editorHypertext = Class.extend({
 		textAfter = val_area.substring(cursorPosEnd, val_area.length);
 		this.getGUIComp().val("{0}{[{1}{2}]}{3}{[/{1}]}{4}".format(textBefore, tagname, extra, select_val, textAfter));
 	}
-
-});
-
-var compMemo = compAbstractEvent.extend({
-	value : "",
-	tag : 'textarea',
-
-	initial : function(component) {
-		this._super(component);
-		this.value = component.value.replace(/\{\[newline\]\}/g, "\n").replace(/\{\[br\/\]\}/g, "\n");
-		this.editor = new editorHypertext(this.owner.getId(), this.name, component.with_hypertext, component.submenu);
-		this.tag = 'textarea';
-	},
-
-	get_Html : function() {
-		return this.editor.get_Html(this.getAttribHtml({}, true), this.initialVal());
-	},
-
-	initialVal : function() {
-		return this.value;
-	},
-
-	fillValue : function(params) {
-		var val = this.getValue();
-		params.put(this.name, val.replace(/\n/g, '{[br/]}'));
-	},
-
-	addAction : function() {
-		this.addActionEx(0);
-		this.editor.addEditorAction();
-	}
 });
 
 var compXML = compAbstractEvent.extend({
@@ -651,7 +743,8 @@ var compXML = compAbstractEvent.extend({
 	initial : function(component) {
 		this._super(component);
 		this.value = component.value;
-		this.editor = new editorHypertext(this.owner.getId(), this.name, 1, component.submenu);
+		this.editor = new editorHypertext(this.owner.getId(), this.name);
+		this.menu = new editorMenu(this.owner.getId(), "textarea[name='{0}']:eq(0)".format(this.name), component.submenu)
 		this.tag = 'textarea';
 	},
 
@@ -671,6 +764,7 @@ var compXML = compAbstractEvent.extend({
 	addAction : function() {
 		this.addActionEx(0);
 		this.editor.addEditorAction();
+		this.menu.addMenuAction();
 	}
 });
 

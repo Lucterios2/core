@@ -192,10 +192,7 @@ var GUIManage = GUIBasic
 				$("#" + this.mId).dialog(args);
 				if (this.mCallback !== null) {
 					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
-					$(
-							'<button id="refresh_'
-									+ this.mId
-									+ '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
+					$('<button id="refresh_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
 							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>').append(
 									'<span class="ui-button-text">refresh</span>').appendTo(titlebar).hover(function() {
 								$(this).addClass('ui-state-hover');

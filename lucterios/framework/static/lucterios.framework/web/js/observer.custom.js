@@ -64,7 +64,9 @@ var ObserverCustom = ObserverGUI.extend({
 			if (cmp !== null) {
 				cmp.getGUIComp().focus();
 			}
-			showMessageDialog(lctept.message, this.getTitle());
+			if (lctept.message !== '') {
+				showMessageDialog(lctept.message, this.getTitle());
+			}
 			return false;
 		}
 		return true;
