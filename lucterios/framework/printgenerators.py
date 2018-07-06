@@ -26,12 +26,13 @@ from __future__ import unicode_literals
 from lxml import etree
 from copy import deepcopy
 from os.path import join, dirname, isfile
-import logging
+from logging import getLogger
 import datetime
 import re
 
 from django.utils import six
 from django.db.models import Q
+from django.utils.translation import ugettext as _
 
 from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
@@ -42,6 +43,7 @@ from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath,
 from lucterios.framework.models import get_value_converted
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract
+from lxml.etree import ElementTree
 
 DPI = 0.3528125
 
@@ -87,17 +89,22 @@ def calcul_text_size(text, font_size=9, line_height=10, text_align='left', is_ce
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
     try:
-        xml_text = etree.XML(
-            "<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': toHtml(text)})
+        html_text = ''
+        html_node = etree.HTML('<div>%s</div>' % toHtml(text))
+        for tag in html_node.iter():
+            for bad_attr in ["style"]:
+                tag.attrib.pop(bad_attr, None)
+        html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
+        html_text = html_text.strip()[5:-6]
+        xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text})
         xml_text.attrib['font_family'] = font_family
         xml_text.attrib['font_size'] = "%d" % font_size
         xml_text.attrib['line_height'] = "%d" % line_height
-
         xml_text.attrib['text_align'] = text_align
         xml_text.attrib['spacing'] = "0.0"
     except etree.XMLSyntaxError:
-        raise Exception(
-            'convert_to_html error:tagname=%s text=%s' % (tagname, text))
+        getLogger("lucterios.core.print").exception('convert_to_html')
+        raise Exception('convert_to_html error:tagname=%s text=%s html_text=%s' % (tagname, text, html_text))
     return xml_text
 
 
@@ -333,9 +340,8 @@ class PrintLabel(PrintItem):
                 self.value = get_value_converted(bool(self.comp.value), True)
             else:
                 self.value = self.comp.value
-        except Exception as err:
-            logging.getLogger("lucterios.core.print").exception(
-                six.text_type(err))
+        except Exception:
+            getLogger("lucterios.core.print").exception('PrintLabel')
             self.value = six.text_type(self.comp.value)
         self.init_label()
 
@@ -414,8 +420,7 @@ class ReportGenerator(object):
         self.fill_attrib()
         xml_generated = etree.tostring(
             self.modelxml, xml_declaration=True, pretty_print=True, encoding='utf-8')
-        logging.getLogger("lucterios.core.print").debug(
-            xml_generated.decode("utf-8"))
+        getLogger("lucterios.core.print").debug(xml_generated.decode("utf-8"))
         return xml_generated
 
     def generate_report(self, request, is_csv):
@@ -432,7 +437,11 @@ class ReportGenerator(object):
             content = six.text_type(
                 csv_transform(xml_rep_content)).encode('utf-8')
         else:
-            content = transforme_xml2pdf(report_content)
+            try:
+                content = transforme_xml2pdf(report_content)
+            except ValueError:
+                getLogger("lucterios.core.print").exception('transforme_xml2pdf')
+                raise LucteriosException(IMPORTANT, _('This impression failed !'))
         if len(content) > 0:
             return content
         else:
