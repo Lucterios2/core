@@ -566,7 +566,7 @@ var editorMenu = Class.extend({
 		textBefore = val_area.substring(0, cursorPos);
 		textAfter = val_area.substring(cursorPos, val_area.length);
 		this.getGUIComp().val(textBefore + variable_text + textAfter);
-	},
+	}
 
 });
 
@@ -744,7 +744,7 @@ var compXML = compAbstractEvent.extend({
 		this._super(component);
 		this.value = component.value;
 		this.editor = new editorHypertext(this.owner.getId(), this.name);
-		this.menu = new editorMenu(this.owner.getId(), "textarea[name='{0}']:eq(0)".format(this.name), component.submenu)
+		this.menu = new editorMenu(this.owner.getId(), "textarea[name='{0}']:eq(0)".format(this.name), component.submenu);
 		this.tag = 'textarea';
 	},
 
