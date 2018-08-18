@@ -1,74 +1,77 @@
 /*global $,Singleton,Class,get_serverurl,unusedVariables,post_log,LucteriosException,IMPORTANT,CRITIC,GRAVE */
 
-var HttpTransportAbstract = Class
-		.extend({
-			mLastLogin : '',
+var HttpTransportAbstract = Class.extend({
+	mLastLogin : '',
 
-			init : function() {
-				return undefined;
-			},
+	init : function() {
+		return undefined;
+	},
 
-			setLastLogin : function(aLastLogin) {
-				this.mLastLogin = aLastLogin;
-			},
+	setLastLogin : function(aLastLogin) {
+		this.mLastLogin = aLastLogin;
+	},
 
-			getLastLogin : function() {
-				return this.mLastLogin;
-			},
+	getLastLogin : function() {
+		return this.mLastLogin;
+	},
 
-			getServerUrl : function() {
-				return get_serverurl();
-			},
+	getServerUrl : function() {
+		return get_serverurl();
+	},
 
-			getSession : function() {
-				var session = this.getSessionEx();
-				this.setSession(session);
-				return session;
-			},
+	getSession : function() {
+		var session = this.getSessionEx();
+		this.setSession(session);
+		return session;
+	},
 
-			getSessionEx : function() {
-				var session = $.cookie("lucterios_session");
-				if (session === undefined) {
-					session = "";
-				}
-				return session;
-			},
+	getSessionEx : function() {
+		var session = $.cookie("lucterios_session");
+		if (session === undefined) {
+			session = "";
+		}
+		return session;
+	},
 
-			setSession : function(session) {
-				if (session === '') {
-					$.removeCookie("lucterios_session");
-					$.removeCookie("sessionid");
-				} else {
-					$.cookie("lucterios_session", session, {
-						expires : 1
-					});
-				}
-			},
+	setSession : function(session) {
+		if (session === '') {
+			$.removeCookie("lucterios_session");
+			$.removeCookie("sessionid");
+		} else {
+			$.cookie("lucterios_session", session, {
+				expires : 1
+			});
+		}
+	},
 
-			transfertFileFromServerString : function(aWebFile, aParams) {
-				unusedVariables(aWebFile, aParams);
-				return "";
-			},
+	transfertFileFromServerString : function(aWebFile, aParams) {
+		unusedVariables(aWebFile, aParams);
+		return "";
+	},
 
-			getIconUrl : function(icon) {
-				var icon_url = get_serverurl();
-				if (icon[0] === '/') {
-					icon_url += icon.substring(1);
-				} else {
-					icon_url += icon;
-				}
-				return icon_url;
-			},
-
-			close : function() {
-				return this.setSession("");
-			},
-
-			getFileContent : function(aUrl) {
-				unusedVariables(aUrl);
+	getIconUrl : function(icon) {
+		if (/^data:image/.test(icon)) {
+			return icon;
+		} else {
+			var icon_url = get_serverurl();
+			if (icon[0] === '/') {
+				icon_url += icon.substring(1);
+			} else {
+				icon_url += icon;
 			}
+			return icon_url;
+		}
+	},
 
-		});
+	close : function() {
+		return this.setSession("");
+	},
+
+	getFileContent : function(aUrl) {
+		unusedVariables(aUrl);
+	}
+
+});
 
 var HttpTransportImpl = HttpTransportAbstract.extend({
 
@@ -93,8 +96,7 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 				reponsetext = data;
 			},
 			error : function(xhr, textStatus, errorThrown) {
-				post_log('HTTP ERROR:' + xhr.statusText + "/" + textStatus
-						+ "/" + errorThrown);
+				post_log('HTTP ERROR:' + xhr.statusText + "/" + textStatus + "/" + errorThrown);
 				error_num = xhr.readyState;
 				code_error = xhr.status;
 				reponsetext = errorThrown;
@@ -102,14 +104,12 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 		});
 		if (error_num !== -1) {
 			if (error_num === 0) {
-				throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Lost connection!'), aWebFile,
-						reponsetext);
+				throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Lost connection!'), aWebFile, reponsetext);
 			} else {
 				if (code_error === 404) {
 					throw new LucteriosException(GRAVE, Singleton().getTranslate('Command unknown!'), aWebFile, reponsetext);
-				}
-				else {
-					throw new LucteriosException(CRITIC, 'Http error '+code_error, aWebFile, reponsetext);
+				} else {
+					throw new LucteriosException(CRITIC, 'Http error ' + code_error, aWebFile, reponsetext);
 				}
 			}
 		}
@@ -120,8 +120,7 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 		if (this.getSessionEx() !== '') {
 			var act = Singleton().CreateAction();
 			if (act !== null) {
-				act.initializeEx(null, Singleton().Factory(), '', 'CORE',
-						'exitConnection');
+				act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'exitConnection');
 				act.actionPerformed();
 			}
 		}

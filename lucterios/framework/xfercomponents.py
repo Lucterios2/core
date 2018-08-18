@@ -36,7 +36,7 @@ from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_value_converted, get_value_if_choices
 from django.db.models.fields import FieldDoesNotExist
 from lucterios.framework.xferbasic import NULL_VALUE
-from lucterios.framework.filetools import md5sum
+from lucterios.framework.filetools import md5sum, BASE64_PREFIX
 
 
 class XferComponent(object):
@@ -859,6 +859,11 @@ class XferCompGrid(XferComponent):
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
+                if ('.' not in fieldname) and len(query_set) > 0:
+                    first_record = query_set[0]
+                    first_value = getattr(first_record, fieldname)
+                    if isinstance(first_value, six.text_type) and first_value.startswith(BASE64_PREFIX):
+                        hfield = 'icon'
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(fieldname[:-4])
                 hfield = 'str'
