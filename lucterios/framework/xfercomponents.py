@@ -860,10 +860,13 @@ class XferCompGrid(XferComponent):
                 verbose_name, fieldname = fieldname
                 hfield = 'str'
                 if ('.' not in fieldname) and len(query_set) > 0:
-                    first_record = query_set[0]
-                    first_value = getattr(first_record, fieldname)
-                    if isinstance(first_value, six.text_type) and first_value.startswith(BASE64_PREFIX):
-                        hfield = 'icon'
+                    try:
+                        first_record = query_set[0]
+                        first_value = getattr(first_record, fieldname)
+                        if isinstance(first_value, six.text_type) and first_value.startswith(BASE64_PREFIX):
+                            hfield = 'icon'
+                    except Exception:
+                        pass
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(fieldname[:-4])
                 hfield = 'str'
