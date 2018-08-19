@@ -202,8 +202,7 @@ class LucteriosPDF(object):
             current_w = get_size(xmlcolumn, 'width')
             width_columns.append(current_w)
             cells = xmlcolumn.xpath('cell')
-            text, _, new_current_h = self.create_para(
-                cells[0], current_w, 0, 0.85)
+            text, _, new_current_h = self.create_para(cells[0], current_w, 0, 0.85)
             max_current_h = max(max_current_h, new_current_h)
             cellcolumns.append(text)
         return cellcolumns, width_columns, max_current_h
@@ -223,20 +222,23 @@ class LucteriosPDF(object):
                 self.pdf, current_x, self.height - current_y - new_current_h)
             self.position_y = current_y + max(new_current_h, current_h)
             return
-        cellcolumns, width_columns, _ = self.extract_columns_for_table(
-            xmltable.xpath('columns'))
+        cellcolumns, width_columns, _ = self.extract_columns_for_table(xmltable.xpath('columns'))
         data = []
         data.append(cellcolumns)
         for row in xmltable.xpath('rows'):
             row_line = []
             col_idx = 0
             for cell in row.xpath('cell'):
-                text, _, _ = self.create_para(cell, width_columns[col_idx], 0)
-                row_line.append(text)
+                if (cell.text is not None) and (cell.text[:len(BASE64_PREFIX)] == BASE64_PREFIX):
+                    img = self.parse_image(cell, -1000, -1000, None, None)
+                    row_line.append(img)
+                else:
+                    text, _, _ = self.create_para(cell, width_columns[col_idx], 0)
+                    row_line.append(text)
                 col_idx += 1
             table_height = get_table_heigth(data + [row_line], width_columns)
-            # six.print_("table y:%f height:%f h-b:%F" % (self.position_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
-            if (self.position_y + table_height) > (self.height - self.bottom_h - self.b_margin):
+            # six.print_("table y:%f height:%f h-b:%F" % (current_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
+            if (current_y + table_height) > (self.height - self.bottom_h - self.b_margin):
                 draw_table(width_columns, data)
                 self.add_page()
                 current_y = self.header_h + self.t_margin
@@ -257,16 +259,21 @@ class LucteriosPDF(object):
                 img_file = open(img_content, "rb")
             try:
                 img = Image(img_file)
-                img.drawHeight = current_h
-                img.drawWidth = current_w
-                _, new_current_h = img.wrapOn(
-                    self.pdf, current_w, current_h)
-                img.drawOn(
-                    self.pdf, current_x, self.height - current_y - current_h)
+                if current_h is not None:
+                    img.drawHeight = current_h
+                    img.drawWidth = current_w
+                else:
+                    current_h = img.drawHeight
+                    current_w = img.drawWidth
+                _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
+                img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
                 self.position_y = current_y + max(new_current_h, current_h)
+                return img
             finally:
                 if img_file is not None:
                     img_file.close()
+        else:
+            return None
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
         text, style, new_current_h = self.create_para(
@@ -274,8 +281,7 @@ class LucteriosPDF(object):
         if new_current_h == 0:
             new_current_h = style.leading
         new_current_h += style.leading * 0.40
-        text.drawOn(
-            self.pdf, current_x, self.height - current_y - new_current_h)
+        text.drawOn(self.pdf, current_x, self.height - current_y - new_current_h)
         self.position_y = current_y + max(new_current_h, current_h)
 
     def _parse_comp(self, comp, y_offset):

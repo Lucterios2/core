@@ -686,8 +686,8 @@ class ListingGenerator(ReportModelGenerator):
             item.set_context(self.xfer)
             new_row = etree.SubElement(xml_table, "rows")
             for column in self.columns:
-                xml_text = convert_to_html(
-                    'cell', item.evaluate(column[2]), "sans-serif", 9, 10, "start")
+                cell_value = item.evaluate(column[2])
+                xml_text = convert_to_html('cell', cell_value, "sans-serif", 9, 10, "start")
                 new_row.append(xml_text)
 
 
@@ -711,7 +711,7 @@ class LabelGenerator(ReportModelGenerator):
             label_values.append("")
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
-            label_values.append(item.evaluate(self.label_text))
+            label_values.append(item.evaluate(self.label_text, format_fct=toHtml))
         index = 0
         for labelval in label_values:
             if index == (self.label_size['columns'] * self.label_size['rows']):
@@ -733,7 +733,11 @@ class LabelGenerator(ReportModelGenerator):
                 xml_text.attrib['spacing'] = "0.0"
                 self.body.append(xml_text)
             else:
-                docroot = etree.XML(labelval)
+                try:
+                    docroot = etree.XML(labelval)
+                except etree.XMLSyntaxError:
+                    six.print_(labelval)
+                    raise
                 for xml_text in docroot.find('body').iter():
                     if xml_text.tag == 'body':
                         continue

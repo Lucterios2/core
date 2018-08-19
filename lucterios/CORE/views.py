@@ -392,6 +392,8 @@ class PrintModelList(XferListEditor):
                         modelname = print_model.modelname
                 except LookupError:
                     pass
+        model_list = list(model_list.items())
+        model_list.sort(key=lambda item: item[1])
         model_sel = XferCompSelect('modelname')
         model_sel.set_location(1, 1)
         model_sel.set_select(model_list)
