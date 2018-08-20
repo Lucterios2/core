@@ -37,31 +37,49 @@ from django.utils import six
 from lucterios.framework.filetools import readimage_to_base64, read_file
 
 
-def get_lan_ip():
-    if os.name != "nt":
-        import fcntl
-        import struct
+def get_local_interfaces():
+    """ Returns a dictionary of name:ip key value pairs. """
 
-        def get_interface_ip(ifname):
-            scket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                try:
-                    if_name_short = six.binary_type(ifname[:15], 'utf-8')
-                except TypeError:
-                    if_name_short = six.binary_type(ifname[:15])
-                return socket.inet_ntoa(fcntl.ioctl(scket.fileno(), 0x8915, struct.pack(b'256s', if_name_short))[20:24])
-            finally:
-                scket.close()
+    import array
+    import struct
+    import fcntl
+
+    # Max possible bytes for interface result.  Will truncate if more than 4096 characters to describe interfaces.
+    MAX_BYTES = 4096
+
+    # We're going to make a blank byte array to operate on.  This is our fill char.
+    FILL_CHAR = b'\0'
+
+    SIOCGIFCONF = 0x8912
+
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    names = array.array('B', MAX_BYTES * FILL_CHAR)
+    names_address, _names_length = names.buffer_info()
+    mutable_byte_buffer = struct.pack('iL', MAX_BYTES, names_address)
+    mutated_byte_buffer = fcntl.ioctl(sock.fileno(), SIOCGIFCONF, mutable_byte_buffer)
+    max_bytes_out, _names_address_out = struct.unpack('iL', mutated_byte_buffer)
+    namestr = names.tostring()
+    ip_dict = {}
+    for i in range(0, max_bytes_out, 40):
+        name = namestr[i: i + 16].split(FILL_CHAR, 1)[0]
+        name = name.decode('utf-8')
+        ip_bytes = namestr[i + 20:i + 24]
+        full_addr = []
+        for netaddr in ip_bytes:
+            if isinstance(netaddr, int):
+                full_addr.append(str(netaddr))
+            elif isinstance(netaddr, str):
+                full_addr.append(str(ord(netaddr)))
+        ip_dict[name] = '.'.join(full_addr)
+    return ip_dict
+
+
+def get_lan_ip():
     ip_address = socket.gethostbyname(socket.gethostname())
     if ip_address.startswith("127.") and os.name != "nt":
-        interfaces = ["eth0", "eth1", "eth2", "wlan0",
-                      "wlan1", "wifi0", "ath0", "ath1", "ppp0"]
-        for ifname in interfaces:
-            try:
-                ip_address = get_interface_ip(ifname)
+        for ip_address in get_local_interfaces().values():
+            if not ip_address.startswith("127."):
                 break
-            except IOError:
-                pass
     return ip_address
 
 
@@ -133,7 +151,7 @@ DEFAULT_SETTINGS = {
     'USE_I18N': True,
     'USE_L10N': True,
     'USE_TZ': True,
-    'DEBUG': True,
+    'DEBUG': False,
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',

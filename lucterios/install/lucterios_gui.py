@@ -97,7 +97,7 @@ class RunServer(object):
     def start(self):
         self.stop()
         cmd = [sys.executable, 'manage_%s.py' % self.instance_name,
-               'runserver', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
+               'runserver', '--nostatic', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
         self.process = Popen(cmd)
         sleep(3.0)
         if self.process.poll() is not None:

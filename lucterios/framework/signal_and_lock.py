@@ -160,8 +160,9 @@ class RecordLocker(object):
             from django.conf import settings
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
             if (session_key is not None) and (params is None):
-                for lock_ident in cls._lock_list.keys():
-                    if (cls._lock_list[lock_ident] == session_key):
+                lock_ident_list = list(cls._lock_list.keys())
+                for lock_ident in lock_ident_list:
+                    if (lock_ident in cls._lock_list) and (cls._lock_list[lock_ident] == session_key):
                         del cls._lock_list[lock_ident]
             elif (session_key is not None) and ('LOCK_IDENT' in params.keys()):
                 lock_ident = params['LOCK_IDENT']
