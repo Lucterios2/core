@@ -248,6 +248,12 @@ class LucteriosGlobal(LucteriosManage):
     def check(self):
         from pip._internal.utils.misc import get_installed_distributions
         from pip._internal.commands.list import ListCommand
+        try:
+            from pip._internal.utils.logging import _log_state
+            if not hasattr(_log_state, 'indentation'):
+                _log_state.indentation = 0
+        except Exception:
+            pass
         check_list = {}
         list_command = ListCommand()
         options, _ = list_command.parse_args(self.get_default_args_([]))

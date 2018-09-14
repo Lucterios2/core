@@ -24,7 +24,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from logging import getLogger
-from copy import deepcopy
 
 from django.utils.translation import ugettext_lazy as _
 from django.db import IntegrityError
@@ -32,8 +31,8 @@ from django.db.models import Q
 from django.utils import six
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
-from lucterios.framework.tools import ifplural, CLOSE_NO, WrapAction, ActionsManage, CLOSE_YES
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, DEFAULT_ACTION_LIST
+from lucterios.framework.tools import ifplural, WrapAction, ActionsManage
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from django_fsm import TransitionNotAllowed
 
