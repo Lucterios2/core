@@ -23,7 +23,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-import sys
 import re
 import logging
 from datetime import datetime, date, time
