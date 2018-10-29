@@ -769,12 +769,12 @@ class XferCompGrid(XferComponent):
                 self.actions.append((action, modal, close, unique, params))
 
     def define_page(self, xfer_custom=None):
-        if (xfer_custom is not None) and not xfer_custom.getparam('PRINTING', False):
+        self.order_list = None
+        if xfer_custom is not None:
             order_txt = xfer_custom.getparam(GRID_ORDER + self.name, '')
-            if order_txt == '':
-                self.order_list = None
-            else:
+            if order_txt != '':
                 self.order_list = order_txt.split(',')
+        if (xfer_custom is not None) and not xfer_custom.getparam('PRINTING', False):
             self.size_by_page = xfer_custom.getparam(GRID_SIZE + self.name, self.size_by_page)
             self.page_num = xfer_custom.getparam(GRID_PAGE + self.name, 0)
             self.page_max = int(self.nb_lines / self.size_by_page) + 1
@@ -786,7 +786,6 @@ class XferCompGrid(XferComponent):
             record_min = 0
             record_max = self.nb_lines
             self.size_by_page = self.nb_lines
-            self.order_list = None
             self.page_max = 1
             self.page_num = 0
             self.no_pager = True
