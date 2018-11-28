@@ -23,26 +23,26 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.conf.urls import url, include
-from django.conf import settings
-from django.utils.module_loading import import_module
-from django.views.static import serve
-
 from os.path import join, dirname, basename
 import logging
 import inspect
 import pkgutil
-from lucterios.framework.docs import defaultDocs
+
+from django.conf.urls import url, include
+from django.conf import settings
+from django.utils.module_loading import import_module
+from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.utils import six
+from django.http.response import HttpResponse
+
+from lucterios.framework.docs import defaultDocs
 
 
 def defaultblank(request, *args):
-    from http.client import HTTPResponse
     if request.path == '/favicon.ico':
         if hasattr(settings, 'APPLIS_FAVICON'):
             return serve(request, basename(settings.APPLIS_FAVICON), document_root=dirname(settings.APPLIS_FAVICON))
-    return HTTPResponse('')
+    return HttpResponse('')
 
 
 def defaultview(*args):

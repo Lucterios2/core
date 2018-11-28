@@ -259,6 +259,40 @@
 		</if>
 	</target>
 
+	<target name="docs_pdf">
+		<property name="sub_path" value="${basedir}/${packageitem}" />
+		<if>
+			<available file="${sub_path}/pdf/${lang}" />
+			<then>
+				<property name="module_name_" value="${packageitem}" />
+				<loadresource property="module_name">
+					<propertyresource name="module_name_" />
+					<filterchain>
+						<tokenfilter>
+							<replaceregex pattern="/" replace="\." flags="g" />
+						</tokenfilter>
+					</filterchain>
+				</loadresource>
+				<basename property="module_name" file="${sub_path}" />
+				<tstamp>
+					<format property="currentyear" pattern="yyyy" unit="hour" />
+				</tstamp>
+				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packmiddleversion} / ${packshortversion} --" />
+				<delete dir="${sub_path}/pdf/build_${lang}" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="version = '.*'" replace="version = '${packshortversion}'" byline="true" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="release = '.*'" replace="release = '${packmiddleversion}'" byline="true" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true" />
+				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true" />
+				<exec executable="make" dir="${sub_path}/pdf/${lang}" failonerror="true">
+					<arg value="clean" />
+					<arg value="latexpdf" />
+				</exec>
+			</then>
+		</if>
+	</target>
+
 	<target name="docs">
 		<for param="packageitem" list="${project.packagepath}">
 			<sequential>
@@ -268,6 +302,7 @@
 				<for param="line" delimiter="${line.separator}" list="${init_file}">
 					<sequential>
 						<propertyregex property="packversion" input="@{line}" regexp="__version__\s*=\s*.([0-9\.]+)" select="\1" />
+						<propertyregex property="packmiddleversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+\.[0-9]+)" select="\1" />
 						<propertyregex property="packshortversion" input="@{line}" regexp="__version__\s*=\s*.([0-9]+\.[0-9]+)" select="\1" />
 					</sequential>
 				</for>
@@ -286,6 +321,22 @@
 					<param name="packlongversion" value="${packlongversion}" />
 					<param name="packshortversion" value="${packshortversion}" />
 				</antcall>
+
+				<antcall target="docs_pdf">
+					<param name="basedir" value="${basedir}" />
+					<param name="packageitem" value="@{packageitem}" />
+					<param name="lang" value="fr" />
+					<param name="packmiddleversion" value="${packmiddleversion}" />
+					<param name="packshortversion" value="${packshortversion}" />
+				</antcall>
+				<antcall target="docs_pdf">
+					<param name="basedir" value="${basedir}" />
+					<param name="packageitem" value="@{packageitem}" />
+					<param name="lang" value="en" />
+					<param name="packmiddleversion" value="${packmiddleversion}" />
+					<param name="packshortversion" value="${packshortversion}" />
+				</antcall>
+
 			</sequential>
 		</for>
 	</target>

@@ -3,9 +3,6 @@ Coeur Lucterios
 
 Aide relative aux fonctionnalités générales de cet outil de gestion.
 
-Sommaire:
-=========
-
 .. toctree::
    :maxdepth: 2
 

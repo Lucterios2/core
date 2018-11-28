@@ -37,18 +37,19 @@ from threading import Thread
 from re import compile
 
 from django.utils.module_loading import import_module
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy
 from django.utils import six
 
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title, setup_from_none
 from lucterios.framework.settings import get_lan_ip
 
 from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
-from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED
+from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED, CENTER
 from tkinter.messagebox import showerror, showinfo, askokcancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter import Image
 import logging
+from multiprocessing.context import Process
 
 FIRST_HTTP_PORT = 8100
 if 'FIRST_HTTP_PORT' in os.environ.keys():
@@ -68,7 +69,7 @@ def ProvideException(func):
             return func(*args)
         except Exception as e:
             print_exc()
-            showerror(ugettext("Lucterios launcher"), e)
+            showerror(ugettext_lazy("Lucterios launcher"), e)
     return wrapper
 
 
@@ -102,7 +103,7 @@ class RunServer(object):
         sleep(3.0)
         if self.process.poll() is not None:
             self.stop()
-            raise RunException(ugettext("Error to start!"))
+            raise RunException(ugettext_lazy("Error to start!"))
         self.open_url()
 
     def open_url(self):
@@ -130,6 +131,41 @@ def center(root, size=None):
     root.geometry("%dx%d+%d+%d" % (size + (pos_x, pos_y)))
 
 
+class SplashScreen(Toplevel):
+
+    HEIGHT = 150
+    WIDTH = 400
+
+    def __init__(self, root, img):
+        Toplevel.__init__(self, root)
+        self.geometry('%dx%d' % (self.WIDTH, self.HEIGHT))
+        self.overrideredirect(True)
+
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        img = ttk.Label(self, image=img, anchor=W)
+        img.grid(column=0, row=0, sticky=(N, S, W), rowspan=2, padx=3, pady=3)
+
+        title = ttk.Label(self, text=ugettext_lazy("Lucterios launcher"), font='Helvetica 18 bold', anchor=CENTER)
+        title.grid(column=1, row=0, sticky=(N, E), padx=(5, 20), pady=(1, 5))
+
+        label = ttk.Label(self, text=ugettext_lazy('Application loading\nWaiting a minute ...'), anchor=CENTER)
+        label.grid(column=1, row=1, sticky=(N, E), padx=(0, 50), pady=(5, 50))
+
+        self.center_splash_screen()
+
+    def center_splash_screen(self):
+        w = self.winfo_screenwidth()
+        h = self.winfo_screenheight()
+        x = w / 2 - self.WIDTH / 2
+        y = h / 2 - self.HEIGHT / 2
+        self.geometry("%dx%d+%d+%d" % ((self.WIDTH, self.HEIGHT) + (x, y)))
+
+    def destroy_splash_screen(self):
+        self.destroy()
+
+
 class InstanceEditor(Toplevel):
 
     def __init__(self):
@@ -142,7 +178,7 @@ class InstanceEditor(Toplevel):
         self.result = None
         self.module_data = None
         self.mod_applis = None
-        self.title(ugettext("Instance editor"))
+        self.title(ugettext_lazy("Instance editor"))
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
@@ -153,70 +189,70 @@ class InstanceEditor(Toplevel):
         self.frm_general.grid_columnconfigure(0, weight=0)
         self.frm_general.grid_columnconfigure(1, weight=1)
         self._general_tabs()
-        self.ntbk.add(self.frm_general, text=ugettext('General'))
+        self.ntbk.add(self.frm_general, text=ugettext_lazy('General'))
 
         self.frm_database = Frame(self.ntbk, width=350, height=150)
         self.frm_database.grid_columnconfigure(0, weight=0)
         self.frm_database.grid_columnconfigure(1, weight=1)
         self._database_tabs()
-        self.ntbk.add(self.frm_database, text=ugettext('Database'))
+        self.ntbk.add(self.frm_database, text=ugettext_lazy('Database'))
 
         btnframe = Frame(self, bd=1)
         btnframe.grid(row=1, column=0, columnspan=1)
-        Button(btnframe, text=ugettext("OK"), width=10, command=self.apply).grid(
+        Button(btnframe, text=ugettext_lazy("OK"), width=10, command=self.apply).grid(
             row=0, column=0, sticky=(N, S, E))
-        Button(btnframe, text=ugettext("Cancel"), width=10, command=self.destroy).grid(
+        Button(btnframe, text=ugettext_lazy("Cancel"), width=10, command=self.destroy).grid(
             row=0, column=1, sticky=(N, S, W))
 
     def _database_tabs(self):
-        Label(self.frm_database, text=ugettext("Type")).grid(
+        Label(self.frm_database, text=ugettext_lazy("Type")).grid(
             row=0, column=0, sticky=(N, W), padx=5, pady=3)
         self.typedb = ttk.Combobox(
             self.frm_database, textvariable=StringVar(), state=READLONY)
         self.typedb.bind("<<ComboboxSelected>>", self.typedb_selection)
         self.typedb.grid(row=0, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("Name")).grid(
+        Label(self.frm_database, text=ugettext_lazy("Name")).grid(
             row=1, column=0, sticky=(N, W), padx=5, pady=3)
         self.namedb = Entry(self.frm_database)
         self.namedb.grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("User")).grid(
+        Label(self.frm_database, text=ugettext_lazy("User")).grid(
             row=2, column=0, sticky=(N, W), padx=5, pady=3)
         self.userdb = Entry(self.frm_database)
         self.userdb.grid(row=2, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_database, text=ugettext("Password")).grid(
+        Label(self.frm_database, text=ugettext_lazy("Password")).grid(
             row=3, column=0, sticky=(N, W), padx=5, pady=3)
         self.pwddb = Entry(self.frm_database)
         self.pwddb.grid(row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
 
     def _general_tabs(self):
-        Label(self.frm_general, text=ugettext("Name")).grid(
+        Label(self.frm_general, text=ugettext_lazy("Name")).grid(
             row=0, column=0, sticky=(N, W), padx=5, pady=3)
         self.name = Entry(self.frm_general)
         self.name.grid(row=0, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Appli")).grid(
+        Label(self.frm_general, text=ugettext_lazy("Appli")).grid(
             row=1, column=0, sticky=(N, W), padx=5, pady=3)
         self.applis = ttk.Combobox(
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.applis.bind("<<ComboboxSelected>>", self.appli_selection)
         self.applis.grid(row=1, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Modules")).grid(
+        Label(self.frm_general, text=ugettext_lazy("Modules")).grid(
             row=2, column=0, sticky=(N, W), padx=5, pady=3)
         self.modules = Listbox(self.frm_general, selectmode=EXTENDED)
         self.modules.configure(exportselection=False)
         self.modules.grid(row=2, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Language")).grid(
+        Label(self.frm_general, text=ugettext_lazy("Language")).grid(
             row=3, column=0, sticky=(N, W), padx=5, pady=3)
         self.language = ttk.Combobox(
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.language.grid(
             row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("CORE-connectmode")
+        Label(self.frm_general, text=ugettext_lazy("CORE-connectmode")
               ).grid(row=4, column=0, sticky=(N, W), padx=5, pady=3)
         self.mode = ttk.Combobox(
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.mode.bind("<<ComboboxSelected>>", self.mode_selection)
         self.mode.grid(row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
-        Label(self.frm_general, text=ugettext("Password")).grid(
+        Label(self.frm_general, text=ugettext_lazy("Password")).grid(
             row=5, column=0, sticky=(N, W), padx=5, pady=3)
         self.password = Entry(self.frm_general, show="*")
         self.password.grid(
@@ -261,10 +297,10 @@ class InstanceEditor(Toplevel):
     def apply(self):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
         if self.is_new_instance and ((self.name.get() == '') or (self.name_rull.match(self.name.get()) is None)):
-            showerror(ugettext("Instance editor"), ugettext("Name invalid!"))
+            showerror(ugettext_lazy("Instance editor"), ugettext_lazy("Name invalid!"))
             return
         if self.applis.get() == '':
-            showerror(ugettext("Instance editor"), ugettext("No application!"))
+            showerror(ugettext_lazy("Instance editor"), ugettext_lazy("No application!"))
             return
         db_param = "%s:name=%s,user=%s,password=%s" % (
             self.typedb.get(), self.namedb.get(), self.userdb.get(), self.pwddb.get())
@@ -333,8 +369,8 @@ class InstanceEditor(Toplevel):
 
     def execute(self, instance_name=None):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
-        self.mode[VALUES] = [ugettext(
-            "CORE-connectmode.0"), ugettext("CORE-connectmode.1"), ugettext("CORE-connectmode.2")]
+        self.mode[VALUES] = [ugettext_lazy(
+            "CORE-connectmode.0"), ugettext_lazy("CORE-connectmode.1"), ugettext_lazy("CORE-connectmode.2")]
         self.language[VALUES] = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
@@ -370,18 +406,26 @@ class InstanceEditor(Toplevel):
         center(self)
 
 
+def LucteriosRefreshAll():
+    try:
+        luct_glo = LucteriosGlobal()
+        luct_glo.refreshall()
+    except Exception:
+        logging.getLogger(__name__).exception("refreshall")
+
+
 class LucteriosMainForm(Tk):
 
     def __init__(self):
         Tk.__init__(self)
         try:
-            img = Image("photo", file=join(
-                dirname(import_module('lucterios.install').__file__), "lucterios.png"))
-            self.tk.call('wm', 'iconphoto', self._w, img)
+            self.img = Image("photo", file=join(dirname(import_module('lucterios.install').__file__), "lucterios.png"))
+            self.tk.call('wm', 'iconphoto', self._w, self.img)
         except Exception:
-            pass
+            self.img = None
+        self.start_up_app()
         self.has_checked = False
-        self.title(ugettext("Lucterios launcher"))
+        self.title(ugettext_lazy("Lucterios launcher"))
         self.minsize(475, 260)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -404,14 +448,36 @@ class LucteriosMainForm(Tk):
 
         self.btnframe = Frame(self, bd=1)
         self.btnframe.grid(row=2, column=0, columnspan=1)
-        Button(self.btnframe, text=ugettext("Refresh"), width=20, command=self.refresh).grid(
+        Button(self.btnframe, text=ugettext_lazy("Refresh"), width=20, command=self.refresh).grid(
             row=0, column=0, padx=3, pady=3, sticky=(N, S))
         self.btnupgrade = Button(
-            self.btnframe, text=ugettext("Search upgrade"), width=20, command=self.upgrade)
+            self.btnframe, text=ugettext_lazy("Search upgrade"), width=20, command=self.upgrade)
         self.btnupgrade.config(state=DISABLED)
         self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
-        Button(self.btnframe, text=ugettext("Close"), width=20, command=self.on_closing).grid(
+        Button(self.btnframe, text=ugettext_lazy("Close"), width=20, command=self.on_closing).grid(
             row=0, column=2, padx=3, pady=3, sticky=(N, S))
+
+    def start_up_app(self):
+        self.show_splash_screen()
+
+        # load db in separate process
+        process_startup = Process(target=LucteriosRefreshAll)
+        process_startup.start()
+
+        while process_startup.is_alive():
+            # print('updating')
+            self.splash.update()
+
+        self.remove_splash_screen()
+
+    def show_splash_screen(self):
+        self.withdraw()
+        self.splash = SplashScreen(self, self.img)
+
+    def remove_splash_screen(self):
+        self.splash.destroy_splash_screen()
+        del self.splash
+        self.deiconify()
 
     def on_closing(self):
         all_stop = True
@@ -419,7 +485,7 @@ class LucteriosMainForm(Tk):
         for old_item in instance_names:
             if (self.running_instance[old_item] is not None) and self.running_instance[old_item].is_running():
                 all_stop = False
-        if all_stop or askokcancel(None, ugettext("An instance is always running.\nDo you want to close?")):
+        if all_stop or askokcancel(None, ugettext_lazy("An instance is always running.\nDo you want to close?")):
             self.destroy()
         else:
             self.refresh()
@@ -450,20 +516,20 @@ class LucteriosMainForm(Tk):
         self.btninstframe = Frame(frm_inst, bd=1)
         self.btninstframe.grid(row=1, column=0, columnspan=1)
         self.btninstframe.grid_columnconfigure(0, weight=1)
-        Button(self.btninstframe, text=ugettext("Launch"), width=25, command=self.open_inst).grid(
+        Button(self.btninstframe, text=ugettext_lazy("Launch"), width=25, command=self.open_inst).grid(
             row=0, column=0, columnspan=2, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Modify"), width=10,
+        Button(self.btninstframe, text=ugettext_lazy("Modify"), width=10,
                command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Delete"), width=10,
+        Button(self.btninstframe, text=ugettext_lazy("Delete"), width=10,
                command=self.delete_inst).grid(row=1, column=1, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Save"), width=10,
+        Button(self.btninstframe, text=ugettext_lazy("Save"), width=10,
                command=self.save_inst).grid(row=2, column=0, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Restore"), width=10,
+        Button(self.btninstframe, text=ugettext_lazy("Restore"), width=10,
                command=self.restore_inst).grid(row=2, column=1, sticky=(N, S))
-        Button(self.btninstframe, text=ugettext("Add"), width=25, command=self.add_inst).grid(
+        Button(self.btninstframe, text=ugettext_lazy("Add"), width=25, command=self.add_inst).grid(
             row=3, column=0, columnspan=2, sticky=(N, S))
 
-        self.ntbk.add(frm_inst, text=ugettext('Instances'))
+        self.ntbk.add(frm_inst, text=ugettext_lazy('Instances'))
 
     def create_module_panel(self):
         frm_mod = Frame(self.ntbk)
@@ -472,7 +538,7 @@ class LucteriosMainForm(Tk):
         self.module_txt = Text(frm_mod)
         self.module_txt.grid(row=0, column=0, sticky=(N, S, W, E))
         self.module_txt.config(state=DISABLED)
-        self.ntbk.add(frm_mod, text=ugettext('Modules'))
+        self.ntbk.add(frm_mod, text=ugettext_lazy('Modules'))
 
     def do_progress(self, progressing):
         if not progressing:
@@ -522,20 +588,20 @@ class LucteriosMainForm(Tk):
         lct_glob = LucteriosGlobal()
         mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
         self.module_txt.insert(
-            END, ugettext("Lucterios core\t\t%s\n") % mod_lucterios[1])
+            END, ugettext_lazy("Lucterios core\t\t%s\n") % mod_lucterios[1])
         self.module_txt.insert(END, '\n')
-        self.module_txt.insert(END, ugettext("Application\n"))
+        self.module_txt.insert(END, ugettext_lazy("Application\n"))
         for appli_item in mod_applis:
             self.module_txt.insert(
                 END, "\t%s\t%s\n" % (appli_item[0].ljust(30), appli_item[1]))
-        self.module_txt.insert(END, ugettext("Modules\n"))
+        self.module_txt.insert(END, ugettext_lazy("Modules\n"))
         for module_item in mod_modules:
             self.module_txt.insert(
                 END, "\t%s\t%s\n" % (module_item[0].ljust(30), module_item[1]))
         extra_urls = lct_glob.get_extra_urls()
         if len(extra_urls) > 0:
             self.module_txt.insert(END, "\n")
-            self.module_txt.insert(END, ugettext("Pypi servers\n"))
+            self.module_txt.insert(END, ugettext_lazy("Pypi servers\n"))
             for extra_url in extra_urls:
                 self.module_txt.insert(END, "\t%s\n" % extra_url)
         self.module_txt.config(state=DISABLED)
@@ -577,9 +643,9 @@ class LucteriosMainForm(Tk):
     def set_ugrade_state(self, must_upgrade):
         if must_upgrade:
             self.btnupgrade.config(state=NORMAL)
-            self.btnupgrade["text"] = ugettext("Upgrade needs")
+            self.btnupgrade["text"] = ugettext_lazy("Upgrade needs")
         else:
-            self.btnupgrade["text"] = ugettext("No upgrade")
+            self.btnupgrade["text"] = ugettext_lazy("No upgrade")
             self.btnupgrade.config(state=DISABLED)
 
     def check(self):
@@ -610,7 +676,7 @@ class LucteriosMainForm(Tk):
                 getLogger("lucterios.admin").error(value)
             else:
                 getLogger("lucterios.admin").info(value)
-            showinfo(ugettext("Lucterios launcher"), ugettext(
+            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy(
                 "The application must restart"))
             python = sys.executable
             os.execl(python, python, *sys.argv)
@@ -635,26 +701,26 @@ class LucteriosMainForm(Tk):
                     inst.read()
                     self.instance_txt.insert(END, "\t\t\t%s\n\n" % inst.name)
                     self.instance_txt.insert(
-                        END, ugettext("Database\t\t%s\n") % inst.get_database_txt())
+                        END, ugettext_lazy("Database\t\t%s\n") % inst.get_database_txt())
                     self.instance_txt.insert(
-                        END, ugettext("Appli\t\t%s\n") % inst.get_appli_txt())
+                        END, ugettext_lazy("Appli\t\t%s\n") % inst.get_appli_txt())
                     self.instance_txt.insert(
-                        END, ugettext("Modules\t\t%s\n") % inst.get_module_txt())
+                        END, ugettext_lazy("Modules\t\t%s\n") % inst.get_module_txt())
                     self.instance_txt.insert(
-                        END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
+                        END, ugettext_lazy("Extra\t\t%s\n") % inst.get_extra_txt())
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
-                        self.instance_txt.insert(END, ugettext(
+                        self.instance_txt.insert(END, ugettext_lazy(
                             "=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[instance_name].lan_ip, 'port': self.running_instance[instance_name].port})
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext_lazy(
                             "Stop")
                     else:
                         self.running_instance[instance_name] = None
-                        self.instance_txt.insert(END, ugettext("=> Stopped\n"))
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                        self.instance_txt.insert(END, ugettext_lazy("=> Stopped\n"))
+                        self.btninstframe.winfo_children()[0]["text"] = ugettext_lazy(
                             "Launch")
                 else:
-                    self.btninstframe.winfo_children()[0]["text"] = ugettext(
+                    self.btninstframe.winfo_children()[0]["text"] = ugettext_lazy(
                         "Launch")
                 self.btninstframe.winfo_children()[0].disabled = (
                     instance_name == '')
@@ -722,7 +788,7 @@ class LucteriosMainForm(Tk):
     def delete_inst(self):
         setup_from_none()
         instance_name = self.get_selected_instance_name()
-        if askokcancel(None, ugettext("Do you want to delete '%s'?") % instance_name):
+        if askokcancel(None, ugettext_lazy("Do you want to delete '%s'?") % instance_name):
             self.delete_inst_name(instance_name)
         else:
             self.refresh()
@@ -762,11 +828,11 @@ class LucteriosMainForm(Tk):
         inst = LucteriosInstance(instance_name)
         inst.filename = file_name
         if inst.archive():
-            showinfo(ugettext("Lucterios launcher"), ugettext(
+            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy(
                 "Instance saved to %s") % file_name)
         else:
             showerror(
-                ugettext("Lucterios launcher"), ugettext("Instance not saved!"))
+                ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not saved!"))
         self.refresh(instance_name)
 
     def save_inst(self):
@@ -782,9 +848,9 @@ class LucteriosMainForm(Tk):
         rest_inst = LucteriosInstance(instance_name)
         rest_inst.filename = file_name
         if rest_inst.restore():
-            showinfo(ugettext("Lucterios launcher"), ugettext("Instance restore from %s") % file_name)
+            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance restore from %s") % file_name)
         else:
-            showerror(ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
+            showerror(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not restored!"))
         self.refresh(instance_name)
 
     def restore_inst(self):
@@ -802,11 +868,6 @@ class LucteriosMainForm(Tk):
 
 def main():
     setup_from_none()
-    try:
-        luct_glo = LucteriosGlobal()
-        luct_glo.refreshall()
-    except Exception:
-        logging.getLogger(__name__).exception("refreshall")
     lct_form = LucteriosMainForm()
     lct_form.execute()
 

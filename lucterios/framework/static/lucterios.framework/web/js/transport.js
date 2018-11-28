@@ -52,15 +52,14 @@ var HttpTransportAbstract = Class.extend({
 	getIconUrl : function(icon) {
 		if (/^data:image/.test(icon)) {
 			return icon;
-		} else {
-			var icon_url = get_serverurl();
-			if (icon[0] === '/') {
-				icon_url += icon.substring(1);
-			} else {
-				icon_url += icon;
-			}
-			return icon_url;
 		}
+		var icon_url = get_serverurl();
+		if (icon[0] === '/') {
+			icon_url += icon.substring(1);
+		} else {
+			icon_url += icon;
+		}
+		return icon_url;
 	},
 
 	close : function() {
