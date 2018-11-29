@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-02 20:16+0000\n"
+"POT-Creation-Date: 2018-11-29 18:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,45 +21,49 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:76 xfergraphic.py:161 xfergraphic.py:314
+#: models.py:74 xfergraphic.py:161 xfergraphic.py:314
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:78 xfergraphic.py:162 xfergraphic.py:316
+#: models.py:76 xfergraphic.py:162 xfergraphic.py:316
 msgid "No"
 msgstr "No"
 
-#: models.py:517
+#: models.py:515
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:542
+#: models.py:540
 msgid "is active"
 msgstr "is active"
 
-#: models.py:542
+#: models.py:540
 msgid "username"
 msgstr "username"
 
-#: models.py:586
+#: models.py:584
 msgid "session"
 msgstr "session"
 
-#: models.py:587
+#: models.py:585
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:620
+#: models.py:618
 msgid "General"
 msgstr "General"
 
-#: models.py:624 models.py:625
+#: models.py:622 models.py:623
 msgid "current date"
 msgstr "current date"
 
-#: models.py:626
+#: models.py:624
 msgid "current hour"
 msgstr "current hour"
+
+#: printgenerators.py:444
+msgid "This impression failed !"
+msgstr ""
 
 #: signal_and_lock.py:115
 #, python-format
@@ -91,57 +95,57 @@ msgstr "delete"
 msgid "Can"
 msgstr "Can"
 
-#: xferadvance.py:41 xfergraphic.py:170
+#: xferadvance.py:40 xfergraphic.py:170
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:42 xfergraphic.py:142
+#: xferadvance.py:41 xfergraphic.py:142
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:43 xferadvance.py:201 xfergraphic.py:131 xferprinting.py:111
+#: xferadvance.py:42 xferadvance.py:200 xfergraphic.py:131 xferprinting.py:111
 #: xfersearch.py:558
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:44 xfercomponents.py:707
+#: xferadvance.py:43 xfercomponents.py:707
 msgid "Edit"
 msgstr "Edit"
 
-#: xferadvance.py:45 xfercomponents.py:707
+#: xferadvance.py:44 xfercomponents.py:707
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:46 xfercomponents.py:708
+#: xferadvance.py:45 xfercomponents.py:708
 msgid "Delete"
 msgstr "Delete"
 
-#: xferadvance.py:47 xfercomponents.py:708
+#: xferadvance.py:46 xfercomponents.py:708
 msgid "Add"
 msgstr "Add"
 
-#: xferadvance.py:48
+#: xferadvance.py:47
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:49 xferprinting.py:110
+#: xferadvance.py:48 xferprinting.py:110
 msgid "Print"
 msgstr "Print"
 
-#: xferadvance.py:50
+#: xferadvance.py:49
 msgid "Listing"
 msgstr "Listing"
 
-#: xferadvance.py:51
+#: xferadvance.py:50
 msgid "Label"
 msgstr "Label"
 
-#: xferadvance.py:53
+#: xferadvance.py:52
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:192 xferbasic.py:154
+#: xferadvance.py:191 xferbasic.py:154
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -149,38 +153,38 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xferadvance.py:208
+#: xferadvance.py:207
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:218
+#: xferadvance.py:217
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:229
+#: xferadvance.py:228
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:230
+#: xferadvance.py:229
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:253
+#: xferadvance.py:252
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferadvance.py:271
+#: xferadvance.py:275
+msgid "Transaction impossible!{[br/]}A condition should not be verified."
+msgstr "Transaction impossible!{[br/]}A condition should not be verified."
+
+#: xferadvance.py:278
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Do you want to change this %(name)s to '%(state)s'?"
 
-#: xferadvance.py:277
-msgid "Transaction impossible!{[br/]}A condition should not be verified."
-msgstr "Transaction impossible!{[br/]}A condition should not be verified."
-
-#: xferadvance.py:286
+#: xferadvance.py:288
 msgid "Bad transition"
 msgstr "Bad transition"
 

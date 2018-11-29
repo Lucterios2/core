@@ -138,6 +138,7 @@ class SplashScreen(Toplevel):
 
     def __init__(self, root, img):
         Toplevel.__init__(self, root)
+        self.config(cursor="watch")
         self.geometry('%dx%d' % (self.WIDTH, self.HEIGHT))
         self.overrideredirect(True)
 
@@ -148,10 +149,10 @@ class SplashScreen(Toplevel):
         img.grid(column=0, row=0, sticky=(N, S, W), rowspan=2, padx=3, pady=3)
 
         title = ttk.Label(self, text=ugettext_lazy("Lucterios launcher"), font='Helvetica 18 bold', anchor=CENTER)
-        title.grid(column=1, row=0, sticky=(N, E), padx=(5, 20), pady=(1, 5))
+        title.grid(column=1, row=0, sticky=(N, E), padx=(5, 25), pady=(1, 5))
 
         label = ttk.Label(self, text=ugettext_lazy('Application loading\nWaiting a minute ...'), anchor=CENTER)
-        label.grid(column=1, row=1, sticky=(N, E), padx=(0, 50), pady=(5, 50))
+        label.grid(column=1, row=1, sticky=(N, E), padx=(0, 15), pady=(5, 50))
 
         self.center_splash_screen()
 
