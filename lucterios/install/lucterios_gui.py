@@ -370,8 +370,8 @@ class InstanceEditor(Toplevel):
 
     def execute(self, instance_name=None):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
-        self.mode[VALUES] = [ugettext_lazy(
-            "CORE-connectmode.0"), ugettext_lazy("CORE-connectmode.1"), ugettext_lazy("CORE-connectmode.2")]
+        values = [six.text_type(ugettext_lazy("CORE-connectmode.0")), six.text_type(ugettext_lazy("CORE-connectmode.1")), six.text_type(ugettext_lazy("CORE-connectmode.2"))]
+        self.mode[VALUES] = values
         self.language[VALUES] = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
