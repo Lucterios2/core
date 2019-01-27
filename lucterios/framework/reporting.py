@@ -72,7 +72,12 @@ def extract_text(xmltext):
     para_text = para_text[para_text.find('>') + 1:]
     para_text = para_text.replace('</TEXT>', '')
     para_text = para_text.replace("\\n", " ")
+    para_text = para_text.replace("\\t", " ")
+    para_text = para_text.replace("\\r", " ")
+    para_text = para_text.replace("\\'", "&#130;")
     para_text = para_text.replace("'", "")
+    para_text = para_text.replace("&#130;", "'")
+    para_text = para_text.replace('"', "&#34;")
     para_text = re.sub(pattern, ' ', para_text)
     para_text = para_text.strip()
     return para_text
