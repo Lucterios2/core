@@ -60,7 +60,13 @@ def extract_text(xmltext):
                 new_element = etree.Element(item.tag)
                 for key, val in item.attrib.items():
                     new_element.attrib[key] = val
-            new_element.text = item.text
+            para_text = item.text
+            if isinstance(para_text, six.text_type):
+                para_text = para_text.replace("\\'", "&#130;")
+                para_text = para_text.replace("'", "")
+                para_text = para_text.replace("&#130;", "'")
+                para_text = para_text.replace('"', "&#34;")
+            new_element.text = para_text
             new_element.tail = item.tail
             add_sub_text(item, new_element)
             sub_text.append(new_element)
@@ -69,15 +75,11 @@ def extract_text(xmltext):
     add_sub_text(xmltext, res_text)
     pattern = re.compile(r'\s+')
     para_text = six.text_type(etree.tostring(res_text))
-    para_text = para_text[para_text.find('>') + 1:]
-    para_text = para_text.replace('</TEXT>', '')
     para_text = para_text.replace("\\n", " ")
     para_text = para_text.replace("\\t", " ")
     para_text = para_text.replace("\\r", " ")
-    para_text = para_text.replace("\\'", "&#130;")
-    para_text = para_text.replace("'", "")
-    para_text = para_text.replace("&#130;", "'")
-    para_text = para_text.replace('"', "&#34;")
+    para_text = para_text[para_text.find('>') + 1:]
+    para_text = para_text.replace('</TEXT>', '')
     para_text = re.sub(pattern, ' ', para_text)
     para_text = para_text.strip()
     return para_text
