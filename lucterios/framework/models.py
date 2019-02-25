@@ -135,11 +135,9 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_default_fields(cls):
-        fields = [f.name for f in cls._meta.get_fields(
-        )]
-        if cls._meta.has_auto_field and (cls._meta.auto_field.attname in fields):
-            fields.remove(
-                cls._meta.auto_field.attname)
+        fields = [f.name for f in cls._meta.get_fields()]
+        if cls._meta.auto_field.attname in fields:
+            fields.remove(cls._meta.auto_field.attname)
         fields.sort()
         return fields
 
