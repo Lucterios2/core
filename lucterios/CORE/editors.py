@@ -114,8 +114,7 @@ parent.get('password2').setEnabled(pwd_change);
 class SavedCriteriaEditor(LucteriosEditor):
 
     def saving(self, xfer):
-        saved_list = SavedCriteria.objects.filter(
-            modelname=self.item.modelname, name=self.item.name)
+        saved_list = SavedCriteria.objects.filter(modelname=self.item.modelname, name=self.item.name)
         for saved_item in saved_list:
             if saved_item.id != self.item.id:
                 saved_item.delete()

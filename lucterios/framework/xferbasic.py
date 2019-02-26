@@ -166,7 +166,7 @@ class XferContainerAbstract(View):
                     self._load_unique_record(ids[0])
                     self.items = [self.item]
                 else:
-                    self.items = self.model.objects.filter(id__in=ids)
+                    self.items = self.model.objects.filter(id__in=ids).distinct()
             else:
                 self.item = self.model()
                 self.item.set_context(self)
@@ -224,8 +224,7 @@ class XferContainerAbstract(View):
                 if new_value is not None:
                     relation_model = dep_field.remote_field.model
                     if new_value != '':
-                        new_value = relation_model.objects.filter(
-                            id__in=new_value.split(';'))
+                        new_value = relation_model.objects.filter(id__in=new_value.split(';')).distinct()
                     else:
                         new_value = relation_model.objects.filter(id__in=[])
                     getattr(self.item, field_name).set(new_value)

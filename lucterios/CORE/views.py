@@ -725,7 +725,7 @@ class ObjectMerge(XferContainerAcknowledge):
         XferContainerAcknowledge._search_model(self)
 
     def fillresponse(self, field_id):
-        self.items = self.model.objects.filter(id__in=self.getparam(field_id, ()))
+        self.items = self.model.objects.filter(id__in=self.getparam(field_id, ())).distinct()
         if len(self.items) < 2:
             raise LucteriosException(IMPORTANT, _("Impossible: you must to select many records!"))
         item_id = self.getparam('mrg_' + self.field_id, 0)

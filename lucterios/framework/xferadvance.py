@@ -88,8 +88,7 @@ class XferListEditor(XferContainerCustom):
 
     def get_items_from_filter(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            items = self.model.objects.filter(
-                self.filter)
+            items = self.model.objects.filter(self.filter).distinct()
         else:
             items = self.model.objects.all()
         return items
@@ -216,7 +215,7 @@ class XferDelete(XferContainerAcknowledge):
         if ids is None:
             raise LucteriosException(GRAVE, _("No selection"))
         ids = ids.split(';')
-        self.items = self.model.objects.filter(pk__in=ids)
+        self.items = self.model.objects.filter(pk__in=ids).distinct()
 
     def fillresponse(self):
 

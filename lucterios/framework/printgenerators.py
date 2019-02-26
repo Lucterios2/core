@@ -586,8 +586,7 @@ class ReportModelGenerator(ReportGenerator):
 
     def get_items_filtered(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            item_list = self.model.objects.filter(
-                self.filter)
+            item_list = self.model.objects.filter(self.filter).distinct()
         else:
             item_list = self.model.objects.all()
         if self.filter_callback is None:

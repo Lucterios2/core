@@ -534,7 +534,7 @@ if ((type=='list') || (type=='listmult')) {
 
     def filter_items(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
-            self.items = self.model.objects.filter(self.filter)
+            self.items = self.model.objects.filter(self.filter).distinct()
         else:
             self.items = self.model.objects.all()
 

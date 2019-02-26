@@ -257,8 +257,7 @@ class PrintModel(LucteriosModel):
         return ["name"]
 
     def can_delete(self):
-        items = PrintModel.objects.filter(
-            kind=self.kind, modelname=self.modelname)
+        items = PrintModel.objects.filter(kind=self.kind, modelname=self.modelname)
         if len(items) <= 1:
             return _('Last model of this kind!')
         return ''
