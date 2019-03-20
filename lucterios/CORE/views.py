@@ -545,7 +545,7 @@ class PrintModelReload(XferContainerAcknowledge):
             dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
-            if self.item.load_model(model_module, self.getparam("default_model", "")):
+            if self.item.load_model(model_module, self.getparam("default_model", ""), is_default=None):
                 self.message(_('Model reloaded'))
 
 

@@ -267,9 +267,15 @@ class XferTransition(XferContainerAcknowledge):
 
     def _confirmed(self, transition):
         try:
-            transit_function = getattr(self.item, transition)
-            setattr(self.item, 'xfer', self)
-            self.trans_result = transit_function()
+            self.trans_result = []
+            for item in self.items:
+                transit_function = getattr(item, transition)
+                setattr(item, 'xfer', self)
+                self.trans_result.append(transit_function())
+            if len(self.trans_result) == 0:
+                self.trans_result = None
+            elif len(self.trans_result) == 1:
+                self.trans_result = self.trans_result[0]
         except TransitionNotAllowed:
             raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
 

@@ -349,7 +349,8 @@ class PrintModel(LucteriosModel):
                 self.name = getattr(print_mod, "name")
             elif check and (self.kind != getattr(print_mod, "kind")) and (self.modelname != getattr(print_mod, "modelname")):
                 return False
-            self.is_default = is_default
+            if is_default is not None:
+                self.is_default = is_default
             self.kind = getattr(print_mod, "kind")
             self.modelname = getattr(print_mod, "modelname")
             self.value = getattr(print_mod, "value", "")

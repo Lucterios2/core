@@ -277,7 +277,7 @@ class ActionsManage(object):
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, icon, condition, **options)
 
     @classmethod
-    def affect_transition(cls, state, close=CLOSE_NO, **options):
+    def affect_transition(cls, state, close=CLOSE_NO, multi_list=None, **options):
         def wrapper(xclass):
             xclass.trans_list = {}
             for field in xclass.model._meta.get_fields():
@@ -298,16 +298,19 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
 
-                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (
-                            transition.name, state)
+                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (transition.name, state)
                         cond_fct = eval(cmd)
-                        cls.add_action_generic(
-                            xclass, cls.ACTION_IDENT_SHOW, title, "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
+                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
+                                               "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
 
                         cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
                         cond_fct = eval(cmd)
+                        if isinstance(multi_list, tuple) and (transition.name in multi_list):
+                            unique_opt = SELECT_MULTI
+                        else:
+                            unique_opt = SELECT_SINGLE
                         cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png",
-                                               cond_fct, intop=False, close=CLOSE_NO, unique=SELECT_SINGLE, **new_dict)
+                                               cond_fct, intop=False, close=CLOSE_NO, unique=unique_opt, **new_dict)
             return xclass
         return wrapper
 
