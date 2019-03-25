@@ -47,7 +47,12 @@ class ParamCache(object):
         self.type = param.typeparam
         self.meta_info = param.get_meta_select()
         if self.meta_info is not None:  # select in object
-            self.value = six.text_type(param.value)
+            if self.type == 1:  # Integer
+                self.value = int(param.value)
+            elif self.type == 2:  # Real
+                self.value = float(param.value)
+            else:
+                self.value = six.text_type(param.value)
             self.args = {'oldtype': self.type}
             self.type = 6
         if self.type == 0:  # String
@@ -117,7 +122,10 @@ class ParamCache(object):
             param_cmp.security = 0
             param_cmp.set_value('')
         elif self.type == 6:  # select in object
-            db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+            if (self.meta_info[0] != "") and (self.meta_info[1] != ""):
+                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+            else:
+                db_mdl = None
             param_cmp = XferCompSelect(self.name)
             param_cmp.set_needed(self.meta_info[4])
             selection = []
@@ -126,8 +134,11 @@ class ParamCache(object):
                     selection.append((0, None))
                 else:
                     selection.append(('', None))
-            for obj_item in db_mdl.objects.filter(self.meta_info[2]):
-                selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
+            if db_mdl is None:
+                selection = self.meta_info[2]
+            else:
+                for obj_item in db_mdl.objects.filter(self.meta_info[2]):
+                    selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
             param_cmp.set_select(selection)
             param_cmp.set_value(self.value)
         param_cmp.description = six.text_type(ugettext_lazy(self.name))
@@ -236,6 +247,7 @@ class Params(object):
             coloffset = 0
             titles = {}
             signal_and_lock.Signal.call_signal('get_param_titles', names, titles)
+            param_cmp = None
             for name in names:
                 param = cls._get(name)
                 if param is not None:
@@ -253,6 +265,8 @@ class Params(object):
                     if coloffset == nb_col:
                         coloffset = 0
                         row += 1
+            if (param_cmp is not None) and (coloffset != 0):
+                param_cmp.colspan = nb_col - coloffset + 1
         finally:
             cls._paramlock.release()
 

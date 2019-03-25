@@ -82,6 +82,7 @@ class XferListEditor(XferContainerCustom):
         XferContainerCustom.__init__(self, **kwargs)
         self.fieldnames = None
         self.filter = None
+        self.size_by_page = None
 
     def fillresponse_header(self):
         return
@@ -95,6 +96,8 @@ class XferListEditor(XferContainerCustom):
 
     def fill_grid(self, row, model, field_id, items):
         grid = XferCompGrid(field_id)
+        if self.size_by_page is not None:
+            grid.size_by_page = self.size_by_page
         if self.multi_page:
             xfer = self
         else:

@@ -367,6 +367,7 @@ class XferSearchEditor(XferContainerCustom):
         self.fields_desc = FieldDescList()
         self.criteria_list = []
         self.filter = None
+        self.size_by_page = None
 
     def read_criteria_from_params(self):
         criteria = self.getparam('CRITERIA')
@@ -548,6 +549,8 @@ if ((type=='list') || (type=='listmult')) {
         row = self.get_max_row()
         self.filter_items()
         grid = XferCompGrid(self.field_id)
+        if self.size_by_page is not None:
+            grid.size_by_page = self.size_by_page       
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_action_notified(self)
         grid.set_location(0, row + 4, 6)
