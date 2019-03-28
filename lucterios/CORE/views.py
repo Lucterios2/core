@@ -331,7 +331,8 @@ class ParamSave(XferContainerAcknowledge):
     def fillresponse(self, params=()):
         for pname in params:
             pvalue = self.getparam(pname)
-            Parameter.change_value(pname, pvalue)
+            if pvalue is not None:
+                Parameter.change_value(pname, pvalue)
         Params.clear()
         signal_and_lock.Signal.call_signal("param_change", params)
 
