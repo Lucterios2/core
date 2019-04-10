@@ -550,7 +550,7 @@ if ((type=='list') || (type=='listmult')) {
         self.filter_items()
         grid = XferCompGrid(self.field_id)
         if self.size_by_page is not None:
-            grid.size_by_page = self.size_by_page       
+            grid.size_by_page = self.size_by_page
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_action_notified(self)
         grid.set_location(0, row + 4, 6)

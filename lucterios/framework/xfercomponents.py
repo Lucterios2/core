@@ -918,7 +918,7 @@ class XferCompGrid(XferComponent):
                         if resvalue is not None:
                             try:
                                 resvalue = getattr(resvalue, field_name)
-                            except ObjectDoesNotExist:
+                            except (ObjectDoesNotExist, AttributeError):
                                 getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
                                 resvalue = None
                     try:
