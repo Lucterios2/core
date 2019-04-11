@@ -135,6 +135,7 @@ class LucteriosPDF(object):
         self.y_offset = 0
         self.position_y = 0
         self.current_page = None
+        self.is_changing_page = False
         initial_fonts()
 
     def _init(self):
@@ -287,7 +288,7 @@ class LucteriosPDF(object):
         self.y_offset = y_offset
         self.position_y = y_offset
         for child in comp:
-            if self.position_y > (self.height + self.bottom_h):
+            if self.position_y > (self.height - self.header_h - self.bottom_h):
                 self.add_page()
             current_x = self.l_margin + get_size(child, 'left')
             current_y = self.get_top_component(child)
@@ -303,13 +304,18 @@ class LucteriosPDF(object):
         self.y_offset = last_y_offset
 
     def add_page(self):
-        if not self.pdf.pageHasData():
-            self.pdf.showPage()
-        self.draw_header()
-        self.draw_footer()
-        # six.print_("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
-        self.y_offset = self.header_h + self.t_margin
-        self.position_y = self.y_offset
+        if not self.is_changing_page:
+            self.is_changing_page = True
+            try:
+                if not self.pdf.pageHasData():
+                    self.pdf.showPage()
+                self.draw_header()
+                self.draw_footer()
+                # six.print_("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
+                self.y_offset = self.header_h + self.t_margin
+                self.position_y = self.y_offset
+            finally:
+                self.is_changing_page = False
 
     def draw_header(self):
         header = self.current_page.xpath('header')

@@ -600,49 +600,64 @@ class ReportModelGenerator(ReportGenerator):
             target_node.attrib[att_name] = source_node.get(att_name)
 
     @staticmethod
+    def _get_sub_values(item_xml, current_item):
+        sub_values = [current_item]
+        data = item_xml.get('data')
+        if hasattr(current_item, six.text_type(data)):
+            new_value = getattr(current_item, data)
+            if data[-4:] == '_set':
+                sub_values = new_value.all()
+                if hasattr(current_item, data[:-4] + '_query'):
+                    sub_values = sub_values.filter(getattr(current_item, data[:-4] + '_query'))
+            elif hasattr(new_value, "evaluate"):
+                sub_values = [new_value]
+        return sub_values
+
+    @staticmethod
+    def _append_text(item, current_item, node, xfer):
+        sub_values = ReportModelGenerator._get_sub_values(item, current_item)
+        for sub_value in sub_values:
+            sub_value.set_context(xfer)
+            new_item = convert_to_html('text', sub_value.evaluate(item.text))
+            ReportModelGenerator.copy_attribs(item, new_item)
+            node.append(new_item)
+
+    @staticmethod
+    def _append_table(item, current_item, node, xfer):
+        new_item = etree.Element('table')
+        ReportModelGenerator.copy_attribs(item, new_item)
+        for column in item.xpath('columns'):
+            new_column = etree.SubElement(new_item, 'columns')
+            new_column.attrib['width'] = column.get('width')
+            new_cell = convert_to_html('cell', current_item.evaluate(column.text))
+            ReportModelGenerator.copy_attribs(column, new_cell)
+            new_column.append(new_cell)
+        for row in item.xpath('rows'):
+            sub_values = ReportModelGenerator._get_sub_values(row, current_item)
+            for sub_value in sub_values:
+                sub_value.set_context(xfer)
+                new_row = etree.SubElement(new_item, 'rows')
+                for cell in row.xpath('cell'):
+                    new_cell = convert_to_html(
+                        'cell', sub_value.evaluate(cell.text))
+                    ReportModelGenerator.copy_attribs(cell, new_cell)
+                    new_row.append(new_cell)
+        node.append(new_item)
+
+    @staticmethod
     def add_convert_model(node, partname, report_xml, current_item, xfer):
         current_item.set_context(xfer)
         for item in report_xml.xpath(partname)[0]:
             if item.tag == 'text':
-                new_item = convert_to_html(
-                    'text', current_item.evaluate(item.text))
-                ReportModelGenerator.copy_attribs(item, new_item)
+                ReportModelGenerator._append_text(item, current_item, node, xfer)
             elif item.tag == 'table':
-                new_item = etree.Element('table')
-                ReportModelGenerator.copy_attribs(item, new_item)
-                for column in item.xpath('columns'):
-                    new_column = etree.SubElement(new_item, 'columns')
-                    new_column.attrib['width'] = column.get('width')
-                    new_cell = convert_to_html(
-                        'cell', current_item.evaluate(column.text))
-                    ReportModelGenerator.copy_attribs(column, new_cell)
-                    new_column.append(new_cell)
-                for row in item.xpath('rows'):
-                    sub_values = [current_item]
-                    data = row.get('data')
-                    if hasattr(current_item, six.text_type(data)):
-                        new_value = getattr(current_item, data)
-                        if data[-4:] == '_set':
-                            sub_values = new_value.all()
-                            if hasattr(current_item, data[:-4] + '_query'):
-                                sub_values = sub_values.filter(
-                                    getattr(current_item, data[:-4] + '_query'))
-                        elif hasattr(new_value, "evaluate"):
-                            sub_values = [new_value]
-                    for sub_value in sub_values:
-                        sub_value.set_context(xfer)
-                        new_row = etree.SubElement(new_item, 'rows')
-                        for cell in row.xpath('cell'):
-                            new_cell = convert_to_html(
-                                'cell', sub_value.evaluate(cell.text))
-                            ReportModelGenerator.copy_attribs(cell, new_cell)
-                            new_row.append(new_cell)
+                ReportModelGenerator._append_table(item, current_item, node, xfer)
             elif item.tag == 'image':
                 new_item = deepcopy(item)
                 new_item.text = current_item.evaluate(item.text)
+                node.append(new_item)
             else:
-                new_item = deepcopy(item)
-            node.append(new_item)
+                node.append(deepcopy(item))
 
 
 class ListingGenerator(ReportModelGenerator):
