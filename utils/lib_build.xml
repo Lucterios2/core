@@ -116,7 +116,9 @@
 	</target>
 
 	<target name="pep8">
-		<exec executable="pep8">
+		<exec executable="${project.pythonexe}">
+			<arg line="-m" />
+			<arg line="pycodestyle" />
 			<arg line="--ignore=E501" />
 			<arg line="${project.name}" />
 			<redirector output="pep8_results.txt" />
