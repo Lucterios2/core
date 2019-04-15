@@ -103,7 +103,10 @@ def get_search_query_from_criteria(criteria, model):
 def get_info_list(criteria, model):
     result_criteria = get_search_query_from_criteria(criteria, model)
     info_list = list(result_criteria[1].values())
-    info_list.insert(0, "{[b]}{[u]}%s{[/u]}{[/b]}" % _("Your criteria of search"))
+    if len(info_list) > 0:
+        info_list.insert(0, "{[b]}{[u]}%s{[/u]}{[/b]}" % _("Your criteria of search"))
+    else:
+        info_list.insert(0, "{[b]}{[u]}%s{[/u]}{[/b]}" % _("No criteria of search"))
     return info_list
 
 
