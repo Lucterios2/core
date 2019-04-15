@@ -34,7 +34,7 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
-    XferCompFloat
+    XferCompFloat, XferCompEdit, XferCompMemo
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.xfersearch import get_search_query
 
@@ -79,33 +79,36 @@ class XferContainerPrint(XferContainerAbstract):
         gui.extension = self.extension
         gui.action = self.action
         gui.params = self.params
-        lbl = XferCompLabelForm('lblPrintMode')
-        lbl.set_value_as_name(_('Kind of report'))
-        lbl.set_location(0, 0)
-        gui.add_component(lbl)
         print_mode = XferCompSelect('PRINT_MODE')
         print_mode.set_select(self.print_selector)
         print_mode.set_value(PRINT_PDF_FILE)
-        print_mode.set_location(1, 0)
+        print_mode.set_location(0, 0, 2)
+        print_mode.description = _('Kind of report')
         gui.add_component(print_mode)
         if self.selector is not None:
             row_idx = 1
             for name_selector, title_selector, option_selector in self.selector:
-                lbl = XferCompLabelForm('lbl' + name_selector)
-                lbl.set_value_as_name(title_selector)
-                lbl.set_location(0, row_idx)
-                gui.add_component(lbl)
                 if isinstance(option_selector, list):
                     comp = XferCompSelect(name_selector)
                     comp.set_select(option_selector)
                     comp.set_value(gui.getparam(name_selector, 0))
                 elif isinstance(option_selector, tuple):
-                    comp = XferCompFloat(
-                        name_selector, option_selector[0], option_selector[1], option_selector[2])
+                    comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
                     comp.set_value(option_selector[0])
-                comp.set_location(1, row_idx)
-                gui.add_component(comp)
-                row_idx += 1
+                elif isinstance(option_selector, six.binary_type):
+                    comp = XferCompEdit(name_selector)
+                    comp.set_value(option_selector.decode())
+                elif isinstance(option_selector, six.text_type):
+                    comp = XferCompMemo(name_selector)
+                    comp.with_hypertext = True
+                    comp.set_value(option_selector)
+                else:
+                    comp = None
+                if comp is not None:
+                    comp.set_location(0, row_idx, 2)
+                    comp.description = title_selector
+                    gui.add_component(comp)
+                    row_idx += 1
         gui.add_action(self.get_action(
             _("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
         gui.add_action(WrapAction(_("Close"), "images/close.png"))

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-29 18:29+0000\n"
+"POT-Creation-Date: 2019-04-15 15:32+0000\n"
 "PO-Revision-Date: 2016-01-14 21:50+0000\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -31,37 +31,37 @@ msgstr "Oui"
 msgid "No"
 msgstr "Non"
 
-#: models.py:515
+#: models.py:513
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:540
+#: models.py:538
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:540
+#: models.py:538
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:584
+#: models.py:582
 msgid "session"
 msgstr "session"
 
-#: models.py:585
+#: models.py:583
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:618
+#: models.py:616
 msgid "General"
 msgstr "Général"
 
-#: models.py:622 models.py:623
+#: models.py:620 models.py:621
 msgid "current date"
 msgstr "date courante"
 
-#: models.py:624
+#: models.py:622
 msgid "current hour"
 msgstr "heure courante"
 
@@ -83,19 +83,19 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:453
+#: tools.py:456
 msgid "add"
 msgstr "ajouter"
 
-#: tools.py:455
+#: tools.py:458
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:457
+#: tools.py:460
 msgid "delete"
 msgstr "supprimer"
 
-#: tools.py:459
+#: tools.py:462
 msgid "Can"
 msgstr "Pouvoir"
 
@@ -107,8 +107,8 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:42 xferadvance.py:200 xfergraphic.py:131 xferprinting.py:111
-#: xfersearch.py:558
+#: xferadvance.py:42 xferadvance.py:202 xfergraphic.py:131 xferprinting.py:114
+#: xfersearch.py:561
 msgid "Close"
 msgstr "Fermer"
 
@@ -132,7 +132,7 @@ msgstr "Ajouter"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:48 xferprinting.py:110
+#: xferadvance.py:48 xferprinting.py:113
 msgid "Print"
 msgstr "Imprimer"
 
@@ -149,7 +149,7 @@ msgstr "Étiquette"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:191 xferbasic.py:154
+#: xferadvance.py:193 xferbasic.py:154
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -157,38 +157,38 @@ msgstr ""
 "Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xferadvance.py:207
+#: xferadvance.py:209
 msgid "No model"
 msgstr "Pas de modèle"
 
-#: xferadvance.py:217
+#: xferadvance.py:219
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:228
+#: xferadvance.py:230
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:229
+#: xferadvance.py:231
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:252
+#: xferadvance.py:254
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferadvance.py:275
+#: xferadvance.py:283
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}Une condition ne doit pas être vérifiée."
 
-#: xferadvance.py:278
+#: xferadvance.py:286
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
-#: xferadvance.py:288
+#: xferadvance.py:296
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
@@ -200,15 +200,15 @@ msgstr "Traitement..."
 msgid "Retry"
 msgstr "Recommencer"
 
-#: xferprinting.py:83
+#: xferprinting.py:86
 msgid "Kind of report"
 msgstr "Type de rapport"
 
-#: xferprinting.py:134
+#: xferprinting.py:137
 msgid "PDF file"
 msgstr "Fichier PDF"
 
-#: xferprinting.py:136
+#: xferprinting.py:139
 msgid "CSV file"
 msgstr "Fichier CSV"
 

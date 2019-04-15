@@ -666,43 +666,57 @@ class ListingGenerator(ReportModelGenerator):
         ReportModelGenerator.__init__(self, model)
         self.header_height = 12
         self.columns = []
+        self.info = ""
 
     def add_page(self):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
 
+    def _new_column(self, xml_table, title, size_col):
+        new_col = etree.SubElement(xml_table, "columns")
+        new_col.attrib['width'] = "%d.0" % size_col
+        xml_text = convert_to_html('cell', title, "sans-serif", 9, 10, "center")
+        xml_text.attrib['font_family'] = "sans-serif"
+        xml_text.attrib['font_size'] = "9"
+        xml_text.attrib['line_height'] = "10"
+        xml_text.attrib['text_align'] = "center"
+        new_col.append(xml_text)
+        return new_col
+
     def fill_content(self, request):
         ReportModelGenerator.fill_content(self, request)
+        xml_text = convert_to_html('text', self.info)
+        xml_text.attrib['height'] = "1.0"
+        xml_text.attrib['width'] = "%d.0" % (self.page_width - 4 * self.horizontal_marge)
+        xml_text.attrib['top'] = "0.0"
+        xml_text.attrib['left'] = "%d.0" % self.horizontal_marge
+        self.body.append(xml_text)
+
         xml_table = etree.Element('table')
         self.body.append(xml_table)
-        xml_table.attrib['height'] = "%d.0" % (
-            self.page_height - 2 * self.vertical_marge)
+        xml_table.attrib['height'] = "%d.0" % (self.page_height - 2 * self.vertical_marge)
         xml_table.attrib['width'] = "%d.0" % self.content_width
-        xml_table.attrib['top'] = "0.0"
+        xml_table.attrib['top'] = "1.0"
         xml_table.attrib['left'] = "0.0"
-        xml_table.attrib['spacing'] = "0.0"
+        xml_table.attrib['spacing'] = "0.1"
+        width_num = 8
         size_x = 0
         for column in self.columns:
             size_x += int(round(column[0]))
+        self._new_column(xml_table, "#", width_num)
         for column in self.columns:
-            size_col = int(
-                round(self.content_width * int(round(column[0])) / size_x))
-            new_col = etree.SubElement(xml_table, "columns")
-            new_col.attrib['width'] = "%d.0" % size_col
-            xml_text = convert_to_html(
-                'cell', column[1], "sans-serif", 9, 10, "center")
-            xml_text.attrib['font_family'] = "sans-serif"
-            xml_text.attrib['font_size'] = "9"
-            xml_text.attrib['line_height'] = "10"
-            xml_text.attrib['text_align'] = "center"
-            new_col.append(xml_text)
+            self._new_column(xml_table, column[1], int(round((self.content_width - width_num) * int(round(column[0])) / size_x)))
+        row_id = 1
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
             new_row = etree.SubElement(xml_table, "rows")
+            xml_text = convert_to_html('cell', "%d" % row_id, "sans-serif", 6, 6, "start")
+            new_row.append(xml_text)
             for column in self.columns:
                 cell_value = item.evaluate(column[2])
                 xml_text = convert_to_html('cell', cell_value, "sans-serif", 9, 10, "start")
                 new_row.append(xml_text)
+            row_id += 1
 
 
 class LabelGenerator(ReportModelGenerator):
