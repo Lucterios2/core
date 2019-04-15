@@ -189,8 +189,8 @@ class ExampleTest(LucteriosTest):
 
     def testlisting(self):
         for item_idx in range(0, 25):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
-                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
         self.factory.xfer = ExampleListing()
         self.calljson('/lucterios.dummy/exampleListing', {'PRINT_MODE': '4', 'MODEL': 1, 'TITLE': 'special example', 'INFO': 'comment'}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
@@ -203,8 +203,8 @@ class ExampleTest(LucteriosTest):
 
     def testlisting_pdf(self):
         for item_idx in range(0, 150):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
-                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
         self.factory.xfer = ExampleListing()
         self.calljson('/lucterios.dummy/exampleListing', {'PRINT_MODE': '3', 'MODEL': 1}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
@@ -213,8 +213,8 @@ class ExampleTest(LucteriosTest):
 
     def testreporting(self):
         for item_idx in range(0, 25):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
-                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
         self.factory.xfer = ExampleReporting()
         self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '4', 'MODEL': 3}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
@@ -225,8 +225,8 @@ class ExampleTest(LucteriosTest):
 
     def testreporting_pdf(self):
         for item_idx in range(0, 150):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx +
-                                   78.15, date='1997-10-07', time='21:43', valid=True, comment="")
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
         self.factory.xfer = ExampleReporting()
         self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '3', 'MODEL': 3}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
