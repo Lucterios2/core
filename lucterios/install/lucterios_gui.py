@@ -171,7 +171,7 @@ class InstanceEditor(Toplevel):
 
     def __init__(self):
         Toplevel.__init__(self)
-        self.name_rull = compile("[a-z0-9_\-]+")
+        self.name_rull = compile(r"[a-z0-9_\-]+")
         self.is_new_instance = True
         self.focus_set()
         self.grab_set()

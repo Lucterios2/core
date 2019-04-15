@@ -32,18 +32,9 @@ from glob import glob
 from django.utils.module_loading import import_module
 from django.utils import six
 from django_fsm import FSMFieldMixin
-try:
-    from importlib import reload
-except ImportError:
-    pass
 
-try:
-    from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
-    from tkinter.messagebox import showerror, showinfo
-except:
-    from Tkinter import Tk, StringVar, IntVar, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
-    from tkMessageBox import showerror, showinfo
-    import ttk
+from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
+from tkinter.messagebox import showinfo
 
 LIST_VIEWER = {'0List': ('XferListEditor', 'list'),
                '1AddModify': ('XferAddEditor', 'edit', 'modify', 'add'),
@@ -205,7 +196,7 @@ class Generator(object):
     def writedata(self, text):
         try:
             self.viewfile.write(six.binary_type(text, 'UTF-8'))
-        except:
+        except Exception:
             self.viewfile.write(six.binary_type(text))
 
     def _write_header(self, model_name, item_actions, is_new):

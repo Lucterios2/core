@@ -229,18 +229,16 @@ class AskPassword(XferContainerCustom):
         self.add_component(img)
         lbl = XferCompLabelForm('lbl_title')
         lbl.set_location(1, 0, 2)
-        lbl.set_value_as_header(
-            _("To receive by email your login and a new password."))
+        lbl.set_value_as_header(_("To receive by email your login and a new password."))
         self.add_component(lbl)
 
         email = XferCompEdit('email')
         email.set_location(1, 1)
-        email.mask = "[^@]+@[^@]+\.[^@]+"
+        email.mask = r"[^@]+@[^@]+\.[^@]+"
         email.description = _("email")
         self.add_component(email)
 
-        self.add_action(
-            AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
@@ -902,7 +900,7 @@ class ObjectImport(XferContainerCustom):
         try:
             if (self.spamreader.fieldnames is None) or (len(self.spamreader.fieldnames) == 0):
                 raise Exception("")
-        except:
+        except Exception:
             raise LucteriosException(IMPORTANT, _('CSV file unvalid!'))
 
     def _select_fields(self):

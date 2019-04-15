@@ -184,7 +184,7 @@ class ParamCache(object):
                         self.db_obj = (db_objs[0],)
                     else:
                         self.db_obj = (None,)
-                except:
+                except Exception:
                     self.db_obj = (None,)
             return self.db_obj[0]
         else:
