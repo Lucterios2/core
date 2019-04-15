@@ -31,6 +31,7 @@ from django.utils.translation import ugettext_lazy as _
 from lucterios.framework.printgenerators import ActionGenerator, ListingGenerator, LabelGenerator, ReportingGenerator
 from lucterios.framework.xferprinting import XferContainerPrint
 from lucterios.CORE.models import PrintModel, Label
+from lucterios.framework.xfersearch import get_info_list
 
 
 class XferPrintAction(XferContainerPrint):
@@ -52,15 +53,23 @@ class XferPrintListing(XferContainerPrint):
         self.selector = PrintModel.get_print_selector(0, self.model)
         self.params['MODEL'] = PrintModel.get_print_default(0, self.model, False)
         self.info = ""
+        self.with_num = False
 
     def filter_callback(self, items):
         return items
 
     def fillresponse(self):
+        if (self.info == '') and (self.getparam('CRITERIA') is not None):
+            info_list = get_info_list(self.getparam('CRITERIA'), self.model)
+            self.info = '{[br]}'.join(info_list)
         self.selector.append(("TITLE", _('title'), six.text_type(self.caption).encode()))
         self.selector.append(("INFO", _('comment'), six.text_type(self.info)))
+        self.selector.append(("WITHNUM", _('with number?'), self.with_num is True))
         self.caption = self.getparam("TITLE", self.caption)
         self.info = self.getparam("INFO", self.info)
+        if self.info != '':
+            self.info += "{[br/]}{[br/]}"
+        self.with_num = self.getparam("WITHNUM", self.with_num is True)
         XferContainerPrint.fillresponse(self)
 
     def get_report_generator(self):
@@ -73,6 +82,7 @@ class XferPrintListing(XferContainerPrint):
         gen.columns = dbmodel.columns
         gen.mode = dbmodel.mode
         gen.info = self.info
+        gen.with_num = self.with_num is True
         return gen
 
 

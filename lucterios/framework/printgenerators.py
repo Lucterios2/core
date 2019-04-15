@@ -667,6 +667,7 @@ class ListingGenerator(ReportModelGenerator):
         self.header_height = 12
         self.columns = []
         self.info = ""
+        self.with_num = False
 
     def add_page(self):
         ReportGenerator.add_page(self)
@@ -699,19 +700,21 @@ class ListingGenerator(ReportModelGenerator):
         xml_table.attrib['top'] = "1.0"
         xml_table.attrib['left'] = "0.0"
         xml_table.attrib['spacing'] = "0.1"
-        width_num = 8
+        width_num = 8 if self.with_num else 0
         size_x = 0
         for column in self.columns:
             size_x += int(round(column[0]))
-        self._new_column(xml_table, "#", width_num)
+        if self.with_num:
+            self._new_column(xml_table, "#", width_num)
         for column in self.columns:
             self._new_column(xml_table, column[1], int(round((self.content_width - width_num) * int(round(column[0])) / size_x)))
         row_id = 1
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
             new_row = etree.SubElement(xml_table, "rows")
-            xml_text = convert_to_html('cell', "%d" % row_id, "sans-serif", 6, 6, "start")
-            new_row.append(xml_text)
+            if self.with_num:
+                xml_text = convert_to_html('cell', "%d" % row_id, "sans-serif", 6, 6, "start")
+                new_row.append(xml_text)
             for column in self.columns:
                 cell_value = item.evaluate(column[2])
                 xml_text = convert_to_html('cell', cell_value, "sans-serif", 9, 10, "start")
