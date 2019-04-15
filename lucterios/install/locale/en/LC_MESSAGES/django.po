@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-29 18:29+0000\n"
+"POT-Creation-Date: 2019-04-15 15:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lucterios_admin.py:601 lucterios_gui.py:249
+#: lucterios_admin.py:601 lucterios_gui.py:250
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
-#: lucterios_gui.py:72 lucterios_gui.py:150 lucterios_gui.py:428
-#: lucterios_gui.py:679 lucterios_gui.py:831 lucterios_gui.py:835
-#: lucterios_gui.py:851 lucterios_gui.py:853
+#: lucterios_gui.py:72 lucterios_gui.py:151 lucterios_gui.py:429
+#: lucterios_gui.py:680 lucterios_gui.py:832 lucterios_gui.py:836
+#: lucterios_gui.py:852 lucterios_gui.py:854
 msgid "Lucterios launcher"
 msgstr "Lucterios launcher"
 
@@ -31,7 +31,7 @@ msgstr "Lucterios launcher"
 msgid "Error to start!"
 msgstr "Error to start!"
 
-#: lucterios_gui.py:153
+#: lucterios_gui.py:154
 msgid ""
 "Application loading\n"
 "Waiting a minute ..."
@@ -39,59 +39,59 @@ msgstr ""
 "Application loading\n"
 "Waiting a minute ..."
 
-#: lucterios_gui.py:181 lucterios_gui.py:300 lucterios_gui.py:303
+#: lucterios_gui.py:182 lucterios_gui.py:301 lucterios_gui.py:304
 msgid "Instance editor"
 msgstr "Instance editor"
 
-#: lucterios_gui.py:192
+#: lucterios_gui.py:193
 msgid "General"
 msgstr "General"
 
-#: lucterios_gui.py:198
+#: lucterios_gui.py:199
 msgid "Database"
 msgstr "Database"
 
-#: lucterios_gui.py:202
+#: lucterios_gui.py:203
 msgid "OK"
 msgstr "OK"
 
-#: lucterios_gui.py:204
+#: lucterios_gui.py:205
 msgid "Cancel"
 msgstr "Cancel"
 
-#: lucterios_gui.py:208
+#: lucterios_gui.py:209
 msgid "Type"
 msgstr "Type"
 
-#: lucterios_gui.py:214 lucterios_gui.py:228
+#: lucterios_gui.py:215 lucterios_gui.py:229
 msgid "Name"
 msgstr "Name"
 
-#: lucterios_gui.py:218
+#: lucterios_gui.py:219
 msgid "User"
 msgstr "User"
 
-#: lucterios_gui.py:222 lucterios_gui.py:255
+#: lucterios_gui.py:223 lucterios_gui.py:256
 msgid "Password"
 msgstr "Password"
 
-#: lucterios_gui.py:232
+#: lucterios_gui.py:233
 msgid "Appli"
 msgstr "Appli"
 
-#: lucterios_gui.py:238 lucterios_gui.py:541
+#: lucterios_gui.py:239 lucterios_gui.py:542
 msgid "Modules"
 msgstr "Modules"
 
-#: lucterios_gui.py:243
+#: lucterios_gui.py:244
 msgid "Language"
 msgstr "Language"
 
-#: lucterios_gui.py:300
+#: lucterios_gui.py:301
 msgid "Name invalid!"
 msgstr "Name invalid!"
 
-#: lucterios_gui.py:303
+#: lucterios_gui.py:304
 msgid "No application!"
 msgstr "No application!"
 
@@ -107,19 +107,19 @@ msgstr "Open in anonymous"
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: lucterios_gui.py:451
+#: lucterios_gui.py:452
 msgid "Refresh"
 msgstr "Refresh"
 
-#: lucterios_gui.py:454
+#: lucterios_gui.py:455
 msgid "Search upgrade"
 msgstr "Search upgrade"
 
-#: lucterios_gui.py:457
+#: lucterios_gui.py:458
 msgid "Close"
 msgstr "Close"
 
-#: lucterios_gui.py:488
+#: lucterios_gui.py:489
 msgid ""
 "An instance is always running.\n"
 "Do you want to close?"
@@ -127,115 +127,115 @@ msgstr ""
 "An instance is always running.\n"
 "Do you want to close?"
 
-#: lucterios_gui.py:519 lucterios_gui.py:721 lucterios_gui.py:724
+#: lucterios_gui.py:520 lucterios_gui.py:722 lucterios_gui.py:725
 msgid "Launch"
 msgstr "Launch"
 
-#: lucterios_gui.py:521
+#: lucterios_gui.py:522
 msgid "Modify"
 msgstr "Modify"
 
-#: lucterios_gui.py:523
+#: lucterios_gui.py:524
 msgid "Delete"
 msgstr "Delete"
 
-#: lucterios_gui.py:525
+#: lucterios_gui.py:526
 msgid "Save"
 msgstr "Save"
 
-#: lucterios_gui.py:527
+#: lucterios_gui.py:528
 msgid "Restore"
 msgstr "Restore"
 
-#: lucterios_gui.py:529
+#: lucterios_gui.py:530
 msgid "Add"
 msgstr "Add"
 
-#: lucterios_gui.py:532
+#: lucterios_gui.py:533
 msgid "Instances"
 msgstr "Instances"
 
-#: lucterios_gui.py:591
+#: lucterios_gui.py:592
 #, python-format
 msgid "Lucterios core\t\t%s\n"
 msgstr "Lucterios core\t\t%s\n"
 
-#: lucterios_gui.py:593
+#: lucterios_gui.py:594
 msgid "Application\n"
 msgstr "Application\n"
 
-#: lucterios_gui.py:597
+#: lucterios_gui.py:598
 msgid "Modules\n"
 msgstr "Modules\n"
 
-#: lucterios_gui.py:604
+#: lucterios_gui.py:605
 msgid "Pypi servers\n"
 msgstr "Pypi servers\n"
 
-#: lucterios_gui.py:646
+#: lucterios_gui.py:647
 msgid "Upgrade needs"
 msgstr "Upgrade needs"
 
-#: lucterios_gui.py:648
+#: lucterios_gui.py:649
 msgid "No upgrade"
 msgstr "No upgrade"
 
-#: lucterios_gui.py:680
+#: lucterios_gui.py:681
 msgid "The application must restart"
 msgstr "The application must restart"
 
-#: lucterios_gui.py:704
+#: lucterios_gui.py:705
 #, python-format
 msgid "Database\t\t%s\n"
 msgstr "Database\t\t%s\n"
 
-#: lucterios_gui.py:706
+#: lucterios_gui.py:707
 #, python-format
 msgid "Appli\t\t%s\n"
 msgstr "Appli\t\t%s\n"
 
-#: lucterios_gui.py:708
+#: lucterios_gui.py:709
 #, python-format
 msgid "Modules\t\t%s\n"
 msgstr "Modules\t\t%s\n"
 
-#: lucterios_gui.py:710
+#: lucterios_gui.py:711
 #, python-format
 msgid "Extra\t\t%s\n"
 msgstr "Extra\t\t%s\n"
 
-#: lucterios_gui.py:714
+#: lucterios_gui.py:715
 #, python-format
 msgid "=> Running in http://%(ip)s:%(port)d\n"
 msgstr "=> Running in http://%(ip)s:%(port)d\n"
 
-#: lucterios_gui.py:716
+#: lucterios_gui.py:717
 msgid "Stop"
 msgstr "Stop"
 
-#: lucterios_gui.py:719
+#: lucterios_gui.py:720
 msgid "=> Stopped\n"
 msgstr "=> Stopped\n"
 
-#: lucterios_gui.py:791
+#: lucterios_gui.py:792
 #, python-format
 msgid "Do you want to delete '%s'?"
 msgstr "Do you want to delete '%s'?"
 
-#: lucterios_gui.py:832
+#: lucterios_gui.py:833
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance saved to %s"
 
-#: lucterios_gui.py:835
+#: lucterios_gui.py:836
 msgid "Instance not saved!"
 msgstr "Instance not saved!"
 
-#: lucterios_gui.py:851
+#: lucterios_gui.py:852
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restore from %s"
 
-#: lucterios_gui.py:853
+#: lucterios_gui.py:854
 msgid "Instance not restored!"
 msgstr "Instance not restored!"

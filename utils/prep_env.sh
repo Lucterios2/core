@@ -13,7 +13,7 @@ echo "psycopg2" >> requirement.txt
 
 [ -d virt ] && rm -rf virt
 
-python3 $(which virtualenv) virt
+python3 -m virtualenv virt
 
 source virt/bin/activate
 

@@ -24,8 +24,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.framework.printgenerators import ActionGenerator, \
-    ListingGenerator, LabelGenerator, ReportingGenerator
+
+from django.utils import six
+from django.utils.translation import ugettext_lazy as _
+
+from lucterios.framework.printgenerators import ActionGenerator, ListingGenerator, LabelGenerator, ReportingGenerator
 from lucterios.framework.xferprinting import XferContainerPrint
 from lucterios.CORE.models import PrintModel, Label
 
@@ -48,9 +51,17 @@ class XferPrintListing(XferContainerPrint):
         XferContainerPrint.__init__(self)
         self.selector = PrintModel.get_print_selector(0, self.model)
         self.params['MODEL'] = PrintModel.get_print_default(0, self.model, False)
+        self.info = ""
 
     def filter_callback(self, items):
         return items
+
+    def fillresponse(self):
+        self.selector.append(("TITLE", _('title'), six.text_type(self.caption).encode()))
+        self.selector.append(("INFO", _('comment'), six.text_type(self.info)))
+        self.caption = self.getparam("TITLE", self.caption)
+        self.info = self.getparam("INFO", self.info)
+        XferContainerPrint.fillresponse(self)
 
     def get_report_generator(self):
         dbmodel = PrintModel.get_model_selected(self)
@@ -61,6 +72,7 @@ class XferPrintListing(XferContainerPrint):
         gen.page_width = dbmodel.page_width
         gen.columns = dbmodel.columns
         gen.mode = dbmodel.mode
+        gen.info = self.info
         return gen
 
 
