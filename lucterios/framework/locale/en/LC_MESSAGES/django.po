@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-15 15:32+0000\n"
+"POT-Creation-Date: 2019-04-15 21:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -63,7 +63,7 @@ msgstr "current hour"
 
 #: printgenerators.py:444
 msgid "This impression failed !"
-msgstr ""
+msgstr "This impression failed !"
 
 #: signal_and_lock.py:115
 #, python-format
@@ -103,8 +103,8 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:42 xferadvance.py:202 xfergraphic.py:131 xferprinting.py:114
-#: xfersearch.py:561
+#: xferadvance.py:42 xferadvance.py:202 xfergraphic.py:131 xferprinting.py:117
+#: xfersearch.py:568
 msgid "Close"
 msgstr "Close"
 
@@ -128,7 +128,7 @@ msgstr "Add"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:48 xferprinting.py:113
+#: xferadvance.py:48 xferprinting.py:116
 msgid "Print"
 msgstr "Print"
 
@@ -200,11 +200,11 @@ msgstr "Retry"
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:137
+#: xferprinting.py:140
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:139
+#: xferprinting.py:142
 msgid "CSV file"
 msgstr "CSV file"
 
@@ -243,3 +243,15 @@ msgstr "or"
 #: xfersearch.py:60
 msgid "and"
 msgstr "and"
+
+#: xfersearch.py:106 xfersearch.py:522
+msgid "Your criteria of search"
+msgstr "Your criteria of search"
+
+#: xfersearch.py:459
+msgid "New criteria"
+msgstr "New criteria"
+
+#: xfersearch.py:525
+msgid "No criteria of search"
+msgstr "No criteria of search"

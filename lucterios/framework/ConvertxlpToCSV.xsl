@@ -49,7 +49,7 @@
 </xsl:text>
 		</xsl:for-each>
 	</xsl:template>
-	<xsl:template match="br"><xsl:text> </xsl:text></xsl:template>
+	<xsl:template match="br"><xsl:text>,</xsl:text></xsl:template>
 	<xsl:template match="image"></xsl:template>
 	
 </xsl:stylesheet>

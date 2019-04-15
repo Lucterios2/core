@@ -100,6 +100,13 @@ def get_search_query_from_criteria(criteria, model):
     return fields_desc.get_query_from_criterialist(criteria_list)
 
 
+def get_info_list(criteria, model):
+    result_criteria = get_search_query_from_criteria(criteria, model)
+    info_list = list(result_criteria[1].values())
+    info_list.insert(0, "{[b]}{[u]}%s{[/u]}{[/b]}" % _("Your criteria of search"))
+    return info_list
+
+
 def get_search_query(criteria, model):
     filter_result, _ = get_search_query_from_criteria(criteria, model)
     return [filter_result]
@@ -449,7 +456,7 @@ if ((type=='list') || (type=='listmult')) {
 }
 """
         label = XferCompLabelForm('labelsearchSelector')
-        label.set_value("{[bold]Nouveau critere{[/bold]")
+        label.set_value_as_name(_("New criteria"))
         label.set_location(0, 10, 1, 7)
         self.add_component(label)
         comp = XferCompSelect("searchSelector")
@@ -512,10 +519,10 @@ if ((type=='list') || (type=='listmult')) {
         criteria_text_list = self.get_text_search()
         label = XferCompLabelForm('labelsearchDescTitle')
         if len(criteria_text_list) > 0:
-            label.set_value_as_info("Your criteria of search")
+            label.set_value_as_info(_("Your criteria of search"))
             label.set_location(0, 17, 2, 4)
         else:
-            label.set_value_as_infocenter("No criteria of search")
+            label.set_value_as_infocenter(_("No criteria of search"))
             label.set_location(0, 17, 4)
         self.add_component(label)
 

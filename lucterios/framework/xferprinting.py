@@ -34,7 +34,7 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
-    XferCompFloat, XferCompEdit, XferCompMemo
+    XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.xfersearch import get_search_query
 
@@ -101,6 +101,9 @@ class XferContainerPrint(XferContainerAbstract):
                 elif isinstance(option_selector, six.text_type):
                     comp = XferCompMemo(name_selector)
                     comp.with_hypertext = True
+                    comp.set_value(option_selector)
+                elif isinstance(option_selector, bool):
+                    comp = XferCompCheck(name_selector)
                     comp.set_value(option_selector)
                 else:
                     comp = None
