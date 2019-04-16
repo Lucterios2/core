@@ -62,13 +62,13 @@ class XferPrintListing(XferContainerPrint):
         if (self.info == '') and (self.getparam('CRITERIA') is not None):
             info_list = get_info_list(self.getparam('CRITERIA'), self.model)
             self.info = '{[br]}'.join(info_list)
-        self.selector.append(("TITLE", _('title'), six.text_type(self.caption).encode()))
-        self.selector.append(("INFO", _('comment'), six.text_type(self.info)))
-        self.selector.append(("WITHNUM", _('with number?'), self.with_num is True))
+        self.selector.append(("TITLE", _('title'), six.text_type(self.getparam("TITLE", self.caption)).encode()))
+        self.selector.append(("INFO", _('comment'), six.text_type(self.getparam("INFO", self.info))))
+        self.selector.append(("WITHNUM", _('with number?'), self.getparam("WITHNUM", self.with_num is True)))
         self.caption = self.getparam("TITLE", self.caption)
-        self.info = self.getparam("INFO", self.info)
-        if self.info != '':
-            self.info += "{[br/]}{[br/]}"
+        self.info = self.getparam("INFO", self.info).replace("{[br]}", "{[br/]}")
+        while self.info.endswith("{[br/]}"):
+            self.info = self.info[:-7]
         self.with_num = self.getparam("WITHNUM", self.with_num is True)
         XferContainerPrint.fillresponse(self)
 
