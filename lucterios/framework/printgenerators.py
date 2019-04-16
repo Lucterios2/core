@@ -433,9 +433,8 @@ class ReportGenerator(object):
                 csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
             xml_rep_content = etree.XML(report_content)
             for xml_br in xml_rep_content.xpath("//br"):
-                xml_br.text = ' '
-            content = six.text_type(
-                csv_transform(xml_rep_content)).encode('utf-8')
+                xml_br.text = ','
+            content = six.text_type(csv_transform(xml_rep_content)).encode('utf-8')
         else:
             try:
                 content = transforme_xml2pdf(report_content)
@@ -699,7 +698,7 @@ class ListingGenerator(ReportModelGenerator):
         xml_table.attrib['width'] = "%d.0" % self.content_width
         xml_table.attrib['top'] = "1.0"
         xml_table.attrib['left'] = "0.0"
-        xml_table.attrib['spacing'] = "0.1"
+        xml_table.attrib['spacing'] = "5.0"
         width_num = 8 if self.with_num else 0
         size_x = 0
         for column in self.columns:
