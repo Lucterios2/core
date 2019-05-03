@@ -525,6 +525,7 @@ class XferCompSelect(XferCompButton):
 
     def set_select(self, select_list):
         self.select_list = select_list
+        self._check_case()
 
     def set_needed(self, needed):
         self.needed = needed
@@ -540,9 +541,11 @@ class XferCompSelect(XferCompButton):
                 self.select_list.append((item.id, item.get_text_value()))
             except AttributeError:
                 self.select_list.append((item.id, six.text_type(item)))
+        self._check_case()
 
     def set_value(self, value):
         self.value = value
+        self._check_case()
 
     def get_value_text(self):
         if isinstance(self.select_list, dict):
