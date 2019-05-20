@@ -258,6 +258,17 @@ class FieldDescItem(object):
             new_val_txt = value
         return new_val_txt
 
+    def get_criteria_description(self, new_op, new_val):
+        if self.fieldname == 'id':
+            return _("%d items") % len(new_val.split(';'))
+        new_val_txt = self.get_value(new_val, new_op)
+        if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT):
+            sep_criteria = OP_EQUAL[1]
+        else:
+            sep_criteria = OP_LIST[new_op][1]
+        desc_text = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (self.description, sep_criteria, new_val_txt)
+        return desc_text
+
     def get_query(self, value, operation):
         def get_int_list(value):
             val_ids = []
@@ -323,6 +334,7 @@ class FieldDescList(object):
 
     def __init__(self):
         self.field_desc_list = []
+        self.field_id_desc = []
 
     def initial(self, model):
         self.field_desc_list = []
@@ -330,6 +342,9 @@ class FieldDescList(object):
             new_field = FieldDescItem(field_name)
             if new_field.init(model):
                 self.field_desc_list.append(new_field)
+        self.field_id_desc = FieldDescItem('id')
+        self.field_id_desc.init(model)
+        self.field_id_desc.field_type = TYPE_LISTMULT
 
     def get_select_and_script(self):
         selector = []
@@ -341,6 +356,8 @@ class FieldDescList(object):
         return selector, script_ref
 
     def get(self, fieldname):
+        if fieldname == self.field_id_desc.fieldname:
+            return self.field_id_desc
         for field_desc_item in self.field_desc_list:
             if field_desc_item.fieldname == fieldname:
                 return field_desc_item
@@ -356,15 +373,9 @@ class FieldDescList(object):
                 new_op = int(criteria_item[1])
                 new_val = criteria_item[2]
                 field_desc_item = self.get(new_name)
-                new_val_txt = field_desc_item.get_value(new_val, new_op)
-                filter_result = filter_result & field_desc_item.get_query(
-                    new_val, new_op)
-                if (field_desc_item.field_type == TYPE_LIST) or (field_desc_item.field_type == TYPE_LISTMULT):
-                    sep_criteria = OP_EQUAL[1]
-                else:
-                    sep_criteria = OP_LIST[new_op][1]
-                criteria_desc[six.text_type(crit_index)] = "{[b]}%s{[/b]} %s {[i]}%s{[/i]}" % (
-                    field_desc_item.description, sep_criteria, new_val_txt)
+                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
+                desc_text = field_desc_item.get_criteria_description(new_op, new_val)
+                criteria_desc[six.text_type(crit_index)] = desc_text
                 crit_index += 1
         return filter_result, criteria_desc
 

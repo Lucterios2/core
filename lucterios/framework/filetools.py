@@ -183,3 +183,13 @@ def xml_validator(some_xml_string, xsd_file):
         return None
     except XMLSyntaxError as xml_error:
         return six.text_type(xml_error)
+
+
+def remove_accent(text, replace_space=False):
+    if replace_space:
+        text = text.replace(' ', '_').replace('-', '')
+    try:
+        import unicodedata
+        return ''.join((letter for letter in unicodedata.normalize('NFD', text) if unicodedata.category(letter) != 'Mn'))
+    except BaseException:
+        return text
