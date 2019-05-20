@@ -645,7 +645,7 @@ class LucteriosScheduler(object):
     @classmethod
     def stop_scheduler(cls):
         if LucteriosScheduler._scheduler is not None:
-            LucteriosScheduler._scheduler.stop()
+            LucteriosScheduler._scheduler.shutdown()
             LucteriosScheduler._scheduler = None
 
     @classmethod
