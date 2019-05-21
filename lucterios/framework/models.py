@@ -643,6 +643,12 @@ class LucteriosScheduler(object):
         return LucteriosScheduler._scheduler
 
     @classmethod
+    def stop_scheduler(cls):
+        if LucteriosScheduler._scheduler is not None:
+            LucteriosScheduler._scheduler.shutdown()
+            LucteriosScheduler._scheduler = None
+
+    @classmethod
     def add_task(cls, callback, minutes, **kwargs):
         scheduler = cls.get_scheduler()
         try:
