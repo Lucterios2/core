@@ -365,6 +365,5 @@ var WrongObserverAuthentification = ObserverAuthentification.extend({
 
 	show_logon : function(cdate) {
 		unusedVariables(cdate);
-		throw new LucteriosException(IMPORTANT, Singleton().getTranslate('Logon not allowed!'));
 	}
 });

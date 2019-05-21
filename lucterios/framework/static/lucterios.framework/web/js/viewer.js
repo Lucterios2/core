@@ -52,6 +52,7 @@ function standard_initial() {
     Singleton().Factory().clearObserverList();
 
     Singleton().Factory().AddObserver("core.auth", WrongObserverAuthentification);
+    Singleton().Factory().AddObserver("core.menu", EmptyObserverMenu);
     Singleton().Factory().AddObserver("core.dialogbox", ObserverDialogBox);
     Singleton().Factory().AddObserver("core.custom", ObserverCustom);
     Singleton().Factory().AddObserver("core.acknowledge", ObserverAcknowledge);
