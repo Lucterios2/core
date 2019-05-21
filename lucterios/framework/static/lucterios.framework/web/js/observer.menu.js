@@ -281,6 +281,18 @@ var ObserverMenu = ObserverAbstract.extend({
 
 });
 
+var EmptyObserverMenu = ObserverMenu.extend({
+
+	getObserverName : function() {
+		return "Core.Menu";
+	},
+
+	show : function(aTitle, aGUIType) {
+		unusedVariables(aTitle, aGUIType);
+		$("#mainMenu").remove();
+	}
+});
+
 function refreshCurrentAcideMenu() {
 	var first = $('#asideMenu h3[aria-expanded="true"]:eq(0)'), acide_menu_id, title;
 	if (first.length) {
