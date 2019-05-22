@@ -91,9 +91,6 @@ def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_h
     try:
         html_text = ''
         html_node = etree.HTML('<div>%s</div>' % toHtml(text))
-        for tag in html_node.iter():
-            for bad_attr in ["style"]:
-                tag.attrib.pop(bad_attr, None)
         html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
         html_text = html_text.strip()[5:-6]
         xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text})
