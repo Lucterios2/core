@@ -124,12 +124,19 @@ class LucteriosTestAbstract(object):
         notfree_mode_connect()
         if not isdir(self.PDF_DIRECTORY):
             makedirs(self.PDF_DIRECTORY)
+        for ident in range(10):
+            filename = self._get_pdf_filename(ident if ident > 0 else None)
+            if isfile(filename):
+                unlink(filename)
 
-    def save_pdf(self, base64_content=None, ident=None):
-        filename = join(self.PDF_DIRECTORY, "%s-%s-%s%s.pdf" % (self.__class__.__module__,
-                                                                self.__class__.__name__,
+    def _get_pdf_filename(self, ident):
+        filename = join(self.PDF_DIRECTORY, "%s-%s-%s%s.pdf" % (self.__class__.__module__, self.__class__.__name__,
                                                                 self._testMethodName,
                                                                 "-%03d" % ident if ident is not None else ""))
+        return filename
+
+    def save_pdf(self, base64_content=None, ident=None):
+        filename = self._get_pdf_filename(ident)
         if isfile(filename):
             unlink(filename)
         if base64_content is None:

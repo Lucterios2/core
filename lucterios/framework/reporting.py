@@ -27,17 +27,20 @@ from os.path import isfile, join, dirname
 from os import unlink, system
 from reportlab.pdfgen import canvas
 from lxml import etree
+from logging import getLogger
+
 from django.utils import six
+
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
 from reportlab.lib.units import mm
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 from reportlab.platypus.tables import TableStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
-from logging import getLogger
+
+from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
 
 
 def get_size(xmltext, name):
@@ -47,125 +50,229 @@ def get_size(xmltext, name):
         return 0
 
 
-def extract_text(xmltext, basic_para):
-    def add_with_check_null(old_element, new_element):
-        if new_element.text is not None:
-            if old_element.text is None:
-                old_element.text = ""
-            old_element.text += new_element.text
-        if new_element.tail is not None:
-            if old_element.tail is None:
-                old_element.tail = ""
-            old_element.tail += new_element.tail
+class ConvertHTML_XMLReportlab(object):
 
-    def convert_style(style_text):
-        res_style = {}
+    @classmethod
+    def _new_para(cls):
+        xmlrl_item = etree.Element('para')
+        xmlrl_item.attrib['autoLeading'] = 'max'
+        return xmlrl_item
+
+    def __init__(self, xmlrl_result):
+        self.xmlrl_result = xmlrl_result
+        self._options = {'ul': 0, 'ol': 0}
+        self.current_style = {}
+        self.num_index = 1
+        self._html_item = None
+
+    @property
+    def options(self):
+        return self._options
+
+    @options.setter
+    def options(self, options):
+        if options is None:
+            self._options = {'ul': 0, 'ol': 0}
+        else:
+            self._options = options
+
+    @property
+    def html_item(self):
+        return self._html_item
+
+    @html_item.setter
+    def html_item(self, value):
+        self._html_item = value
+        self.current_style = {}
+        style_text = self._html_item.attrib.get('style')
         if style_text is not None:
             for style_item in style_text.split(';'):
                 style_val = style_item.split(':')
                 if len(style_val) == 2:
-                    res_style[style_val[0]] = style_val[1]
-        return res_style
+                    self.current_style[style_val[0]] = style_val[1]
+        getLogger('lucterios.printing').debug("]]] ConvertHTML_XMLReportlab.html_item(tag=%s / style= %s)", self._html_item.tag, self.current_style)
 
-    def new_para():
-        new_element = etree.Element('para')
-        new_element.attrib['autoLeading'] = 'max'
-        return new_element
+    def fill_attrib(self, xml_source, xml_target):
+        for key, val in xml_source.attrib.items():
+            if (key not in ('style')):
+                xml_target.attrib[key] = val
 
-    def add_sub_text(xmltext, sub_text, options=None):
-        num_index = 1
-        if options is None:
-            options = {'blockquote': 0, 'ul': 0, 'ol': 0}
-        inside_para = False
-        for item in xmltext:
-            style_text = item.attrib.get('style')
-            style = convert_style(style_text)
-            getLogger('lucterios.printing').debug("]]] extract_text.add_sub_text(tag=%s style=%s - >%s)", item.tag, style_text, style)
-            new_element = None
-            if (item.tag == 'span'):
-                if 'font-size' in style:
-                    new_element = new_para()
-                    new_element.attrib['size'] = style['font-size'].replace('px', '')
-                    inside_para = True
-                elif 'color' in style:
-                    new_element = etree.Element('font')
-                    new_element.attrib['color'] = style['color']
-            elif item.tag == 'p':
-                new_element = new_para()
-            elif (item.tag in ('blockquote', 'ul', 'ol')):
-                if options[item.tag] > 0:
-                    new_element = etree.Element('span')
-                else:
-                    new_element = new_para()
-                inside_para = True
-                if item.tag in options.keys():
-                    options[item.tag] += 1
-            elif item.tag == 'li':
-                if options['ul'] > 0:
-                    bullet_element = etree.Element('b')
-                    bullet_element.text = '\u2022 '
-                    sub_text.append(bullet_element)
-                elif options['ol'] > 0:
-                    bullet_element = etree.Element('b')
-                    bullet_element.text = '%d - ' % num_index
-                    sub_text.append(bullet_element)
-                    num_index += 1
-                new_element = etree.Element('li')
-            elif item.tag == 'hr':
-                new_element = new_para()
-                new_element.attrib['borderColor'] = 'rgb(0,0,0)'
-                new_element.attrib['borderWidth'] = '1pt'
-                sub_text.append(new_element)
-                new_element = None
-            elif (item.tag == 'br') and inside_para:
-                pass
-            elif (item.tag == 'font') and (item.attrib.get('Font-weight') == "bold"):
-                new_element = etree.Element('b')
-            elif (item.tag == 'font') and (item.attrib.get('Font-style') == "italic"):
-                new_element = etree.Element('i')
-            elif (item.tag == 'font') and (item.attrib.get('text-decoration') == "underline"):
-                new_element = etree.Element('u')
-            else:
-                new_element = etree.Element(item.tag)
-                for key, val in item.attrib.items():
-                    if (key not in ('style')):
-                        new_element.attrib[key] = val
-            if new_element is not None:
-                add_sub_text(item, new_element, options)
-                if (item.tag in options.keys()) and (options[item.tag] > 0) and (new_element.tag == 'para'):
-                    new_element.attrib['lindent'] = six.text_type(20 * options[item.tag])
-                    options[item.tag] -= 1
-                if new_element.tag in ('span', 'center'):
-                    sub_text.extend(new_element)
-                    add_with_check_null(sub_text, new_element)
-                else:
-                    sub_text.append(new_element)
-        add_with_check_null(sub_text, xmltext)
+    def fill_text_if_not_null(self, item_source, item_target):
+        if item_source.text is not None:
+            if item_target.text is None:
+                item_target.text = ""
+            item_target.text += item_source.text
+        if item_source.tail is not None:
+            if item_target.tail is None:
+                item_target.tail = ""
+            item_target.tail += item_source.tail
 
-    blocks_xml = etree.Element('MULTI')
-    add_sub_text(xmltext, blocks_xml)
-    para_text_list_xml = []
-    new_para_item = None
-    getLogger('lucterios.printing').debug("\n[[[ extract_text = %s", etree.tostring(blocks_xml, pretty_print=True).decode())
-    for item_xml in blocks_xml:
-        if item_xml.tag == 'para':
-            if new_para_item is not None:
-                para_text_list_xml.append(etree.tostring(new_para_item).decode())
-            new_para_item = None
-            para_text_list_xml.append(etree.tostring(item_xml).decode())
+    def _parse_span(self):
+        xmlrl_item = None
+        if 'font-size' in self.current_style:
+            xmlrl_item = self._new_para()
+            xmlrl_item.attrib['size'] = self.current_style['font-size'].replace('px', '')
+        elif 'color' in self.current_style:
+            xmlrl_item = etree.Element('font')
+            xmlrl_item.attrib['color'] = self.current_style['color']
+        return xmlrl_item
+
+    def _parse_p(self):
+        xmlrl_item = self._new_para()
+        if self.html_item.attrib.get('align') is not None:
+            xmlrl_item.attrib['align'] = self.html_item.attrib['align']
+        return xmlrl_item
+
+    def _parse_blockquote(self):
+        xmlrl_item = self._new_para()
+        xmlrl_item.attrib['lindent'] = '20'
+        if self.html_item.tag in self.options.keys():
+            self.options[self.html_item.tag] += 1
+        return xmlrl_item
+
+    def _parse_ul(self):
+        xmlrl_item = self._new_para()
+        xmlrl_item.attrib['lindent'] = '20'
+        if self.html_item.tag in self.options.keys():
+            self.options[self.html_item.tag] += 1
+        return xmlrl_item
+
+    def _parse_ol(self):
+        xmlrl_item = self._new_para()
+        xmlrl_item.attrib['lindent'] = '20'
+        if self.html_item.tag in self.options.keys():
+            self.options[self.html_item.tag] += 1
+        return xmlrl_item
+
+    def _parse_li(self):
+        if self.options['ul'] > 0:
+            bullet_element = etree.Element('b')
+            bullet_element.text = '\u2022 '
+            self.xmlrl_result.append(bullet_element)
+        elif self.options['ol'] > 0:
+            bullet_element = etree.Element('b')
+            bullet_element.text = '%d - ' % self.num_index
+            self.xmlrl_result.append(bullet_element)
+            self.num_index += 1
+        return etree.Element('span')
+
+    def _parse_center(self):
+        return etree.Element('span')
+
+    def _parse_hr(self):
+        xmlrl_item = self._new_para()
+        xmlrl_item.attrib['borderColor'] = 'rgb(0,0,0)'
+        xmlrl_item.attrib['borderWidth'] = '1pt'
+        xmlrl_item.attrib['size'] = '5pt'
+        xmlrl_item.append(etree.Element('br'))
+        self.xmlrl_result.append(xmlrl_item)
+        return None
+
+    def _parse_font(self):
+        if self.html_item.attrib.get('Font-weight') == "bold":
+            xmlrl_item = etree.Element('b')
+        elif self.html_item.attrib.get('Font-style') == "italic":
+            xmlrl_item = etree.Element('i')
+        elif self.html_item.attrib.get('text-decoration') == "underline":
+            xmlrl_item = etree.Element('u')
         else:
-            if new_para_item is None:
-                if basic_para:
-                    new_para_item = etree.Element('para')
+            xmlrl_item = etree.Element('font')
+            self.fill_attrib(self.html_item, xmlrl_item)
+        return xmlrl_item
+
+    def _reoganize_para(self, xmlrl_item):
+        def add_xmlrl(new_xmlrl):
+            self.xmlrl_result.append(new_xmlrl)
+        if len(xmlrl_item) == 0:
+            add_xmlrl(xmlrl_item)
+        else:
+            extra_xmlrl = self._new_para()
+            self.fill_attrib(xmlrl_item, extra_xmlrl)
+            self.fill_text_if_not_null(xmlrl_item, extra_xmlrl)
+            for sub_xmlrl in xmlrl_item:
+                if sub_xmlrl.tag == 'para':
+                    if len(extra_xmlrl) > 0:
+                        add_xmlrl(extra_xmlrl)
+                    sub_lindent = int(sub_xmlrl.attrib['lindent']) if 'lindent' in sub_xmlrl.attrib else 0
+                    item_lindent = int(xmlrl_item.attrib['lindent']) if 'lindent' in xmlrl_item.attrib else 0
+                    self.fill_attrib(xmlrl_item, sub_xmlrl)
+                    if (sub_lindent + item_lindent) > 0:
+                        sub_xmlrl.attrib['lindent'] = six.text_type(sub_lindent + item_lindent)
+                    self.fill_text_if_not_null(xmlrl_item, sub_xmlrl)
+                    add_xmlrl(sub_xmlrl)
+                    extra_xmlrl = self._new_para()
+                    self.fill_attrib(xmlrl_item, extra_xmlrl)
                 else:
-                    new_para_item = new_para()
-            new_para_item.append(item_xml)
-    if new_para_item is not None:
-        para_text_list_xml.append(etree.tostring(new_para_item).decode())
-    if len(para_text_list_xml) == 0:
-        para_text_list_xml = [blocks_xml.text if blocks_xml.text is not None else '']
-    getLogger('lucterios.printing').debug("[[[ extract_text = %s", para_text_list_xml)
-    return para_text_list_xml
+                    extra_xmlrl.append(sub_xmlrl)
+            if len(extra_xmlrl) > 0:
+                add_xmlrl(extra_xmlrl)
+
+    def run(self, html_items, options=None):
+        self.options = options
+        self.html_item = html_items
+        self.fill_text_if_not_null(html_items, self.xmlrl_result)
+        for self.html_item in html_items:
+            xmlrl_item = None
+            if hasattr(self, "_parse_%s" % self.html_item.tag):
+                funct = getattr(self, "_parse_%s" % self.html_item.tag)
+                xmlrl_item = funct()
+            else:
+                xmlrl_item = etree.Element(self.html_item.tag)
+                self.fill_attrib(self.html_item, xmlrl_item)
+            if xmlrl_item is not None:
+                new_parser = self.__class__(xmlrl_item)
+                new_parser.run(self.html_item, self.options)
+                if xmlrl_item.tag == 'para':
+                    self._reoganize_para(xmlrl_item)
+                    if self.html_item.tag in self.options.keys():
+                        self.options[self.html_item.tag] -= 1
+                elif xmlrl_item.tag == 'span':
+                    self.xmlrl_result.extend(xmlrl_item)
+                    self.fill_text_if_not_null(xmlrl_item, self.xmlrl_result)
+                elif (len(xmlrl_item) > 0) and (xmlrl_item[0].tag == 'para'):
+                    for sub_xmlrl in xmlrl_item:
+                        new_xmlrl = etree.Element(sub_xmlrl.tag)
+                        self.fill_attrib(sub_xmlrl, new_xmlrl)
+                        new_parent_xmlrl = etree.Element(xmlrl_item.tag)
+                        self.fill_attrib(xmlrl_item, new_parent_xmlrl)
+                        new_xmlrl.append(new_parent_xmlrl)
+                        new_parent_xmlrl.extend(sub_xmlrl)
+                        self.fill_text_if_not_null(sub_xmlrl, new_parent_xmlrl)
+                        self.xmlrl_result.append(new_xmlrl)
+                else:
+                    self.xmlrl_result.append(xmlrl_item)
+                if self.html_item.tag == 'li':
+                    self.xmlrl_result.append(etree.Element('br'))
+
+    @classmethod
+    def convert(cls, html_items, basic_para):
+        getLogger('lucterios.printing').debug("\n[[[ ConvertHTML_XMLReportlab html = %s", etree.tostring(html_items, pretty_print=True).decode())
+        xmlrl_items = etree.Element('MULTI')
+        parser = cls(xmlrl_items)
+        parser.run(html_items)
+        reportlab_xml_list = []
+        new_para_item = None
+        for xmlrl_item in xmlrl_items:
+            if xmlrl_item.tag == 'para':
+                if new_para_item is not None:
+                    reportlab_xml_list.append(etree.tostring(new_para_item).decode())
+                new_para_item = None
+                reportlab_xml_list.append(etree.tostring(xmlrl_item).decode())
+            else:
+                if new_para_item is None:
+                    if basic_para:
+                        new_para_item = etree.Element('para')
+                    else:
+                        new_para_item = cls._new_para()
+                    if len(reportlab_xml_list) == 0:
+                        parser.fill_text_if_not_null(xmlrl_items, new_para_item)
+                new_para_item.append(xmlrl_item)
+        if new_para_item is not None:
+            reportlab_xml_list.append(etree.tostring(new_para_item).decode())
+        if len(reportlab_xml_list) == 0:
+            reportlab_xml_list = [xmlrl_items.text if xmlrl_items.text is not None else '']
+        getLogger('lucterios.printing').debug("[[[ ConvertHTML_XMLReportlab = %s", reportlab_xml_list)
+        return reportlab_xml_list
 
 
 TABLE_STYLE = TableStyle([
@@ -311,7 +418,7 @@ class LucteriosPDF(object):
         return current_y
 
     def create_para(self, xmltext, current_w, current_h, offset_font_size=0, basic_para=True):
-        para_text_list = extract_text(xmltext, basic_para)
+        para_text_list = ConvertHTML_XMLReportlab.convert(xmltext, basic_para)
         font_name = xmltext.get('font_family')
         if font_name is None:
             font_name = 'sans-serif'
@@ -426,17 +533,17 @@ class LucteriosPDF(object):
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
         SPACE_BETWEEN_PARA = 5
         paras, style = self.create_para(xmltext, current_w, current_h, basic_para=False)
-        getLogger('lucterios.printing').debug("-- parse_text (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", current_x, current_y, current_h, current_w)
         sum_current_h = 0
         for _, new_current_h in paras:
             sum_current_h += new_current_h + SPACE_BETWEEN_PARA
-        y_begin = self.height - current_y - sum_current_h
+        getLogger('lucterios.printing').debug("-- parse_text (x=%.2f/y=%.2f/h=%.2f/w=%.2f) - sum_current_h=%.2f --", current_x, current_y, current_h, current_w, sum_current_h)
+        y_offset = 0
         for text, new_current_h in paras:
             if new_current_h == 0:
                 new_current_h = style.leading
             new_current_h += style.leading * 0.40
-            text.drawOn(self.pdf, current_x, y_begin)
-            y_begin -= new_current_h + SPACE_BETWEEN_PARA
+            text.drawOn(self.pdf, current_x, self.height - current_y - y_offset - new_current_h)
+            y_offset += new_current_h
         self.position_y = current_y + max(sum_current_h, current_h)
 
     def _parse_comp(self, comp, y_offset):
