@@ -165,8 +165,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExamplePrint()
         self.calljson('/lucterios.dummy/examplePrint', {'example': '2'}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'examplePrint')
-        pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
-        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+        self.save_pdf()
 
     def testlabel(self):
         self.factory.xfer = ExampleLabel()
@@ -184,8 +183,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleLabel()
         self.calljson('/lucterios.dummy/exampleLabel', {'PRINT_MODE': '3', 'LABEL': 1, 'FIRSTLABEL': 3, 'MODEL': 2}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleLabel')
-        pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
-        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+        self.save_pdf()
 
     def testlisting(self):
         for item_idx in range(0, 25):
@@ -208,8 +206,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.calljson('/lucterios.dummy/exampleListing', {'PRINT_MODE': '3', 'MODEL': 1}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
-        pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
-        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+        self.save_pdf()
 
     def testreporting(self):
         for item_idx in range(0, 25):
@@ -230,8 +227,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleReporting()
         self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '3', 'MODEL': 3}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
-        pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
-        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+        self.save_pdf()
 
     def test_other_list(self):
         self.factory.xfer = OtherList()

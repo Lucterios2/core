@@ -197,6 +197,7 @@
 	<target name="tests">
 		<echo message='&lt;testsuite errors="0" failures="0" name="null test" skips="0" tests="0" time="0"&gt;&lt;/testsuite&gt;' file="junit_py3.xml" append="false" />
 		<echo message="-- test with coverage3 --" />
+		<delete dir="pdf" />
 		<delete file=".coverage" />
 		<delete file="coverage.xml" />
 		<delete file="coverage3.xml" />

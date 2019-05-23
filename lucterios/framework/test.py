@@ -23,16 +23,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import join, isfile, isdir
+from os import makedirs, unlink
+from base64 import b64decode
 from lxml import etree
 
 from django.test import TestCase, Client, RequestFactory
+from django.test.testcases import TransactionTestCase
 from django.utils import six, timezone
 
 from lucterios.framework.middleware import LucteriosErrorMiddleware
+from lucterios.framework.xfergraphic import XferContainerAcknowledge
 from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.parameters import notfree_mode_connect, Params
-from django.test.testcases import TransactionTestCase
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
 
 
 def add_user(username):
@@ -98,6 +101,8 @@ class LucteriosTestAbstract(object):
 
     language = 'fr'
 
+    PDF_DIRECTORY = 'pdf'
+
     def __init__(self):
         self.xfer_class = XferContainerAcknowledge
 
@@ -117,6 +122,23 @@ class LucteriosTestAbstract(object):
         self.clean_resp()
         Params.clear()
         notfree_mode_connect()
+        if not isdir(self.PDF_DIRECTORY):
+            makedirs(self.PDF_DIRECTORY)
+
+    def save_pdf(self, base64_content=None, ident=None):
+        filename = join(self.PDF_DIRECTORY, "%s-%s-%s%s.pdf" % (self.__class__.__module__,
+                                                                self.__class__.__name__,
+                                                                self._testMethodName,
+                                                                "-%03d" % ident if ident is not None else ""))
+        if isfile(filename):
+            unlink(filename)
+        if base64_content is None:
+            pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
+        else:
+            pdf_value = b64decode(six.text_type(base64_content))
+        self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
+        with open(filename, "wb") as pdf_writer:
+            pdf_writer.write(pdf_value)
 
     def parse_xml(self, xml, root_tag='REPONSE', first_child=True):
         contentxml = etree.fromstring(xml)
