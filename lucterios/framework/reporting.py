@@ -41,6 +41,7 @@ from reportlab.platypus.tables import TableStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
+from copy import deepcopy
 
 
 def get_size(xmltext, name):
@@ -157,7 +158,9 @@ class ConvertHTML_XMLReportlab(object):
         return etree.Element('span')
 
     def _parse_center(self):
-        return etree.Element('span')
+        xmlrl_item = self._new_para()
+        xmlrl_item.attrib['align'] = "center"
+        return xmlrl_item
 
     def _parse_hr(self):
         xmlrl_item = self._new_para()
@@ -177,7 +180,8 @@ class ConvertHTML_XMLReportlab(object):
             xmlrl_item = etree.Element('u')
         else:
             xmlrl_item = etree.Element('font')
-            self.fill_attrib(self.html_item, xmlrl_item)
+            if 'size' in self.html_item.attrib:
+                xmlrl_item.attrib['size'] = self.html_item.attrib['size']
         return xmlrl_item
 
     def _reoganize_para(self, xmlrl_item):
@@ -207,9 +211,39 @@ class ConvertHTML_XMLReportlab(object):
             if len(extra_xmlrl) > 0:
                 add_xmlrl(extra_xmlrl)
 
+    def _switch_para(self, xmlrl_item):
+        for sub_xmlrl in xmlrl_item:
+            new_xmlrl = etree.Element(sub_xmlrl.tag)
+            self.fill_attrib(sub_xmlrl, new_xmlrl)
+            new_parent_xmlrl = etree.Element(xmlrl_item.tag)
+            self.fill_attrib(xmlrl_item, new_parent_xmlrl)
+            new_xmlrl.append(new_parent_xmlrl)
+            new_parent_xmlrl.extend(sub_xmlrl)
+            self.fill_text_if_not_null(sub_xmlrl, new_parent_xmlrl)
+            self.xmlrl_result.append(new_xmlrl)
+
+    def _all_in_para(self):
+        if len(self.xmlrl_result) > 0:
+            xmlrl_finalize = etree.Element(self.xmlrl_result.tag)
+            self.fill_attrib(self.xmlrl_result, xmlrl_finalize)
+            self.fill_text_if_not_null(self.xmlrl_result, xmlrl_finalize)
+            new_para_item = None
+            for xmlrl_item in self.xmlrl_result:
+                if xmlrl_item.tag == 'para':
+                    if new_para_item is not None:
+                        xmlrl_finalize.append(deepcopy(new_para_item))
+                    new_para_item = None
+                    xmlrl_finalize.append(deepcopy(xmlrl_item))
+                else:
+                    if new_para_item is None:
+                        new_para_item = etree.Element('para')
+                    new_para_item.append(deepcopy(xmlrl_item))
+            if new_para_item is not None:
+                xmlrl_finalize.append(deepcopy(new_para_item))
+            self.xmlrl_result = xmlrl_finalize
+
     def run(self, html_items, options=None):
         self.options = options
-        self.html_item = html_items
         self.fill_text_if_not_null(html_items, self.xmlrl_result)
         for self.html_item in html_items:
             xmlrl_item = None
@@ -230,47 +264,36 @@ class ConvertHTML_XMLReportlab(object):
                     self.xmlrl_result.extend(xmlrl_item)
                     self.fill_text_if_not_null(xmlrl_item, self.xmlrl_result)
                 elif (len(xmlrl_item) > 0) and (xmlrl_item[0].tag == 'para'):
-                    for sub_xmlrl in xmlrl_item:
-                        new_xmlrl = etree.Element(sub_xmlrl.tag)
-                        self.fill_attrib(sub_xmlrl, new_xmlrl)
-                        new_parent_xmlrl = etree.Element(xmlrl_item.tag)
-                        self.fill_attrib(xmlrl_item, new_parent_xmlrl)
-                        new_xmlrl.append(new_parent_xmlrl)
-                        new_parent_xmlrl.extend(sub_xmlrl)
-                        self.fill_text_if_not_null(sub_xmlrl, new_parent_xmlrl)
-                        self.xmlrl_result.append(new_xmlrl)
+                    self._switch_para(xmlrl_item)
                 else:
                     self.xmlrl_result.append(xmlrl_item)
                 if self.html_item.tag == 'li':
                     self.xmlrl_result.append(etree.Element('br'))
+        self._all_in_para()
 
     @classmethod
-    def convert(cls, html_items, basic_para):
+    def convert(cls, html_items):
         getLogger('lucterios.printing').debug("\n[[[ ConvertHTML_XMLReportlab html = %s", etree.tostring(html_items, pretty_print=True).decode())
         xmlrl_items = etree.Element('MULTI')
         parser = cls(xmlrl_items)
         parser.run(html_items)
         reportlab_xml_list = []
-        new_para_item = None
+        last_text = ""
+        if (xmlrl_items.text is not None) and (xmlrl_items.text.strip() != ''):
+            last_text = xmlrl_items.text
         for xmlrl_item in xmlrl_items:
-            if xmlrl_item.tag == 'para':
-                if new_para_item is not None:
-                    reportlab_xml_list.append(etree.tostring(new_para_item).decode())
-                new_para_item = None
-                reportlab_xml_list.append(etree.tostring(xmlrl_item).decode())
+            xml_text = etree.tostring(xmlrl_item).decode().strip()
+            if xml_text.startswith('<para'):
+                if last_text != "":
+                    reportlab_xml_list.append(last_text)
+                last_text = ""
+                reportlab_xml_list.append(xml_text)
             else:
-                if new_para_item is None:
-                    if basic_para:
-                        new_para_item = etree.Element('para')
-                    else:
-                        new_para_item = cls._new_para()
-                    if len(reportlab_xml_list) == 0:
-                        parser.fill_text_if_not_null(xmlrl_items, new_para_item)
-                new_para_item.append(xmlrl_item)
-        if new_para_item is not None:
-            reportlab_xml_list.append(etree.tostring(new_para_item).decode())
+                last_text += xml_text
+        if last_text != "":
+            reportlab_xml_list.append(last_text)
         if len(reportlab_xml_list) == 0:
-            reportlab_xml_list = [xmlrl_items.text if xmlrl_items.text is not None else '']
+            reportlab_xml_list = ['']
         getLogger('lucterios.printing').debug("[[[ ConvertHTML_XMLReportlab = %s", reportlab_xml_list)
         return reportlab_xml_list
 
@@ -417,8 +440,8 @@ class LucteriosPDF(object):
             current_y = self.y_offset + get_size(xmlitem, 'top')
         return current_y
 
-    def create_para(self, xmltext, current_w, current_h, offset_font_size=0, basic_para=True):
-        para_text_list = ConvertHTML_XMLReportlab.convert(xmltext, basic_para)
+    def create_para(self, xmltext, current_w, current_h, offset_font_size=0):
+        para_text_list = ConvertHTML_XMLReportlab.convert(xmltext)
         font_name = xmltext.get('font_family')
         if font_name is None:
             font_name = 'sans-serif'
@@ -531,8 +554,8 @@ class LucteriosPDF(object):
             return None
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
-        SPACE_BETWEEN_PARA = 5
-        paras, style = self.create_para(xmltext, current_w, current_h, basic_para=False)
+        SPACE_BETWEEN_PARA = 6
+        paras, style = self.create_para(xmltext, current_w, current_h)
         sum_current_h = 0
         for _, new_current_h in paras:
             sum_current_h += new_current_h + SPACE_BETWEEN_PARA
