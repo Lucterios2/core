@@ -277,9 +277,29 @@ class LucteriosGlobal(LucteriosManage):
             self.print_info_("\t\t=> No upgrade")
         return check_list, must_upgrade
 
+    def update_dependancy(self):
+        from pip._internal import main
+        from pip._internal.utils.misc import get_installed_distributions
+        module_dependancies = []
+        for dist in get_installed_distributions():
+            requires = [req.key for req in dist.requires()]
+            if (dist.key != 'lucterios') and ('lucterios' not in requires):
+                version_items = dist.version.split('.')
+                module_dependancies.append("%s==%s.*" % (dist.project_name, ".".join(version_items[:2])))
+        if len(module_dependancies) > 0:
+            options = self.get_default_args_(['install', '-U'])
+            options.extend(module_dependancies)
+            main(options)
+            self.print_info_("Try to update %d dependancy modules" % len(module_dependancies))
+            return True
+        else:
+            self.print_info_("No modules to update")
+            return False
+
     def update(self):
         from pip._internal import main
         from pip._internal.utils.misc import get_installed_distributions
+        self.update_dependancy()
         module_list = []
         for dist in get_installed_distributions():
             requires = [req.key for req in dist.requires()]
@@ -287,8 +307,7 @@ class LucteriosGlobal(LucteriosManage):
                 module_list.append(dist.project_name)
         if len(module_list) > 0:
             try:
-                self.print_info_("Modules to update: %s" %
-                                 ",".join(module_list))
+                self.print_info_("Modules to update: %s" % ",".join(module_list))
                 options = self.get_default_args_(['install', '-U'])
                 options.extend(module_list)
                 main(options)
