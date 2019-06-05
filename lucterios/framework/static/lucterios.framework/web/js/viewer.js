@@ -3,12 +3,13 @@
 
 var G_params = {};
 try {
-	/* jslint regexp: true */
+	/*jslint regexp: true*/
 	window.location.href.replace(location.hash, '').replace(/[?&]+([^=&]+)=?([^&]*)?/gi, // regexp
 	function(m, key, value) {
 		unusedVariables(m);
 		G_params[key] = (value !== undefined) ? value : '';
 	});
+	/*jslint regexp: false*/
 	G_params = atob(G_params.CODE);
 	G_params = jQuery.parseJSON(G_params);
 } catch ($exept) {

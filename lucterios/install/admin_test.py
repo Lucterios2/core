@@ -252,8 +252,7 @@ class TestAdminSQLite(BaseTest):
 
         self.assertEqual(["0"], list(self.run_sqlite_cmd(
             "inst_g", "SELECT value FROM CORE_parameter WHERE name='CORE-connectmode';")))
-        self.assertEqual(
-            authenticate(username='admin', password='admin').username, 'admin')
+        self.assertEqual(authenticate(username='admin', password='admin').username, 'admin')
 
         inst = LucteriosInstance("inst_g", self.path_dir)
         inst.set_extra("PASSWORD=abc123,MODE=2")

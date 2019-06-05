@@ -672,7 +672,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('    execute_from_command_line(sys.argv)\n')
         self.print_info_("Instance '%s' created." %
                          self.name)
-        self.refresh()
+        self.refresh(False)
 
     def modif(self):
         if self.name == '':
@@ -683,7 +683,7 @@ class LucteriosInstance(LucteriosManage):
         self.write_setting_()
         self.print_info_("Instance '%s' modified." %
                          self.name)
-        self.refresh()
+        self.refresh(False)
 
     def security(self):
         if self.name == '':
@@ -727,15 +727,16 @@ class LucteriosInstance(LucteriosManage):
             self.print_info_("Security mode change in '%s'." %
                              self.name)
 
-    def refresh(self):
+    def refresh(self, check_dependancy=True):
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
-        self.read()
-        if len(self._get_dependancy_modules_extra()) > 0:
-            self.print_info_("Instance '%s' upgrade dependancy." % self.name)
-            self.write_setting_()
+        if check_dependancy:
+            self.read()
+            if len(self._get_dependancy_modules_extra()) > 0:
+                self.print_info_("Instance '%s' upgrade dependancy." % self.name)
+                self.write_setting_()
         self.read(virtual_setup=False)
         self.print_info_("Instance '%s' refreshed." % self.name)
         from django.core.management import call_command
@@ -931,7 +932,7 @@ class LucteriosInstance(LucteriosManage):
                 move(join(tmp_path, 'usr'), target_dir)
             success = True
         delete_path(tmp_path)
-        self.refresh()
+        self.refresh(False)
         return success
 
 

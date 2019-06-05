@@ -434,12 +434,11 @@ var compEdit = compAbstractEvent.extend({
 				var inputVal = this.getGUIComp().val();
 				if (((this.mask !== null) && !this.mask.test(inputVal)) || ((this.size !== -1) && (inputVal.trim().length > this.size))) {
 					this.getGUIComp().css({
-						'background-color' : 'red'
+						'background-color' : 'red',
+						'color' : 'black'
 					});
 				} else {
-					this.getGUIComp().css({
-						'background-color' : 'white'
-					});
+					this.getGUIComp().removeAttr('style');
 				}
 			}, this));
 		}
