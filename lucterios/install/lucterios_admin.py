@@ -312,15 +312,16 @@ class LucteriosGlobal(LucteriosManage):
                 options.extend(module_list)
                 main(options)
             finally:
-                self.refreshall()
+                self.refreshall(False)
             return True
         else:
             self.print_info_("No modules to update")
             return False
 
-    def refreshall(self):
+    def refreshall(self, clear_info=True):
         instances = self.listing()
-        self.clear_info_()
+        if clear_info:
+            self.clear_info_()
         for instance in instances:
             luct = LucteriosInstance(
                 instance, instance_path=self.instance_path)
@@ -425,16 +426,27 @@ class LucteriosInstance(LucteriosManage):
             mod_list.append(get_module_title(module))
         return ', '.join(mod_list)
 
-    def _add_dependancy_modules(self):
+    def _get_dependancy_modules_extra(self, modules=None):
+        modules_extra = ()
+        if modules is None:
+            modules = self.modules
         glob = LucteriosGlobal(self.instance_path)
         checked_modules = []
         _, _, mod_modules = glob.installed()
         for mod_item in mod_modules:
-            if mod_item[0] in self.modules:
+            if mod_item[0] in modules:
                 checked_modules.extend(mod_item[2])
         for mod_name in checked_modules:
-            if mod_name not in self.modules:
-                self.modules += (mod_name,)
+            if mod_name not in modules:
+                modules_extra += (mod_name,)
+        if len(modules_extra) > 0:
+            modules_extra += self._get_dependancy_modules_extra(modules + modules_extra)
+        return tuple(set(modules_extra))
+
+    def _add_dependancy_modules(self):
+        modules_extra = self._get_dependancy_modules_extra()
+        if len(modules_extra) > 0:
+            self.modules += modules_extra
 
     def _get_module_text(self):
         modules_text = ''
@@ -583,9 +595,12 @@ class LucteriosInstance(LucteriosManage):
         if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
             self.read()
 
-    def read(self):
+    def read(self, virtual_setup=True):
         clear_modules()
         import django.conf
+        from django.utils import translation
+        if virtual_setup:
+            setup_from_none()
         if self.name == '':
             raise AdminException("Instance not precise!")
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
@@ -595,30 +610,32 @@ class LucteriosInstance(LucteriosManage):
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
-        import_module(self.setting_module_name)
-        import_module("django.conf")
-        django.setup()
-        self.secret_key = django.conf.settings.SECRET_KEY
-        self.extra = django.conf.settings.EXTRA
-        self.databases = django.conf.settings.DATABASES
-        self.database = django.conf.settings.DATABASES['default']['ENGINE']
+        setting_module = import_module(self.setting_module_name)
+        if not virtual_setup:
+            import_module("django.conf")
+            django.setup()
+        else:
+            translation.activate(setting_module.LANGUAGE_CODE)
+        self.secret_key = setting_module.SECRET_KEY
+        self.extra = setting_module.EXTRA
+        self.databases = setting_module.DATABASES
+        self.database = setting_module.DATABASES['default']['ENGINE']
         if "sqlite3" in self.database:
             self.database = ('sqlite', {})
         if "mysql" in self.database:
             self.database = ('mysql', self._get_db_info_())
         if "postgresql" in self.database:
             self.database = ('postgresql', self._get_db_info_())
-        self.appli_name = django.conf.settings.APPLIS_MODULE.__name__
+        self.appli_name = setting_module.APPLIS_MODULE.__name__
         self.modules = ()
-        for appname in django.conf.settings.INSTALLED_APPS:
+        for appname in setting_module.INSTALLED_APPS:
             if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
                 self.modules = self.modules + (six.text_type(appname),)
-        from lucterios.CORE.parameters import Params
-        from lucterios.framework.error import LucteriosException
         try:
+            from lucterios.CORE.parameters import Params
             self.extra[''] = {'mode': (
                 Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
-        except LucteriosException:
+        except Exception:
             self.extra[''] = {'mode': None}
         self.print_info_("""Instance %s:
     path\t%s
@@ -716,8 +733,11 @@ class LucteriosInstance(LucteriosManage):
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         self.read()
-        self.print_info_("Instance '%s' refreshed." %
-                         self.name)
+        if len(self._get_dependancy_modules_extra()) > 0:
+            self.print_info_("Instance '%s' upgrade dependancy." % self.name)
+            self.write_setting_()
+        self.read(virtual_setup=False)
+        self.print_info_("Instance '%s' refreshed." % self.name)
         from django.core.management import call_command
         call_command('migrate', stdout=sys.stdout)
 
