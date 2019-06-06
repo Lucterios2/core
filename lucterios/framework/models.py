@@ -143,8 +143,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def get_long_name(cls):
-        instance = cls()
-        return "%s.%s" % (instance._meta.app_label, instance._meta.object_name)
+        return "%s.%s" % (cls._meta.app_label, cls._meta.object_name)
 
     @classmethod
     def get_edit_fields(cls):

@@ -691,7 +691,7 @@ class LucteriosInstance(LucteriosManage):
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         security_param = self.extra
-        self.read()
+        self.read(False)
         self.clear_info_()
         if SECURITY_PASSWD in security_param.keys():
             passwd = security_param['']
@@ -718,14 +718,12 @@ class LucteriosInstance(LucteriosManage):
         if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
             from lucterios.CORE.models import Parameter
             from lucterios.CORE.parameters import Params
-            db_param = Parameter.objects.get(
-                name='CORE-connectmode')
+            db_param = Parameter.objects.get(name='CORE-connectmode')
             db_param.value = six.text_type(security_param[SECURITY_MODE])
             db_param.save()
             Params.clear()
 
-            self.print_info_("Security mode change in '%s'." %
-                             self.name)
+            self.print_info_("Security mode change in '%s'." % self.name)
 
     def refresh(self, check_dependancy=True):
         if self.name == '':
@@ -749,7 +747,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        self.read()
+        self.read(True)
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         from django.core.management import call_command
         from django.db import connection
@@ -857,7 +855,7 @@ class LucteriosInstance(LucteriosManage):
             except Exception:
                 self.clear(False)
                 setup_from_none()
-            self.read()
+            self.read(True)
         else:
             self.clear(False)
 
@@ -907,7 +905,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        self.read()
+        self.read(True)
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
         tmp_path = join(get_tmp_dir(), 'tmp_resore')
