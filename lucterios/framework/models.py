@@ -224,7 +224,7 @@ class LucteriosModel(models.Model):
                     if order_fd[0] == '-':
                         order_fd = order_fd[1:]
                     if order_fd in rowdata.keys():
-                        query[order_fd] = rowdata[order_fd]
+                        query[order_fd + '__iexact'] = rowdata[order_fd]
             if len(query) > 0:
                 search = cls.objects.filter(**query)
                 if len(search) > 0:
