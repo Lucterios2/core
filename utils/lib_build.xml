@@ -1,7 +1,7 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
 	<property name="core.path" value="${basedir}/../lct-core" />
 	<property name="project.test.source" value="" />
-	<property name="project.test.omit" value="*/from_v1.py,*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
+	<property name="project.test.omit" value="*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
 	<property name="project.test.include" value="" />
 	<property name="project.test.instance" value="test" />
 	<property name="project.packagepath" value="" />
@@ -50,7 +50,6 @@
 		<delete file="junit_py0.xml" />
 		<delete file="junit_py2.xml" />
 		<delete file="junit_py3.xml" />
-		<delete file="pylint.txt" />
 		<delete file="*.version" />
 		<delete file="MANIFEST" />
 		<delete>
@@ -95,24 +94,6 @@
 		<antcall target="init_addon">
 			<param name="build_number" value="${projet.version.build}" />
 		</antcall>
-	</target>
-
-	<target name="pylint">
-		<exec executable="pylint">
-			<arg line="--rcfile=./rcfile" />
-			<arg line="--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'" />
-			<arg line="--reports=y" />
-			<arg line="${project.name}" />
-			<redirector output="pylint.txt" />
-		</exec>
-		<exec executable="sed">
-			<arg line="/Report/,$d" />
-			<arg line="pylint.txt" />
-		</exec>
-		<exec executable="grep">
-			<arg line="'Your code has been rated'" />
-			<arg line="pylint.txt" />
-		</exec>
 	</target>
 
 	<target name="pep8">
@@ -202,25 +183,22 @@
 		<delete file="coverage.xml" />
 		<delete file="coverage3.xml" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg value="/usr/local/bin/coverage" />
-			<arg value="erase" />
+			<arg line="-m coverage erase" />
 		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${project.pythonpath}" />
-			<arg line="/usr/local/bin/coverage run --branch --source=${project.test.source} --omit=${project.test.omit} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
+			<arg line="-m coverage run --branch --source=${project.test.source} --omit=${project.test.omit} ${basedir}/manage_${project.test.instance}.py test ${project.packagename}" />
 		</exec>
 		<antcall target="test_addon" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg value="/usr/local/bin/coverage" />
-			<arg value="report" />
+			<arg line="-m coverage report" />
 		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg value="/usr/local/bin/coverage" />
-			<arg value="xml" />
+			<arg line="-m coverage xml" />
 		</exec>
 		<move file="coverage.xml" tofile="coverage3.xml" />
 		<replaceregexp file="coverage3.xml" match='name="\..*\.lucterios' replace='name="lucterios' byline="true" />
-                <replaceregexp file="coverage3.xml" match='name="\..*\.diacamma' replace='name="diacamma' byline="true" />
+		<replaceregexp file="coverage3.xml" match='name="\..*\.diacamma' replace='name="diacamma' byline="true" />
 		<replace file="coverage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
 		<replaceregexp file="coverage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
@@ -290,6 +268,7 @@
 				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true" />
 				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true" />
 				<exec executable="make" dir="${sub_path}/pdf/${lang}" failonerror="true">
+					<env key="PATH" value="${basedir}/../virt/bin:${env.PATH}"/>				
 					<arg value="clean" />
 					<arg value="latexpdf" />
 				</exec>
