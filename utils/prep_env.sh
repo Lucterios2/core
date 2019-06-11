@@ -1,5 +1,9 @@
 #!/bin/bash
 
+[ -z "$PYTHONVER" ] && PYTHONVER=python3
+virt_name=$1
+[ -z "$virt_name" ] && virt_name=virt 
+
 CurrentPath=$(dirname "$(readlink -f "$0")")
 cd $CurrentPath/../..
 
@@ -10,13 +14,14 @@ echo "coverage" >> requirement.txt
 echo "wheel" >> requirement.txt
 echo "Sphinx" >> requirement.txt
 echo "mysqlclient" >> requirement.txt
-echo "psycopg2" >> requirement.txt
+echo "psycopg2-binary" >> requirement.txt
 
-[ -d virt ] && rm -rf virt
+[ -d virt ] && rm -rf $virt_name
 
-python3 -m virtualenv virt
+python3 -m virtualenv --python=$PYTHONVER $virt_name
+[ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
 
-source virt/bin/activate
+source $virt_name/bin/activate
 
 pip install -U -r requirement.txt
 

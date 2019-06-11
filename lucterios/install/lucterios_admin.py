@@ -610,11 +610,18 @@ class LucteriosInstance(LucteriosManage):
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
-        setting_module = import_module(self.setting_module_name)
+        try:
+            setting_module = import_module(self.setting_module_name)
+        except TypeError:
+            setting_module = None
         if not virtual_setup:
             import_module("django.conf")
             django.setup()
+            if setting_module is None:
+                setting_module = django.conf.settings
         else:
+            if setting_module is None:
+                return
             translation.activate(setting_module.LANGUAGE_CODE)
         self.secret_key = setting_module.SECRET_KEY
         self.extra = setting_module.EXTRA

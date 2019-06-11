@@ -255,6 +255,7 @@
 				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="html_theme = '.*'" replace="html_theme = 'haiku'" byline="true" />
 				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="language = '.*'" replace="language = '${lang}'" byline="true" />
 				<exec executable="make" dir="${sub_path}/docs/${lang}" failonerror="true">
+					<env key="PATH" value="${basedir}/../virt/bin:${env.PATH}"/>				
 					<arg value="html" />
 				</exec>
 				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/doc_${lang}" />
