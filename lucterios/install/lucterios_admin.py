@@ -521,7 +521,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('\n')
 
     def clear(self, only_delete=False, ignore_db=None):
-        self.read()
+        self.read(True)
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
         option = 'CASCADE'
@@ -593,9 +593,9 @@ class LucteriosInstance(LucteriosManage):
 
     def read_before(self):
         if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
-            self.read()
+            self.read(True)
 
-    def read(self, virtual_setup=True):
+    def read(self, virtual_setup=False):
         clear_modules()
         import django.conf
         from django.utils import translation
@@ -738,11 +738,11 @@ class LucteriosInstance(LucteriosManage):
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         if check_dependancy:
-            self.read()
+            self.read(True)
             if len(self._get_dependancy_modules_extra()) > 0:
                 self.print_info_("Instance '%s' upgrade dependancy." % self.name)
                 self.write_setting_()
-        self.read(virtual_setup=False)
+        self.read(False)
         self.print_info_("Instance '%s' refreshed." % self.name)
         from django.core.management import call_command
         call_command('migrate', stdout=sys.stdout)
