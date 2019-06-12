@@ -912,7 +912,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        self.read(True)
+        self.read(False)
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
         tmp_path = join(get_tmp_dir(), 'tmp_resore')

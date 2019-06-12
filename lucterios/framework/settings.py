@@ -140,6 +140,7 @@ DEFAULT_SETTINGS = {
                    'OPTIONS': {'context_processors': (
                                'django.core.context_processors.i18n',
                                'django.contrib.auth.context_processors.auth',
+                               'django.contrib.messages.context_processors.messages',
                                ),
                                'loaders': (
                                'django.template.loaders.filesystem.Loader',
