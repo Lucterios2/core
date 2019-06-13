@@ -316,7 +316,13 @@ italic {
 
 .lctbtnmini img {
 	position: relative;
-	left: -10px;
+}
+
+@supports (-moz-appearance:none) {
+	.lctbtnmini img {
+		position: relative;
+		left: -10px;
+	}
 }
 
 button span img {

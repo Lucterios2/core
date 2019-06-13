@@ -593,7 +593,7 @@ class LucteriosInstance(LucteriosManage):
 
     def read_before(self):
         if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
-            self.read(True)
+            self.read(False)
 
     def read(self, virtual_setup=False):
         clear_modules()
@@ -621,7 +621,7 @@ class LucteriosInstance(LucteriosManage):
                 setting_module = django.conf.settings
         else:
             if setting_module is None:
-                return
+                return None
             translation.activate(setting_module.LANGUAGE_CODE)
         self.secret_key = setting_module.SECRET_KEY
         self.extra = setting_module.EXTRA
