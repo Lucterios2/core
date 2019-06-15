@@ -27,6 +27,8 @@ from os.path import join, isfile, isdir
 from os import makedirs, unlink
 from base64 import b64decode
 from lxml import etree
+from contextlib import closing
+from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET
 
 from django.test import TestCase, Client, RequestFactory
 from django.test.testcases import TransactionTestCase
@@ -373,3 +375,10 @@ class LucteriosTest(TestCase, LucteriosTestAbstract):
 
     def setUp(self):
         LucteriosTestAbstract.setUp(self)
+
+
+def find_free_port():
+    with closing(socket(AF_INET, SOCK_STREAM)) as sock:
+        sock.bind(('', 0))
+        sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+        return sock.getsockname()[1]
