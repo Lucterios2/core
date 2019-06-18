@@ -1256,11 +1256,12 @@ var compUpload = compGeneric
 			},
 
 			get_Html : function() {
-				var args = {
+				var html, args = {
 					'type' : "file",
 					'accept' : this.filter
 				};
-				return this.getBuildHtml(args, true, true);
+				html = this.getBuildHtml(args, true, true);
+				return "<div class='drop_zone'>" + html + "<div>" + Singleton().getTranslate("Drag one file to this zone ...") + "</div>" + "</div>";
 			},
 
 			getEncodeFile : function(fileToSend) {
@@ -1317,7 +1318,7 @@ var compUpload = compGeneric
 			},
 
 			addAction : function() {
-				var gui_comp = this.getGUIComp();
+				var drop_comp, gui_comp = this.getGUIComp();
 				gui_comp.change($.proxy(this.getFileContentBase64, this));
 			},
 

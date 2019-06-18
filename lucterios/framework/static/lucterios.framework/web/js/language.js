@@ -65,6 +65,7 @@ g_translation.fr.put("Refresh", "Actualiser");
 g_translation.fr.put("Rpp", "Résultats par page: {0}");
 g_translation.fr.put("Display", "Voir {0} à {1} sur {2} résultats.");
 g_translation.fr.put("ShowNB", "{0} résultats.");
+g_translation.fr.put("Drag one file to this zone ...", "Glisser un fichier dans cette zone ...");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Configuration", "Configuration");
@@ -126,4 +127,5 @@ g_translation.en.put("LastPage", "Last page");
 g_translation.en.put("Refresh", "Refresh");
 g_translation.en.put("Rpp", "Records per page: {0}");
 g_translation.en.put("Display", "Displaying {0} to {1} of {2} items.");
-g_translation.fr.put("ShowNB", "{0} items.");
+g_translation.en.put("ShowNB", "{0} items.");
+g_translation.en.put("Drag one file to this zone ...", "Drag one file to this zone ...");

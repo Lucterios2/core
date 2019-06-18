@@ -318,13 +318,13 @@ italic {
 	position: relative;
 }
 
-@supports (-moz-appearance:none) {
-	.lctbtnmini img {
-		position: relative;
-		left: -10px;
-	}
+@
+supports (-moz-appearance:none ) { .lctbtnmini img {
+	position: relative;
+	left: -10px;
 }
 
+}
 button span img {
 	margin: 0em 0.4em 0.0em 0px;
 	max-height: 24px;
@@ -455,10 +455,13 @@ div.gridpager span {
 }
 
 .gridContent table thead {
-	background-image: linear-gradient(#fefefe,#e6e6e6);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefefe', endColorstr='#e6e6e6');
-	background: -webkit-gradient(linear, left top, left bottom, from(#fefefe), to(#e6e6e6));
-	background: -moz-linear-gradient(top,  #fefefe,  #e6e6e6); /* for firefox 3.6+ */
+	background-image: linear-gradient(#fefefe, #e6e6e6);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fefefe',
+		endColorstr='#e6e6e6');
+	background: -webkit-gradient(linear, left top, left bottom, from(#fefefe),
+		to(#e6e6e6));
+	background: -moz-linear-gradient(top, #fefefe, #e6e6e6);
+	/* for firefox 3.6+ */
 	font-family: Arial;
 	font-size: 12px;
 	line-height: normal;
@@ -485,19 +488,19 @@ div.gridpager span {
 	background-color: #d0d0d0;
 }
 
-.gridContent tbody tr.selected td { 
-	border-top: 1px solid #fff; 
+.gridContent tbody tr.selected td {
+	border-top: 1px solid #fff;
 }
 
 .gridempty td {
-	text-align: center; 
+	text-align: center;
 	padding: 3px;
 }
 
 div.gridContent table tbody tr td {
 	font-size: 0.8em;
 	border-right: 1px solid #cfcfcf;
-	border-top: 1px solid #cfcfcf;	
+	border-top: 1px solid #cfcfcf;
 	padding: 4px 2px;
 }
 
@@ -616,4 +619,17 @@ img.memobtn {
 	border-bottom-left-radius: 10px;
 	border-top-right-radius: 10px;
 	border-top-left-radius: 10px;
+}
+
+.drop_zone {
+	border: 1px dashed #AAA;
+	background-color: #F0F0F0;
+	padding: 5px;
+	border-radius: 5px;
+}
+
+.drop_zone div {
+	text-align: center;
+	width: 100%;
+	font-style: italic;
 }
