@@ -620,7 +620,7 @@ asyncTest("Custom_Upload", function() {
 	ok(gui.isExist(), "GUI exist");
 	var jcnt = gui.getHtmlDom();
 
-	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > input");
+	var comp = jcnt.find("table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > div > input");
 	equal(comp.attr("accept"), ".jpg,.png,.gif", "comp upload");
 	comp.change();
 
@@ -632,9 +632,9 @@ asyncTest("Custom_Upload", function() {
 	comp.focus();
 	comp.text("JJ\nKKKK");
 
-	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
+	var btn1 = jcnt.parent().find("div > div > button:eq(0)");
 	equal(btn1.text(), 'Ok', 'btn 1');
-	var btn2 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(1)");
+	var btn2 = jcnt.parent().find("div > div > button:eq(1)");
 	equal(btn2.text(), 'Annuler', 'btn 2');
 
 	equal(this.mObsFactory.CallList.size(), 0, "Call A Nb :" + this.mObsFactory.CallList.toString());
