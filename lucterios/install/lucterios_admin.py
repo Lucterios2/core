@@ -361,7 +361,7 @@ class LucteriosInstance(LucteriosManage):
 
     def set_extra(self, extra):
         self.extra[''] = extra
-        if extra[0] == '{':
+        if (len(extra) > 0) and (extra[0] == '{'):
             extra_obj = loads(extra)
             for key, value in extra_obj.items():
                 self.extra[key] = value
