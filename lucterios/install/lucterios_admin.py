@@ -36,6 +36,8 @@ from time import sleep
 
 import sys
 import os
+from json import loads
+from json.decoder import JSONDecodeError
 
 INSTANCE_PATH = '.'
 
@@ -359,19 +361,24 @@ class LucteriosInstance(LucteriosManage):
 
     def set_extra(self, extra):
         self.extra[''] = extra
-        for item in extra.split(','):
-            if '=' in item:
-                key, value = item.split('=')[:2]
-                if (value.lower() == 'true') or (value.lower() == 'false'):
-                    self.extra[key] = value.lower() == 'true'
-                elif value.isnumeric():
-                    self.extra[key] = int(value)
-                elif value.replace('.', '').isnumeric():
-                    self.extra[key] = float(value)
-                elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
-                    self.extra[key] = value[1:-1].split(';')
-                else:
-                    self.extra[key] = value
+        if extra[0] == '{':
+            extra_obj = loads(extra)
+            for key, value in extra_obj.items():
+                self.extra[key] = value
+        else:
+            for item in extra.split(','):
+                if '=' in item:
+                    key, value = item.split('=')[:2]
+                    if (value.lower() == 'true') or (value.lower() == 'false'):
+                        self.extra[key] = value.lower() == 'true'
+                    elif value.isnumeric():
+                        self.extra[key] = int(value)
+                    elif value.replace('.', '').isnumeric():
+                        self.extra[key] = float(value)
+                    elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
+                        self.extra[key] = value[1:-1].split(';')
+                    else:
+                        self.extra[key] = value
 
     def set_database(self, database):
         if database is not None:
