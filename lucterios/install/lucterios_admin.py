@@ -37,7 +37,7 @@ from time import sleep
 import sys
 import os
 from json import loads
-from json.decoder import JSONDecodeError
+
 
 INSTANCE_PATH = '.'
 
@@ -301,6 +301,7 @@ class LucteriosGlobal(LucteriosManage):
     def update(self):
         from pip._internal import main
         from pip._internal.utils.misc import get_installed_distributions
+        from pip._internal.cli import status_codes
         self.update_dependancy()
         module_list = []
         for dist in get_installed_distributions():
@@ -312,10 +313,10 @@ class LucteriosGlobal(LucteriosManage):
                 self.print_info_("Modules to update: %s" % ",".join(module_list))
                 options = self.get_default_args_(['install', '-U'])
                 options.extend(module_list)
-                main(options)
+                res = main(options)
             finally:
                 self.refreshall(False)
-            return True
+            return res == status_codes.SUCCESS
         else:
             self.print_info_("No modules to update")
             return False
