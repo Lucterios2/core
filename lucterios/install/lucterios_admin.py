@@ -756,7 +756,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        self.read(True)
+        self.read()
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         from django.core.management import call_command
         from django.db import connection
@@ -766,8 +766,7 @@ class LucteriosInstance(LucteriosManage):
         target_filename = join(get_tmp_dir(), 'target')
         with open(target_filename, 'w') as output:
             with connection.cursor() as curs:
-                curs.execute(
-                    "SELECT app,name FROM django_migrations ORDER BY applied")
+                curs.execute("SELECT app,name FROM django_migrations ORDER BY applied")
                 output.write(six.text_type(curs.fetchall()))
         import tarfile
         with tarfile.open(self.filename, "w:gz") as tar:
@@ -778,7 +777,11 @@ class LucteriosInstance(LucteriosManage):
                 tar.add(user_dir, arcname="usr")
         delete_path(target_filename)
         delete_path(output_filename)
-        return isfile(self.filename)
+        if isfile(self.filename):
+            self.print_info_("Instance '%s' saved as '%s'." % (self.name, self.filename))
+            return True
+        else:
+            return False
 
     def get_other_targets(self, tmp_path, executor):
         def cmp_node():
