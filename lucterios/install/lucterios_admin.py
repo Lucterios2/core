@@ -302,8 +302,6 @@ class LucteriosGlobal(LucteriosManage):
         from pip._internal import main
         from pip._internal.utils.misc import get_installed_distributions
         from pip._internal.cli import status_codes
-        if os.environ.get('PIP_REQ_TRACKER') is not None:
-            del os.environ['PIP_REQ_TRACKER']
         self.update_dependancy()
         module_list = []
         for dist in get_installed_distributions():
@@ -315,6 +313,8 @@ class LucteriosGlobal(LucteriosManage):
                 self.print_info_("Modules to update: %s" % ",".join(module_list))
                 options = self.get_default_args_(['install', '-U'])
                 options.extend(module_list)
+                if os.environ.get('PIP_REQ_TRACKER') is not None:
+                    del os.environ['PIP_REQ_TRACKER']
                 res = main(options)
             finally:
                 self.refreshall(False)
