@@ -44,6 +44,7 @@ TITLE_EDIT = _("Edit")
 TITLE_MODIFY = _("Modify")
 TITLE_DELETE = _("Delete")
 TITLE_ADD = _("Add")
+TITLE_CREATE = _("Create")
 TITLE_SAVE = _("Save")
 TITLE_CLONE = _('clone')
 TITLE_PRINT = _("Print")
@@ -60,6 +61,8 @@ def action_list_sorted(item):
         return 2
     if item[0].caption == TITLE_DELETE:
         return 3
+    if item[0].caption == TITLE_CREATE:
+        return 4
     if item[0].caption == TITLE_ADD:
         return 4
     if item[0].caption == TITLE_CLONE:

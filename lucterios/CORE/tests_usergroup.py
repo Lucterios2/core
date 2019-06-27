@@ -75,7 +75,7 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('#user_actif/actions', 4)
         self.assert_action_equal('#user_actif/actions/@0', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
         self.assert_action_equal('#user_actif/actions/@1', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
-        self.assert_action_equal('#user_actif/actions/@2', ('Ajouter', 'images/add.png', 'CORE', 'usersEdit', 0, 1, 1))
+        self.assert_action_equal('#user_actif/actions/@2', ('Créer', 'images/new.png', 'CORE', 'usersEdit', 0, 1, 1))
         self.assert_action_equal('#user_actif/actions/@3', ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
 
         self.assert_grid_equal('user_inactif', {"username": "nom d'utilisateur", "first_name": "prénom", "last_name": "nom"}, 0)
@@ -437,7 +437,7 @@ class GroupTest(LucteriosTest):
         self.assert_count_equal('#group/actions', 3)
         self.assert_action_equal('#group/actions/@0', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
         self.assert_action_equal('#group/actions/@1', ('Supprimer', 'images/delete.png', 'CORE', 'groupsDelete', 0, 1, 2))
-        self.assert_action_equal('#group/actions/@2', ('Ajouter', 'images/add.png', 'CORE', 'groupsEdit', 0, 1, 1))
+        self.assert_action_equal('#group/actions/@2', ('Créer', 'images/new.png', 'CORE', 'groupsEdit', 0, 1, 1))
         self.assert_grid_equal('group', {"name": "nom"}, 0)
         self.assert_attrib_equal('group', "nb_lines", '0')
 

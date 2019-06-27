@@ -49,8 +49,9 @@ from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstra
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton
-from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, \
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted
+from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_MODIFY, TITLE_DELETE, \
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted,\
+    TITLE_CREATE
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
@@ -691,7 +692,7 @@ class LabelList(XferListEditor):
     field_id = 'label'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_label')
 class LabelEdit(XferAddEditor):

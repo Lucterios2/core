@@ -27,9 +27,9 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
-from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE
+from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompGrid
+from lucterios.framework.xfercomponents import XferCompGrid
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
@@ -48,7 +48,7 @@ class GroupsList(XferListEditor):
     field_id = 'group'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png")
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
@@ -86,7 +86,7 @@ class UsersList(XferListEditor):
         self.get_components('user_inactif').description = _("List of inactive users")
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
