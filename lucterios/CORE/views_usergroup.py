@@ -36,8 +36,7 @@ from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.framework.models import LucteriosScheduler
 
-MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png",
-                   _("_Rights manage"), _("To manage users, groups and permissions."), 40)
+MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
 
 @MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))

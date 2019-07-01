@@ -82,16 +82,26 @@ var Menu = Class.extend({
 		}
 	},
 
-	getActFrame : function(itemType, style) {
-		var html = '', submenu_idx;
+	getActFrame : function(itemType, style, is_root_level) {
+		var html = '', default_style, submenu_idx;
 		if ((this.icon !== '') || G_With_Extra_Menu) {
 			html = '<{0} id="{1}" {2}>'.format(itemType, this.id, style);
-			if (this.icon !== "") {
-				html += '<img src="{0}" />'.format(Singleton().Transport().getIconUrl(this.icon));
+			if (is_root_level === false) {
+				if (this.icon !== "") {
+					html += '<img src="{0}" />'.format(Singleton().Transport().getIconUrl(this.icon));
+				}
+				html += "<label><b>{0}</b></label>".format(this.txt);
 			}
-			html += "<span><b>{0}</b></span>".format(this.txt);
 			if (this.help !== null && this.help !== "") {
-				html += "<br><font size='-2'>{0}</font>".format(this.help);
+				if (itemType === 'div') {
+					html += '<span class="fa fa-question-circle" onclick="toggle_help(\'{0}\')"></span>'.format(this.id);
+					default_style = 'display:none;';
+				} else {
+					default_style = 'display:line;';
+				}
+				html += "<div class='helper' style='{0}' >".format(default_style);
+				html += "<label>{0}</label>".format(this.help.convertLuctoriosFormatToHtml());
+				html += "</div>";
 			}
 			html += '</{0}>'.format(itemType);
 		}
@@ -112,16 +122,14 @@ var Menu = Class.extend({
 					this.rootHtml += '<img src="{0}" />'.format(Singleton().Transport().getIconUrl(this.icon));
 				}
 				this.rootHtml += "<span>{0}</span>".format(this.txt);
-				for (submenu_idx = 0; submenu_idx < this.submenu.length; submenu_idx++) {
-					html += this.submenu[submenu_idx].getHtml();
-				}
+				html += this.getActFrame('div', "class='rootFrame'", true);
 			}
 			// contenu
 			else {
-				html += this.getActFrame('div', "class='menuFrame'");
+				html += this.getActFrame('div', "class='menuFrame'", false);
 			}
 		} else {
-			html += this.getActFrame('button', "");
+			html += this.getActFrame('button', "", false);
 		}
 		return html;
 	},
@@ -302,5 +310,14 @@ function refreshCurrentAcideMenu() {
 		}
 		title = $('#' + acide_menu_id);
 		title.click();
+	}
+}
+
+function toggle_help(help_id) {
+	var helper = $('#' + help_id + ' div.helper:eq(0)');
+	if (helper.css('display') === 'none') {
+		helper.css('display', 'block');
+	} else {
+		helper.css('display', 'none');
 	}
 }

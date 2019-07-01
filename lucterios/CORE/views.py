@@ -62,10 +62,8 @@ from lucterios.CORE.views_usergroup import UsersList, GroupsList
 
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
-MenuManage.add_sub(
-    'core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
-MenuManage.add_sub('core.admin', None, 'images/admin.png',
-                   _('Management'), _('Manage settings and configurations.'), 100)
+MenuManage.add_sub('core.general', None, 'images/general.png', _('General'), _('Generality'), 1)
+MenuManage.add_sub('core.admin', None, 'images/admin.png', _('Management'), _('Manage settings and configurations.'), 100)
 
 
 def right_status(request):
@@ -336,8 +334,7 @@ class ParamSave(XferContainerAcknowledge):
         signal_and_lock.Signal.call_signal("param_change", params)
 
 
-MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png",
-                   _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
+MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
@@ -366,8 +363,7 @@ class SavedCriteriaDel(XferDelete):
     caption = _("Delete Saved criteria")
 
 
-MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png",
-                   _("Report and print"), _("To manage reports and tools of printing."), 30)
+MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("Report and print"), _("To manage reports and tools of printing."), 30)
 
 
 @MenuManage.describ('CORE.change_printmodel', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))

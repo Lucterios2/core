@@ -233,12 +233,45 @@ italic {
 	}
 }
 
+.rootFrame {
+	width: 90%;
+	min-height: 15px;
+	text-align: center;
+	padding: 10px;
+}
+
 .menuFrame {
 	width: 90%;
 	text-align: center;
 	padding: 10px;
 	border-top: 1px solid black;
 	border-bottom: 1px solid black;
+}
+
+.menuFrame span {
+	color: white;
+	font-size: 20px;
+	float: right;
+}
+
+.rootFrame span {
+	color: white;
+	font-size: 20px;
+	float: left;
+}
+
+.menuFrame div.helper, .rootFrame div.helper {
+	width: 70%;
+	text-align: left;
+	padding: 10px;
+	border: 1px solid gray;
+	border-top-right-radius: 15px;
+	border-top-left-radius: 15px;
+	border-bottom-right-radius: 15px;
+	border-bottom-left-radius: 15px;
+	background-color: #eee;
+	margin-left: 15%;
+    margin-top: 5px;
 }
 
 .ui-tabs img {
