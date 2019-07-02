@@ -113,7 +113,7 @@ var Menu = Class.extend({
 
 	getHtml : function() {
 		this.rootHtml = '';
-		var html = "", submenu_idx;
+		var html = "";
 		// menu principal type dropdown sans action
 		if (this.act === null) {
 			// tabs de menu
@@ -123,9 +123,7 @@ var Menu = Class.extend({
 				}
 				this.rootHtml += "<span>{0}</span>".format(this.txt);
 				html += this.getActFrame('div', "class='rootFrame'", true);
-			}
-			// contenu
-			else {
+			} else {
 				html += this.getActFrame('div', "class='menuFrame'", false);
 			}
 		} else {

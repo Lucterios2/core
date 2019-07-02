@@ -1318,7 +1318,7 @@ var compUpload = compGeneric
 			},
 
 			addAction : function() {
-				var drop_comp, gui_comp = this.getGUIComp();
+				var gui_comp = this.getGUIComp();
 				gui_comp.change($.proxy(this.getFileContentBase64, this));
 			},
 

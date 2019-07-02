@@ -351,12 +351,11 @@ italic {
 	position: relative;
 }
 
-@
-supports (-moz-appearance:none ) { .lctbtnmini img {
-	position: relative;
-	left: -10px;
-}
-
+@-moz-document url-prefix() { 
+	.lctbtnmini img {
+		position: relative;
+		left: -10px;
+	}
 }
 button span img {
 	margin: 0em 0.4em 0.0em 0px;
