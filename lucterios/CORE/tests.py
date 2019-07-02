@@ -327,7 +327,8 @@ class ConfigTest(LucteriosTest):
         self.assert_action_equal(self.json_actions[1], ('Annuler', 'images/cancel.png'))
         self.assert_count_equal('', 3)
         self.assert_comp_equal(('IMAGE', "img"), '/static/lucterios.CORE/images/config.png', (0, 0, 1, 1))
-        self.assert_comp_equal(('LABELFORM', "title"), "{[br/]}{[center]}{[u]}{[b]}Edition de paramètres{[/b]}{[/u]}{[/center]}", (1, 0, 2, 1))
+        self.assert_comp_equal(('LABELFORM', "title"), "Edition de paramètres", (1, 0, 2, 1))
+        self.assert_attrib_equal("title", "formatstr", "{[br/]}{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}")
 
         self.assert_comp_equal(('SELECT', "CORE-connectmode"), "0", (1, 1, 1, 1))
         self.assert_attrib_equal("CORE-connectmode", 'description', "Mode de connexion")

@@ -237,6 +237,7 @@ class LucteriosTestAbstract(object):
         txt_value = self.get_json_path(comp_name)
         if isinstance(txtrange, tuple):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
+            value = six.text_type(value)[txtrange[0]:txtrange[1]]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
         if isinstance(txt_value, float) or isinstance(value, float):
@@ -279,9 +280,9 @@ class LucteriosTestAbstract(object):
                 six.print_("Message:" + self.json_data['text'])
             raise
 
-    def assert_comp_equal(self, path, text, coord):
+    def assert_comp_equal(self, path, text, coord, txtrange=None):
         self.assertTrue(self.response_json is not None)
-        self.assert_json_equal(path[0], path[1], text)
+        self.assert_json_equal(path[0], path[1], text, txtrange)
         path = path[1]
         self.assert_coordcomp_equal(path, coord)
 

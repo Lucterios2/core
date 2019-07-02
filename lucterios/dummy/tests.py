@@ -147,13 +147,13 @@ class DummyTest(LucteriosTest):
         self.assert_observer('core.custom', 'lucterios.dummy', 'simpleGrid')
         self.assert_count_equal('', 1)
         self.assert_grid_equal("grid", {'col1': 'Integer', 'col2': 'Float', "col3": 'Boolean', "col4": 'String'}, 2)
-        self.assert_json_equal("", "grid/@0/col1", '25')
-        self.assert_json_equal("", "grid/@0/col2", '7.54')
-        self.assert_json_equal("", "grid/@0/col3", '1')
+        self.assert_json_equal("", "grid/@0/col1", 2500)
+        self.assert_json_equal("", "grid/@0/col2", 7.54)
+        self.assert_json_equal("", "grid/@0/col3", True)
         self.assert_json_equal("", "grid/@0/col4", 'foo')
-        self.assert_json_equal("", "grid/@1/col1", '0')
-        self.assert_json_equal("", "grid/@1/col2", '789.644')
-        self.assert_json_equal("", "grid/@1/col3", '0')
+        self.assert_json_equal("", "grid/@1/col1", 4)
+        self.assert_json_equal("", "grid/@1/col2", 789.644)
+        self.assert_json_equal("", "grid/@1/col3", False)
         self.assert_json_equal("", "grid/@1/col4", 'string')
 
 
@@ -178,7 +178,7 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.assert_count_equal('tasks', 1)
         self.assert_json_equal('', 'tasks/@0/name', 'Run simple action')
         self.assert_json_equal('', 'tasks/@0/trigger', 'interval[0:00:10]')
-        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
+        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%dT%H:'), True)
 
         sleep(6 * 10 + .2)
         value = Params.getvalue('dummy-value')
@@ -190,7 +190,7 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.assert_count_equal('tasks', 1)
         self.assert_json_equal('', 'tasks/@0/name', 'Run simple action')
         self.assert_json_equal('', 'tasks/@0/trigger', 'date[' + datetime.now().strftime('%Y-%m-%d %H:'), True)
-        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%d %H:'), True)
+        self.assert_json_equal('', 'tasks/@0/nextdate', datetime.now().strftime('%Y-%m-%dT%H:'), True)
 
         sleep(10 + .2)
         value = Params.getvalue('dummy-value')

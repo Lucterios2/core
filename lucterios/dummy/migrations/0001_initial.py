@@ -29,6 +29,7 @@ from django.db import models, migrations
 import django.core.validators
 from django.utils import six
 from lucterios.CORE.models import PrintModel
+from lucterios.framework.models import LucteriosDecimalField
 
 
 def initial_values(*args):
@@ -53,7 +54,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=75, unique=True)),
                 ('value', models.IntegerField(validators=[django.core.validators.MinValueValidator(
                     0), django.core.validators.MaxValueValidator(20)])),
-                ('price', models.DecimalField(validators=[django.core.validators.MinValueValidator(
+                ('price', LucteriosDecimalField(validators=[django.core.validators.MinValueValidator(
                     -5000.0), django.core.validators.MaxValueValidator(5000.0)], decimal_places=2, max_digits=6, default=100.0)),
                 ('date', models.DateField(null=True)),
                 ('time', models.TimeField()),
@@ -72,8 +73,8 @@ class Migration(migrations.Migration):
                     primary_key=True, serialize=False, verbose_name='ID', auto_created=True)),
                 ('text', models.CharField(max_length=75, unique=True)),
                 ('integer', models.IntegerField(validators=[django.core.validators.MinValueValidator(
-                    0), django.core.validators.MaxValueValidator(20)])),
-                ('real', models.DecimalField(max_digits=6, decimal_places=2, validators=[
+                    0), django.core.validators.MaxValueValidator(2000)])),
+                ('real', LucteriosDecimalField(max_digits=6, decimal_places=2, validators=[
                  django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)])),
                 ('bool', models.BooleanField(default=False)),
             ],

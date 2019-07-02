@@ -1,10 +1,11 @@
-/*global $,unusedVariables,Class,compGeneric,Singleton,compButton,SELECT_MULTI,SELECT_SINGLE,SELECT_NONE,LucteriosException,MINOR*/
+/*global $,unusedVariables,Class,compGeneric,format_to_string,Singleton,compButton,SELECT_MULTI,SELECT_SINGLE,SELECT_NONE,LucteriosException,MINOR*/
 
 var compGridHeader = Class.extend({
 	name : "",
 	type : "",
 	orderable : 0,
 	label : "",
+	formatstr : "{0}",
 	grid : null,
 
 	initial : function(headcomp, grid) {
@@ -12,6 +13,7 @@ var compGridHeader = Class.extend({
 		this.label = headcomp[1];
 		this.type = headcomp[2];
 		this.orderable = headcomp[3];
+		this.formatstr = (headcomp[4] || "{0}").replace(/%s/g, "{0}");
 		this.grid = grid;
 	},
 
@@ -59,115 +61,87 @@ var compGridValue = Class.extend({
 	},
 
 	getHtml : function() {
-		var html_val;
+		var cell_type, label;
 		if (this.value === "") {
 			return '<td></td>';
 		}
-		switch (this.parentGrid.getValueType(this.name)) {
-		case 'datetime':
-			html_val = "---";
-			if (this.value !== '---') {
-				html_val = new Date(this.value).toLocaleDateString(Singleton().getSelectLang(), {
-					year : 'numeric',
-					month : 'short',
-					day : 'numeric',
-					hour : 'numeric',
-					minute : 'numeric'
-				});
-			}
-			return '<td>{0}</td>'.format(html_val);
-		case 'date':
-			html_val = "---";
-			if (this.value !== '---') {
-				html_val = new Date(this.value).toLocaleDateString(Singleton().getSelectLang(), {
-					year : 'numeric',
-					month : 'short',
-					day : 'numeric'
-				});
-			}
-			return '<td>{0}</td>'.format(html_val);
-		case 'icon':
+		cell_type = this.parentGrid.getValueType(this.name);
+		if (cell_type === 'icon') {
 			return '<td><img src="{0}"></td>'.format(Singleton().Transport().getIconUrl(this.value));
-		case 'bool':
-			html_val = 'checked="1"';
-			if ((this.value === '0') || (this.value.toLowerCase() === 'false') || (this.value === 'n')) {
-				html_val = '';
-			}
-			return '<td><center><input type="checkbox" {0} disabled="1"></input></center></td>'.format(html_val);
-		default:
-			return '<td>{0}</td>'.format(this.value.convertLuctoriosFormatToHtml());
 		}
+
+		label = format_to_string(this.value, cell_type, this.parentGrid.getFormatStr(this.name));
+		return '<td>{0}</td>'.format(label.convertLuctoriosFormatToHtml());
 	}
 });
 
-var compGridRow = Class
-		.extend({
-			id : 0,
-			values : null,
-			grid : "",
-			row_idx : 0,
-			color_idx : 0,
+var compGridRow = Class.extend({
+	id : 0,
+	values : null,
+	grid : "",
+	row_idx : 0,
+	color_idx : 0,
 
-			initial : function(row_idx, rowcomp, grid, color_idx) {
-				this.row_idx = row_idx;
-                                this.color_idx = color_idx;
-				this.grid = grid;
-				this.id = rowcomp.id;
+	initial : function(row_idx, rowcomp, grid, color_idx) {
+		this.row_idx = row_idx;
+		this.color_idx = color_idx;
+		this.grid = grid;
+		this.id = rowcomp.id;
 
-				var iCol, col_name, val;
-				this.values = [];
-				for (iCol = 0; iCol < this.grid.grid_headers.length; iCol++) {
-					col_name = this.grid.grid_headers[iCol].name;
-					val = new compGridValue();
-					val.initial(col_name, rowcomp[col_name]);
-					val.setParentGrid(this.grid);
-					this.values[this.values.length] = val;
-				}
-			},
+		var iCol, col_name, val;
+		this.values = [];
+		for (iCol = 0; iCol < this.grid.grid_headers.length; iCol++) {
+			col_name = this.grid.grid_headers[iCol].name;
+			val = new compGridValue();
+			val.initial(col_name, rowcomp[col_name]);
+			val.setParentGrid(this.grid);
+			this.values[this.values.length] = val;
+		}
+	},
 
-			getHtml : function() {
-				var html, idx_val;
-				html = '<tr id="{0}_{1}" pq-row-indx="{2}" class="{3}">'.format(this.grid.name, this.id, this.row_idx,
-						(this.color_idx % 2) === 0 ? "odd" : "");
-				for (idx_val = 0; idx_val < this.values.length; idx_val++) {
-					html += this.values[idx_val].getHtml();
-				}
-				html += '</tr>';
-				return html;
-			},
+	getHtml : function() {
+		var html, idx_val;
+		html = '<tr id="{0}_{1}" pq-row-indx="{2}" class="{3}">'.format(this.grid.name, this.id, this.row_idx, (this.color_idx % 2) === 0 ? "odd"
+				: "");
+		for (idx_val = 0; idx_val < this.values.length; idx_val++) {
+			html += this.values[idx_val].getHtml();
+		}
+		html += '</tr>';
+		return html;
+	},
 
-			selectGridRow : function(event) {
-				this.grid.changeSelectRow(this.row_idx, !this.isSelected(), event.shiftKey);
-			},
+	selectGridRow : function(event) {
+		this.grid.changeSelectRow(this.row_idx, !this.isSelected(), event.shiftKey);
+	},
 
-			dbClickRow : function() {
-				this.grid.clear_select_row(true);
-				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-				row.addClass("selected");
-				this.grid.dbclick();
-			},
+	dbClickRow : function() {
+		this.grid.clear_select_row(true);
+		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+		row.addClass("selected");
+		this.grid.dbclick();
+	},
 
-			setSelected : function(select) {
-				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-				if (select) {
-					row.addClass("selected");
-				} else {
-					row.removeClass("selected");
-				}
-			},
+	setSelected : function(select) {
+		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+		if (select) {
+			row.addClass("selected");
+		} else {
+			row.removeClass("selected");
+		}
+	},
 
-			isSelected : function() {
-				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-				return row.hasClass("selected");
-			},
+	isSelected : function() {
+		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+		return row.hasClass("selected");
+	},
 
-			addAction : function() {
-				var row = $('#{0}_{1}'.format(this.grid.name, this.id));
-				row.click($.proxy(this.selectGridRow, this));
-				row.dblclick($.proxy(this.dbClickRow, this));
-			}
+	addAction : function() {
+		var row = $('#{0}_{1}'.format(this.grid.name, this.id));
+		row.click($.proxy(this.selectGridRow, this));
+		row.dblclick($.proxy(this.dbClickRow, this));
+	}
 
-		});
+});
 
 var compGrid = compGeneric
 		.extend({
@@ -235,16 +209,26 @@ var compGrid = compGeneric
 						return this.grid_headers[iCol].type;
 					}
 				}
-				// ne devrait jamais arriver mais par defaut, on retourne 'str'
-				return 'str';
+				// ne devrait jamais arriver mais par defaut, on retourne null
+				return null;
+			},
+			getFormatStr : function(name) {
+				var iCol;
+				for (iCol = 0; iCol < this.grid_headers.length; iCol++) {
+					if (this.grid_headers[iCol].name === name) {
+						return this.grid_headers[iCol].formatstr;
+					}
+				}
+				return "{0}";
 			},
 
 			_rows_manage : function(component) {
-				var iChild, row, color_idx=0;
+				var iChild, row, color_idx = 0;
 				this.grid_Rows = [];
 				for (iChild = 0; iChild < component.value.length; iChild++) {
 					if (iChild > 0) {
-						if ((component.value[iChild].__color_ref__ === null) || (component.value[iChild].__color_ref__ !== component.value[iChild-1].__color_ref__)) {
+						if ((component.value[iChild].__color_ref__ === null)
+								|| (component.value[iChild].__color_ref__ !== component.value[iChild - 1].__color_ref__)) {
 							color_idx++;
 						}
 					}
@@ -344,12 +328,13 @@ var compGrid = compGeneric
 				}
 				html += '</tr></thead><tbody>';
 				if (this.grid_Rows.length === 0) {
-					html += '<tr class="gridempty"><td colspan="{0}">{1}</td></tr>'.format(this.grid_headers.length, Singleton().getTranslate("NoRows"));
+					html += '<tr class="gridempty"><td colspan="{0}">{1}</td></tr>'.format(this.grid_headers.length, Singleton().getTranslate(
+							"NoRows"));
 				} else {
 					for (iRow = 0; iRow < this.grid_Rows.length; iRow++) {
 						html += this.grid_Rows[iRow].getHtml();
-					}	
-				}			
+					}
+				}
 				html += '</tbody></table></div>';
 				html += '</div>';
 				return html;
@@ -418,9 +403,9 @@ var compGrid = compGeneric
 				if (new_select_val) {
 					this.clear_select_row(false);
 				}
-				if (with_range && (this.last_row_selected !== -1) && (this.last_row_selected !==rowidx)) {
-					var row_idx, min_row=Math.min(this.last_row_selected+1,rowidx), max_row=Math.max(this.last_row_selected-1,rowidx);
-					for(row_idx=min_row;row_idx<=max_row;row_idx++) {
+				if (with_range && (this.last_row_selected !== -1) && (this.last_row_selected !== rowidx)) {
+					var row_idx, min_row = Math.min(this.last_row_selected + 1, rowidx), max_row = Math.max(this.last_row_selected - 1, rowidx);
+					for (row_idx = min_row; row_idx <= max_row; row_idx++) {
 						this.grid_Rows[row_idx].setSelected(new_select_val);
 					}
 				} else {

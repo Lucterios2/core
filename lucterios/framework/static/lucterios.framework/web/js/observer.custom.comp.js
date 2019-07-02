@@ -1,4 +1,4 @@
-/*global $,LucteriosException,Uint8Array,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+/*global $,LucteriosException,Uint8Array,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,format_to_string,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
 /*jslint regexp: true */
 
 // image
@@ -47,7 +47,10 @@ var compLabelForm = compGeneric.extend({
 		this._super(component);
 		this.needed = 0;
 
-		this.label = component.value.convertLuctoriosFormatToHtml();
+		this.value = component.value;
+		this.formatnum = component.formatnum || "";
+		this.formatstr = component.formatstr || "%s";
+		this.formatstr = this.formatstr.replace(/%s/g, "{0}");
 		this.tag = 'span';
 	},
 
@@ -56,7 +59,9 @@ var compLabelForm = compGeneric.extend({
 	},
 
 	get_Html : function() {
-		return this.getBuildHtml({}, false, false) + this.label + '</span>';
+		var label;
+		label = format_to_string(this.value, this.formatnum, this.formatstr);
+		return this.getBuildHtml({}, false, false) + label.convertLuctoriosFormatToHtml() + '</span>';
 	}
 });
 

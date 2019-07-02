@@ -28,7 +28,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from lucterios.framework.models import LucteriosModel
+from lucterios.framework.models import LucteriosModel, LucteriosDecimalField
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 
@@ -36,10 +36,10 @@ from lucterios.CORE.models import Parameter
 class Example(LucteriosModel):
 
     name = models.CharField(max_length=75, unique=True)
-    value = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(20)])
-    price = models.DecimalField(max_digits=6, decimal_places=2, default=100.0, validators=[
-                                MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
+    value = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(20)])
+    price = LucteriosDecimalField(max_digits=6, decimal_places=2, default=100.0,
+                                  validators=[MinValueValidator(-5000.0), MaxValueValidator(5000.0)],
+                                  format_string="C2EUR;{[font color='green']}%s{[/font]};{[font color='red']}%s{[/font]}")
     date = models.DateField(null=True)
     time = models.TimeField()
     valid = models.BooleanField(default=False)
@@ -68,10 +68,10 @@ class Example(LucteriosModel):
 class Other(LucteriosModel):
 
     text = models.CharField(max_length=75, unique=True)
-    integer = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(20)])
-    real = models.DecimalField(max_digits=6, decimal_places=2, validators=[
-                               MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
+    integer = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2000)])
+    real = LucteriosDecimalField(max_digits=6, decimal_places=2,
+                                 format_string=lambda: "N4",
+                                 validators=[MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
     bool = models.BooleanField(default=False)
 
 

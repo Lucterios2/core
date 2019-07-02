@@ -31,8 +31,8 @@ test("Custom_Simple", function() {
 		"context" : {},
 		"close" : null,
 		"data" : {
-			"dummytitle" : "{[center]}{[u]}{[b]}Dummy{[/b]}{[/u]}{[/center]}",
-			"dummy_time" : "{[center]}{[font color=\"blue\"]}Thu Oct 26 19:42:12 2017{[/font]}{[/center]}"
+			"dummytitle" : "Dummy",
+			"dummy_time" : "2017-10-26T19:42:12.033"
 		},
 		"meta" : {
 			"action" : "statusMenu",
@@ -49,7 +49,9 @@ test("Custom_Simple", function() {
 			"rowspan" : 1,
 			"name" : "dummytitle",
 			"tab" : 0,
-			"colspan" : 4
+			"colspan" : 4,
+			"formatstr" : "{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}",
+			"formatnum" : null
 		}, {
 			"description" : "",
 			"y" : 1,
@@ -59,7 +61,9 @@ test("Custom_Simple", function() {
 			"rowspan" : 1,
 			"name" : "dummy_time",
 			"tab" : 0,
-			"colspan" : 4
+			"colspan" : 4,
+			"formatstr" : "{[center]}{[font color=\"blue\"]}%s{[/font]}{[/center]}",
+			"formatnum" : "H"
 		} ]
 	};
 
@@ -77,7 +81,7 @@ test("Custom_Simple", function() {
 	equal(lbl.html(), "<center><u><b>Dummy</b></u></center>", "text 1");
 
 	var lbl = jcnt.find("table:eq(0) > tbody > tr:eq(1) > td:eq(0) > lct-cell > span");
-	equal(lbl.html(), "<center><font color=\"blue\">Thu Oct 26 19:42:12 2017</font></center>", "text 2");
+	equal(lbl.html(), "<center><font color=\"blue\">jeudi 26 octobre 2017 à 19:42</font></center>", "text 2");
 
 	var btn1 = jcnt.parent().find("div:eq(2) > div:eq(0) > button:eq(0)");
 	equal(btn1.text(), 'Fermer', 'btn 1');
@@ -688,7 +692,9 @@ test("Custom_Download", function() {
 			"component" : "LABELFORM",
 			"y" : 1,
 			"name" : "name",
-			"colspan" : 2
+			"colspan" : 2,
+			"formatstr" : "%s",
+			"formatnum" : null
 		}, {
 			"tab" : 0,
 			"maxsize" : 0,
@@ -803,92 +809,99 @@ test("Custom_Grid", function() {
 			"params" : null,
 			"close" : "1"
 		} ],
-		"comp" : [ {
-			"x" : 0,
-			"description" : "",
-			"needed" : false,
-			"tab" : 0,
-			"rowspan" : 1,
-			"component" : "IMAGE",
-			"y" : 0,
-			"name" : "img",
-			"colspan" : 1,
-			"type" : ""
-		}, {
-			"x" : 1,
-			"description" : "",
-			"needed" : false,
-			"tab" : 0,
-			"rowspan" : 1,
-			"component" : "LABELFORM",
-			"y" : 0,
-			"name" : "filtre",
-			"colspan" : 1
-		}, {
-			"tab" : 0,
-			"needed" : false,
-			"component" : "EDIT",
-			"description" : "",
-			"javascript" : "",
-			"is_mini" : false,
-			"size" : -1,
-			"is_default" : false,
-			"x" : 1,
-			"reg_expr" : "",
-			"action" : {
-				"text" : "Code postal",
-				"params" : null,
-				"icon" : "/static/lucterios.contacts/images/postalCode.png",
-				"modal" : "2",
-				"unique" : "1",
-				"id" : "filter_postal_code",
-				"action" : "postalCodeList",
-				"name" : "filter_postal_code",
-				"close" : "0",
-				"extension" : "lucterios.contacts"
-			},
-			"rowspan" : 1,
-			"y" : 1,
-			"name" : "filter_postal_code",
-			"colspan" : 1
-		}, {
-			"HMin" : 500,
-			"tab" : 0,
-			"needed" : false,
-			"headers" : [ [ "postal_code", "code postal", "str", 1 ], [ "city", "ville", "str", 1 ], [ "country", "pays", "str", 1 ] ],
-			"VMin" : 200,
-			"component" : "GRID",
-			"description" : "",
-			"page_max" : 1,
-			"x" : 0,
-			"order" : null,
-			"actions" : [ {
-				"text" : "Ajouter",
-				"params" : null,
-				"icon" : "/static/lucterios.CORE/images/add.png",
-				"modal" : "1",
-				"unique" : "0",
-				"id" : "lucterios.contacts/postalCodeAdd",
-				"action" : "postalCodeAdd",
-				"close" : "0",
-				"extension" : "lucterios.contacts"
-			} ],
-			"rowspan" : 1,
-			"y" : 2,
-			"name" : "postalCode",
-			"colspan" : 2,
-			"page_num" : 0
-		}, {
-			"x" : 0,
-			"description" : "",
-			"needed" : false,
-			"tab" : 0,
-			"rowspan" : 1,
-			"component" : "LABELFORM",
-			"y" : 3,
-			"name" : "nb_postalCode",
-			"colspan" : 2
-		} ],
+		"comp" : [
+				{
+					"x" : 0,
+					"description" : "",
+					"needed" : false,
+					"tab" : 0,
+					"rowspan" : 1,
+					"component" : "IMAGE",
+					"y" : 0,
+					"name" : "img",
+					"colspan" : 1,
+					"type" : ""
+				},
+				{
+					"x" : 1,
+					"description" : "",
+					"needed" : false,
+					"tab" : 0,
+					"rowspan" : 1,
+					"component" : "LABELFORM",
+					"y" : 0,
+					"name" : "filtre",
+					"colspan" : 1,
+					"formatstr" : "%s",
+					"formatnum" : null
+				},
+				{
+					"tab" : 0,
+					"needed" : false,
+					"component" : "EDIT",
+					"description" : "",
+					"javascript" : "",
+					"is_mini" : false,
+					"size" : -1,
+					"is_default" : false,
+					"x" : 1,
+					"reg_expr" : "",
+					"action" : {
+						"text" : "Code postal",
+						"params" : null,
+						"icon" : "/static/lucterios.contacts/images/postalCode.png",
+						"modal" : "2",
+						"unique" : "1",
+						"id" : "filter_postal_code",
+						"action" : "postalCodeList",
+						"name" : "filter_postal_code",
+						"close" : "0",
+						"extension" : "lucterios.contacts"
+					},
+					"rowspan" : 1,
+					"y" : 1,
+					"name" : "filter_postal_code",
+					"colspan" : 1
+				},
+				{
+					"HMin" : 500,
+					"tab" : 0,
+					"needed" : false,
+					"headers" : [ [ "postal_code", "code postal", "N0", 1, "%s" ], [ "city", "ville", null, 1, "%s" ],
+							[ "country", "pays", null, 1, "{[b]}%s{[/b]}" ] ],
+					"VMin" : 200,
+					"component" : "GRID",
+					"description" : "",
+					"page_max" : 1,
+					"x" : 0,
+					"order" : null,
+					"actions" : [ {
+						"text" : "Ajouter",
+						"params" : null,
+						"icon" : "/static/lucterios.CORE/images/add.png",
+						"modal" : "1",
+						"unique" : "0",
+						"id" : "lucterios.contacts/postalCodeAdd",
+						"action" : "postalCodeAdd",
+						"close" : "0",
+						"extension" : "lucterios.contacts"
+					} ],
+					"rowspan" : 1,
+					"y" : 2,
+					"name" : "postalCode",
+					"colspan" : 2,
+					"page_num" : 0
+				}, {
+					"x" : 0,
+					"description" : "",
+					"needed" : false,
+					"tab" : 0,
+					"rowspan" : 1,
+					"component" : "LABELFORM",
+					"y" : 3,
+					"name" : "nb_postalCode",
+					"colspan" : 2
+				} ],
 		"data" : {
 			"nb_postalCode" : "Nombre total de codes postaux: 5",
 			"img" : "/static/lucterios.contacts/images/postalCode.png",
@@ -896,27 +909,27 @@ test("Custom_Grid", function() {
 			"postalCode" : [ {
 				"city" : "DOMENE",
 				"country" : "France",
-				"postal_code" : "38420",
+				"postal_code" : 38420,
 				"id" : 13052
 			}, {
 				"city" : "LE VERSOUD",
 				"country" : "France",
-				"postal_code" : "38420",
+				"postal_code" : 38420,
 				"id" : 19686
 			}, {
 				"city" : "MURIANETTE",
 				"country" : "France",
-				"postal_code" : "38420",
+				"postal_code" : 38420,
 				"id" : 41059
 			}, {
 				"city" : "REVEL",
 				"country" : "France",
-				"postal_code" : "38420",
+				"postal_code" : 38420,
 				"id" : 26703
 			}, {
 				"city" : "ST JEAN LE VIEUX",
 				"country" : "France",
-				"postal_code" : "38420",
+				"postal_code" : 38420,
 				"id" : 30019
 			} ],
 			"filtre" : "{[b]}Filtrer par code postal{[/b]}"
@@ -950,11 +963,11 @@ test("Custom_Grid", function() {
 	equal(comp.text().trim(), "pays", "head 3");
 
 	var cell1 = table_content.find("tr:eq(0) > td:eq(0)");
-	equal(cell1.text(), "38420", "cell 1");
+	equal(cell1.text(), "38 420", "cell 1");
 	var cell2 = table_content.find("tr:eq(1) > td:eq(1)");
 	equal(cell2.text(), "LE VERSOUD", "cell 2");
 	var cell3 = table_content.find("tr:eq(2) > td:eq(2)");
-	equal(cell3.text(), "France", "cell 3");
+	equal(cell3.html(), "<b>France</b>", "cell 3");
 
 	var btn1 = table_buttons.find('button:eq(0)');
 	equal(btn1.text(), 'Ajouter', 'btn 1');
@@ -976,4 +989,49 @@ test("Custom_Grid", function() {
 	gui.close();
 	ok(!gui.isExist(), "GUI exist");
 
+});
+
+test("Test_format_to_string", function() {
+	equal(format_to_string(null, null, null), "---", "check null");
+	equal(format_to_string("abc", null, null), "abc", "check string simple");
+	equal(format_to_string("abc", null, "{[i]}{[b]}{0}{[/b]}{[/i]}"), "{[i]}{[b]}abc{[/b]}{[/i]}", "check string formated");
+
+	equal(format_to_string(1234.56, null, "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1234.56{[/i]}", "check num positive");
+	equal(format_to_string(-1234.56, null, "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1234.56{[/b]}", "check num negative");
+
+	equal(format_to_string(1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1 234,560{[/i]}", "check num positive formated");
+	equal(format_to_string(-1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1 234,560{[/b]}", "check num negative formated");
+	equal(format_to_string(1234.56, "N0", "{0}"), "1 235", "check int no-formated");
+
+	equal(format_to_string(1234.56, "N3", "{0}"), "1 234,560", "check num positive no-formated");
+	equal(format_to_string(-1234.56, "N3", "{0}"), "-1 234,560", "check num negative no-formated");
+	equal(format_to_string(1234.56, "C2EUR", "{0}").indexOf("€"), 9, "check currency no-formated");
+
+	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date");
+	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time");
+	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time");
+
+	equal(format_to_string(true, "B", "{0}"), "Oui", "check bool true");
+	equal(format_to_string(false, "B", "{0}"), "Non", "check bool false");
+
+	equal(format_to_string(0, {
+		'0' : 'aaa',
+		'1' : 'bbb',
+		'2' : 'ccc'
+	}, "{0}"), "aaa", "check select 0");
+	equal(format_to_string(1, {
+		'0' : 'aaa',
+		'1' : 'bbb',
+		'2' : 'ccc'
+	}, "{0}"), "bbb", "check select 1");
+	equal(format_to_string(2, {
+		'0' : 'aaa',
+		'1' : 'bbb',
+		'2' : 'ccc'
+	}, "{0}"), "ccc", "check select 2");
+	equal(format_to_string(3, {
+		'0' : 'aaa',
+		'1' : 'bbb',
+		'2' : 'ccc'
+	}, "{0}"), "3", "check select 3");
 });

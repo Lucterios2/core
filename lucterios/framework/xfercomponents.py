@@ -33,8 +33,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-from lucterios.framework.models import get_value_converted, get_value_if_choices
-from django.db.models.fields import FieldDoesNotExist
+from lucterios.framework.models import get_format_from_field, adapt_value
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum, BASE64_PREFIX
 
@@ -76,25 +75,6 @@ class XferComponent(object):
 
     def get_id(self):
         return "tab=%04d_y=%04d_x=%04d" % (int(self.tab), int(self.row) + 1, int(self.col) + 1)
-
-    def _get_attribut(self, compxml):
-        compxml.attrib['name'] = self.name
-        compxml.attrib['description'] = six.text_type(self.description)
-        if isinstance(self.tab, six.integer_types):
-            compxml.attrib['tab'] = six.text_type(self.tab)
-        if isinstance(self.col, six.integer_types):
-            compxml.attrib['x'] = six.text_type(self.col)
-        if isinstance(self.row, six.integer_types):
-            compxml.attrib['y'] = six.text_type(self.row)
-        if isinstance(self.colspan, six.integer_types):
-            compxml.attrib['colspan'] = six.text_type(self.colspan)
-        if isinstance(self.rowspan, six.integer_types):
-            compxml.attrib['rowspan'] = six.text_type(self.rowspan)
-        if isinstance(self.vmin, six.integer_types):
-            compxml.attrib['VMin'] = six.text_type(self.vmin)
-        if isinstance(self.hmin, six.integer_types):
-            compxml.attrib['HMin'] = six.text_type(self.hmin)
-        compxml.attrib['needed'] = six.text_type(1) if self.needed else six.text_type(0)
 
     def get_json_value(self):
         return self._get_content()
@@ -146,10 +126,6 @@ class XferCompPassword(XferComponent):
         self._component_ident = "PASSWD"
         self.security = 1
 
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        compxml.attrib['security'] = six.text_type(self.security)
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['security'] = self.security
@@ -169,11 +145,6 @@ class XferCompImage(XferComponent):
         else:
             self.value = six.text_type(value)
 
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        if self.type != '':
-            compxml.attrib['type'] = six.text_type(self.type)
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['type'] = self.type
@@ -191,6 +162,19 @@ class XferCompLabelForm(XferComponent):
         self._underline = False
         self._blank_line_before = False
         self._color = 'black'
+        self._formatnum = None
+        self._formatstr = None
+
+    def set_format(self, format_string):
+        if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
+            if isinstance(format_string, six.text_type) and (';' in format_string):
+                format_string = format_string.split(';')
+                self._formatnum = format_string[0]
+                self._formatstr = ";".join(format_string[1:])
+            else:
+                self._formatnum = format_string
+        else:
+            self._formatnum = None
 
     def set_value_as_title(self, value):
         self._blank_line_before = True
@@ -247,27 +231,27 @@ class XferCompLabelForm(XferComponent):
         self._blank_line_before = True
 
     def _format_label(self):
-        self.value = six.text_type(self.value)
+        if self._formatstr is None:
+            self._formatstr = "%s"
         if self._color != 'black':
-            self.set_value('{[font color="%s"]}%s{[/font]}' % (self._color, self.value))
+            self._formatstr = '{[font color="%s"]}%s{[/font]}' % (self._color, self._formatstr)
         if self._bold:
-            self.set_value('{[b]}%s{[/b]}' % self.value)
+            self._formatstr = '{[b]}%s{[/b]}' % self._formatstr
         if self._italic:
-            self.set_value('{[i]}%s{[/i]}' % self.value)
+            self._formatstr = '{[i]}%s{[/i]}' % self._formatstr
         if self._underline:
-            self.set_value('{[u]}%s{[/u]}' % self.value)
+            self._formatstr = '{[u]}%s{[/u]}' % self._formatstr
         if self._centered:
-            self.set_value('{[center]}%s{[/center]}' % self.value)
+            self._formatstr = '{[center]}%s{[/center]}' % self._formatstr
         if self._blank_line_before:
-            self.set_value('{[br/]}%s' % self.value)
-
-    def get_reponse_xml(self):
-        self._format_label()
-        return XferComponent.get_reponse_xml(self)
+            self._formatstr = '{[br/]}%s' % self._formatstr
 
     def get_json(self):
         self._format_label()
-        return XferComponent.get_json(self)
+        compjson = XferComponent.get_json(self)
+        compjson['formatstr'] = self._formatstr
+        compjson['formatnum'] = self._formatnum
+        return compjson
 
 
 class XferCompLinkLabel(XferCompLabelForm):
@@ -312,13 +296,6 @@ class XferCompButton(XferComponent):
                 params = options.get('params', None)
             self.action = (action, modal, close, params)
 
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        if self.is_mini:
-            compxml.attrib['isMini'] = '1'
-        if self.is_default:
-            compxml.attrib['isDefault'] = '1'
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['is_mini'] = self.is_mini
@@ -340,10 +317,6 @@ class XferCompEdit(XferCompButton):
         self._component_ident = "EDIT"
         self.mask = ""
         self.size = -1
-
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        compxml.attrib['size'] = six.text_type(self.size)
 
     def _get_content(self):
         if self.value is None:
@@ -390,12 +363,6 @@ class XferCompFloat(XferCompButton):
         else:
             return float(self.value)
 
-    def _get_attribut(self, compxml):
-        XferCompButton._get_attribut(self, compxml)
-        compxml.attrib['min'] = six.text_type(self.min)
-        compxml.attrib['max'] = six.text_type(self.max)
-        compxml.attrib['prec'] = six.text_type(self.prec)
-
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['min'] = self.min
@@ -416,13 +383,6 @@ class XferCompMemo(XferCompButton):
 
     def add_sub_menu(self, name, value):
         self.sub_menu.append((name, value))
-
-    def _get_attribut(self, compxml):
-        XferCompButton._get_attribut(self, compxml)
-        if self.with_hypertext:
-            compxml.attrib['with_hypertext'] = "1"
-        else:
-            compxml.attrib['with_hypertext'] = "0"
 
     def _get_content(self):
         if self.value is None:
@@ -607,15 +567,6 @@ class XferCompCheckList(XferCompButton):
     def _get_content(self):
         return ''
 
-    def _get_attribut(self, compxml):
-        XferCompButton._get_attribut(self, compxml)
-        if (self.simple and (self.simple != 2)) or (self.simple == 1):
-            compxml.attrib['simple'] = '1'
-        elif self.simple == 2:
-            compxml.attrib['simple'] = '2'
-        else:
-            compxml.attrib['simple'] = '0'
-
     def get_json_value(self):
         return self.value
 
@@ -647,14 +598,6 @@ class XferCompUpLoad(XferComponent):
     def add_filter(self, newfiltre):
         self.filter.append(newfiltre)
 
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        if self.compress:
-            compxml.attrib['Compress'] = '1'
-        if self.http_file:
-            compxml.attrib['HttpFile'] = '1'
-        compxml.attrib['maxsize'] = six.text_type(self.maxsize)
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['filter'] = list(self.filter)
@@ -682,14 +625,6 @@ class XferCompDownLoad(XferCompButton):
         self.set_filename(
             "CORE/download?filename=%s&sign=%s" % (filename, sign_value))
 
-    def _get_attribut(self, compxml):
-        XferCompButton._get_attribut(self, compxml)
-        if self.compress:
-            compxml.attrib['Compress'] = '1'
-        if self.http_file:
-            compxml.attrib['HttpFile'] = '1'
-        compxml.attrib['maxsize'] = six.text_type(self.maxsize)
-
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['filename'] = self.filename
@@ -713,14 +648,15 @@ DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('
 
 class XferCompHeader(object):
 
-    def __init__(self, name, descript, htype, orderable):
+    def __init__(self, name, descript, htype, orderable, formatstr="%s"):
         self.name = name
         self.descript = descript
         self.htype = htype
         self.orderable = orderable
+        self.formatstr = formatstr
 
     def get_json(self):
-        return [self.name, self.descript, self.htype, self.orderable]
+        return [self.name, self.descript, self.htype, self.orderable, self.formatstr]
 
 
 class XferCompGrid(XferComponent):
@@ -739,8 +675,8 @@ class XferCompGrid(XferComponent):
         self.order_list = None
         self.no_pager = False
 
-    def add_header(self, name, descript, htype="", horderable=0):
-        self.headers.append(XferCompHeader(name, descript, htype, horderable))
+    def add_header(self, name, descript, htype="", horderable=0, formatstr="%s"):
+        self.headers.append(XferCompHeader(name, descript, htype, horderable, formatstr))
 
     def get_header(self, name):
         head_idx = 0
@@ -759,10 +695,12 @@ class XferCompGrid(XferComponent):
         if head_idx < len(self.headers):
             del self.headers[head_idx]
 
-    def change_type_header(self, name, htype):
+    def change_type_header(self, name, htype, formatstr=None):
         head = self.get_header(name)
         if head is not None:
             head.htype = htype
+            if formatstr is not None:
+                head.formatstr = formatstr
 
     def add_action(self, request, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         if isinstance(action, WrapAction) and action.check_permission(request):
@@ -814,20 +752,6 @@ class XferCompGrid(XferComponent):
         self._new_record(compid)
         self.records[compid][name] = value
 
-    def _get_attribut(self, compxml):
-        XferComponent._get_attribut(self, compxml)
-        if isinstance(self.page_max, six.integer_types) and (self.page_max > 1):
-            compxml.attrib['PageMax'] = six.text_type(self.page_max)
-            compxml.attrib['PageNum'] = six.text_type(self.page_num)
-        if self.order_list is not None:
-            compxml.attrib['order'] = ",".join(self.order_list)
-        compxml.attrib['size_by_page'] = six.text_type(self.size_by_page)
-        compxml.attrib['nb_lines'] = six.text_type(self.nb_lines)
-        if self.no_pager:
-            compxml.attrib['no_pager'] = '1'
-        else:
-            compxml.attrib['no_pager'] = '0'
-
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['page_max'] = self.page_max
@@ -847,7 +771,7 @@ class XferCompGrid(XferComponent):
             json_record = {}
             json_record['id'] = key
             for header in self.headers:
-                json_record[header.name] = six.text_type(get_value_converted(record[header.name], convert_datetime=False))
+                json_record[header.name] = adapt_value(record[header.name])
             for rec_name in record.keys():
                 if rec_name.startswith('__') and (rec_name not in self.headers):
                     json_record[rec_name] = record[rec_name]
@@ -855,12 +779,12 @@ class XferCompGrid(XferComponent):
         return compjson
 
     def _add_header_from_model(self, query_set, fieldnames, has_xfer):
-        from django.db.models.fields import IntegerField, FloatField, BooleanField, DateField, DateTimeField
         for fieldname in fieldnames:
+            format_str = "%s"
             horderable = 0
             if isinstance(fieldname, tuple):
                 verbose_name, fieldname = fieldname
-                hfield = 'str'
+                hfield = None
                 if ('.' not in fieldname) and len(query_set) > 0:
                     try:
                         first_record = query_set[0]
@@ -871,26 +795,19 @@ class XferCompGrid(XferComponent):
                         pass
             elif fieldname[-4:] == '_set':  # field is one-to-many relation
                 dep_field = query_set.model.get_field_by_name(fieldname[:-4])
-                hfield = 'str'
+                hfield = None
                 verbose_name = dep_field.related_model._meta.verbose_name
             else:
                 dep_field = query_set.model.get_field_by_name(fieldname)
-                if isinstance(dep_field, IntegerField) and (dep_field.choices is None):
-                    hfield = 'int'
-                elif isinstance(dep_field, FloatField):
-                    hfield = 'float'
-                elif isinstance(dep_field, BooleanField):
-                    hfield = 'bool'
-                elif isinstance(dep_field, DateTimeField):
-                    hfield = 'datetime'
-                elif isinstance(dep_field, DateField):
-                    hfield = 'date'
-                else:
-                    hfield = 'str'
+                hfield = get_format_from_field(dep_field)
+                if isinstance(hfield, six.text_type) and (';' in hfield):
+                    hfield = hfield.split(';')
+                    format_str = ";".join(hfield[1:])
+                    hfield = hfield[0]
                 verbose_name = dep_field.verbose_name
                 if has_xfer:
                     horderable = 1
-            self.add_header(fieldname, verbose_name, hfield, horderable)
+            self.add_header(fieldname, verbose_name, hfield, horderable, format_str)
 
     def set_model(self, query_set, fieldnames, xfer_custom=None):
         if fieldnames is None:
@@ -914,7 +831,6 @@ class XferCompGrid(XferComponent):
                     sub_items = getattr(child, fieldname).all()
                     for sub_items_value in sub_items:
                         resvalue.append(six.text_type(sub_items_value))
-                    resvalue = "{[br/]}".join(resvalue)
                 else:
                     resvalue = child
                     for field_name in fieldname.split('.'):
@@ -924,11 +840,6 @@ class XferCompGrid(XferComponent):
                             except (ObjectDoesNotExist, AttributeError):
                                 getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
                                 resvalue = None
-                    try:
-                        field_desc = query_set.model.get_field_by_name(fieldname)
-                        resvalue = get_value_if_choices(resvalue, field_desc)
-                    except FieldDoesNotExist:
-                        pass
                 self.set_value(pk_id, fieldname, resvalue)
 
     def add_action_notified(self, xfer_custom, model=None):

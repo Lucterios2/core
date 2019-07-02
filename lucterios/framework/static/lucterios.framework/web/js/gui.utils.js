@@ -1,4 +1,4 @@
-/*global $,Class, screen, unusedVariables, Singleton, String, createGuid*/
+/*global $,Class, screen, unusedVariables, Singleton, String, createGuid, Singleton*/
 
 $.widget("ui.timespinner", $.ui.spinner, {
 	options : {
@@ -316,6 +316,72 @@ String.prototype.convertHtmlToLuctoriosFormat = function() {
 	text = text.replace(/>/g, ']}');
 	return text;
 };
+
+function format_to_string(value, format_num, format_str) {
+	var options=null;
+	if (value===null) {
+		value = "---";
+		format_num = '';
+	}
+	if (Array.isArray(value)) {
+		value=value.join('{[br/]}');
+	}
+	if (format_num===null) {
+		format_num = '';
+	}
+	if (format_str===null) {
+		format_str = '{0}';
+	}
+	
+	if (typeof format_num === "object") {
+		if (format_num.hasOwnProperty(value)) {
+			value = format_num[value];
+		}
+		format_num = '';
+	}
+	if (format_str.indexOf(";") !== -1) {
+		format_str = format_str.split(';');
+		if ((Number(value)<0) && (format_str.length > 1)) {
+			format_str = format_str[1];
+			value = Math.abs(Number(value));
+		}
+		else {
+			format_str = format_str[0];
+		}
+	}
+	if (format_num==='B') {
+		if (value === true) {
+			value = Singleton().getTranslate("Yes");
+		} else {
+			value = Singleton().getTranslate("No");
+		}
+	}
+	if (format_num==='T') {
+		value = new Date("1900-01-01 "+value);
+		options = { hour: "2-digit", minute: "2-digit"};
+	}
+	if (format_num==='D') {
+		value = new Date(value);
+		options = { year: 'numeric', month: 'long', day: "numeric"};
+	}
+	if (format_num==='H') {
+		value = new Date(value);
+		options = {weekday:'long', year: 'numeric', month: 'long', day: "numeric", hour: "2-digit", minute: "2-digit"};
+	}	
+	if (format_num.substr(0, 1) === "N") {
+		value = Number(value);
+		options = { minimumFractionDigits : Number(format_num.substr(1)), maximumFractionDigits : Number(format_num.substr(1))};
+	}
+	if (format_num.substr(0, 1) === "C") {
+		value = Number(value);
+		options = { minimumFractionDigits: Number(format_num.substr(1,1)), maximumFractionDigits : Number(format_num.substr(1,1)),
+				style: "currency", currency: format_num.substr(2), currencyDisplay: "symbol"};
+	}
+	if (options!==null) {
+		value = value.toLocaleString(Singleton().getSelectLang(), options);
+	}
+	return format_str.format(value);
+}
 
 var compBasic = Class.extend({
 	colspan : 1,

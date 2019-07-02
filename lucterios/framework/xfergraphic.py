@@ -25,9 +25,12 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 import datetime
 from logging import getLogger
+import warnings
 
 from django.utils.translation import ugettext as _
 from django.utils import six, formats
+from django.db.models.fields import EmailField, NOT_PROVIDED
+from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
@@ -35,10 +38,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
     XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, XferCompDateTime
 from lucterios.framework.tools import get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES
-from django.db.models.fields import EmailField, NOT_PROVIDED
-from lucterios.framework.models import get_value_converted, get_value_if_choices
-import warnings
-from django.core.exceptions import ObjectDoesNotExist
+from lucterios.framework.models import get_format_from_field, adapt_value
 
 
 def get_range_value(model_field):
@@ -389,16 +389,15 @@ class XferContainerCustom(XferContainerAbstract):
                 except ObjectDoesNotExist:
                     getLogger("lucterios.core").exception("fieldname '%s' not found", fieldname)
                     sub_value = None
-        value = get_value_converted(sub_value, True)
-        dep_field = self.item.get_field_by_name(
-            field_name)
+        value = adapt_value(sub_value)
+        dep_field = self.item.get_field_by_name(field_name)
         if isinstance(dep_field, EmailField):
             comp = XferCompLinkLabel(field_name)
             comp.set_link('mailto:' + value)
         else:
             comp = XferCompLabelForm(field_name)
-        value = get_value_if_choices(value, dep_field)
         comp.set_value(value)
+        comp.set_format(get_format_from_field(dep_field))
         return comp
 
     def get_writing_comp(self, field_name):

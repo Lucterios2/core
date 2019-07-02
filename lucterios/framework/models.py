@@ -27,11 +27,15 @@ import re
 import logging
 from datetime import datetime, date, time
 from django_fsm.signals import post_transition
+from types import FunctionType
+from _decimal import Decimal
 
 from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
+from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField,\
+    IntegerField
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
@@ -39,10 +43,11 @@ from django.utils import six, formats, timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
 
-from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
-from lucterios.framework.editors import LucteriosEditor
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
+
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
+from lucterios.framework.editors import LucteriosEditor
 
 
 class AbsoluteValue(Transform):
@@ -54,6 +59,41 @@ class AbsoluteValue(Transform):
 
 
 RegisterLookupMixin.register_lookup(AbsoluteValue)
+
+
+def adapt_value(value):
+    if hasattr(value, 'all'):
+        values = []
+        for val_item in value.all():
+            values.append(six.text_type(val_item))
+        return values
+    elif isinstance(value, LucteriosModel):
+        return six.text_type(value.get_final_child())
+    elif isinstance(value, Decimal):
+        return float(value)
+    else:
+        return value
+
+
+def get_date_formating(date_value):
+    if isinstance(date_value, datetime):
+        return formats.date_format(date_value, "DATETIME_FORMAT")
+    if isinstance(date_value, date):
+        return formats.date_format(date_value, "DATE_FORMAT")
+    if isinstance(date_value, time):
+        return formats.date_format(date_value, "TIME_FORMAT")
+    else:
+        return date_value
+
+
+def get_bool_textual(value):
+    if isinstance(value, bool):
+        if value:
+            return _("Yes")
+        else:
+            return _("No")
+    else:
+        return value
 
 
 def get_value_converted(value, bool_textual=False, convert_datetime=True):
@@ -85,6 +125,32 @@ def get_value_converted(value, bool_textual=False, convert_datetime=True):
         return value.get_final_child()
     else:
         return value
+
+
+def get_format_from_field(dep_field):
+    if dep_field is None:
+        return None
+    elif hasattr(dep_field, 'format_string'):
+        return dep_field.format_string
+    elif hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+        choices_dict = {}
+        for choices_key, choices_value in dep_field.choices:
+            choices_dict[choices_key] = six.text_type(choices_value)
+        return choices_dict
+    elif hasattr(dep_field, 'decimal_places'):
+        return "N%d" % dep_field.decimal_places
+    elif isinstance(dep_field, IntegerField):
+        return "N0"
+    elif isinstance(dep_field, DateField):
+        return "D"
+    elif isinstance(dep_field, TimeField):
+        return "T"
+    elif isinstance(dep_field, DateTimeField):
+        return "H"
+    elif isinstance(dep_field, BooleanField):
+        return "B"
+    else:
+        return None
 
 
 def get_value_if_choices(value, dep_field):
@@ -214,7 +280,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def import_data(cls, rowdata, dateformat):
-        from django.db.models.fields import IntegerField, FloatField, DecimalField, DateField, TimeField, DateTimeField, BooleanField
+        from django.db.models.fields import FloatField, DecimalField
         from django.db.models.fields.related import ForeignKey
         try:
             new_item = cls()
@@ -526,6 +592,24 @@ class LucteriosModel(models.Model):
         abstract = True
 
 
+class LucteriosDecimalField(models.DecimalField):
+
+    def __init__(self, name=None, format_string=None, **kwargs):
+        self._format_string = format_string
+        super().__init__(name, **kwargs)
+
+    @property
+    def format_string(self):
+        if isinstance(self._format_string, six.text_type):
+            return self._format_string
+        elif isinstance(self._format_string, FunctionType):
+            return self._format_string()
+        elif hasattr(self, 'decimal_places'):
+            return "N%d" % self.decimal_places
+        else:
+            return None
+
+
 class LucteriosSession(Session, LucteriosModel):
 
     def __init__(self, *args, **kwargs):
@@ -559,7 +643,7 @@ class LucteriosSession(Session, LucteriosModel):
 
     @property
     def is_active(self):
-        return get_value_converted(self.get_is_active(), bool_textual=True)
+        return get_bool_textual(self.get_is_active())
 
     @classmethod
     def clean_anonymous(cls):

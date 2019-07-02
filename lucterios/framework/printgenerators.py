@@ -40,10 +40,9 @@ from lucterios.framework.xfercomponents import XferCompTab, \
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import toHtml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size
-from lucterios.framework.models import get_value_converted
+from lucterios.framework.models import get_value_converted, get_bool_textual
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract
-from lxml.etree import ElementTree
 
 DPI = 0.3528125
 
@@ -334,7 +333,7 @@ class PrintLabel(PrintItem):
             elif isinstance(self.comp, XferCompSelect):
                 self.value = self.comp.get_value_text()
             elif isinstance(self.comp, XferCompCheck):
-                self.value = get_value_converted(bool(self.comp.value), True)
+                self.value = get_bool_textual(bool(self.comp.value))
             else:
                 self.value = self.comp.value
         except Exception:

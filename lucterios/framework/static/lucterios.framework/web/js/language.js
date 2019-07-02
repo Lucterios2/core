@@ -3,6 +3,8 @@
 var g_translation = new HashMap();
 
 g_translation.put("fr", new HashMap());
+g_translation.fr.put("Yes", "Oui");
+g_translation.fr.put("No", "Non");
 g_translation.fr.put("Configuration", "Configuration");
 g_translation.fr.put("Describ your problem.<br>Thanks<br><br>",
 		"D&eacute;crivez le plus pr&eacute;cis&eacute;ment possible, comment vous avez obtenu ce probl&egrave;me.<br>Merci de votre aide.<br><br>");
@@ -68,6 +70,8 @@ g_translation.fr.put("ShowNB", "{0} résultats.");
 g_translation.fr.put("Drag one file to this zone ...", "Glisser un fichier dans cette zone ...");
 
 g_translation.put("en", new HashMap());
+g_translation.en.put("Yes", "Yes");
+g_translation.en.put("No", "No");
 g_translation.en.put("Configuration", "Configuration");
 g_translation.en.put("Describ your problem.<br>Thanks<br><br>", "Describ your problem.<br>Thanks<br><br>");
 g_translation.en.put("Bug report", "Bug report");

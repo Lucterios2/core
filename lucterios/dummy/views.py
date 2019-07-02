@@ -291,17 +291,17 @@ class SimpleGrid(XferContainerCustom):
         grid = XferCompGrid('grid')
         grid.set_location(0, 0)
 
-        grid.add_header('col1', "Integer", 'int')
-        grid.add_header('col2', "Float", 'float')
-        grid.add_header('col3', "Boolean", 'bool')
-        grid.add_header('col4', "String", 'str')
+        grid.add_header('col1', "Integer", 'N0')
+        grid.add_header('col2', "Float", 'N3')
+        grid.add_header('col3', "Boolean", 'B')
+        grid.add_header('col4', "String", None, 0, "{[b]}%s{[/b]}")
 
-        grid.set_value(1, "col1", 25)
+        grid.set_value(1, "col1", 2500)
         grid.set_value(1, "col2", 7.54)
         grid.set_value(1, "col3", True)
         grid.set_value(1, "col4", "foo")
 
-        grid.set_value(5, "col1", 0)
+        grid.set_value(5, "col1", 4)
         grid.set_value(5, "col2", 789.644)
         grid.set_value(5, "col3", False)
         grid.set_value(5, "col4", "string")
@@ -486,7 +486,8 @@ def summary_dummy(xfer):
         lbl.set_color('blue')
         lbl.set_location(0, row + 1, 4)
         lbl.set_centered()
-        lbl.set_value(datetime.now().ctime())
+        lbl.set_value(datetime.now())
+        lbl.set_format('H')
         xfer.add_component(lbl)
 
         btn = XferCompButton('btnscheduler')
