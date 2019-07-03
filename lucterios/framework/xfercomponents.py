@@ -178,8 +178,12 @@ class XferCompLabelForm(XferComponent):
             self._formatnum = None
 
     def set_value(self, value):
-        if isinstance(value, datetime) or isinstance(value, time) or isinstance(value, date):
+        if value is None:
+            self.value = None
+        elif isinstance(value, datetime) or isinstance(value, time) or isinstance(value, date):
             self.value = value.isoformat()
+        elif isinstance(value, list) or isinstance(value, tuple):
+            self.value = list(value)
         elif isinstance(value, object):
             self.value = six.text_type(value)
         else:
