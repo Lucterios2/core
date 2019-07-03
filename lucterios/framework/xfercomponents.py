@@ -176,6 +176,12 @@ class XferCompLabelForm(XferComponent):
         else:
             self._formatnum = None
 
+    def set_value(self, value):
+        if isinstance(value, object):
+            self.value = six.text_type(value)
+        else:
+            self.value = value
+
     def set_value_as_title(self, value):
         self._blank_line_before = True
         self._centered = True
