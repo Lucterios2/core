@@ -1007,7 +1007,7 @@ test("Test_format_to_string", function() {
 	equal(format_to_string(-1234.56, "N3", "{0}"), "-1 234,560", "check num negative no-formated");
 	equal(format_to_string(1234.56, "C2EUR", "{0}").indexOf("€"), 9, "check currency no-formated");
 
-	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date");
+	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avr. 2017", "check date");
 	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time");
 	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time");
 

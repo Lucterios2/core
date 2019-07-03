@@ -28,7 +28,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from lucterios.framework.models import LucteriosModel, LucteriosDecimalField
+from lucterios.framework.models import LucteriosModel, LucteriosDecimalField,\
+    LucteriosVirtualField
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 
@@ -44,12 +45,25 @@ class Example(LucteriosModel):
     time = models.TimeField()
     valid = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
+    virtual = LucteriosVirtualField(verbose_name='reduction', compute_from='get_virtual', format_string="N4")
 
     def __str__(self):
         return self.name
 
+    def get_virtual(self):
+        if self.id is None:
+            return None
+        elif (self.price is None) or (self.value is None):
+            return 0
+        else:
+            return float(self.price) * float(self.value) / 100.0
+
     @classmethod
     def get_show_fields(cls):
+        return ['name', ('value', 'price'), ('date', 'time'), 'virtual', 'valid', 'comment']
+
+    @classmethod
+    def get_edit_fields(cls):
         return ['name', ('value', 'price'), ('date', 'time'), 'valid', 'comment']
 
     @classmethod

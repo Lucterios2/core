@@ -36,7 +36,8 @@ from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField,\
     IntegerField
-from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist,\
+    ImproperlyConfigured
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
@@ -48,6 +49,7 @@ from apscheduler.jobstores.base import ConflictingIdError
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
+from django.db.models.signals import pre_save
 
 
 class AbsoluteValue(Transform):
@@ -592,22 +594,99 @@ class LucteriosModel(models.Model):
         abstract = True
 
 
-class LucteriosDecimalField(models.DecimalField):
-
-    def __init__(self, name=None, format_string=None, **kwargs):
-        self._format_string = format_string
-        super().__init__(name, **kwargs)
-
-    @property
-    def format_string(self):
+def generic_format_string(self):
+    if hasattr(self, '_format_string'):
         if isinstance(self._format_string, six.text_type):
             return self._format_string
         elif isinstance(self._format_string, FunctionType):
             return self._format_string()
         elif hasattr(self, 'decimal_places'):
             return "N%d" % self.decimal_places
+    return None
+
+
+class LucteriosDecimalField(models.DecimalField):
+
+    def __init__(self, verbose_name=None, name=None, format_string=None, **kwargs):
+        models.DecimalField.__init__(self, verbose_name, name, **kwargs)
+        self._format_string = format_string
+
+    @property
+    def format_string(self):
+        return generic_format_string(self)
+
+
+class LucteriosVirtualField(models.Field):
+
+    def __init__(self, compute_from=None, format_string=None, *args, **kwargs):
+        kwargs['editable'] = False
+        if compute_from is None:
+            raise ImproperlyConfigured('%s requires setting compute_from' % self.__class__.__name_)
+        super(LucteriosVirtualField, self).__init__(*args, **kwargs)
+        self.compute_from = compute_from
+        self._format_string = format_string
+
+    @property
+    def format_string(self):
+        return generic_format_string(self)
+
+    def get_attname_column(self):
+        return self.get_attname(), None
+
+    class ObjectProxy(object):
+        def __init__(self, field):
+            self.field = field
+
+        def __get__(self, instance, cls=None):
+            if instance is None:
+                return self
+            value = self.field.calculate_value(instance)
+            instance.__dict__[self.field.name] = value
+            return value
+
+        def __set__(self, obj, value):
+            pass
+
+    def contribute_to_class(self, cls, name, **kwargs):
+        """Add field to class using ObjectProxy so that
+        calculate_value can access the model instance."""
+        self.set_attributes_from_name(name)
+        cls._meta.add_field(self)
+        self.model = cls
+        setattr(cls, name, LucteriosVirtualField.ObjectProxy(self))
+        pre_save.connect(self.resolve_computed_field, sender=cls)
+
+    def resolve_computed_field(self, sender, instance, raw, **kwargs):
+        """Pre-save signal receiver to compute new field value."""
+        setattr(instance, self.get_attname(), self.calculate_value(instance))
+        return self.calculate_value(instance)
+
+    def calculate_value(self, instance):
+        """
+        Retrieve or call function to obtain value for this field.
+        Args:
+            instance: Parent model instance to reference
+        """
+        if callable(self.compute_from):
+            value = self.compute_from(instance)
         else:
-            return None
+            instance_compute_object = getattr(instance, self.compute_from)
+            if callable(instance_compute_object):
+                value = instance_compute_object()
+            else:
+                value = instance_compute_object
+        return self.to_python(value)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super(LucteriosVirtualField, self).deconstruct()
+        kwargs['compute_from'] = self.compute_from
+        return name, path, args, kwargs
+
+    def to_python(self, value):
+        return super(LucteriosVirtualField, self).to_python(value)
+
+    def get_prep_value(self, value):
+        return super(LucteriosVirtualField, self).get_prep_value(value)
 
 
 class LucteriosSession(Session, LucteriosModel):
