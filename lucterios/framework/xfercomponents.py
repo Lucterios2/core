@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from logging import getLogger
+from datetime import datetime, time, date
 import warnings
 
 from django.utils import six
@@ -177,7 +178,9 @@ class XferCompLabelForm(XferComponent):
             self._formatnum = None
 
     def set_value(self, value):
-        if isinstance(value, object):
+        if isinstance(value, datetime) or isinstance(value, time) or isinstance(value, date):
+            self.value = value.isoformat()
+        elif isinstance(value, object):
             self.value = six.text_type(value)
         else:
             self.value = value
