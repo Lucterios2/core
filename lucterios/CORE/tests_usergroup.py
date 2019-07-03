@@ -186,9 +186,9 @@ class UserTest(LucteriosTest):
         self.assert_coordcomp_equal('username', (1, 0, 1, 1))
         self.assert_json_equal('LABELFORM', "username", 'user1')
         self.assert_coordcomp_equal('date_joined', (0, 1, 1, 1))
-        self.assert_json_equal('LABELFORM', "date_joined", date.today().strftime('%e').strip(), True)
+        self.assert_json_equal('LABELFORM', "date_joined", date.today().isoformat(), True)
         self.assert_coordcomp_equal('last_login', (0, 2, 1, 1))
-        self.assert_json_equal('LABELFORM', "last_login", date.today().strftime('%e').strip(), True)
+        self.assert_json_equal('LABELFORM', "last_login", date.today().isoformat(), True)
 
         self.assert_json_equal('TAB', '__tab_1', "Informations")
 

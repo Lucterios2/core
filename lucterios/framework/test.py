@@ -237,7 +237,7 @@ class LucteriosTestAbstract(object):
         txt_value = self.get_json_path(comp_name)
         if isinstance(txtrange, tuple):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
-            value = six.text_type(value)[txtrange[0]:txtrange[1]]
+            value = six.text_type(value)[0:len(txt_value)]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
         if isinstance(txt_value, float) or isinstance(value, float):
