@@ -248,7 +248,7 @@ class UserTest(LucteriosTest):
 
         self.assert_json_equal('TAB', '__tab_1', "Informations")
 
-        self.assert_comp_equal(('LABELFORM', "is_active"), "Oui", (0, 0, 1, 1, 1))
+        self.assert_comp_equal(('LABELFORM', "is_active"), True, (0, 0, 1, 1, 1))
         self.assert_comp_equal(('CHECK', "is_staff"), '0', (0, 1, 1, 1, 1))
         self.assert_comp_equal(('CHECK', "is_superuser"), '0', (0, 2, 1, 1, 1))
         self.assert_comp_equal(('EDIT', "first_name"), '', (0, 3, 1, 1, 1))

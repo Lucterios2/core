@@ -298,6 +298,28 @@ class XferContainerCustom(XferContainerAbstract):
         if comp_id is not None:
             del self.components[comp_id]
 
+    def change_select_to_label(self, cmp_name):
+        old_obj = self.get_components(cmp_name)
+        if isinstance(old_obj, XferCompSelect):
+            value = old_obj.value
+            if isinstance(old_obj.select_list, list):
+                for key, sel_val in old_obj.select_list:
+                    if six.text_type(value) == six.text_type(key):
+                        value = sel_val
+                        break
+                self.remove_component(cmp_name)
+                self.tab = old_obj.tab
+                new_lbl = XferCompLabelForm(cmp_name)
+                new_lbl.set_value(value)
+                new_lbl.col = old_obj.col
+                new_lbl.row = old_obj.row
+                new_lbl.vmin = old_obj.vmin
+                new_lbl.hmin = old_obj.hmin
+                new_lbl.colspan = old_obj.colspan
+                new_lbl.rowspan = old_obj.rowspan
+                new_lbl.description = old_obj.description
+                self.add_component(new_lbl)
+                
     def change_to_readonly(self, cmp_name):
         old_obj = self.get_components(cmp_name)
         format_string = None
