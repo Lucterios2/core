@@ -181,36 +181,36 @@ class XferCompLabelForm(XferComponent):
         self._centered = True
         self._underline = True
         self._bold = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_as_name(self, value):
         self._bold = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_as_info(self, value):
         self._bold = True
         self._underline = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_as_infocenter(self, value):
         self._centered = True
         self._underline = True
         self._bold = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_as_header(self, value):
         self._centered = True
         self._italic = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_center(self, value):
         self._centered = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_value_as_headername(self, value):
         self._centered = True
         self._bold = True
-        self.set_value(six.text_type(value))
+        self.set_value(value)
 
     def set_centered(self):
         self._centered = True

@@ -300,34 +300,36 @@ class XferContainerCustom(XferContainerAbstract):
 
     def change_to_readonly(self, cmp_name):
         old_obj = self.get_components(cmp_name)
+        format_string = None
         value = old_obj.value
-        if isinstance(old_obj, XferCompSelect):
-            if isinstance(old_obj.select_list, dict) and (value in old_obj.select_list.keys()):
-                value = old_obj.select_list[value]
+        if value is None:
+            value = None
+        elif isinstance(old_obj, XferCompSelect):
+            format_string = {}
+            if isinstance(old_obj.select_list, dict):
+                old_obj.select_list = list(old_obj.select_list.items())
             if isinstance(old_obj.select_list, list):
                 for key, sel_val in old_obj.select_list:
-                    if six.text_type(value) == six.text_type(key):
-                        value = sel_val
-                        break
+                    format_string[key] = six.text_type(sel_val)
         elif isinstance(old_obj, XferCompCheck):
+            format_string = 'B'
             if value:
-                value = _("Yes")
+                value = True
             else:
-                value = _("No")
-        elif value is None:
-            value = "---"
+                value = False
         elif isinstance(old_obj, XferCompDate):
-            value = formats.date_format(value, "DATE_FORMAT")
+            format_string = 'D'
         elif isinstance(old_obj, XferCompDateTime):
-            value = formats.date_format(value, "DATETIME_FORMAT")
+            format_string = 'H'
         elif isinstance(old_obj, XferCompTime):
-            value = formats.date_format(value, "TIME_FORMAT")
-        elif isinstance(old_obj, XferCompFloat) and (value is not None):
-            value = ("%%.%df" % old_obj.prec) % value
+            format_string = 'T'
+        elif isinstance(old_obj, XferCompFloat):
+            format_string = 'N%d' % old_obj.prec
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
         new_lbl = XferCompLabelForm(cmp_name)
         new_lbl.set_value(value)
+        new_lbl.set_format(format_string)
         new_lbl.col = old_obj.col
         new_lbl.row = old_obj.row
         new_lbl.vmin = old_obj.vmin
