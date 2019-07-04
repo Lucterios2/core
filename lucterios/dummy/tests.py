@@ -28,13 +28,26 @@ from datetime import datetime
 from time import sleep
 
 from django.utils import six
+from django.utils.translation import activate
+from django.conf import settings
 
 from lucterios.framework.test import LucteriosTest, AsychronousLucteriosTest
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views_usergroup import SessionList
+from lucterios.framework.tools import format_to_string, set_locale_lang
 
 
 class DummyTest(LucteriosTest):
+
+    def setUp(self):
+        LucteriosTest.setUp(self)
+        set_locale_lang('fr')
+        activate(settings.LANGUAGE_CODE)
+
+    def tearDown(self):
+        set_locale_lang('fr')
+        activate(settings.LANGUAGE_CODE)
+        LucteriosTest.tearDown(self)
 
     def test_bidule1(self):
         self.calljson('/lucterios.dummy/bidule', {})
@@ -155,6 +168,66 @@ class DummyTest(LucteriosTest):
         self.assert_json_equal("", "grid/@1/col2", 789.644)
         self.assert_json_equal("", "grid/@1/col3", False)
         self.assert_json_equal("", "grid/@1/col4", 'string')
+
+    def test_formating_fr(self):
+        set_locale_lang('fr')
+        activate('fr')
+        self.assertEqual(format_to_string(None, None, None), "---", "check None")
+        self.assertEqual(format_to_string("abc", None, None), "abc", "check string simple")
+        self.assertEqual(format_to_string("abc", None, "{[i]}{[b]}%s{[/b]}{[/i]}"), "{[i]}{[b]}abc{[/b]}{[/i]}", "check string formated")
+
+        self.assertEqual(format_to_string(1234.56, None, "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[i]}1234.56{[/i]}", "check num positive")
+        self.assertEqual(format_to_string(-1234.56, None, "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[b]}1234.56{[/b]}", "check num negative")
+
+        self.assertEqual(format_to_string(1234.56, "N3", "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[i]}1 234,560{[/i]}", "check num positive formated")
+        self.assertEqual(format_to_string(-1234.56, "N3", "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[b]}1 234,560{[/b]}", "check num negative formated")
+        self.assertEqual(format_to_string(1234.56, "N0", "%s"), "1 235", "check int no-formated")
+
+        self.assertEqual(format_to_string(1234.56, "N3", "%s"), "1 234,560", "check num positive no-formated")
+        self.assertEqual(format_to_string(-1234.56, "N3", "%s"), "-1 234,560", "check num negative no-formated")
+        self.assertEqual(format_to_string(1234.56, "C2EUR", "%s"), "1 234,56 €", "check currency no-formated")
+
+        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "23 avr. 2017", "check date")
+        self.assertEqual(format_to_string("12:54:25.014", "T", "%s"), "12:54", "check time")
+        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "%s"), "dimanche 23 avril 2017 à 12:54", "check date time")
+
+        self.assertEqual(format_to_string(True, "B", "%s"), "Oui", "check bool true")
+        self.assertEqual(format_to_string(False, "B", "%s"), "Non", "check bool false")
+
+        self.assertEqual(format_to_string(0, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "aaa", "check select 0")
+        self.assertEqual(format_to_string(1, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "bbb", "check select 1")
+        self.assertEqual(format_to_string(2, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "ccc", "check select 2")
+        self.assertEqual(format_to_string(3, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "3", "check select 3")
+
+    def test_formating_en(self):
+        set_locale_lang('en')
+        activate('en')
+        self.assertEqual(format_to_string(None, None, None), "---", "check None")
+        self.assertEqual(format_to_string("abc", None, None), "abc", "check string simple")
+        self.assertEqual(format_to_string("abc", None, "{[i]}{[b]}%s{[/b]}{[/i]}"), "{[i]}{[b]}abc{[/b]}{[/i]}", "check string formated")
+
+        self.assertEqual(format_to_string(1234.56, None, "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[i]}1234.56{[/i]}", "check num positive")
+        self.assertEqual(format_to_string(-1234.56, None, "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[b]}1234.56{[/b]}", "check num negative")
+
+        self.assertEqual(format_to_string(1234.56, "N3", "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[i]}1,234.560{[/i]}", "check num positive formated")
+        self.assertEqual(format_to_string(-1234.56, "N3", "{[i]}%s{[/i]};{[b]}%s{[/b]}"), "{[b]}1,234.560{[/b]}", "check num negative formated")
+        self.assertEqual(format_to_string(1234.56, "N0", "%s"), "1,235", "check int no-formated")
+
+        self.assertEqual(format_to_string(1234.56, "N3", "%s"), "1,234.560", "check num positive no-formated")
+        self.assertEqual(format_to_string(-1234.56, "N3", "%s"), "-1,234.560", "check num negative no-formated")
+        self.assertEqual(format_to_string(1234.56, "C2USD", "%s"), "1,234.56 $US", "check currency no-formated")
+
+        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "Apr 23, 2017", "check date")
+        self.assertEqual(format_to_string("12:54:25.014", "T", "%s"), "12:54", "check time")
+        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "%s"), "Sunday, April 23, 2017 at 12:54", "check date time")
+
+        self.assertEqual(format_to_string(True, "B", "%s"), "Yes", "check bool true")
+        self.assertEqual(format_to_string(False, "B", "%s"), "No", "check bool false")
+
+        self.assertEqual(format_to_string(0, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "aaa", "check select 0")
+        self.assertEqual(format_to_string(1, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "bbb", "check select 1")
+        self.assertEqual(format_to_string(2, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "ccc", "check select 2")
+        self.assertEqual(format_to_string(3, {'0': 'aaa', '1': 'bbb', '2': 'ccc'}, "%s"), "3", "check select 3")
 
 
 class DummyTestAsynchronous(AsychronousLucteriosTest):

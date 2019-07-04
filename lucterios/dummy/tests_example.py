@@ -23,22 +23,28 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from base64 import b64decode
+
+from django.utils import six
+from django.utils.translation import activate
+from django.conf import settings
 
 from lucterios.framework.test import LucteriosTest
+from lucterios.framework.printgenerators import ActionGenerator
+from lucterios.framework.tools import set_locale_lang
+
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
     OtherAddModify, OtherShow, ExampleReporting
 from lucterios.dummy.models import Example
-from base64 import b64decode
-from django.utils import six
-from lucterios.framework.printgenerators import ActionGenerator
 
 
 class ExampleTest(LucteriosTest):
 
     def setUp(self):
-
         LucteriosTest.setUp(self)
+        set_locale_lang('fr')
+        activate(settings.LANGUAGE_CODE)
         Example.objects.create(name='abc', value=12, price=1224.06,
                                date='1997-10-07', time='21:43', valid=True, comment="blablabla")
         Example.objects.create(name='zzzz', value=7, price=714.03,
@@ -230,6 +236,35 @@ class ExampleTest(LucteriosTest):
         self.assertEqual(content_csv[3].strip(), '"comment"')
         self.assertEqual(content_csv[4].strip(), '"#";"Name";"value + price";"date + time";')
 
+    def test_printlisting(self):
+        for item_idx in range(0, 5):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
+        xfer = ExampleListing()
+        xfer._initialize(self.factory.create_request('/lucterios.dummy/exampleListing', {'PRINT_MODE': '4', 'TITLE': 'special example', 'INFO': 'comment', 'WITHNUM': True}))
+        xfer.report_mode = 1
+        generator = xfer.get_report_generator()
+        xml = generator.generate(xfer.request)
+        self.parse_xml(xml, 'model', False)
+        self.print_xml('page/body/table')
+        self.assert_xml_equal("page/body/table/columns[1]/cell", 'Name')
+        self.assert_xml_equal("page/body/table/columns[2]/cell", 'value + price')
+        self.assert_xml_equal("page/body/table/columns[3]/cell", 'date + time')
+        self.assert_xml_equal("page/body/table/rows[1]/cell[1]", 'abc')
+        self.assert_xml_equal("page/body/table/rows[1]/cell[2]", '12/')
+        self.assert_xml_equal("page/body/table/rows[1]/cell[2]/font", '1 224,06 €')
+        self.assert_xml_equal("page/body/table/rows[1]/cell[3]", '7 oct. 1997 + 21:43')
+
+        self.assert_xml_equal("page/body/table/rows[2]/cell[1]", 'zzzz')
+        self.assert_xml_equal("page/body/table/rows[2]/cell[2]", '7/')
+        self.assert_xml_equal("page/body/table/rows[2]/cell[2]/font", '714,03 €')
+        self.assert_xml_equal("page/body/table/rows[2]/cell[3]", '21 mars 2008 + 15:21')
+
+        self.assert_xml_equal("page/body/table/rows[3]/cell[1]", 'uvw')
+        self.assert_xml_equal("page/body/table/rows[3]/cell[2]", '9/')
+        self.assert_xml_equal("page/body/table/rows[3]/cell[2]/font", '918,05 €')
+        self.assert_xml_equal("page/body/table/rows[3]/cell[3]", '11 mai 2014 + 04:57')
+
     def testlisting_pdf(self):
         for item_idx in range(0, 150):
             Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
@@ -316,7 +351,7 @@ class ExampleTest(LucteriosTest):
         generator = ActionGenerator(ExampleShow(), False)
         xml = generator.generate(self.factory.create_request('/lucterios.dummy/examplePrint', {'example': '2'}))
         self.parse_xml(xml, 'model', False)
-        self.print_xml('')
+        # self.print_xml('')
         self.assert_attrib_equal("page/header", "extent", "12.0")
         self.assert_count_equal('page/header/*', 1)
         self.assert_attrib_equal("page/bottom", "extent", "0.0")
@@ -329,35 +364,35 @@ class ExampleTest(LucteriosTest):
         self.assert_attrib_equal("page/body/image[1]", "left", "0.0")
         self.assert_xml_equal("page/body/text[1]/b", 'name')
         self.assert_attrib_equal("page/body/text[1]", "top", "0.0")
-        self.assert_attrib_equal("page/body/text[1]", "left", "56.0")
-        self.assert_attrib_equal("page/body/text[1]", "width", "35.0")
+        self.assert_attrib_equal("page/body/text[1]", "left", "36.0")
+        self.assert_attrib_equal("page/body/text[1]", "width", "22.0")
         self.assert_attrib_equal("page/body/text[1]", "height", "5.0")
         self.assert_xml_equal("page/body/text[2]", 'zzzz')
         self.assert_attrib_equal("page/body/text[2]", "top", "0.0")
-        self.assert_attrib_equal("page/body/text[2]", "left", "91.0")
-        self.assert_attrib_equal("page/body/text[2]", "width", "99.0")
+        self.assert_attrib_equal("page/body/text[2]", "left", "58.0")
+        self.assert_attrib_equal("page/body/text[2]", "width", "133.0")
         self.assert_attrib_equal("page/body/text[2]", "height", "5.0")
 
         self.assert_xml_equal("page/body/text[3]/b", 'value')
         self.assert_attrib_equal("page/body/text[3]", "top", "5.0")
-        self.assert_attrib_equal("page/body/text[3]", "left", "56.0")
-        self.assert_attrib_equal("page/body/text[3]", "width", "35.0")
+        self.assert_attrib_equal("page/body/text[3]", "left", "36.0")
+        self.assert_attrib_equal("page/body/text[3]", "width", "22.0")
         self.assert_attrib_equal("page/body/text[3]", "height", "5.0")
         self.assert_xml_equal("page/body/text[4]", '7')
         self.assert_attrib_equal("page/body/text[4]", "top", "5.0")
-        self.assert_attrib_equal("page/body/text[4]", "left", "91.0")
-        self.assert_attrib_equal("page/body/text[4]", "width", "44.0")
+        self.assert_attrib_equal("page/body/text[4]", "left", "58.0")
+        self.assert_attrib_equal("page/body/text[4]", "width", "33.0")
         self.assert_attrib_equal("page/body/text[4]", "height", "5.0")
 
         self.assert_xml_equal("page/body/text[5]/b", 'price')
-        self.assert_xml_equal("page/body/text[6]", '714.03')
+        self.assert_xml_equal("page/body/text[6]/font", '714,03 €')
         self.assert_xml_equal("page/body/text[7]/b", 'date')
-        self.assert_xml_equal("page/body/text[8]", '2008-03-21')
+        self.assert_xml_equal("page/body/text[8]", '21 mars 2008')
         self.assert_xml_equal("page/body/text[9]/b", 'time')
-        self.assert_xml_equal("page/body/text[10]", '15:21:00')
+        self.assert_xml_equal("page/body/text[10]", '15:21')
         self.assert_xml_equal("page/body/text[11]/b", 'reduction')
-        self.assert_xml_equal("page/body/text[12]", '49.9821')
+        self.assert_xml_equal("page/body/text[12]", '49,9821')
         self.assert_xml_equal("page/body/text[13]/b", 'valid')
-        self.assert_xml_equal("page/body/text[14]", 'False')
+        self.assert_xml_equal("page/body/text[14]", 'Oui')
         self.assert_xml_equal("page/body/text[15]/b", 'comment')
         self.assert_xml_equal("page/body/text[16]", None)

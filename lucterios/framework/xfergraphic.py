@@ -28,7 +28,7 @@ from logging import getLogger
 import warnings
 
 from django.utils.translation import ugettext as _
-from django.utils import six, formats
+from django.utils import six
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -36,9 +36,9 @@ from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferCompLabelForm, XferCompButton, \
     XferCompEdit, XferCompFloat, XferCompCheck, XferCompGrid, XferCompCheckList, \
     XferCompMemo, XferCompSelect, XferCompLinkLabel, XferCompDate, XferCompTime, XferCompDateTime
-from lucterios.framework.tools import get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json
+from lucterios.framework.tools import get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json, adapt_value
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES
-from lucterios.framework.models import get_format_from_field, adapt_value
+from lucterios.framework.models import get_format_from_field
 
 
 def get_range_value(model_field):
@@ -319,46 +319,12 @@ class XferContainerCustom(XferContainerAbstract):
                 new_lbl.rowspan = old_obj.rowspan
                 new_lbl.description = old_obj.description
                 self.add_component(new_lbl)
-                
+
     def change_to_readonly(self, cmp_name):
         old_obj = self.get_components(cmp_name)
-        format_string = None
-        value = old_obj.value
-        if value is None:
-            value = None
-        elif isinstance(old_obj, XferCompSelect):
-            format_string = {}
-            if isinstance(old_obj.select_list, dict):
-                old_obj.select_list = list(old_obj.select_list.items())
-            if isinstance(old_obj.select_list, list):
-                for key, sel_val in old_obj.select_list:
-                    format_string[key] = six.text_type(sel_val)
-        elif isinstance(old_obj, XferCompCheck):
-            format_string = 'B'
-            if value:
-                value = True
-            else:
-                value = False
-        elif isinstance(old_obj, XferCompDate):
-            format_string = 'D'
-        elif isinstance(old_obj, XferCompDateTime):
-            format_string = 'H'
-        elif isinstance(old_obj, XferCompTime):
-            format_string = 'T'
-        elif isinstance(old_obj, XferCompFloat):
-            format_string = 'N%d' % old_obj.prec
+        new_lbl = XferCompLabelForm.convert_to_label(old_obj)
         self.remove_component(cmp_name)
         self.tab = old_obj.tab
-        new_lbl = XferCompLabelForm(cmp_name)
-        new_lbl.set_value(value)
-        new_lbl.set_format(format_string)
-        new_lbl.col = old_obj.col
-        new_lbl.row = old_obj.row
-        new_lbl.vmin = old_obj.vmin
-        new_lbl.hmin = old_obj.hmin
-        new_lbl.colspan = old_obj.colspan
-        new_lbl.rowspan = old_obj.rowspan
-        new_lbl.description = old_obj.description
         self.add_component(new_lbl)
 
     def find_tab(self, tab_name):

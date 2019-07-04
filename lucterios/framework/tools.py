@@ -23,17 +23,21 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from datetime import datetime, date
+from datetime import datetime, date, time
 from calendar import monthrange
+from _decimal import Decimal
+from babel.numbers import format_currency
 
 import threading
 import logging
 import warnings
 
-from django.utils import six
+from django.utils import six, formats
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_text
+import locale
+from babel.dates import format_date, format_time, format_datetime
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -513,3 +517,118 @@ def same_day_months_after(start_date, months=1):
     target_month = month_val % 12 + 1
     num_days_target_month = monthrange(target_year, target_month)[1]
     return start_date.replace(year=target_year, month=target_month, day=min(start_date.day, num_days_target_month))
+
+
+def adapt_value(value):
+    from lucterios.framework.models import LucteriosModel
+    if hasattr(value, 'all'):
+        values = []
+        for val_item in value.all():
+            values.append(six.text_type(val_item))
+        return values
+    elif isinstance(value, LucteriosModel):
+        return six.text_type(value.get_final_child())
+    elif isinstance(value, Decimal):
+        return float(value)
+    else:
+        return value
+
+
+def get_date_formating(date_value):
+    if isinstance(date_value, datetime):
+        value = format_datetime(date_value, format='full', locale=locale.getlocale()[0])
+        return value[:value.index(':') + 3]
+    if isinstance(date_value, date):
+        return format_date(date_value, format='medium', locale=locale.getlocale()[0])
+    if isinstance(date_value, time):
+        return format_time(date_value, format='HH:mm', locale=locale.getlocale()[0])
+    else:
+        return date_value
+
+
+def get_bool_textual(value):
+    if isinstance(value, bool):
+        if value:
+            return _("Yes")
+        else:
+            return _("No")
+    else:
+        return value
+
+
+def set_locale_lang(lang):
+    from django.utils import translation
+    translation.activate(lang)
+    try:
+        if lang[:2].lower() == 'fr':
+            try:
+                locale.setlocale(locale.LC_ALL, 'french')
+            except Exception:
+                locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
+            return
+        if lang[:2].lower() == 'en':
+            try:
+                locale.setlocale(locale.LC_ALL, 'english')
+            except Exception:
+                locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+            return
+    except Exception:
+        pass
+    locale.setlocale(locale.LC_ALL, 'C')
+
+
+def format_to_string(value, format_num, format_str):
+    if value is None:
+        value = "---"
+        format_num = ''
+    if isinstance(value, list) or isinstance(value, tuple):
+        value = '{[br/]}'.join(value)
+    if format_num is None:
+        format_num = ''
+    if format_str is None:
+        format_str = '%s'
+    if isinstance(format_num, dict):
+        if six.text_type(value) in format_num.keys():
+            value = format_num[six.text_type(value)]
+        format_num = ''
+
+    if ';' in format_str:
+        format_str = format_str.split(';')
+        if (float(value) < 0) and (len(format_str) > 1):
+            format_str = format_str[1]
+            value = abs(float(value))
+        else:
+            format_str = format_str[0]
+    if format_num == 'B':
+        value = get_bool_textual(bool(value))
+
+    if format_num == 'D':
+        if isinstance(value, six.text_type):
+            value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
+        else:
+            value = get_date_formating(value)
+    if format_num == 'T':
+        if isinstance(value, six.text_type):
+            if '.' in value:
+                current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
+            else:
+                current_time = datetime.strptime(value, "%H:%M:%S").time()
+            value = get_date_formating(current_time)
+        else:
+            value = get_date_formating(value)
+    if format_num == 'H':
+        if isinstance(value, six.text_type):
+            value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
+        else:
+            value = get_date_formating(value)
+
+    if format_num[0:1] in ("N", "C"):
+        value = locale.format("%.*f", (int(format_num[1]), float(value)), True)
+    if format_num[0:1] == "C":
+        tmp_val = format_currency(0, format_num[2:])
+        tmp_val = tmp_val.replace(',', '').replace('.', '')
+        for _ in range(6):
+            tmp_val = tmp_val.replace('00', '0')
+        value = tmp_val.replace('0', value)
+
+    return format_str % value

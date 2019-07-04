@@ -38,9 +38,8 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
-from lucterios.framework.tools import toHtml
+from lucterios.framework.tools import toHtml, format_to_string
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size
-from lucterios.framework.models import get_value_converted, get_bool_textual
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract
 
@@ -214,7 +213,7 @@ class PrintTable(PrintItem):
                 self.size_rows.append(0)
             hd_idx = 0
             for header in self.comp.headers:
-                value = get_value_converted(record[header.name], True)
+                value = format_to_string(record[header.name], header.htype, header.formatstr)
                 if header.htype == 'icon':
                     value = BASE64_PREFIX + value
                     img_size = get_image_size(value)
@@ -312,37 +311,15 @@ class PrintLabel(PrintItem):
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
         try:
-            if isinstance(self.comp, XferCompDate):
-                if isinstance(self.comp.value, datetime.date):
-                    self.value = self.comp.value
-                else:
-                    self.value = datetime.date(
-                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))[:3]])
-            elif isinstance(self.comp, XferCompDateTime):
-                if isinstance(self.comp.value, datetime.datetime):
-                    self.value = self.comp.value
-                else:
-                    self.value = datetime.datetime(
-                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))])
-            elif isinstance(self.comp, XferCompTime):
-                if isinstance(self.comp.value, datetime.time):
-                    self.value = self.comp.value
-                else:
-                    self.value = datetime.time(
-                        *[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(self.comp.value))[:2]])
-            elif isinstance(self.comp, XferCompSelect):
-                self.value = self.comp.get_value_text()
-            elif isinstance(self.comp, XferCompCheck):
-                self.value = get_bool_textual(bool(self.comp.value))
-            else:
-                self.value = self.comp.value
+            if not isinstance(self.comp, XferCompLabelForm):
+                self.comp = XferCompLabelForm.convert_to_label(self.comp)
+            self.value = self.comp.get_print_value()
         except Exception:
             getLogger("lucterios.core.print").exception('PrintLabel')
             self.value = six.text_type(self.comp.value)
         self.init_label()
 
     def init_label(self):
-        self.value = get_value_converted(self.value, True)
         self.size_x, self.height = calcul_text_size(self.value)
         self.height = self.height * 1.1
 

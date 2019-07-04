@@ -31,5 +31,5 @@ value = """210
 297
 10//Name//#name
 20//value + price//#value/#price
-20//date + time//#date{[newline]}#time
+20//date + time//#date + #time
 """

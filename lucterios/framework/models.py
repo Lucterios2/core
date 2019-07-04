@@ -27,8 +27,8 @@ import re
 import logging
 from datetime import datetime, date, time
 from django_fsm.signals import post_transition
+from django.db.models.signals import pre_save
 from types import FunctionType
-from _decimal import Decimal
 
 from django.db import models, transaction
 from django.db.models import Transform, Count, Q
@@ -49,7 +49,8 @@ from apscheduler.jobstores.base import ConflictingIdError
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
-from django.db.models.signals import pre_save
+from lucterios.framework.tools import get_bool_textual, adapt_value,\
+    format_to_string
 
 
 class AbsoluteValue(Transform):
@@ -61,72 +62,6 @@ class AbsoluteValue(Transform):
 
 
 RegisterLookupMixin.register_lookup(AbsoluteValue)
-
-
-def adapt_value(value):
-    if hasattr(value, 'all'):
-        values = []
-        for val_item in value.all():
-            values.append(six.text_type(val_item))
-        return values
-    elif isinstance(value, LucteriosModel):
-        return six.text_type(value.get_final_child())
-    elif isinstance(value, Decimal):
-        return float(value)
-    else:
-        return value
-
-
-def get_date_formating(date_value):
-    if isinstance(date_value, datetime):
-        return formats.date_format(date_value, "DATETIME_FORMAT")
-    if isinstance(date_value, date):
-        return formats.date_format(date_value, "DATE_FORMAT")
-    if isinstance(date_value, time):
-        return formats.date_format(date_value, "TIME_FORMAT")
-    else:
-        return date_value
-
-
-def get_bool_textual(value):
-    if isinstance(value, bool):
-        if value:
-            return _("Yes")
-        else:
-            return _("No")
-    else:
-        return value
-
-
-def get_value_converted(value, bool_textual=False, convert_datetime=True):
-    if hasattr(value, 'all'):
-        values = []
-        for val_item in value.all():
-            values.append(six.text_type(val_item))
-        return "{[br/]}".join(values)
-    elif isinstance(value, datetime) and convert_datetime:
-        return formats.date_format(value, "DATETIME_FORMAT")
-    elif isinstance(value, date) and convert_datetime:
-        return formats.date_format(value, "DATE_FORMAT")
-    elif isinstance(value, time) and convert_datetime:
-        return formats.date_format(value, "TIME_FORMAT")
-    elif isinstance(value, bool):
-        if bool_textual:
-            if value:
-                return _("Yes")
-            else:
-                return _("No")
-        else:
-            if value:
-                return six.text_type("1")
-            else:
-                return six.text_type("0")
-    elif value is None:
-        return six.text_type("---")
-    elif isinstance(value, LucteriosModel):
-        return value.get_final_child()
-    else:
-        return value
 
 
 def get_format_from_field(dep_field):
@@ -153,6 +88,19 @@ def get_format_from_field(dep_field):
         return "B"
     else:
         return None
+
+
+def extract_format(format_string):
+    _formatstr = None
+    _formatnum = None
+    if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
+        if isinstance(format_string, six.text_type) and (';' in format_string):
+            format_string = format_string.split(';')
+            _formatnum = format_string[0]
+            _formatstr = ";".join(format_string[1:])
+        else:
+            _formatnum = format_string
+    return _formatnum, _formatstr
 
 
 def get_value_if_choices(value, dep_field):
@@ -482,8 +430,9 @@ class LucteriosModel(models.Model):
                     except FieldDoesNotExist:
                         dep_field = None
                     if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
-                        field_val = get_value_converted(field_value, True)
-                        field_val = get_value_if_choices(field_val, dep_field)
+                        field_value = adapt_value(field_value)
+                        formatnum, formatstr = extract_format(get_format_from_field(dep_field))
+                        field_val = format_to_string(field_value, formatnum, formatstr)
                     else:
                         if field_value is None:
                             field_val = ""

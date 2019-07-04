@@ -32,9 +32,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json
+from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json, adapt_value,\
+    format_to_string
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-from lucterios.framework.models import get_format_from_field, adapt_value
+from lucterios.framework.models import get_format_from_field, extract_format
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum, BASE64_PREFIX
 
@@ -167,15 +168,9 @@ class XferCompLabelForm(XferComponent):
         self._formatstr = None
 
     def set_format(self, format_string):
-        if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
-            if isinstance(format_string, six.text_type) and (';' in format_string):
-                format_string = format_string.split(';')
-                self._formatnum = format_string[0]
-                self._formatstr = ";".join(format_string[1:])
-            else:
-                self._formatnum = format_string
-        else:
-            self._formatnum = None
+        self._formatnum, formatstr = extract_format(format_string)
+        if formatstr is not None:
+            self._formatstr = formatstr
 
     def set_value(self, value):
         if value is None:
@@ -265,6 +260,55 @@ class XferCompLabelForm(XferComponent):
         compjson['formatstr'] = self._formatstr
         compjson['formatnum'] = self._formatnum
         return compjson
+
+    @classmethod
+    def convert_to_label(cls, old_obj):
+        import re
+        format_string = None
+        value = old_obj.value
+        if value is None:
+            value = None
+        elif isinstance(old_obj, XferCompSelect):
+            format_string = {}
+            if isinstance(old_obj.select_list, dict):
+                old_obj.select_list = list(old_obj.select_list.items())
+            if isinstance(old_obj.select_list, list):
+                for key, sel_val in old_obj.select_list:
+                    format_string[key] = six.text_type(sel_val)
+        elif isinstance(old_obj, XferCompCheck):
+            format_string = 'B'
+            if value:
+                value = True
+            else:
+                value = False
+        elif isinstance(old_obj, XferCompDate):
+            format_string = 'D'
+            if not isinstance(value, datetime.date):
+                value = datetime.date(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:3]])
+        elif isinstance(old_obj, XferCompDateTime):
+            format_string = 'H'
+            if not isinstance(value, datetime.datetime):
+                value = datetime.datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))])
+        elif isinstance(old_obj, XferCompTime):
+            format_string = 'T'
+            if not isinstance(value, datetime.time):
+                value = datetime.time(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:2]])
+        elif isinstance(old_obj, XferCompFloat):
+            format_string = 'N%d' % old_obj.prec
+        new_lbl = cls(old_obj.name)
+        new_lbl.set_value(value)
+        new_lbl.set_format(format_string)
+        new_lbl.col = old_obj.col
+        new_lbl.row = old_obj.row
+        new_lbl.vmin = old_obj.vmin
+        new_lbl.hmin = old_obj.hmin
+        new_lbl.colspan = old_obj.colspan
+        new_lbl.rowspan = old_obj.rowspan
+        new_lbl.description = old_obj.description
+        return new_lbl
+
+    def get_print_value(self):
+        return format_to_string(self.value, self._formatnum, self._formatstr)
 
 
 class XferCompLinkLabel(XferCompLabelForm):

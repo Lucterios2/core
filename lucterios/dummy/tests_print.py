@@ -97,7 +97,7 @@ class PrintTest(LucteriosTest):
         self.assert_comp_equal(('MEMO', "col_text_1"), "#value/#price", (3, 7, 1, 1))
         self.assert_comp_equal(('FLOAT', "col_size_2"), "20", (1, 8, 1, 1))
         self.assert_comp_equal(('MEMO', "col_title_2"), "date + time", (2, 8, 1, 1))
-        self.assert_comp_equal(('MEMO', "col_text_2"), "#date{[newline]}#time", (3, 8, 1, 1))
+        self.assert_comp_equal(('MEMO', "col_text_2"), "#date + #time", (3, 8, 1, 1))
         for col_idx in range(3, 6):
             self.assert_comp_equal(('FLOAT', "col_size_%d" % col_idx), "0", (1, 6 + col_idx, 1, 1))
             self.assert_comp_equal(('MEMO', "col_title_%d" % col_idx), '', (2, 6 + col_idx, 1, 1))

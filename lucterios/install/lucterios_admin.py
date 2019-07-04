@@ -608,7 +608,7 @@ class LucteriosInstance(LucteriosManage):
     def read(self, virtual_setup=False):
         clear_modules()
         import django.conf
-        from django.utils import translation
+        from lucterios.framework.tools import set_locale_lang
         if virtual_setup:
             setup_from_none()
         if self.name == '':
@@ -626,7 +626,7 @@ class LucteriosInstance(LucteriosManage):
             setting_module = django.conf.settings
         else:
             setting_module = import_module(self.setting_module_name)
-            translation.activate(setting_module.LANGUAGE_CODE)
+            set_locale_lang(setting_module.LANGUAGE_CODE)
         self.secret_key = setting_module.SECRET_KEY
         self.extra = setting_module.EXTRA
         self.databases = setting_module.DATABASES

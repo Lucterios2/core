@@ -36,13 +36,14 @@ from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models.signals import post_migrate
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six, translation
+from django.utils import six
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
+from lucterios.framework.tools import set_locale_lang
 
 
 class Parameter(LucteriosModel):
@@ -466,7 +467,7 @@ def core_checkparam():
 def post_after_migrate(sender, **kwargs):
     if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
         from django.conf import settings
-        translation.activate(settings.LANGUAGE_CODE)
+        set_locale_lang(settings.LANGUAGE_CODE)
         six.print_('check parameters')
         Signal.call_signal("checkparam")
 

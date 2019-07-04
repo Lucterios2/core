@@ -32,7 +32,8 @@ from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
 
-from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES
+from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES,\
+    set_locale_lang
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
 from lucterios.framework import signal_and_lock
 from django.http.response import JsonResponse
@@ -249,7 +250,7 @@ class XferContainerAbstract(View):
             self.format = self.params['FORMAT']
             del self.params['FORMAT']
         self.language = translation.get_language_from_request(request)
-        translation.activate(self.language)
+        set_locale_lang(self.language)
         self._search_model()
 
     def check_action_permission(self, action):
