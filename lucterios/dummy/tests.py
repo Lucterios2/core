@@ -187,7 +187,7 @@ class DummyTest(LucteriosTest):
         self.assertEqual(format_to_string(-1234.56, "N3", "%s"), "-1 234,560", "check num negative no-formated")
         self.assertEqual(format_to_string(1234.56, "C2EUR", "%s"), "1 234,56 €", "check currency no-formated")
 
-        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "23 avr. 2017", "check date")
+        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "23 avril 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "%s"), "12:54", "check time")
         self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "%s"), "dimanche 23 avril 2017 à 12:54", "check date time")
 
@@ -217,7 +217,7 @@ class DummyTest(LucteriosTest):
         self.assertEqual(format_to_string(-1234.56, "N3", "%s"), "-1,234.560", "check num negative no-formated")
         self.assertEqual(format_to_string(1234.56, "C2USD", "%s"), "1,234.56 $US", "check currency no-formated")
 
-        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "Apr 23, 2017", "check date")
+        self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "April 23, 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "%s"), "12:54", "check time")
         self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "%s"), "Sunday, April 23, 2017 at 12:54", "check date time")
 

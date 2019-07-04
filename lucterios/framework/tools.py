@@ -539,7 +539,7 @@ def get_date_formating(date_value):
         value = format_datetime(date_value, format='full', locale=locale.getlocale()[0])
         return value[:value.index(':') + 3]
     if isinstance(date_value, date):
-        return format_date(date_value, format='medium', locale=locale.getlocale()[0])
+        return format_date(date_value, format='long', locale=locale.getlocale()[0])
     if isinstance(date_value, time):
         return format_time(date_value, format='HH:mm', locale=locale.getlocale()[0])
     else:

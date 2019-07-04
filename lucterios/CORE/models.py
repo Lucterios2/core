@@ -104,7 +104,7 @@ class Parameter(LucteriosModel):
                         else:
                             last = eval(item_val, sys_modules)
                     meta_select[2] = last
-                elif not isinstance(meta_select[2], Q):
+                elif not isinstance(meta_select[2], Q) and not isinstance(meta_select[2], list):
                     meta_select = None
             else:
                 meta_select = None

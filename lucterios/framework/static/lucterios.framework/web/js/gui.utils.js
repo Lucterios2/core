@@ -362,7 +362,7 @@ function format_to_string(value, format_num, format_str) {
 	}
 	if (format_num==='D') {
 		value = new Date(value);
-		options = { year: 'numeric', month: 'short', day: "numeric"};
+		options = { year: 'numeric', month: 'long', day: "numeric"};
 	}
 	if (format_num==='H') {
 		value = new Date(value);

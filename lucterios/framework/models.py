@@ -394,10 +394,9 @@ class LucteriosModel(models.Model):
         try:
             fieldnames = fieldname.split('.')
             current_meta = cls._meta
-            for field_name in fieldnames:
-                dep_field = current_meta.get_field(field_name)
-                if hasattr(dep_field, 'remote_field') and (dep_field.remote_field is not None):
-                    current_meta = dep_field.remote_field.model._meta
+            dep_field = current_meta.get_field(fieldnames[0])
+            if (len(fieldnames) > 1) and hasattr(dep_field, 'remote_field') and (dep_field.remote_field is not None):
+                dep_field = dep_field.remote_field.model.get_field_by_name('.'.join(fieldnames[1:]))
         except FieldDoesNotExist:
             dep_field = None
         return dep_field

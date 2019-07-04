@@ -253,7 +253,7 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal("page/body/table/rows[1]/cell[1]", 'abc')
         self.assert_xml_equal("page/body/table/rows[1]/cell[2]", '12/')
         self.assert_xml_equal("page/body/table/rows[1]/cell[2]/font", '1 224,06 €')
-        self.assert_xml_equal("page/body/table/rows[1]/cell[3]", '7 oct. 1997 + 21:43')
+        self.assert_xml_equal("page/body/table/rows[1]/cell[3]", '7 octobre 1997 + 21:43')
 
         self.assert_xml_equal("page/body/table/rows[2]/cell[1]", 'zzzz')
         self.assert_xml_equal("page/body/table/rows[2]/cell[2]", '7/')
