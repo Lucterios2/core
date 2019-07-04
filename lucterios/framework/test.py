@@ -255,7 +255,7 @@ class LucteriosTestAbstract(object):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
-        self.assertEqual(txt_value, value, "%s: %s => %s" % (xpath, txt_value, value))
+        self.assertEqual(six.text_type(txt_value).strip(), six.text_type(value).strip(), "%s: %s => %s" % (xpath, txt_value, value))
 
     def assert_attrib_equal(self, path, name, value):
         if self.response_json is None:

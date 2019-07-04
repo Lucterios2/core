@@ -714,7 +714,7 @@ class LabelGenerator(ReportModelGenerator):
             label_values.append("")
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
-            label_values.append(item.evaluate(self.label_text, format_fct=toHtml))
+            label_values.append(item.evaluate(self.label_text))
         index = 0
         for labelval in label_values:
             if index == (self.label_size['columns'] * self.label_size['rows']):
@@ -725,8 +725,7 @@ class LabelGenerator(ReportModelGenerator):
             left = col_num * self.label_size['horizontal_space']
             top = row_num * self.label_size['vertical_space']
             if self.mode == 0:
-                xml_text = convert_to_html(
-                    'text', labelval, "sans-serif", 9, 10, "center")
+                xml_text = convert_to_html('text', labelval, "sans-serif", 9, 10, "center")
                 xml_text.attrib['height'] = "%d.0" % self.label_size[
                     'cell_height']
                 xml_text.attrib['width'] = "%d.0" % self.label_size[

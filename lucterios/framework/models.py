@@ -401,7 +401,7 @@ class LucteriosModel(models.Model):
             dep_field = None
         return dep_field
 
-    def evaluate(self, text, format_fct=six.text_type):
+    def evaluate(self, text):
         def eval_sublist(field_list, field_value):
             field_val = []
             for sub_model in field_value.all():
@@ -435,7 +435,7 @@ class LucteriosModel(models.Model):
                             field_val = field_value.evaluate("#" + ".".join(field_list[1:]))
                         else:
                             field_val = eval_sublist(field_list, field_value)
-                value = value.replace(field, format_fct(field_val))
+                value = value.replace(field, six.text_type(field_val))
         return value
 
     @classmethod

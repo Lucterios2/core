@@ -222,6 +222,27 @@ class ExampleTest(LucteriosTest):
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleLabel')
         self.save_pdf()
 
+    def test_printlabel(self):
+        xfer = ExampleLabel()
+        xfer._initialize(self.factory.create_request('/lucterios.dummy/exampleLabel', {'PRINT_MODE': '3', 'LABEL': 1, 'FIRSTLABEL': 3, 'MODEL': 2}))
+        xfer.report_mode = 1
+        generator = xfer.get_report_generator()
+        xml = generator.generate(xfer.request)
+        self.parse_xml(xml, 'model', False)
+        # self.print_xml('')
+        self.assert_xml_equal("page/body/text[1]", None)
+        self.assert_xml_equal("page/body/text[2]", None)
+        self.assert_xml_equal("page/body/text[3]", "abc")
+        self.assert_xml_equal("page/body/text[3]/font", "1 224,06 €")
+        self.assert_xml_equal("page/body/text[4]", "zzzz")
+        self.assert_xml_equal("page/body/text[4]/font", "714,03 €")
+        self.assert_xml_equal("page/body/text[5]", "uvw")
+        self.assert_xml_equal("page/body/text[5]/font", "918,05 €")
+        self.assert_xml_equal("page/body/text[6]", "blabla")
+        self.assert_xml_equal("page/body/text[6]/font", "1 734,08 €")
+        self.assert_xml_equal("page/body/text[7]", "boom")
+        self.assert_xml_equal("page/body/text[7]/font", "408,02 €")
+
     def testlisting(self):
         for item_idx in range(0, 25):
             Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
@@ -246,7 +267,7 @@ class ExampleTest(LucteriosTest):
         generator = xfer.get_report_generator()
         xml = generator.generate(xfer.request)
         self.parse_xml(xml, 'model', False)
-        self.print_xml('page/body/table')
+        # self.print_xml('page/body/table')
         self.assert_xml_equal("page/body/table/columns[1]/cell", 'Name')
         self.assert_xml_equal("page/body/table/columns[2]/cell", 'value + price')
         self.assert_xml_equal("page/body/table/columns[3]/cell", 'date + time')
@@ -285,6 +306,28 @@ class ExampleTest(LucteriosTest):
         content_csv = csv_value.split('\n')
         self.assertEqual(len(content_csv), 10 * 30 + 1, str(content_csv))
         self.assertEqual(content_csv[3].strip(), '"A abc"')
+
+    def test_printreporting(self):
+        for item_idx in range(0, 25):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
+        xfer = ExampleReporting()
+        xfer._initialize(self.factory.create_request('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '4', 'MODEL': 3}))
+        xfer.report_mode = 1
+        generator = xfer.get_report_generator()
+        xml = generator.generate(xfer.request)
+        self.parse_xml(xml, 'model', False)
+        self.assert_count_equal('page', 30)
+        self.assert_xml_equal("page[1]/header/text/b", 'title')
+        self.assert_xml_equal("page[1]/bottom/text/i", 'footer')
+        self.assert_count_equal('page[1]/body/*', 2)
+        self.assert_xml_equal("page[1]/body/text/b", "A")
+        self.assert_count_equal('page[1]/body/table/columns', 2)
+        self.assert_xml_equal("page[1]/body/table/columns[1]/cell/b", "B")
+        self.assert_xml_equal("page[1]/body/table/columns[2]/cell/b", "C")
+        self.assert_count_equal('page[1]/body/table/rows', 1)
+        self.assert_xml_equal('page[1]/body/table/rows/cell[1]', '12')
+        self.assert_xml_equal('page[1]/body/table/rows/cell[2]/font', '1 224,06 €')
 
     def testreporting_pdf(self):
         for item_idx in range(0, 150):
