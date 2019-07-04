@@ -585,7 +585,7 @@ class SessionTest(LucteriosTest):
 
         self.assert_grid_equal('session', {"username": "nom d'utilisateur", "expire_date": "date d'expiration", "is_active": "actif ?"}, 1)
         self.assert_json_equal('', 'session/@0/username', 'admin')
-        self.assert_json_equal('', 'session/@0/is_active', 'Oui')
+        self.assert_json_equal('', 'session/@0/is_active', True)
         self.assert_attrib_equal('session', "nb_lines", '1')
 
     def test_sessiondel(self):

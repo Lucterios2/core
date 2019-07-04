@@ -420,15 +420,11 @@ class LucteriosModel(models.Model):
                 else:
                     field_value = ""
                 if PrintFieldsPlugIn.is_plugin(field_list[0]):
-                    field_val = PrintFieldsPlugIn.get_plugin(
-                        field_list[0]).evaluate("#" + ".".join(field_list[1:]))
+                    field_val = PrintFieldsPlugIn.get_plugin(field_list[0]).evaluate("#" + ".".join(field_list[1:]))
                 elif field_list[0][-4:] == '_set':
                     field_val = eval_sublist(field_list, field_value)
                 else:
-                    try:
-                        dep_field = self._meta.get_field(field_list[0])
-                    except FieldDoesNotExist:
-                        dep_field = None
+                    dep_field = self.get_field_by_name(field_list[0])
                     if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
                         field_value = adapt_value(field_value)
                         formatnum, formatstr = extract_format(get_format_from_field(dep_field))
@@ -600,7 +596,7 @@ class LucteriosVirtualField(models.Field):
         """Add field to class using ObjectProxy so that
         calculate_value can access the model instance."""
         self.set_attributes_from_name(name)
-        cls._meta.add_field(self)
+        cls._meta.add_field(self, private=True)
         self.model = cls
         setattr(cls, name, LucteriosVirtualField.ObjectProxy(self))
         pre_save.connect(self.resolve_computed_field, sender=cls)
@@ -640,21 +636,23 @@ class LucteriosVirtualField(models.Field):
 
 class LucteriosSession(Session, LucteriosModel):
 
+    username = LucteriosVirtualField(verbose_name=_('username'), compute_from='get_username')
+    is_active = LucteriosVirtualField(verbose_name=_('is active'), compute_from='get_is_active', format_string="B")
+
     def __init__(self, *args, **kwargs):
         Session.__init__(self, *args, **kwargs)
         self._data = None
 
     @classmethod
     def get_default_fields(cls):
-        return [(_('is active'), 'is_active'), (_('username'), 'username'), 'expire_date']
+        return ['is_active', 'username', 'expire_date']
 
     def _get_data(self):
         if self._data is None:
             self._data = self.get_decoded()
         return self._data
 
-    @property
-    def username(self):
+    def get_username(self):
         data = self._get_data()
         user_id = data.get('_auth_user_id', None)
         if user_id is None:
@@ -668,10 +666,6 @@ class LucteriosSession(Session, LucteriosModel):
     def get_is_active(self):
         dt_now = timezone.now()
         return self.expire_date > dt_now
-
-    @property
-    def is_active(self):
-        return get_bool_textual(self.get_is_active())
 
     @classmethod
     def clean_anonymous(cls):
