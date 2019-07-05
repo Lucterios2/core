@@ -830,7 +830,7 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 json_record[header.name] = adapt_value(record[header.name])
             for rec_name in record.keys():
-                if rec_name.startswith('__') and (rec_name not in self.headers):
+                if isinstance(rec_name, six.text_type) and rec_name.startswith('__') and (rec_name not in self.headers):
                     json_record[rec_name] = record[rec_name]
             compjson.append(json_record)
         return compjson
