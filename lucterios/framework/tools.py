@@ -577,65 +577,92 @@ def set_locale_lang(lang):
     locale.setlocale(locale.LC_ALL, 'C')
 
 
-def format_to_string(value, format_num, format_str):
+def format_value(value, format_num):
+    sub_format = None
+    if isinstance(value, dict):
+        if 'format' in value.keys():
+            sub_format = value['format']
+        if 'value' in value.keys():
+            value = value['value']
+        else:
+            value = None
     if value is None:
         value = "---"
         format_num = ''
-
-    if isinstance(value, list) or isinstance(value, tuple):
-        value = '{[br/]}'.join(value)
-    if format_num is None:
-        format_num = ''
-    if format_str is None:
-        format_str = '%s'
     if isinstance(format_num, dict):
         if six.text_type(value) in format_num.keys():
             value = format_num[six.text_type(value)]
         format_num = ''
+    try:
+        if format_num == 'B':
+            value = get_bool_textual(bool(value))
+        if format_num == 'D':
+            if isinstance(value, six.text_type):
+                value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
+            else:
+                value = get_date_formating(value)
+        if format_num == 'T':
+            if isinstance(value, six.text_type):
+                if '.' in value:
+                    current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
+                else:
+                    current_time = datetime.strptime(value, "%H:%M:%S").time()
+                value = get_date_formating(current_time)
+            else:
+                value = get_date_formating(value)
+        if format_num == 'H':
+            if isinstance(value, six.text_type):
+                value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
+            else:
+                value = get_date_formating(value)
+        if format_num[0:1] in ("N", "C"):
+            value = locale.format("%.*f", (int(format_num[1]), float(value)), True)
+        if format_num[0:1] == "C":
+            tmp_val = format_currency(0, format_num[2:])
+            tmp_val = tmp_val.replace(',', '').replace('.', '')
+            for _ in range(6):
+                tmp_val = tmp_val.replace('00', '0')
+            value = tmp_val.replace('0', value)
+    except Exception:
+        pass
+    if sub_format is not None:
+        value = sub_format.replace('{0}', six.text_type(value))
+    return value
 
+
+def format_to_string(value, format_num, format_str):
+    if format_num is None:
+        format_num = ''
+    if format_str is None:
+        format_str = '{0}'
+    format_str = format_str.replace('%s', '{0}')
     if ';' in format_str:
         format_str = format_str.split(';')
-        if (abs(float(value)) < 1e-5) and (len(format_str) > 2):
-            format_str = format_str[2]
-            value = float(value)
-        elif (float(value) < 1e-5) and (len(format_str) > 1):
-            format_str = format_str[1]
-            value = abs(float(value))
-        else:
+        try:
+            if (abs(float(value)) < 1e-5) and (len(format_str) > 2):
+                format_str = format_str[2]
+                value = float(value)
+            elif (float(value) < 1e-5) and (len(format_str) > 1):
+                format_str = format_str[1]
+                value = abs(float(value))
+            else:
+                format_str = format_str[0]
+        except Exception:
             format_str = format_str[0]
-    if '%' not in format_str:
+    if '{0}' not in format_str:
         return format_str
 
-    if format_num == 'B':
-        value = get_bool_textual(bool(value))
+    if isinstance(value, list) or isinstance(value, tuple):
+        value = list(value)
+        for val_idx in range(len(value)):
+            value[val_idx] = format_value(value[val_idx], format_num)
+    else:
+        value = [format_value(value, format_num)]
 
-    if format_num == 'D':
-        if isinstance(value, six.text_type):
-            value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
-        else:
-            value = get_date_formating(value)
-    if format_num == 'T':
-        if isinstance(value, six.text_type):
-            if '.' in value:
-                current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
-            else:
-                current_time = datetime.strptime(value, "%H:%M:%S").time()
-            value = get_date_formating(current_time)
-        else:
-            value = get_date_formating(value)
-    if format_num == 'H':
-        if isinstance(value, six.text_type):
-            value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
-        else:
-            value = get_date_formating(value)
+    if '{1}' not in format_str:
+        value = ['{[br/]}'.join([six.text_type(item) for item in value])]
 
-    if format_num[0:1] in ("N", "C"):
-        value = locale.format("%.*f", (int(format_num[1]), float(value)), True)
-    if format_num[0:1] == "C":
-        tmp_val = format_currency(0, format_num[2:])
-        tmp_val = tmp_val.replace(',', '').replace('.', '')
-        for _ in range(6):
-            tmp_val = tmp_val.replace('00', '0')
-        value = tmp_val.replace('0', value)
-
-    return format_str % value
+    res_txt = format_str
+    for val_idx in range(len(value)):
+        res_txt = res_txt.replace('{%d}' % val_idx, value[val_idx])
+    return res_txt

@@ -317,42 +317,28 @@ String.prototype.convertHtmlToLuctoriosFormat = function() {
 	return text;
 };
 
-function format_to_string(value, format_num, format_str) {
-	var options=null;
+function format_value(value, format_num) {
+	var options=null, sub_format=null;
+	if ((value!==null) && (typeof value === "object")) {
+		if (value.hasOwnProperty('format')) {
+			sub_format = value['format'];
+		}
+		if (value.hasOwnProperty('value')) {
+			value = value['value'];
+		} else {
+			value = null;
+		}
+	}
+	
 	if (value===null) {
 		value = "---";
 		format_num = '';
-	}
-	if (Array.isArray(value)) {
-		value=value.join('{[br/]}');
-	}
-	if (format_num===null) {
-		format_num = '';
-	}
-	if (format_str===null) {
-		format_str = '{0}';
-	}
-	
+	}	
 	if (typeof format_num === "object") {
 		if (format_num.hasOwnProperty(value)) {
 			value = format_num[value];
 		}
 		format_num = '';
-	}
-	if (format_str.indexOf(";") !== -1) {
-		format_str = format_str.split(';');
-		if ((Math.abs(Number(value))<0.00001) && (format_str.length > 2)) {
-			format_str = format_str[2];
-			value = Number(value);
-		} else {
-			if ((Number(value)<0.00001) && (format_str.length > 1)) {
-				format_str = format_str[1];
-				value = Math.abs(Number(value));
-			}
-			else {
-				format_str = format_str[0];
-			}
-		}
 	}
 	if (format_num==='B') {
 		if (value === true) {
@@ -385,7 +371,47 @@ function format_to_string(value, format_num, format_str) {
 	if (options!==null) {
 		value = value.toLocaleString(Singleton().getSelectLang(), options);
 	}
-	return format_str.format(value);
+	if (sub_format!==null) {
+		value = sub_format.format(value);
+	}
+	return value;
+}
+
+function format_to_string(value, format_num, format_str) {
+	if (format_num===null) {
+		format_num = '';
+	}
+	if (format_str===null) {
+		format_str = '{0}';
+	}
+	if (format_str.indexOf(";") !== -1) {
+		format_str = format_str.split(';');
+		if ((Math.abs(Number(value))<0.00001) && (format_str.length > 2)) {
+			format_str = format_str[2];
+			value = Number(value);
+		} else {
+			if ((Number(value)<0.00001) && (format_str.length > 1)) {
+				format_str = format_str[1];
+				value = Math.abs(Number(value));
+			}
+			else {
+				format_str = format_str[0];
+			}
+		}
+	}
+		
+	if (Array.isArray(value)) {
+		for(val_idx=0;val_idx<value.length;val_idx++) {
+			value[val_idx] = format_value(value[val_idx],format_num);
+		}
+		if (format_str.indexOf('{1}') === -1) {
+			value=[value.join('{[br/]}')];
+		}
+	}
+	else
+		value=[format_value(value,format_num)];
+
+	return format_str.format(...value);
 }
 
 var compBasic = Class.extend({

@@ -50,7 +50,7 @@ test("Custom_Simple", function() {
 			"name" : "dummytitle",
 			"tab" : 0,
 			"colspan" : 4,
-			"formatstr" : "{[center]}{[u]}{[b]}%s{[/b]}{[/u]}{[/center]}",
+			"formatstr" : "{[center]}{[u]}{[b]}{0}{[/b]}{[/u]}{[/center]}",
 			"formatnum" : null
 		}, {
 			"description" : "",
@@ -62,7 +62,7 @@ test("Custom_Simple", function() {
 			"name" : "dummy_time",
 			"tab" : 0,
 			"colspan" : 4,
-			"formatstr" : "{[center]}{[font color=\"blue\"]}%s{[/font]}{[/center]}",
+			"formatstr" : "{[center]}{[font color=\"blue\"]}{0}{[/font]}{[/center]}",
 			"formatnum" : "H"
 		} ]
 	};
@@ -693,7 +693,7 @@ test("Custom_Download", function() {
 			"y" : 1,
 			"name" : "name",
 			"colspan" : 2,
-			"formatstr" : "%s{0}",
+			"formatstr" : "{0}{0}",
 			"formatnum" : null
 		}, {
 			"tab" : 0,
@@ -832,7 +832,7 @@ test("Custom_Grid", function() {
 					"y" : 0,
 					"name" : "filtre",
 					"colspan" : 1,
-					"formatstr" : "%s",
+					"formatstr" : "{0}",
 					"formatnum" : null
 				},
 				{
@@ -867,8 +867,8 @@ test("Custom_Grid", function() {
 					"HMin" : 500,
 					"tab" : 0,
 					"needed" : false,
-					"headers" : [ [ "postal_code", "code postal", "N0", 1, "%s" ], [ "city", "ville", null, 1, "%s" ],
-							[ "country", "pays", null, 1, "{[b]}%s{[/b]}" ] ],
+					"headers" : [ [ "postal_code", "code postal", "N0", 1, "{0}" ], [ "city", "ville", null, 1, "{0}" ],
+							[ "country", "pays", null, 1, "{[b]}{0}{[/b]}" ] ],
 					"VMin" : 200,
 					"component" : "GRID",
 					"description" : "",
@@ -991,49 +991,28 @@ test("Custom_Grid", function() {
 
 });
 
-test("Test_format_to_string", function() {
+test("test_formating_general", function() {
+	Singleton().mSelectLang = 'fr';
+
 	equal(format_to_string(null, null, null), "---", "check null");
 	equal(format_to_string("abc", null, null), "abc", "check string simple");
+	equal(format_to_string("abc", null, "{0}"), "abc", "check string simple +");
+	equal(format_to_string([ "abc", "uvw", "xyz" ], null, null), "abc{[br/]}uvw{[br/]}xyz", "check string multiple");
 	equal(format_to_string("abc", null, "{[i]}{[b]}{0}{[/b]}{[/i]}"), "{[i]}{[b]}abc{[/b]}{[/i]}", "check string formated");
+	equal(format_to_string([ "abc", "uvw", "xyz" ], null, "{0} : {1} --> {2}"), "abc : uvw --> xyz", "check string splited");
+	equal(format_to_string([ 65.4, 456.04, 894730.124 ], "N2", "{0} : {1} --> {2}"), "65,40 : 456,04 --> 894 730,12", "check float splited");
+	equal(format_to_string({
+		"value" : "abc",
+		"format" : "{[b]}{0}{[/b]}"
+	}, null, "{[i]}{0}{[/i]}"), "{[i]}{[b]}abc{[/b]}{[/i]}", "check string riched formated");
 
 	equal(format_to_string(1234.56, null, "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1234.56{[/i]}", "check num positive");
 	equal(format_to_string(-1234.56, null, "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1234.56{[/b]}", "check num negative");
 
-	equal(format_to_string(1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1 234,560{[/i]}", "check num positive formated");
-	equal(format_to_string(-1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1 234,560{[/b]}", "check num negative formated");
-	equal(format_to_string(1234.56, "N0", "{0}"), "1 235", "check int no-formated");
-
-	equal(format_to_string(1234.56, "N3", "{0}"), "1 234,560", "check num positive no-formated");
-	equal(format_to_string(-1234.56, "N3", "{0}"), "-1 234,560", "check num negative no-formated");
-	equal(format_to_string(1234.56, "C2EUR", "{0}").indexOf("€"), 9, "check currency no-formated");
-
-	equal(format_to_string(1234.56, 'C2EUR', '{0};'), "1 234,56 €", "currency mode 0 +");
-    equal(format_to_string(1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Crédit 1 234,56 €", "currency mode 1 +");
-    equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'), "{[font color=\"green\"]}Crédit 1 234,56 €{[/font]}", "currency mode 2 +");
-    equal(format_to_string(1234.56, 'N2', '{0}'), "1 234,56", "currency mode 3 +");
-    equal(format_to_string(1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 +");
-    equal(format_to_string(1234.56, 'C2EUR', '{0}'), "1 234,56 €", "currency mode 5 +");
-    equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'), "{[font color=\"green\"]}1 234,56 €{[/font]}", "currency mode 6 +");
-
-    equal(format_to_string(-1234.56, 'C2EUR', '{0};'), "", "currency mode 0 -");
-    equal(format_to_string(-1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Débit 1 234,56 €", "currency mode 1 -");
-    equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'), "{[font color=\"blue\"]}Débit 1 234,56 €{[/font]}", "currency mode 2 -");
-    equal(format_to_string(-1234.56, 'N2', '{0}'), "-1 234,56", "currency mode 3 -");
-    equal(format_to_string(-1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 -");
-    equal(format_to_string(-1234.56, 'C2EUR', '{0}'), "-1 234,56 €", "currency mode 5 -");
-    equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'), "{[font color=\"blue\"]}1 234,56 €{[/font]}", "currency mode 6 -");
-	
-    equal(format_to_string(0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
-    equal(format_to_string(-0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
+	equal(format_to_string(0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
+	equal(format_to_string(-0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
 	equal(format_to_string(-0.000001, 'C2EUR', '{0};A;B'), "B", "currency mode 0 null");
 	equal(format_to_string(0.000001, 'C2EUR', '{0};A;B'), "B", "currency mode 0 null");
-	
-	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date");
-	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time");
-	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time");
-
-	equal(format_to_string(true, "B", "{0}"), "Oui", "check bool true");
-	equal(format_to_string(false, "B", "{0}"), "Non", "check bool false");
 
 	equal(format_to_string(0, {
 		'0' : 'aaa',
@@ -1055,4 +1034,64 @@ test("Test_format_to_string", function() {
 		'1' : 'bbb',
 		'2' : 'ccc'
 	}, "{0}"), "3", "check select 3");
+});
+
+test("test_formating_fr", function() {
+	Singleton().mSelectLang = 'fr';
+
+	equal(format_to_string(1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1 234,560{[/i]}", "check num positive formated");
+	equal(format_to_string(-1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1 234,560{[/b]}", "check num negative formated");
+	equal(format_to_string(1234.56, "N0", "{0}"), "1 235", "check int no-formated");
+
+	equal(format_to_string(1234.56, "N3", "{0}"), "1 234,560", "check num positive no-formated");
+	equal(format_to_string(-1234.56, "N3", "{0}"), "-1 234,560", "check num negative no-formated");
+	equal(format_to_string(1234.56, "C2EUR", "{0}"), "1 234,56 €", "check currency positive no-formated");
+    equal(format_to_string(-1234.56, "C2EUR", "{0}"), "-1 234,56 €", "check currency negative no-formated");
+
+	equal(format_to_string(1234.56, 'C2EUR', '{0};'), "1 234,56 €", "currency mode 0 +");
+	equal(format_to_string(1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Crédit 1 234,56 €", "currency mode 1 +");
+	equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'),
+			"{[font color=\"green\"]}Crédit 1 234,56 €{[/font]}", "currency mode 2 +");
+	equal(format_to_string(1234.56, 'N2', '{0}'), "1 234,56", "currency mode 3 +");
+	equal(format_to_string(1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 +");
+	equal(format_to_string(1234.56, 'C2EUR', '{0}'), "1 234,56 €", "currency mode 5 +");
+	equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'),
+			"{[font color=\"green\"]}1 234,56 €{[/font]}", "currency mode 6 +");
+
+	equal(format_to_string(-1234.56, 'C2EUR', '{0};'), "", "currency mode 0 -");
+	equal(format_to_string(-1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Débit 1 234,56 €", "currency mode 1 -");
+	equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'),
+			"{[font color=\"blue\"]}Débit 1 234,56 €{[/font]}", "currency mode 2 -");
+	equal(format_to_string(-1234.56, 'N2', '{0}'), "-1 234,56", "currency mode 3 -");
+	equal(format_to_string(-1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 -");
+	equal(format_to_string(-1234.56, 'C2EUR', '{0}'), "-1 234,56 €", "currency mode 5 -");
+	equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'),
+			"{[font color=\"blue\"]}1 234,56 €{[/font]}", "currency mode 6 -");
+
+	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date");
+	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time");
+	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time");
+
+	equal(format_to_string(true, "B", "{0}"), "Oui", "check bool true");
+	equal(format_to_string(false, "B", "{0}"), "Non", "check bool false");
+});
+
+test("test_formating_en", function() {
+	Singleton().mSelectLang = 'en';
+
+	equal(format_to_string(1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[i]}1,234.560{[/i]}", "check num positive formated");
+	equal(format_to_string(-1234.56, "N3", "{[i]}{0}{[/i]};{[b]}{0}{[/b]}"), "{[b]}1,234.560{[/b]}", "check num negative formated");
+	equal(format_to_string(1234.56, "N0", "{0}"), "1,235", "check int no-formated");
+
+	equal(format_to_string(1234.56, "N3", "{0}"), "1,234.560", "check num positive no-formated");
+	equal(format_to_string(-1234.56, "N3", "{0}"), "-1,234.560", "check num negative no-formated");
+	equal(format_to_string(1234.56, "C2USD", "{0}"), "$1,234.56", "check currency positive no-formated");
+    equal(format_to_string(-1234.56, "C2USD", "{0}"), "-$1,234.56", "check currency negative no-formated");
+
+	equal(format_to_string("2017-04-23", "D", "{0}"), "April 23, 2017", "check date");
+	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54 PM", "check time");
+	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "Sunday, April 23, 2017, 12:54 PM", "check date time");
+
+	equal(format_to_string(true, "B", "{0}"), "Yes", "check bool true");
+	equal(format_to_string(false, "B", "{0}"), "No", "check bool false");
 });
