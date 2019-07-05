@@ -581,6 +581,7 @@ def format_to_string(value, format_num, format_str):
     if value is None:
         value = "---"
         format_num = ''
+
     if isinstance(value, list) or isinstance(value, tuple):
         value = '{[br/]}'.join(value)
     if format_num is None:
@@ -594,11 +595,17 @@ def format_to_string(value, format_num, format_str):
 
     if ';' in format_str:
         format_str = format_str.split(';')
-        if (float(value) < 0) and (len(format_str) > 1):
+        if (abs(float(value)) < 1e-5) and (len(format_str) > 2):
+            format_str = format_str[2]
+            value = float(value)
+        elif (float(value) < 1e-5) and (len(format_str) > 1):
             format_str = format_str[1]
             value = abs(float(value))
         else:
             format_str = format_str[0]
+    if '%' not in format_str:
+        return format_str
+
     if format_num == 'B':
         value = get_bool_textual(bool(value))
 

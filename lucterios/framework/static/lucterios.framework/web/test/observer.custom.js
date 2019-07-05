@@ -693,7 +693,7 @@ test("Custom_Download", function() {
 			"y" : 1,
 			"name" : "name",
 			"colspan" : 2,
-			"formatstr" : "%s",
+			"formatstr" : "%s{0}",
 			"formatnum" : null
 		}, {
 			"tab" : 0,
@@ -1007,6 +1007,27 @@ test("Test_format_to_string", function() {
 	equal(format_to_string(-1234.56, "N3", "{0}"), "-1 234,560", "check num negative no-formated");
 	equal(format_to_string(1234.56, "C2EUR", "{0}").indexOf("€"), 9, "check currency no-formated");
 
+	equal(format_to_string(1234.56, 'C2EUR', '{0};'), "1 234,56 €", "currency mode 0 +");
+    equal(format_to_string(1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Crédit 1 234,56 €", "currency mode 1 +");
+    equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'), "{[font color=\"green\"]}Crédit 1 234,56 €{[/font]}", "currency mode 2 +");
+    equal(format_to_string(1234.56, 'N2', '{0}'), "1 234,56", "currency mode 3 +");
+    equal(format_to_string(1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 +");
+    equal(format_to_string(1234.56, 'C2EUR', '{0}'), "1 234,56 €", "currency mode 5 +");
+    equal(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'), "{[font color=\"green\"]}1 234,56 €{[/font]}", "currency mode 6 +");
+
+    equal(format_to_string(-1234.56, 'C2EUR', '{0};'), "", "currency mode 0 -");
+    equal(format_to_string(-1234.56, 'C2EUR', 'Crédit {0};Débit {0}'), "Débit 1 234,56 €", "currency mode 1 -");
+    equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}Crédit {0}{[/font]};{[font color="blue"]}Débit {0}{[/font]}'), "{[font color=\"blue\"]}Débit 1 234,56 €{[/font]}", "currency mode 2 -");
+    equal(format_to_string(-1234.56, 'N2', '{0}'), "-1 234,56", "currency mode 3 -");
+    equal(format_to_string(-1234.56, 'C2EUR', '{0};{0}'), "1 234,56 €", "currency mode 4 -");
+    equal(format_to_string(-1234.56, 'C2EUR', '{0}'), "-1 234,56 €", "currency mode 5 -");
+    equal(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}{0}{[/font]};{[font color="blue"]}{0}{[/font]}'), "{[font color=\"blue\"]}1 234,56 €{[/font]}", "currency mode 6 -");
+	
+    equal(format_to_string(0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
+    equal(format_to_string(-0.000001, 'C2EUR', '{0};A'), "A", "currency mode 0 null");
+	equal(format_to_string(-0.000001, 'C2EUR', '{0};A;B'), "B", "currency mode 0 null");
+	equal(format_to_string(0.000001, 'C2EUR', '{0};A;B'), "B", "currency mode 0 null");
+	
 	equal(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date");
 	equal(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time");
 	equal(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time");

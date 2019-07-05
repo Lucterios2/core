@@ -341,12 +341,17 @@ function format_to_string(value, format_num, format_str) {
 	}
 	if (format_str.indexOf(";") !== -1) {
 		format_str = format_str.split(';');
-		if ((Number(value)<0) && (format_str.length > 1)) {
-			format_str = format_str[1];
-			value = Math.abs(Number(value));
-		}
-		else {
-			format_str = format_str[0];
+		if ((Math.abs(Number(value))<0.00001) && (format_str.length > 2)) {
+			format_str = format_str[2];
+			value = Number(value);
+		} else {
+			if ((Number(value)<0.00001) && (format_str.length > 1)) {
+				format_str = format_str[1];
+				value = Math.abs(Number(value));
+			}
+			else {
+				format_str = format_str[0];
+			}
 		}
 	}
 	if (format_num==='B') {

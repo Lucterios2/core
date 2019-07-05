@@ -565,7 +565,7 @@ class LucteriosVirtualField(models.Field):
     def __init__(self, compute_from=None, format_string=None, *args, **kwargs):
         kwargs['editable'] = False
         if compute_from is None:
-            raise ImproperlyConfigured('%s requires setting compute_from' % self.__class__.__name_)
+            raise ImproperlyConfigured('%s requires setting compute_from' % self.__class__)
         super(LucteriosVirtualField, self).__init__(*args, **kwargs)
         self.compute_from = compute_from
         self._format_string = format_string

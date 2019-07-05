@@ -231,6 +231,12 @@ class LucteriosTestAbstract(object):
         self.assertEqual(len(values), size, "size of %s different: %d=>%d" % (path, len(values), size))
 
     def assert_json_equal(self, comp_type, comp_name, value, txtrange=None):
+        def is_number(text):
+            try:
+                float(text)
+                return True
+            except ValueError:
+                return False
         self.assertTrue(self.response_json is not None)
         if comp_type != '':
             self.assertEqual(self.json_comp[comp_name]['component'], comp_type)
@@ -240,7 +246,7 @@ class LucteriosTestAbstract(object):
             value = six.text_type(value)[0:len(txt_value)]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
-        if isinstance(txt_value, float) or isinstance(value, float):
+        if (isinstance(txt_value, float) and is_number(value)) or (isinstance(value, float) and is_number(txt_value)):
             self.assertAlmostEqual(float(txt_value), float(value), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
         elif isinstance(txt_value, six.text_type) or isinstance(value, six.text_type):
             self.assertEqual(six.text_type(txt_value), six.text_type(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))

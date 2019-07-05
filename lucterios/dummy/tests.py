@@ -187,6 +187,27 @@ class DummyTest(LucteriosTest):
         self.assertEqual(format_to_string(-1234.56, "N3", "%s"), "-1 234,560", "check num negative no-formated")
         self.assertEqual(format_to_string(1234.56, "C2EUR", "%s"), "1 234,56 €", "check currency no-formated")
 
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', '%s;'), "1 234,56 €", "currency mode 0 +")
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', 'Crédit %s;Débit %s'), "Crédit 1 234,56 €", "currency mode 1 +")
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}Crédit %s{[/font]};{[font color="blue"]}Débit %s{[/font]}'), "{[font color=\"green\"]}Crédit 1 234,56 €{[/font]}", "currency mode 2 +")
+        self.assertEqual(format_to_string(1234.56, 'N2', '%s'), "1 234,56", "currency mode 3 +")
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', '%s;%s'), "1 234,56 €", "currency mode 4 +")
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', '%s'), "1 234,56 €", "currency mode 5 +")
+        self.assertEqual(format_to_string(1234.56, 'C2EUR', '{[font color="green"]}%s{[/font]};{[font color="blue"]}%s{[/font]}'), "{[font color=\"green\"]}1 234,56 €{[/font]}", "currency mode 6 +")
+
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', '%s;'), "", "currency mode 0 -")
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', 'Crédit %s;Débit %s'), "Débit 1 234,56 €", "currency mode 1 -")
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}Crédit %s{[/font]};{[font color="blue"]}Débit %s{[/font]}'), "{[font color=\"blue\"]}Débit 1 234,56 €{[/font]}", "currency mode 2 -")
+        self.assertEqual(format_to_string(-1234.56, 'N2', '%s'), "-1 234,56", "currency mode 3 -")
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', '%s;%s'), "1 234,56 €", "currency mode 4 -")
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', '%s'), "-1 234,56 €", "currency mode 5 -")
+        self.assertEqual(format_to_string(-1234.56, 'C2EUR', '{[font color="green"]}%s{[/font]};{[font color="blue"]}%s{[/font]}'), "{[font color=\"blue\"]}1 234,56 €{[/font]}", "currency mode 6 -")
+
+        self.assertEqual(format_to_string(0.000001, 'C2EUR', '%s;A'), "A", "currency mode 0 null")
+        self.assertEqual(format_to_string(-0.000001, 'C2EUR', '%s;A'), "A", "currency mode 0 null")
+        self.assertEqual(format_to_string(-0.000001, 'C2EUR', '%s;A;B'), "B", "currency mode 0 null")
+        self.assertEqual(format_to_string(0.000001, 'C2EUR', '%s;A;B'), "B", "currency mode 0 null")
+
         self.assertEqual(format_to_string("2017-04-23", "D", "%s"), "23 avril 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "%s"), "12:54", "check time")
         self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "%s"), "dimanche 23 avril 2017 à 12:54", "check date time")
