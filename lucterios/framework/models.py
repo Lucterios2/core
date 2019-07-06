@@ -611,14 +611,18 @@ class LucteriosVirtualField(models.Field):
         Args:
             instance: Parent model instance to reference
         """
-        if callable(self.compute_from):
-            value = self.compute_from(instance)
-        else:
-            instance_compute_object = getattr(instance, self.compute_from)
-            if callable(instance_compute_object):
-                value = instance_compute_object()
+        try:
+            if callable(self.compute_from):
+                value = self.compute_from(instance)
             else:
-                value = instance_compute_object
+                instance_compute_object = getattr(instance, self.compute_from)
+                if callable(instance_compute_object):
+                    value = instance_compute_object()
+                else:
+                    value = instance_compute_object
+        except Exception as err:
+            logging.getLogger('lucterios.framwork').warning("LucteriosVirtualField.calculate_value(%s.%s) : %s", instance.__class__.__name__, self.compute_from, err)
+            value = None
         return self.to_python(value)
 
     def deconstruct(self):
