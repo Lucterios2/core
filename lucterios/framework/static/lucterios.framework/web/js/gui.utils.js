@@ -321,10 +321,10 @@ function format_value(value, format_num) {
 	var options=null, sub_format=null;
 	if ((value!==null) && (typeof value === "object")) {
 		if (value.hasOwnProperty('format')) {
-			sub_format = value['format'];
+			sub_format = value.format;
 		}
 		if (value.hasOwnProperty('value')) {
-			value = value['value'];
+			value = value.value;
 		} else {
 			value = null;
 		}
@@ -378,6 +378,7 @@ function format_value(value, format_num) {
 }
 
 function format_to_string(value, format_num, format_str) {
+	var val_idx;
 	if (format_num===null) {
 		format_num = '';
 	}
@@ -408,9 +409,9 @@ function format_to_string(value, format_num, format_str) {
 			value=[value.join('{[br/]}')];
 		}
 	}
-	else
+	else {
 		value=[format_value(value,format_num)];
-
+	}
 	return format_str.format(...value);
 }
 
