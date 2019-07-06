@@ -259,6 +259,15 @@ class LucteriosTestAbstract(object):
                     self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
                 else:
                     self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+        elif isinstance(txt_value, dict) and isinstance(value, dict):
+            self.assertEqual(len(txt_value), len(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+            for idx in txt_value.keys():
+                txt_value_item = txt_value[idx]
+                value_item = value[idx]
+                if (isinstance(txt_value_item, float) and is_number(value_item)) or (isinstance(value_item, float) and is_number(txt_value_item)):
+                    self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
+                else:
+                    self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
         else:
             self.assertEqual(txt_value, value, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
 
