@@ -24,8 +24,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 import re
+import json
 import logging
-from datetime import datetime, date, time
+from datetime import datetime
 from django_fsm.signals import post_transition
 from django.db.models.signals import pre_save
 from types import FunctionType
@@ -34,10 +35,9 @@ from django.db import models, transaction
 from django.db.models import Transform, Count, Q
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
-from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField,\
-    IntegerField
-from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist,\
-    ImproperlyConfigured
+from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField
+from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist, ImproperlyConfigured
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
@@ -47,10 +47,11 @@ from django.utils.module_loading import import_module
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
 
+from auditlog.models import LogEntry
+
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
-from lucterios.framework.tools import get_bool_textual, adapt_value,\
-    format_to_string
+from lucterios.framework.tools import adapt_value, format_to_string
 
 
 class AbsoluteValue(Transform):
@@ -152,7 +153,7 @@ class LucteriosModel(models.Model):
     @classmethod
     def get_default_fields(cls):
         fields = [f.name for f in cls._meta.get_fields()]
-        if cls._meta.auto_field.attname in fields:
+        if (cls._meta.auto_field is not None) and (cls._meta.auto_field.attname in fields):
             fields.remove(cls._meta.auto_field.attname)
         fields.sort()
         return fields
@@ -690,6 +691,63 @@ class LucteriosSession(Session, LucteriosModel):
         verbose_name = _('session')
         verbose_name_plural = _('sessions')
         ordering = ['-expire_date']
+
+
+class LucteriosLogEntry(LogEntry, LucteriosModel):
+
+    currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
+    username = LucteriosVirtualField(verbose_name=_('username'), compute_from='actor')
+    changetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_changes')
+
+    @classmethod
+    def get_default_fields(cls):
+        return ['currentdate',
+                'username',
+                'action',
+                'object_repr',
+                'changetxt',
+                ]
+
+    @classmethod
+    def get_typeselection(cls):
+        res = []
+        for type_id in cls.objects.values_list('content_type', flat=True).distinct():
+            type_item = ContentType.objects.get(id=type_id)
+            res.append(('%s.%s' % (type_item.app_label, type_item.model), six.text_type(type_item)))
+        return sorted(list(set(res)), key=lambda item: item[0])
+
+    def get_field(self, name):
+        model = self.content_type.model_class()
+        return model._meta.get_field(name)
+
+    def get_format_value(self, dep_field, value):
+        fieldformat = get_format_from_field(dep_field)
+        value = format_to_string(value, fieldformat, None)
+        return value
+
+    def get_changes(self):
+        changes = json.loads(self.changes)
+        res = []
+        for key, value in changes.items():
+            dep_field = self.get_field(key)
+            if (dep_field is not None) and (not dep_field.editable or dep_field.primary_key):
+                continue
+            title = key
+            if (dep_field is not None) and hasattr(dep_field, 'verbose_name'):
+                title = dep_field.verbose_name
+            if self.action == 1:
+                res.append('%s: "%s" -> "%s"' % (title, self.get_format_value(dep_field, value[0]), self.get_format_value(dep_field, value[1])))
+            else:
+                res.append('%s: "%s"' % (title, self.get_format_value(dep_field, value[0])))
+        return res
+
+    class Meta(object):
+        proxy = True
+        default_permissions = []
+        get_latest_by = 'timestamp'
+        ordering = ['-timestamp']
+        verbose_name = _("log entry")
+        verbose_name_plural = _("log entries")
 
 
 class PrintFieldsPlugIn(object):

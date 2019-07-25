@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-01 13:17+0000\n"
+"POT-Creation-Date: 2019-07-25 11:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,47 +21,55 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:74 xfergraphic.py:161 xfergraphic.py:314
-msgid "Yes"
-msgstr "Yes"
-
-#: models.py:76 xfergraphic.py:162 xfergraphic.py:316
-msgid "No"
-msgstr "No"
-
-#: models.py:512
+#: models.py:525
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:537
-msgid "is active"
-msgstr "is active"
-
-#: models.py:537
+#: models.py:643 models.py:699
 msgid "username"
 msgstr "username"
 
-#: models.py:581
+#: models.py:644
+msgid "is active"
+msgstr "is active"
+
+#: models.py:691
 msgid "session"
 msgstr "session"
 
-#: models.py:582
+#: models.py:692
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:615
+#: models.py:698
+msgid "date"
+msgstr "date"
+
+#: models.py:700
+msgid "change message"
+msgstr "message de modification"
+
+#: models.py:749
+msgid "log entry"
+msgstr "log entry"
+
+#: models.py:750
+msgid "log entries"
+msgstr "log entries"
+
+#: models.py:782
 msgid "General"
 msgstr "General"
 
-#: models.py:619 models.py:620
+#: models.py:786 models.py:787
 msgid "current date"
 msgstr "current date"
 
-#: models.py:621
+#: models.py:788
 msgid "current hour"
 msgstr "current hour"
 
-#: printgenerators.py:440
+#: printgenerators.py:416
 msgid "This impression failed !"
 msgstr "This impression failed !"
 
@@ -70,30 +78,38 @@ msgstr "This impression failed !"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:135
+#: tools.py:139
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:137
+#: tools.py:141
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:456
+#: tools.py:460
 msgid "add"
 msgstr "add"
 
-#: tools.py:458
+#: tools.py:462
 msgid "view"
 msgstr "view"
 
-#: tools.py:460
+#: tools.py:464
 msgid "delete"
 msgstr "delete"
 
-#: tools.py:462
+#: tools.py:466
 msgid "Can"
 msgstr "Can"
+
+#: tools.py:552 xfergraphic.py:161
+msgid "Yes"
+msgstr "Yes"
+
+#: tools.py:554 xfergraphic.py:162
+msgid "No"
+msgstr "No"
 
 #: xferadvance.py:40 xfergraphic.py:170
 msgid "Ok"
@@ -108,29 +124,29 @@ msgstr "Cancel"
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:43 xfercomponents.py:710
+#: xferadvance.py:43 xfercomponents.py:702
 msgid "Edit"
 msgstr "Edit"
 
-#: xferadvance.py:44 xfercomponents.py:710
+#: xferadvance.py:44 xfercomponents.py:702
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:45 xfercomponents.py:711
+#: xferadvance.py:45 xfercomponents.py:703
 msgid "Delete"
 msgstr "Delete"
 
-#: xferadvance.py:46 xfercomponents.py:711
+#: xferadvance.py:46 xfercomponents.py:703
 msgid "Add"
 msgstr "Add"
 
 #: xferadvance.py:47
 msgid "Create"
-msgstr ""
+msgstr "Create"
 
 #: xferadvance.py:48
 msgid "Save"
-msgstr ""
+msgstr "Save"
 
 #: xferadvance.py:49
 msgid "clone"
@@ -153,7 +169,7 @@ msgstr "Label"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:197 xferbasic.py:154
+#: xferadvance.py:197 xferbasic.py:155
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -263,7 +279,7 @@ msgstr "No criteria of search"
 #: xfersearch.py:263
 #, python-format
 msgid "%d items"
-msgstr ""
+msgstr "%d items"
 
 #: xfersearch.py:473
 msgid "New criteria"

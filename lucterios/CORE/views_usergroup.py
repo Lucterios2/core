@@ -29,12 +29,13 @@ from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompGrid
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage
+from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
+    FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
-from lucterios.framework.models import LucteriosScheduler
+from lucterios.framework.models import LucteriosScheduler, LucteriosLogEntry
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -154,8 +155,7 @@ class SessionList(XferListEditor):
     def fillresponse_header(self):
         self.new_tab(_("Sessions"))
 
-    def fillresponse(self):
-        XferListEditor.fillresponse(self)
+    def fill_tasks(self):
         self.new_tab(_('Tasks'))
         grid = XferCompGrid('tasks')
         grid.no_pager = True
@@ -166,9 +166,14 @@ class SessionList(XferListEditor):
             grid.set_value(job_desc[0], 'name', job_desc[1])
             grid.set_value(job_desc[0], 'trigger', '%s' % job_desc[2])
             grid.set_value(job_desc[0], 'nextdate', job_desc[3])
+
         grid.set_location(0, self.get_max_row() + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        self.fill_tasks()
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
@@ -186,3 +191,44 @@ class SessionDelete(XferDelete):
             if sess_item.session_key != self.request.session.session_key:
                 new_sess_ids.append(sess_item.pk)
         self.items = self.model.objects.filter(pk__in=new_sess_ids)
+
+
+@MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage audit logs."))
+class AudiLogList(XferListEditor):
+    caption = _("Log entries")
+    icon = "auditlog.png"
+    model = LucteriosLogEntry
+    field_id = 'lucterioslogentry'
+
+    def fillresponse_header(self):
+        row = self.get_max_row() + 1
+        type_selected = self.getparam('type_selected', '')
+        sel = XferCompSelect('type_selected')
+        sel.set_select(LucteriosLogEntry.get_typeselection())
+        sel.set_needed(True)
+        sel.set_value(type_selected)
+        sel.set_location(1, row)
+        sel.description = _('Type selection')
+        sel._check_case()
+        sel.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(sel)
+        try:
+            app_label, model = sel.value.split('.')
+            self.filter = Q(content_type__app_label=app_label) & Q(content_type__model=model)
+        except Exception:
+            self.filter = Q(content_type__app_label='')
+
+
+@ActionsManage.affect_grid(_('purge'), "images/delete.png", unique=SELECT_NONE)
+@MenuManage.describ('CORE.add_parameter')
+class AudiLogPurge(XferContainerAcknowledge):
+    caption = _("Purge log")
+    icon = "auditlog.png"
+    model = LucteriosLogEntry
+    field_id = 'lucterioslogentry'
+
+    def fillresponse(self, type_selected=''):
+        if self.confirme(_('Do you want to purge those logs ?')):
+            app_label, model = type_selected.split('.')
+            for log_entry in LucteriosLogEntry.objects.filter(content_type__app_label=app_label, content_type__model=model):
+                log_entry.delete()

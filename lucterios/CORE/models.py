@@ -44,6 +44,7 @@ from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.framework.tools import set_locale_lang
+from auditlog.registry import auditlog
 
 
 class Parameter(LucteriosModel):
@@ -473,3 +474,5 @@ def post_after_migrate(sender, **kwargs):
 
 
 post_migrate.connect(post_after_migrate)
+auditlog.register(LucteriosUser)
+auditlog.register(LucteriosGroup)
