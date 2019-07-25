@@ -1,13 +1,13 @@
 .. image:: https://img.shields.io/pypi/djversions/lucterios
-    :target: https://pypi.python.org/lucterios/
+    :target: https://pypi.org/project/lucterios/
     :alt: Django version
 
 .. image:: https://img.shields.io/pypi/v/lucterios
-    :target: https://pypi.python.org/lucterios/
+    :target: https://pypi.org/project/lucterios/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/pyversions/lucterios
-    :target: https://pypi.python.org/pypi/lucterios/
+    :target: https://pypi.org/project/lucterios/
     :alt: Supported Python versions
 
 Lucterios framework for Django
