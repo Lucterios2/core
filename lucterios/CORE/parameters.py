@@ -40,8 +40,9 @@ from lucterios.framework import tools, signal_and_lock
 
 class ParamCache(object):
 
-    def __init__(self, name):
-        param = Parameter.objects.get(name=name)
+    def __init__(self, name, param=None):
+        if param is None:
+            param = Parameter.objects.get(name=name)
         self.db_obj = None
         self.name = param.name
         self.type = param.typeparam

@@ -32,6 +32,7 @@ from lucterios.framework.models import LucteriosModel, LucteriosDecimalField,\
     LucteriosVirtualField
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
+from lucterios.framework.auditlog import audit_log
 
 
 class Example(LucteriosModel):
@@ -87,6 +88,12 @@ class Other(LucteriosModel):
                                  format_string=lambda: "N4",
                                  validators=[MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
     bool = models.BooleanField(default=False)
+
+
+@Signal.decorate('auditlog_register')
+def dummy_auditlog_register():
+    audit_log().register(Example)
+    audit_log().register(Other)
 
 
 @Signal.decorate('checkparam')
