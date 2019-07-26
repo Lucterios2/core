@@ -696,8 +696,8 @@ class LucteriosSession(Session, LucteriosModel):
 class LucteriosLogEntry(LogEntry, LucteriosModel):
 
     currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
-    username = LucteriosVirtualField(verbose_name=_('username'), compute_from='actor')
-    changetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_changes')
+    username = LucteriosVirtualField(verbose_name=_('username'), compute_from='get_actor')
+    messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
 
     @classmethod
     def get_default_fields(cls):
@@ -705,7 +705,7 @@ class LucteriosLogEntry(LogEntry, LucteriosModel):
                 'username',
                 'action',
                 'object_repr',
-                'changetxt',
+                'messagetxt',
                 ]
 
     @classmethod
@@ -714,18 +714,23 @@ class LucteriosLogEntry(LogEntry, LucteriosModel):
         for type_id in cls.objects.values_list('content_type', flat=True).distinct():
             type_item = ContentType.objects.get(id=type_id)
             res.append(('%s.%s' % (type_item.app_label, type_item.model), six.text_type(type_item)))
-        return sorted(list(set(res)), key=lambda item: item[0])
+        return sorted(list(set(res)), key=lambda item: item[1])
 
     def get_field(self, name):
         model = self.content_type.model_class()
         return model._meta.get_field(name)
 
     def get_format_value(self, dep_field, value):
-        fieldformat = get_format_from_field(dep_field)
-        value = format_to_string(value, fieldformat, None)
+        formatnum, formatstr = extract_format(get_format_from_field(dep_field))
+        value = format_to_string(value, formatnum, formatstr)
         return value
 
-    def get_changes(self):
+    def get_actor(self):
+        if self.actor is None:
+            return None
+        return six.text_type(self.actor)
+
+    def get_message(self):
         changes = json.loads(self.changes)
         res = []
         for key, value in changes.items():
@@ -735,10 +740,17 @@ class LucteriosLogEntry(LogEntry, LucteriosModel):
             title = key
             if (dep_field is not None) and hasattr(dep_field, 'verbose_name'):
                 title = dep_field.verbose_name
-            if self.action == 1:
+            if self.action == 0:
+                res.append('%s: "%s"' % (title, self.get_format_value(dep_field, value[1])))
+            elif self.action == 1:
                 res.append('%s: "%s" -> "%s"' % (title, self.get_format_value(dep_field, value[0]), self.get_format_value(dep_field, value[1])))
             else:
                 res.append('%s: "%s"' % (title, self.get_format_value(dep_field, value[0])))
+        if self.additional_data is not None:
+            additional_data = json.loads(self.additional_data)
+            for key, values in additional_data.items():
+                for value_id, value_data in values.items():
+                    res.append('%s: %s = "%s"' % (key, value_id, '" "'.join(value_data)))
         return res
 
     class Meta(object):

@@ -36,6 +36,8 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http.response import HttpResponse
 
 from lucterios.framework.docs import defaultDocs
+from lucterios.framework.signal_and_lock import Signal
+from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 
 def defaultblank(request, *args):
@@ -111,6 +113,8 @@ def get_url_patterns():
     res.extend(staticfiles_urlpatterns())
     logging.getLogger('lucterios.core.init').debug(
         "Urls:" + '\n'.join(str(res_item) for res_item in res))
+    Signal.call_signal("auditlog_register")
+    LucteriosAuditlogModelRegistry.main_enabled()
     return res
 
 

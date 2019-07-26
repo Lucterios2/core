@@ -198,7 +198,7 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('EDIT', "last_name", 'USER1')
         self.assert_json_equal('EDIT', "email", '')
 
-        self.assert_json_equal('CHECK', "password_change", "1")
+        self.assert_json_equal('CHECK', "password_change", "0")
         self.assert_json_equal('PASSWD', "password1", '')
         self.assert_json_equal('PASSWD', "password2", '')
 
@@ -255,7 +255,7 @@ class UserTest(LucteriosTest):
         self.assert_attrib_equal('first_name', 'needed', 'False')
         self.assert_comp_equal(('EDIT', "last_name"), '', (0, 4, 1, 1, 1))
         self.assert_comp_equal(('EDIT', "email"), '', (0, 5, 1, 1, 1))
-        self.assert_comp_equal(('CHECK', "password_change"), '1', (0, 6, 1, 1, 1))
+        self.assert_comp_equal(('CHECK', "password_change"), '0', (0, 6, 1, 1, 1))
         self.assert_comp_equal(('PASSWD', "password1"), '', (0, 7, 1, 1))
         self.assert_comp_equal(('PASSWD', "password2"), '', (0, 8, 1, 1))
 

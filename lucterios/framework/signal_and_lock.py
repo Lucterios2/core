@@ -32,6 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.models import LucteriosSession
+from importlib import import_module
 
 
 class Signal(object):
@@ -43,8 +44,7 @@ class Signal(object):
     @classmethod
     def decorate(cls, name):
         def wrapper(item):
-            logging.getLogger("lucterios.core.signal").debug(
-                ">> decorate %s", name)
+            logging.getLogger("lucterios.core.signal").debug(">> decorate %s", name)
             cls._signlock.acquire()
             try:
                 if name not in cls._SIGNAL_LIST.keys():
@@ -53,15 +53,13 @@ class Signal(object):
                 return item
             finally:
                 cls._signlock.release()
-                logging.getLogger("lucterios.core.signal").debug(
-                    "<< decorate %s", name)
+                logging.getLogger("lucterios.core.signal").debug("<< decorate %s", name)
         return wrapper
 
     @classmethod
     def call_signal(cls, name, *args):
         nb_call = 0
-        logging.getLogger("lucterios.core.signal").debug(
-            ">> call_signal %s", name)
+        logging.getLogger("lucterios.core.signal").debug(">> call_signal %s", name)
         cls._signlock.acquire()
         try:
             if name in cls._SIGNAL_LIST.keys():
@@ -70,9 +68,31 @@ class Signal(object):
                         nb_call += 1
         finally:
             cls._signlock.release()
-        logging.getLogger("lucterios.core.signal").debug(
-            "<< call_signal %s", name)
+        logging.getLogger("lucterios.core.signal").debug("<< call_signal %s", name)
         return nb_call
+
+    @classmethod
+    def get_packages_of_signal(cls, name):
+        packages = {}
+        logging.getLogger("lucterios.core.signal").debug(">> call_signal %s", name)
+        cls._signlock.acquire()
+        try:
+            if name in cls._SIGNAL_LIST.keys():
+                for sign_fct in cls._SIGNAL_LIST[name]:
+                    new_package = sign_fct.__module__.split('.')[:-1]
+                    appmodule = import_module('.'.join(new_package))
+                    if hasattr(appmodule, '__title__'):
+                        try:
+                            app_title = appmodule.__title__()
+                        except TypeError:
+                            app_title = six.text_type(appmodule.__title__)
+                    else:
+                        app_title = six.text_type(appmodule)
+                    packages[new_package[-1]] = app_title
+        finally:
+            cls._signlock.release()
+        logging.getLogger("lucterios.core.signal").debug("<< call_signal %s", name)
+        return packages
 
 
 unlocker_view_class = None
@@ -126,8 +146,7 @@ class RecordLocker(object):
 
     @classmethod
     def is_lock(cls, model_item):
-        logging.getLogger("lucterios.core.record").debug(
-            ">> is_lock %s", model_item)
+        logging.getLogger("lucterios.core.record").debug(">> is_lock %s", model_item)
         cls._lock.acquire()
         try:
             lock_ident = "-".join((six.text_type(model_item.__module__),
@@ -153,8 +172,7 @@ class RecordLocker(object):
 
     @classmethod
     def unlock(cls, request, params=None):
-        logging.getLogger("lucterios.core.record").debug(
-            ">> unlock [%s] %s", request.user, params)
+        logging.getLogger("lucterios.core.record").debug(">> unlock [%s] %s", request.user, params)
         cls._lock.acquire()
         try:
             from django.conf import settings
@@ -170,5 +188,4 @@ class RecordLocker(object):
                     del cls._lock_list[lock_ident]
         finally:
             cls._lock.release()
-            logging.getLogger("lucterios.core.record").debug(
-                ">> unlock [%s]", request.user)
+            logging.getLogger("lucterios.core.record").debug(">> unlock [%s]", request.user)

@@ -51,7 +51,7 @@ class LucteriosUserEditor(LucteriosEditor):
         new_row = obj_email.row
         ckk = XferCompCheck('password_change')
         ckk.set_location(0, new_row + 1, 1, 1)
-        ckk.set_value(True)
+        ckk.set_value(False)
         ckk.description = _("To change password?")
         ckk.java_script = """
 var pwd_change=current.getValue();

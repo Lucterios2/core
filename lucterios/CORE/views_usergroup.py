@@ -29,13 +29,16 @@ from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect
+from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
+    XferCompCheckList, XferCompButton
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
-    FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE
+    FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.signal_and_lock import LucteriosSession
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser
+from lucterios.framework.signal_and_lock import LucteriosSession, Signal
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter,\
+    set_auditlog_states
 from lucterios.framework.models import LucteriosScheduler, LucteriosLogEntry
+from lucterios.CORE.parameters import Params
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -194,13 +197,14 @@ class SessionDelete(XferDelete):
 
 
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage audit logs."))
-class AudiLogList(XferListEditor):
-    caption = _("Log entries")
+class AudiLogConfig(XferListEditor):
+    caption = _("Log configuration")
     icon = "auditlog.png"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 
     def fillresponse_header(self):
+        self.new_tab(_("Log entries"))
         row = self.get_max_row() + 1
         type_selected = self.getparam('type_selected', '')
         sel = XferCompSelect('type_selected')
@@ -217,6 +221,35 @@ class AudiLogList(XferListEditor):
             self.filter = Q(content_type__app_label=app_label) & Q(content_type__model=model)
         except Exception:
             self.filter = Q(content_type__app_label='')
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        self.new_tab(_("Log setting"))
+        row = self.get_max_row() + 1
+        sel = XferCompCheckList('AuditLogSetting')
+        sel.simple = 2
+        sel.set_select(Signal.get_packages_of_signal('auditlog_register'))
+        sel.set_value(Params.getvalue('CORE-AuditLog').split())
+        sel.set_location(1, row, 3)
+        sel.description = _('settings')
+        self.add_component(sel)
+        btn = XferCompButton('ChangeAL')
+        btn.set_action(self.request, AudiLogChange.get_action(TITLE_MODIFY, "images/edit.png"), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        btn.set_location(2, row + 1)
+        self.add_component(btn)
+
+
+@MenuManage.describ('CORE.add_parameter')
+class AudiLogChange(XferContainerAcknowledge):
+    caption = _("Log setting")
+    icon = "auditlog.png"
+    model = LucteriosLogEntry
+    field_id = 'lucterioslogentry'
+
+    def fillresponse(self, AuditLogSetting=[]):
+        Parameter.change_value('CORE-AuditLog', "\n".join(AuditLogSetting))
+        Params.clear()
+        set_auditlog_states()
 
 
 @ActionsManage.affect_grid(_('purge'), "images/delete.png", unique=SELECT_NONE)

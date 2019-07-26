@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-25 11:17+0000\n"
+"POT-Creation-Date: 2019-07-26 13:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: auditlog.py:63
+msgid "remove"
+msgstr "remove"
+
+#: auditlog.py:65 tools.py:460
+msgid "add"
+msgstr "add"
 
 #: main_docs.html:5 main_docs.html:112
 msgid "User manual"
@@ -49,23 +57,23 @@ msgstr "date"
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:749
+#: models.py:761
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:750
+#: models.py:762
 msgid "log entries"
 msgstr "log entries"
 
-#: models.py:782
+#: models.py:794
 msgid "General"
 msgstr "General"
 
-#: models.py:786 models.py:787
+#: models.py:798 models.py:799
 msgid "current date"
 msgstr "current date"
 
-#: models.py:788
+#: models.py:800
 msgid "current hour"
 msgstr "current hour"
 
@@ -73,7 +81,7 @@ msgstr "current hour"
 msgid "This impression failed !"
 msgstr "This impression failed !"
 
-#: signal_and_lock.py:115
+#: signal_and_lock.py:135
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
@@ -86,10 +94,6 @@ msgstr "Anonymous user"
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
-
-#: tools.py:460
-msgid "add"
-msgstr "add"
 
 #: tools.py:462
 msgid "view"

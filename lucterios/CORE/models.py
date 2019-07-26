@@ -35,16 +35,17 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models.signals import post_migrate
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext_lazy
 from django.utils import six
 
-from lucterios.framework.models import LucteriosModel
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.framework.tools import set_locale_lang
-from auditlog.registry import auditlog
+from lucterios.framework.auditlog import audit_log,\
+    LucteriosAuditlogModelRegistry
 
 
 class Parameter(LucteriosModel):
@@ -55,8 +56,10 @@ class Parameter(LucteriosModel):
     value = models.TextField(_('value'), blank=True)
     metaselect = models.TextField('meta', blank=True)
 
+    value_txt = LucteriosVirtualField(verbose_name=_('value'), compute_from='get_value')
+
     def __str__(self):
-        return self.name
+        return six.text_type(ugettext_lazy(self.name))
 
     @classmethod
     def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
@@ -110,6 +113,11 @@ class Parameter(LucteriosModel):
             else:
                 meta_select = None
         return meta_select
+
+    def get_value(self):
+        from lucterios.CORE.parameters import ParamCache
+        param = ParamCache(self.name, self)
+        return six.text_type(param.get_read_text())
 
     class Meta(object):
         verbose_name = _('parameter')
@@ -463,6 +471,23 @@ def core_checkparam():
                                param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
     Parameter.check_and_create(name='CORE-Wizard', typeparam=3, title=_("CORE-Wizard"), args="{}", value='True')
     Parameter.check_and_create(name='CORE-MessageBefore', typeparam=0, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
+    Parameter.check_and_create(name='CORE-AuditLog', typeparam=0, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
+
+
+def set_auditlog_states():
+    from lucterios.CORE.parameters import Params
+    try:
+        LucteriosAuditlogModelRegistry.set_state_packages(Params.getvalue('CORE-AuditLog').split())
+    except LucteriosException:
+        pass
+
+
+@Signal.decorate('auditlog_register')
+def core_auditlog_register():
+    audit_log().register(Parameter, include_fields=['value_txt'])
+    audit_log().register(LucteriosUser)
+    audit_log().register(LucteriosGroup)
+    set_auditlog_states()
 
 
 def post_after_migrate(sender, **kwargs):
@@ -474,5 +499,3 @@ def post_after_migrate(sender, **kwargs):
 
 
 post_migrate.connect(post_after_migrate)
-auditlog.register(LucteriosUser)
-auditlog.register(LucteriosGroup)

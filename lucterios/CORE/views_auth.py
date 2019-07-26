@@ -48,8 +48,7 @@ def get_info_server():
                     app_title = appmodule.__title__()
                 except TypeError:
                     app_title = six.text_type(appmodule.__title__)
-                res.append(six.text_type("%s=%s") %
-                           (app_title, appmodule.__version__))
+                res.append(six.text_type("%s=%s") % (app_title, appmodule.__version__))
     res.append("")
     from platform import python_version, uname
     django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
