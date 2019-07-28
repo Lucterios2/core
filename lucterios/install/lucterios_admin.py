@@ -876,11 +876,10 @@ class LucteriosInstance(LucteriosManage):
                 delete_path(self.databases['default']['NAME'])
                 full_delete = True
             except Exception:
-                self.clear(False)
-                setup_from_none()
+                run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path))
             self.read(True)
         else:
-            self.clear(False)
+            run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path))
 
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.apps import apps
@@ -899,7 +898,8 @@ class LucteriosInstance(LucteriosManage):
         executor.migrate(executor.loader.graph.leaf_nodes())
         emit_post_migrate_signal(0, None, connection.alias)
         if not full_delete:
-            self.clear(True, ['django_migrations'])
+            run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path),
+                         addon_args={"only_delete": True, "ignore_db": ['django_migrations']})
 
     def run_new_migration(self, tmp_path):
         from inspect import getmembers, isfunction
@@ -1085,7 +1085,7 @@ def main():
 def setup_from_none():
     if six.PY3:
         clear_modules()
-    from lucterios.framework.settings import fill_appli_settings
+    from lucterios.framework.settings import remove_auditlog, fill_appli_settings
     import types
     import gc
     gc.collect()
@@ -1102,8 +1102,7 @@ def setup_from_none():
         module = types.ModuleType(six.binary_type("default_setting"))
     setattr(module, '__file__', ".")
     setattr(module, 'SECRET_KEY', "default_setting")
-    setattr(
-        module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
+    setattr(module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
     fill_appli_settings("lucterios.standard", lct_modules, module)
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
