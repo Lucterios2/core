@@ -47,11 +47,13 @@ from django.utils.module_loading import import_module
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
 
-from auditlog.models import LogEntry
-
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.tools import adapt_value, format_to_string
+from django.conf import settings
+from django.utils.encoding import smart_text
+from django.utils.six import integer_types
+from django.db.models.query import QuerySet
 
 
 class AbsoluteValue(Transform):
@@ -693,11 +695,167 @@ class LucteriosSession(Session, LucteriosModel):
         ordering = ['-expire_date']
 
 
-class LucteriosLogEntry(LogEntry, LucteriosModel):
+class LogEntryManager(models.Manager):
+    """
+    Custom manager for the :py:class:`LogEntry` model.
+    """
+
+    def log_create(self, instance, **kwargs):
+        """
+        Helper method to create a new log entry. This method automatically populates some fields when no explicit value
+        is given.
+
+        :param instance: The model instance to log a change for.
+        :type instance: Model
+        :param kwargs: Field overrides for the :py:class:`LogEntry` object.
+        :return: The new log entry or `None` if there were no changes.
+        :rtype: LogEntry
+        """
+        changes = kwargs.get('changes', None)
+        pk = self._get_pk_value(instance)
+
+        if changes is not None:
+            kwargs.setdefault('content_type', ContentType.objects.get_for_model(instance))
+            kwargs.setdefault('object_pk', pk)
+            kwargs.setdefault('object_repr', smart_text(instance))
+
+            if isinstance(pk, integer_types):
+                kwargs.setdefault('object_id', pk)
+
+            get_additional_data = getattr(instance, 'get_additional_data', None)
+            if callable(get_additional_data):
+                kwargs.setdefault('additional_data', get_additional_data())
+
+            # Delete log entries with the same pk as a newly created model. This should only be necessary when an pk is
+            # used twice.
+            if kwargs.get('action', None) is LucteriosLogEntry.Action.CREATE:
+                if kwargs.get('object_id', None) is not None and self.filter(content_type=kwargs.get('content_type'), object_id=kwargs.get('object_id')).exists():
+                    self.filter(content_type=kwargs.get('content_type'), object_id=kwargs.get('object_id')).delete()
+                else:
+                    self.filter(content_type=kwargs.get('content_type'), object_pk=kwargs.get('object_pk', '')).delete()
+            # save LogEntry to same database instance is using
+            db = instance._state.db
+            return self.create(**kwargs) if db is None or db == '' else self.using(db).create(**kwargs)
+        return None
+
+    def get_for_object(self, instance):
+        """
+        Get log entries for the specified model instance.
+
+        :param instance: The model instance to get log entries for.
+        :type instance: Model
+        :return: QuerySet of log entries for the given model instance.
+        :rtype: QuerySet
+        """
+        # Return empty queryset if the given model instance is not a model instance.
+        if not isinstance(instance, models.Model):
+            return self.none()
+
+        content_type = ContentType.objects.get_for_model(instance.__class__)
+        pk = self._get_pk_value(instance)
+
+        if isinstance(pk, integer_types):
+            return self.filter(content_type=content_type, object_id=pk)
+        else:
+            return self.filter(content_type=content_type, object_pk=smart_text(pk))
+
+    def get_for_objects(self, queryset):
+        """
+        Get log entries for the objects in the specified queryset.
+
+        :param queryset: The queryset to get the log entries for.
+        :type queryset: QuerySet
+        :return: The LogEntry objects for the objects in the given queryset.
+        :rtype: QuerySet
+        """
+        if not isinstance(queryset, QuerySet) or queryset.count() == 0:
+            return self.none()
+
+        content_type = ContentType.objects.get_for_model(queryset.model)
+        primary_keys = list(queryset.values_list(queryset.model._meta.pk.name, flat=True))
+
+        if isinstance(primary_keys[0], integer_types):
+            return self.filter(content_type=content_type).filter(Q(object_id__in=primary_keys)).distinct()
+        elif isinstance(queryset.model._meta.pk, models.UUIDField):
+            primary_keys = [smart_text(pk) for pk in primary_keys]
+            return self.filter(content_type=content_type).filter(Q(object_pk__in=primary_keys)).distinct()
+        else:
+            return self.filter(content_type=content_type).filter(Q(object_pk__in=primary_keys)).distinct()
+
+    def get_for_model(self, model):
+        """
+        Get log entries for all objects of a specified type.
+
+        :param model: The model to get log entries for.
+        :type model: class
+        :return: QuerySet of log entries for the given model.
+        :rtype: QuerySet
+        """
+        # Return empty queryset if the given object is not valid.
+        if not issubclass(model, models.Model):
+            return self.none()
+
+        content_type = ContentType.objects.get_for_model(model)
+
+        return self.filter(content_type=content_type)
+
+    def _get_pk_value(self, instance):
+        """
+        Get the primary key field value for a model instance.
+
+        :param instance: The model instance to get the primary key for.
+        :type instance: Model
+        :return: The primary key value of the given model instance.
+        """
+        pk_field = instance._meta.pk.name
+        pk = getattr(instance, pk_field, None)
+
+        # Check to make sure that we got an pk not a model object.
+        if isinstance(pk, models.Model):
+            pk = self._get_pk_value(pk)
+        return pk
+
+
+class LucteriosLogEntry(LucteriosModel):
+
+    class Action:
+        CREATE = 0
+        UPDATE = 1
+        DELETE = 2
+        choices = (
+            (CREATE, _("create")),
+            (UPDATE, _("update")),
+            (DELETE, _("delete")),
+        )
 
     currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
     username = LucteriosVirtualField(verbose_name=_('username'), compute_from='get_actor')
     messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
+
+    content_type = models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE, related_name='+', verbose_name=_("content type"))
+    actor = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name='+', verbose_name=_("actor"))
+    object_pk = models.CharField(db_index=True, max_length=255, verbose_name=_("object pk"))
+    object_id = models.BigIntegerField(blank=True, db_index=True, null=True, verbose_name=_("object id"))
+    object_repr = models.TextField(verbose_name=_("object representation"))
+    action = models.IntegerField(choices=Action.choices, verbose_name=_("action"))
+    changes = models.TextField(blank=True, verbose_name=_("change message"))
+    remote_addr = models.GenericIPAddressField(blank=True, null=True, verbose_name=_("remote address"))
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("timestamp"))
+    additional_data = models.TextField(blank=True, null=True, verbose_name=_("additional data"))
+
+    objects = LogEntryManager()
+
+    def __str__(self):
+        if self.action == self.Action.CREATE:
+            fstring = _("Created {repr:s}")
+        elif self.action == self.Action.UPDATE:
+            fstring = _("Updated {repr:s}")
+        elif self.action == self.Action.DELETE:
+            fstring = _("Deleted {repr:s}")
+        else:
+            fstring = _("Logged {repr:s}")
+
+        return fstring.format(repr=self.object_repr)
 
     @classmethod
     def get_default_fields(cls):
@@ -754,7 +912,6 @@ class LucteriosLogEntry(LogEntry, LucteriosModel):
         return res
 
     class Meta(object):
-        proxy = True
         default_permissions = []
         get_latest_by = 'timestamp'
         ordering = ['-timestamp']

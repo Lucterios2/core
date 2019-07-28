@@ -44,8 +44,7 @@ from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.framework.tools import set_locale_lang
-from lucterios.framework.auditlog import audit_log,\
-    LucteriosAuditlogModelRegistry
+from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistry
 
 
 class Parameter(LucteriosModel):
@@ -484,9 +483,9 @@ def set_auditlog_states():
 
 @Signal.decorate('auditlog_register')
 def core_auditlog_register():
-    audit_log().register(Parameter, include_fields=['value_txt'])
-    audit_log().register(LucteriosUser)
-    audit_log().register(LucteriosGroup)
+    auditlog.register(Parameter, include_fields=['value_txt'])
+    auditlog.register(LucteriosUser)
+    auditlog.register(LucteriosGroup)
     set_auditlog_states()
 
 

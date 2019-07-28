@@ -564,7 +564,7 @@ class LucteriosInstance(LucteriosManage):
                         except Exception:
                             with connection.cursor() as curs:
                                 curs.execute(sql_cmd % (table, ''))
-                    except Exception as err:
+                    except Exception:
                         no_error = False
             if no_error:
                 loop = -1
@@ -1085,7 +1085,7 @@ def main():
 def setup_from_none():
     if six.PY3:
         clear_modules()
-    from lucterios.framework.settings import remove_auditlog, fill_appli_settings
+    from lucterios.framework.settings import fill_appli_settings
     import types
     import gc
     gc.collect()

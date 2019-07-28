@@ -124,7 +124,6 @@ DEFAULT_SETTINGS = {
         'django.contrib.messages',
         'django.contrib.staticfiles',
         'django_fsm',
-        'auditlog',
         'lucterios.framework',
         'lucterios.CORE',
     ),
@@ -207,22 +206,6 @@ def _get_extra(module_to_setup):
         if ext_item == ext_item.upper() and not (ext_item in ['BASE_DIR', 'DATABASES', 'SECRET_KEY']):
             extra[ext_item] = getattr(module_to_setup, ext_item)
     return extra
-
-
-def remove_auditlog():
-    from django.conf import settings
-    apps = list(settings.INSTALLED_APPS)
-    if 'auditlog' in apps:
-        apps.remove('auditlog')
-        settings.INSTALLED_APPS = tuple(apps)
-
-
-def append_auditlog():
-    from django.conf import settings
-    apps = list(settings.INSTALLED_APPS)
-    if 'auditlog' not in apps:
-        apps.append('auditlog')
-        settings.INSTALLED_APPS = tuple(apps)
 
 
 def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
