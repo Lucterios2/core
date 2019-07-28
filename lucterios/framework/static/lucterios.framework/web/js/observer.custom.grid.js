@@ -311,8 +311,11 @@ var compGrid = compGeneric
 			},
 
 			get_Html : function() {
-				var iBtn, iRow, iHead, html = '';
-				html = '<div name="{0}">'.format(this.name);
+				var iBtn, iRow, iHead, html = '', style = '';
+				if (this.vmin !== -1) {
+					style = 'style="height: {0}px;"'.format(this.vmin);
+				}
+				html = '<div name="{0}" {1}>'.format(this.name, style);
 				if (this.buttons.length > 0) {
 					html += '<div class="gridActions" id="' + this.name + '_actions">';
 					for (iBtn = 0; iBtn < this.buttons.length; iBtn++) {

@@ -261,7 +261,7 @@ var compButton = compAbstractEvent.extend({
 
 	get_Html : function() {
 		if (this.action !== null) {
-			var arg = {}, title, btn_icon;
+			var arg = {}, title, btn_icon, htmltag_imgbegin;
 			this.btnaction = this.action;
 			this.action = this;
 			if (this.isMini) {
@@ -271,12 +271,14 @@ var compButton = compAbstractEvent.extend({
 			}
 			if (!this.isMini || (this.btnaction.getIcon() === '')) {
 				title = this.btnaction.getTitle();
+				htmltag_imgbegin = '<img src="{0}" style="max-width:32px"/>'
 			} else {
 				title = '';
+				htmltag_imgbegin = '<img src="{0}" style="max-width:24px" title="' + this.btnaction.getTitle() + '"/>'
 			}
 			if (this.btnaction.getIcon() !== '') {
 				btn_icon = Singleton().Transport().getIconUrl(this.btnaction.getIcon());
-				title = '<img src="{0}" style="max-width:32px"/>'.format(btn_icon) + title;
+				title = htmltag_imgbegin.format(btn_icon) + title;
 			}
 			return this.getBuildHtml(arg, false, false) + title + "</button>";
 		}
