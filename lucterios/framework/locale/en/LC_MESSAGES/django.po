@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-26 13:08+0000\n"
+"POT-Creation-Date: 2019-07-28 17:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: auditlog.py:63
+#: auditlog.py:103
 msgid "remove"
 msgstr "remove"
 
-#: auditlog.py:65 tools.py:460
+#: auditlog.py:105 tools.py:460
 msgid "add"
 msgstr "add"
 
@@ -29,51 +29,115 @@ msgstr "add"
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:525
+#: models.py:528
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:643 models.py:699
+#: models.py:646 models.py:833
 msgid "username"
 msgstr "username"
 
-#: models.py:644
+#: models.py:647
 msgid "is active"
 msgstr "is active"
 
-#: models.py:691
+#: models.py:694
 msgid "session"
 msgstr "session"
 
-#: models.py:692
+#: models.py:695
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:698
+#: models.py:827
+msgid "create"
+msgstr "create"
+
+#: models.py:828
+msgid "update"
+msgstr "update"
+
+#: models.py:829 tools.py:464
+msgid "delete"
+msgstr "delete"
+
+#: models.py:832
 msgid "date"
 msgstr "date"
 
-#: models.py:700
+#: models.py:834 models.py:842
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:761
+#: models.py:836
+msgid "content type"
+msgstr "content type"
+
+#: models.py:837
+msgid "actor"
+msgstr "actor"
+
+#: models.py:838
+msgid "object pk"
+msgstr "object pk"
+
+#: models.py:839
+msgid "object id"
+msgstr "object id"
+
+#: models.py:840
+msgid "object representation"
+msgstr "object representation"
+
+#: models.py:841
+msgid "action"
+msgstr "action"
+
+#: models.py:843
+msgid "remote address"
+msgstr "remote address"
+
+#: models.py:844
+msgid "timestamp"
+msgstr "timestamp"
+
+#: models.py:845
+msgid "additional data"
+msgstr "additional data"
+
+#: models.py:851
+msgid "Created {repr:s}"
+msgstr "Created {repr:s}"
+
+#: models.py:853
+msgid "Updated {repr:s}"
+msgstr "Updated {repr:s}"
+
+#: models.py:855
+msgid "Deleted {repr:s}"
+msgstr "Deleted {repr:s}"
+
+#: models.py:857
+msgid "Logged {repr:s}"
+msgstr "Logged {repr:s}"
+
+#: models.py:919
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:762
+#: models.py:920
 msgid "log entries"
 msgstr "log entries"
 
-#: models.py:794
+#: models.py:952
 msgid "General"
 msgstr "General"
 
-#: models.py:798 models.py:799
+#: models.py:956 models.py:957
 msgid "current date"
 msgstr "current date"
 
-#: models.py:800
+#: models.py:958
 msgid "current hour"
 msgstr "current hour"
 
@@ -98,10 +162,6 @@ msgstr "Bad permission for '%s'"
 #: tools.py:462
 msgid "view"
 msgstr "view"
-
-#: tools.py:464
-msgid "delete"
-msgstr "delete"
 
 #: tools.py:466
 msgid "Can"

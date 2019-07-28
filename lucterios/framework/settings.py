@@ -114,7 +114,7 @@ DEFAULT_SETTINGS = {
         'django.contrib.messages.middleware.MessageMiddleware',
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
         'lucterios.framework.middleware.LucteriosErrorMiddleware',
-        'auditlog.middleware.AuditlogMiddleware',
+        'lucterios.framework.middleware.AuditlogMiddleware',
     ),
     'INSTALLED_APPS': (
         'django.contrib.admin',
