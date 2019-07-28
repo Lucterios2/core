@@ -32,7 +32,7 @@ from lucterios.framework.models import LucteriosModel, LucteriosDecimalField,\
     LucteriosVirtualField
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
-from lucterios.framework.auditlog import audit_log
+from lucterios.framework.auditlog import auditlog
 
 
 class Example(LucteriosModel):
@@ -92,8 +92,8 @@ class Other(LucteriosModel):
 
 @Signal.decorate('auditlog_register')
 def dummy_auditlog_register():
-    audit_log().register(Example)
-    audit_log().register(Other)
+    auditlog.register(Example)
+    auditlog.register(Other)
 
 
 @Signal.decorate('checkparam')

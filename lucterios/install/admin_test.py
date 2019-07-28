@@ -42,9 +42,10 @@ class BaseTest(unittest.TestCase):
         self.path_dir = join(dirname(dirname(dirname(__file__))), "test")
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
-        self.waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'CORE_savedcriteria', 'auditlog_logentry',
+        self.waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_printmodel', 'CORE_savedcriteria',
                               'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
-                              'django_admin_log', 'django_content_type', 'django_migrations', 'django_session']
+                              'django_admin_log', 'django_content_type', 'django_migrations', 'django_session',
+                              'framework_lucterioslogentry']
         self.waiting_table.sort()
 
     def tearDown(self):
@@ -195,38 +196,6 @@ class TestAdminSQLite(BaseTest):
         run_main_ext('modif', get_options(name="inst_e", instance_path=self.path_dir))
         run_main_ext('read', get_options(name="inst_e", instance_path=self.path_dir))
 
-    def test_archive(self):
-        self.assertEqual([], self.luct_listing())
-        run_main_ext('add', get_options(name="inst_f", instance_path=self.path_dir))
-
-        path_usr = join(self.path_dir, 'inst_f', 'usr', 'foo')
-        makedirs(path_usr)
-        with open(join(path_usr, 'myfile'), mode='w+') as myfile:
-            myfile.write('boooo!!')
-
-        inst_filename = join(self.path_dir, "inst_f.arc")
-        run_main_ext('archive', get_options(name="inst_f", filename=inst_filename, instance_path=self.path_dir))
-
-        import tarfile
-        list_file = []
-        with tarfile.open(inst_filename, "r:gz") as tar:
-            for tarinfo in tar:
-                list_file.append(tarinfo.name)
-        list_file.sort()
-        self.assertEqual(['dump.json', 'target', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
-
-        run_main_ext('add', get_options(name="inst_f_bis", instance_path=self.path_dir))
-        run_main_ext('restore', get_options(name="inst_f_bis", filename=inst_filename, instance_path=self.path_dir))
-        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f_bis', 'usr')))
-        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f_bis', 'usr', 'foo')))
-        self.assertEqual(True, isfile(join(self.path_dir, 'inst_f_bis', 'usr', 'foo', 'myfile')))
-
-        self.assertEqual(['inst_f', 'inst_f_bis'], self.luct_listing())
-        inst = run_main_ext('read', get_options(name="inst_f_bis", instance_path=self.path_dir))
-        self.assertEqual(("sqlite", {}), inst.database)
-        self.assertEqual("lucterios.standard", inst.appli_name)
-        self.assertEqual((), inst.modules)
-
     def get_authenticate(self, instance_name, username, password):
         def run_authentication(instance_name, instance_path, username, password, queue):
             from lucterios.install.lucterios_admin import LucteriosInstance
@@ -277,6 +246,38 @@ class TestAdminSQLite(BaseTest):
 
         inst = run_main_ext('security', get_options(name="inst_g", instance_path=self.path_dir, extra="PASSWORD=ppooi=jjhg,fdd,MODE=0"))
         self.assertEqual(self.get_authenticate("inst_g", 'admin', 'ppooi=jjhg,fdd').username, 'admin')
+
+    def test_archive(self):
+        self.assertEqual([], self.luct_listing())
+        run_main_ext('add', get_options(name="inst_f", instance_path=self.path_dir))
+
+        path_usr = join(self.path_dir, 'inst_f', 'usr', 'foo')
+        makedirs(path_usr)
+        with open(join(path_usr, 'myfile'), mode='w+') as myfile:
+            myfile.write('boooo!!')
+
+        inst_filename = join(self.path_dir, "inst_f.arc")
+        run_main_ext('archive', get_options(name="inst_f", filename=inst_filename, instance_path=self.path_dir))
+
+        import tarfile
+        list_file = []
+        with tarfile.open(inst_filename, "r:gz") as tar:
+            for tarinfo in tar:
+                list_file.append(tarinfo.name)
+        list_file.sort()
+        self.assertEqual(['dump.json', 'target', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
+
+        run_main_ext('add', get_options(name="inst_f_bis", instance_path=self.path_dir))
+        run_main_ext('restore', get_options(name="inst_f_bis", filename=inst_filename, instance_path=self.path_dir))
+        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f_bis', 'usr')))
+        self.assertEqual(True, isdir(join(self.path_dir, 'inst_f_bis', 'usr', 'foo')))
+        self.assertEqual(True, isfile(join(self.path_dir, 'inst_f_bis', 'usr', 'foo', 'myfile')))
+
+        self.assertEqual(['inst_f', 'inst_f_bis'], self.luct_listing())
+        inst = run_main_ext('read', get_options(name="inst_f_bis", instance_path=self.path_dir))
+        self.assertEqual(("sqlite", {}), inst.database)
+        self.assertEqual("lucterios.standard", inst.appli_name)
+        self.assertEqual((), inst.modules)
 
 
 class TestAdminMySQL(BaseTest):
