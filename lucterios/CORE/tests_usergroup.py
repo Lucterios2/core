@@ -27,7 +27,8 @@ from datetime import date
 
 from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
-from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit
+from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
+    AudiLogConfig, GroupsDelete
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 from lucterios.framework import tools, signal_and_lock
 
@@ -36,6 +37,7 @@ from django.utils import six
 from lucterios.CORE.views import Unlock
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.CORE import parameters
+from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 
 class UserTest(LucteriosTest):
@@ -45,6 +47,10 @@ class UserTest(LucteriosTest):
         signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
         add_empty_user()
+
+    def tearDown(self):
+        LucteriosTest.tearDown(self)
+        LucteriosAuditlogModelRegistry.set_state_packages([])
 
     def test_userlist(self):
         self.factory.xfer = UsersList()
@@ -228,6 +234,10 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('EDIT', "last_name", 'SUPER')
         self.assert_json_equal('EDIT', "email", 'foo@super.com')
 
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 0)
+
     def test_useradd(self):
         self.factory.xfer = UsersEdit()
         self.calljson('/CORE/usersEdit', {}, False)
@@ -409,6 +419,49 @@ class UserTest(LucteriosTest):
         new_test.calljson('/CORE/usersEdit', {'user_actif': '3'})
         new_test.assert_observer('core.custom', 'CORE', 'usersEdit')
 
+    def test_auditlog_user(self):
+        LucteriosAuditlogModelRegistry.set_state_packages(['CORE'])
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 0)
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_count_equal('user_actif', 2)
+        self.assert_count_equal('user_inactif', 0)
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'abc', 'first_name': 'John', 'last_name': 'Doe', 'user_permissions': '1;3;4'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 1)
+
+        self.factory.xfer = UsersDisabled()
+        self.calljson('/CORE/usersDisabled', {'user_actif': '3'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersDisabled')
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 2)
+
+        self.factory.xfer = UsersDelete()
+        self.calljson('/CORE/usersDelete', {'user_actif': '3', "CONFIRME": 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersDelete')
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 3)
+        self.assert_json_equal('', 'lucterioslogentry/@0/action', 2)
+        self.assert_json_equal('', 'lucterioslogentry/@0/object_repr', "abc")
+        self.assert_json_equal('', 'lucterioslogentry/@1/action', 1)
+        self.assert_json_equal('', 'lucterioslogentry/@1/object_repr', "abc")
+        self.assert_json_equal('', 'lucterioslogentry/@2/action', 0)
+        self.assert_json_equal('', 'lucterioslogentry/@2/object_repr', "abc")
+
 
 class GroupTest(LucteriosTest):
 
@@ -422,6 +475,7 @@ class GroupTest(LucteriosTest):
     def tearDown(self):
         LucteriosTest.tearDown(self)
         tools.WrapAction.mode_connect_notfree = parameters.notfree_mode_connect
+        LucteriosAuditlogModelRegistry.set_state_packages([])
 
     def test_grouplist(self):
         self.factory.xfer = GroupsList()
@@ -555,6 +609,37 @@ class GroupTest(LucteriosTest):
 
         new_test.calljson('/CORE/groupsEdit', {'group': '1'})
         new_test.assert_observer('core.custom', 'CORE', 'groupsEdit')
+
+    def test_auditlog_user(self):
+        LucteriosAuditlogModelRegistry.set_state_packages(['CORE'])
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 0)
+
+        self.factory.xfer = GroupsList()
+        self.calljson('/CORE/groupsList', {}, False)
+        self.assert_count_equal('group', 0)
+
+        self.factory.xfer = GroupsEdit()
+        self.calljson('/CORE/groupsEdit', {'SAVE': 'YES', 'name': 'truc', 'permissions': '7;9;13'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'groupsEdit')
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosuser'}, False)
+        self.assert_count_equal('lucterioslogentry', 1)
+
+        self.factory.xfer = GroupsDelete()
+        self.calljson('/CORE/groupsDelete', {'group': '1', "CONFIRME": 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'groupsDelete')
+
+        self.factory.xfer = AudiLogConfig()
+        self.calljson('/CORE/audiLogConfig', {'type_selected': 'CORE.lucteriosgroup'}, False)
+        self.assert_count_equal('lucterioslogentry', 2)
+        self.assert_json_equal('', 'lucterioslogentry/@0/action', 2)
+        self.assert_json_equal('', 'lucterioslogentry/@0/object_repr', "truc")
+        self.assert_json_equal('', 'lucterioslogentry/@1/action', 0)
+        self.assert_json_equal('', 'lucterioslogentry/@1/object_repr', "truc")
 
 
 class SessionTest(LucteriosTest):

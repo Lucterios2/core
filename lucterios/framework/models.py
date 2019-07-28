@@ -27,22 +27,27 @@ import re
 import json
 import logging
 from datetime import datetime
-from django_fsm.signals import post_transition
-from django.db.models.signals import pre_save
 from types import FunctionType
+
+from django_fsm.signals import post_transition
 
 from django.db import models, transaction
 from django.db.models import Transform, Count, Q
+from django.db.models.query import QuerySet
 from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField
+from django.db.models.signals import pre_save
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist, ImproperlyConfigured
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
+from django.utils.encoding import smart_text
+from django.utils.six import integer_types
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
+from django.conf import settings
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
@@ -50,10 +55,6 @@ from apscheduler.jobstores.base import ConflictingIdError
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.tools import adapt_value, format_to_string
-from django.conf import settings
-from django.utils.encoding import smart_text
-from django.utils.six import integer_types
-from django.db.models.query import QuerySet
 
 
 class AbsoluteValue(Transform):

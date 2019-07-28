@@ -49,9 +49,9 @@ class ParamCache(object):
         self.meta_info = param.get_meta_select()
         if self.meta_info is not None:  # select in object
             if self.type == 1:  # Integer
-                self.value = int(param.value)
+                self.value = int('0' + param.value)
             elif self.type == 2:  # Real
-                self.value = float(param.value)
+                self.value = float('0' + param.value)
             else:
                 self.value = six.text_type(param.value)
             self.args = {'oldtype': self.type}
@@ -61,15 +61,15 @@ class ParamCache(object):
             self.args = {'Multi': False, 'HyperText': False}
         elif self.type == 1:  # Integer
             self.args = {'Min': 0, 'Max': 10000000}
-            self.value = int(param.value)
+            self.value = int('0' + param.value)
         elif self.type == 2:  # Real
-            self.value = float(param.value)
+            self.value = float('0' + param.value)
             self.args = {'Min': 0, 'Max': 10000000, 'Prec': 2}
         elif self.type == 3:  # Boolean
             self.value = (param.value == 'True')
             self.args = {}
         elif self.type == 4:  # Select
-            self.value = int(param.value)
+            self.value = int('0' + param.value)
             self.args = {'Enum': 0}
         elif self.type == 5:  # password
             self.value = six.text_type(param.value)
