@@ -360,8 +360,6 @@ class TestAdminPostGreSQL(BaseTest):
             os.system(complete_cmd)
 
     def tearDown(self):
-        from django import db
-        db.close_old_connections()
         for cmd in ("DROP DATABASE %(dbname)s;", "DROP USER %(username)s;"):
             complete_cmd = 'sudo -u postgres psql -c "%s"' % (cmd % self.data)
             os.system(complete_cmd)
@@ -369,8 +367,7 @@ class TestAdminPostGreSQL(BaseTest):
 
     def run_psql_cmd(self, cmd):
         psqlres = join(self.path_dir, 'out.txt')
-        complete_cmd = 'sudo -u postgres psql -d "%s" -c "%s" > %s' % (
-            self.data['dbname'], cmd, psqlres)
+        complete_cmd = 'sudo -u postgres psql -d "%s" -c "%s" > %s' % (self.data['dbname'], cmd, psqlres)
         os.system(complete_cmd)
         with open(psqlres, 'r') as res_file:
             for line in res_file.readlines():
@@ -394,8 +391,8 @@ class TestAdminPostGreSQL(BaseTest):
         self.assertEqual((), inst.modules)
 
         table_list = list(self.run_psql_cmd("SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname='public'"))
-        table_list.sort()
         table_list = table_list[2:-2]
+        table_list.sort()
         self.assertEqual(self.waiting_table, table_list)
 
         run_main_ext('clear', get_options(name="inst_psql", instance_path=self.path_dir))

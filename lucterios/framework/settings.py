@@ -209,6 +209,22 @@ def _get_extra(module_to_setup):
     return extra
 
 
+def remove_auditlog():
+    from django.conf import settings
+    apps = list(settings.INSTALLED_APPS)
+    if 'auditlog' in apps:
+        apps.remove('auditlog')
+        settings.INSTALLED_APPS = tuple(apps)
+
+
+def append_auditlog():
+    from django.conf import settings
+    apps = list(settings.INSTALLED_APPS)
+    if 'auditlog' not in apps:
+        apps.append('auditlog')
+        settings.INSTALLED_APPS = tuple(apps)
+
+
 def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     if module_to_setup is None:
         last_frm = stack()[1]
