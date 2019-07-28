@@ -31,10 +31,13 @@ from django.db.models import Q
 from django.utils import six
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
-from lucterios.framework.tools import ifplural, WrapAction, ActionsManage
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid
+from lucterios.framework.tools import ifplural, WrapAction, ActionsManage,\
+    FORMTYPE_MODAL, CLOSE_NO
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid,\
+    XferCompButton
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from django_fsm import TransitionNotAllowed
+from lucterios.framework.models import LucteriosLogEntry
 
 
 TITLE_OK = _("Ok")
@@ -79,8 +82,30 @@ def action_list_sorted(item):
         return 100
 
 
+def add_auditlog_button(xfer, instance, posx, posy):
+    if xfer.with_auditlog_btn and LucteriosLogEntry.objects.get_for_object(instance).count() > 0:
+        btn = XferCompButton('auditlogbtn')
+        btn.set_action(xfer.request, ActionsManage.get_action_url(LucteriosLogEntry.get_long_name(), 'Show', xfer),
+                       modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'model': instance.__class__.get_long_name(),
+                                                                     'objid': instance.id})
+        btn.set_is_mini(True)
+        btn.set_location(posx, posy)
+        xfer.add_component(btn)
+
+
+def add_auditlogs_button(xfer, model, posx, posy):
+    if xfer.with_auditlog_btn and LucteriosLogEntry.objects.get_for_model(model).count() > 0:
+        btn = XferCompButton('auditlogbtn')
+        btn.set_action(xfer.request, ActionsManage.get_action_url(LucteriosLogEntry.get_long_name(), 'Show', xfer),
+                       modal=FORMTYPE_MODAL, close=CLOSE_NO, params={'model': model.get_long_name()})
+        btn.set_is_mini(True)
+        btn.set_location(posx, posy)
+        xfer.add_component(btn)
+
+
 class XferListEditor(XferContainerCustom):
     multi_page = True
+    with_auditlog_btn = True
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
@@ -109,13 +134,12 @@ class XferListEditor(XferContainerCustom):
         grid.set_model(items, self.fieldnames, xfer)
         grid.add_action_notified(self, model=model)
         grid.set_location(0, row + 1, 2)
-        grid.set_size(200, 500)
+        grid.set_size(350, 500)
         self.add_component(grid)
 
     def fillresponse_body(self):
         self.items = self.get_items_from_filter()
-        self.fill_grid(
-            self.get_max_row(), self.model, self.field_id, self.items)
+        self.fill_grid(self.get_max_row(), self.model, self.field_id, self.items)
 
     def fillresponse(self):
         img = XferCompImage('img')
@@ -128,6 +152,7 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         self.fillresponse_header()
         self.fillresponse_body()
+        add_auditlogs_button(self, self.model, 0, self.get_max_row() + 1)
         if self.model is not None:
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
@@ -139,6 +164,7 @@ class XferAddEditor(XferContainerCustom):
     caption_modify = ''
     redirect_to_show = 'Show'
     locked = True
+    with_auditlog_btn = True
 
     def fillresponse(self):
         if self.is_new:
@@ -155,6 +181,7 @@ class XferAddEditor(XferContainerCustom):
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 1)
 
     def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
@@ -188,6 +215,7 @@ class XferShowEditor(XferContainerCustom):
 
     locked = True
     readonly = True
+    with_auditlog_btn = True
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
@@ -204,6 +232,7 @@ class XferShowEditor(XferContainerCustom):
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 1)
 
 
 class XferDelete(XferContainerAcknowledge):

@@ -25,20 +25,23 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.utils.translation import ugettext_lazy as _
+from django.apps.registry import apps
 from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
-    XferCompCheckList, XferCompButton
+    XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
     FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE, FORMTYPE_MODAL
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession, Signal
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter,\
-    set_auditlog_states
 from lucterios.framework.models import LucteriosScheduler, LucteriosLogEntry
+
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states
 from lucterios.CORE.parameters import Params
+from django.contrib.contenttypes.models import ContentType
+from django.utils import six
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -79,13 +82,17 @@ class UsersList(XferListEditor):
     model = LucteriosUser
     field_id = 'user_actif'
 
-    def fillresponse(self):
+    def fillresponse_header(self):
         self.filter = Q(is_active=True)
-        XferListEditor.fillresponse(self)
+
+    def fillresponse_body(self):
+        XferListEditor.fillresponse_body(self)
         row = self.get_max_row()
         self.fieldnames = ['username', 'first_name', 'last_name']
         self.fill_grid(row + 1, self.model, 'user_inactif', LucteriosUser.objects.filter(is_active=False))
+        self.get_components('user_actif').vmin = -1
         self.get_components('user_actif').description = _("List of active users")
+        self.get_components('user_inactif').vmin = 200
         self.get_components('user_inactif').description = _("List of inactive users")
 
 
@@ -196,6 +203,39 @@ class SessionDelete(XferDelete):
         self.items = self.model.objects.filter(pk__in=new_sess_ids)
 
 
+@MenuManage.describ('sessions.change_session')
+@ActionsManage.affect_other(_("Show log"), "images/auditlog.png")
+class AuditLogShow(XferContainerCustom):
+    caption = _("Show log")
+    icon = "auditlog.png"
+    model = LucteriosLogEntry
+    field_id = 'lucterioslogentry'
+
+    def fillresponse(self, model='', objid=0):
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.model = apps.get_model(model)
+        if objid != 0:
+            self.item = self.model.objects.get(id=objid)
+            self.fill_from_model(1, 0, True, desc_fields=self.model.get_default_fields())
+            log_items = LucteriosLogEntry.objects.get_for_object(self.item)
+        else:
+            content_type = ContentType.objects.get_for_model(self.model)
+            lbl = XferCompLabelForm('ModelName')
+            lbl.set_value_as_header(six.text_type(content_type))
+            lbl.description = _("content type")
+            lbl.set_location(1, 0, 2)
+            self.add_component(lbl)
+            log_items = LucteriosLogEntry.objects.get_for_model(self.model)
+        grid = XferCompGrid(self.field_id)
+        grid.set_model(log_items, None, self)
+        grid.set_location(1, self.get_max_row() + 1, 2)
+        grid.set_size(200, 500)
+        self.add_component(grid)
+
+
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage audit logs."))
 class AudiLogConfig(XferListEditor):
     caption = _("Log configuration")
@@ -212,7 +252,7 @@ class AudiLogConfig(XferListEditor):
         sel.set_needed(True)
         sel.set_value(type_selected)
         sel.set_location(1, row)
-        sel.description = _('Type selection')
+        sel.description = _("content type")
         sel._check_case()
         sel.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(sel)
