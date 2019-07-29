@@ -53,7 +53,7 @@ from apscheduler.jobstores.base import ConflictingIdError
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
-from lucterios.framework.tools import adapt_value, format_to_string
+from lucterios.framework.tools import adapt_value, format_to_string, extract_format, get_format_from_field, get_format_value
 
 
 class AbsoluteValue(Transform):
@@ -65,45 +65,6 @@ class AbsoluteValue(Transform):
 
 
 RegisterLookupMixin.register_lookup(AbsoluteValue)
-
-
-def get_format_from_field(dep_field):
-    if dep_field is None:
-        return None
-    elif hasattr(dep_field, 'format_string'):
-        return dep_field.format_string
-    elif hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-        choices_dict = {}
-        for choices_key, choices_value in dep_field.choices:
-            choices_dict[choices_key] = six.text_type(choices_value)
-        return choices_dict
-    elif hasattr(dep_field, 'decimal_places'):
-        return "N%d" % dep_field.decimal_places
-    elif isinstance(dep_field, IntegerField):
-        return "N0"
-    elif isinstance(dep_field, DateField):
-        return "D"
-    elif isinstance(dep_field, TimeField):
-        return "T"
-    elif isinstance(dep_field, DateTimeField):
-        return "H"
-    elif isinstance(dep_field, BooleanField):
-        return "B"
-    else:
-        return None
-
-
-def extract_format(format_string):
-    _formatstr = None
-    _formatnum = None
-    if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
-        if isinstance(format_string, six.text_type) and (';' in format_string):
-            format_string = format_string.split(';')
-            _formatnum = format_string[0]
-            _formatstr = ";".join(format_string[1:])
-        else:
-            _formatnum = format_string
-    return _formatnum, _formatstr
 
 
 def get_value_if_choices(value, dep_field):
@@ -209,6 +170,9 @@ class LucteriosModel(models.Model):
         pass
 
     def get_color_ref(self):
+        return None
+
+    def get_auditlog_object(self):
         return None
 
     @classmethod
@@ -502,13 +466,11 @@ class LucteriosModel(models.Model):
 
     def get_final_child(self):
         final_child = self
-        rel_objs = self._meta.get_fields(
-        )
+        rel_objs = self._meta.get_fields()
         for rel_obj in rel_objs:
             if hasattr(rel_obj, 'field') and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
                 try:
-                    final_child = getattr(
-                        self, rel_obj.get_accessor_name()).get_final_child()
+                    final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child()
                 except AttributeError:
                     pass
         return final_child
@@ -817,11 +779,22 @@ class LucteriosLogEntry(LucteriosModel):
         CREATE = 0
         UPDATE = 1
         DELETE = 2
+        REMOVE = 3
+        ADD = 4
         choices = (
             (CREATE, _("create")),
             (UPDATE, _("update")),
             (DELETE, _("delete")),
+            (REMOVE, _("remove")),
+            (ADD, _("add"))
         )
+
+        @classmethod
+        def get_action_title(cls, action_id):
+            for choices_id, choices_val in cls.choices:
+                if six.text_type(choices_id) == six.text_type(action_id):
+                    return six.text_type(choices_val)
+            return six.text_type(action_id)
 
     currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
     messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
@@ -871,33 +844,71 @@ class LucteriosLogEntry(LucteriosModel):
         model = apps.get_model(self.modelname)
         return model._meta.get_field(name)
 
-    def get_format_value(self, dep_field, value):
-        formatnum, formatstr = extract_format(get_format_from_field(dep_field))
-        value = format_to_string(value, formatnum, formatstr)
-        return value
-
     def get_message(self):
+        def get_new_line(action, dep_field, value):
+            if hasattr(dep_field, 'verbose_name'):
+                title = dep_field.verbose_name
+            else:
+                title = dep_field.name
+            if action in (self.Action.CREATE, self.Action.ADD) or (value[0] == value[1]):
+                return '%s: "%s"' % (title, get_format_value(dep_field, value[1]))
+            elif action == self.Action.UPDATE:
+                return '%s: "%s" -> "%s"' % (title, get_format_value(dep_field, value[0]), get_format_value(dep_field, value[1]))
+            else:
+                return '%s: "%s"' % (title, get_format_value(dep_field, value[0]))
+
         changes = json.loads(self.changes)
         res = []
         for key, value in changes.items():
             dep_field = self.get_field(key)
-            if (dep_field is not None) and (not dep_field.editable or dep_field.primary_key):
+            if (dep_field is None) or (not dep_field.editable or dep_field.primary_key):
                 continue
-            title = key
-            if (dep_field is not None) and hasattr(dep_field, 'verbose_name'):
-                title = dep_field.verbose_name
-            if self.action == 0:
-                res.append('%s: "%s"' % (title, self.get_format_value(dep_field, value[1])))
-            elif self.action == 1:
-                res.append('%s: "%s" -> "%s"' % (title, self.get_format_value(dep_field, value[0]), self.get_format_value(dep_field, value[1])))
-            else:
-                res.append('%s: "%s"' % (title, self.get_format_value(dep_field, value[0])))
+            res.append(get_new_line(self.action, dep_field, value))
         if self.additional_data is not None:
             additional_data = json.loads(self.additional_data)
-            for key, values in additional_data.items():
-                for value_id, value_data in values.items():
-                    res.append('%s: %s = "%s"' % (key, value_id, '" "'.join(value_data)))
+            for field_title, values in additional_data.items():
+                for action_id, value_data in values.items():
+                    action_id = int(action_id)
+                    res_data = []
+                    for value_item in value_data:
+                        if isinstance(value_item, dict) and ('modelname' in value_item) and ('changes' in value_item):
+                            sub_model = apps.get_model(value_item['modelname'])
+                            for sub_fieldname, diff_value in value_item['changes'].items():
+                                sub_dep_field = sub_model._meta.get_field(sub_fieldname)
+                                res_data.append(get_new_line(action_id, sub_dep_field, diff_value))
+                        else:
+                            res_data.append(value_item)
+                    res.append('%s: %s = "%s"' % (field_title, LucteriosLogEntry.Action.get_action_title(action_id),
+                                                  '" "'.join(res_data)))
         return res
+
+    def get_additional_data(self):
+        if self.additional_data is None:
+            return {}
+        else:
+            return json.loads(self.additional_data)
+
+    def set_additional_data(self, obj_data, saved=True):
+        self.additional_data = json.dumps(obj_data)
+        if saved:
+            self.save()
+
+    def change_additional_data(self, sender_ident, log_action, addon_data, saved=True):
+        if self.additional_data is None:
+            additional_data = {}
+        else:
+            additional_data = json.loads(self.additional_data)
+        if sender_ident not in additional_data:
+            additional_data[sender_ident] = {}
+        if log_action not in additional_data[sender_ident]:
+            additional_data[sender_ident][log_action] = []
+        if isinstance(addon_data, list):
+            additional_data[sender_ident][log_action].extend(addon_data)
+        else:
+            additional_data[sender_ident][log_action].append(addon_data)
+        self.additional_data = json.dumps(additional_data)
+        if saved:
+            self.save()
 
     class Meta(object):
         default_permissions = []
