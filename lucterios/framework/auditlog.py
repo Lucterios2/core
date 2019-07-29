@@ -31,10 +31,8 @@ from django.db.models.signals import pre_save, post_save, post_delete, m2m_chang
 from django.utils.translation import ugettext_lazy as _
 from django.utils import six
 
-from lucterios.framework.tools import get_dico_from_setquery
 from lucterios.framework.models import LucteriosLogEntry
-from lucterios.framework.auditlog_tools import model_instance_diff,\
-    add_m2m_modification
+from lucterios.framework.auditlog_tools import model_instance_diff, add_m2m_modification
 
 
 def log_create(sender, instance, created, **kwargs):
