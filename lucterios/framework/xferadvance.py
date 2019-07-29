@@ -166,6 +166,11 @@ class XferAddEditor(XferContainerCustom):
     locked = True
     with_auditlog_btn = True
 
+    def __init__(self, **kwargs):
+        XferContainerCustom.__init__(self, **kwargs)
+        if isinstance(self.redirect_to_show, six.text_type):
+            self.with_auditlog_btn = (ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self) is None)
+
     def fillresponse(self):
         if self.is_new:
             self.caption = self.caption_add

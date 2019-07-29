@@ -28,11 +28,11 @@ import json
 
 from django.db.models.base import Model
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
-from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 
 from lucterios.framework.models import LucteriosLogEntry
-from lucterios.framework.auditlog_tools import model_instance_diff, add_m2m_modification
+from lucterios.framework.auditlog_tools import model_instance_diff, get_sender_ident_for_m2m
+from lucterios.framework.tools import get_dico_from_setquery
+from django.utils import six
 
 
 def log_create(sender, instance, created, **kwargs):
@@ -79,36 +79,80 @@ def log_delete(sender, instance, **kwargs):
 
 def lct_log_create(sender, instance, created, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        log_create(sender, instance, created, **kwargs)
+        sub_obj = instance.get_auditlog_object()
+        if sub_obj is None:
+            log_create(sender, instance, created, **kwargs)
+        elif created:
+            changes = model_instance_diff(None, instance)
+            if not hasattr(sub_obj, '_last_log'):
+                sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+            sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+                                                     LucteriosLogEntry.Action.ADD,
+                                                     {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
 
 def lct_log_update(sender, instance, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        log_update(sender, instance, **kwargs)
+        sub_obj = instance.get_auditlog_object()
+        if sub_obj is None:
+            log_update(sender, instance, **kwargs)
+        elif instance.pk is not None:
+            try:
+                old = sender.objects.get(pk=instance.pk)
+            except sender.DoesNotExist:
+                pass
+            else:
+                new = instance
+                changes = model_instance_diff(old, new)
+                if changes:
+                    if not hasattr(sub_obj, '_last_log'):
+                        log_update(sender, sub_obj, **kwargs)
+                        if not hasattr(sub_obj, '_last_log'):
+                            sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+                    sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+                                                             LucteriosLogEntry.Action.UPDATE,
+                                                             {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
 
 def lct_log_delete(sender, instance, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        log_delete(sender, instance, **kwargs)
+        sub_obj = instance.get_auditlog_object()
+        if sub_obj is None:
+            log_delete(sender, instance, **kwargs)
+        elif instance.pk is not None:
+            changes = model_instance_diff(instance, None)
+            if not hasattr(sub_obj, '_last_log'):
+                sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+            sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+                                                     LucteriosLogEntry.Action.DELETE,
+                                                     {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
 
 def lct_log_m2m(sender, instance, action, model, pk_set, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        if not hasattr(instance, '_last_log'):
-            instance._last_log = LucteriosLogEntry.objects.log_create(instance, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
         log_action = None
         if action == 'post_remove':
-            log_action = six.text_type(_("remove"))
+            log_action = LucteriosLogEntry.Action.REMOVE
         elif action == 'pre_add':
-            log_action = six.text_type(_("add"))
+            log_action = LucteriosLogEntry.Action.ADD
         if log_action is not None:
-            if instance._last_log.additional_data is None:
-                additional_data = {}
+            data_m2m = list(get_dico_from_setquery(model.objects.filter(pk__in=pk_set)).values())
+            title, attrname = get_sender_ident_for_m2m(sender, instance)
+            sub_obj = instance.get_auditlog_object()
+            if sub_obj is None:
+                if not hasattr(instance, '_last_log'):
+                    instance._last_log = LucteriosLogEntry.objects.log_create(instance, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+                instance._last_log.change_additional_data(title, log_action, data_m2m)
             else:
-                additional_data = json.loads(instance._last_log.additional_data)
-            add_m2m_modification(sender, instance, model, pk_set, log_action, additional_data)
-            instance._last_log.additional_data = json.dumps(additional_data)
-            instance._last_log.save()
+                if not hasattr(sub_obj, '_last_log'):
+                    sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+                changes = {}
+                changes[attrname] = [','.join(data_m2m), ','.join(data_m2m)]
+                first_fieldname = instance.get_default_fields()[0]
+                changes[first_fieldname] = [six.text_type(getattr(instance, first_fieldname)), six.text_type(getattr(instance, first_fieldname))]
+                sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+                                                         log_action,
+                                                         {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
 
 class LucteriosAuditlogModelRegistry(object):
@@ -171,7 +215,7 @@ class LucteriosAuditlogModelRegistry(object):
         self._signals[m2m_changed] = lct_log_m2m
         self._signals[post_delete] = lct_log_delete
 
-    def register(self, model=None, include_fields=[], exclude_fields=[], mapping_fields={}):
+    def register(self, model=None, include_fields=[], exclude_fields=[], mapping_fields=[]):
         """
         Register a model with auditlog. Auditlog will then track mutations on this model's instances.
 

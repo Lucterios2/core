@@ -298,6 +298,5 @@ class AudiLogPurge(XferContainerAcknowledge):
 
     def fillresponse(self, type_selected=''):
         if self.confirme(_('Do you want to purge those logs ?')):
-            app_label, model = type_selected.split('.')
-            for log_entry in LucteriosLogEntry.objects.filter(content_type__app_label=app_label, content_type__model=model):
+            for log_entry in LucteriosLogEntry.objects.filter(modelname=type_selected):
                 log_entry.delete()

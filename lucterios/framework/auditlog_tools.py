@@ -28,11 +28,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import DateTimeField, NOT_PROVIDED
 from django.db.models.base import Model
 from django.utils.encoding import smart_text
-from django.utils import timezone, six
+from django.utils import six, timezone
 from django.conf import settings
-
-from lucterios.framework.models import LucteriosLogEntry
-from lucterios.framework.tools import get_dico_from_setquery
 
 
 def track_field(field):
@@ -46,6 +43,8 @@ def track_field(field):
     :return: Whether the given field should be tracked.
     :rtype: bool
     """
+    from lucterios.framework.models import LucteriosLogEntry
+
     # Do not track many to many relations
     if field.many_to_many:
         return False
@@ -166,18 +165,20 @@ def model_instance_diff(old, new):
 
     if len(diff) == 0:
         diff = None
+    else:
+        for field in fields:
+            if (field.name in model_fields['mapping_fields']) and (field.name not in diff.keys()):
+                diff[field.name] = (smart_text(get_field_value(old, field)), smart_text(get_field_value(new, field)))
 
     return diff
 
 
-def add_m2m_modification(sender, instance, model, pk_set, log_action, additional_data):
+def get_sender_ident_for_m2m(sender, instance):
     from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
     sender_ident = six.text_type(sender)
+    attrname = six.text_type(instance._meta.verbose_name),
     for m2m_property in LucteriosAuditlogModelRegistry.get_m2m_property(instance.__class__):
         if m2m_property.through == sender:
             sender_ident = six.text_type(m2m_property.field.verbose_name)
-    if sender_ident not in additional_data:
-        additional_data[sender_ident] = {}
-    if log_action not in additional_data[sender_ident]:
-        additional_data[sender_ident][log_action] = []
-    additional_data[sender_ident][log_action].extend(get_dico_from_setquery(model.objects.filter(pk__in=pk_set)).values())
+            attrname = m2m_property.field.name
+    return sender_ident, attrname

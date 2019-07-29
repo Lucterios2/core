@@ -590,8 +590,11 @@ def format_value(value, format_num):
         value = "---"
         format_num = ''
     if isinstance(format_num, dict):
-        if six.text_type(value) in format_num.keys():
-            value = format_num[six.text_type(value)]
+        new_format_num = {}
+        for key, val in format_num.items():
+            new_format_num[six.text_type(key)] = val
+        if six.text_type(value) in new_format_num.keys():
+            value = new_format_num[six.text_type(value)]
         format_num = ''
     try:
         if format_num == 'B':
@@ -666,3 +669,49 @@ def format_to_string(value, format_num, format_str):
     for val_idx in range(len(value)):
         res_txt = res_txt.replace('{%d}' % val_idx, value[val_idx])
     return res_txt
+
+
+def get_format_from_field(dep_field):
+    from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField
+    if dep_field is None:
+        return None
+    elif hasattr(dep_field, 'format_string'):
+        return dep_field.format_string
+    elif hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+        choices_dict = {}
+        for choices_key, choices_value in dep_field.choices:
+            choices_dict[choices_key] = six.text_type(choices_value)
+        return choices_dict
+    elif hasattr(dep_field, 'decimal_places'):
+        return "N%d" % dep_field.decimal_places
+    elif isinstance(dep_field, IntegerField):
+        return "N0"
+    elif isinstance(dep_field, DateField):
+        return "D"
+    elif isinstance(dep_field, TimeField):
+        return "T"
+    elif isinstance(dep_field, DateTimeField):
+        return "H"
+    elif isinstance(dep_field, BooleanField):
+        return "B"
+    else:
+        return None
+
+
+def extract_format(format_string):
+    _formatstr = None
+    _formatnum = None
+    if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
+        if isinstance(format_string, six.text_type) and (';' in format_string):
+            format_string = format_string.split(';')
+            _formatnum = format_string[0]
+            _formatstr = ";".join(format_string[1:])
+        else:
+            _formatnum = format_string
+    return _formatnum, _formatstr
+
+
+def get_format_value(dep_field, value):
+    formatnum, formatstr = extract_format(get_format_from_field(dep_field))
+    value = format_to_string(value, formatnum, formatstr)
+    return value
