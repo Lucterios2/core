@@ -41,6 +41,18 @@ from lucterios.framework import tools, signal_and_lock
 class ParamCache(object):
 
     def __init__(self, name, param=None):
+        def convert_to_int():
+            try:
+                return int(param.value)
+            except ValueError:
+                return int('0' + param.value)
+
+        def convert_to_float():
+            try:
+                return float(param.value)
+            except ValueError:
+                return float('0' + param.value)
+
         if param is None:
             param = Parameter.objects.get(name=name)
         self.db_obj = None
@@ -49,9 +61,9 @@ class ParamCache(object):
         self.meta_info = param.get_meta_select()
         if self.meta_info is not None:  # select in object
             if self.type == 1:  # Integer
-                self.value = int('0' + param.value)
+                self.value = convert_to_int()
             elif self.type == 2:  # Real
-                self.value = float('0' + param.value)
+                self.value = convert_to_float()
             else:
                 self.value = six.text_type(param.value)
             self.args = {'oldtype': self.type}
@@ -61,15 +73,15 @@ class ParamCache(object):
             self.args = {'Multi': False, 'HyperText': False}
         elif self.type == 1:  # Integer
             self.args = {'Min': 0, 'Max': 10000000}
-            self.value = int('0' + param.value)
+            self.value = convert_to_int()
         elif self.type == 2:  # Real
-            self.value = float('0' + param.value)
+            self.value = convert_to_float()
             self.args = {'Min': 0, 'Max': 10000000, 'Prec': 2}
         elif self.type == 3:  # Boolean
             self.value = (param.value == 'True')
             self.args = {}
         elif self.type == 4:  # Select
-            self.value = int('0' + param.value)
+            self.value = convert_to_int()
             self.args = {'Enum': 0}
         elif self.type == 5:  # password
             self.value = six.text_type(param.value)

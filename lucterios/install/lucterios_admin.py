@@ -531,7 +531,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('\n')
 
     def clear(self, only_delete=False, ignore_db=None):
-        self.read()
+        self.read(True)
         from lucterios.framework.filetools import get_user_dir
         from django.db import connection
         option = 'CASCADE'
@@ -580,7 +580,8 @@ class LucteriosInstance(LucteriosManage):
             raise Exception("not clear!!")
         user_path = get_user_dir()
         delete_path(user_path)
-        self.print_info_("Instance '%s' clear." % self.name)
+        self.print_info_("Instance '%s' clear." %
+                         self.name)
 
     def delete(self):
         delete_path(self.instance_dir, True)
@@ -589,26 +590,20 @@ class LucteriosInstance(LucteriosManage):
                          self.name)
 
     def _get_db_info_(self):
+
         import django.conf
         info = {}
         key_list = list(django.conf.settings.DATABASES['default'].keys())
         key_list.sort()
         for key in key_list:
             if key != 'ENGINE':
-                info[key.lower()] = django.conf.settings.DATABASES['default'][key]
+                info[key.lower()] = django.conf.settings.DATABASES[
+                    'default'][key]
         return info
 
     def read_before(self):
         if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
             self.read(False)
-
-    def _clear_modules(self, last_module_keys):
-        current_module_keys = list(sys.modules.keys())
-        for module_name in current_module_keys:
-            if (module_name not in last_module_keys) and (module_name in sys.modules):
-                mod_set = sys.modules[module_name]
-                del mod_set
-                del sys.modules[module_name]
 
     def read(self, virtual_setup=False):
         clear_modules()
@@ -625,7 +620,6 @@ class LucteriosInstance(LucteriosManage):
             mod_set = sys.modules[self.setting_module_name]
             del mod_set
             del sys.modules[self.setting_module_name]
-        last_module_keys = list(sys.modules.keys())
         if not virtual_setup:
             import_module("django.conf")
             django.setup()
@@ -646,7 +640,7 @@ class LucteriosInstance(LucteriosManage):
         self.appli_name = setting_module.APPLIS_MODULE.__name__
         self.modules = ()
         for appname in setting_module.INSTALLED_APPS:
-            if ("django" not in appname) and ('auditlog' not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
+            if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
                 self.modules = self.modules + (six.text_type(appname),)
         try:
             from lucterios.CORE.parameters import Params
@@ -661,7 +655,6 @@ class LucteriosInstance(LucteriosManage):
     modules\t%s
     extra\t%s
     """ % (self.name, self.instance_dir, self.get_appli_txt(), self.get_database_txt(), self.get_module_txt(), self.get_extra_txt()))
-        self._clear_modules(last_module_keys)
         return
 
     def add(self):
@@ -749,7 +742,7 @@ class LucteriosInstance(LucteriosManage):
         if not isfile(self.setting_path) or not isfile(self.instance_conf):
             raise AdminException("Instance not exists!")
         if check_dependancy:
-            self.read(False)
+            self.read(True)
             if len(self._get_dependancy_modules_extra()) > 0:
                 self.print_info_("Instance '%s' upgrade dependancy." % self.name)
                 self.write_setting_()
@@ -870,16 +863,15 @@ class LucteriosInstance(LucteriosManage):
         return targets
 
     def _migrate_from_old_targets(self, tmp_path):
-        full_delete = False
         if "sqlite3" in self.databases['default']['ENGINE']:
             try:
                 delete_path(self.databases['default']['NAME'])
-                full_delete = True
             except Exception:
-                run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path))
+                self.clear(False)
+                setup_from_none()
             self.read(True)
         else:
-            run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path))
+            self.clear(False)
 
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.apps import apps
@@ -897,9 +889,7 @@ class LucteriosInstance(LucteriosManage):
         emit_pre_migrate_signal(0, None, connection.alias)
         executor.migrate(executor.loader.graph.leaf_nodes())
         emit_post_migrate_signal(0, None, connection.alias)
-        if not full_delete:
-            run_main_ext('clear', get_options(name=self.name, instance_path=self.instance_path),
-                         addon_args={"only_delete": True, "ignore_db": ['django_migrations']})
+        self.clear(True, ['django_migrations'])
 
     def run_new_migration(self, tmp_path):
         from inspect import getmembers, isfunction
@@ -954,6 +944,7 @@ class LucteriosInstance(LucteriosManage):
                 move(join(tmp_path, 'usr'), target_dir)
             success = True
         delete_path(tmp_path)
+        self.refresh(False)
         return success
 
 
@@ -965,79 +956,6 @@ def list_method(from_class):
         if ('_' not in name) and not name.startswith('get_') and not name.startswith('set_') and (inspect.ismethod(item[1]) or inspect.isfunction(item[1])):
             res.append(name)
     return "|".join(res)
-
-
-def run_main(action, dict_options, queue_return=None, addon_args={}):
-    try:
-        luct = None
-        if hasattr(LucteriosGlobal, action):
-            luct = LucteriosGlobal(dict_options['instance_path'])
-        elif hasattr(LucteriosInstance, action):
-            luct = LucteriosInstance(dict_options['name'], dict_options['instance_path'])
-            luct.filename = dict_options['filename']
-            if action == 'modif':
-                luct.read_before()
-            luct.set_extra(dict_options['extra'])
-            luct.set_appli(dict_options['appli'])
-            luct.set_database(dict_options['database'])
-            luct.set_module(dict_options['module'])
-        if luct is not None:
-            ret = getattr(luct, action)(**addon_args)
-            luct.show_info_()
-            if queue_return is not None:
-                if ret is None:
-                    queue_return.put(luct.__dict__)
-                else:
-                    queue_return.put(ret)
-            if action == 'restore':
-                run_main_ext('refresh', get_options(name=dict_options['name'], instance_path=dict_options['instance_path']),
-                             addon_args={'check_dependancy': False})
-            return 0
-        else:
-            return 1
-    except Exception as error:
-        if queue_return is not None:
-            import traceback
-            traceback.print_exc()
-            queue_return.put(['AdminException', six.text_type(error)])
-        else:
-            raise
-        return -1
-
-
-def get_options(name='', appli=None, database=None, module=None, extra="", filename="", instance_path=INSTANCE_PATH):
-    return {
-        "name": name,
-        "appli": appli,
-        "database": database,
-        "module": module,
-        "extra": extra,
-        "filename": filename,
-        "instance_path": instance_path
-    }
-
-
-def run_main_ext(action, dict_options, addon_args={}):
-    from multiprocessing import Process, Queue
-    queue_return = Queue()
-    ext_main = Process(target=run_main, args=(action, dict_options, queue_return, addon_args))
-    ext_main.start()
-    ext_main.join()
-    if (ext_main.exitcode == 0):
-        if not queue_return.empty():
-            ret_value = queue_return.get()
-            if isinstance(ret_value, dict):
-                ret = LucteriosInstance('', '')
-                ret.__dict__ = ret_value
-                return ret
-            elif isinstance(ret_value, list) and (len(ret_value) > 1) and (ret_value[0] == 'AdminException'):
-                raise AdminException(ret_value[1])
-            else:
-                return ret_value
-        else:
-            return None
-    else:
-        return None
 
 
 def main():
@@ -1075,8 +993,23 @@ def main():
     if len(args) != 1:
         parser.error("Bad arguments!")
     try:
-        ret = run_main(args[0], options.__dict__)
-        if ret == 1:
+        luct = None
+        if hasattr(LucteriosGlobal, args[0]):
+            luct = LucteriosGlobal(options.instance_path)
+        elif hasattr(LucteriosInstance, args[0]):
+            luct = LucteriosInstance(options.name, options.instance_path)
+            luct.filename = options.filename
+            if args[0] == 'modif':
+                luct.read_before()
+            luct.set_extra(options.extra)
+            luct.set_appli(options.appli)
+            luct.set_database(options.database)
+            luct.set_module(options.module)
+        if luct is not None:
+            getattr(luct, args[0])()
+            luct.show_info_()
+            return
+        else:
             parser.print_help()
     except AdminException as error:
         parser.error(six.text_type(error))
@@ -1102,7 +1035,8 @@ def setup_from_none():
         module = types.ModuleType(six.binary_type("default_setting"))
     setattr(module, '__file__', ".")
     setattr(module, 'SECRET_KEY', "default_setting")
-    setattr(module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
+    setattr(
+        module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
     fill_appli_settings("lucterios.standard", lct_modules, module)
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")

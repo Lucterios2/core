@@ -40,7 +40,7 @@ from django.utils.module_loading import import_module
 from django.utils.translation import ugettext_lazy
 from django.utils import six
 
-from lucterios.install.lucterios_admin import get_module_title, setup_from_none, run_main_ext, get_options
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title, setup_from_none
 from lucterios.framework.settings import get_lan_ip
 
 from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
@@ -271,7 +271,8 @@ class InstanceEditor(Toplevel):
     def appli_selection(self, event):
         if self.applis.get() != '':
             appli_id = list(self.applis[VALUES]).index(self.applis.get())
-            current_inst_names = run_main_ext('listing', get_options())
+            luct_glo = LucteriosGlobal()
+            current_inst_names = luct_glo.listing()
             appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
             default_name_idx = 1
             while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
@@ -322,7 +323,7 @@ class InstanceEditor(Toplevel):
     def _load_current_data(self, instance_name):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
         self.is_new_instance = False
-        lct_inst = run_main_ext('read', get_options(name=instance_name))
+        lct_inst = LucteriosInstance(instance_name)
         lct_inst.read()
         self.name.delete(0, END)
         self.name.insert(0, lct_inst.name)
@@ -373,13 +374,15 @@ class InstanceEditor(Toplevel):
         self.mode[VALUES] = values
         self.language[VALUES] = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.typedb[VALUES] = ["SQLite", "MySQL", "PostgreSQL"]
-        _, self.mod_applis, mod_modules = run_main_ext('installed', get_options())
+        lct_glob = LucteriosGlobal()
+        _, self.mod_applis, mod_modules = lct_glob.installed()
         self.mod_applis.sort(key=lambda item: get_module_title(item[0]))
         self.modules.delete(0, END)
         self.module_data = []
         module_list = []
         for mod_module_item in mod_modules:
-            module_list.append((get_module_title(mod_module_item[0]), mod_module_item[0]))
+            module_list.append(
+                (get_module_title(mod_module_item[0]), mod_module_item[0]))
         module_list.sort(key=lambda module: module[0])
         for module_title, module_name in module_list:
             self.modules.insert(END, module_title)
@@ -406,7 +409,8 @@ class InstanceEditor(Toplevel):
 
 def LucteriosRefreshAll():
     try:
-        run_main_ext('refreshall', get_options())
+        luct_glo = LucteriosGlobal()
+        luct_glo.refreshall()
     except Exception:
         logging.getLogger(__name__).exception("refreshall")
 
@@ -468,7 +472,6 @@ class LucteriosMainForm(Tk):
         self.remove_splash_screen()
 
     def show_splash_screen(self):
-        self.withdraw()
         self.splash = SplashScreen(self, self.img)
 
     def remove_splash_screen(self):
@@ -582,7 +585,8 @@ class LucteriosMainForm(Tk):
         self.btnupgrade.config(state=DISABLED)
         self.module_txt.config(state=NORMAL)
         self.module_txt.delete("1.0", END)
-        mod_lucterios, mod_applis, mod_modules = run_main_ext('installed', get_options())
+        lct_glob = LucteriosGlobal()
+        mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
         self.module_txt.insert(
             END, ugettext_lazy("Lucterios core\t\t%s\n") % mod_lucterios[1])
         self.module_txt.insert(END, '\n')
@@ -594,7 +598,7 @@ class LucteriosMainForm(Tk):
         for module_item in mod_modules:
             self.module_txt.insert(
                 END, "\t%s\t%s\n" % (module_item[0].ljust(30), module_item[1]))
-        extra_urls = run_main_ext('get_extra_urls', get_options())
+        extra_urls = lct_glob.get_extra_urls()
         if len(extra_urls) > 0:
             self.module_txt.insert(END, "\n")
             self.module_txt.insert(END, ugettext_lazy("Pypi servers\n"))
@@ -607,7 +611,8 @@ class LucteriosMainForm(Tk):
 
     def _refresh_instance_list(self):
         self.instance_list.delete(0, END)
-        instance_list = run_main_ext('listing', get_options())
+        luct_glo = LucteriosGlobal()
+        instance_list = luct_glo.listing()
         for item in instance_list:
             self.instance_list.insert(END, item)
             if item not in self.running_instance.keys():
@@ -646,7 +651,8 @@ class LucteriosMainForm(Tk):
     def check(self):
         must_upgrade = False
         try:
-            _, must_upgrade = run_main_ext('check', get_options())
+            lct_glob = LucteriosGlobal()
+            _, must_upgrade = lct_glob.check()
         finally:
             self.after(300, self.set_ugrade_state, must_upgrade)
 
@@ -691,7 +697,8 @@ class LucteriosMainForm(Tk):
                 if instance_name != '':
                     if instance_name not in self.running_instance.keys():
                         self.running_instance[instance_name] = None
-                    inst = run_main_ext('read', get_options(name=instance_name))
+                    inst = LucteriosInstance(instance_name)
+                    inst.read()
                     self.instance_txt.insert(END, "\t\t\t%s\n\n" % inst.name)
                     self.instance_txt.insert(
                         END, ugettext_lazy("Database\t\t%s\n") % inst.get_database_txt())
@@ -727,17 +734,23 @@ class LucteriosMainForm(Tk):
                     instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
+                setup_from_none()
                 self.instance_list.config(state=NORMAL)
 
     @ThreadRun
     def add_modif_inst_result(self, result, to_create):
-        options = get_options(name=result[0], extra="LANGUAGE_CODE=%s" % result[5],
-                              appli=result[1], module=result[2], database=result[4])
+        inst = LucteriosInstance(result[0])
+        inst.set_extra("LANGUAGE_CODE=%s" % result[5])
+        inst.set_appli(result[1])
+        inst.set_module(result[2])
+        inst.set_database(result[4])
         if to_create:
-            run_main_ext('add', options)
+            inst.add()
         else:
-            run_main_ext('modif', options)
-        run_main_ext('security', get_options(name=result[0], extra=result[3]))
+            inst.modif()
+        inst = LucteriosInstance(result[0])
+        inst.set_extra(result[3])
+        inst.security()
         self.refresh(result[0])
 
     def add_inst(self):
@@ -768,7 +781,8 @@ class LucteriosMainForm(Tk):
 
     @ThreadRun
     def delete_inst_name(self, instance_name):
-        run_main_ext('delete', get_options(name=instance_name))
+        inst = LucteriosInstance(instance_name)
+        inst.delete()
         self.refresh()
 
     def delete_inst(self):
@@ -811,13 +825,14 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def save_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        ret = run_main_ext('archive', get_options(name=instance_name, filename=file_name))
-        if ret:
-            showinfo(ugettext_lazy("Lucterios launcher"),
-                     ugettext_lazy("Instance saved to %s") % file_name)
+        inst = LucteriosInstance(instance_name)
+        inst.filename = file_name
+        if inst.archive():
+            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy(
+                "Instance saved to %s") % file_name)
         else:
-            showerror(ugettext_lazy("Lucterios launcher"),
-                      ugettext_lazy("Instance not saved!"))
+            showerror(
+                ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not saved!"))
         self.refresh(instance_name)
 
     def save_inst(self):
@@ -830,8 +845,9 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        ret = run_main_ext('restore', get_options(name=instance_name, filename=file_name))
-        if ret:
+        rest_inst = LucteriosInstance(instance_name)
+        rest_inst.filename = file_name
+        if rest_inst.restore():
             showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance restore from %s") % file_name)
         else:
             showerror(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not restored!"))

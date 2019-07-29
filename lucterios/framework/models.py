@@ -789,8 +789,7 @@ class LogEntryManager(models.Manager):
         :return: QuerySet of log entries for the given model.
         :rtype: QuerySet
         """
-        # Return empty queryset if the given object is not valid.
-        if not issubclass(model, models.Model):
+        if not hasattr(model, "get_long_name"):
             return self.none()
 
         return self.filter(modelname=model.get_long_name())
