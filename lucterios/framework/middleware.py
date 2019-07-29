@@ -37,6 +37,7 @@ from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 from lucterios.framework.models import LucteriosLogEntry
+from django.utils import six
 
 
 class LucteriosErrorMiddleware(XferContainerException):
@@ -146,6 +147,6 @@ class AuditlogMiddleware(MiddlewareMixin):
             except ValueError:
                 auth_user_model = apps.get_model('auth', 'user')
             if sender == LucteriosLogEntry and isinstance(user, auth_user_model) and instance.actor is None:
-                instance.actor = user
+                instance.username = six.text_type(user)
 
             instance.remote_addr = threadlocal.auditlog['remote_addr']

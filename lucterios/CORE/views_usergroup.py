@@ -256,11 +256,7 @@ class AudiLogConfig(XferListEditor):
         sel._check_case()
         sel.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(sel)
-        try:
-            app_label, model = sel.value.split('.')
-            self.filter = Q(content_type__app_label=app_label) & Q(content_type__model=model)
-        except Exception:
-            self.filter = Q(content_type__app_label='')
+        self.filter = Q(modelname=sel.value)
 
     def fillresponse(self):
         XferListEditor.fillresponse(self)

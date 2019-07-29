@@ -38,8 +38,8 @@ from django.db.models.deletion import ProtectedError
 from django.db.models.lookups import RegisterLookupMixin
 from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField
 from django.db.models.signals import pre_save
+from django.apps.registry import apps
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist, ImproperlyConfigured
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User
 from django.utils import six, formats, timezone
@@ -47,7 +47,6 @@ from django.utils.encoding import smart_text
 from django.utils.six import integer_types
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
-from django.conf import settings
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
@@ -329,7 +328,6 @@ class LucteriosModel(models.Model):
     @transaction.atomic
     def merge_objects(self, alias_objects=[]):
         from django.contrib.contenttypes.fields import GenericForeignKey
-        from django.apps import apps
         if not isinstance(alias_objects, list):
             alias_objects = [alias_objects]
 
@@ -716,7 +714,7 @@ class LogEntryManager(models.Manager):
         pk = self._get_pk_value(instance)
 
         if changes is not None:
-            kwargs.setdefault('content_type', ContentType.objects.get_for_model(instance))
+            kwargs.setdefault('modelname', instance.__class__.get_long_name())
             kwargs.setdefault('object_pk', pk)
             kwargs.setdefault('object_repr', smart_text(instance))
 
@@ -730,10 +728,10 @@ class LogEntryManager(models.Manager):
             # Delete log entries with the same pk as a newly created model. This should only be necessary when an pk is
             # used twice.
             if kwargs.get('action', None) is LucteriosLogEntry.Action.CREATE:
-                if kwargs.get('object_id', None) is not None and self.filter(content_type=kwargs.get('content_type'), object_id=kwargs.get('object_id')).exists():
-                    self.filter(content_type=kwargs.get('content_type'), object_id=kwargs.get('object_id')).delete()
+                if kwargs.get('object_id', None) is not None and self.filter(modelname=kwargs.get('modelname'), object_id=kwargs.get('object_id')).exists():
+                    self.filter(modelname=kwargs.get('modelname'), object_id=kwargs.get('object_id')).delete()
                 else:
-                    self.filter(content_type=kwargs.get('content_type'), object_pk=kwargs.get('object_pk', '')).delete()
+                    self.filter(modelname=kwargs.get('modelname'), object_pk=kwargs.get('object_pk', '')).delete()
             # save LogEntry to same database instance is using
             db = instance._state.db
             return self.create(**kwargs) if db is None or db == '' else self.using(db).create(**kwargs)
@@ -752,13 +750,12 @@ class LogEntryManager(models.Manager):
         if not isinstance(instance, models.Model):
             return self.none()
 
-        content_type = ContentType.objects.get_for_model(instance.__class__)
         pk = self._get_pk_value(instance)
 
         if isinstance(pk, integer_types):
-            return self.filter(content_type=content_type, object_id=pk)
+            return self.filter(modelname=instance.__class__.get_long_name(), object_id=pk)
         else:
-            return self.filter(content_type=content_type, object_pk=smart_text(pk))
+            return self.filter(modelname=instance.__class__.get_long_name(), object_pk=smart_text(pk))
 
     def get_for_objects(self, queryset):
         """
@@ -772,16 +769,16 @@ class LogEntryManager(models.Manager):
         if not isinstance(queryset, QuerySet) or queryset.count() == 0:
             return self.none()
 
-        content_type = ContentType.objects.get_for_model(queryset.model)
+        modelname = queryset.model.get_long_name()
         primary_keys = list(queryset.values_list(queryset.model._meta.pk.name, flat=True))
 
         if isinstance(primary_keys[0], integer_types):
-            return self.filter(content_type=content_type).filter(Q(object_id__in=primary_keys)).distinct()
+            return self.filter(modelname=modelname).filter(Q(object_id__in=primary_keys)).distinct()
         elif isinstance(queryset.model._meta.pk, models.UUIDField):
             primary_keys = [smart_text(pk) for pk in primary_keys]
-            return self.filter(content_type=content_type).filter(Q(object_pk__in=primary_keys)).distinct()
+            return self.filter(modelname=modelname).filter(Q(object_pk__in=primary_keys)).distinct()
         else:
-            return self.filter(content_type=content_type).filter(Q(object_pk__in=primary_keys)).distinct()
+            return self.filter(modelname=modelname).filter(Q(object_pk__in=primary_keys)).distinct()
 
     def get_for_model(self, model):
         """
@@ -796,9 +793,7 @@ class LogEntryManager(models.Manager):
         if not issubclass(model, models.Model):
             return self.none()
 
-        content_type = ContentType.objects.get_for_model(model)
-
-        return self.filter(content_type=content_type)
+        return self.filter(modelname=model.get_long_name())
 
     def _get_pk_value(self, instance):
         """
@@ -830,11 +825,9 @@ class LucteriosLogEntry(LucteriosModel):
         )
 
     currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
-    username = LucteriosVirtualField(verbose_name=_('username'), compute_from='get_actor')
     messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
-
-    content_type = models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE, related_name='+', verbose_name=_("content type"))
-    actor = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, blank=True, null=True, related_name='+', verbose_name=_("actor"))
+    modelname = models.CharField(db_index=True, max_length=255, blank=False, null=False, verbose_name=_("content type"))
+    username = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name=_("actor"))
     object_pk = models.CharField(db_index=True, max_length=255, verbose_name=_("object pk"))
     object_id = models.BigIntegerField(blank=True, db_index=True, null=True, verbose_name=_("object id"))
     object_repr = models.TextField(verbose_name=_("object representation"))
@@ -870,24 +863,19 @@ class LucteriosLogEntry(LucteriosModel):
     @classmethod
     def get_typeselection(cls):
         res = []
-        for type_id in cls.objects.values_list('content_type', flat=True).distinct():
-            type_item = ContentType.objects.get(id=type_id)
-            res.append(('%s.%s' % (type_item.app_label, type_item.model), six.text_type(type_item)))
+        for modelname in cls.objects.values_list('modelname', flat=True).distinct():
+            model_item = apps.get_model(modelname)
+            res.append((modelname, six.text_type(model_item._meta.verbose_name)))
         return sorted(list(set(res)), key=lambda item: item[1])
 
     def get_field(self, name):
-        model = self.content_type.model_class()
+        model = apps.get_model(self.modelname)
         return model._meta.get_field(name)
 
     def get_format_value(self, dep_field, value):
         formatnum, formatstr = extract_format(get_format_from_field(dep_field))
         value = format_to_string(value, formatnum, formatstr)
         return value
-
-    def get_actor(self):
-        if self.actor is None:
-            return None
-        return six.text_type(self.actor)
 
     def get_message(self):
         changes = json.loads(self.changes)
