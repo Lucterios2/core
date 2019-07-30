@@ -108,7 +108,7 @@ works properly when clicked or hovered */ html .ui-button.ui-state-disabled:hove
 	a.ui-button:active, .ui-button:active, .ui-button.ui-state-active:hover
 	{
 	border: 1px solid #aaaaaa;
-	background: #ffffff url(../images/ui-bg_glass_65_ffffff_1x400.png) 50%
+	background: #ffffff url(../lib/images/ui-bg_glass_65_ffffff_1x400.png) 50%
 		50% repeat-x;
 	font-weight: normal;
 	color: #212121;
@@ -130,7 +130,7 @@ works properly when clicked or hovered */ html .ui-button.ui-state-disabled:hove
 .ui-state-highlight, .ui-widget-content .ui-state-highlight,
 	.ui-widget-header .ui-state-highlight {
 	border: 1px solid #fcefa1;
-	background: #fbf9ee url(../images/ui-bg_glass_55_fbf9ee_1x400.png) 50%
+	background: #fbf9ee url(../lib/images/ui-bg_glass_55_fbf9ee_1x400.png) 50%
 		50% repeat-x;
 	color: #363636;
 }
@@ -148,7 +148,7 @@ works properly when clicked or hovered */ html .ui-button.ui-state-disabled:hove
 .ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error
 	{
 	border: 1px solid #cd0a0a;
-	background: #fef1ec url(../images/ui-bg_glass_95_fef1ec_1x400.png) 50%
+	background: #fef1ec url(../lib/images/ui-bg_glass_95_fef1ec_1x400.png) 50%
 		50% repeat-x;
 	color: #cd0a0a;
 }
@@ -196,31 +196,31 @@ works properly when clicked or hovered */ html .ui-button.ui-state-disabled:hove
 }
 
 .ui-icon, .ui-widget-content .ui-icon {
-	background-image: url(../images/ui-icons_222222_256x240.png);
+	background-image: url(../lib/images/ui-icons_222222_256x240.png);
 }
 
 .ui-widget-header .ui-icon {
-	background-image: url(../images/ui-icons_222222_256x240.png);
+	background-image: url(../lib/images/ui-icons_222222_256x240.png);
 }
 
 .ui-state-default .ui-icon {
-	background-image: url(../images/ui-icons_888888_256x240.png);
+	background-image: url(../lib/images/ui-icons_888888_256x240.png);
 }
 
 .ui-state-hover .ui-icon, .ui-state-focus .ui-icon {
-	background-image: url(../images/ui-icons_454545_256x240.png);
+	background-image: url(../lib/images/ui-icons_454545_256x240.png);
 }
 
 .ui-state-active .ui-icon {
-	background-image: url(../images/ui-icons_454545_256x240.png);
+	background-image: url(../lib/images/ui-icons_454545_256x240.png);
 }
 
 .ui-state-highlight .ui-icon {
-	background-image: url(../images/ui-icons_2e83ff_256x240.png);
+	background-image: url(../lib/images/ui-icons_2e83ff_256x240.png);
 }
 
 .ui-state-error .ui-icon, .ui-state-error-text .ui-icon {
-	background-image: url(../images/ui-icons_cd0a0a_256x240.png);
+	background-image: url(../lib/images/ui-icons_cd0a0a_256x240.png);
 }
 
 /* positioning */

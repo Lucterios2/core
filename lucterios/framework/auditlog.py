@@ -80,7 +80,10 @@ def log_delete(sender, instance, **kwargs):
 
 def lct_log_create(sender, instance, created, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        sub_obj = instance.get_auditlog_object()
+        try:
+            sub_obj = instance.get_auditlog_object()
+        except ObjectDoesNotExist:
+            return
         if sub_obj is None:
             log_create(sender, instance, created, **kwargs)
         elif created:
@@ -94,7 +97,10 @@ def lct_log_create(sender, instance, created, **kwargs):
 
 def lct_log_update(sender, instance, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        sub_obj = instance.get_auditlog_object()
+        try:
+            sub_obj = instance.get_auditlog_object()
+        except ObjectDoesNotExist:
+            return
         if sub_obj is None:
             log_update(sender, instance, **kwargs)
         elif instance.pk is not None:
