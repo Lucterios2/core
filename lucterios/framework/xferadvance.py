@@ -152,7 +152,7 @@ class XferListEditor(XferContainerCustom):
         self.add_component(lbl)
         self.fillresponse_header()
         self.fillresponse_body()
-        add_auditlogs_button(self, self.model, 0, self.get_max_row() + 1)
+        add_auditlogs_button(self, self.model, 0, self.get_max_row() + 20)
         if self.model is not None:
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
@@ -186,7 +186,7 @@ class XferAddEditor(XferContainerCustom):
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
-        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 1)
+        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
     def get_post(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
@@ -237,7 +237,7 @@ class XferShowEditor(XferContainerCustom):
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
-        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 1)
+        add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
 
 class XferDelete(XferContainerAcknowledge):
