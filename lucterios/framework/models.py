@@ -841,8 +841,11 @@ class LucteriosLogEntry(LucteriosModel):
         return sorted(list(set(res)), key=lambda item: item[1])
 
     def get_field(self, name):
-        model = apps.get_model(self.modelname)
-        return model._meta.get_field(name)
+        try:
+            model = apps.get_model(self.modelname)
+            return model._meta.get_field(name)
+        except FieldDoesNotExist:
+            return None
 
     def get_message(self):
         def get_new_line(action, dep_field, value):
@@ -882,18 +885,7 @@ class LucteriosLogEntry(LucteriosModel):
                                                   '" "'.join(res_data)))
         return res
 
-    def get_additional_data(self):
-        if self.additional_data is None:
-            return {}
-        else:
-            return json.loads(self.additional_data)
-
-    def set_additional_data(self, obj_data, saved=True):
-        self.additional_data = json.dumps(obj_data)
-        if saved:
-            self.save()
-
-    def change_additional_data(self, sender_ident, log_action, addon_data, saved=True):
+    def change_additional_data(self, sender_ident, log_action, addon_data):
         if self.additional_data is None:
             additional_data = {}
         else:
@@ -906,9 +898,8 @@ class LucteriosLogEntry(LucteriosModel):
             additional_data[sender_ident][log_action].extend(addon_data)
         else:
             additional_data[sender_ident][log_action].append(addon_data)
-        self.additional_data = json.dumps(additional_data)
-        if saved:
-            self.save()
+        self.additional_data = json.dumps(additional_data, default=six.text_type)
+        self.save()
 
     class Meta(object):
         default_permissions = []

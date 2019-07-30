@@ -146,7 +146,7 @@ class AuditlogMiddleware(MiddlewareMixin):
                 auth_user_model = apps.get_model(app_label, model_name)
             except ValueError:
                 auth_user_model = apps.get_model('auth', 'user')
-            if sender == LucteriosLogEntry and isinstance(user, auth_user_model) and instance.actor is None:
+            if sender == LucteriosLogEntry and isinstance(user, auth_user_model) and instance.username is None:
                 instance.username = six.text_type(user)
 
             instance.remote_addr = threadlocal.auditlog['remote_addr']

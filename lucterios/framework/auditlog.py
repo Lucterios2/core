@@ -42,7 +42,7 @@ def log_create(sender, instance, created, **kwargs):
         instance._last_log = LucteriosLogEntry.objects.log_create(
             instance,
             action=LucteriosLogEntry.Action.CREATE,
-            changes=json.dumps(changes),
+            changes=json.dumps(changes, default=six.text_type),
         )
 
 
@@ -62,7 +62,7 @@ def log_update(sender, instance, **kwargs):
                 instance._last_log = LucteriosLogEntry.objects.log_create(
                     instance,
                     action=LucteriosLogEntry.Action.UPDATE,
-                    changes=json.dumps(changes),
+                    changes=json.dumps(changes, default=six.text_type),
                 )
 
 
@@ -73,7 +73,7 @@ def log_delete(sender, instance, **kwargs):
         instance._last_log = LucteriosLogEntry.objects.log_create(
             instance,
             action=LucteriosLogEntry.Action.DELETE,
-            changes=json.dumps(changes),
+            changes=json.dumps(changes, default=six.text_type),
         )
 
 
@@ -106,7 +106,7 @@ def lct_log_update(sender, instance, **kwargs):
                 changes = model_instance_diff(old, new)
                 if changes:
                     if not hasattr(sub_obj, '_last_log'):
-                        log_update(sender, sub_obj, **kwargs)
+                        log_update(sub_obj.__class__, sub_obj, **kwargs)
                         if not hasattr(sub_obj, '_last_log'):
                             sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
                     sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
