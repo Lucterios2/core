@@ -219,7 +219,13 @@ class AuditLogShow(XferContainerCustom):
         self.model = apps.get_model(model)
         if objid != 0:
             self.item = self.model.objects.get(id=objid)
-            self.fill_from_model(1, 0, True, desc_fields=self.model.get_default_fields())
+            fieldnames = []
+            for fieldname in self.model.get_default_fields():
+                if isinstance(fieldname, tuple):
+                    fieldnames.append(fieldname[1])
+                else:
+                    fieldnames.append(fieldname)
+            self.fill_from_model(1, 0, True, desc_fields=fieldnames)
             log_items = LucteriosLogEntry.objects.get_for_object(self.item)
         else:
             content_type = ContentType.objects.get_for_model(self.model)
