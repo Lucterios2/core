@@ -28,11 +28,12 @@ import json
 
 from django.db.models.base import Model
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
+from django.utils import six
+from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.models import LucteriosLogEntry
 from lucterios.framework.auditlog_tools import model_instance_diff, get_sender_ident_for_m2m
 from lucterios.framework.tools import get_dico_from_setquery
-from django.utils import six
 
 
 def log_create(sender, instance, created, **kwargs):
@@ -116,7 +117,10 @@ def lct_log_update(sender, instance, **kwargs):
 
 def lct_log_delete(sender, instance, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
-        sub_obj = instance.get_auditlog_object()
+        try:
+            sub_obj = instance.get_auditlog_object()
+        except ObjectDoesNotExist:
+            return
         if sub_obj is None:
             log_delete(sender, instance, **kwargs)
         elif instance.pk is not None:

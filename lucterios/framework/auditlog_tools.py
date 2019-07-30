@@ -23,6 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from logging import getLogger
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import DateTimeField, NOT_PROVIDED
@@ -90,21 +91,24 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
-    if isinstance(field, DateTimeField):
-        # DateTimeFields are timezone-aware, so we need to convert the field
-        # to its naive form before we can accuratly compare them for changes.
-        try:
-            value = field.to_python(getattr(obj, field.name, None))
-            if value is not None and settings.USE_TZ and not timezone.is_naive(value):
-                value = timezone.make_naive(value, timezone=timezone.utc)
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
-    else:
-        try:
-            value = smart_text(getattr(obj, field.name, None))
-        except ObjectDoesNotExist:
-            value = field.default if field.default is not NOT_PROVIDED else None
-
+    try:
+        if isinstance(field, DateTimeField):
+            # DateTimeFields are timezone-aware, so we need to convert the field
+            # to its naive form before we can accuratly compare them for changes.
+            try:
+                value = field.to_python(getattr(obj, field.name, None))
+                if value is not None and settings.USE_TZ and not timezone.is_naive(value):
+                    value = timezone.make_naive(value, timezone=timezone.utc)
+            except ObjectDoesNotExist:
+                value = field.default if field.default is not NOT_PROVIDED else None
+        else:
+            try:
+                value = smart_text(getattr(obj, field.name, None))
+            except ObjectDoesNotExist:
+                value = field.default if field.default is not NOT_PROVIDED else None
+    except Exception as err:
+        getLogger('lucterios.framwork').error("auditlog:get_field_value(%s,%s) : %s", obj, field.name, err)
+        raise
     return value
 
 
