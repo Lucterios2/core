@@ -878,6 +878,8 @@ class LucteriosLogEntry(LucteriosModel):
                             sub_model = apps.get_model(value_item['modelname'])
                             for sub_fieldname, diff_value in value_item['changes'].items():
                                 sub_dep_field = sub_model._meta.get_field(sub_fieldname)
+                                if (sub_dep_field is None) or (not sub_dep_field.editable or sub_dep_field.primary_key):
+                                    continue
                                 res_data.append(get_new_line(action_id, sub_dep_field, diff_value))
                         else:
                             res_data.append(value_item)
