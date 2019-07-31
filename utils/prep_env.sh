@@ -16,7 +16,7 @@ echo "Sphinx" >> requirement.txt
 echo "mysqlclient" >> requirement.txt
 echo "psycopg2-binary" >> requirement.txt
 
-[ -d virt ] && rm -rf $virt_name
+[ -d $virt_name ] && rm -rf $virt_name
 
 python3 -m virtualenv --python=$PYTHONVER $virt_name
 [ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
