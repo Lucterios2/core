@@ -37,6 +37,7 @@ from time import sleep
 import sys
 import os
 from json import loads
+from subprocess import call
 
 
 INSTANCE_PATH = '.'
@@ -279,8 +280,10 @@ class LucteriosGlobal(LucteriosManage):
             self.print_info_("\t\t=> No upgrade")
         return check_list, must_upgrade
 
+    def pip_install(self, options):
+        return call("python -m pip %s" % " ".join(options), shell=True)
+
     def update_dependancy(self):
-        from pip._internal import main
         from pip._internal.utils.misc import get_installed_distributions
         module_dependancies = []
         for dist in get_installed_distributions():
@@ -291,7 +294,7 @@ class LucteriosGlobal(LucteriosManage):
         if len(module_dependancies) > 0:
             options = self.get_default_args_(['install', '-U'])
             options.extend(module_dependancies)
-            main(options)
+            self.pip_install(options)
             self.print_info_("Try to update %d dependancy modules" % len(module_dependancies))
             return True
         else:
@@ -313,9 +316,7 @@ class LucteriosGlobal(LucteriosManage):
                 self.print_info_("Modules to update: %s" % ",".join(module_list))
                 options = self.get_default_args_(['install', '-U'])
                 options.extend(module_list)
-                if os.environ.get('PIP_REQ_TRACKER') is not None:
-                    del os.environ['PIP_REQ_TRACKER']
-                res = main(options)
+                res = self.pip_install(options)
             finally:
                 self.refreshall(False)
             return res == status_codes.SUCCESS

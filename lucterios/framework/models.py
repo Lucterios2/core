@@ -796,7 +796,6 @@ class LucteriosLogEntry(LucteriosModel):
                     return six.text_type(choices_val)
             return six.text_type(action_id)
 
-    currentdate = LucteriosVirtualField(verbose_name=_('date'), compute_from='timestamp', format_string="D")
     messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
     modelname = models.CharField(db_index=True, max_length=255, blank=False, null=False, verbose_name=_("content type"))
     username = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name=_("actor"))
@@ -806,7 +805,7 @@ class LucteriosLogEntry(LucteriosModel):
     action = models.IntegerField(choices=Action.choices, verbose_name=_("action"))
     changes = models.TextField(blank=True, verbose_name=_("change message"))
     remote_addr = models.GenericIPAddressField(blank=True, null=True, verbose_name=_("remote address"))
-    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("timestamp"))
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name=_("date"))
     additional_data = models.TextField(blank=True, null=True, verbose_name=_("additional data"))
 
     objects = LogEntryManager()
@@ -825,7 +824,7 @@ class LucteriosLogEntry(LucteriosModel):
 
     @classmethod
     def get_default_fields(cls):
-        return ['currentdate',
+        return ['timestamp',
                 'username',
                 'action',
                 'object_repr',

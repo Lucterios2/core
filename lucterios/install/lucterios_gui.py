@@ -472,6 +472,8 @@ class LucteriosMainForm(Tk):
         self.remove_splash_screen()
 
     def show_splash_screen(self):
+        if sys.platform != 'darwin':
+            self.withdraw()
         self.splash = SplashScreen(self, self.img)
 
     def remove_splash_screen(self):
