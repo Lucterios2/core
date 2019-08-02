@@ -526,6 +526,8 @@ class LucteriosDecimalField(models.DecimalField):
 
 class LucteriosVirtualField(models.Field):
 
+    virtual_disabled = False
+
     def __init__(self, compute_from=None, format_string=None, *args, **kwargs):
         kwargs['editable'] = False
         if compute_from is None:
@@ -566,8 +568,9 @@ class LucteriosVirtualField(models.Field):
 
     def resolve_computed_field(self, sender, instance, raw, **kwargs):
         """Pre-save signal receiver to compute new field value."""
-        setattr(instance, self.get_attname(), self.calculate_value(instance))
-        return self.calculate_value(instance)
+        value = self.calculate_value(instance)
+        setattr(instance, self.get_attname(), value)
+        return value
 
     def calculate_value(self, instance):
         """
@@ -575,6 +578,8 @@ class LucteriosVirtualField(models.Field):
         Args:
             instance: Parent model instance to reference
         """
+        if LucteriosVirtualField.virtual_disabled:
+            return None
         try:
             if callable(self.compute_from):
                 value = self.compute_from(instance)

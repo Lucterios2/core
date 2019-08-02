@@ -934,16 +934,21 @@ class LucteriosInstance(LucteriosManage):
         if isfile(output_filename):
             self._migrate_from_old_targets(tmp_path)
             self.clear_info_()
-            from django.core.management import call_command
-            call_command('loaddata', output_filename)
-            self.run_new_migration(tmp_path)
-            self.print_info_("instance restored with '%s'" % self.filename)
-            if isdir(join(tmp_path, 'usr')):
-                target_dir = get_user_dir()
-                if isdir(target_dir):
-                    delete_path(target_dir)
-                move(join(tmp_path, 'usr'), target_dir)
-            success = True
+            from lucterios.framework.models import LucteriosVirtualField
+            LucteriosVirtualField.virtual_disabled = True
+            try:
+                from django.core.management import call_command
+                call_command('loaddata', output_filename, ignore=True)
+                self.run_new_migration(tmp_path)
+                self.print_info_("instance restored with '%s'" % self.filename)
+                if isdir(join(tmp_path, 'usr')):
+                    target_dir = get_user_dir()
+                    if isdir(target_dir):
+                        delete_path(target_dir)
+                    move(join(tmp_path, 'usr'), target_dir)
+                success = True
+            finally:
+                LucteriosVirtualField.virtual_disabled = False
         delete_path(tmp_path)
         self.refresh(False)
         return success
