@@ -292,6 +292,8 @@ class LucteriosModel(models.Model):
     @transaction.atomic
     def merge_objects(self, alias_objects=[]):
         from django.contrib.contenttypes.fields import GenericForeignKey
+        from lucterios.framework.signal_and_lock import Signal
+
         if not isinstance(alias_objects, list):
             alias_objects = [alias_objects]
 
@@ -315,6 +317,8 @@ class LucteriosModel(models.Model):
                     obj_varname = related_object.field.name
                     related_objects = getattr(alias_object, alias_varname)
                     for obj in related_objects.all():
+                        if hasattr(obj, "get_final_child"):
+                            obj = obj.get_final_child()
                         setattr(obj, obj_varname, self)
                         obj.save()
                 if related_object.many_to_many:
@@ -354,6 +358,7 @@ class LucteriosModel(models.Model):
 
             alias_object.delete()
         self.save()
+        Signal.call_signal("post_merge", self)
 
     @classmethod
     def get_field_by_name(cls, fieldname):
