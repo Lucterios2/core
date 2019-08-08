@@ -686,12 +686,12 @@ def get_format_from_field(dep_field):
         return "N%d" % dep_field.decimal_places
     elif isinstance(dep_field, IntegerField):
         return "N0"
+    elif isinstance(dep_field, DateTimeField):
+        return "H"
     elif isinstance(dep_field, DateField):
         return "D"
     elif isinstance(dep_field, TimeField):
         return "T"
-    elif isinstance(dep_field, DateTimeField):
-        return "H"
     elif isinstance(dep_field, BooleanField):
         return "B"
     else:

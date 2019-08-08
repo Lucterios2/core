@@ -35,7 +35,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json, adapt_value,\
     format_to_string
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-from lucterios.framework.models import get_format_from_field, extract_format
+from lucterios.framework.models import get_format_from_field, extract_format,\
+    LucteriosVirtualField
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum, BASE64_PREFIX
 
@@ -793,11 +794,11 @@ class XferCompGrid(XferComponent):
         if compid not in self.records.keys():
             new_record = {}
             for header in self.headers:
-                if header.htype == 'int':
+                if header.htype == 'N0':
                     new_record[header.name] = 0
-                elif header.htype == 'float':
+                elif isinstance(header.htype, six.text_type) and header.htype.startswith('N'):
                     new_record[header.name] = 0.0
-                elif header.htype == 'bool':
+                elif header.htype == 'B':
                     new_record[header.name] = False
                 else:
                     new_record[header.name] = ""
@@ -862,7 +863,7 @@ class XferCompGrid(XferComponent):
                     format_str = ";".join(hfield[1:])
                     hfield = hfield[0]
                 verbose_name = dep_field.verbose_name
-                if has_xfer:
+                if has_xfer and not isinstance(dep_field, LucteriosVirtualField):
                     horderable = 1
             self.add_header(fieldname, verbose_name, hfield, horderable, format_str)
 

@@ -737,7 +737,7 @@ class ObjectMerge(XferContainerAcknowledge):
             dlg.add_component(lbl)
             grid = XferCompGrid('mrg_' + self.field_id)
             grid.add_header('value', _('designation'))
-            grid.add_header('select', _('is main?'), 'bool')
+            grid.add_header('select', _('is main?'), 'B')
             for item in self.items:
                 grid.set_value(item.id, 'value', six.text_type(item))
                 grid.set_value(item.id, 'select', item.id == self.item.id)
