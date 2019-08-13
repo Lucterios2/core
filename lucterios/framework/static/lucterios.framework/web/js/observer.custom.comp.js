@@ -271,10 +271,10 @@ var compButton = compAbstractEvent.extend({
 			}
 			if (!this.isMini || (this.btnaction.getIcon() === '')) {
 				title = this.btnaction.getTitle();
-				htmltag_imgbegin = '<img src="{0}" style="max-width:32px"/>'
+				htmltag_imgbegin = '<img src="{0}" style="max-width:32px"/>';
 			} else {
 				title = '';
-				htmltag_imgbegin = '<img src="{0}" style="max-width:24px" title="' + this.btnaction.getTitle() + '"/>'
+				htmltag_imgbegin = '<img src="{0}" style="max-width:24px" title="' + this.btnaction.getTitle() + '"/>';
 			}
 			if (this.btnaction.getIcon() !== '') {
 				btn_icon = Singleton().Transport().getIconUrl(this.btnaction.getIcon());

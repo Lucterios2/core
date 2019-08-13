@@ -275,7 +275,7 @@ var compGrid = compGeneric
 			},
 
 			get_pager_html : function() {
-				var rppindex, rPPOptions = [ 25, 50, 100, 250 ], html = '', attribdisabled = 'ui-button-disabled ui-state-disabled" disabled=""';
+				var rppindex, rPPOptions = [ 25, 50, 100, 250, 500 ], html = '', attribdisabled = 'ui-button-disabled ui-state-disabled" disabled=""';
 				if (!this.no_pager) {
 					html = '<div class="gridpager" id="' + this.name + '_pager">';
 					html += '<button type="button" title="{0}" class="ui-button ui-corner-all ui-widget ui-button-icon-only {1} style="margin-left: 10px;"><span class="ui-button-icon ui-icon ui-icon-seek-first"></span><span class="ui-button-icon-space"></span></button>'
