@@ -126,12 +126,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
         lbl.set_location(1, 0)
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
-            lbl.set_value(
-                "{[br/]}{[center]}" + six.text_type(self.traitment_data[2]) + "{[/center]}")
+            lbl.set_value(six.text_type(self.traitment_data[2]))
             dlg.add_action(WrapAction(_("Close"), "images/close.png"))
         else:
-            lbl.set_value(
-                "{[br/]}{[center]}" + six.text_type(self.traitment_data[1]) + "{[/center]}")
+            lbl.set_value_center("{[br/]}" + six.text_type(self.traitment_data[1]))
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
