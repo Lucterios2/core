@@ -373,10 +373,11 @@ class FieldDescList(object):
                 new_op = int(criteria_item[1])
                 new_val = criteria_item[2]
                 field_desc_item = self.get(new_name)
-                filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
-                desc_text = field_desc_item.get_criteria_description(new_op, new_val)
-                criteria_desc[six.text_type(crit_index)] = desc_text
-                crit_index += 1
+                if field_desc_item is not None:
+                    filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
+                    desc_text = field_desc_item.get_criteria_description(new_op, new_val)
+                    criteria_desc[six.text_type(crit_index)] = desc_text
+                    crit_index += 1
         return filter_result, criteria_desc
 
 
