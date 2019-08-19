@@ -82,11 +82,11 @@ class DummyTest(LucteriosTest):
 
         self.calljson('/lucterios.dummy/multi', {'CONFIRME': 'YES'})
         self.assert_observer('core.custom', 'lucterios.dummy', 'multi')
-        self.assert_json_equal('LABELFORM', "info", '{[br/]}{[center]}Waiting...{[/center]}')
+        self.assert_json_equal('LABELFORM', "info", '{[br/]}Waiting...')
 
         self.calljson('/lucterios.dummy/multi', {'CONFIRME': 'YES', 'RELOAD': 'YES'})
         self.assert_observer('core.custom', 'lucterios.dummy', 'multi')
-        self.assert_json_equal('LABELFORM', "info", '{[br/]}{[center]}Done!{[/center]}')
+        self.assert_json_equal('LABELFORM', "info", 'Done!')
 
     def test_testcomposants(self):
 
