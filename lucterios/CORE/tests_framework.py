@@ -135,7 +135,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(len(self.json_context), 1)
         self.assertEqual(self.json_context['RELOAD'], 'YES')
         self.assert_count_equal('', 3)
-        self.assert_json_equal('LABELFORM', "info", '{[br/]}{[center]}Traitment{[br/]}Wait...{[/center]}')
+        self.assert_json_equal('LABELFORM', "info", '{[br/]}Traitment{[br/]}Wait...')
         self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
         self.assert_action_equal(self.json_comp['Next']['action'], ('Traitement...', None, 'customer', 'details', 1, 1, 1, {'RELOAD': "YES"}))
         self.assert_attrib_equal('Next', 'javascript', 'parent.refresh()')
@@ -149,7 +149,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(self.json_context['RELOAD'], 'YES')
         self.assert_count_equal('', 2)
         self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
-        self.assert_json_equal('LABELFORM', "info", '{[br/]}{[center]}Done{[/center]}')
+        self.assert_json_equal('LABELFORM', "info", 'Done')
         self.assert_action_equal(self.json_actions[0], ('Fermer', 'images/close.png'))
 
     def test_parameters_text(self):
