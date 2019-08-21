@@ -574,7 +574,7 @@ def set_locale_lang(lang):
             return
     except Exception:
         pass
-    locale.setlocale(locale.LC_ALL, 'C')
+    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 
 
 def format_value(value, format_num):
