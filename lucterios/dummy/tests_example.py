@@ -436,6 +436,6 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal("page/body/text[11]/b", 'reduction')
         self.assert_xml_equal("page/body/text[12]", '49,9821')
         self.assert_xml_equal("page/body/text[13]/b", 'valid')
-        self.assert_xml_equal("page/body/text[14]", 'Oui')
+        self.assert_xml_equal("page/body/text[14]", 'Non')
         self.assert_xml_equal("page/body/text[15]/b", 'comment')
         self.assert_xml_equal("page/body/text[16]", None)
