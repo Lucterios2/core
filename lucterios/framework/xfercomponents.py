@@ -180,6 +180,8 @@ class XferCompLabelForm(XferComponent):
             self.value = value.isoformat()
         elif isinstance(value, list) or isinstance(value, tuple):
             self.value = list(value)
+        elif isinstance(value, bool):
+            self.value = bool(value)
         elif isinstance(value, object):
             self.value = six.text_type(value)
         else:
@@ -278,7 +280,7 @@ class XferCompLabelForm(XferComponent):
                     format_string[key] = six.text_type(sel_val)
         elif isinstance(old_obj, XferCompCheck):
             format_string = 'B'
-            if value:
+            if (value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')):
                 value = True
             else:
                 value = False
