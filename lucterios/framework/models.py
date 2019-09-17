@@ -1029,3 +1029,26 @@ def post_after_transition(sender, **kwargs):
 
 
 post_transition.connect(post_after_transition)
+
+
+def correct_db_field(fields):
+    def check_ret(val):
+        if isinstance(val, int):
+            return val
+        elif hasattr(val, "rowcount"):
+            return val.rowcount
+        return 0
+    from django.db import connection
+    if connection.vendor == 'sqlite':
+        query = "UPDATE %s SET %s=0 WHERE typeof(%s)='text'"
+    else:
+        query = "UPDATE %s SET %s=0 WHERE %s='NaN'"
+    ret = 0
+    try:
+        with connection.cursor() as cursor:
+            for tablename, fieldname in fields.items():
+                ret += check_ret(cursor.execute(query % (tablename, fieldname, fieldname)))
+    except Exception:
+        logging.getLogger('lucterios.framwork').exception("correct_db_field")
+    if ret > 0:
+        six.print_("%s DB corrections" % ret)
