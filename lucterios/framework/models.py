@@ -196,6 +196,10 @@ class LucteriosModel(models.Model):
         return fields
 
     @classmethod
+    def initialize_import(cls):
+        pass
+
+    @classmethod
     def import_data(cls, rowdata, dateformat):
         from django.db.models.fields import FloatField, DecimalField
         from django.db.models.fields.related import ForeignKey
@@ -226,22 +230,27 @@ class LucteriosModel(models.Model):
                         fieldvalue = 0
                 elif isinstance(dep_field, FloatField) or isinstance(dep_field, DecimalField):
                     try:
-                        fieldvalue = float(fieldvalue.replace(',', '.'))
+                        if isinstance(fieldvalue, str):
+                            fieldvalue = fieldvalue.replace(',', '.')
+                        fieldvalue = float(fieldvalue)
                     except ValueError:
                         fieldvalue = 0.0
                 elif isinstance(dep_field, DateField) and isinstance(fieldvalue, six.text_type):
                     try:
-                        fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
+                        if isinstance(fieldvalue, str):
+                            fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
                     except ValueError:
                         fieldvalue = datetime.now().date()
                 elif isinstance(dep_field, TimeField) and isinstance(fieldvalue, six.text_type):
                     try:
-                        fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
+                        if isinstance(fieldvalue, str):
+                            fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
                     except ValueError:
                         fieldvalue = datetime.now().time()
                 elif isinstance(dep_field, DateTimeField) and isinstance(fieldvalue, six.text_type):
                     try:
-                        fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
+                        if isinstance(fieldvalue, str):
+                            fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
                     except ValueError:
                         fieldvalue = datetime.now()
                 elif isinstance(dep_field, BooleanField):
@@ -276,6 +285,10 @@ class LucteriosModel(models.Model):
         except Exception:
             logging.getLogger('lucterios.framwork').exception("import_data")
             raise
+
+    @classmethod
+    def finalize_import(cls):
+        return None
 
     @classmethod
     def get_query_for_duplicate(cls):
