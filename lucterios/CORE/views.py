@@ -44,7 +44,8 @@ from django.db.models.fields import DateField
 from django.db.models import Q
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI,\
+    get_format_from_field
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
@@ -59,6 +60,7 @@ from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, LucteriosGroup
 from lucterios.CORE.views_usergroup import UsersList, GroupsList
+from re import sub
 
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
@@ -831,6 +833,7 @@ class ObjectImport(XferContainerCustom):
         self.encoding = ""
         self.dateformat = ""
         self.spamreader = None
+        self.items_imported = {}
 
     def get_select_models(self):
         return []
@@ -947,6 +950,27 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 2, 2)
         self.add_component(lbl)
 
+    def _convert_record(self, fields_association, fields_description, row):
+        new_row = {}
+        for field_description in fields_description:
+            if field_description[2] in ('H', 'D', 'T'):
+                try:
+                    new_row[field_description[0]] = datetime.strptime(row[fields_association[field_description[0]]], self.dateformat).date()
+                except (TypeError, ValueError):
+                    new_row[field_description[0]] = datetime.today()
+            elif isinstance(field_description[2], str) and (field_description[2].startswith('N') or field_description[2].startswith('C')):
+                float_val = row[fields_association[field_description[0]]]
+                float_val = float_val.replace(',', '.')
+                float_val = sub(r"( |[^0-9.])", "", float_val)
+                if float_val == '':
+                    float_val = 0
+                new_row[field_description[0]] = float(float_val)
+            elif row[fields_association[field_description[0]]] is None:
+                new_row[field_description[0]] = None
+            else:
+                new_row[field_description[0]] = row[fields_association[field_description[0]]].strip()
+        return new_row
+
     def _read_csv_and_convert(self):
         fields_association = {}
         for param_key in self.params.keys():
@@ -954,31 +978,32 @@ class ObjectImport(XferContainerCustom):
                 fields_association[param_key[4:]] = self.params[param_key]
         fields_description = []
         for fieldname in self.model.get_import_fields():
+            format_str = "%s"
             if isinstance(fieldname, tuple):
                 fieldname, title = fieldname
+                hfield = None
             else:
                 dep_field = self.model.get_field_by_name(fieldname)
                 title = dep_field.verbose_name
-                is_date = isinstance(dep_field, DateField)
+                hfield = get_format_from_field(dep_field)
+                if isinstance(hfield, six.text_type) and (';' in hfield):
+                    hfield = hfield.split(';')
+                    format_str = ";".join(hfield[1:])
+                    hfield = hfield[0]
             if fieldname in fields_association.keys():
-                fields_description.append((fieldname, title, is_date))
+                fields_description.append((fieldname, title, hfield, format_str))
         self._read_csv()
         csv_readed = []
         for row in self.spamreader:
             if row[self.spamreader.fieldnames[0]] is not None:
-                new_row = {}
-                for field_description in fields_description:
-                    if field_description[2]:
-                        try:
-                            new_row[field_description[0]] = datetime.strptime(row[fields_association[field_description[0]]], self.dateformat).date()
-                        except (TypeError, ValueError):
-                            new_row[field_description[0]] = datetime.today()
-                    else:
-                        new_row[field_description[0]] = row[fields_association[field_description[0]]]
-                csv_readed.append(new_row)
+                csv_readed.append(self._convert_record(fields_association, fields_description, row))
         return fields_description, csv_readed
 
     def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
+        def add_item_if_not_null(new_item):
+            if new_item is not None:
+                self.items_imported[new_item.id] = new_item
+
         if modelname is not None:
             self.model = apps.get_model(modelname)
         self.quotechar = quotechar
@@ -1014,7 +1039,7 @@ class ObjectImport(XferContainerCustom):
             fields_description, csv_readed = self._read_csv_and_convert()
             tbl = XferCompGrid('CSV')
             for field_description in fields_description:
-                tbl.add_header(field_description[0], field_description[1])
+                tbl.add_header(field_description[0], field_description[1], field_description[2], formatstr=field_description[3])
             row_idx = 1
             for row in csv_readed:
                 for field_description in fields_description:
@@ -1029,13 +1054,13 @@ class ObjectImport(XferContainerCustom):
             step = 3
         elif step == 3:
             fields_description, csv_readed = self._read_csv_and_convert()
-            items_imported = {}
+            self.model.initialize_import()
+            self.items_imported = {}
             for rowdata in csv_readed:
-                new_item = self.model.import_data(rowdata, dateformat)
-                if new_item is not None:
-                    items_imported[new_item.id] = new_item
+                add_item_if_not_null(self.model.import_data(rowdata, dateformat))
+            add_item_if_not_null(self.model.finalize_import())
             lbl = XferCompLabelForm('result')
-            lbl.set_value_as_header(_("%d items are been imported") % len(items_imported))
+            lbl.set_value_as_header(_("%d items are been imported") % len(self.items_imported))
             lbl.set_location(1, 2, 2)
             self.add_component(lbl)
             step = 4
