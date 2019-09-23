@@ -132,30 +132,29 @@ class ConvertHTML_XMLReportlab(object):
         return xmlrl_item
 
     def _parse_ul(self):
-        xmlrl_item = self._new_para()
-        xmlrl_item.attrib['lindent'] = '20'
         if self.html_item.tag in self.options.keys():
             self.options[self.html_item.tag] += 1
-        return xmlrl_item
+        return etree.Element('div')
 
     def _parse_ol(self):
-        xmlrl_item = self._new_para()
-        xmlrl_item.attrib['lindent'] = '20'
         if self.html_item.tag in self.options.keys():
             self.options[self.html_item.tag] += 1
-        return xmlrl_item
+        return etree.Element('div')
 
     def _parse_li(self):
+        prefix = "\u00a0" * 4
         if self.options['ul'] > 0:
             bullet_element = etree.Element('b')
-            bullet_element.text = '\u2022 '
-            self.xmlrl_result.append(bullet_element)
+            bullet_element.text = prefix + '\u2022 '
         elif self.options['ol'] > 0:
             bullet_element = etree.Element('b')
-            bullet_element.text = '%d - ' % self.num_index
-            self.xmlrl_result.append(bullet_element)
+            bullet_element.text = prefix + '%d - ' % self.num_index
             self.num_index += 1
-        return etree.Element('span')
+        else:
+            bullet_element = None
+        if bullet_element is not None:
+            self.xmlrl_result.append(bullet_element)
+        return etree.Element('div')
 
     def _parse_center(self):
         xmlrl_item = self._new_para()
@@ -269,6 +268,8 @@ class ConvertHTML_XMLReportlab(object):
                     self.xmlrl_result.append(xmlrl_item)
                 if self.html_item.tag == 'li':
                     self.xmlrl_result.append(etree.Element('br'))
+                if self.html_item.tag in ('ul', 'ol'):
+                    self.options[self.html_item.tag] -= 1
         self._all_in_para()
 
     @classmethod
@@ -287,7 +288,12 @@ class ConvertHTML_XMLReportlab(object):
                 if last_text != "":
                     reportlab_xml_list.append(last_text)
                 last_text = ""
-                reportlab_xml_list.append(xml_text)
+                pos_end = xml_text.find('</para>')
+                if (pos_end != -1) and ((pos_end + 7) < len(xml_text)):
+                    reportlab_xml_list.append(xml_text[:pos_end + 7])
+                    reportlab_xml_list.append(xml_text[pos_end + 7:])
+                else:
+                    reportlab_xml_list.append(xml_text)
             else:
                 last_text += xml_text
         if last_text != "":
