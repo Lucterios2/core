@@ -235,7 +235,8 @@ var compButton = compAbstractEvent.extend({
 	clickValue : '',
 	isMini : false,
 	hasBeenClicked : false,
-	btnaction : null,
+	notify_performed : null,
+	btnaction : null,	
 	tag : 'button',
 
 	initial : function(component) {
@@ -247,6 +248,9 @@ var compButton = compAbstractEvent.extend({
 
 	actionPerformed : function() {
 		this.hasBeenClicked = true;
+		if (this.notify_performed!==null) {
+			this.notify_performed();
+		}			
 		this.btnaction.actionPerformed();
 		this.hasBeenClicked = false;
 	},
