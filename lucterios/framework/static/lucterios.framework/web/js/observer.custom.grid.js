@@ -246,6 +246,7 @@ var compGrid = compGeneric
 						btn = new compButton(this.owner);
 						btn.initial(component.actions[iChild]);
 						btn.name = "{0}_{1}".format(this.name, iChild);
+						btn.notify_performed = $.proxy(this._save_scroll, this);
 						btn.description = '';
 						btn.action = Singleton().CreateAction();
 						btn.action.initialize(this.owner, Singleton().Factory(), component.actions[iChild]);
@@ -374,7 +375,22 @@ var compGrid = compGeneric
 				pqPager.find("select").change($.proxy(function(event) {
 					this.change_sizepage(event.currentTarget.value);
 				}, this));
+				this._load_scroll();
 			},
+
+			_load_scroll : function() {
+				var div_scroll, scroll_pos = $("#" + this.owner.getId()).prop('scroll_{0}'.format(this.name));
+				if (scroll_pos !== undefined) {
+					div_scroll = $("#" + this.owner.getId()).find("div.gridContent:eq(0)");
+					div_scroll[0].scrollTop = scroll_pos;
+				}
+			},
+
+			_save_scroll : function() {
+				var div_scroll = $("#" + this.owner.getId()).find("div.gridContent:eq(0)");
+				$("#" + this.owner.getId()).prop('scroll_{0}'.format(this.name), div_scroll[0].scrollTop);
+			},
+
 
 			gui_finalize : function() {
 				return;
