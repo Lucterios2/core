@@ -33,8 +33,7 @@ from django.utils import six
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompSelect, XferCompLabelForm, \
-    XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.xfersearch import get_search_query
 

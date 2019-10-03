@@ -27,8 +27,6 @@ from lxml import etree
 from copy import deepcopy
 from os.path import join, dirname, isfile
 from logging import getLogger
-import datetime
-import re
 
 from django.utils import six
 from django.db.models import Q
@@ -421,6 +419,17 @@ class ReportGenerator(object):
 
 
 class ActionGenerator(ReportGenerator):
+
+    @classmethod
+    def createpdf_from_action(cls, class_action, params):
+        from django.test.client import RequestFactory
+        from django.contrib.auth.models import User
+        pdf_request = RequestFactory().post(class_action.url_text, params)
+        pdf_request.user = User()
+        pdf_request.user.is_superuser = True
+        pdf_request.user.is_staff = True
+        generator = cls(class_action(), False)
+        return generator.generate_report(pdf_request, False)
 
     def __init__(self, action, tab_change_page):
         ReportGenerator.__init__(self)
