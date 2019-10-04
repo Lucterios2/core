@@ -787,6 +787,23 @@ class LabelGenerator(ReportModelGenerator):
 
 class ReportingGenerator(ReportGenerator):
 
+    @classmethod
+    def createpdf_from_action(cls, items, model_text, mode):
+        from django.test.client import RequestFactory
+        from django.contrib.auth.models import User
+        pdf_request = RequestFactory().post('', {})
+        pdf_request.user = User()
+        pdf_request.user.is_superuser = True
+        pdf_request.user.is_staff = True
+        generator = cls()
+        if isinstance(items, list):
+            generator.items = items
+        else:
+            generator.items = [items]
+        generator.model_text = model_text
+        generator.mode = mode
+        return generator.generate_report(pdf_request, False)
+
     def __init__(self):
         ReportGenerator.__init__(self)
         self.report_xml = None
