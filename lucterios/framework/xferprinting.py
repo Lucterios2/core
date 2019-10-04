@@ -33,7 +33,8 @@ from django.utils import six
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck,\
+    XferCompLabelForm
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.xfersearch import get_search_query
 
@@ -61,8 +62,15 @@ class XferContainerPrint(XferContainerAbstract):
         return new_filter
 
     def get_report_generator(self):
-
         return None
+
+    def _get_persistent_pdfreport(self):
+        return None
+
+    def get_persistent_pdfreport(self):
+        if not hasattr(self, '_pdfreport'):
+            self._pdfreport = self._get_persistent_pdfreport()
+        return self._pdfreport
 
     def show_selector(self):
         return self.getparam("PRINT_MODE") is not None
@@ -78,14 +86,32 @@ class XferContainerPrint(XferContainerAbstract):
         gui.extension = self.extension
         gui.action = self.action
         gui.params = self.params
+        if self.get_persistent_pdfreport() is not None:
+            presitent_report = XferCompCheck('PRINT_PERSITENT')
+            presitent_report.set_value(True)
+            presitent_report.set_location(0, 0, 2)
+            presitent_report.description = _('Get saved report')
+            presitent_report.java_script = """
+var is_persitent=current.getValue();
+parent.get('PRINT_MODE').setEnabled(!is_persitent);
+parent.get('print_sep').setEnabled(!is_persitent);
+"""
+            if self.selector is not None:
+                for name_selector, _selector, _selector in self.selector:
+                    presitent_report.java_script += "parent.get('%s').setEnabled(!is_persitent);\n" % name_selector
+            gui.add_component(presitent_report)
+            sep = XferCompLabelForm('print_sep')
+            sep.set_value_center(_("{[hr/]}Regenerate new report"))
+            sep.set_location(0, 1, 2)
+            gui.add_component(sep)
         print_mode = XferCompSelect('PRINT_MODE')
         print_mode.set_select(self.print_selector)
         print_mode.set_value(PRINT_PDF_FILE)
-        print_mode.set_location(0, 0, 2)
+        print_mode.set_location(0, 2, 2)
         print_mode.description = _('Kind of report')
         gui.add_component(print_mode)
         if self.selector is not None:
-            row_idx = 1
+            row_idx = 3
             for name_selector, title_selector, option_selector in self.selector:
                 if isinstance(option_selector, list):
                     comp = XferCompSelect(name_selector)
@@ -111,8 +137,7 @@ class XferContainerPrint(XferContainerAbstract):
                     comp.description = title_selector
                     gui.add_component(comp)
                     row_idx += 1
-        gui.add_action(self.get_action(
-            _("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        gui.add_action(self.get_action(_("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 
@@ -125,7 +150,7 @@ class XferContainerPrint(XferContainerAbstract):
             if report_mode is not None:
                 self.report_mode = int(report_mode)
             self.fillresponse(**self._get_params())
-            if ((self.selector is not None) or (len(self.print_selector) > 1)) and (report_mode is None):
+            if ((self.selector is not None) or (len(self.print_selector) > 1) or (self.get_persistent_pdfreport() is not None)) and (report_mode is None):
                 dlg = self._get_from_selector()
                 return dlg.get_post(request, *args, **kwargs)
             else:
@@ -139,13 +164,15 @@ class XferContainerPrint(XferContainerAbstract):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
         if self.with_text_export:
             self.print_selector.append((PRINT_CSV_FILE, _('CSV file')))
-        if self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
+        if (self.getparam("PRINT_PERSITENT", False) is True):
+            self.report_mode = PRINT_PDF_FILE
+            self.report_content = b64encode(self.get_persistent_pdfreport())
+        elif self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = b64encode(report_generator.generate_report(
-                    self.request, self.report_mode == PRINT_CSV_FILE))
+                self.report_content = b64encode(report_generator.generate_report(self.request, self.report_mode == PRINT_CSV_FILE))
 
     def get_print_name(self):
         return six.text_type(self.caption)
