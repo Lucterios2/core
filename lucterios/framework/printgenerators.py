@@ -421,7 +421,7 @@ class ReportGenerator(object):
 class ActionGenerator(ReportGenerator):
 
     @classmethod
-    def createpdf_from_action(cls, class_action, params):
+    def createpdf_from_action(cls, class_action, params, title, page_width=210, page_height=297):
         from django.test.client import RequestFactory
         from django.contrib.auth.models import User
         pdf_request = RequestFactory().post(class_action.url_text, params)
@@ -429,6 +429,9 @@ class ActionGenerator(ReportGenerator):
         pdf_request.user.is_superuser = True
         pdf_request.user.is_staff = True
         generator = cls(class_action(), False)
+        generator.title = title
+        generator.page_width = page_width
+        generator.page_height = page_height
         return generator.generate_report(pdf_request, False)
 
     def __init__(self, action, tab_change_page):
