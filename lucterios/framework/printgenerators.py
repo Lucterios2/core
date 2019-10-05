@@ -788,7 +788,7 @@ class LabelGenerator(ReportModelGenerator):
 class ReportingGenerator(ReportGenerator):
 
     @classmethod
-    def createpdf_from_action(cls, items, model_text, mode):
+    def createpdf_from_model(cls, items, model_text, mode):
         from django.test.client import RequestFactory
         from django.contrib.auth.models import User
         pdf_request = RequestFactory().post('', {})
