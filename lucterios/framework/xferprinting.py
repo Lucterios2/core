@@ -26,6 +26,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from base64 import b64encode
 from logging import getLogger
+from os.path import join
+from zipfile import ZipFile
+from _io import BytesIO
 
 from django.utils.translation import ugettext as _
 from django.utils import six
@@ -33,9 +36,10 @@ from django.utils import six
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck,\
-    XferCompLabelForm
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck, XferCompLabelForm,\
+    XferCompDownLoad
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
+from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.xfersearch import get_search_query
 
 PRINT_PDF_FILE = 3
@@ -43,6 +47,8 @@ PRINT_CSV_FILE = 4
 
 
 class XferContainerPrint(XferContainerAbstract):
+
+    PRINT_REGENERATE_MSG = _("{[hr/]}Regenerate new report")
 
     observer_name = "core.print"
     with_text_export = False
@@ -75,6 +81,44 @@ class XferContainerPrint(XferContainerAbstract):
     def show_selector(self):
         return self.getparam("PRINT_MODE") is not None
 
+    def _get_reports_archive(self):
+        filename = "pdfreports.zip"
+        download_file = join(get_user_dir(), filename)
+        with ZipFile(download_file, 'w') as zip_ref:
+            for pdf_name, pdf_content in self.get_persistent_pdfreport():
+                if isinstance(pdf_content, BytesIO):
+                    pdf_content = pdf_content.read()
+                if isinstance(pdf_content, six.text_type):
+                    pdf_content = pdf_content.encode()
+                if isinstance(pdf_content, six.binary_type):
+                    zip_ref.writestr(zinfo_or_arcname=pdf_name, data=pdf_content)
+        return filename
+
+    def _get_zipextract(self):
+        filename = self._get_reports_archive()
+        gui = XferContainerCustom()
+        gui.model = self.model
+        gui._initialize(self.request)
+        gui.is_view_right = self.is_view_right
+        gui.caption = self.caption
+        gui.extension = self.extension
+        gui.action = self.action
+        gui.params = self.params
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0, 6)
+        gui.add_component(lbl)
+        zipdown = XferCompDownLoad('filename')
+        zipdown.compress = False
+        zipdown.http_file = True
+        zipdown.maxsize = 0
+        zipdown.set_value(filename)
+        zipdown.set_download(filename)
+        zipdown.set_location(1, 15, 2)
+        gui.add_component(zipdown)
+        gui.add_action(WrapAction(_("Close"), "images/close.png"))
+        return gui
+
     def _get_from_selector(self):
         if not isinstance(self.selector, list) and (self.selector is not None):
             raise LucteriosException(GRAVE, "Error of print selector!")
@@ -101,7 +145,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                     presitent_report.java_script += "parent.get('%s').setEnabled(!is_persitent);\n" % name_selector
             gui.add_component(presitent_report)
             sep = XferCompLabelForm('print_sep')
-            sep.set_value_center(_("{[hr/]}Regenerate new report"))
+            sep.set_value_center(self.PRINT_REGENERATE_MSG)
             sep.set_location(0, 1, 2)
             gui.add_component(sep)
         print_mode = XferCompSelect('PRINT_MODE')
@@ -142,23 +186,25 @@ parent.get('print_sep').setEnabled(!is_persitent);
         return gui
 
     def get_post(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
-            report_mode = self.getparam("PRINT_MODE")
-            if report_mode is not None:
-                self.report_mode = int(report_mode)
-            self.fillresponse(**self._get_params())
-            if ((self.selector is not None) or (len(self.print_selector) > 1) or (self.get_persistent_pdfreport() is not None)) and (report_mode is None):
-                dlg = self._get_from_selector()
+            if (self.getparam("PRINT_PERSITENT", False) is True) and isinstance(self.get_persistent_pdfreport(), list):
+                dlg = self._get_zipextract()
                 return dlg.get_post(request, *args, **kwargs)
             else:
-                self._finalize()
-                return self.get_response()
+                report_mode = self.getparam("PRINT_MODE")
+                if report_mode is not None:
+                    self.report_mode = int(report_mode)
+                self.fillresponse(**self._get_params())
+                if ((self.selector is not None) or (len(self.print_selector) > 1) or (self.get_persistent_pdfreport() is not None)) and (report_mode is None):
+                    dlg = self._get_from_selector()
+                    return dlg.get_post(request, *args, **kwargs)
+                else:
+                    self._finalize()
+                    return self.get_response()
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
 
     def fillresponse(self):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
