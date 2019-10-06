@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-04 12:53+0000\n"
+"POT-Creation-Date: 2019-10-06 16:43+0000\n"
 "PO-Revision-Date: 2019-10-04 14:51+0200\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -179,8 +179,8 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:45 xferadvance.py:239 xfergraphic.py:130 xferprinting.py:141
-#: xfersearch.py:583
+#: xferadvance.py:45 xferadvance.py:239 xfergraphic.py:130 xferprinting.py:120
+#: xferprinting.py:193 xfersearch.py:583
 msgid "Close"
 msgstr "Close"
 
@@ -212,7 +212,7 @@ msgstr "Save"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:53 xferprinting.py:140
+#: xferadvance.py:53 xferprinting.py:192
 msgid "Print"
 msgstr "Print"
 
@@ -280,23 +280,31 @@ msgstr "Traitment..."
 msgid "Retry"
 msgstr "Retry"
 
-#: xferprinting.py:93
-msgid "Get saved report"
-msgstr "Get saved report"
-
-#: xferprinting.py:104
+#: xferprinting.py:51
 msgid "{[hr/]}Regenerate new report"
 msgstr "{[hr/]}Regenerate new report"
 
-#: xferprinting.py:111
+#: xferprinting.py:52
+msgid ""
+"{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
+"do."
+msgstr ""
+"{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
+"do."
+
+#: xferprinting.py:139
+msgid "Get saved report"
+msgstr "Get saved report"
+
+#: xferprinting.py:163
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:164
+#: xferprinting.py:218
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:166
+#: xferprinting.py:220
 msgid "CSV file"
 msgstr "CSV file"
 
@@ -352,6 +360,3 @@ msgstr "%d items"
 #: xfersearch.py:474
 msgid "New criteria"
 msgstr "New criteria"
-
-#~ msgid "timestamp"
-#~ msgstr "timestamp"

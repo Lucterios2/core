@@ -49,6 +49,7 @@ PRINT_CSV_FILE = 4
 class XferContainerPrint(XferContainerAbstract):
 
     PRINT_REGENERATE_MSG = _("{[hr/]}Regenerate new report")
+    PRINT_WARNING_SAVING_MSG = _('{[u]}Warning:{[/u]} Items have saving report but regenerate report will be do.')
 
     observer_name = "core.print"
     with_text_export = False
@@ -130,7 +131,8 @@ class XferContainerPrint(XferContainerAbstract):
         gui.extension = self.extension
         gui.action = self.action
         gui.params = self.params
-        if self.get_persistent_pdfreport() is not None:
+        pdfreport = self.get_persistent_pdfreport()
+        if (pdfreport is not None) and (not isinstance(pdfreport, list) or len(pdfreport) == len(self.items)):
             presitent_report = XferCompCheck('PRINT_PERSITENT')
             presitent_report.set_value(True)
             presitent_report.set_location(0, 0, 2)
@@ -148,6 +150,12 @@ parent.get('print_sep').setEnabled(!is_persitent);
             sep.set_value_center(self.PRINT_REGENERATE_MSG)
             sep.set_location(0, 1, 2)
             gui.add_component(sep)
+        elif (pdfreport is not None):
+            sep = XferCompLabelForm('print_sep')
+            sep.set_value_center(self.PRINT_WARNING_SAVING_MSG)
+            sep.set_location(0, 1, 2)
+            gui.add_component(sep)
+
         print_mode = XferCompSelect('PRINT_MODE')
         print_mode.set_select(self.print_selector)
         print_mode.set_value(PRINT_PDF_FILE)
