@@ -434,6 +434,16 @@ class OtherPrint(XferPrintAction):
     field_id = 'other'
     action_class = OtherShow
 
+    def __init__(self):
+        XferPrintAction.__init__(self)
+        self.selector = [('watermark', 'watermark', b'')]
+
+    def get_report_generator(self):
+        generator = XferPrintAction.get_report_generator(self)
+        if generator is not None:
+            generator.watermark = self.getparam('watermark', '')
+        return generator
+
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_other')

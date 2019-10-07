@@ -50,6 +50,7 @@ class XferContainerPrint(XferContainerAbstract):
 
     PRINT_REGENERATE_MSG = _("{[hr/]}Regenerate new report")
     PRINT_WARNING_SAVING_MSG = _('{[u]}Warning:{[/u]} Items have saving report but regenerate report will be do.')
+    PRINT_DUPLICATA = _('DUPLICATA')
 
     observer_name = "core.print"
     with_text_export = False
@@ -224,6 +225,8 @@ parent.get('print_sep').setEnabled(!is_persitent);
         elif self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
+                if self.get_persistent_pdfreport() is not None:
+                    report_generator.watermark = self.PRINT_DUPLICATA
                 if report_generator.title == '':
                     report_generator.title = self.caption
                 self.report_content = b64encode(report_generator.generate_report(self.request, self.report_mode == PRINT_CSV_FILE))

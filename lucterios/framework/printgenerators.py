@@ -344,6 +344,7 @@ class ReportGenerator(object):
         self.content_width = 0
         self.mode = 0
         self.xfer = XferContainerAbstract()
+        self.watermark = ""
 
     def fill_attrib_headerfooter(self):
         if self.header is not None:
@@ -408,7 +409,7 @@ class ReportGenerator(object):
             content = six.text_type(csv_transform(xml_rep_content)).encode('utf-8')
         else:
             try:
-                content = transforme_xml2pdf(report_content)
+                content = transforme_xml2pdf(report_content, self.watermark)
             except ValueError:
                 getLogger("lucterios.core.print").exception('transforme_xml2pdf')
                 raise LucteriosException(IMPORTANT, _('This impression failed !'))
@@ -788,7 +789,7 @@ class LabelGenerator(ReportModelGenerator):
 class ReportingGenerator(ReportGenerator):
 
     @classmethod
-    def createpdf_from_model(cls, items, model_text, mode):
+    def createpdf_from_model(cls, items, model_text, mode, watermark=''):
         from django.test.client import RequestFactory
         from django.contrib.auth.models import User
         pdf_request = RequestFactory().post('', {})
@@ -802,6 +803,7 @@ class ReportingGenerator(ReportGenerator):
             generator.items = [items]
         generator.model_text = model_text
         generator.mode = mode
+        generator.watermark = watermark
         return generator.generate_report(pdf_request, False)
 
     def __init__(self):
