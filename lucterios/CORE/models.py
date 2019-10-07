@@ -495,6 +495,8 @@ def post_after_migrate(sender, **kwargs):
         set_locale_lang(settings.LANGUAGE_CODE)
         six.print_('check parameters')
         Signal.call_signal("checkparam")
+        six.print_('convert data')
+        Signal.call_signal("convertdata")
 
 
 post_migrate.connect(post_after_migrate)
