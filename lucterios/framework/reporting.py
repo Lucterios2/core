@@ -347,7 +347,7 @@ def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_
 
 class LucteriosPDF(object):
 
-    def __init__(self):
+    def __init__(self, watermark):
         self.pdf = canvas.Canvas("lucterios.pdf")
         self.styles = getSampleStyleSheet()
         self.xml = None
@@ -364,6 +364,7 @@ class LucteriosPDF(object):
         self._position_y = 0
         self.current_page = None
         self.is_changing_page = False
+        self.watermark = watermark.strip()
         initial_fonts()
 
     @property
@@ -615,6 +616,16 @@ class LucteriosPDF(object):
         getLogger('lucterios.printing').debug("\t>> header <<")
         header = self.current_page.xpath('header')
         self._parse_comp(header[0], self.t_margin)
+        if self.watermark != '':
+            watermark_nb = 2
+            for watermark_iter in range(watermark_nb):
+                self.pdf.saveState()
+                self.pdf.setFont('sans-serif-bold', 50)
+                self.pdf.setFillColorRGB(0.8, 0.8, 0.8)
+                self.pdf.translate(self.width / 2, self.height * (watermark_iter + 1) / (watermark_nb + 1))
+                self.pdf.rotate(30)
+                self.pdf.drawCentredString(0, 0, self.watermark)
+                self.pdf.restoreState()
 
     def draw_footer(self):
         getLogger('lucterios.printing').debug("\t>> footer <<")
@@ -635,8 +646,8 @@ class LucteriosPDF(object):
         return self.pdf.getpdfdata()
 
 
-def transforme_xml2pdf(xml_content):
-    lpdf = LucteriosPDF()
+def transforme_xml2pdf(xml_content, watermark):
+    lpdf = LucteriosPDF(watermark)
     lpdf.execute(xml_content)
     return lpdf.output()
 

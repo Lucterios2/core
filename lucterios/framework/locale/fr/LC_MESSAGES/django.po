@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-06 16:43+0000\n"
-"PO-Revision-Date: 2019-10-04 14:53+0200\n"
+"POT-Creation-Date: 2019-10-07 15:46+0000\n"
+"PO-Revision-Date: 2019-10-07 17:46+0200\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
 "Language: fr\n"
@@ -141,7 +141,7 @@ msgstr "date courante"
 msgid "current hour"
 msgstr "heure courante"
 
-#: printgenerators.py:414
+#: printgenerators.py:415
 msgid "This impression failed !"
 msgstr "L'impression échoue !"
 
@@ -183,8 +183,8 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:45 xferadvance.py:239 xfergraphic.py:130 xferprinting.py:120
-#: xferprinting.py:193 xfersearch.py:583
+#: xferadvance.py:45 xferadvance.py:239 xfergraphic.py:130 xferprinting.py:121
+#: xferprinting.py:194 xfersearch.py:583
 msgid "Close"
 msgstr "Fermer"
 
@@ -216,7 +216,7 @@ msgstr "Sauver"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:53 xferprinting.py:192
+#: xferadvance.py:53 xferprinting.py:193
 msgid "Print"
 msgstr "Imprimer"
 
@@ -296,19 +296,23 @@ msgstr ""
 "{[u]}Attention:{[/u]} Des éléments ont des raports sauvegardés mais devront "
 "être regénérés."
 
-#: xferprinting.py:139
+#: xferprinting.py:53
+msgid "DUPLICATA"
+msgstr "DUPLICATA"
+
+#: xferprinting.py:140
 msgid "Get saved report"
 msgstr "Obtenir le rapport sauvegardé"
 
-#: xferprinting.py:163
+#: xferprinting.py:164
 msgid "Kind of report"
 msgstr "Type de rapport"
 
-#: xferprinting.py:218
+#: xferprinting.py:219
 msgid "PDF file"
 msgstr "Fichier PDF"
 
-#: xferprinting.py:220
+#: xferprinting.py:221
 msgid "CSV file"
 msgstr "Fichier CSV"
 
