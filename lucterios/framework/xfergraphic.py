@@ -252,6 +252,12 @@ class XferContainerCustom(XferContainerAbstract):
     def add_component(self, component):
         component.tab = self.tab
         comp_id = component.get_id()
+        if comp_id in self.components:
+            new_components = {}
+            for comp in self.components.values():
+                comp_id = comp.get_id()
+                new_components[comp_id] = comp
+            self.components = new_components
         self.components[comp_id] = component
 
     def get_components(self, cmp_name):
@@ -350,6 +356,8 @@ class XferContainerCustom(XferContainerAbstract):
                 for comp in self.components.values():
                     if comp.tab >= num:
                         comp.tab = comp.tab + 1
+                        if isinstance(comp, XferCompTab):
+                            comp.name = "__tab_%d" % comp.tab
                 self.tab = num
             new_tab = XferCompTab("__tab_%d" % self.tab)
             new_tab.set_value(six.text_type(tab_name))
