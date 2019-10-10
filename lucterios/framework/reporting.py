@@ -28,6 +28,7 @@ from os import unlink, system
 from reportlab.pdfgen import canvas
 from lxml import etree
 from logging import getLogger
+from re import compile, sub
 
 from django.utils import six
 
@@ -472,7 +473,12 @@ class LucteriosPDF(object):
         # six.print_("%s:%s" % (xmltext.tag, para_text))
         texts = []
         for para_text in para_text_list:
-            text = Paragraph(para_text, style=style)
+            try:
+                text = Paragraph(para_text, style=style)
+            except Exception:
+                para_text = para_text.replace('<br/>', '\n').replace('<br>', '\n')
+                para_text = sub(r'<.*?>', '', para_text).replace('\n', '<br/>')
+                text = Paragraph(para_text, style=style)
             _, new_current_h = text.wrapOn(self.pdf, current_w, current_h)
             texts.append((text, new_current_h))
         return texts, style
