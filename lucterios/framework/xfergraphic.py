@@ -251,41 +251,26 @@ class XferContainerCustom(XferContainerAbstract):
 
     def add_component(self, component):
         component.tab = self.tab
-        comp_id = component.get_id()
-        if comp_id in self.components:
-            new_components = {}
-            for comp in self.components.values():
-                comp_id = comp.get_id()
-                new_components[comp_id] = comp
-            self.components = new_components
+        comp_id = component.name
         self.components[comp_id] = component
 
     def get_components(self, cmp_name):
         comp_res = None
-        for comp in self.components.values():
-            if comp.name == cmp_name:
-                comp_res = comp
+        if cmp_name in self.components:
+            comp_res = self.components[cmp_name]
         return comp_res
 
     def move_components(self, cmp_name, col_offset, row_offset):
-        new_components = {}
-        for comp in self.components.values():
-            if comp.name == cmp_name:
-                comp.col += col_offset
-                comp.row += row_offset
-            comp_id = comp.get_id()
-            new_components[comp_id] = comp
-        self.components = new_components
+        if cmp_name in self.components:
+            comp = self.components[cmp_name]
+            comp.col += col_offset
+            comp.row += row_offset
 
     def move(self, tab, col_offset, row_offset):
-        new_components = {}
         for comp in self.components.values():
             if comp.tab == tab:
                 comp.col += col_offset
                 comp.row += row_offset
-            comp_id = comp.get_id()
-            new_components[comp_id] = comp
-        self.components = new_components
 
     def get_max_row(self):
         row = -1
@@ -295,12 +280,8 @@ class XferContainerCustom(XferContainerAbstract):
         return row
 
     def remove_component(self, cmp_name):
-        comp_id = None
-        for (key, comp) in self.components.items():
-            if comp.name == cmp_name:
-                comp_id = key
-        if comp_id is not None:
-            del self.components[comp_id]
+        if cmp_name in self.components:
+            del self.components[cmp_name]
 
     def change_select_to_label(self, cmp_name):
         old_obj = self.get_components(cmp_name)
@@ -584,21 +565,12 @@ class XferContainerCustom(XferContainerAbstract):
                 self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def get_sort_components(self):
-        final_components = {}
-        sortedkey_components = []
-        for comp in self.components.values():
-            comp_id = comp.get_id()
-            sortedkey_components.append(comp_id)
-            final_components[comp_id] = comp
-        sortedkey_components.sort()
-        return sortedkey_components, final_components
+        return sorted(self.components.values(), key=lambda item: item.get_id())
 
     def _finalize(self):
-        sortedkey_components, final_components = self.get_sort_components()
         self.responsejson['data'] = {}
         self.responsejson['comp'] = []
-        for key in sortedkey_components:
-            comp = final_components[key]
+        for comp in self.get_sort_components():
             self.responsejson['comp'].append(comp.get_json())
             self.responsejson['data'][comp.name] = comp.get_json_value()
         self.responsejson['actions'] = get_actions_json(self.actions)
