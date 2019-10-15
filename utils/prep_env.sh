@@ -11,6 +11,7 @@ grep 'install_requires' */setup.py  | sed 's|.*install_requires=\[||g' | sed 's|
 echo "PyCryptodome" >> requirement.txt
 echo "pycodestyle" >> requirement.txt
 echo "coverage" >> requirement.txt
+echo "radon" >> requirement.txt
 echo "wheel" >> requirement.txt
 echo "Sphinx" >> requirement.txt
 echo "mysqlclient" >> requirement.txt
