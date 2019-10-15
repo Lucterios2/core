@@ -199,13 +199,16 @@ class LucteriosTestAbstract(object):
         if (len(path) > 0) and (path[0] == '#'):
             path = path[1:]
             values = self.json_comp
-        for path_item in path.split('/'):
-            if path_item != '':
-                if path_item[0] == '@':
-                    index = int(path_item[1:])
-                    values = values[index]
-                else:
-                    values = values[path_item]
+        try:
+            for path_item in path.split('/'):
+                if path_item != '':
+                    if path_item[0] == '@':
+                        index = int(path_item[1:])
+                        values = values[index]
+                    else:
+                        values = values[path_item]
+        except KeyError:
+            self.assertFalse(True, "Bad sub-path '%s' of path '%s'\n%s" % (path_item, path, self._get_json_dump(values)))
         return values
 
     def print_xml(self, xpath):
@@ -213,14 +216,20 @@ class LucteriosTestAbstract(object):
         xml_value = self.get_first_xpath(xpath)
         six.print_(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8').decode("utf-8"))
 
+    def _get_json_dump(self, values):
+        try:
+            from django.core.serializers.json import DjangoJSONEncoder
+            import json
+            return json.dumps(values, cls=DjangoJSONEncoder, indent=3)
+        except Exception:
+            return six.text_type(values)
+
     def print_json(self, path=None):
-        from django.core.serializers.json import DjangoJSONEncoder
-        import json
         if path is None:
             path = self.response_json
         elif isinstance(path, six.text_type):
             path = self.get_json_path(path)
-        six.print_(json.dumps(path, cls=DjangoJSONEncoder, indent=3))
+        six.print_(self._get_json_dump(path))
 
     def assert_count_equal(self, path, size):
         if self.response_json is None:
@@ -228,7 +237,7 @@ class LucteriosTestAbstract(object):
             values = self.response_xml.xpath(path)
         else:
             values = self.get_json_path(path)
-        self.assertEqual(len(values), size, "size of %s different: %d=>%d" % (path, len(values), size))
+        self.assertEqual(len(values), size, "size of %s different: %d=>%d\n%s" % (path, len(values), size, self._get_json_dump(values)))
 
     def assert_json_equal(self, comp_type, comp_name, value, txtrange=None):
         def is_number(text):
@@ -296,6 +305,12 @@ class LucteriosTestAbstract(object):
             self.assertEquals(self.json_meta['observer'], obsname, self.response_json['exception']['message'] if self.json_meta['observer'] == 'core.exception' else None)
             self.assertEquals(self.json_meta['extension'], extension)
             self.assertEquals(self.json_meta['action'], action)
+            if self.json_meta['observer'] == 'core.custom':
+                comp_coord = {}
+                for comp_name, comp in self.json_comp.items():
+                    ident = (comp['tab'], comp['x'], comp['y'])
+                    comp_coord.setdefault(ident, []).append(comp_name)
+                self.assertListEqual([(names, ident) for ident, names in comp_coord.items() if len(names) > 1], [], 'components have same coordonates')
         except AssertionError:
             if self.json_meta['observer'] == 'core.exception':
                 six.print_("Error:" + self.response_json['exception']['message'])

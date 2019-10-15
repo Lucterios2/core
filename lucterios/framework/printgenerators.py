@@ -457,9 +457,7 @@ class ActionGenerator(ReportGenerator):
     def compute_components(self):
         col_size = {}
         max_col = {}
-        sortedkey_components, final_components = self.action.get_sort_components()
-        for key in sortedkey_components:
-            comp = final_components[key]
+        for comp in self.action.get_sort_components():
             new_item = None
             if isinstance(comp, XferCompImage):
                 new_item = PrintImage(comp, self)
