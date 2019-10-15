@@ -258,7 +258,7 @@ class LucteriosGlobal(LucteriosManage):
         except Exception:
             pass
         check_list = {}
-        list_command = ListCommand()
+        list_command = ListCommand(name="list", summary="")
         options, _ = list_command.parse_args(self.get_default_args_([]))
         unvers_packages = get_installed_distributions(local_only=options.local, user_only=options.user, editables_only=options.editable)
         packages = list_command.iter_packages_latest_infos(unvers_packages, options)
