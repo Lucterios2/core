@@ -33,6 +33,7 @@
 		<antcall target="clear" />
 		<antcall target="init" />
 		<antcall target="pep8" />
+		<antcall target="radon" />
 		<antcall target="add_instance" />
 		<antcall target="i18n" />
 		<antcall target="docs" />
@@ -106,6 +107,23 @@
 		</exec>
 		<exec executable="cat">
 			<arg line="pep8_results.txt" />
+		</exec>
+	</target>
+
+	<target name="radon">
+		<exec executable="${project.pythonexe}">
+			<arg line="-m" />
+			<arg line="radon" />
+			<arg line="cc" />
+			<arg line="-n" />
+			<arg line="D" />
+			<arg line="-a" />
+			<arg line="-s" />
+			<arg line="." />
+			<redirector output="radon_results.txt" />
+		</exec>
+		<exec executable="cat">
+			<arg line="radon_results.txt" />
 		</exec>
 	</target>
 
