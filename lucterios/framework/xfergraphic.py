@@ -377,90 +377,114 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_format(get_format_from_field(dep_field))
         return comp
 
+    def _get_value_from_field(self, field_name, dep_field, default):
+        try:
+            val = getattr(self.item, field_name)
+        except ObjectDoesNotExist:
+            getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
+            val = None
+        if val is None:
+            is_needed = dep_field.unique or not (dep_field.blank or dep_field.null)
+            if is_needed:
+                if dep_field.default != NOT_PROVIDED:
+                    val = dep_field.default
+                else:
+                    val = default
+        return val
+
+    def _create_comp_integerfield(self, field_name, dep_field):
+        if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+            comp = XferCompSelect(field_name)
+            comp.set_select(list(dep_field.choices))
+            min_value = 0
+        else:
+            min_value, max_value = get_range_value(dep_field)
+            comp = XferCompFloat(field_name, min_value, max_value, 0)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, min_value))
+        return comp
+
+    def _create_comp_decimalfield(self, field_name, dep_field):
+        min_value, max_value = get_range_value(dep_field)
+        comp = XferCompFloat(field_name, min_value, max_value, dep_field.decimal_places)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, min_value))
+        return comp
+
+    def _create_comp_booleanfield(self, field_name, dep_field):
+        comp = XferCompCheck(field_name)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, False))
+        return comp
+
+    def _create_comp_textfield(self, field_name, dep_field):
+        comp = XferCompMemo(field_name)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
+        return comp
+
+    def _create_comp_datefield(self, field_name, dep_field):
+        comp = XferCompDate(field_name)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.date.today()))
+        return comp
+
+    def _create_comp_timefield(self, field_name, dep_field):
+        comp = XferCompTime(field_name)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.time()))
+        return comp
+
+    def _create_comp_datetimefield(self, field_name, dep_field):
+        comp = XferCompDateTime(field_name)
+        comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.datetime.now()))
+        return comp
+
+    def _create_comp_foreignkey(self, field_name, dep_field):
+        comp = XferCompSelect(field_name)
+        try:
+            value = self.item
+            for fieldname in field_name.split('.'):
+                value = getattr(value, fieldname)
+        except ObjectDoesNotExist:
+            value = None
+        if value is None:
+            comp.set_value(0)
+        else:
+            comp.set_value(value.id)
+        if hasattr(self.item, fieldname + '_query'):
+            sub_select = getattr(self.item, fieldname + '_query')
+        else:
+            sub_select = dep_field.remote_field.model.objects.all()
+        comp.set_needed(not dep_field.null)
+        comp.set_select_query(sub_select)
+        return comp
+
     def get_writing_comp(self, field_name):
-        def get_value_from_field(default):
-            try:
-                val = getattr(self.item, field_name)
-            except ObjectDoesNotExist:
-                getLogger("lucterios.core").exception("fieldname '%s' not found", field_name)
-                val = None
-            if val is None:
-                if is_needed:
-                    if dep_field.default != NOT_PROVIDED:
-                        val = dep_field.default
-                    else:
-                        val = default
-            return val
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, CharField
         from django.db.models.fields.related import ForeignKey
+        comp = None
         dep_field = self.item.get_field_by_name(field_name)
-        is_needed = dep_field.unique or not (dep_field.blank or dep_field.null)
-        if isinstance(dep_field, IntegerField):
-            if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-                comp = XferCompSelect(field_name)
-                comp.set_select(list(dep_field.choices))
-                min_value = 0
+        for field_type in (IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, ForeignKey):
+            if isinstance(dep_field, field_type):
+                fct = getattr(self, "_create_comp_%s" % field_type.__name__.lower(), None)
+                if fct is not None:
+                    comp = fct(field_name, dep_field)
+                    break
+        if comp is None:
+            if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
+                comp = XferCompCheckList(field_name)
+                comp.simple = 2
+                if self.item.id is not None:
+                    values = []
+                    for item in getattr(self.item, field_name).all():
+                        values.append(item.id)
+                    comp.set_value(values)
+                if hasattr(self.item, field_name + '_query'):
+                    sub_select = getattr(self.item, field_name + '_query')
+                else:
+                    sub_select = get_dico_from_setquery(get_corrected_setquery(dep_field.remote_field.model.objects.all()))
+                comp.set_select(sub_select)
             else:
-                min_value, max_value = get_range_value(dep_field)
-                comp = XferCompFloat(field_name, min_value, max_value, 0)
-            comp.set_value(get_value_from_field(min_value))
-        elif isinstance(dep_field, DecimalField):
-            min_value, max_value = get_range_value(dep_field)
-            comp = XferCompFloat(
-                field_name, min_value, max_value, dep_field.decimal_places)
-            comp.set_value(get_value_from_field(min_value))
-        elif isinstance(dep_field, BooleanField):
-            comp = XferCompCheck(field_name)
-            comp.set_value(get_value_from_field(False))
-        elif isinstance(dep_field, TextField):
-            comp = XferCompMemo(field_name)
-            comp.set_value(get_value_from_field(""))
-        elif isinstance(dep_field, DateField):
-            comp = XferCompDate(field_name)
-            comp.set_value(get_value_from_field(datetime.date.today()))
-        elif isinstance(dep_field, TimeField):
-            comp = XferCompTime(field_name)
-            comp.set_value(get_value_from_field(datetime.time()))
-        elif isinstance(dep_field, DateTimeField):
-            comp = XferCompDateTime(field_name)
-            comp.set_value(get_value_from_field(datetime.datetime.now()))
-        elif isinstance(dep_field, ForeignKey):
-            comp = XferCompSelect(field_name)
-            try:
-                value = self.item
-                for fieldname in field_name.split('.'):
-                    value = getattr(value, fieldname)
-            except ObjectDoesNotExist:
-                value = None
-            if value is None:
-                comp.set_value(0)
-            else:
-                comp.set_value(value.id)
-            if hasattr(self.item, fieldname + '_query'):
-                sub_select = getattr(self.item, fieldname + '_query')
-            else:
-                sub_select = dep_field.remote_field.model.objects.all()
-            comp.set_needed(not dep_field.null)
-            comp.set_select_query(sub_select)
-        elif (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
-            comp = XferCompCheckList(field_name)
-            comp.simple = 2
-            if self.item.id is not None:
-                values = []
-                for item in getattr(self.item, field_name).all():
-                    values.append(item.id)
-                comp.set_value(values)
-            if hasattr(self.item, field_name + '_query'):
-                sub_select = getattr(self.item, field_name + '_query')
-            else:
-                sub_select = get_dico_from_setquery(get_corrected_setquery(dep_field.remote_field.model.objects.all()))
-            comp.set_select(sub_select)
-        else:
-            comp = XferCompEdit(field_name)
-            comp.set_value(get_value_from_field(""))
-            if isinstance(dep_field, CharField):
-                comp.size = dep_field.max_length
-        comp.set_needed(is_needed)
+                comp = XferCompEdit(field_name)
+                comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
+                if isinstance(dep_field, CharField):
+                    comp.size = dep_field.max_length
+        comp.set_needed(dep_field.unique or not (dep_field.blank or dep_field.null))
         return comp
 
     def get_maxsize_of_lines(self, field_names):

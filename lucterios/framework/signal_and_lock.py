@@ -135,7 +135,6 @@ class RecordLocker(object):
                                 raise LucteriosException(IMPORTANT, _("Record locked by '%s'!") % old_session.username)
                             else:
                                 del cls._lock_list[lock_ident]
-                                old_session.flush()
                         except ObjectDoesNotExist:
                             pass
                 cls._lock_list[lock_ident] = session_key

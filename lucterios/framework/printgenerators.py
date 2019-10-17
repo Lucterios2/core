@@ -457,18 +457,15 @@ class ActionGenerator(ReportGenerator):
     def compute_components(self):
         col_size = {}
         max_col = {}
+        classes_convert_dict = {XferCompImage: PrintImage, XferCompGrid: PrintTable, XferCompTab: PrintTab,
+                                XferCompLinkLabel: PrintLabel, XferCompLabelForm: PrintLabel,
+                                XferCompDate: PrintLabel, XferCompDateTime: PrintLabel, XferCompTime: PrintLabel,
+                                XferCompSelect: PrintLabel, XferCompCheck: PrintLabel}
         for comp in self.action.get_sort_components():
             new_item = None
-            if isinstance(comp, XferCompImage):
-                new_item = PrintImage(comp, self)
-            elif isinstance(comp, XferCompGrid):
-                new_item = PrintTable(comp, self)
-            elif isinstance(comp, XferCompTab):
-                new_item = PrintTab(comp, self)
-            elif isinstance(comp, XferCompLinkLabel) or isinstance(comp, XferCompLabelForm) or \
-                    isinstance(comp, XferCompDate) or isinstance(comp, XferCompDateTime) \
-                    or isinstance(comp, XferCompTime) or isinstance(comp, XferCompSelect) or isinstance(comp, XferCompCheck):
-                new_item = PrintLabel(comp, self)
+            for xfer_class in classes_convert_dict.keys():
+                if isinstance(comp, xfer_class):
+                    new_item = classes_convert_dict[xfer_class](comp, self)
             if new_item is not None:
                 lbl_item = None
                 new_item.col = 2 * new_item.col

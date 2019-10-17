@@ -40,6 +40,14 @@ from lucterios.CORE.models import LucteriosUser
 from lucterios.CORE.parameters import notfree_mode_connect, Params
 
 
+def is_number(text):
+    try:
+        float(text)
+        return True
+    except ValueError:
+        return False
+
+
 def add_user(username):
     user = LucteriosUser.objects.create_user(
         username=username, password=username, last_login=timezone.now())
@@ -239,13 +247,27 @@ class LucteriosTestAbstract(object):
             values = self.get_json_path(path)
         self.assertEqual(len(values), size, "size of %s different: %d=>%d\n%s" % (path, len(values), size, self._get_json_dump(values)))
 
+    def _assert_json_list_equal(self, comp_type, comp_name, value, txt_value):
+        self.assertEqual(len(txt_value), len(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+        for idx in range(len(txt_value)):
+            txt_value_item = txt_value[idx]
+            value_item = value[idx]
+            if (isinstance(txt_value_item, float) and is_number(value_item)) or (isinstance(value_item, float) and is_number(txt_value_item)):
+                self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
+            else:
+                self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+
+    def _assert_json_dict_equal(self, comp_type, comp_name, value, txt_value):
+        self.assertEqual(len(txt_value), len(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+        for idx in txt_value.keys():
+            txt_value_item = txt_value[idx]
+            value_item = value[idx]
+            if (isinstance(txt_value_item, float) and is_number(value_item)) or (isinstance(value_item, float) and is_number(txt_value_item)):
+                self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
+            else:
+                self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+
     def assert_json_equal(self, comp_type, comp_name, value, txtrange=None):
-        def is_number(text):
-            try:
-                float(text)
-                return True
-            except ValueError:
-                return False
         self.assertTrue(self.response_json is not None)
         if comp_type != '':
             self.assertEqual(self.json_comp[comp_name]['component'], comp_type)
@@ -260,23 +282,9 @@ class LucteriosTestAbstract(object):
         elif isinstance(txt_value, six.text_type) or isinstance(value, six.text_type):
             self.assertEqual(six.text_type(txt_value), six.text_type(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
         elif isinstance(txt_value, list) and isinstance(value, list):
-            self.assertEqual(len(txt_value), len(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
-            for idx in range(len(txt_value)):
-                txt_value_item = txt_value[idx]
-                value_item = value[idx]
-                if (isinstance(txt_value_item, float) and is_number(value_item)) or (isinstance(value_item, float) and is_number(txt_value_item)):
-                    self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
-                else:
-                    self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+            self._assert_json_list_equal(comp_type, comp_name, value, txt_value)
         elif isinstance(txt_value, dict) and isinstance(value, dict):
-            self.assertEqual(len(txt_value), len(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
-            for idx in txt_value.keys():
-                txt_value_item = txt_value[idx]
-                value_item = value[idx]
-                if (isinstance(txt_value_item, float) and is_number(value_item)) or (isinstance(value_item, float) and is_number(txt_value_item)):
-                    self.assertAlmostEqual(float(txt_value_item), float(value_item), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=1e-2)
-                else:
-                    self.assertEqual(txt_value_item, value_item, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+            self._assert_json_dict_equal(comp_type, comp_name, value, txt_value)
         else:
             self.assertEqual(txt_value, value, "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
 

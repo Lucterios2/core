@@ -112,6 +112,22 @@ def get_field_value(obj, field):
     return value
 
 
+def get_fields_diff(old, new, model_fields, fields):
+    diff = {}
+    for field in fields:
+        old_value = get_field_value(old, field)
+        new_value = get_field_value(new, field)
+        if old_value != new_value:
+            diff[field.name] = smart_text(old_value), smart_text(new_value)
+    if len(diff) == 0:
+        diff = None
+    else:
+        for field in fields:
+            if (field.name in model_fields['mapping_fields']) and (field.name not in diff.keys()):
+                diff[field.name] = smart_text(get_field_value(old, field)), smart_text(get_field_value(new, field))
+    return diff
+
+
 def model_instance_diff(old, new):
     """
     Calculates the differences between two model instances. One of the instances may be ``None`` (i.e., a newly
@@ -132,8 +148,6 @@ def model_instance_diff(old, new):
     if not(new is None or isinstance(new, Model)):
         raise TypeError("The supplied new instance is not a valid model instance.")
 
-    diff = {}
-
     if old is not None and new is not None:
         fields = set(old._meta.fields + new._meta.fields)
         model_fields = auditlog.get_model_fields(new._meta.model)
@@ -151,30 +165,14 @@ def model_instance_diff(old, new):
     if model_fields and (model_fields['include_fields'] or model_fields['exclude_fields']) and fields:
         filtered_fields = []
         if model_fields['include_fields']:
-            filtered_fields = [field for field in fields
-                               if field.name in model_fields['include_fields']]
+            filtered_fields = [field for field in fields if field.name in model_fields['include_fields']]
         else:
             filtered_fields = fields
         if model_fields['exclude_fields']:
-            filtered_fields = [field for field in filtered_fields
-                               if field.name not in model_fields['exclude_fields']]
+            filtered_fields = [field for field in filtered_fields if field.name not in model_fields['exclude_fields']]
         fields = filtered_fields
 
-    for field in fields:
-        old_value = get_field_value(old, field)
-        new_value = get_field_value(new, field)
-
-        if old_value != new_value:
-            diff[field.name] = (smart_text(old_value), smart_text(new_value))
-
-    if len(diff) == 0:
-        diff = None
-    else:
-        for field in fields:
-            if (field.name in model_fields['mapping_fields']) and (field.name not in diff.keys()):
-                diff[field.name] = (smart_text(get_field_value(old, field)), smart_text(get_field_value(new, field)))
-
-    return diff
+    return get_fields_diff(old, new, model_fields, fields)
 
 
 def get_sender_ident_for_m2m(sender, instance):

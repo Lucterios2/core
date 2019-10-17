@@ -27,17 +27,19 @@ from datetime import datetime, date, time
 from calendar import monthrange
 from _decimal import Decimal
 from babel.numbers import format_currency
+from babel.dates import format_date, format_time, format_datetime
 
 import threading
 import logging
 import warnings
+import locale
+import sys
 
-from django.utils import six, formats
+from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_text
-import locale
-from babel.dates import format_date, format_time, format_datetime
+
 
 CLOSE_NO = 0
 CLOSE_YES = 1
@@ -577,6 +579,52 @@ def set_locale_lang(lang):
     locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 
 
+def _convert_value_B(value, format_num):
+    return get_bool_textual(bool(value))
+
+
+def _convert_value_D(value, format_num):
+    if isinstance(value, six.text_type):
+        value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
+    else:
+        value = get_date_formating(value)
+    return value
+
+
+def _convert_value_T(value, format_num):
+    if isinstance(value, six.text_type):
+        if '.' in value:
+            current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
+        else:
+            current_time = datetime.strptime(value, "%H:%M:%S").time()
+        value = get_date_formating(current_time)
+    else:
+        value = get_date_formating(value)
+    return value
+
+
+def _convert_value_H(value, format_num):
+    if isinstance(value, six.text_type):
+        value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
+    else:
+        value = get_date_formating(value)
+    return value
+
+
+def _convert_value_N(value, format_num):
+    return locale.format("%.*f", (int(format_num[1]), float(value)), True)
+
+
+def _convert_value_C(value, format_num):
+    value = _convert_value_N(value, format_num)
+    tmp_val = format_currency(0, format_num[2:])
+    tmp_val = tmp_val.replace(',', '').replace('.', '')
+    for _ in range(6):
+        tmp_val = tmp_val.replace('00', '0')
+    value = tmp_val.replace('0', value)
+    return value
+
+
 def format_value(value, format_num):
     sub_format = None
     if isinstance(value, dict):
@@ -597,35 +645,9 @@ def format_value(value, format_num):
             value = new_format_num[six.text_type(value)]
         format_num = ''
     try:
-        if format_num == 'B':
-            value = get_bool_textual(bool(value))
-        if format_num == 'D':
-            if isinstance(value, six.text_type):
-                value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
-            else:
-                value = get_date_formating(value)
-        if format_num == 'T':
-            if isinstance(value, six.text_type):
-                if '.' in value:
-                    current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
-                else:
-                    current_time = datetime.strptime(value, "%H:%M:%S").time()
-                value = get_date_formating(current_time)
-            else:
-                value = get_date_formating(value)
-        if format_num == 'H':
-            if isinstance(value, six.text_type):
-                value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
-            else:
-                value = get_date_formating(value)
-        if format_num[0:1] in ("N", "C"):
-            value = locale.format("%.*f", (int(format_num[1]), float(value)), True)
-        if format_num[0:1] == "C":
-            tmp_val = format_currency(0, format_num[2:])
-            tmp_val = tmp_val.replace(',', '').replace('.', '')
-            for _ in range(6):
-                tmp_val = tmp_val.replace('00', '0')
-            value = tmp_val.replace('0', value)
+        fct = getattr(sys.modules[__name__], "_convert_value_%s" % format_num[0:1], None)
+        if fct is not None:
+            value = fct(value, format_num)
     except Exception:
         pass
     if sub_format is not None:
