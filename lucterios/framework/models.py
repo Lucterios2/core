@@ -200,75 +200,110 @@ class LucteriosModel(models.Model):
         pass
 
     @classmethod
+    def _convert_field_integerfield(cls, fieldvalue, dep_field, **_args):
+        if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
+            for choice in dep_field.choices:
+                if fieldvalue == choice[1]:
+                    fieldvalue = choice[0]
+        try:
+            fieldvalue = int(fieldvalue)
+        except ValueError:
+            fieldvalue = 0
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_floatfield(cls, fieldvalue, **_args):
+        try:
+            if isinstance(fieldvalue, str):
+                fieldvalue = fieldvalue.replace(',', '.')
+            fieldvalue = float(fieldvalue)
+        except ValueError:
+            fieldvalue = 0.0
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_decimalfield(cls, fieldvalue, **_args):
+        return cls._convert_field_floatfield(fieldvalue, **_args)
+
+    @classmethod
+    def _convert_field_datefield(cls, fieldvalue, dateformat, **_args):
+        try:
+            if isinstance(fieldvalue, str):
+                fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
+        except ValueError:
+            fieldvalue = datetime.now().date()
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_timefield(cls, fieldvalue, dateformat, **_args):
+        try:
+            if isinstance(fieldvalue, str):
+                fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
+        except ValueError:
+            fieldvalue = datetime.now().time()
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_datetimefield(cls, fieldvalue, dateformat, **_args):
+        try:
+            if isinstance(fieldvalue, str):
+                fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
+        except ValueError:
+            fieldvalue = datetime.now()
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_booleanfield(cls, fieldvalue, **_args):
+        fieldvalue = (six.text_type(fieldvalue) == 'True') or (six.text_type(fieldvalue).lower() == 'yes') or (six.text_type(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
+        return fieldvalue
+
+    @classmethod
+    def _convert_field_foreignkey(cls, fieldvalue, dep_field, fieldname, **_args):
+        if not fieldname.endswith('_id'):
+            sub_value = fieldvalue
+            fieldvalue = None
+            for sub_item in dep_field.remote_field.model.objects.all():
+                if six.text_type(sub_item.get_final_child()) == six.text_type(sub_value):
+                    fieldvalue = sub_item
+                    break
+            if fieldvalue is None:
+                base_dep_field = cls.get_field_by_name(fieldname.split('.')[0])
+                if not base_dep_field.null:
+                    raise LucteriosException(GRAVE, "import_data ForeignKey")
+        return fieldvalue
+
+    @classmethod
+    def _get_from_data(cls, rowdata):
+        new_item = cls()
+        if cls._meta.ordering is not None:
+            query = {}
+            for order_fd in cls._meta.ordering:
+                if order_fd[0] == '-':
+                    order_fd = order_fd[1:]
+                if order_fd in rowdata.keys():
+                    query[order_fd + '__iexact'] = rowdata[order_fd]
+        if len(query) > 0:
+            search = cls.objects.filter(**query)
+            if len(search) > 0:
+                new_item = search[0]
+        return new_item
+
+    @classmethod
     def import_data(cls, rowdata, dateformat):
         from django.db.models.fields import FloatField, DecimalField
         from django.db.models.fields.related import ForeignKey
         try:
-            new_item = cls()
-            if cls._meta.ordering is not None:
-                query = {}
-                for order_fd in cls._meta.ordering:
-                    if order_fd[0] == '-':
-                        order_fd = order_fd[1:]
-                    if order_fd in rowdata.keys():
-                        query[order_fd + '__iexact'] = rowdata[order_fd]
-            if len(query) > 0:
-                search = cls.objects.filter(**query)
-                if len(search) > 0:
-                    new_item = search[0]
+            new_item = cls._get_from_data(rowdata)
             for fieldname, fieldvalue in rowdata.items():
                 dep_field = cls.get_field_by_name(fieldname)
-                value_to_saved = (dep_field is not None) and not (dep_field.is_relation and dep_field.many_to_many)
-                if isinstance(dep_field, IntegerField):
-                    if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-                        for choice in dep_field.choices:
-                            if fieldvalue == choice[1]:
-                                fieldvalue = choice[0]
-                    try:
-                        fieldvalue = int(fieldvalue)
-                    except ValueError:
-                        fieldvalue = 0
-                elif isinstance(dep_field, FloatField) or isinstance(dep_field, DecimalField):
-                    try:
-                        if isinstance(fieldvalue, str):
-                            fieldvalue = fieldvalue.replace(',', '.')
-                        fieldvalue = float(fieldvalue)
-                    except ValueError:
-                        fieldvalue = 0.0
-                elif isinstance(dep_field, DateField) and isinstance(fieldvalue, six.text_type):
-                    try:
-                        if isinstance(fieldvalue, str):
-                            fieldvalue = datetime.strptime(fieldvalue, dateformat).date()
-                    except ValueError:
-                        fieldvalue = datetime.now().date()
-                elif isinstance(dep_field, TimeField) and isinstance(fieldvalue, six.text_type):
-                    try:
-                        if isinstance(fieldvalue, str):
-                            fieldvalue = datetime.strptime(fieldvalue, "%H:%M").time()
-                    except ValueError:
-                        fieldvalue = datetime.now().time()
-                elif isinstance(dep_field, DateTimeField) and isinstance(fieldvalue, six.text_type):
-                    try:
-                        if isinstance(fieldvalue, str):
-                            fieldvalue = datetime.strptime(fieldvalue, dateformat + " %H:%M")
-                    except ValueError:
-                        fieldvalue = datetime.now()
-                elif isinstance(dep_field, BooleanField):
-                    fieldvalue = (six.text_type(fieldvalue) == 'True') or (six.text_type(fieldvalue).lower() == 'yes') or (six.text_type(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
-                elif not fieldname.endswith('_id') and isinstance(dep_field, ForeignKey):
-                    sub_value = fieldvalue
-                    fieldvalue = None
-                    for sub_item in dep_field.remote_field.model.objects.all():
-                        if six.text_type(sub_item.get_final_child()) == six.text_type(sub_value):
-                            fieldvalue = sub_item
-                            break
-                    if fieldvalue is None:
-                        base_dep_field = cls.get_field_by_name(fieldname.split('.')[0])
-                        if not base_dep_field.null:
-                            return None
-                if value_to_saved:
+                if (dep_field is not None) and not (dep_field.is_relation and dep_field.many_to_many):
+                    for field_type in (IntegerField, FloatField, DecimalField, DateField, TimeField, DateTimeField, BooleanField, ForeignKey):
+                        if isinstance(dep_field, field_type):
+                            fct = getattr(cls, "_convert_field_%s" % field_type.__name__.lower(), None)
+                            if fct is not None:
+                                fieldvalue = fct(fieldvalue, dep_field=dep_field, dateformat=dateformat, fieldname=fieldname)
+                                break
                     setattr(new_item, fieldname, fieldvalue)
-
             for fieldname in cls.get_edit_fields():
                 if isinstance(fieldname, tuple):
                     fieldname = fieldname[1]
@@ -279,6 +314,8 @@ class LucteriosModel(models.Model):
                         return None
             new_item.save()
             return new_item
+        except LucteriosException:
+            return None
         except ValidationError:
             logging.getLogger('lucterios.framwork').exception("import_data")
             raise LucteriosException(GRAVE, "Data error in this line:<br/> %s" % "<br/>".join(get_obj_contains(new_item)))
@@ -302,6 +339,53 @@ class LucteriosModel(models.Model):
             query = Q(**empty_val)
         return query
 
+    def _merge_fields_object(self, alias_object):
+        for related_object in alias_object._meta.get_fields(include_hidden=False):
+            if related_object.one_to_many and related_object.auto_created:
+                alias_varname = related_object.get_accessor_name()
+                obj_varname = related_object.field.name
+                related_objects = getattr(alias_object, alias_varname)
+                for obj in related_objects.all():
+                    if hasattr(obj, "get_final_child"):
+                        obj = obj.get_final_child()
+                    setattr(obj, obj_varname, self)
+                    obj.save()
+            if related_object.many_to_many:
+                if related_object.auto_created:
+                    alias_varname = related_object.get_accessor_name()
+                    obj_varname = related_object.field.name
+                    if alias_varname is not None:
+                        related_many_objects = getattr(alias_object, alias_varname).all()
+                    else:
+                        related_many_objects = getattr(alias_object, obj_varname).all()
+                    for obj in related_many_objects.all():
+                        getattr(obj, obj_varname).remove(alias_object)
+                        getattr(obj, obj_varname).add(self)
+                else:
+                    obj_varname = related_object.name
+                    mergedlist = []
+                    mergedlist.extend(getattr(self, obj_varname).all())
+                    mergedlist.extend(getattr(alias_object, obj_varname).all())
+                    getattr(self, obj_varname).set(mergedlist)
+
+    def _merge_genericfield_object(self, alias_object, generic_fields):
+        for field in generic_fields:
+            filter_kwargs = {}
+            filter_kwargs[field.fk_field] = alias_object._get_pk_val()
+            filter_kwargs[field.ct_field] = field.get_content_type(alias_object)
+            for generic_related_object in field.model.objects.filter(**filter_kwargs):
+                setattr(generic_related_object, field.name, self)
+                generic_related_object.save()
+
+    def _merge_blankfield_object(self, alias_object, blank_local_fields):
+        filled_up = set()
+        for field_name in blank_local_fields:
+            val = getattr(alias_object, field_name)
+            if val not in [None, '']:
+                setattr(self, field_name, val)
+                filled_up.add(field_name)
+        blank_local_fields -= filled_up
+
     @transaction.atomic
     def merge_objects(self, alias_objects=[]):
         from django.contrib.contenttypes.fields import GenericForeignKey
@@ -317,58 +401,14 @@ class LucteriosModel(models.Model):
 
         generic_fields = []
         for model in apps.get_models():
-            generic_fields.extend(
-                filter(lambda x: isinstance(x, GenericForeignKey), model.__dict__.values()))
+            generic_fields.extend(filter(lambda x: isinstance(x, GenericForeignKey), model.__dict__.values()))
 
-        blank_local_fields = set([field.attname for field in self._meta.local_fields if getattr(
-            self, field.attname) in [None, '']])
+        blank_local_fields = set([field.attname for field in self._meta.local_fields if getattr(self, field.attname) in [None, '']])
 
         for alias_object in alias_objects:
-            for related_object in alias_object._meta.get_fields(include_hidden=False):
-                if related_object.one_to_many and related_object.auto_created:
-                    alias_varname = related_object.get_accessor_name()
-                    obj_varname = related_object.field.name
-                    related_objects = getattr(alias_object, alias_varname)
-                    for obj in related_objects.all():
-                        if hasattr(obj, "get_final_child"):
-                            obj = obj.get_final_child()
-                        setattr(obj, obj_varname, self)
-                        obj.save()
-                if related_object.many_to_many:
-                    if related_object.auto_created:
-                        alias_varname = related_object.get_accessor_name()
-                        obj_varname = related_object.field.name
-                        if alias_varname is not None:
-                            related_many_objects = getattr(alias_object, alias_varname).all()
-                        else:
-                            related_many_objects = getattr(alias_object, obj_varname).all()
-                        for obj in related_many_objects.all():
-                            getattr(obj, obj_varname).remove(alias_object)
-                            getattr(obj, obj_varname).add(self)
-                    else:
-                        obj_varname = related_object.name
-                        mergedlist = []
-                        mergedlist.extend(getattr(self, obj_varname).all())
-                        mergedlist.extend(getattr(alias_object, obj_varname).all())
-                        getattr(self, obj_varname).set(mergedlist)
-
-            for field in generic_fields:
-                filter_kwargs = {}
-                filter_kwargs[field.fk_field] = alias_object._get_pk_val()
-                filter_kwargs[field.ct_field] = field.get_content_type(
-                    alias_object)
-                for generic_related_object in field.model.objects.filter(**filter_kwargs):
-                    setattr(generic_related_object, field.name, self)
-                    generic_related_object.save()
-
-            filled_up = set()
-            for field_name in blank_local_fields:
-                val = getattr(alias_object, field_name)
-                if val not in [None, '']:
-                    setattr(self, field_name, val)
-                    filled_up.add(field_name)
-            blank_local_fields -= filled_up
-
+            self._merge_fields_object(alias_object)
+            self._merge_genericfield_object(alias_object, generic_fields)
+            self._merge_blankfield_object(alias_object, blank_local_fields)
             alias_object.delete()
         self.save()
         Signal.call_signal("post_merge", self)
@@ -663,13 +703,6 @@ class LucteriosSession(Session, LucteriosModel):
         for sess in LucteriosSession.objects.filter(expire_date__lt=dt_now):
             if sess.username == '---':
                 sess.delete()
-
-    def flush(self):
-        try:
-            if hasattr(Session, "flush"):
-                Session.flush(self)
-        except Exception:
-            pass
 
     class Meta(object):
         proxy = True

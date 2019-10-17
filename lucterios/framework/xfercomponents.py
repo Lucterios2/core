@@ -280,10 +280,7 @@ class XferCompLabelForm(XferComponent):
                     format_string[key] = six.text_type(sel_val)
         elif isinstance(old_obj, XferCompCheck):
             format_string = 'B'
-            if (value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')):
-                value = True
-            else:
-                value = False
+            value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))
         elif isinstance(old_obj, XferCompDate):
             format_string = 'D'
             if not isinstance(value, date):
