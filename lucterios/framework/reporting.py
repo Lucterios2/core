@@ -620,8 +620,6 @@ class LucteriosPDF(object):
 
     def draw_header(self):
         getLogger('lucterios.printing').debug("\t>> header <<")
-        header = self.current_page.xpath('header')
-        self._parse_comp(header[0], self.t_margin)
         if self.watermark != '':
             watermark_nb = 2
             for watermark_iter in range(watermark_nb):
@@ -632,6 +630,8 @@ class LucteriosPDF(object):
                 self.pdf.rotate(30)
                 self.pdf.drawCentredString(0, 0, self.watermark)
                 self.pdf.restoreState()
+        header = self.current_page.xpath('header')
+        self._parse_comp(header[0], self.t_margin)
 
     def draw_footer(self):
         getLogger('lucterios.printing').debug("\t>> footer <<")
