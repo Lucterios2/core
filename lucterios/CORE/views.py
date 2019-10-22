@@ -256,11 +256,9 @@ class AskPasswordAct(XferContainerAcknowledge):
 
 
 @signal_and_lock.Signal.decorate('config')
-def config_core(xfer):
-    Params.fill(xfer, ['CORE-connectmode', 'CORE-Wizard', 'CORE-MessageBefore'], 1, 1)
-    xfer.params['params'].append('CORE-connectmode')
-    xfer.params['params'].append('CORE-Wizard')
-    xfer.params['params'].append('CORE-MessageBefore')
+def config_core(setting_list):
+    setting_list['00@%s' % _('General')] = ['CORE-connectmode', 'CORE-Wizard', 'CORE-MessageBefore']
+    return True
 
 
 @signal_and_lock.Signal.decorate('auth_action')
@@ -280,20 +278,20 @@ class Configuration(XferContainerCustom):
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
-        lab.set_value(
-            '{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Software configuration"))
+        lab.set_value('{[br/]}{[center]}{[b]}{[u]}%s{[/u]}{[/b]}{[/center]}' % _("Software configuration"))
         self.add_component(lab)
-        self.params['params'] = []
-        signal_and_lock.Signal.call_signal("config", self)
+        setting_list = {}
+        signal_and_lock.Signal.call_signal("config", setting_list)
+        for tab_name in sorted(list(setting_list.keys())):
+            self.new_tab(tab_name[tab_name.find('@') + 1:])
+            Params.fill(self, setting_list[tab_name], 0, 0)
+            btn = XferCompButton(tab_name + "_btn")
+            btn.set_action(self.request, ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO, params={'params': setting_list[tab_name]})
+            btn.set_location(0, self.get_max_row() + 1)
+            self.add_component(btn)
         steplist = get_wizard_step_list()
         if steplist != '':
-            btn = XferCompButton("conf_wizard")
-            btn.set_location(1, self.get_max_row() + 1)
-            btn.set_action(self.request, ConfigurationWizard.get_action(
-                _("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
-            self.add_component(btn)
-        self.add_action(
-            ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO)
+            self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 
