@@ -318,6 +318,8 @@ class XferTransition(XferContainerAcknowledge):
             elif len(self.trans_result) == 1:
                 self.trans_result = self.trans_result[0]
         except TransitionNotAllowed:
+            if hasattr(item, '_error_transaction'):
+                getLogger("lucterios.core.transition").error(item._error_transaction(transition))
             raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
 
     def fill_confirm(self, transition, trans):
