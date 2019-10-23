@@ -538,7 +538,7 @@ class LucteriosPDF(object):
         draw_table(width_columns, data)
 
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
-        if xmlimage.text is not None:
+        if (xmlimage.text is not None) and (xmlimage.text.strip() != ''):
             from PIL import ImageFile
             ImageFile.LOAD_TRUNCATED_IMAGES = True
             img_content = xmlimage.text.strip()
