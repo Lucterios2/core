@@ -33,7 +33,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.CORE.models import Parameter
 from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect,\
-    XferCompPassword
+    XferCompPassword, XferCompCheckList
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools, signal_and_lock
 
@@ -66,7 +66,7 @@ class ParamCache(object):
                 self.value = convert_to_float()
             else:
                 self.value = six.text_type(param.value)
-            self.args = {'oldtype': self.type}
+            self.args = {'oldtype': self.type, 'Multi': False}
             self.type = 6
         if self.type == 0:  # String
             self.value = six.text_type(param.value)
@@ -139,7 +139,11 @@ class ParamCache(object):
                 db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
             else:
                 db_mdl = None
-            param_cmp = XferCompSelect(self.name)
+            if self.args['Multi']:
+                param_cmp = XferCompCheckList(self.name)
+                param_cmp.simple = 2
+            else:
+                param_cmp = XferCompSelect(self.name)
             param_cmp.set_needed(self.meta_info[4])
             selection = []
             if not self.meta_info[4]:
@@ -173,6 +177,8 @@ class ParamCache(object):
                     value_text = six.text_type(db_obj)
                 else:
                     value_text = "---"
+            elif self.args['Multi']:
+                value_text = self.value.replace(';', '{[br/]}')
             else:
                 value_text = self.value
         else:
@@ -191,8 +197,12 @@ class ParamCache(object):
         if (self.type == 6):
             if self.db_obj is None:
                 try:
+                    if self.args['Multi']:
+                        query = {self.meta_info[3] + '__in': self.value.split(';')}
+                    else:
+                        query = {self.meta_info[3]: self.value}
                     db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-                    db_objs = db_mdl.objects.filter(**{self.meta_info[3]: self.value})
+                    db_objs = db_mdl.objects.filter(**query)
                     if len(db_objs) > 0:
                         self.db_obj = (db_objs[0],)
                     else:
