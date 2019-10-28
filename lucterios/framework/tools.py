@@ -704,6 +704,8 @@ def get_format_from_field(dep_field):
         for choices_key, choices_value in dep_field.choices:
             choices_dict[choices_key] = six.text_type(choices_value)
         return choices_dict
+    elif getattr(dep_field, 'unique_for_year', False) or getattr(dep_field, 'unique_for_month', False) or getattr(dep_field, 'unique_for_date', False):
+        return None
     elif hasattr(dep_field, 'decimal_places'):
         return "N%d" % dep_field.decimal_places
     elif isinstance(dep_field, IntegerField):
