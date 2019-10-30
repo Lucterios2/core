@@ -334,12 +334,15 @@ class XferContainerCustom(XferContainerAbstract):
             if num == -1:
                 self.tab = self.max_tab() + 1
             else:
+                new_components = {}
                 for comp in self.components.values():
                     if comp.tab >= num:
                         comp.tab = comp.tab + 1
                         if isinstance(comp, XferCompTab):
                             comp.name = "__tab_%d" % comp.tab
+                    new_components[comp.name] = comp
                 self.tab = num
+                self.components = new_components
             new_tab = XferCompTab("__tab_%d" % self.tab)
             new_tab.set_value(six.text_type(tab_name))
             new_tab.set_location(-1, -1)
