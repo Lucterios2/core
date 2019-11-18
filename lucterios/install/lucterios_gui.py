@@ -30,7 +30,7 @@ import sys
 import os
 import webbrowser
 from os.path import join, dirname, expanduser
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, run, PIPE, STDOUT
 from time import sleep
 from traceback import print_exc
 from threading import Thread
@@ -43,7 +43,8 @@ from django.utils import six
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title, setup_from_none
 from lucterios.framework.settings import get_lan_ip
 
-from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar
+from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar,\
+    TclError
 from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED, CENTER
 from tkinter.messagebox import showerror, showinfo, askokcancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
@@ -107,8 +108,7 @@ class RunServer(object):
         self.open_url()
 
     def open_url(self):
-        webbrowser.open_new("http://%(ip)s:%(port)d" %
-                            {'ip': self.lan_ip, 'port': self.port})
+        webbrowser.open_new("http://%(ip)s:%(port)d" % {'ip': self.lan_ip, 'port': self.port})
 
     def stop(self):
         if self.is_running():
@@ -419,6 +419,16 @@ class LucteriosMainForm(Tk):
 
     def __init__(self):
         Tk.__init__(self)
+        try:
+            try:
+                self.tk.call('tk_getOpenFile', '-foobarbaz')
+            except TclError:
+                pass
+            # now set the magic variables accordingly
+            self.tk.call('set', '::tk::dialog::file::showHiddenBtn', '1')
+            self.tk.call('set', '::tk::dialog::file::showHiddenVar', '0')
+        except:
+            pass
         try:
             self.img = Image("photo", file=join(dirname(import_module('lucterios.install').__file__), "lucterios.png"))
             self.tk.call('wm', 'iconphoto', self._w, self.img)
@@ -827,14 +837,12 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def save_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        inst = LucteriosInstance(instance_name)
-        inst.filename = file_name
-        if inst.archive():
-            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy(
-                "Instance saved to %s") % file_name)
+        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'archive', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT)
+        if proc_res.returncode == 0:
+            showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance saved to %s") % file_name)
         else:
-            showerror(
-                ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not saved!"))
+            showerror(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not saved!"))
+        print(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     def save_inst(self):
@@ -847,19 +855,19 @@ class LucteriosMainForm(Tk):
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        rest_inst = LucteriosInstance(instance_name)
-        rest_inst.filename = file_name
-        if rest_inst.restore():
+        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'restore', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT)
+        if proc_res.returncode == 0:
             showinfo(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance restore from %s") % file_name)
         else:
             showerror(ugettext_lazy("Lucterios launcher"), ugettext_lazy("Instance not restored!"))
+        print(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     def restore_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
             file_name = askopenfilename(parent=self, filetypes=[('lbk', '.lbk'), ('*', '.*')], initialdir=expanduser('~'))
-            if file_name != '':
+            if isinstance(file_name, str) and (file_name != ''):
                 self.restore_instance(instance_name, file_name)
 
     def execute(self):
