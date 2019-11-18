@@ -302,9 +302,7 @@ class LucteriosGlobal(LucteriosManage):
             return False
 
     def update(self):
-        from pip._internal import main
         from pip._internal.utils.misc import get_installed_distributions
-        from pip._internal.cli import status_codes
         self.update_dependancy()
         module_list = []
         for dist in get_installed_distributions():
@@ -319,7 +317,7 @@ class LucteriosGlobal(LucteriosManage):
                 res = self.pip_install(options)
             finally:
                 self.refreshall(False)
-            return res == status_codes.SUCCESS
+            return res == 0
         else:
             self.print_info_("No modules to update")
             return False
