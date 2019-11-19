@@ -36,8 +36,9 @@ from time import sleep
 
 import sys
 import os
-from json import loads
+from json import loads, dumps
 from subprocess import call
+from lucterios.framework.tools import set_locale_lang
 
 
 INSTANCE_PATH = '.'
@@ -412,10 +413,23 @@ class LucteriosInstance(LucteriosManage):
         for key, val in self.extra.items():
             if key != '':
                 extra_txt += '\n\t\t%s=%s ' % (key, val)
-            else:
-                if ('mode' in val.keys()) and (val['mode'] is not None):
-                    extra_txt += '\n\t\tmode=%s ' % val['mode'][1]
+            elif ('mode' in val.keys()) and (val['mode'] is not None):
+                extra_txt += '\n\t\tmode=%s ' % val['mode'][1]
         return extra_txt
+
+    def get_extra_html(self):
+        extra_html = '<table width="80%">'
+        for key, val in self.extra.items():
+            if key != '':
+                try:
+                    val = dumps(val, indent=2, sort_keys=True)
+                except Exception:
+                    val = str(val).replace('}', '}\n')
+                extra_html += '<tr><td>%s</td><td><pre>%s</pre></td></tr>' % (key, val)
+            elif ('mode' in val.keys()) and (val['mode'] is not None):
+                extra_html += '<tr><td>mode</td><td>%s</td></tr>' % val['mode'][1]
+        extra_html += '</table>'
+        return extra_html
 
     def get_database_txt(self):
         database_txt = self.database[0]
@@ -1020,6 +1034,7 @@ def main():
 
 
 def setup_from_none():
+    lang = os.environ['LANG'][:2] if 'LANG' in os.environ else 'fr'
     if six.PY3:
         clear_modules()
     from lucterios.framework.settings import fill_appli_settings
@@ -1039,14 +1054,15 @@ def setup_from_none():
         module = types.ModuleType(six.binary_type("default_setting"))
     setattr(module, '__file__', ".")
     setattr(module, 'SECRET_KEY', "default_setting")
-    setattr(
-        module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
+    setattr(module, 'LANGUAGE_CODE', lang)
+    setattr(module, 'DATABASES', {'default': {'ENGINE': 'django.db.backends.dummy'}})
     fill_appli_settings("lucterios.standard", lct_modules, module)
     sys.modules["default_setting"] = module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "default_setting")
     import django
     from django import db
     django.setup()
+    set_locale_lang(lang)
     db.close_old_connections()
 
 

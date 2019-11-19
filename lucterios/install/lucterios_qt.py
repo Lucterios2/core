@@ -25,68 +25,254 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import dirname, join
+from os.path import dirname, join, expanduser
+from time import sleep
+from traceback import print_exc
+from threading import Thread
 import sys
 
-from PyQt5.Qt import QApplication, QMainWindow, QAction, QIcon, qApp,\
-    QSplitter, Qt, QListView, QLabel,\
-    QAbstractListModel, QVariant, QSplashScreen, QPixmap
+from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
+    QDialog, QDialogButtonBox, QVBoxLayout, QGridLayout, QFrame, QLineEdit,\
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal
+from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
+from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
 from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
+from django.utils import six
 
-from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal,\
-    LucteriosInstance
+from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
+from lucterios.install.graphic_lib import LucteriosMain, EditorInstance
 
 
 class InstanceModel(QAbstractListModel):
     def __init__(self, parent=None):
         QAbstractListModel.__init__(self, parent)
-        self._data = []
+        self._instance_list = []
         self.current_item = None
+
+    def isExist(self, instance_name):
+        return instance_name in self._instance_list
+
+    def findText(self, instance_name):
+        return self.index(self._instance_list.index(instance_name), 0)
 
     def refresh(self):
         self.beginResetModel()
         luct_glo = LucteriosGlobal()
-        self._data = luct_glo.listing()
+        self._instance_list = luct_glo.listing()
+        for instance_name in self._instance_list:
+            if instance_name not in self.parent().running_instance.keys():
+                self.parent().running_instance[instance_name] = None
+
         self.current_item = None
         self.endResetModel()
         self.changed(None)
 
     def rowCount(self, parent=None, *args, **kwargs):
-        return len(self._data)
+        return len(self._instance_list)
 
     def data(self, QModelIndex, role=None):
-        item = self._data[QModelIndex.row()]
-
+        item = self._instance_list[QModelIndex.row()]
         if role == Qt.DisplayRole:
-            return "%s" % item
-        elif role == Qt.ToolTipRole:
-            return "Tool Tip: %s" % item
+            return item
         return QVariant()
 
-    def changed(self, QModelIndex):
-        if (QModelIndex is not None) and QModelIndex.isValid():
-            self.current_item = self._data[QModelIndex.row()]
+    def changed(self, index):
+        if (index is not None) and index.isValid():
+            self.current_item = self._instance_list[index.row()]
         else:
             self.current_item = None
-        print('instance', self.current_item)
         self.parent().reload()
 
 
-class LucteriosQtMain(QMainWindow):
+class LucteriosLayout(QGridLayout):
+
+    def add_row(self, title, comp, row_id):
+        self.addWidget(QLabel(text=title), row_id, 0)
+        self.addWidget(comp, row_id, 1)
+
+
+class InstanceDlg(QDialog, EditorInstance):
+
+    def __init__(self, *args, **kwargs):
+        super(InstanceDlg, self).__init__(*args, **kwargs)
+        self.setWindowTitle(ugettext("Instance editor"))
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+        layout = QVBoxLayout()
+        tabs = QTabWidget(self)
+        general_frame = QFrame(self)
+        general_frame.setLayout(self._general_content())
+        tabs.addTab(general_frame, ugettext('General'))
+        db_frame = QFrame(self)
+        db_frame.setLayout(self._database_content())
+        tabs.addTab(db_frame, ugettext('Database'))
+        layout.addWidget(tabs)
+        layout.addWidget(buttonBox)
+        self.setLayout(layout)
+
+    def _general_content(self):
+        layout = LucteriosLayout()
+        self.inst_name = QLineEdit()
+        layout.add_row(ugettext("Name"), self.inst_name, 0)
+        self.applis = QComboBox()
+        self.applis.currentIndexChanged.connect(self.applischange)
+        layout.add_row(ugettext("Appli"), self.applis, 1)
+        self.modules = QListView()
+        self.modules.setModel(QStandardItemModel())
+        layout.add_row(ugettext("Modules"), self.modules, 2)
+        self.language = QComboBox()
+        layout.add_row(ugettext("Language"), self.language, 3)
+        self.mode = QComboBox()
+        layout.add_row(ugettext("CORE-connectmode"), self.mode, 4)
+        self.password = QLineEdit()
+        layout.add_row(ugettext("Password"), self.password, 5)
+        return layout
+
+    def _database_content(self):
+        layout = LucteriosLayout()
+        self.db_type = QComboBox()
+        self.db_type.currentIndexChanged.connect(self.dbtypechange)
+        layout.add_row(ugettext("Type"), self.db_type, 0)
+        self.db_name = QLineEdit()
+        layout.add_row(ugettext("Name"), self.db_name, 1)
+        self.db_user = QLineEdit()
+        layout.add_row(ugettext("User"), self.db_user, 2)
+        self.db_password = QLineEdit()
+        layout.add_row(ugettext("Password"), self.db_password, 3)
+        return layout
+
+    def applischange(self, appli_id):
+        depends_modules = self.mod_applis[appli_id][2]
+        for row in range(self.modules.model().rowCount()):
+            module = self.module_list[row][1]
+            self.modules.model().item(row).setCheckState(Qt.Checked if module in depends_modules else Qt.Unchecked)
+        appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
+        if self.is_new_instance:
+            default_name_idx = 1
+            while appli_root_name + six.text_type(default_name_idx) in self.current_inst_names:
+                default_name_idx += 1
+            self.inst_name.setText(appli_root_name + six.text_type(default_name_idx))
+
+    def dbtypechange(self, dbtype_id):
+        self.db_name.setEnabled(dbtype_id != 0)
+        self.db_user.setEnabled(dbtype_id != 0)
+        self.db_password.setEnabled(dbtype_id != 0)
+
+    def _load_current_data(self, instance_name):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES
+        lct_inst, applis_id, mode_id, typedb_index, current_lang = self._get_instance_elements(instance_name)
+        self.is_new_instance = False
+        self.inst_name.setText(lct_inst.name)
+        self.inst_name.setEnabled(False)
+        self.applis.setCurrentIndex(applis_id)
+        for row in range(self.modules.model().rowCount()):
+            module = self.module_list[row][1]
+            self.modules.model().item(row).setCheckState(Qt.Checked if module in lct_inst.modules else Qt.Unchecked)
+        self.mode.setCurrentIndex(mode_id)
+        for lang in DEFAULT_LANGUAGES:
+            if lang[0] == current_lang:
+                self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFixedString))
+        self.password.setText('')
+        self.db_type.setCurrentIndex(typedb_index)
+        if 'name' in lct_inst.database[1].keys():
+            self.db_name.setText(lct_inst.database[1]['name'])
+        else:
+            self.db_name.setText('')
+        if 'user' in lct_inst.database[1].keys():
+            self.db_user.setText(lct_inst.database[1]['user'])
+        else:
+            self.db_user.setText('')
+        if 'password' in lct_inst.database[1].keys():
+            self.db_password.setText(lct_inst.database[1]['password'])
+        else:
+            self.db_password.setText('')
+
+    def execute(self, instance_name=None):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
+        self._define_values()
+        self.applis.addItems(self.appli_list)
+        self.modules.model().clear()
+        for mod_item in self.module_list:
+            item = QStandardItem(mod_item[0])
+            item.setCheckable(True)
+            self.modules.model().appendRow(item)
+        self.language.addItems(self.lang_values)
+        self.mode.addItems(self.mode_values)
+        self.db_type.addItems(self.dbtype_values)
+        if instance_name is not None:
+            self._load_current_data(instance_name)
+        else:
+            self.inst_name.setText('')
+            self.password.setText('')
+            self.db_name.setText('')
+            self.db_user.setText('')
+            self.db_password.setText('')
+            self.db_type.setCurrentIndex(0)
+            self.mode.setCurrentIndex(2)
+            if len(self.appli_list) > 0:
+                self.applis.setCurrentIndex(0)
+                self.applischange(0)
+            for lang in DEFAULT_LANGUAGES:
+                if lang[0] == get_locale_lang():
+                    self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFixedString))
+        if self.exec_():
+            return self.get_result()
+        else:
+            return None
+
+    def get_result(self):
+        from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
+        if self.is_new_instance and ((self.inst_name.text() == '') or (self.name_rull.match(self.inst_name.text()) is None)):
+            QMessageBox.critical(self, ugettext("Instance editor"), ugettext("Name invalid!"))
+            return None
+        if self.applis.currentText() == '':
+            QMessageBox.critical(self, ugettext("Instance editor"), ugettext("No application!"))
+            return None
+
+        appli_id = self.applis.currentIndex()
+        security = "MODE=%s" % self.mode.currentIndex()
+        if self.password.text() != '':
+            security += ",PASSWORD=%s" % self.password.text()
+        module_list = [self.module_list[row][1] for row in range(self.modules.model().rowCount()) if (self.modules.model().item(row).checkState() == Qt.Checked)]
+        db_param = "%s:name=%s,user=%s,password=%s" % (self.db_type.currentText(), self.db_name.text(), self.db_user.text(), self.db_password.text())
+        current_lang = get_locale_lang()
+        for lang in DEFAULT_LANGUAGES:
+            if lang[1] == self.language.currentText():
+                current_lang = lang[0]
+        return (self.inst_name.text(), self.mod_applis[appli_id][0], ",".join(module_list), security, db_param, current_lang)
+
+
+class LucteriosQtMain(QMainWindow, LucteriosMain):
+
+    refreshed = pyqtSignal(str)
 
     def __init__(self, *args, **kwargs):
         QMainWindow.__init__(self, *args, **kwargs)
+        LucteriosMain.__init__(self)
         self.img_path = join(dirname(import_module('lucterios.install').__file__), "lucterios.png")
-        splash = QSplashScreen(QPixmap(self.img_path), Qt.WindowStaysOnTopHint)
-        splash.show()
-        try:
-            self.model = InstanceModel(self)
-            self.initUI()
-            self.model.refresh()
-        finally:
-            splash.close()
+        self.model = InstanceModel(self)
+        self.has_checked = False
+        self.refreshed.connect(self.refresh_ex)
+        self.initUI()
+        self.start_up_app()
+
+    def closeEvent(self, event):
+        all_stop = True
+        instance_names = list(self.running_instance.keys())
+        for old_item in instance_names:
+            if (self.running_instance[old_item] is not None) and self.running_instance[old_item].is_running():
+                all_stop = False
+        result = all_stop or (QMessageBox.question(self, ugettext("Lucterios launcher"),
+                                                   ugettext("An instance is always running.\nDo you want to close?"), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes)
+        event.ignore()
+        if result:
+            self.stop_all()
+            event.accept()
+        else:
+            self.refresh()
 
     def initUI(self):
         self.icon_path = join(dirname(import_module('lucterios.CORE').__file__), 'static', 'lucterios.CORE', 'images')
@@ -95,49 +281,53 @@ class LucteriosQtMain(QMainWindow):
         self.set_menu()
         self.set_toolsbar()
         self.set_components()
-        self.setGeometry(300, 300, 475, 260)
+        self.setGeometry(0, 0, 850, 500)
         self.setWindowTitle(ugettext("Lucterios launcher"))
         self.setWindowIcon(QIcon(self.img_path))
+        rect = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        rect.moveCenter(centerPoint)
+        self.move(rect.topLeft())
 
     def set_actions(self):
-        self.refreshAct = QAction(QIcon(join(self.icon_path, 'refresh.png')), ugettext('&Refresh'), self)
+        self.refreshAct = QAction(QIcon(join(self.icon_path, 'refresh.png')), ugettext('Refresh'), self)
         self.refreshAct.setShortcut('F5')
         self.refreshAct.triggered.connect(self.model.refresh)
-        self.upgradeAct = QAction(QIcon(join(self.icon_path, 'config.png')), ugettext('&Upgrade'), self)
+        self.upgradeAct = QAction(QIcon(join(self.icon_path, 'upload.png')), ugettext('Upgrade'), self)
         self.upgradeAct.setShortcut('Ctrl+U')
         self.upgradeAct.setEnabled(False)
         self.upgradeAct.triggered.connect(self.upgrade)
-        self.exitAct = QAction(QIcon(join(self.icon_path, 'close.png')), ugettext('&Exit'), self)
+        self.exitAct = QAction(QIcon(join(self.icon_path, 'exit.png')), ugettext('Exit'), self)
         self.exitAct.setShortcut('Ctrl+Q')
-        self.exitAct.triggered.connect(qApp.quit)
+        self.exitAct.triggered.connect(self.close)
 
         self.launchAct = QAction(QIcon(join(self.icon_path, 'right.png')), ugettext("Launch"), self)
-        self.launchAct.triggered.connect(self.launchInst)
+        self.launchAct.triggered.connect(lambda: self.open_inst())
         self.modifyAct = QAction(QIcon(join(self.icon_path, 'edit.png')), ugettext("Modify"), self)
-        self.modifyAct.triggered.connect(self.modifyInst)
+        self.modifyAct.triggered.connect(self.modify_inst)
         self.deleteAct = QAction(QIcon(join(self.icon_path, 'delete.png')), ugettext("Delete"), self)
-        self.deleteAct.triggered.connect(self.deleteInst)
+        self.deleteAct.triggered.connect(self.delete_inst)
         self.saveAct = QAction(QIcon(join(self.icon_path, 'save.png')), ugettext("Save"), self)
-        self.saveAct.triggered.connect(self.saveInst)
-        self.restoreAct = QAction(QIcon(join(self.icon_path, 'new.png')), ugettext("Restore"), self)
-        self.restoreAct.triggered.connect(self.restoreInst)
+        self.saveAct.triggered.connect(self.save_inst)
+        self.restoreAct = QAction(QIcon(join(self.icon_path, 'open.png')), ugettext("Restore"), self)
+        self.restoreAct.triggered.connect(self.restore_inst)
         self.addAct = QAction(QIcon(join(self.icon_path, 'add.png')), ugettext("Add"), self)
-        self.addAct.triggered.connect(self.addInst)
+        self.addAct.triggered.connect(self.add_inst)
 
     def set_menu(self):
         menubar = self.menuBar()
-        fileMenu = menubar.addMenu(ugettext('&Main'))
+        fileMenu = menubar.addMenu(ugettext('Main'))
         fileMenu.addAction(self.refreshAct)
         fileMenu.addAction(self.upgradeAct)
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAct)
 
-        instanceMenu = menubar.addMenu(ugettext('&Instance'))
+        instanceMenu = menubar.addMenu(ugettext('Instance'))
         instanceMenu.addAction(self.launchAct)
         instanceMenu.addAction(self.modifyAct)
-        instanceMenu.addAction(self.deleteAct)
         instanceMenu.addAction(self.saveAct)
         instanceMenu.addAction(self.restoreAct)
+        instanceMenu.addAction(self.deleteAct)
         instanceMenu.addAction(self.addAct)
 
     def set_toolsbar(self):
@@ -148,22 +338,100 @@ class LucteriosQtMain(QMainWindow):
         self.instancetools = self.addToolBar('Instance')
         self.instancetools.addAction(self.launchAct)
         self.instancetools.addAction(self.modifyAct)
-        self.instancetools.addAction(self.deleteAct)
         self.instancetools.addAction(self.saveAct)
         self.instancetools.addAction(self.restoreAct)
+        self.instancetools.addAction(self.deleteAct)
         self.instancetools.addAction(self.addAct)
 
     def set_components(self):
+        tabs = QTabWidget(self)
         splitter = QSplitter(Qt.Horizontal)
         self.instances = QListView(self)
         self.instances.clicked.connect(self.model.changed)
         self.instances.setModel(self.model)
         splitter.addWidget(self.instances)
-        self.info = QLabel(self)
-        self.info.setTextFormat(Qt.RichText)
-        splitter.addWidget(self.info)
-        splitter.setSizes([100, 200])
-        self.setCentralWidget(splitter)
+        self.instance = QLabel(self)
+        self.instance.setAlignment(Qt.AlignTop or Qt.AlignRight)
+        self.instance.setTextFormat(Qt.RichText)
+        scroll1 = QScrollArea(self)
+        scroll1.setWidget(self.instance)
+        scroll1.setWidgetResizable(True)
+        splitter.addWidget(scroll1)
+        splitter.setSizes([150, 700])
+        tabs.addTab(splitter, ugettext('Instances'))
+        self.modules = QLabel(self)
+        self.modules.setAlignment(Qt.AlignTop or Qt.AlignRight)
+        self.modules.setTextFormat(Qt.RichText)
+        scroll2 = QScrollArea(self)
+        scroll2.setWidget(self.modules)
+        scroll2.setWidgetResizable(True)
+        splitter.addWidget(scroll2)
+        tabs.addTab(scroll2, ugettext('Modules'))
+        self.setCentralWidget(tabs)
+        self.progressBar = QProgressBar()
+        self.progressBar.setMinimum(1)
+        self.progressBar.setMaximum(100)
+        self.progressBar.setValue(0)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.hide()
+        self.progress_thread = None
+        self.statusBar().addPermanentWidget(self.progressBar)
+
+    def set_instance_info(self):
+        try:
+            inst = LucteriosInstance(self.model.current_item)
+            inst.read()
+            if self.running_instance[inst.name] is not None and self.running_instance[inst.name].is_running():
+                inst_status = ugettext("=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[inst.name].lan_ip, 'port': self.running_instance[inst.name].port}
+                btn_text = ugettext("Stop")
+            else:
+                inst_status = ugettext("=> Stopped\n")
+                btn_text = ugettext("Launch")
+            content = "<h1><center>%s</center></h1>" % inst.name
+            content += "<p>%s<br/></p>" % inst_status
+            self.launchAct.setText(btn_text)
+            content += "<table width='100%'>"
+            content += "<tr><th style='width:30%%;min-width:150px;'>%s</th><td>%s<br/></td></tr>" % (ugettext("Application"), inst.get_appli_txt())
+            content += "<tr><th>%s</th><td>%s<br/></td></tr>" % (ugettext("Modules"), inst.get_module_txt().replace(',', '<br/>'))
+            content += "<tr><th>%s</th><td>%s<br/></td></tr>" % (ugettext("Database"), inst.get_database_txt())
+            content += "<tr><th>%s</th><td>%s</td></tr>" % (ugettext("Extra"), inst.get_extra_html())
+            content += "</table>"
+            self.instance.setText(content)
+        except Exception:
+            self.instance.setText("<h1><center>%s</center></h1>" % self.model.current_item)
+
+    def set_modules_info(self):
+        lct_glob = LucteriosGlobal()
+        mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
+        content = "<tr><th width='30%%'>%s</th><td>%s<br/></td></tr>" % (ugettext('Lucterios core'), mod_lucterios[1])
+        appli = ""
+        for appli_item in mod_applis:
+            appli += "<tr><td style='width:30%%;min-width:100px;'>%s</td><td>%s</td></tr>" % (appli_item[0], appli_item[1])
+        content += "<tr><th>%s</th><td><table width='80%%'>%s</table><br/></td></tr>" % (ugettext("Application"), appli)
+        modules = ""
+        for module_item in mod_modules:
+            modules += "<tr><td style='width:30%%;min-width:100px;'>%s</td><td>%s</td></tr>" % (module_item[0], module_item[1])
+        content += "<tr><th>%s</th><td><table width='80%%'>%s</table><br/></td></tr>" % (ugettext("Modules"), modules)
+        extra_urls = lct_glob.get_extra_urls()
+        if len(extra_urls) > 0:
+            content += "<tr><th>%s</th><td>%s</td></tr>" % (ugettext('Pypi servers'), "<br/>".join(extra_urls))
+        self.modules.setText("<table width='100%'>" + content + "</table>")
+        self.has_checked = True
+        self.run_after(1000, lambda: Thread(target=self.check).start())
+        self.statusBar().showMessage(ugettext("Search upgrade"))
+
+    def refresh(self, instance_name=None):
+        if instance_name == '':
+            instance_name = None
+        self.refreshed.emit(instance_name)
+
+    def refresh_ex(self, instance_name=None):
+        if (instance_name is None) or not self.model.isExist(instance_name):
+            self.model.refresh()
+        if (instance_name is not None) and (instance_name != ''):
+            index = self.model.findText(instance_name)
+            self.instances.setCurrentIndex(index)
+            self.model.changed(index)
 
     def reload(self):
         self.launchAct.setEnabled(self.model.current_item is not None)
@@ -171,39 +439,122 @@ class LucteriosQtMain(QMainWindow):
         self.deleteAct.setEnabled(self.model.current_item is not None)
         self.saveAct.setEnabled(self.model.current_item is not None)
         self.restoreAct.setEnabled(self.model.current_item is not None)
-        self.info.setText("")
+        self.instance.setText("")
         if self.model.current_item is not None:
-            inst = LucteriosInstance(self.model.current_item)
-            inst.read()
-            self.info.setText("""
-<table>
-<tr><th colspan='2'>%s</th></tr>
-<tr><th>Database</th><td>%s</td></tr>
-<tr><th>Appli</th><td>%s</td></tr>
-<tr><th>Modules</th><td>%s</td></tr>
-<tr><th>Extra</th><td>%s</td></tr>
-""" % (inst.name, inst.get_database_txt(), inst.get_appli_txt(), inst.get_module_txt(), inst.get_extra_txt()))
+            self.set_instance_info()
+        else:
+            self.launchAct.setText(ugettext("Launch"))
+            if not self.has_checked:
+                self.set_modules_info()
+
+    def get_selected_instance_name(self):
+        return self.model.current_item
 
     def upgrade(self):
-        pass
+        LucteriosMain.upgrade(self)
 
-    def launchInst(self):
-        pass
+    def show_info(self, text, message):
+        QMessageBox.information(self, str(text), str(message))
 
-    def modifyInst(self):
-        pass
+    def show_error(self, text, message):
+        QMessageBox.critical(self, str(text), str(message))
 
-    def deleteInst(self):
-        pass
+    def show_splash_screen(self):
+        splash_pix = QPixmap(350, 200)
+        splash_pix.fill(QColor('white'))
+        painter = QPainter()
+        painter.begin(splash_pix)
+        painter.drawImage(100, 55, QImage(self.img_path))
+        painter.end()
+        self.splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+        self.splash.showMessage(ugettext('Application loading\nWaiting a minute ...'), Qt.AlignHCenter)
+        font = QFont(self.splash.font())
+        font.setPointSize(font.pointSize() + 3)
+        self.splash.setFont(font)
+        self.splash.show()
 
-    def saveInst(self):
-        pass
+    def remove_splash_screen(self):
+        self.model.refresh()
+        self.splash.close()
+        self.splash = None
 
-    def restoreInst(self):
-        pass
+    def enabled(self, is_enabled, widget=None):
+        if widget is None:
+            widget = self
+            self.do_progress(not is_enabled)
+        widget.setEnabled(is_enabled)
 
-    def addInst(self):
-        pass
+    def do_progress(self, progressing):
+        if self.progress_thread is not None:
+            self.progress_thread.do_run = False
+            self.progress_thread.join()
+            self.progress_thread = None
+        if progressing:
+            self.progress_thread = Thread(target=self.progress_run)
+            self.progress_thread.start()
+
+    def progress_run(self):
+        try:
+            self.progressBar.setValue(self.progressBar.minimum())
+            self.progressBar.show()
+            while (self.progress_thread is not None) and getattr(self.progress_thread, "do_run", True) and self.progress_thread.is_alive():
+                value = self.progressBar.value() + 1
+                if value > self.progressBar.maximum():
+                    value = self.progressBar.minimum()
+                self.progressBar.setValue(value)
+                sleep(0.25)
+            self.progressBar.setValue(self.progressBar.minimum())
+            self.progressBar.hide()
+        except Exception:
+            print_exc()
+
+    def run_after(self, ms, func=None, *args):
+        func(*args)
+
+    def set_ugrade_state(self, must_upgrade):
+        self.upgradeAct.setEnabled(must_upgrade)
+        if must_upgrade:
+            self.statusBar().showMessage(ugettext("Upgrade needs"))
+        else:
+            self.statusBar().showMessage(ugettext("No upgrade"))
+
+    def modify_inst(self):
+        instance_name = self.get_selected_instance_name()
+        dlg = InstanceDlg(self)
+        result = dlg.execute(instance_name)
+        if result is not None:
+            self.add_modif_inst_result(result, False)
+
+    def add_inst(self):
+        dlg = InstanceDlg(self)
+        result = dlg.execute()
+        if result is not None:
+            self.add_modif_inst_result(result, True)
+
+    def delete_inst(self):
+        instance_name = self.get_selected_instance_name()
+        if QMessageBox.question(self, ugettext("Lucterios launcher"), ugettext("Do you want to delete '%s'?") % instance_name, QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes:
+            self.delete_inst_name(instance_name)
+        else:
+            self.refresh()
+
+    def save_inst(self):
+        instance_name = self.get_selected_instance_name()
+        if instance_name != '':
+            file_name = QFileDialog.getSaveFileName(self, ugettext("File to save"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.HideNameFilterDetails)
+            if isinstance(file_name, tuple) and (len(file_name) > 0):
+                file_name = file_name[0]
+            if isinstance(file_name, str) and (file_name != ''):
+                self.save_instance(instance_name, file_name)
+
+    def restore_inst(self):
+        instance_name = self.get_selected_instance_name()
+        if instance_name != '':
+            file_name = QFileDialog.getOpenFileName(self, ugettext("File to load"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.HideNameFilterDetails)
+            if isinstance(file_name, tuple) and (len(file_name) > 0):
+                file_name = file_name[0]
+            if isinstance(file_name, str) and (file_name != ''):
+                self.restore_instance(instance_name, file_name)
 
 
 def main():
