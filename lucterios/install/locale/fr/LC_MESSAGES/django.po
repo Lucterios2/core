@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 17:39+0000\n"
-"PO-Revision-Date: 2019-11-19 18:37+0100\n"
+"POT-Creation-Date: 2019-11-20 14:44+0000\n"
+"PO-Revision-Date: 2019-11-20 15:42+0100\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -19,10 +19,10 @@ msgstr ""
 "X-Translated-Using: django-rosetta 0.7.8\n"
 "X-Generator: Poedit 2.0.6\n"
 
-#: graphic_lib.py:64 graphic_lib.py:77 graphic_lib.py:246 graphic_lib.py:319
-#: graphic_lib.py:321 graphic_lib.py:330 graphic_lib.py:332 lucterios_gui.py:81
+#: graphic_lib.py:64 graphic_lib.py:77 graphic_lib.py:246 graphic_lib.py:326
+#: graphic_lib.py:328 graphic_lib.py:337 graphic_lib.py:339 lucterios_gui.py:81
 #: lucterios_gui.py:333 lucterios_qt.py:268 lucterios_qt.py:285
-#: lucterios_qt.py:536
+#: lucterios_qt.py:533
 msgid "Lucterios launcher"
 msgstr "Lanceur Lucterios"
 
@@ -46,21 +46,29 @@ msgstr "Accès libre"
 msgid "The application must restart"
 msgstr "L'application doit redémarrer"
 
-#: graphic_lib.py:319
+#: graphic_lib.py:252
+msgid "Upgrade needs"
+msgstr "Mise à jour disponible"
+
+#: graphic_lib.py:254
+msgid "No upgrade"
+msgstr "Pas de mise à jour"
+
+#: graphic_lib.py:326
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance sauvée à %s"
 
-#: graphic_lib.py:321
+#: graphic_lib.py:328
 msgid "Instance not saved!"
 msgstr "Instance non sauvée!"
 
-#: graphic_lib.py:330
+#: graphic_lib.py:337
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restaurée depuis %s"
 
-#: graphic_lib.py:332
+#: graphic_lib.py:339
 msgid "Instance not restored!"
 msgstr "Instance non restaurée!"
 
@@ -156,7 +164,7 @@ msgstr ""
 "Une instance est toujours en marche.\n"
 "Voulez vous fermer?"
 
-#: lucterios_gui.py:408 lucterios_gui.py:581 lucterios_gui.py:583
+#: lucterios_gui.py:408 lucterios_gui.py:577 lucterios_gui.py:579
 #: lucterios_qt.py:304 lucterios_qt.py:389 lucterios_qt.py:446
 msgid "Launch"
 msgstr "Lancer"
@@ -202,54 +210,46 @@ msgstr "Modules\n"
 msgid "Pypi servers\n"
 msgstr "Serveurs Pypi\n"
 
-#: lucterios_gui.py:537 lucterios_qt.py:517
-msgid "Upgrade needs"
-msgstr "Mise à jour disponible"
-
-#: lucterios_gui.py:539 lucterios_qt.py:519
-msgid "No upgrade"
-msgstr "Pas de mise à jour"
-
-#: lucterios_gui.py:567
+#: lucterios_gui.py:563
 #, python-format
 msgid "Database\t\t%s\n"
 msgstr "Base de données\t%s\n"
 
-#: lucterios_gui.py:569
+#: lucterios_gui.py:565
 #, python-format
 msgid "Appli\t\t%s\n"
 msgstr "Appli\t\t%s\n"
 
-#: lucterios_gui.py:571
+#: lucterios_gui.py:567
 #, python-format
 msgid "Modules\t\t%s\n"
 msgstr "Modules\t\t%s\n"
 
-#: lucterios_gui.py:573
+#: lucterios_gui.py:569
 #, python-format
 msgid "Extra\t\t%s\n"
 msgstr "Extra\t\t%s\n"
 
-#: lucterios_gui.py:576 lucterios_qt.py:385
+#: lucterios_gui.py:572 lucterios_qt.py:385
 #, python-format
 msgid "=> Running in http://%(ip)s:%(port)d\n"
 msgstr "=> Lancé sur http://%(ip)s:%(port)d\n"
 
-#: lucterios_gui.py:577 lucterios_qt.py:386
+#: lucterios_gui.py:573 lucterios_qt.py:386
 msgid "Stop"
 msgstr "Arrêt"
 
-#: lucterios_gui.py:580 lucterios_qt.py:388
+#: lucterios_gui.py:576 lucterios_qt.py:388
 msgid "=> Stopped\n"
 msgstr "=> Arrêté\n"
 
-#: lucterios_gui.py:623 lucterios_qt.py:536
+#: lucterios_gui.py:619 lucterios_qt.py:533
 #, python-format
 msgid "Do you want to delete '%s'?"
 msgstr "Voulez-vous supprimer '%s'?"
 
 #: lucterios_qt.py:296
-msgid "Upgrade"
+msgid "Update"
 msgstr "Mise à jour"
 
 #: lucterios_qt.py:300
@@ -280,10 +280,13 @@ msgstr "Cœur Lucterios"
 msgid "Pypi servers"
 msgstr "Serveurs Pypi"
 
-#: lucterios_qt.py:544
+#: lucterios_qt.py:541
 msgid "File to save"
 msgstr "Ficher à sauvegarder"
 
-#: lucterios_qt.py:553
+#: lucterios_qt.py:550
 msgid "File to load"
 msgstr "Ficher à recharger"
+
+#~ msgid "Upgrade"
+#~ msgstr "Mise à jour"

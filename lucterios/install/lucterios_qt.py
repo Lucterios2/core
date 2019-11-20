@@ -33,7 +33,7 @@ import sys
 
 from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
     QDialog, QDialogButtonBox, QVBoxLayout, QGridLayout, QFrame, QLineEdit,\
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QTimer, QThread
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
@@ -73,9 +73,12 @@ class InstanceModel(QAbstractListModel):
         return len(self._instance_list)
 
     def data(self, QModelIndex, role=None):
-        item = self._instance_list[QModelIndex.row()]
-        if role == Qt.DisplayRole:
-            return item
+        try:
+            item = self._instance_list[QModelIndex.row()]
+            if role == Qt.DisplayRole:
+                return item
+        except IndexError:
+            pass
         return QVariant()
 
     def changed(self, index):
@@ -247,15 +250,21 @@ class InstanceDlg(QDialog, EditorInstance):
 
 class LucteriosQtMain(QMainWindow, LucteriosMain):
 
-    refreshed = pyqtSignal(str)
+    refreshslot = pyqtSignal(str)
+    enableslot = pyqtSignal(bool, object)
+    progressslot = pyqtSignal()
+    ugradestatesslot = pyqtSignal(bool)
 
     def __init__(self, *args, **kwargs):
         QMainWindow.__init__(self, *args, **kwargs)
         LucteriosMain.__init__(self)
         self.img_path = join(dirname(import_module('lucterios.install').__file__), "lucterios.png")
-        self.model = InstanceModel(self)
+        self.instances_model = InstanceModel(self)
         self.has_checked = False
-        self.refreshed.connect(self.refresh_ex)
+        self.refreshslot.connect(self.refresh_ex)
+        self.enableslot.connect(self.enable_ex)
+        self.progressslot.connect(self.step_progress)
+        self.ugradestatesslot.connect(self.set_ugrade_state_ex)
         self.initUI()
         self.start_up_app()
 
@@ -292,8 +301,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def set_actions(self):
         self.refreshAct = QAction(QIcon(join(self.icon_path, 'refresh.png')), ugettext('Refresh'), self)
         self.refreshAct.setShortcut('F5')
-        self.refreshAct.triggered.connect(self.model.refresh)
-        self.upgradeAct = QAction(QIcon(join(self.icon_path, 'upload.png')), ugettext('Upgrade'), self)
+        self.refreshAct.triggered.connect(self.instances_model.refresh)
+        self.upgradeAct = QAction(QIcon(join(self.icon_path, 'upload.png')), ugettext('Update'), self)
         self.upgradeAct.setShortcut('Ctrl+U')
         self.upgradeAct.setEnabled(False)
         self.upgradeAct.triggered.connect(self.upgrade)
@@ -347,8 +356,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         tabs = QTabWidget(self)
         splitter = QSplitter(Qt.Horizontal)
         self.instances = QListView(self)
-        self.instances.clicked.connect(self.model.changed)
-        self.instances.setModel(self.model)
+        self.instances.clicked.connect(self.instances_model.changed)
+        self.instances.setModel(self.instances_model)
         splitter.addWidget(self.instances)
         self.instance = QLabel(self)
         self.instance.setAlignment(Qt.AlignTop or Qt.AlignRight)
@@ -371,7 +380,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.progressBar = QProgressBar()
         self.progressBar.setMinimum(1)
         self.progressBar.setMaximum(100)
-        self.progressBar.setValue(0)
+        self.progressBar.setValue(1)
         self.progressBar.setTextVisible(False)
         self.progressBar.hide()
         self.progress_thread = None
@@ -379,7 +388,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
 
     def set_instance_info(self):
         try:
-            inst = LucteriosInstance(self.model.current_item)
+            inst = LucteriosInstance(self.instances_model.current_item)
             inst.read()
             if self.running_instance[inst.name] is not None and self.running_instance[inst.name].is_running():
                 inst_status = ugettext("=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[inst.name].lan_ip, 'port': self.running_instance[inst.name].port}
@@ -398,7 +407,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             content += "</table>"
             self.instance.setText(content)
         except Exception:
-            self.instance.setText("<h1><center>%s</center></h1>" % self.model.current_item)
+            self.instance.setText("<h1><center>%s</center></h1>" % self.instances_model.current_item)
 
     def set_modules_info(self):
         lct_glob = LucteriosGlobal()
@@ -423,24 +432,24 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def refresh(self, instance_name=None):
         if instance_name == '':
             instance_name = None
-        self.refreshed.emit(instance_name)
+        self.refreshslot.emit(instance_name)
 
     def refresh_ex(self, instance_name=None):
-        if (instance_name is None) or not self.model.isExist(instance_name):
-            self.model.refresh()
+        if (instance_name is None) or not self.instances_model.isExist(instance_name):
+            self.instances_model.refresh()
         if (instance_name is not None) and (instance_name != ''):
-            index = self.model.findText(instance_name)
+            index = self.instances_model.findText(instance_name)
             self.instances.setCurrentIndex(index)
-            self.model.changed(index)
+            self.instances_model.changed(index)
 
     def reload(self):
-        self.launchAct.setEnabled(self.model.current_item is not None)
-        self.modifyAct.setEnabled(self.model.current_item is not None)
-        self.deleteAct.setEnabled(self.model.current_item is not None)
-        self.saveAct.setEnabled(self.model.current_item is not None)
-        self.restoreAct.setEnabled(self.model.current_item is not None)
+        self.launchAct.setEnabled(self.instances_model.current_item is not None)
+        self.modifyAct.setEnabled(self.instances_model.current_item is not None)
+        self.deleteAct.setEnabled(self.instances_model.current_item is not None)
+        self.saveAct.setEnabled(self.instances_model.current_item is not None)
+        self.restoreAct.setEnabled(self.instances_model.current_item is not None)
         self.instance.setText("")
-        if self.model.current_item is not None:
+        if self.instances_model.current_item is not None:
             self.set_instance_info()
         else:
             self.launchAct.setText(ugettext("Launch"))
@@ -448,10 +457,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
                 self.set_modules_info()
 
     def get_selected_instance_name(self):
-        return self.model.current_item
-
-    def upgrade(self):
-        LucteriosMain.upgrade(self)
+        return self.instances_model.current_item
 
     def show_info(self, text, message):
         QMessageBox.information(self, str(text), str(message))
@@ -474,11 +480,14 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.splash.show()
 
     def remove_splash_screen(self):
-        self.model.refresh()
+        self.instances_model.refresh()
         self.splash.close()
         self.splash = None
 
     def enabled(self, is_enabled, widget=None):
+        self.enableslot.emit(is_enabled, widget)
+
+    def enable_ex(self, is_enabled, widget=None):
         if widget is None:
             widget = self
             self.do_progress(not is_enabled)
@@ -488,35 +497,38 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         if self.progress_thread is not None:
             self.progress_thread.do_run = False
             self.progress_thread.join()
+            self.progressBar.setValue(self.progressBar.minimum())
+            self.progressBar.hide()
             self.progress_thread = None
         if progressing:
             self.progress_thread = Thread(target=self.progress_run)
+            self.progressBar.setValue(self.progressBar.minimum())
+            self.progressBar.show()
             self.progress_thread.start()
 
     def progress_run(self):
         try:
-            self.progressBar.setValue(self.progressBar.minimum())
-            self.progressBar.show()
             while (self.progress_thread is not None) and getattr(self.progress_thread, "do_run", True) and self.progress_thread.is_alive():
-                value = self.progressBar.value() + 1
-                if value > self.progressBar.maximum():
-                    value = self.progressBar.minimum()
-                self.progressBar.setValue(value)
+                self.progressslot.emit()
                 sleep(0.25)
-            self.progressBar.setValue(self.progressBar.minimum())
-            self.progressBar.hide()
         except Exception:
             print_exc()
+
+    def step_progress(self):
+        value = self.progressBar.value() + 1
+        if value > self.progressBar.maximum():
+            value = self.progressBar.minimum()
+        self.progressBar.setValue(value)
 
     def run_after(self, ms, func=None, *args):
         func(*args)
 
     def set_ugrade_state(self, must_upgrade):
+        self.ugradestatesslot.emit(must_upgrade)
+
+    def set_ugrade_state_ex(self, must_upgrade):
         self.upgradeAct.setEnabled(must_upgrade)
-        if must_upgrade:
-            self.statusBar().showMessage(ugettext("Upgrade needs"))
-        else:
-            self.statusBar().showMessage(ugettext("No upgrade"))
+        self.statusBar().showMessage(self.ugrade_message(must_upgrade))
 
     def modify_inst(self):
         instance_name = self.get_selected_instance_name()

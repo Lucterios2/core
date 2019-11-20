@@ -532,12 +532,8 @@ class LucteriosMainForm(Tk, LucteriosMain):
             return ""
 
     def set_ugrade_state(self, must_upgrade):
-        if must_upgrade:
-            self.btnupgrade.config(state=NORMAL)
-            self.btnupgrade["text"] = ugettext("Upgrade needs")
-        else:
-            self.btnupgrade["text"] = ugettext("No upgrade")
-            self.btnupgrade.config(state=DISABLED)
+        self.btnupgrade["text"] = self.ugrade_message(must_upgrade)
+        self.btnupgrade.config(state=NORMAL if must_upgrade else DISABLED)
 
     def upgrade(self):
         self.btnupgrade.config(state=DISABLED)
