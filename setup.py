@@ -55,7 +55,7 @@ setup(
     ],
     packages=["lucterios", "lucterios.CORE",
               "lucterios.framework", "lucterios.install"],
-    scripts=['lucterios/install/lucterios_admin.py', 'lucterios/install/lucterios_gui.py'],
+    scripts=['lucterios/install/lucterios_admin.py', 'lucterios/install/lucterios_gui.py', 'lucterios/install/lucterios_qt.py'],
     package_data={
         "lucterios.CORE.migrations": ['*'],
         "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*'],

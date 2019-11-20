@@ -242,10 +242,17 @@ class LucteriosMain(object):
         if proc.returncode != 0:
             getLogger("lucterios.admin").error(value)
         else:
-            getLogger("lucterios.admin").instance(value)
+            getLogger("lucterios.admin").info(value)
         self.show_info(ugettext("Lucterios launcher"), ugettext("The application must restart"))
         python = sys.executable
         os.execl(python, python, *sys.argv)
+
+    def ugrade_message(self, must_upgrade):
+        if must_upgrade:
+            msg = ugettext("Upgrade needs")
+        else:
+            msg = ugettext("No upgrade")
+        return msg
 
     def set_ugrade_state(self, must_upgrade):
         pass
