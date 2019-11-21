@@ -229,7 +229,7 @@ class LucteriosMain(object):
         return ""
 
     @ThreadRun
-    def upgrade(self):
+    def upgrade(self, *_args):
         from logging import getLogger
         admin_path = import_module("lucterios.install.lucterios_admin").__file__
         proc = Popen([sys.executable, admin_path, "update"], stderr=STDOUT, stdout=PIPE)
@@ -243,9 +243,7 @@ class LucteriosMain(object):
             getLogger("lucterios.admin").error(value)
         else:
             getLogger("lucterios.admin").info(value)
-        self.show_info(ugettext("Lucterios launcher"), ugettext("The application must restart"))
-        python = sys.executable
-        os.execl(python, python, *sys.argv)
+        self.set_ugrade_state(2)
 
     def ugrade_message(self, must_upgrade):
         if must_upgrade:
@@ -254,7 +252,7 @@ class LucteriosMain(object):
             msg = ugettext("No upgrade")
         return msg
 
-    def set_ugrade_state(self, must_upgrade):
+    def set_ugrade_state(self, upgrade_mode):
         pass
 
     def check(self):
@@ -263,7 +261,7 @@ class LucteriosMain(object):
             lct_glob = LucteriosGlobal()
             _, must_upgrade = lct_glob.check()
         finally:
-            self.run_after(300, self.set_ugrade_state, must_upgrade)
+            self.run_after(300, self.set_ugrade_state, 1 if must_upgrade else 0)
 
     @ThreadRun
     def add_modif_inst_result(self, result, to_create):
