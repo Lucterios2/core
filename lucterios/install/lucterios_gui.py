@@ -531,9 +531,16 @@ class LucteriosMainForm(Tk, LucteriosMain):
         else:
             return ""
 
-    def set_ugrade_state(self, must_upgrade):
-        self.btnupgrade["text"] = self.ugrade_message(must_upgrade)
-        self.btnupgrade.config(state=NORMAL if must_upgrade else DISABLED)
+    def set_ugrade_state(self, upgrade_mode):
+        if upgrade_mode != 2:
+            msg = ugettext("The application must restart")
+            self.show_info(ugettext("Lucterios launcher"), msg)
+            self.btnupgrade["text"] = msg
+            self.btnupgrade.config(state=DISABLED)
+            self._refresh_modules()
+        else:
+            self.btnupgrade["text"] = self.ugrade_message(upgrade_mode == 1)
+            self.btnupgrade.config(state=NORMAL if upgrade_mode == 1 else DISABLED)
 
     def upgrade(self):
         self.btnupgrade.config(state=DISABLED)
@@ -541,8 +548,7 @@ class LucteriosMainForm(Tk, LucteriosMain):
         try:
             LucteriosMain.upgrade(self)
         finally:
-            self._refresh_modules()
-            self.btnupgrade.config(state=NORMAL)
+            self.btnupgrade.config(state=DISABLED)
             self.instance_list.config(state=NORMAL)
 
     @ThreadRun

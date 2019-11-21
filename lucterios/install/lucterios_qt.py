@@ -253,7 +253,9 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     refreshslot = pyqtSignal(str)
     enableslot = pyqtSignal(bool, object)
     progressslot = pyqtSignal()
-    ugradestatesslot = pyqtSignal(bool)
+    ugradestatesslot = pyqtSignal(int)
+    showmessageslot = pyqtSignal(bool, str, str)
+    runidlesslot = pyqtSignal(object)
 
     def __init__(self, *args, **kwargs):
         QMainWindow.__init__(self, *args, **kwargs)
@@ -265,6 +267,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.enableslot.connect(self.enable_ex)
         self.progressslot.connect(self.step_progress)
         self.ugradestatesslot.connect(self.set_ugrade_state_ex)
+        self.showmessageslot.connect(self.show_message)
+        self.runidlesslot.connect(self.run_idle)
         self.initUI()
         self.start_up_app()
 
@@ -455,15 +459,23 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             self.launchAct.setText(ugettext("Launch"))
             if not self.has_checked:
                 self.set_modules_info()
+                if self.instances_model.rowCount() == 0:
+                    self.run_after(0, self.add_inst)
 
     def get_selected_instance_name(self):
         return self.instances_model.current_item
 
     def show_info(self, text, message):
-        QMessageBox.information(self, str(text), str(message))
+        self.showmessageslot.emit(False, str(text), str(message))
 
     def show_error(self, text, message):
-        QMessageBox.critical(self, str(text), str(message))
+        self.showmessageslot.emit(True, str(text), str(message))
+
+    def show_message(self, is_error, text, message):
+        if is_error:
+            QMessageBox.critical(self, text, message)
+        else:
+            QMessageBox.information(self, text, message)
 
     def show_splash_screen(self):
         splash_pix = QPixmap(350, 200)
@@ -521,14 +533,23 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.progressBar.setValue(value)
 
     def run_after(self, ms, func=None, *args):
-        func(*args)
+        self.runidlesslot.emit(lambda: func(*args))
 
-    def set_ugrade_state(self, must_upgrade):
-        self.ugradestatesslot.emit(must_upgrade)
+    def run_idle(self, func=None):
+        func()
 
-    def set_ugrade_state_ex(self, must_upgrade):
-        self.upgradeAct.setEnabled(must_upgrade)
-        self.statusBar().showMessage(self.ugrade_message(must_upgrade))
+    def set_ugrade_state(self, upgrade_mode):
+        self.ugradestatesslot.emit(upgrade_mode)
+
+    def set_ugrade_state_ex(self, upgrade_mode):
+        if upgrade_mode == 2:
+            msg = ugettext("The application must restart")
+            self.show_info(ugettext("Lucterios launcher"), msg)
+            self.upgradeAct.setEnabled(False)
+            self.statusBar().showMessage(msg)
+        else:
+            self.upgradeAct.setEnabled(upgrade_mode == 1)
+            self.statusBar().showMessage(self.ugrade_message(upgrade_mode == 1))
 
     def modify_inst(self):
         instance_name = self.get_selected_instance_name()
