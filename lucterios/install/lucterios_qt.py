@@ -33,7 +33,7 @@ import sys
 
 from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
     QDialog, QDialogButtonBox, QVBoxLayout, QGridLayout, QFrame, QLineEdit,\
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QTimer, QThread
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
@@ -459,8 +459,6 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             self.launchAct.setText(ugettext("Launch"))
             if not self.has_checked:
                 self.set_modules_info()
-                if self.instances_model.rowCount() == 0:
-                    self.run_after(0, self.add_inst)
 
     def get_selected_instance_name(self):
         return self.instances_model.current_item
@@ -495,6 +493,11 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.instances_model.refresh()
         self.splash.close()
         self.splash = None
+
+    def show(self):
+        QMainWindow.show(self)
+        if self.instances_model.rowCount() == 0:
+            self.run_after(0, self.add_inst)
 
     def enabled(self, is_enabled, widget=None):
         self.enableslot.emit(is_enabled, widget)
