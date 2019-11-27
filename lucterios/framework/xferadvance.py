@@ -90,6 +90,8 @@ def add_auditlog_button(xfer, instance, posx, posy):
                                                                      'objid': instance.id})
         btn.set_is_mini(True)
         btn.set_location(posx, posy)
+        if xfer.tab > 0:
+            xfer.tab = 1
         xfer.add_component(btn)
 
 
@@ -166,8 +168,8 @@ class XferAddEditor(XferContainerCustom):
     locked = True
     with_auditlog_btn = True
 
-    def __init__(self, **kwargs):
-        XferContainerCustom.__init__(self, **kwargs)
+    def _initialize(self, request, *_, **kwargs):
+        XferContainerCustom._initialize(self, request, *_, **kwargs)
         if isinstance(self.redirect_to_show, six.text_type):
             self.with_auditlog_btn = (ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self) is None)
 
