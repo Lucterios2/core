@@ -32,8 +32,8 @@ from threading import Thread
 import sys
 
 from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
-    QDialog, QDialogButtonBox, QVBoxLayout, QGridLayout, QFrame, QLineEdit,\
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal
+    QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit,\
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
@@ -89,13 +89,6 @@ class InstanceModel(QAbstractListModel):
         self.parent().reload()
 
 
-class LucteriosLayout(QGridLayout):
-
-    def add_row(self, title, comp, row_id):
-        self.addWidget(QLabel(text=title), row_id, 0)
-        self.addWidget(comp, row_id, 1)
-
-
 class InstanceDlg(QDialog, EditorInstance):
 
     def __init__(self, *args, **kwargs):
@@ -117,34 +110,34 @@ class InstanceDlg(QDialog, EditorInstance):
         self.setLayout(layout)
 
     def _general_content(self):
-        layout = LucteriosLayout()
+        layout = QFormLayout()
         self.inst_name = QLineEdit()
-        layout.add_row(ugettext("Name"), self.inst_name, 0)
+        layout.addRow(ugettext("Name"), self.inst_name)
         self.applis = QComboBox()
         self.applis.currentIndexChanged.connect(self.applischange)
-        layout.add_row(ugettext("Appli"), self.applis, 1)
+        layout.addRow(ugettext("Appli"), self.applis)
         self.modules = QListView()
         self.modules.setModel(QStandardItemModel())
-        layout.add_row(ugettext("Modules"), self.modules, 2)
+        layout.addRow(ugettext("Modules"), self.modules)
         self.language = QComboBox()
-        layout.add_row(ugettext("Language"), self.language, 3)
+        layout.addRow(ugettext("Language"), self.language)
         self.mode = QComboBox()
-        layout.add_row(ugettext("CORE-connectmode"), self.mode, 4)
+        layout.addRow(ugettext("CORE-connectmode"), self.mode)
         self.password = QLineEdit()
-        layout.add_row(ugettext("Password"), self.password, 5)
+        layout.addRow(ugettext("Password"), self.password)
         return layout
 
     def _database_content(self):
-        layout = LucteriosLayout()
+        layout = QFormLayout()
         self.db_type = QComboBox()
         self.db_type.currentIndexChanged.connect(self.dbtypechange)
-        layout.add_row(ugettext("Type"), self.db_type, 0)
+        layout.addRow(ugettext("Type"), self.db_type)
         self.db_name = QLineEdit()
-        layout.add_row(ugettext("Name"), self.db_name, 1)
+        layout.addRow(ugettext("Name"), self.db_name)
         self.db_user = QLineEdit()
-        layout.add_row(ugettext("User"), self.db_user, 2)
+        layout.addRow(ugettext("User"), self.db_user)
         self.db_password = QLineEdit()
-        layout.add_row(ugettext("Password"), self.db_password, 3)
+        layout.addRow(ugettext("Password"), self.db_password)
         return layout
 
     def applischange(self, appli_id):
@@ -467,7 +460,12 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.showmessageslot.emit(False, str(text), str(message))
 
     def show_error(self, text, message):
-        self.showmessageslot.emit(True, str(text), str(message))
+        if isinstance(message, Exception):
+            import traceback
+            msg = ''.join(traceback.format_exception(etype=type(message), value=message, tb=None))
+        else:
+            msg = str(message)
+        self.showmessageslot.emit(True, str(text), msg)
 
     def show_message(self, is_error, text, message):
         if is_error:
