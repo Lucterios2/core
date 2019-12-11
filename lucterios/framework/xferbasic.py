@@ -233,6 +233,7 @@ class XferContainerAbstract(View):
         return self.has_changed
 
     def _initialize(self, request, *_, **kwargs):
+        from django.conf import settings
         if hasattr(self.__class__, 'is_view_right'):
             self.get_action().raise_bad_permission(request)
         if hasattr(request, 'session'):
@@ -249,7 +250,7 @@ class XferContainerAbstract(View):
         if 'FORMAT' in self.params.keys():
             self.format = self.params['FORMAT']
             del self.params['FORMAT']
-        self.language = translation.get_language_from_request(request)
+        self.language = settings.LANGUAGE_CODE
         set_locale_lang(self.language)
         self._search_model()
 
