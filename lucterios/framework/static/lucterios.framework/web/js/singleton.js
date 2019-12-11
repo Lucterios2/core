@@ -98,31 +98,20 @@ var SingletonClass = Class.extend({
 	mSelectLang : null,
 
 	init : function() {
-		var languages = navigator.languages, lang_idx, sub_language;
-		this.mSelectLang = null;
-		if ((languages !== undefined) && (languages !== null)) {
-			for (lang_idx = 0; (this.mSelectLang === null) && (lang_idx < languages.length); lang_idx++) {
-				sub_language = languages[lang_idx].split('-')[0];
-				if (g_translation.hasOwnProperty(languages[lang_idx])) {
-					this.mSelectLang = languages[lang_idx];
-				} else if (g_translation.hasOwnProperty(sub_language)) {
-					this.mSelectLang = sub_language;
-				}
-			}
-		}
-		if (this.mSelectLang === null) {
-			this.mSelectLang = 'fr';
-		}
-		if ($.datepicker.regional.hasOwnProperty(this.mSelectLang)) {
-			$.datepicker.setDefaults($.datepicker.regional[this.mSelectLang]);
-		}
 	},
 
-	getSelectLang : function() {
-		if ((this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
-			return this.mDesc.getLanguage();
+	getSelectLang : function() {		
+		if ((this.mSelectLang==null) && (this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
+			this.mSelectLang=this.mDesc.getLanguage();
+			if ($.datepicker.regional.hasOwnProperty(this.mSelectLang)) {
+				$.datepicker.setDefaults($.datepicker.regional[this.mSelectLang]);
+			}
 		}
-		return this.mSelectLang;
+		if (this.mSelectLang==null) {
+			return "fr";
+		} else {
+			return this.mSelectLang;
+		}
 	},
 
 	getTranslate : function(name) {
@@ -168,6 +157,7 @@ var SingletonClass = Class.extend({
 
 	setInfoDescription : function(aDesc, aRefreshMenu, aInitialHeader) {
 		this.mDesc = aDesc;
+		this.mSelectLang = null;		
 		this.mRefreshMenu = aRefreshMenu;
 		if (g_InitialCallBack !== null) {
 			g_InitialCallBack(aInitialHeader);
