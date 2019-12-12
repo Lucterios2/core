@@ -668,7 +668,7 @@ class PrintModelDelete(XferDelete):
     field_id = 'print_model'
 
 
-@ActionsManage.affect_grid(_("Default"), "", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(_("Default"), "images/default.png", unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelSetDefault(XferContainerAcknowledge):
     caption = _("Set default print model")
