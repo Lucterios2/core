@@ -234,10 +234,9 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		};
 		this.mActions = this.mJSON.actions;
 	},
-
-	show : function(aTitle, aGUIType) {
-		this._super(aTitle, aGUIType);
-		var cdate = this.mJSON.data, json_connection, desc;
+	
+	get_desc : function() {
+		var json_connection, desc=null;
 		if (this.mJSON.connexion !== undefined) {
 			json_connection = this.mJSON.connexion;
 			desc = new ApplicationDescription(json_connection.TITLE, json_connection.COPYRIGHT, json_connection.VERSION,
@@ -256,9 +255,16 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			desc.setMessageBefore(json_connection.MESSAGE_BEFORE);
 			desc.setLanguage(json_connection.LANGUAGE);
 		}
+		return desc;
+	},
+
+	show : function(aTitle, aGUIType) {
+		this._super(aTitle, aGUIType);
+		var cdate = this.mJSON.data, desc = this.get_desc();
 		if (cdate !== "OK") {
 			Singleton().Transport().setSession("");
 			run_CleanCallBack();
+			Singleton().mDesc = desc;
 			this.show_logon(cdate);
 			Singleton().setInfoDescription(desc, false, false);
 			this.refreshMenu = true;
