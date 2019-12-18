@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
+from django.utils import six, translation
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, get_actions_json, CLOSE_YES
@@ -40,6 +40,7 @@ def get_info_server():
     from django import VERSION
     from django.conf import settings
     from django.utils.module_loading import import_module
+    import locale
     for appname in settings.INSTALLED_APPS:
         if ("django" not in appname) and ("lucterios.framework" != appname):
             appmodule = import_module(appname)
@@ -53,8 +54,15 @@ def get_info_server():
     from platform import python_version, uname
     django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
     os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])
-    res.append(six.text_type("{[i]}%s - Python %s - Django %s{[/i]}") %
-               (os_version, python_version(), django_version))
+    try:
+        locale_lang = locale.getlocale(locale.LC_CTYPE)[0]
+        django_lang = translation.get_language()
+        if not locale_lang.startswith(django_lang):
+            django_lang = '%s/%s' % (locale_lang, django_lang)
+        lang_current = _("language '%s'") % django_lang
+    except Exception:
+        lang_current = _("language unknown")
+    res.append("{[i]}%s - Python %s - Django %s - %s{[/i]}" % (os_version, python_version(), django_version, lang_current))
     return res
 
 

@@ -560,15 +560,16 @@ def get_bool_textual(value):
 
 def set_locale_lang(lang):
     from django.utils import translation
-    translation.activate(lang)
     try:
         if lang[:2].lower() == 'fr':
+            translation.activate('fr')
             try:
                 locale.setlocale(locale.LC_ALL, 'french')
             except Exception:
                 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
             return
         if lang[:2].lower() == 'en':
+            translation.activate('en')
             try:
                 locale.setlocale(locale.LC_ALL, 'english')
             except Exception:
@@ -576,6 +577,7 @@ def set_locale_lang(lang):
             return
     except Exception:
         pass
+    translation.activate('en')
     locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 
 
