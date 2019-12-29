@@ -524,6 +524,10 @@ div.gridpager span {
 	border-top: 1px solid #fff;
 }
 
+.gridContent tbody tr td p {
+    margin: 0px;
+}
+
 .gridempty td {
 	text-align: center;
 	padding: 3px;

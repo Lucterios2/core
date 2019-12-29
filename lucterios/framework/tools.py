@@ -495,8 +495,6 @@ def toHtml(text):
     text = text.replace('{[/underline]}', '</u>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
-    text = text.replace('<p>', '')
-    text = text.replace('</p>', '<br/>')
     text = text.replace('<br>', '<br/>')
     return text
 
