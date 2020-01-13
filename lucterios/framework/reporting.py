@@ -60,12 +60,13 @@ class ConvertHTML_XMLReportlab(object):
         xmlrl_item.attrib['autoLeading'] = 'max'
         return xmlrl_item
 
-    def __init__(self, xmlrl_result):
+    def __init__(self, xmlrl_result, no_para):
         self.xmlrl_result = xmlrl_result
         self._options = {'ul': 0, 'ol': 0}
         self.current_style = {}
         self.num_index = 1
         self._html_item = None
+        self.no_para = no_para
 
     @property
     def options(self):
@@ -120,6 +121,11 @@ class ConvertHTML_XMLReportlab(object):
         return xmlrl_item
 
     def _parse_p(self):
+        if self.no_para:
+            xmlrl_item = etree.Element("div")
+            xmlrl_item.text = " "
+            self.xmlrl_result.append(xmlrl_item)
+            return etree.Element("div")
         xmlrl_item = self._new_para()
         if self.html_item.attrib.get('align') is not None:
             xmlrl_item.attrib['align'] = self.html_item.attrib['align']
@@ -254,7 +260,7 @@ class ConvertHTML_XMLReportlab(object):
                 xmlrl_item = etree.Element(self.html_item.tag)
                 self.fill_attrib(self.html_item, xmlrl_item)
             if xmlrl_item is not None:
-                new_parser = self.__class__(xmlrl_item)
+                new_parser = self.__class__(xmlrl_item, self.no_para)
                 new_parser.run(self.html_item, self.options)
                 if xmlrl_item.tag == 'para':
                     self._reoganize_para(xmlrl_item)
@@ -274,10 +280,10 @@ class ConvertHTML_XMLReportlab(object):
         self._all_in_para()
 
     @classmethod
-    def convert(cls, html_items):
+    def convert(cls, html_items, no_para):
         getLogger('lucterios.printing').debug("\n[[[ ConvertHTML_XMLReportlab html = %s", etree.tostring(html_items, pretty_print=True).decode())
         xmlrl_items = etree.Element('MULTI')
-        parser = cls(xmlrl_items)
+        parser = cls(xmlrl_items, no_para)
         parser.run(html_items)
         reportlab_xml_list = []
         last_text = ""
@@ -448,8 +454,8 @@ class LucteriosPDF(object):
             current_y = self.y_offset + get_size(xmlitem, 'top')
         return current_y
 
-    def create_para(self, xmltext, current_w, current_h, offset_font_size=0):
-        para_text_list = ConvertHTML_XMLReportlab.convert(xmltext)
+    def create_para(self, xmltext, current_w, current_h, offset_font_size=0, no_para=False):
+        para_text_list = ConvertHTML_XMLReportlab.convert(xmltext, no_para)
         font_name = xmltext.get('font_family')
         if font_name is None:
             font_name = 'sans-serif'
@@ -568,7 +574,7 @@ class LucteriosPDF(object):
 
     def parse_text(self, xmltext, current_x, current_y, current_w, current_h):
         SPACE_BETWEEN_PARA = 6
-        paras, style = self.create_para(xmltext, current_w, current_h)
+        paras, style = self.create_para(xmltext, current_w, current_h, no_para=True)
         sum_current_h = 0
         for _, new_current_h in paras:
             sum_current_h += new_current_h + SPACE_BETWEEN_PARA
