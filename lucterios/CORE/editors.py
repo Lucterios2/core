@@ -27,8 +27,8 @@ from __future__ import unicode_literals
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
 
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompPassword, XferCompCheck,\
-    XferCompSelect, XferCompButton
+from lucterios.framework.xfercomponents import XferCompPassword, XferCompCheck,\
+    XferCompSelect, XferCompButton, XferCompCheckList
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT, MINOR
 from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
@@ -36,6 +36,7 @@ from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.signal_and_lock import Signal
 
 from lucterios.CORE.models import SavedCriteria
+from lucterios.framework.plugins import PluginManager
 
 
 class LucteriosUserEditor(LucteriosEditor):
@@ -109,6 +110,34 @@ parent.get('password2').setEnabled(pwd_change);
                     IMPORTANT, _("The passwords are differents!"))
             self.item.set_password(password)
             self.item.save()
+
+
+class LucteriosGroupEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        if (PluginManager.get_instance().count > 0):
+            plugin_permission = PluginManager.get_param()
+            sel = XferCompCheckList('plugins')
+            sel.description = _('plugins')
+            sel.set_location(1, 2)
+            sel.simple = 2
+            sel.set_select([(item.name, item.title) for item in PluginManager.get_instance()])
+            sel.set_value([item.name for item in PluginManager.get_instance() if (item.name in plugin_permission) and (self.item.id in plugin_permission[item.name])])
+            xfer.add_component(sel)
+
+    def saving(self, xfer):
+        if (PluginManager.get_instance().count > 0):
+            plugin_permissions = PluginManager.get_param()
+            new_plugin = xfer.getparam('plugins', ())
+            new_permissions = {}
+            for plugin_name in plugin_permissions.keys():
+                if plugin_name in new_plugin:
+                    new_permissions[plugin_name] = list(set(plugin_permissions[plugin_name] + [xfer.item.id]))
+                else:
+                    new_permissions[plugin_name] = plugin_permissions[plugin_name]
+                    if xfer.item.id in new_permissions[plugin_name]:
+                        new_permissions[plugin_name].remove(xfer.item.id)
+            PluginManager.set_param(new_permissions)
 
 
 class SavedCriteriaEditor(LucteriosEditor):

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-07 15:46+0000\n"
+"POT-Creation-Date: 2020-01-16 19:31+0000\n"
 "PO-Revision-Date: 2019-10-07 17:46+0200\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -21,119 +21,119 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:506
+#: models.py:546
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:629
+#: models.py:669
 msgid "username"
 msgstr "username"
 
-#: models.py:630
+#: models.py:670
 msgid "is active"
 msgstr "is active"
 
-#: models.py:677
+#: models.py:710
 msgid "session"
 msgstr "session"
 
-#: models.py:678
+#: models.py:711
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:808
+#: models.py:841
 msgid "create"
 msgstr "create"
 
-#: models.py:809
+#: models.py:842
 msgid "update"
 msgstr "update"
 
-#: models.py:810 tools.py:464
+#: models.py:843 tools.py:466
 msgid "delete"
 msgstr "delete"
 
-#: models.py:811
+#: models.py:844
 msgid "remove"
 msgstr "remove"
 
-#: models.py:812 tools.py:460
+#: models.py:845 tools.py:462
 msgid "add"
 msgstr "add"
 
-#: models.py:822 models.py:829
+#: models.py:855 models.py:862
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:823
+#: models.py:856
 msgid "content type"
 msgstr "content type"
 
-#: models.py:824
+#: models.py:857
 msgid "actor"
 msgstr "actor"
 
-#: models.py:825
+#: models.py:858
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:826
+#: models.py:859
 msgid "object id"
 msgstr "object id"
 
-#: models.py:827
+#: models.py:860
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:828
+#: models.py:861
 msgid "action"
 msgstr "action"
 
-#: models.py:830
+#: models.py:863
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:831
+#: models.py:864
 msgid "date"
 msgstr "date"
 
-#: models.py:832
+#: models.py:865
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:838
+#: models.py:871
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:840
+#: models.py:873
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:842
+#: models.py:875
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:844
+#: models.py:877
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:932
+#: models.py:965
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:933
+#: models.py:966
 msgid "log entries"
 msgstr "log entries"
 
-#: models.py:965
+#: models.py:998
 msgid "General"
 msgstr "General"
 
-#: models.py:969 models.py:970
+#: models.py:1002 models.py:1003
 msgid "current date"
 msgstr "current date"
 
-#: models.py:971
+#: models.py:1004
 msgid "current hour"
 msgstr "current hour"
 
@@ -146,20 +146,20 @@ msgstr "This impression failed !"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:139
+#: tools.py:141
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:141
+#: tools.py:143
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:462
+#: tools.py:464
 msgid "view"
 msgstr "view"
 
-#: tools.py:466
+#: tools.py:468
 msgid "Can"
 msgstr "Can"
 
@@ -179,24 +179,24 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:45 xferadvance.py:239 xfergraphic.py:130 xferprinting.py:121
+#: xferadvance.py:45 xferadvance.py:241 xfergraphic.py:130 xferprinting.py:121
 #: xferprinting.py:194 xfersearch.py:583
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:46 xfercomponents.py:705
+#: xferadvance.py:46 xfercomponents.py:702
 msgid "Edit"
 msgstr "Edit"
 
-#: xferadvance.py:47 xfercomponents.py:705
+#: xferadvance.py:47 xfercomponents.py:702
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:48 xfercomponents.py:706
+#: xferadvance.py:48 xfercomponents.py:703
 msgid "Delete"
 msgstr "Delete"
 
-#: xferadvance.py:49 xfercomponents.py:706
+#: xferadvance.py:49 xfercomponents.py:703
 msgid "Add"
 msgstr "Add"
 
@@ -229,7 +229,7 @@ msgstr "Label"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Total number of %(name)s: %(count)d"
 
-#: xferadvance.py:230 xferbasic.py:155
+#: xferadvance.py:232 xferbasic.py:155
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -237,38 +237,38 @@ msgstr ""
 "This record not exist!\n"
 "Refresh your application."
 
-#: xferadvance.py:247
+#: xferadvance.py:249
 msgid "No model"
 msgstr "No model"
 
-#: xferadvance.py:257
+#: xferadvance.py:259
 msgid "No selection"
 msgstr "No selection"
 
-#: xferadvance.py:268
+#: xferadvance.py:270
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Do you want delete this %(name)s?"
 
-#: xferadvance.py:269
+#: xferadvance.py:271
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:292
+#: xferadvance.py:294
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferadvance.py:321
+#: xferadvance.py:325
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}A condition should not be verified."
 
-#: xferadvance.py:324
+#: xferadvance.py:328
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Do you want to change this %(name)s to '%(state)s'?"
 
-#: xferadvance.py:334
+#: xferadvance.py:338
 msgid "Bad transition"
 msgstr "Bad transition"
 

@@ -76,6 +76,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
         self.assertEqual(self.response_json['connexion']['SUBTITLE'], six.text_type('Application générique de gestion'))
         self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.4.')
+        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
         self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.4.')
         self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
         self.assertEqual(self.response_json['connexion']['LOGONAME'][0:20], 'data:image/*;base64,')

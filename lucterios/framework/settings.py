@@ -215,6 +215,7 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     setup_path = dirname(module_to_setup.__file__)
     extra_setting = _get_extra(module_to_setup)
     setattr(module_to_setup, "EXTRA", extra_setting)
+    setattr(module_to_setup, "SETUP", module_to_setup)
     logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
     for (key_name, setting_value) in DEFAULT_SETTINGS.items():
         if key_name not in extra_setting.keys():

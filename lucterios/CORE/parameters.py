@@ -36,6 +36,8 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, 
     XferCompPassword, XferCompCheckList
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools, signal_and_lock
+from json import loads, dumps
+from lucterios.framework.plugins import PluginManager
 
 
 class ParamCache(object):
@@ -194,7 +196,14 @@ class ParamCache(object):
         return param_cmp
 
     def get_object(self):
-        if (self.type == 6):
+        if self.type == 0:  # String
+            if self.db_obj is None:
+                try:
+                    self.db_obj = (loads(self.value),)
+                except Exception:
+                    self.db_obj = (None,)
+            return self.db_obj[0]
+        elif (self.type == 6):
             if self.db_obj is None:
                 try:
                     if self.args['Multi']:
@@ -246,6 +255,13 @@ class Params(object):
             return cls._get(name).value
         finally:
             cls._paramlock.release()
+
+    @classmethod
+    def setvalue(cls, name, value):
+        param = Parameter.objects.get(name=name)
+        param.value = value
+        param.save()
+        cls.clear()
 
     @classmethod
     def getobject(cls, name):
@@ -304,4 +320,20 @@ def secure_mode_connect():
     return mode_connection == 0
 
 
+def get_param_plugin():
+    try:
+        return Params.getobject("CORE-PluginPermission")
+    except Exception:
+        return {}
+
+
+def set_param_plugin(value):
+    try:
+        Params.setvalue("CORE-PluginPermission", dumps(value))
+    except Exception:
+        pass
+
+
 tools.WrapAction.mode_connect_notfree = notfree_mode_connect
+PluginManager.get_param = lambda *_args: get_param_plugin()
+PluginManager.set_param = lambda *args: set_param_plugin(args[-1])
