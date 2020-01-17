@@ -38,6 +38,7 @@ from django.http.response import HttpResponse
 from lucterios.framework.docs import defaultDocs
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
+from lucterios.framework.plugins import PluginManager
 
 
 def defaultblank(request, *args):
@@ -84,27 +85,30 @@ def get_url_patterns():
                             if inspect.isclass(obj[1]):
                                 is_lucterios_ext = True
                                 as_view_meth = getattr(obj[1], "as_view")
-                                res.append(
-                                    url(r"^%s$" % obj[1].url_text, as_view_meth()))
+                                res.append(url(r"^%s$" % obj[1].url_text, as_view_meth()))
                     except AttributeError:
                         pass
             elif settings.APPLIS_MODULE == appmodule:
                 is_lucterios_ext = True
         if not is_lucterios_ext:
             try:
-                patterns = getattr(
-                    import_module('%s.urls' % appname), 'urlpatterns', None)
+                patterns = getattr(import_module('%s.urls' % appname), 'urlpatterns', None)
                 if isinstance(patterns, (list, tuple)):
                     for url_pattern in patterns:
                         module_items = appname.split('.')
+                        if module_items[0] == 'lucterios':
+                            continue
                         if module_items[0] == 'django':
                             res.append(url_pattern)
                         else:
-                            res.append(url(r"^%s/%s" % (module_items[-1], url_pattern._regex[1:]),
-                                           url_pattern.callback,
-                                           url_pattern.default_args, url_pattern.name))
+                            res.append(url(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
+                                           url_pattern.callback, None, url_pattern.pattern.name))
             except ImportError:
                 pass
+    print("PluginManager.get_instance")
+    for plugin_item in PluginManager.get_instance():
+        for view_item in plugin_item.views:
+            res.append(url(r"^%s$" % view_item.url_text, view_item.as_view()))
     try:
         from django.contrib.admin.sites import site
         res.append(url(r'^accounts/login/$', site.login))

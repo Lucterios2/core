@@ -25,19 +25,20 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from datetime import date
 
+from django.contrib.auth.models import Permission
+from django.utils import six
+
 from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
-from lucterios.framework.xfergraphic import XferContainerAcknowledge
+from lucterios.framework import tools, signal_and_lock
+from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
+
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
     AudiLogConfig, GroupsDelete
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
-from lucterios.framework import tools, signal_and_lock
 
-from django.contrib.auth.models import Permission
-from django.utils import six
 from lucterios.CORE.views import Unlock
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.CORE import parameters
-from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 
 class UserTest(LucteriosTest):

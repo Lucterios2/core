@@ -471,6 +471,7 @@ def core_checkparam():
     Parameter.check_and_create(name='CORE-Wizard', typeparam=3, title=_("CORE-Wizard"), args="{}", value='True')
     Parameter.check_and_create(name='CORE-MessageBefore', typeparam=0, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
     Parameter.check_and_create(name='CORE-AuditLog', typeparam=0, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
+    Parameter.check_and_create(name='CORE-PluginPermission', typeparam=0, title=_("CORE-PluginPermission"), args="{'Multi':True, 'HyperText':False}", value='{}')
 
 
 def set_auditlog_states():

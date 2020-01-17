@@ -33,6 +33,7 @@ from lucterios.framework import signal_and_lock
 from lucterios.framework.models import LucteriosSession
 
 from lucterios.CORE.parameters import Params, secure_mode_connect
+from lucterios.framework.plugins import PluginManager
 
 
 def get_info_server():
@@ -49,8 +50,12 @@ def get_info_server():
                     app_title = appmodule.__title__()
                 except TypeError:
                     app_title = six.text_type(appmodule.__title__)
-                res.append(six.text_type("%s=%s") % (app_title, appmodule.__version__))
+                res.append("%s=%s" % (app_title, appmodule.__version__))
     res.append("")
+    if (PluginManager.get_instance().count > 0):
+        for plugin in PluginManager.get_instance():
+            res.append("%s=%s" % (plugin.title, plugin.version))
+        res.append("")
     from platform import python_version, uname
     django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
     os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])

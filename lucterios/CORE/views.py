@@ -335,6 +335,7 @@ class ParamSave(XferContainerAcknowledge):
 
 
 MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("_Extensions (conf.)"), _("To manage of modules configurations."), 20)
+MenuManage.add_sub("core.plugins", 'core.admin', "images/config_plugin.png", _("Plugins (conf.)"), _("To manage of external plugins."), 30)
 
 
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
