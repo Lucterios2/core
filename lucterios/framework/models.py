@@ -41,7 +41,7 @@ from django.db.models.signals import pre_save
 from django.apps.registry import apps
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist, ImproperlyConfigured
 from django.contrib.sessions.models import Session
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.utils import six, formats, timezone
 from django.utils.encoding import smart_text
 from django.utils.six import integer_types
@@ -556,6 +556,32 @@ class LucteriosModel(models.Model):
         except (ImportError, AttributeError):
             return LucteriosEditor(self)
 
+    @classmethod
+    def get_permission(cls, show=False, add=False, delete=False):
+        perm_filter = Q()
+        if show:
+            perm_filter |= Q(codename__istartswith="change_")
+        else:
+            perm_filter |= ~Q(codename__istartswith="change_")
+        if add:
+            perm_filter |= Q(codename__istartswith="add_")
+        else:
+            perm_filter |= ~Q(codename__istartswith="add_")
+        if delete:
+            perm_filter |= Q(codename__istartswith="delete_")
+        else:
+            perm_filter |= ~Q(codename__istartswith="delete_")
+        current_class = cls
+        while current_class._meta.proxy is True:
+            for sub_class in current_class.__mro__:
+                if (sub_class != current_class) and hasattr(current_class, '_meta'):
+                    current_class = sub_class
+                    break
+        perm_filter = Q(content_type__app_label=current_class._meta.app_label) & Q(content_type__model=current_class._meta.object_name.lower())
+        for item in Permission.objects.filter(perm_filter):
+            if (item.codename.startswith("change_") and show) or (item.codename.startswith("add_") and add) or (item.codename.startswith("delete_") and delete):
+                yield item
+
     class Meta(object):
         abstract = True
 
@@ -903,25 +929,38 @@ class LucteriosLogEntry(LucteriosModel):
             return None
 
     def get_message(self):
+        TEXT_TITLEFIELD = '{[th style="text-align: left;width: 25%%;vertical-align: top;"]}%s{[/th]}'
+        TEXT_FIRSTVALUE = '{[td style="border: none;width: 20%%;vertical-align: top;"]}%s{[/td]}'
+        TEXT_VALUE = '{[td style="border: none;vertical-align: top;"]}%s{[/td]}'
+        TEXT_LINE = "{[tr]}%s{[/tr]}"
+
+        def get_format_value_ex(*args):
+            return get_format_value(*args).replace("{[p", "{[span").replace("{[/p]}", "{[/span]}")
+
         def get_new_line(action, dep_field, value):
+            if value[0] == 'None':
+                value[0] = None
+            if value[1] == 'None':
+                value[1] = None
             if hasattr(dep_field, 'verbose_name'):
                 title = dep_field.verbose_name
             else:
                 title = dep_field.name
             if action in (self.Action.CREATE, self.Action.ADD) or (value[0] == value[1]):
-                return '%s: "%s"' % (title, get_format_value(dep_field, value[1]))
+                return (TEXT_TITLEFIELD + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[1]))
             elif action == self.Action.UPDATE:
-                return '%s: "%s" -> "%s"' % (title, get_format_value(dep_field, value[0]), get_format_value(dep_field, value[1]))
+                return (TEXT_TITLEFIELD + TEXT_FIRSTVALUE + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]), get_format_value_ex(dep_field, value[1]))
             else:
-                return '%s: "%s"' % (title, get_format_value(dep_field, value[0]))
+                return (TEXT_TITLEFIELD + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]))
 
         changes = json.loads(self.changes)
-        res = []
+        res = ["{[table width='100%']}"]
         for key, value in changes.items():
             dep_field = self.get_field(key)
             if (dep_field is None) or (not dep_field.editable or dep_field.primary_key):
                 continue
-            res.append(get_new_line(self.action, dep_field, value))
+            new_line = get_new_line(self.action, dep_field, value)
+            res.append(TEXT_LINE % new_line)
         if self.additional_data is not None:
             additional_data = json.loads(self.additional_data)
             for field_title, values in additional_data.items():
@@ -935,12 +974,17 @@ class LucteriosLogEntry(LucteriosModel):
                                 sub_dep_field = sub_model._meta.get_field(sub_fieldname)
                                 if (sub_dep_field is None) or (not sub_dep_field.editable or sub_dep_field.primary_key):
                                     continue
-                                res_data.append(get_new_line(action_id, sub_dep_field, diff_value))
+                                new_line = get_new_line(action_id, sub_dep_field, diff_value)
+                                res_data.append(TEXT_LINE % new_line)
                         else:
-                            res_data.append(value_item)
-                    res.append('%s: %s = "%s"' % (field_title, LucteriosLogEntry.Action.get_action_title(action_id),
-                                                  '" "'.join(res_data)))
-        return res
+                            new_line = TEXT_VALUE % value_item
+                            res_data.append(TEXT_LINE % new_line)
+                    new_line = (TEXT_TITLEFIELD + TEXT_FIRSTVALUE + TEXT_VALUE) % (field_title,
+                                                                                   '{[i]}%s{[/i]}' % LucteriosLogEntry.Action.get_action_title(action_id),
+                                                                                   '{[table]}%s{[/table]}' % ''.join(res_data))
+                    res.append(TEXT_LINE % new_line)
+        res.append("{[/table]}")
+        return "".join(res)
 
     def change_additional_data(self, sender_ident, log_action, addon_data):
         if self.additional_data is None:

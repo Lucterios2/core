@@ -38,7 +38,8 @@ from django.db.models.signals import post_migrate
 from django.utils.translation import ugettext_lazy as _, ugettext_lazy
 from django.utils import six
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
+    LucteriosLogEntry
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
@@ -156,10 +157,6 @@ class LucteriosUser(User, LucteriosModel):
         else:
             return False
 
-    groups__titles = [_("Available groups"), _("Chosen groups")]
-    user_permissions__titles = [
-        _("Available permissions"), _("Chosen permissions")]
-
     class Meta(User.Meta):
 
         proxy = True
@@ -172,11 +169,18 @@ class LucteriosGroup(Group, LucteriosModel):
     def get_edit_fields(cls):
         return ['name', 'permissions']
 
-    permissions__titles = [_("Available permissions"), _("Chosen permissions")]
-
     @classmethod
     def get_default_fields(cls):
         return ['name']
+
+    @classmethod
+    def redefine_generic(cls, name, *args):
+        generic_group, _created = LucteriosGroup.objects.get_or_create(name=name)
+        generic_group.permissions.clear()
+        for premission_set in args:
+            for perm_item in premission_set:
+                generic_group.permissions.add(perm_item)
+        return generic_group
 
     class Meta(object):
 
@@ -472,6 +476,10 @@ def core_checkparam():
     Parameter.check_and_create(name='CORE-MessageBefore', typeparam=0, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
     Parameter.check_and_create(name='CORE-AuditLog', typeparam=0, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
     Parameter.check_and_create(name='CORE-PluginPermission', typeparam=0, title=_("CORE-PluginPermission"), args="{'Multi':True, 'HyperText':False}", value='{}')
+
+    LucteriosGroup.redefine_generic(_("# Core (administrator)"), Parameter.get_permission(True, True, True), SavedCriteria.get_permission(True, True, True), LucteriosLogEntry.get_permission(True, True, True),
+                                    LucteriosGroup.get_permission(True, True, True), LucteriosUser.get_permission(True, True, True),
+                                    Label.get_permission(True, True, True), PrintModel.get_permission(True, True, True))
 
 
 def set_auditlog_states():

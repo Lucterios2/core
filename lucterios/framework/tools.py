@@ -449,26 +449,36 @@ def get_corrected_setquery(setquery):
 
 
 def get_dico_from_setquery(setquery):
+    def get_app_title(app_label):
+        from django.apps import apps
+        app_config = apps.get_app_config(app_label)
+        if not hasattr(app_config.module, "__title__"):
+            app_config = apps.get_app_config("CORE")
+        return app_config.module.__title__()
     from django.contrib.auth.models import Permission
-    res_dico = {}
+    res_dico = []
     if setquery.model == Permission:
         for record in setquery:
             rigths = six.text_type(record.codename).split("_")
-            if rigths[0] not in ['add', 'change', 'delete']:
-                res_dico[six.text_type(record.id)] = six.text_type(
-                    _(record.name))
+            if rigths[0] not in ['add', 'change', 'view', 'delete']:
+                res_dico[six.text_type(record.id)] = six.text_type(_(record.name))
             else:
                 if rigths[0] == 'add':
                     rigth_name = _('add')
-                elif rigths[0] == 'change':
+                elif (rigths[0] == 'change'):
                     rigth_name = _('view')
                 elif rigths[0] == 'delete':
                     rigth_name = _('delete')
-                res_dico[six.text_type(record.id)] = "%s | %s %s" % (
-                    six.text_type(record.content_type), _("Can"), rigth_name)
+                elif rigths[0] == 'view':
+                    continue
+                res_dico.append((six.text_type(record.id),
+                                 "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
+                                                   record.content_type.name,
+                                                   rigth_name)))
+        res_dico.sort(key=lambda item: item[1])
     else:
         for record in setquery:
-            res_dico[six.text_type(record.id)] = six.text_type(record)
+            res_dico.append((six.text_type(record.id), six.text_type(record)))
     return res_dico
 
 
@@ -585,7 +595,7 @@ def _convert_value_B(value, format_num):
 
 def _convert_value_D(value, format_num):
     if isinstance(value, six.text_type):
-        value = get_date_formating(datetime.strptime(value, "%Y-%m-%d").date())
+        value = get_date_formating(datetime.strptime(value.split(' ')[0], "%Y-%m-%d").date())
     else:
         value = get_date_formating(value)
     return value

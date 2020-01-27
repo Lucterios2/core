@@ -146,7 +146,7 @@ def lct_log_m2m(sender, instance, action, model, pk_set, **kwargs):
         elif action == 'pre_add':
             log_action = LucteriosLogEntry.Action.ADD
         if log_action is not None:
-            data_m2m = list(get_dico_from_setquery(model.objects.filter(pk__in=pk_set)).values())
+            data_m2m = [item[1] for item in get_dico_from_setquery(model.objects.filter(pk__in=pk_set))]
             title, attrname = get_sender_ident_for_m2m(sender, instance)
             sub_obj = instance.get_auditlog_object()
             if sub_obj is None:

@@ -495,8 +495,8 @@ class GroupTest(LucteriosTest):
         self.assert_action_equal('#group/actions/@0', ('Modifier', 'images/edit.png', 'CORE', 'groupsEdit', 0, 1, 0))
         self.assert_action_equal('#group/actions/@1', ('Supprimer', 'images/delete.png', 'CORE', 'groupsDelete', 0, 1, 2))
         self.assert_action_equal('#group/actions/@2', ('Créer', 'images/new.png', 'CORE', 'groupsEdit', 0, 1, 1))
-        self.assert_grid_equal('group', {"name": "nom"}, 0)
-        self.assert_attrib_equal('group', "nb_lines", '0')
+        self.assert_grid_equal('group', {"name": "nom"}, 1)
+        self.assert_attrib_equal('group', "nb_lines", '1')
 
     def test_groupadd(self):
         self.factory.xfer = GroupsEdit()
@@ -515,7 +515,7 @@ class GroupTest(LucteriosTest):
 
     def test_useraddsave(self):
         groups = LucteriosGroup.objects.all()
-        self.assertEqual(len(groups), 0)
+        self.assertEqual(len(groups), 1)
 
         self.factory.xfer = GroupsEdit()
         self.calljson('/CORE/groupsEdit', {'SAVE': 'YES', 'name': 'newgroup', "permissions": '1;3;5;7'}, False)
@@ -524,8 +524,8 @@ class GroupTest(LucteriosTest):
         self.assertEqual(self.json_context["name"], 'newgroup')
         self.assertEqual(self.json_context["permissions"], '1;3;5;7')
 
-        groups = LucteriosGroup.objects.all()
-        self.assertEqual(len(groups), 1)
+        groups = LucteriosGroup.objects.all().order_by('-id')
+        self.assertEqual(len(groups), 2)
         self.assertEqual(groups[0].name, "newgroup")
         perm = groups[0].permissions.all().order_by('id')
         self.assertEqual(len(perm), 4)
@@ -540,7 +540,7 @@ class GroupTest(LucteriosTest):
         group.save()
 
         self.factory.xfer = GroupsEdit()
-        self.calljson('/CORE/groupsEdit', {'group': '1'}, False)
+        self.calljson('/CORE/groupsEdit', {'group': '2'}, False)
         self.assert_observer('core.custom', 'CORE', 'groupsEdit')
         self.assertEqual(self.json_meta['title'], 'Modifier un groupe')
         self.assert_comp_equal(('EDIT', "name"), 'my_group', (1, 0, 3, 1))
@@ -620,7 +620,7 @@ class GroupTest(LucteriosTest):
 
         self.factory.xfer = GroupsList()
         self.calljson('/CORE/groupsList', {}, False)
-        self.assert_count_equal('group', 0)
+        self.assert_count_equal('group', 1)
 
         self.factory.xfer = GroupsEdit()
         self.calljson('/CORE/groupsEdit', {'SAVE': 'YES', 'name': 'truc', 'permissions': '7;9;13'}, False)
@@ -631,7 +631,7 @@ class GroupTest(LucteriosTest):
         self.assert_count_equal('lucterioslogentry', 1)
 
         self.factory.xfer = GroupsDelete()
-        self.calljson('/CORE/groupsDelete', {'group': '1', "CONFIRME": 'YES'}, False)
+        self.calljson('/CORE/groupsDelete', {'group': '2', "CONFIRME": 'YES'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'groupsDelete')
 
         self.factory.xfer = AudiLogConfig()
