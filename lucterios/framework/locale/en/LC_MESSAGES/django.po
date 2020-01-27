@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-16 19:31+0000\n"
+"POT-Creation-Date: 2020-01-25 16:35+0000\n"
 "PO-Revision-Date: 2019-10-07 17:46+0200\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -25,115 +25,115 @@ msgstr "User manual"
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:669
+#: models.py:695
 msgid "username"
 msgstr "username"
 
-#: models.py:670
+#: models.py:696
 msgid "is active"
 msgstr "is active"
 
-#: models.py:710
+#: models.py:736
 msgid "session"
 msgstr "session"
 
-#: models.py:711
+#: models.py:737
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:841
+#: models.py:867
 msgid "create"
 msgstr "create"
 
-#: models.py:842
+#: models.py:868
 msgid "update"
 msgstr "update"
 
-#: models.py:843 tools.py:466
+#: models.py:869 tools.py:471
 msgid "delete"
 msgstr "delete"
 
-#: models.py:844
+#: models.py:870
 msgid "remove"
 msgstr "remove"
 
-#: models.py:845 tools.py:462
+#: models.py:871 tools.py:467
 msgid "add"
 msgstr "add"
 
-#: models.py:855 models.py:862
+#: models.py:881 models.py:888
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:856
+#: models.py:882
 msgid "content type"
 msgstr "content type"
 
-#: models.py:857
+#: models.py:883
 msgid "actor"
 msgstr "actor"
 
-#: models.py:858
+#: models.py:884
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:859
+#: models.py:885
 msgid "object id"
 msgstr "object id"
 
-#: models.py:860
+#: models.py:886
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:861
+#: models.py:887
 msgid "action"
 msgstr "action"
 
-#: models.py:863
+#: models.py:889
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:864
+#: models.py:890
 msgid "date"
 msgstr "date"
 
-#: models.py:865
+#: models.py:891
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:871
+#: models.py:897
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:873
+#: models.py:899
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:875
+#: models.py:901
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:877
+#: models.py:903
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:965
+#: models.py:1009
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:966
+#: models.py:1010
 msgid "log entries"
 msgstr "log entries"
 
-#: models.py:998
+#: models.py:1042
 msgid "General"
 msgstr "General"
 
-#: models.py:1002 models.py:1003
+#: models.py:1046 models.py:1047
 msgid "current date"
 msgstr "current date"
 
-#: models.py:1004
+#: models.py:1048
 msgid "current hour"
 msgstr "current hour"
 
@@ -155,19 +155,15 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:464
+#: tools.py:469
 msgid "view"
 msgstr "view"
 
-#: tools.py:468
-msgid "Can"
-msgstr "Can"
-
-#: tools.py:552 xfergraphic.py:159
+#: tools.py:562 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:554 xfergraphic.py:160
+#: tools.py:564 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 
@@ -364,3 +360,6 @@ msgstr "%d items"
 #: xfersearch.py:474
 msgid "New criteria"
 msgstr "New criteria"
+
+#~ msgid "Can"
+#~ msgstr "Can"
