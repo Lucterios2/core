@@ -92,7 +92,7 @@ class ConvertHTML_XMLReportlab(object):
             for style_item in style_text.split(';'):
                 style_val = style_item.split(':')
                 if len(style_val) == 2:
-                    self.current_style[style_val[0]] = style_val[1]
+                    self.current_style[style_val[0].strip()] = style_val[1].strip()
         getLogger('lucterios.printing').debug("]]] ConvertHTML_XMLReportlab.html_item(tag=%s / style= %s)", self._html_item.tag, self.current_style)
 
     def fill_attrib(self, xml_source, xml_target):
