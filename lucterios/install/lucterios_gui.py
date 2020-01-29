@@ -532,7 +532,7 @@ class LucteriosMainForm(Tk, LucteriosMain):
             return ""
 
     def set_ugrade_state(self, upgrade_mode):
-        if upgrade_mode != 2:
+        if upgrade_mode == 2:
             msg = ugettext("The application must restart")
             self.show_info(ugettext("Lucterios launcher"), msg)
             self.btnupgrade["text"] = msg
