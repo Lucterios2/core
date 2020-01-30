@@ -240,8 +240,8 @@ class DummyTest(LucteriosTest):
 
         self.assertEqual(format_to_string(1234.56, "N3", "{0}"), "1,234.560", "check num positive no-formated")
         self.assertEqual(format_to_string(-1234.56, "N3", "{0}"), "-1,234.560", "check num negative no-formated")
-        self.assertEqual(format_to_string(1234.56, "C2USD", "{0}"), "1,234.56 $US", "check currency positive no-formated")
-        self.assertEqual(format_to_string(-1234.56, "C2USD", "{0}"), "-1,234.56 $US", "check currency negative no-formated")
+        self.assertEqual(format_to_string(1234.56, "C2USD", "{0}"), "$1,234.56", "check currency positive no-formated")
+        self.assertEqual(format_to_string(-1234.56, "C2USD", "{0}"), "$-1,234.56", "check currency negative no-formated")
 
         self.assertEqual(format_to_string("2017-04-23", "D", "{0}"), "April 23, 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time")
