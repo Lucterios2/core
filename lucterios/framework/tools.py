@@ -627,11 +627,15 @@ def _convert_value_N(value, format_num):
 
 def _convert_value_C(value, format_num):
     value = _convert_value_N(value, format_num)
-    tmp_val = format_currency(0, format_num[2:])
-    tmp_val = tmp_val.replace(',', '').replace('.', '')
-    for _ in range(6):
-        tmp_val = tmp_val.replace('00', '0')
-    value = tmp_val.replace('0', value)
+    try:
+        from django.utils import translation
+        tmp_val = format_currency(0, format_num[2:], locale=translation.get_language())
+        tmp_val = tmp_val.replace(',', '').replace('.', '')
+        for _ in range(6):
+            tmp_val = tmp_val.replace('00', '0')
+        value = tmp_val.replace('0', value)
+    except Exception:
+        pass
     return value
 
 
