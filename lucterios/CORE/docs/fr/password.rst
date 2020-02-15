@@ -1,7 +1,9 @@
 Mot de passe
 ============
 
-Le menu `Général/Mot de passe` vous permet de changer le mot de passe d'accès de l'utilisateur courant.
+     Menu *Général/Mot de passe* 
+     
+Vous pouvez changer le mot de passe d'accès de l'utilisateur courant.
 
 .. image:: _static/password.png
 
