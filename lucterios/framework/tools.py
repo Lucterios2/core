@@ -459,22 +459,25 @@ def get_dico_from_setquery(setquery):
     res_dico = []
     if setquery.model == Permission:
         for record in setquery:
-            rigths = six.text_type(record.codename).split("_")
-            if rigths[0] not in ['add', 'change', 'view', 'delete']:
-                res_dico[six.text_type(record.id)] = six.text_type(_(record.name))
-            else:
-                if rigths[0] == 'add':
-                    rigth_name = _('add')
-                elif (rigths[0] == 'change'):
-                    rigth_name = _('view')
-                elif rigths[0] == 'delete':
-                    rigth_name = _('delete')
-                elif rigths[0] == 'view':
-                    continue
-                res_dico.append((six.text_type(record.id),
-                                 "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
-                                                   record.content_type.name,
-                                                   rigth_name)))
+            try:
+                rigths = six.text_type(record.codename).split("_")
+                if rigths[0] not in ['add', 'change', 'view', 'delete']:
+                    res_dico[six.text_type(record.id)] = six.text_type(_(record.name))
+                else:
+                    if rigths[0] == 'add':
+                        rigth_name = _('add')
+                    elif (rigths[0] == 'change'):
+                        rigth_name = _('view')
+                    elif rigths[0] == 'delete':
+                        rigth_name = _('delete')
+                    elif rigths[0] == 'view':
+                        continue
+                    res_dico.append((six.text_type(record.id),
+                                     "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
+                                                       record.content_type.name,
+                                                       rigth_name)))
+            except LookupError:
+                pass
         res_dico.sort(key=lambda item: item[1])
     else:
         for record in setquery:
