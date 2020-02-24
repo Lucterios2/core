@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-03 11:51+0000\n"
+"POT-Creation-Date: 2020-02-24 15:34+0000\n"
 "PO-Revision-Date: 2019-10-07 17:46+0200\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -53,7 +53,7 @@ msgstr "création"
 msgid "update"
 msgstr "modification"
 
-#: models.py:869 tools.py:471
+#: models.py:869 tools.py:472
 msgid "delete"
 msgstr "supprimer"
 
@@ -61,7 +61,7 @@ msgstr "supprimer"
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:871 tools.py:467
+#: models.py:871 tools.py:468
 msgid "add"
 msgstr "ajouter"
 
@@ -159,15 +159,15 @@ msgstr "Utilisateur anonyme"
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:469
+#: tools.py:470
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:562 xfergraphic.py:159
+#: tools.py:565 xfergraphic.py:159
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:564 xfergraphic.py:160
+#: tools.py:567 xfergraphic.py:160
 msgid "No"
 msgstr "Non"
 
