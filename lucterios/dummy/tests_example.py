@@ -252,7 +252,7 @@ class ExampleTest(LucteriosTest):
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
         csv_value = b64decode(six.text_type(self.response_json['print']["content"])).decode("utf-8")
         content_csv = csv_value.split('\n')
-        self.assertEqual(len(content_csv), 38, str(content_csv))
+        self.assertEqual(len(content_csv), 40, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"special example"')
         self.assertEqual(content_csv[3].strip(), '"comment"')
         self.assertEqual(content_csv[4].strip(), '"#";"Name";"value + price";"date + time";')
