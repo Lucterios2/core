@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lxml import etree
 from copy import deepcopy
-from os.path import join, dirname, isfile
+from os.path import join, dirname, isfile, basename
 from logging import getLogger
 
 from django.utils import six
@@ -364,8 +364,22 @@ class ReportGenerator(object):
         self.fill_attrib_headerfooter()
 
     def get_text_from_title(self):
-        xml_text = convert_to_html(
-            'text', "{[b]}{[u]}%s{[/u]}{[/b]}" % self.title, text_align='center')
+        xml_text = convert_to_html('text', "{[b]}{[u]}%s{[/u]}{[/b]}" % self.title, text_align='center')
+        xml_text.attrib['height'] = "%d.0" % 12
+        xml_text.attrib['width'] = "%d.0" % self.content_width
+        xml_text.attrib['top'] = "0.0"
+        xml_text.attrib['left'] = "0.0"
+        return xml_text
+
+    def get_text_from_instance(self):
+        try:
+            from django.apps.registry import apps
+            legalentity = apps.get_model("contacts", "LegalEntity")
+            instance_name = legalentity.objects.get(id=1)
+        except LookupError:
+            from django.conf import settings
+            instance_name = basename(dirname(settings.SETUP.__file__))
+        xml_text = convert_to_html('text', "{[b]}{[u]}%s{[/u]}{[/b]}" % instance_name, text_align='center')
         xml_text.attrib['height'] = "%d.0" % 12
         xml_text.attrib['width'] = "%d.0" % self.content_width
         xml_text.attrib['top'] = "0.0"
@@ -645,6 +659,7 @@ class ListingGenerator(ReportModelGenerator):
     def __init__(self, model):
         ReportModelGenerator.__init__(self, model)
         self.header_height = 12
+        self.bottom_height = 12
         self.columns = []
         self.info = ""
         self.with_num = False
@@ -652,6 +667,7 @@ class ListingGenerator(ReportModelGenerator):
     def add_page(self):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
+        self.bottom.append(self.get_text_from_instance())
 
     def _new_column(self, xml_table, title, size_col):
         new_col = etree.SubElement(xml_table, "columns")
