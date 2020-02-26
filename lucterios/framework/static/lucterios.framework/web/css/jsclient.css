@@ -565,6 +565,7 @@ div.gridContent table tbody tr td {
 	display: inline-block;
 	width: 140px;
 	margin: 2px;
+	padding: 0px;
 }
 
 .gridActions button img {
