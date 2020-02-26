@@ -338,7 +338,7 @@ MenuManage.add_sub("core.extensions", 'core.admin', "images/config_ext.png", _("
 MenuManage.add_sub("core.plugins", 'core.admin', "images/config_plugin.png", _("Plugins (conf.)"), _("To manage of external plugins."), 30)
 
 
-@MenuManage.describ('CORE.change_parameter', FORMTYPE_NOMODAL, 'core.extensions', _('Saved criteria list for searching tools'))
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.extensions', _('Saved criteria list for searching tools'))
 class SavedCriteriaList(XferListEditor):
     icon = "config_search.png"
     model = SavedCriteria
