@@ -8,7 +8,7 @@
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
 	<property name="web.path" value="lucterios/framework/static/lucterios.framework/web" />
-	<property name="web.version" value="1.3.2" />
+	<property name="web.version" value="1.3.3" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
 	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${web.path}/jslint/jslint4java-2.0.5.jar" />

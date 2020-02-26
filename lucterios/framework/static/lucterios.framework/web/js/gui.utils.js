@@ -193,17 +193,48 @@ var GUIManage = GUIBasic
 				if (this.mCallback !== null) {
 					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
 					$('<button id="refresh_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
-							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>').append(
-									'<span class="ui-button-text">refresh</span>').appendTo(titlebar).hover(function() {
-								$(this).addClass('ui-state-hover');
-							}, function() {
-								$(this).removeClass('ui-state-hover');
-							}).click($.proxy(function() {
-								this.refresh();
-							}, this.mCallback));
+							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
+							.append('<span class="ui-button-text">refresh</span>')
+							.appendTo(titlebar)
+							.hover(function() {$(this).addClass('ui-state-hover');}, function() {$(this).removeClass('ui-state-hover');})
+							.click($.proxy(function() {this.refresh();}, this.mCallback));
+					if (!isModal) {
+						$('<button id="fullscreen_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-fullscreen" role="button" aria-disabled="false" title="full"></button>')
+								.append('<span class="ui-button-icon-primary ui-icon ui-icon-arrow-4-diag"/>')
+								.append('<span class="ui-button-text">full</span>')
+								.appendTo(titlebar);
+						$("#fullscreen_"+ this.mId).click($.proxy(this.fullscreen, this));
+					}
 				}
 				$("#" + this.mId).keyup($.proxy(this.manageKey, this));
 				$("#" + this.mId).css("padding", "0em .5em 2em .5em");
+			},
+			
+			fullscreen : function() {
+				var id_hgt, parent_hgt, diff_hgt, new_width, new_height, new_top, new_left, old_size=$("#"+this.mId).data('old_size');
+				if ((old_size === undefined) || (old_size === null)) {
+					new_width = $(document).width();
+					new_height = $(document).height();
+					new_top = '0px';
+					new_left = '0px'; 
+					$("#"+this.mId).data('old_size', [$("#"+this.mId).parent().width(),$("#"+this.mId).parent().height(),$("#"+this.mId).parent().css('top'),$("#"+this.mId).parent().css('left')]);
+				} else {
+					new_width = old_size[0];
+					new_height = old_size[1];
+					new_top = old_size[2];
+					new_left = old_size[3];
+					$("#"+this.mId).data('old_size', null);
+				}
+				id_hgt = $("#"+this.mId).height();
+				parent_hgt=$("#"+this.mId).parent().height();
+				$("#"+this.mId).parent().css({
+			        'width': new_width,
+			        'height': new_height,
+			        'left': new_left,
+			        'top': new_top									
+				});
+				diff_hgt = $("#"+this.mId).parent().height() - parent_hgt;
+				$("#"+this.mId).height(id_hgt+diff_hgt);
 			},
 
 			manageKey : function(event) {
@@ -232,8 +263,9 @@ var GUIManage = GUIBasic
 
 			buildFinal : function() {
 				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
-				$(".tabContent").each(function() {
+				$("#" + this.mId + " .tabContent").each(function() {
 					$(this).tabs({
+						heightStyle: "fill",
 						activate : $.proxy(function(event, ui) {
 							var tabid = ui.newTab.index();
 							unusedVariables(event);
