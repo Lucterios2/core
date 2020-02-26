@@ -271,7 +271,7 @@ italic {
 	border-bottom-left-radius: 15px;
 	background-color: #eee;
 	margin-left: 15%;
-    margin-top: 5px;
+	margin-top: 5px;
 }
 
 .ui-tabs img {
@@ -312,13 +312,24 @@ italic {
 
 .ui-dialog .ui-dialog-titlebar-refresh {
 	position: absolute;
-	right: 1.7em;
+	right: 1.9em;
 	top: 50%;
 	width: 21px;
 	margin: -10px 0 0 0;
 	padding: 1px;
 	height: 20px
 }
+
+.ui-dialog .ui-dialog-titlebar-fullscreen {
+	position: absolute;
+	right: 3.5em;
+	top: 50%;
+	width: 21px;
+	margin: -10px 0 0 0;
+	padding: 1px;
+	height: 20px
+}
+
 
 .class_header {
 	cursor: pointer;
@@ -351,11 +362,12 @@ italic {
 	position: relative;
 }
 
-@-moz-document url-prefix() { 
-	.lctbtnmini img {
-		position: relative;
-		left: -10px;
-	}
+@
+-moz-document url-prefix () { .lctbtnmini img {
+	position: relative;
+	left: -10px;
+}
+
 }
 button span img {
 	margin: 0em 0.4em 0.0em 0px;
@@ -478,7 +490,6 @@ div.gridpager span {
 }
 
 .gridscroll {
-	max-height: 250px;
 	overflow-y: auto;
 }
 
@@ -525,7 +536,7 @@ div.gridpager span {
 }
 
 .gridContent tbody tr td p {
-    margin: 0px;
+	margin: 0px;
 }
 
 .gridempty td {

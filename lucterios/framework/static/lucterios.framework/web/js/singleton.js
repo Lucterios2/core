@@ -1,4 +1,4 @@
-/*global $,Class,HashMap,post_log,g_translation, Uint8Array, URL*/
+/*global $,Class,HashMap,post_log,g_translation, Uint8Array, unusedVariables, URL*/
 
 var SingletonObj = null;
 var g_InitialCallBack = null;
@@ -98,20 +98,20 @@ var SingletonClass = Class.extend({
 	mSelectLang : null,
 
 	init : function() {
+		unusedVariables();
 	},
 
-	getSelectLang : function() {		
-		if ((this.mSelectLang==null) && (this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
-			this.mSelectLang=this.mDesc.getLanguage();
+	getSelectLang : function() {
+		if ((this.mSelectLang === null) && (this.mDesc !== null) && (this.mDesc.getLanguage() !== '')) {
+			this.mSelectLang = this.mDesc.getLanguage();
 			if ($.datepicker.regional.hasOwnProperty(this.mSelectLang)) {
 				$.datepicker.setDefaults($.datepicker.regional[this.mSelectLang]);
 			}
 		}
-		if (this.mSelectLang==null) {
+		if (this.mSelectLang === null) {
 			return "fr";
-		} else {
-			return this.mSelectLang;
 		}
+		return this.mSelectLang;
 	},
 
 	getTranslate : function(name) {
@@ -157,7 +157,7 @@ var SingletonClass = Class.extend({
 
 	setInfoDescription : function(aDesc, aRefreshMenu, aInitialHeader) {
 		this.mDesc = aDesc;
-		this.mSelectLang = null;		
+		this.mSelectLang = null;
 		this.mRefreshMenu = aRefreshMenu;
 		if (g_InitialCallBack !== null) {
 			g_InitialCallBack(aInitialHeader);
