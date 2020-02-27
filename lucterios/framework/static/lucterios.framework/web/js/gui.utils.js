@@ -190,6 +190,10 @@ var GUIManage = GUIBasic
 					args.height = 600;					
 				}
 				$("#" + this.mId).dialog(args);
+				if (isModal) {
+					$("#" + this.mId).css('max-height', String($(window).height()-150)+'px');
+					$("#" + this.mId).parent().css('top', String(($(window).height()-$("#" + this.mId).parent().height())/2)+'px');
+				}
 				if (this.mCallback !== null) {
 					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
 					$('<button id="refresh_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
