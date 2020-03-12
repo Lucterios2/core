@@ -47,6 +47,10 @@ class ParamCache(object):
             try:
                 return int(param.value)
             except ValueError:
+                if param.value == 'False':
+                    return 0
+                if param.value == 'True':
+                    return 1
                 return int('0' + param.value)
 
         def convert_to_float():

@@ -50,8 +50,7 @@ from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistr
 
 class Parameter(LucteriosModel):
     name = models.CharField(_('name'), max_length=100, unique=True)
-    typeparam = models.IntegerField(choices=((0, _('String')), (1, _(
-        'Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))))
+    typeparam = models.IntegerField(choices=((0, _('String')), (1, _('Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))), default=0)
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
     metaselect = models.TextField('meta', blank=True)
@@ -63,14 +62,22 @@ class Parameter(LucteriosModel):
 
     @classmethod
     def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
-        param, created = Parameter.objects.get_or_create(name=name, typeparam=typeparam)
+        param, created = Parameter.objects.get_or_create(name=name)
         if created:
             param.title = title
+            param.typeparam = typeparam
             param.param_titles = param_titles
             param.args = args
             param.value = value
             if meta is not None:
                 param.metaselect = meta
+            param.save()
+        elif param.typeparam != typeparam:
+            param.typeparam = typeparam
+            param.param_titles = param_titles
+            if meta is not None:
+                param.metaselect = meta
+            param.args = args
             param.save()
         elif meta is not None:
             param.metaselect = meta

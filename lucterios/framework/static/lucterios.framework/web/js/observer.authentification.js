@@ -337,7 +337,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		this.mGUI = new GUIManage(this.getId(), Singleton().getTranslate("Logon"), this);
 		this.mGUI.withForm = true;
 		this.mGUI.addcontent(createTable(table), this.acts);
-		this.mGUI.showGUI(false);
+		this.mGUI.showGUI(true);
 		$("#" + this.getId()).dialog('option', 'height', 'auto');
 		$("#" + this.getId()).dialog('option', 'width', 'auto');
 		for (index = 0; index < extra_acts.length; index++) {
