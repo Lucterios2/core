@@ -40,7 +40,6 @@ from django.utils import six
 from django.http.response import StreamingHttpResponse
 from django.apps.registry import apps
 from django.conf import settings
-from django.db.models.fields import DateField
 from django.db.models import Q
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \

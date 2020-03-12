@@ -54,7 +54,11 @@ class PluginItem(object):
     def views(self):
         if self._views is None:
             self._views = []
-            import_module('.views', package=self.module.__name__)
+            try:
+                import_module('.views', package=self.module.__name__)
+            except Exception:
+                getLogger('lucterios.plugin').exception("import of %s", self.module.__name__)
+                raise
         return self._views
 
     def add_view(self, xferview, menu_parent, menu_desc, right_admin):
