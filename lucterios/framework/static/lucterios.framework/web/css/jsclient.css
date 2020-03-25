@@ -351,6 +351,7 @@ italic {
 
 .lctbtn {
 	width: 170px;
+	padding: 0px;
 }
 
 .lctbtnmini {
@@ -360,6 +361,7 @@ italic {
 
 .lctbtnmini img {
 	position: relative;
+	left: -10px;
 }
 
 @
