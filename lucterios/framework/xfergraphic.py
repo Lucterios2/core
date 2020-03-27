@@ -360,7 +360,7 @@ class XferContainerCustom(XferContainerAbstract):
         if comp_id is not None:
             del self.components[comp_id]
 
-    def get_reading_comp(self, field_name):
+    def get_reading_comp(self, field_name, prefix=''):
         sub_value = self.item
         for fieldname in field_name.split('.'):
             if sub_value is not None:
@@ -372,10 +372,10 @@ class XferContainerCustom(XferContainerAbstract):
         value = adapt_value(sub_value)
         dep_field = self.item.get_field_by_name(field_name)
         if isinstance(dep_field, EmailField):
-            comp = XferCompLinkLabel(field_name)
+            comp = XferCompLinkLabel(prefix + field_name)
             comp.set_link('mailto:' + value)
         else:
-            comp = XferCompLabelForm(field_name)
+            comp = XferCompLabelForm(prefix + field_name)
         comp.set_value(value)
         comp.set_format(get_format_from_field(dep_field))
         return comp
@@ -514,7 +514,7 @@ class XferContainerCustom(XferContainerAbstract):
             colspan = maxsize_of_lines - offset
         return colspan
 
-    def filltab_from_model(self, col, row, readonly, field_names):
+    def filltab_from_model(self, col, row, readonly, field_names, prefix=''):
         maxsize_of_lines = self.get_maxsize_of_lines(field_names)
         for line_field_name in field_names:
             if not isinstance(line_field_name, tuple):
@@ -547,7 +547,7 @@ class XferContainerCustom(XferContainerAbstract):
                     if (dep_field is None) or not dep_field.auto_created or dep_field.concrete:
                         # field not many-to-many
                         if readonly:
-                            comp = self.get_reading_comp(field_name)
+                            comp = self.get_reading_comp(field_name, prefix)
                         else:
                             comp = self.get_writing_comp(field_name)
                         comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
@@ -559,7 +559,7 @@ class XferContainerCustom(XferContainerAbstract):
                         offset += 1 + comp_col_addon
             row += height
 
-    def fill_from_model(self, col, row, readonly, desc_fields=None):
+    def fill_from_model(self, col, row, readonly, desc_fields=None, prefix=''):
         current_desc_fields = desc_fields
         if desc_fields is None:
             if readonly:
@@ -570,14 +570,12 @@ class XferContainerCustom(XferContainerAbstract):
             current_desc_fields = {'': current_desc_fields}
         tab_keys = list(current_desc_fields.keys())
         if '' in tab_keys:
-            self.filltab_from_model(
-                col, row, readonly, current_desc_fields[''])
+            self.filltab_from_model(col, row, readonly, current_desc_fields[''], prefix)
             tab_keys.remove('')
         tab_keys.sort()
         for tab_key in tab_keys:
             self.new_tab(tab_key[tab_key.find('@') + 1:])
-            self.filltab_from_model(
-                0, 0, readonly, current_desc_fields[tab_key])
+            self.filltab_from_model(0, 0, readonly, current_desc_fields[tab_key], prefix)
         if desc_fields is None:
             if readonly:
                 self.item.editor.show(self)
