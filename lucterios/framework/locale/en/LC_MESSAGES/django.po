@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-24 15:34+0000\n"
-"PO-Revision-Date: 2019-10-07 17:46+0200\n"
+"POT-Creation-Date: 2020-04-22 15:31+0000\n"
+"PO-Revision-Date: 2020-04-22 17:31+0200\n"
 "Last-Translator: Lucterios <support@lucterios.org>\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
 "Language: en\n"
@@ -21,123 +21,128 @@ msgstr ""
 msgid "User manual"
 msgstr "User manual"
 
-#: models.py:546
+#: models.py:276
+#, python-format
+msgid "%s '%s' unknown !"
+msgstr "%s '%s' unknown !"
+
+#: models.py:551
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:695
+#: models.py:700
 msgid "username"
 msgstr "username"
 
-#: models.py:696
+#: models.py:701
 msgid "is active"
 msgstr "is active"
 
-#: models.py:736
+#: models.py:741
 msgid "session"
 msgstr "session"
 
-#: models.py:737
+#: models.py:742
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:867
+#: models.py:872
 msgid "create"
 msgstr "create"
 
-#: models.py:868
+#: models.py:873
 msgid "update"
 msgstr "update"
 
-#: models.py:869 tools.py:472
+#: models.py:874 tools.py:472
 msgid "delete"
 msgstr "delete"
 
-#: models.py:870
+#: models.py:875
 msgid "remove"
 msgstr "remove"
 
-#: models.py:871 tools.py:468
+#: models.py:876 tools.py:468
 msgid "add"
 msgstr "add"
 
-#: models.py:881 models.py:888
+#: models.py:886 models.py:893
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:882
+#: models.py:887
 msgid "content type"
 msgstr "content type"
 
-#: models.py:883
+#: models.py:888
 msgid "actor"
 msgstr "actor"
 
-#: models.py:884
+#: models.py:889
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:885
+#: models.py:890
 msgid "object id"
 msgstr "object id"
 
-#: models.py:886
+#: models.py:891
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:887
+#: models.py:892
 msgid "action"
 msgstr "action"
 
-#: models.py:889
+#: models.py:894
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:890
+#: models.py:895
 msgid "date"
 msgstr "date"
 
-#: models.py:891
+#: models.py:896
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:897
+#: models.py:902
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:899
+#: models.py:904
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:901
+#: models.py:906
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:903
+#: models.py:908
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:1009
+#: models.py:1014
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:1010
+#: models.py:1015
 msgid "log entries"
 msgstr "log entries"
 
-#: models.py:1042
+#: models.py:1047
 msgid "General"
 msgstr "General"
 
-#: models.py:1046 models.py:1047
+#: models.py:1051 models.py:1052
 msgid "current date"
 msgstr "current date"
 
-#: models.py:1048
+#: models.py:1053
 msgid "current hour"
 msgstr "current hour"
 
-#: printgenerators.py:415
+#: printgenerators.py:429
 msgid "This impression failed !"
 msgstr "This impression failed !"
 

@@ -113,7 +113,7 @@
 	<target name="radon">
 		<basename property="currentname" file="${basedir}"/>
 		<exec executable="${project.pythonexe}" dir="${basedir}/..">
-			<arg line="-m radon cc -n D -a -s ${currentname}" />
+			<arg line="-m radon cc -n C -a -s ${currentname}" />
 			<redirector output="radon_results.txt" />
 		</exec>
 		<exec executable="cat">
