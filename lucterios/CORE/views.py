@@ -1058,8 +1058,18 @@ class ObjectImport(XferContainerCustom):
                 add_item_if_not_null(self.model.import_data(rowdata, dateformat))
             add_item_if_not_null(self.model.finalize_import())
             lbl = XferCompLabelForm('result')
-            lbl.set_value_as_header(_("%d items are been imported") % len(self.items_imported))
+            if len(self.items_imported) == 0:
+                lbl.set_value_as_header(_("no item are been imported"))
+            elif len(self.items_imported) == 1:
+                lbl.set_value_as_header(_("1 item are been imported"))
+            else:
+                lbl.set_value_as_header(_("%d items are been imported") % len(self.items_imported))
             lbl.set_location(1, 2, 2)
+            self.add_component(lbl)
+            lbl = XferCompLabelForm('import_error')
+            lbl.set_color('red')
+            lbl.set_value(self.model.get_import_logs())
+            lbl.set_location(1, 3, 2)
             self.add_component(lbl)
             step = 4
         if step < 4:

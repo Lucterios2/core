@@ -196,8 +196,12 @@ class LucteriosModel(models.Model):
         return fields
 
     @classmethod
+    def get_import_logs(cls):
+        return getattr(cls, 'import_logs', [])
+
+    @classmethod
     def initialize_import(cls):
-        pass
+        cls.import_logs = []
 
     @classmethod
     def _convert_field_integerfield(cls, fieldvalue, dep_field, **_args):
@@ -269,7 +273,7 @@ class LucteriosModel(models.Model):
             if fieldvalue is None:
                 base_dep_field = cls.get_field_by_name(fieldname.split('.')[0])
                 if not base_dep_field.null:
-                    raise LucteriosException(GRAVE, "import_data ForeignKey")
+                    raise LucteriosException(GRAVE, _("%s '%s' unknown !") % (base_dep_field.verbose_name, sub_value))
         return fieldvalue
 
     @classmethod
@@ -314,7 +318,8 @@ class LucteriosModel(models.Model):
                         return None
             new_item.save()
             return new_item
-        except LucteriosException:
+        except LucteriosException as import_error:
+            cls.import_logs.append(str(import_error))
             return None
         except ValidationError:
             logging.getLogger('lucterios.framwork').exception("import_data")
