@@ -106,6 +106,24 @@ class ParamCache(object):
         lbl.set_value_as_name(ugettext_lazy(self.name))
         return lbl
 
+    def _get_selection_from_object(self):
+        selection = []
+        if (self.meta_info[0] != "") and (self.meta_info[1] != ""):
+            db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+        else:
+            db_mdl = None
+        if not self.meta_info[4]:
+            if (self.args['oldtype'] == 1) or (self.args['oldtype'] == 2):
+                selection.append((0, None))
+            else:
+                selection.append(('', None))
+        if db_mdl is None:
+            selection = self.meta_info[2]
+        else:
+            for obj_item in db_mdl.objects.filter(self.meta_info[2]):
+                selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
+        return selection
+
     def get_write_comp(self):
         if self.type == 0:  # String
             if self.args['Multi']:
@@ -141,28 +159,13 @@ class ParamCache(object):
             param_cmp.security = 0
             param_cmp.set_value('')
         elif self.type == 6:  # select in object
-            if (self.meta_info[0] != "") and (self.meta_info[1] != ""):
-                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-            else:
-                db_mdl = None
             if self.args['Multi']:
                 param_cmp = XferCompCheckList(self.name)
                 param_cmp.simple = 2
             else:
                 param_cmp = XferCompSelect(self.name)
             param_cmp.set_needed(self.meta_info[4])
-            selection = []
-            if not self.meta_info[4]:
-                if (self.args['oldtype'] == 1) or (self.args['oldtype'] == 2):
-                    selection.append((0, None))
-                else:
-                    selection.append(('', None))
-            if db_mdl is None:
-                selection = self.meta_info[2]
-            else:
-                for obj_item in db_mdl.objects.filter(self.meta_info[2]):
-                    selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
-            param_cmp.set_select(selection)
+            param_cmp.set_select(self._get_selection_from_object())
             param_cmp.set_value(self.value)
         param_cmp.description = six.text_type(ugettext_lazy(self.name))
         return param_cmp
@@ -184,9 +187,11 @@ class ParamCache(object):
                 else:
                     value_text = "---"
             elif self.args['Multi']:
-                value_text = self.value.replace(';', '{[br/]}')
+                selection = dict(self._get_selection_from_object())
+                value_text = "{[br/]}".joint([selection[value] if value in selection else value for value in self.value.split(';')])
             else:
-                value_text = self.value
+                selection = dict(self._get_selection_from_object())
+                value_text = selection[self.value] if self.value in selection else self.value
         else:
             value_text = self.value
         return value_text
