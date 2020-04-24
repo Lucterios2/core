@@ -188,7 +188,7 @@ class ParamCache(object):
                     value_text = "---"
             elif self.args['Multi']:
                 selection = dict(self._get_selection_from_object())
-                value_text = "{[br/]}".joint([selection[value] if value in selection else value for value in self.value.split(';')])
+                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self.value.split(';')])
             else:
                 selection = dict(self._get_selection_from_object())
                 value_text = selection[self.value] if self.value in selection else self.value
