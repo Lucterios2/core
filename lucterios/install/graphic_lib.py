@@ -319,7 +319,7 @@ class LucteriosMain(object):
         self.stop_current_instance(instance_name)
         if not file_name.endswith('.lbk'):
             file_name += '.lbk'
-        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'archive', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT)
+        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'archive', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT, env=os.environ.copy())
         if proc_res.returncode == 0:
             self.show_info(ugettext("Lucterios launcher"), ugettext("Instance saved to %s") % file_name)
         else:
@@ -330,7 +330,7 @@ class LucteriosMain(object):
     @ThreadRun
     def restore_instance(self, instance_name, file_name):
         self.stop_current_instance(instance_name)
-        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'restore', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT)
+        proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'restore', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT, env=os.environ.copy())
         if proc_res.returncode == 0:
             self.show_info(ugettext("Lucterios launcher"), ugettext("Instance restore from %s") % file_name)
         else:

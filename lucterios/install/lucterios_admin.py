@@ -38,7 +38,6 @@ import sys
 import os
 from json import loads, dumps
 from subprocess import call
-from lucterios.framework.tools import set_locale_lang
 
 
 INSTANCE_PATH = '.'
@@ -875,7 +874,7 @@ class LucteriosInstance(LucteriosManage):
         targets = sorted(set(targets), key=cmp_node())
         return targets
 
-    def _migrate_from_old_targets(self, tmp_path):
+    def _clear_before_restore(self):
         if "sqlite3" in self.databases['default']['ENGINE']:
             try:
                 delete_path(self.databases['default']['NAME'])
@@ -886,6 +885,7 @@ class LucteriosInstance(LucteriosManage):
         else:
             self.clear(False)
 
+    def _migrate_from_old_targets(self, tmp_path):
         from django.db import DEFAULT_DB_ALIAS, connections
         from django.apps import apps
         from django.utils.module_loading import module_has_submodule
@@ -932,6 +932,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
+        self._clear_before_restore()
         self.read(False)
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
@@ -1038,6 +1039,7 @@ def setup_from_none():
     if six.PY3:
         clear_modules()
     from lucterios.framework.settings import fill_appli_settings
+    from lucterios.framework.tools import set_locale_lang
     import types
     import gc
     gc.collect()
