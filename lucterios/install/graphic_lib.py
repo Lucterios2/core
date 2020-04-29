@@ -324,7 +324,7 @@ class LucteriosMain(object):
             self.show_info(ugettext("Lucterios launcher"), ugettext("Instance saved to %s") % file_name)
         else:
             self.show_error(ugettext("Lucterios launcher"), ugettext("Instance not saved!"))
-        print(proc_res.stdout.decode())
+            logging.getLogger(__name__).error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     @ThreadRun
@@ -335,7 +335,7 @@ class LucteriosMain(object):
             self.show_info(ugettext("Lucterios launcher"), ugettext("Instance restore from %s") % file_name)
         else:
             self.show_error(ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
-        print(proc_res.stdout.decode())
+            logging.getLogger(__name__).error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     def modify_inst(self):
