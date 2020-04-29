@@ -932,8 +932,12 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        self._clear_before_restore()
+        try:
+            delete_path(join(self.instance_dir, 'db.sqlite3').replace('\\', '\\\\'))
+        except Exception:
+            pass
         self.read(False)
+        self._clear_before_restore()
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
         import tarfile
         tmp_path = join(get_tmp_dir(), 'tmp_resore')
