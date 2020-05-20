@@ -29,7 +29,7 @@ from django.db import models, migrations
 import django.core.validators
 from django.utils import six
 from lucterios.CORE.models import PrintModel
-from lucterios.framework.models import LucteriosDecimalField
+from lucterios.framework.model_fields import LucteriosDecimalField
 
 
 def initial_values(*args):

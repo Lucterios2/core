@@ -248,17 +248,27 @@ class ConvertHTML_XMLReportlab(object):
                 xmlrl_finalize.append(deepcopy(new_para_item))
             self.xmlrl_result = xmlrl_finalize
 
+    def create_xml_node(self):
+        xmlrl_item = None
+        if hasattr(self, "_parse_%s" % self.html_item.tag):
+            funct = getattr(self, "_parse_%s" % self.html_item.tag)
+            xmlrl_item = funct()
+        else:
+            xmlrl_item = etree.Element(self.html_item.tag)
+            self.fill_attrib(self.html_item, xmlrl_item)
+        return xmlrl_item
+
+    def manage_chip(self):
+        if self.html_item.tag == 'li':
+            self.xmlrl_result.append(etree.Element('br'))
+        if self.html_item.tag in ('ul', 'ol'):
+            self.options[self.html_item.tag] -= 1
+
     def run(self, html_items, options=None):
         self.options = options
         self.fill_text_if_not_null(html_items, self.xmlrl_result)
         for self.html_item in html_items:
-            xmlrl_item = None
-            if hasattr(self, "_parse_%s" % self.html_item.tag):
-                funct = getattr(self, "_parse_%s" % self.html_item.tag)
-                xmlrl_item = funct()
-            else:
-                xmlrl_item = etree.Element(self.html_item.tag)
-                self.fill_attrib(self.html_item, xmlrl_item)
+            xmlrl_item = self.create_xml_node()
             if xmlrl_item is not None:
                 new_parser = self.__class__(xmlrl_item, self.no_para)
                 new_parser.run(self.html_item, self.options)
@@ -273,10 +283,7 @@ class ConvertHTML_XMLReportlab(object):
                     self._switch_para(xmlrl_item)
                 else:
                     self.xmlrl_result.append(xmlrl_item)
-                if self.html_item.tag == 'li':
-                    self.xmlrl_result.append(etree.Element('br'))
-                if self.html_item.tag in ('ul', 'ol'):
-                    self.options[self.html_item.tag] -= 1
+                self.manage_chip()
         self._all_in_para()
 
     @classmethod

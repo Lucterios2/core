@@ -121,6 +121,34 @@ class XferContainerPrint(XferContainerAbstract):
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 
+    def _add_option_selectors(self, gui):
+        row_idx = 3
+        for name_selector, title_selector, option_selector in self.selector:
+            if isinstance(option_selector, list):
+                comp = XferCompSelect(name_selector)
+                comp.set_select(option_selector)
+                comp.set_value(gui.getparam(name_selector, 0))
+            elif isinstance(option_selector, tuple):
+                comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
+                comp.set_value(option_selector[0])
+            elif isinstance(option_selector, six.binary_type):
+                comp = XferCompEdit(name_selector)
+                comp.set_value(option_selector.decode())
+            elif isinstance(option_selector, six.text_type):
+                comp = XferCompMemo(name_selector)
+                comp.with_hypertext = True
+                comp.set_value(option_selector)
+            elif isinstance(option_selector, bool):
+                comp = XferCompCheck(name_selector)
+                comp.set_value(option_selector)
+            else:
+                comp = None
+            if comp is not None:
+                comp.set_location(0, row_idx, 2)
+                comp.description = title_selector
+                gui.add_component(comp)
+                row_idx += 1
+
     def _get_from_selector(self):
         if not isinstance(self.selector, list) and (self.selector is not None):
             raise LucteriosException(GRAVE, "Error of print selector!")
@@ -164,32 +192,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
         print_mode.description = _('Kind of report')
         gui.add_component(print_mode)
         if self.selector is not None:
-            row_idx = 3
-            for name_selector, title_selector, option_selector in self.selector:
-                if isinstance(option_selector, list):
-                    comp = XferCompSelect(name_selector)
-                    comp.set_select(option_selector)
-                    comp.set_value(gui.getparam(name_selector, 0))
-                elif isinstance(option_selector, tuple):
-                    comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
-                    comp.set_value(option_selector[0])
-                elif isinstance(option_selector, six.binary_type):
-                    comp = XferCompEdit(name_selector)
-                    comp.set_value(option_selector.decode())
-                elif isinstance(option_selector, six.text_type):
-                    comp = XferCompMemo(name_selector)
-                    comp.with_hypertext = True
-                    comp.set_value(option_selector)
-                elif isinstance(option_selector, bool):
-                    comp = XferCompCheck(name_selector)
-                    comp.set_value(option_selector)
-                else:
-                    comp = None
-                if comp is not None:
-                    comp.set_location(0, row_idx, 2)
-                    comp.description = title_selector
-                    gui.add_component(comp)
-                    row_idx += 1
+            self._add_option_selectors(gui)
         gui.add_action(self.get_action(_("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui

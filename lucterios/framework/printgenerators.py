@@ -527,6 +527,31 @@ class ActionGenerator(ReportGenerator):
                 new_col_size = int(round(self.content_width * col_size[col_idx] / total_size))
             self.col_width[tab_id].append(new_col_size)
 
+    def fill_content_item(self, item):
+        new_page = False
+        if self.tab_change_page and isinstance(item, PrintTab):
+            self.num_tab += 1
+            if (self.num_tab > 1):
+                self.add_page()
+                self.current_height = 0
+                new_page = True
+        if not new_page and (self.last_y != item.row):
+            self.top = self.top + self.current_height
+            for last_item in self.print_items:
+                if last_item == item:
+                    break
+                if ((item.row == -1) and not self.tab_change_page) or ((last_item.tab == item.tab) and ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan))):
+                    self.top = max(
+                        self.top, last_item.top + last_item.height)
+            self.change_page()
+            self.current_height = 0
+        item.calcul_position()
+        self.body.append(item.get_xml())
+        if item.rowspan == 1:
+            self.current_height = max(self.current_height, item.height)
+        self.last_y = item.row
+        self.last_top = item.top + item.height
+
     def fill_content(self, request):
         self.action._initialize(request)
         self.action.params['PRINTING'] = True
@@ -540,34 +565,12 @@ class ActionGenerator(ReportGenerator):
         for tab_id in max_col.keys():
             self.define_col_size(tab_id, col_size[tab_id], max_col[tab_id])
         self.top = 0
-        last_y = -1
-        num_tab = 0
-        current_height = 0
+        self.last_y = -1
+        self.num_tab = 0
+        self.current_height = 0
         self.last_top = 0
         for item in self.print_items:
-            new_page = False
-            if self.tab_change_page and isinstance(item, PrintTab):
-                num_tab += 1
-                if (num_tab > 1):
-                    self.add_page()
-                    current_height = 0
-                    new_page = True
-            if not new_page and (last_y != item.row):
-                self.top = self.top + current_height
-                for last_item in self.print_items:
-                    if last_item == item:
-                        break
-                    if ((item.row == -1) and not self.tab_change_page) or ((last_item.tab == item.tab) and ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan))):
-                        self.top = max(
-                            self.top, last_item.top + last_item.height)
-                self.change_page()
-                current_height = 0
-            item.calcul_position()
-            self.body.append(item.get_xml())
-            if item.rowspan == 1:
-                current_height = max(current_height, item.height)
-            last_y = item.row
-            self.last_top = item.top + item.height
+            self.fill_content_item(item)
 
 
 class ReportModelGenerator(ReportGenerator):
