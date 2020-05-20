@@ -28,11 +28,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-from lucterios.framework.models import LucteriosModel, LucteriosDecimalField,\
-    LucteriosVirtualField
+from lucterios.framework.models import LucteriosModel
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter
 from lucterios.framework.auditlog import auditlog
+from lucterios.framework.model_fields import LucteriosDecimalField,\
+    LucteriosVirtualField
 
 
 class Example(LucteriosModel):

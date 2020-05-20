@@ -457,36 +457,37 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_select_query(sub_select)
         return comp
 
+    def _create_comp_manytomanyfield(self, field_name, dep_field):
+        comp = XferCompCheckList(field_name)
+        comp.simple = 2
+        if self.item.id is not None:
+            values = []
+            for item in getattr(self.item, field_name).all():
+                values.append(item.id)
+            comp.set_value(values)
+        if hasattr(self.item, field_name + '_query'):
+            sub_select = getattr(self.item, field_name + '_query')
+        else:
+            sub_select = get_dico_from_setquery(get_corrected_setquery(dep_field.remote_field.model.objects.all()))
+        comp.set_select(sub_select)
+        return comp
+
     def get_writing_comp(self, field_name):
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, CharField
-        from django.db.models.fields.related import ForeignKey
+        from django.db.models.fields.related import ForeignKey, ManyToManyField
         comp = None
         dep_field = self.item.get_field_by_name(field_name)
-        for field_type in (IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, ForeignKey):
+        for field_type in (IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, ForeignKey, ManyToManyField):
             if isinstance(dep_field, field_type):
                 fct = getattr(self, "_create_comp_%s" % field_type.__name__.lower(), None)
                 if fct is not None:
                     comp = fct(field_name, dep_field)
                     break
         if comp is None:
-            if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
-                comp = XferCompCheckList(field_name)
-                comp.simple = 2
-                if self.item.id is not None:
-                    values = []
-                    for item in getattr(self.item, field_name).all():
-                        values.append(item.id)
-                    comp.set_value(values)
-                if hasattr(self.item, field_name + '_query'):
-                    sub_select = getattr(self.item, field_name + '_query')
-                else:
-                    sub_select = get_dico_from_setquery(get_corrected_setquery(dep_field.remote_field.model.objects.all()))
-                comp.set_select(sub_select)
-            else:
-                comp = XferCompEdit(field_name)
-                comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
-                if isinstance(dep_field, CharField):
-                    comp.size = dep_field.max_length
+            comp = XferCompEdit(field_name)
+            comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
+            if isinstance(dep_field, CharField):
+                comp.size = dep_field.max_length
         comp.set_needed(dep_field.unique or not (dep_field.blank or dep_field.null))
         return comp
 

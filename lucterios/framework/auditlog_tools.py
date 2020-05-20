@@ -128,6 +128,25 @@ def get_fields_diff(old, new, model_fields, fields):
     return diff
 
 
+def raise_if_not_model(old, new):
+    if not (old is None or isinstance(old, Model)):
+        raise TypeError("The supplied old instance is not a valid model instance.")
+    if not (new is None or isinstance(new, Model)):
+        raise TypeError("The supplied new instance is not a valid model instance.")
+
+
+def check_if_fields_must_be_filtered(fields, model_fields):
+    filtered_fields = []
+    if model_fields['include_fields']:
+        filtered_fields = [field for field in fields if field.name in model_fields['include_fields']]
+    else:
+        filtered_fields = fields
+    if model_fields['exclude_fields']:
+        filtered_fields = [field for field in filtered_fields if field.name not in model_fields['exclude_fields']]
+    fields = filtered_fields
+    return fields
+
+
 def model_instance_diff(old, new):
     """
     Calculates the differences between two model instances. One of the instances may be ``None`` (i.e., a newly
@@ -142,12 +161,7 @@ def model_instance_diff(old, new):
     :rtype: dict
     """
     from lucterios.framework.auditlog import auditlog
-
-    if not(old is None or isinstance(old, Model)):
-        raise TypeError("The supplied old instance is not a valid model instance.")
-    if not(new is None or isinstance(new, Model)):
-        raise TypeError("The supplied new instance is not a valid model instance.")
-
+    raise_if_not_model(old, new)
     if old is not None and new is not None:
         fields = set(old._meta.fields + new._meta.fields)
         model_fields = auditlog.get_model_fields(new._meta.model)
@@ -160,18 +174,8 @@ def model_instance_diff(old, new):
     else:
         fields = set()
         model_fields = None
-
-    # Check if fields must be filtered
     if model_fields and (model_fields['include_fields'] or model_fields['exclude_fields']) and fields:
-        filtered_fields = []
-        if model_fields['include_fields']:
-            filtered_fields = [field for field in fields if field.name in model_fields['include_fields']]
-        else:
-            filtered_fields = fields
-        if model_fields['exclude_fields']:
-            filtered_fields = [field for field in filtered_fields if field.name not in model_fields['exclude_fields']]
-        fields = filtered_fields
-
+        fields = check_if_fields_must_be_filtered(fields, model_fields)
     return get_fields_diff(old, new, model_fields, fields)
 
 

@@ -184,34 +184,30 @@ class XferContainerAbstract(View):
                 if field_name in self.params.keys():
                     del self.params[field_name]
 
+    def _change_field_value(self, dep_field, new_value, field_name):
+        from django.db.models.fields import BooleanField
+        if new_value == NULL_VALUE:
+            new_value = None
+        if isinstance(dep_field, BooleanField):
+            new_value = new_value != '0' and new_value != 'n'
+        if isinstance(dep_field, ForeignKey):
+            try:
+                pk_id = int(new_value)
+                new_value = dep_field.remote_field.model.objects.get(pk=pk_id) if pk_id > 0 else None
+            except ValueError:
+                new_value = None
+        if dep_field.null or (new_value is not None):
+            setattr(self.item, field_name, new_value)
+
     def fill_simple_fields(self):
-        field_names = [
-            f.name for f in self.item._meta.get_fields()]
+        field_names = [f.name for f in self.item._meta.get_fields()]
         for field_name in field_names:
-            dep_field = self.item._meta.get_field(
-                field_name)
+            dep_field = self.item._meta.get_field(field_name)
             if not dep_field.auto_created or dep_field.concrete:
                 new_value = self.getparam(field_name)
-                if new_value is not None:
-                    if not (dep_field.is_relation and dep_field.many_to_many):
-                        from django.db.models.fields import BooleanField
-                        if new_value == NULL_VALUE:
-                            new_value = None
-                        if isinstance(dep_field, BooleanField):
-                            new_value = new_value != '0' and new_value != 'n'
-                        if isinstance(dep_field, ForeignKey):
-                            try:
-                                pk_id = int(new_value)
-                                if pk_id <= 0:
-                                    new_value = None
-                                else:
-                                    new_value = dep_field.remote_field.model.objects.get(
-                                        pk=pk_id)
-                            except ValueError:
-                                new_value = None
-                        if dep_field.null or (new_value is not None):
-                            setattr(self.item, field_name, new_value)
-                        self.has_changed = True
+                if (new_value is not None) and not (dep_field.is_relation and dep_field.many_to_many):
+                    self._change_field_value(dep_field, new_value, field_name)
+                    self.has_changed = True
         return self.has_changed
 
     def fill_manytomany_fields(self):

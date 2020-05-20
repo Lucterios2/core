@@ -136,6 +136,14 @@ class PluginManager(object):
                     return item
         return None
 
+    def _append_plugin(self, plugin_permission, importer, module_name):
+        module_found = importer.find_module(module_name)
+        if module_found is not None:
+            new_plugin = PluginItem(module_found.load_module(module_name))
+            if new_plugin.name not in plugin_permission:
+                plugin_permission[new_plugin.name] = []
+            self._plugin_buffer.append(new_plugin)
+
     def _reload(self):
         try:
             plugin_permission = self.get_param() if self.get_param is not None else {}
@@ -144,12 +152,7 @@ class PluginManager(object):
         self._plugin_buffer = []
         for importer, module_name, is_pkg in walk_packages(path=[self.plugins_dir()]):
             if is_pkg:
-                module_found = importer.find_module(module_name)
-                if module_found is not None:
-                    new_plugin = PluginItem(module_found.load_module(module_name))
-                    if new_plugin.name not in plugin_permission:
-                        plugin_permission[new_plugin.name] = []
-                    self._plugin_buffer.append(new_plugin)
+                self._append_plugin(plugin_permission, importer, module_name)
         self._plugin_buffer.sort(key=lambda item: item.name)
         if (plugin_permission is not None) and (self.set_param is not None):
             try:

@@ -56,26 +56,13 @@ TITLE_LABEL = _("Label")
 
 TEXT_TOTAL_NUMBER = _("Total number of %(name)s: %(count)d")
 
+TITLE_LIST_ORDER = {TITLE_EDIT: 1, TITLE_MODIFY: 2, TITLE_DELETE: 3, TITLE_CREATE: 4, TITLE_ADD: 4,
+                    TITLE_CLONE: 5, TITLE_PRINT: 6, TITLE_LISTING: 7, TITLE_LABEL: 8}
+
 
 def action_list_sorted(item):
-    if item[0].caption == TITLE_EDIT:
-        return 1
-    if item[0].caption == TITLE_MODIFY:
-        return 2
-    if item[0].caption == TITLE_DELETE:
-        return 3
-    if item[0].caption == TITLE_CREATE:
-        return 4
-    if item[0].caption == TITLE_ADD:
-        return 4
-    if item[0].caption == TITLE_CLONE:
-        return 5
-    if item[0].caption == TITLE_PRINT:
-        return 6
-    if item[0].caption == TITLE_LISTING:
-        return 7
-    if item[0].caption == TITLE_LABEL:
-        return 8
+    if item[0].caption in TITLE_LIST_ORDER:
+        return TITLE_LIST_ORDER[item[0].caption]
     if ('intop' in item[1].keys()) and item[1]['intop']:
         return 0
     else:

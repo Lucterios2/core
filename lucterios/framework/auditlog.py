@@ -95,6 +95,17 @@ def lct_log_create(sender, instance, created, **kwargs):
                                                      {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
 
+def _log_change_additionnal(instance, sub_obj, changes, kwargs):
+    if changes:
+        if not hasattr(sub_obj, '_last_log'):
+            log_update(sub_obj.__class__, sub_obj, **kwargs)
+            if not hasattr(sub_obj, '_last_log'):
+                sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
+        sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name), LucteriosLogEntry.Action.UPDATE,
+                                                 {'modelname': instance.__class__.get_long_name(), 'changes': changes})
+    return
+
+
 def lct_log_update(sender, instance, **kwargs):
     if LucteriosAuditlogModelRegistry.get_state(instance._meta.app_label):
         try:
@@ -110,15 +121,7 @@ def lct_log_update(sender, instance, **kwargs):
                 pass
             else:
                 new = instance
-                changes = model_instance_diff(old, new)
-                if changes:
-                    if not hasattr(sub_obj, '_last_log'):
-                        log_update(sub_obj.__class__, sub_obj, **kwargs)
-                        if not hasattr(sub_obj, '_last_log'):
-                            sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
-                    sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
-                                                             LucteriosLogEntry.Action.UPDATE,
-                                                             {'modelname': instance.__class__.get_long_name(), 'changes': changes})
+                _log_change_additionnal(instance, sub_obj, model_instance_diff(old, new), kwargs)
 
 
 def lct_log_delete(sender, instance, **kwargs):

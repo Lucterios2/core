@@ -37,7 +37,7 @@ from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferS
     TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT,\
     TITLE_LISTING, TITLE_LABEL
 from lucterios.framework import signal_and_lock
-from lucterios.framework.models import LucteriosScheduler
+from lucterios.framework.model_fields import LucteriosScheduler
 
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel, XferPrintReporting
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor

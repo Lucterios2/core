@@ -265,6 +265,16 @@ class XferCompLabelForm(XferComponent):
         return compjson
 
     @classmethod
+    def _convert_select_to_label(cls, old_obj):
+        format_string = {}
+        if isinstance(old_obj.select_list, dict):
+            old_obj.select_list = list(old_obj.select_list.items())
+        if isinstance(old_obj.select_list, list):
+            for key, sel_val in old_obj.select_list:
+                format_string[key] = six.text_type(sel_val)
+        return format_string
+
+    @classmethod
     def convert_to_label(cls, old_obj):
         import re
         format_string = None
@@ -272,12 +282,7 @@ class XferCompLabelForm(XferComponent):
         if value is None:
             value = None
         elif isinstance(old_obj, XferCompSelect):
-            format_string = {}
-            if isinstance(old_obj.select_list, dict):
-                old_obj.select_list = list(old_obj.select_list.items())
-            if isinstance(old_obj.select_list, list):
-                for key, sel_val in old_obj.select_list:
-                    format_string[key] = six.text_type(sel_val)
+            format_string = cls._convert_select_to_label(old_obj)
         elif isinstance(old_obj, XferCompCheck):
             format_string = 'B'
             value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))

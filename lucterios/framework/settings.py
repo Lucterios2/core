@@ -208,18 +208,37 @@ def _get_extra(module_to_setup):
     return extra
 
 
-def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
-    if module_to_setup is None:
-        last_frm = stack()[1]
-        module_to_setup = getmodule(last_frm[0])
+def initialize_appli_settings(appli_name, module_to_setup):
     setup_path = dirname(module_to_setup.__file__)
     extra_setting = _get_extra(module_to_setup)
     setattr(module_to_setup, "EXTRA", extra_setting)
     setattr(module_to_setup, "SETUP", module_to_setup)
     logging.getLogger(__name__).debug("Add settings from appli '%s' to %s ", appli_name, module_to_setup.__name__)
-    for (key_name, setting_value) in DEFAULT_SETTINGS.items():
+    for key_name, setting_value in DEFAULT_SETTINGS.items():
         if key_name not in extra_setting.keys():
             setattr(module_to_setup, key_name, setting_value)
+    my_database = getattr(module_to_setup, 'DATABASES', {})
+    if ('default' in my_database.keys()):
+        if 'ATOMIC_REQUESTS' not in my_database['default']:
+            my_database['default']['ATOMIC_REQUESTS'] = True
+    setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
+    return setup_path
+
+
+def fill_appli_gui(module_to_setup, setting_module):
+    setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME) if 'APPLIS_LOGO_NAME' in dir(setting_module) else b'')
+    if not hasattr(module_to_setup, 'APPLIS_STYLE'):
+        setattr(module_to_setup, 'APPLIS_STYLE', read_file(setting_module.APPLIS_STYLE_NAME) if 'APPLIS_STYLE_NAME' in dir(setting_module) else b'')
+    if not hasattr(module_to_setup, 'APPLIS_BACKGROUND'):
+        setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME) if 'APPLIS_BACKGROUND_NAME' in dir(setting_module) else b'')
+    setattr(module_to_setup, 'APPLI_SUPPORT', setting_module.APPLI_SUPPORT if 'APPLI_SUPPORT' in dir(setting_module) else lambda: "")
+
+
+def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
+    if module_to_setup is None:
+        last_frm = stack()[1]
+        module_to_setup = getmodule(last_frm[0])
+    setup_path = initialize_appli_settings(appli_name, module_to_setup)
     my_log = getattr(module_to_setup, 'LOGGING', {})
     try:
         if my_log['handlers']['file']['filename'] == 'error.log':
@@ -235,11 +254,6 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
         my_template[0]['DIRS'].extend(dir_list)
     except KeyError:
         pass
-    my_database = getattr(module_to_setup, 'DATABASES', {})
-    if ('default' in my_database.keys()):
-        if 'ATOMIC_REQUESTS' not in my_database['default']:
-            my_database['default']['ATOMIC_REQUESTS'] = True
-    setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
     if not hasattr(module_to_setup, "MEDIA_ROOT"):
         setattr(module_to_setup, "MEDIA_ROOT", join(setup_path, 'usr'))
     if isinstance(addon_modules, tuple):
@@ -254,21 +268,4 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
     for item in dir(setting_module):
         if item == item.upper():
             setattr(module_to_setup, item, getattr(setting_module, item))
-    if 'APPLIS_LOGO_NAME' in dir(setting_module):
-        setattr(module_to_setup, 'APPLIS_LOGO', readimage_to_base64(setting_module.APPLIS_LOGO_NAME))
-    else:
-        setattr(module_to_setup, 'APPLIS_LOGO', b'')
-    if not hasattr(module_to_setup, 'APPLIS_STYLE'):
-        if 'APPLIS_STYLE_NAME' in dir(setting_module):
-            setattr(module_to_setup, 'APPLIS_STYLE', read_file(setting_module.APPLIS_STYLE_NAME))
-        else:
-            setattr(module_to_setup, 'APPLIS_STYLE', b'')
-    if not hasattr(module_to_setup, 'APPLIS_BACKGROUND'):
-        if 'APPLIS_BACKGROUND_NAME' in dir(setting_module):
-            setattr(module_to_setup, 'APPLIS_BACKGROUND', readimage_to_base64(setting_module.APPLIS_BACKGROUND_NAME))
-        else:
-            setattr(module_to_setup, 'APPLIS_BACKGROUND', b'')
-    if 'APPLI_SUPPORT' in dir(setting_module):
-        setattr(module_to_setup, 'APPLI_SUPPORT', setting_module.APPLI_SUPPORT)
-    else:
-        setattr(module_to_setup, 'APPLI_SUPPORT', lambda: "")
+    fill_appli_gui(module_to_setup, setting_module)
