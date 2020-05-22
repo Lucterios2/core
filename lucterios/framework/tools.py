@@ -672,6 +672,22 @@ def format_value(value, format_num):
     return value
 
 
+def _convert_list_of_format(value, format_str):
+    format_str = format_str.split(';')
+    try:
+        if (abs(float(value)) < 1e-5) and (len(format_str) > 2):
+            format_str = format_str[2]
+            value = float(value)
+        elif (float(value) < 1e-5) and (len(format_str) > 1):
+            format_str = format_str[1]
+            value = abs(float(value))
+        else:
+            format_str = format_str[0]
+    except Exception:
+        format_str = format_str[0]
+    return value, format_str
+
+
 def format_to_string(value, format_num, format_str):
     if format_num is None:
         format_num = ''
@@ -679,21 +695,9 @@ def format_to_string(value, format_num, format_str):
         format_str = '{0}'
     format_str = format_str.replace('%s', '{0}')
     if ';' in format_str:
-        format_str = format_str.split(';')
-        try:
-            if (abs(float(value)) < 1e-5) and (len(format_str) > 2):
-                format_str = format_str[2]
-                value = float(value)
-            elif (float(value) < 1e-5) and (len(format_str) > 1):
-                format_str = format_str[1]
-                value = abs(float(value))
-            else:
-                format_str = format_str[0]
-        except Exception:
-            format_str = format_str[0]
+        value, format_str = _convert_list_of_format(value, format_str)
     if '{0}' not in format_str:
         return format_str
-
     if isinstance(value, list) or isinstance(value, tuple):
         value = list(value)
         for val_idx in range(len(value)):
@@ -717,9 +721,7 @@ def get_format_from_field(dep_field):
     elif hasattr(dep_field, 'format_string'):
         return dep_field.format_string
     elif hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-        choices_dict = {}
-        for choices_key, choices_value in dep_field.choices:
-            choices_dict[choices_key] = six.text_type(choices_value)
+        choices_dict = {choices_key: six.text_type(choices_value) for choices_key, choices_value in dep_field.choices}
         return choices_dict
     elif getattr(dep_field, 'unique_for_year', False) or getattr(dep_field, 'unique_for_month', False) or getattr(dep_field, 'unique_for_date', False):
         return None
