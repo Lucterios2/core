@@ -468,18 +468,30 @@ class ActionGenerator(ReportGenerator):
         if not check_top_value or (self.top > (self.page_height - 2 * self.vertical_marge)):
             self.add_page()
 
-    def compute_components(self):
-        col_size = {}
-        max_col = {}
+    def _comp_to_printitem(self, comp):
         classes_convert_dict = {XferCompImage: PrintImage, XferCompGrid: PrintTable, XferCompTab: PrintTab,
                                 XferCompLinkLabel: PrintLabel, XferCompLabelForm: PrintLabel,
                                 XferCompDate: PrintLabel, XferCompDateTime: PrintLabel, XferCompTime: PrintLabel,
                                 XferCompSelect: PrintLabel, XferCompCheck: PrintLabel}
+        new_item = None
+        for xfer_class in classes_convert_dict.keys():
+            if isinstance(comp, xfer_class):
+                new_item = classes_convert_dict[xfer_class](comp, self)
+        return new_item
+
+    def _calcul_col_size(self, col_size, new_item):
+        new_size_x = new_item.size_x / new_item.colspan
+        for item_idx in range(0, new_item.col + new_item.colspan):
+            while len(col_size[new_item.tab]) <= item_idx:
+                col_size[new_item.tab].append(0)
+            if item_idx >= new_item.col:
+                col_size[new_item.tab][item_idx] = max(col_size[new_item.tab][item_idx], new_size_x)
+
+    def compute_components(self):
+        col_size = {}
+        max_col = {}
         for comp in self.action.get_sort_components():
-            new_item = None
-            for xfer_class in classes_convert_dict.keys():
-                if isinstance(comp, xfer_class):
-                    new_item = classes_convert_dict[xfer_class](comp, self)
+            new_item = self._comp_to_printitem(comp)
             if new_item is not None:
                 lbl_item = None
                 new_item.col = 2 * new_item.col
@@ -505,12 +517,7 @@ class ActionGenerator(ReportGenerator):
                         if item_idx >= lbl_item.col:
                             col_size[lbl_item.tab][item_idx] = max(col_size[lbl_item.tab][item_idx], lbl_size_x)
                     max_col[lbl_item.tab] = max(max_col[lbl_item.tab], lbl_item.col + 1)
-                new_size_x = new_item.size_x / new_item.colspan
-                for item_idx in range(0, new_item.col + new_item.colspan):
-                    while len(col_size[new_item.tab]) <= item_idx:
-                        col_size[new_item.tab].append(0)
-                    if item_idx >= new_item.col:
-                        col_size[new_item.tab][item_idx] = max(col_size[new_item.tab][item_idx], new_size_x)
+                self._calcul_col_size(col_size, new_item)
                 max_col[new_item.tab] = max(max_col[new_item.tab], new_item.col + new_item.colspan)
                 self.print_items.append(new_item)
         return max_col, col_size
