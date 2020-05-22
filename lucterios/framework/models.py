@@ -707,7 +707,15 @@ class LogEntryManager(models.Manager):
         return pk
 
 
+def get_format_value_ex(*args):
+    return get_format_value(*args).replace("{[p", "{[span").replace("{[/p]}", "{[/span]}")
+
+
 class LucteriosLogEntry(LucteriosModel):
+    TEXT_TITLEFIELD = '{[th style="text-align: left;width: 25%%;vertical-align: top;"]}%s{[/th]}'
+    TEXT_FIRSTVALUE = '{[td style="border: none;width: 20%%;vertical-align: top;"]}%s{[/td]}'
+    TEXT_VALUE = '{[td style="border: none;vertical-align: top;"]}%s{[/td]}'
+    TEXT_LINE = "{[tr]}%s{[/tr]}"
 
     class Action:
         CREATE = 0
@@ -780,61 +788,60 @@ class LucteriosLogEntry(LucteriosModel):
         except FieldDoesNotExist:
             return None
 
+    def get_new_line(self, action, dep_field, value):
+        if value[0] == 'None':
+            value[0] = None
+        if value[1] == 'None':
+            value[1] = None
+        if hasattr(dep_field, 'verbose_name'):
+            title = dep_field.verbose_name
+        else:
+            title = dep_field.name
+        if action in (self.Action.CREATE, self.Action.ADD) or (value[0] == value[1]):
+            return (self.TEXT_TITLEFIELD + self.TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[1]))
+        elif action == self.Action.UPDATE:
+            return (self.TEXT_TITLEFIELD + self.TEXT_FIRSTVALUE + self.TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]), get_format_value_ex(dep_field, value[1]))
+        else:
+            return (self.TEXT_TITLEFIELD + self.TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]))
+
+    def _append_additional_data(self):
+        res = []
+        additional_data = json.loads(self.additional_data)
+        for field_title, values in additional_data.items():
+            for action_id, value_data in values.items():
+                action_id = int(action_id)
+                res_data = []
+                for value_item in value_data:
+                    if isinstance(value_item, dict) and ('modelname' in value_item) and ('changes' in value_item):
+                        sub_model = apps.get_model(value_item['modelname'])
+                        for sub_fieldname, diff_value in value_item['changes'].items():
+                            sub_dep_field = sub_model._meta.get_field(sub_fieldname)
+                            if (sub_dep_field is None) or (not sub_dep_field.editable or sub_dep_field.primary_key):
+                                do_continue = True
+                            new_line = self.get_new_line(action_id, sub_dep_field, diff_value)
+                            res_data.append(self.TEXT_LINE % new_line)
+                    else:
+
+                        new_line = self.TEXT_VALUE % value_item
+                        res_data.append(self.TEXT_LINE % new_line)
+
+                new_line = (self.TEXT_TITLEFIELD + self.TEXT_FIRSTVALUE + self.TEXT_VALUE) % (field_title,
+                                                                                              '{[i]}%s{[/i]}' % LucteriosLogEntry.Action.get_action_title(action_id),
+                                                                                              '{[table]}%s{[/table]}' % ''.join(res_data))
+                res.append(self.TEXT_LINE % new_line)
+        return res
+
     def get_message(self):
-        TEXT_TITLEFIELD = '{[th style="text-align: left;width: 25%%;vertical-align: top;"]}%s{[/th]}'
-        TEXT_FIRSTVALUE = '{[td style="border: none;width: 20%%;vertical-align: top;"]}%s{[/td]}'
-        TEXT_VALUE = '{[td style="border: none;vertical-align: top;"]}%s{[/td]}'
-        TEXT_LINE = "{[tr]}%s{[/tr]}"
-
-        def get_format_value_ex(*args):
-            return get_format_value(*args).replace("{[p", "{[span").replace("{[/p]}", "{[/span]}")
-
-        def get_new_line(action, dep_field, value):
-            if value[0] == 'None':
-                value[0] = None
-            if value[1] == 'None':
-                value[1] = None
-            if hasattr(dep_field, 'verbose_name'):
-                title = dep_field.verbose_name
-            else:
-                title = dep_field.name
-            if action in (self.Action.CREATE, self.Action.ADD) or (value[0] == value[1]):
-                return (TEXT_TITLEFIELD + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[1]))
-            elif action == self.Action.UPDATE:
-                return (TEXT_TITLEFIELD + TEXT_FIRSTVALUE + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]), get_format_value_ex(dep_field, value[1]))
-            else:
-                return (TEXT_TITLEFIELD + TEXT_VALUE) % (title, get_format_value_ex(dep_field, value[0]))
-
         changes = json.loads(self.changes)
         res = ["{[table width='100%']}"]
         for key, value in changes.items():
             dep_field = self.get_field(key)
             if (dep_field is None) or (not dep_field.editable or dep_field.primary_key):
                 continue
-            new_line = get_new_line(self.action, dep_field, value)
-            res.append(TEXT_LINE % new_line)
+            new_line = self.get_new_line(self.action, dep_field, value)
+            res.append(self.TEXT_LINE % new_line)
         if self.additional_data is not None:
-            additional_data = json.loads(self.additional_data)
-            for field_title, values in additional_data.items():
-                for action_id, value_data in values.items():
-                    action_id = int(action_id)
-                    res_data = []
-                    for value_item in value_data:
-                        if isinstance(value_item, dict) and ('modelname' in value_item) and ('changes' in value_item):
-                            sub_model = apps.get_model(value_item['modelname'])
-                            for sub_fieldname, diff_value in value_item['changes'].items():
-                                sub_dep_field = sub_model._meta.get_field(sub_fieldname)
-                                if (sub_dep_field is None) or (not sub_dep_field.editable or sub_dep_field.primary_key):
-                                    continue
-                                new_line = get_new_line(action_id, sub_dep_field, diff_value)
-                                res_data.append(TEXT_LINE % new_line)
-                        else:
-                            new_line = TEXT_VALUE % value_item
-                            res_data.append(TEXT_LINE % new_line)
-                    new_line = (TEXT_TITLEFIELD + TEXT_FIRSTVALUE + TEXT_VALUE) % (field_title,
-                                                                                   '{[i]}%s{[/i]}' % LucteriosLogEntry.Action.get_action_title(action_id),
-                                                                                   '{[table]}%s{[/table]}' % ''.join(res_data))
-                    res.append(TEXT_LINE % new_line)
+            res.extend(self._append_additional_data())
         res.append("{[/table]}")
         return "".join(res)
 
