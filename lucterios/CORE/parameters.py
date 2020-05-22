@@ -42,56 +42,7 @@ from lucterios.framework.plugins import PluginManager
 
 class ParamCache(object):
 
-    def __init__(self, name, param=None):
-        def convert_to_int():
-            try:
-                return int(param.value)
-            except ValueError:
-                if param.value == 'False':
-                    return 0
-                if param.value == 'True':
-                    return 1
-                return int('0' + param.value)
-
-        def convert_to_float():
-            try:
-                return float(param.value)
-            except ValueError:
-                return float('0' + param.value)
-
-        if param is None:
-            param = Parameter.objects.get(name=name)
-        self.db_obj = None
-        self.name = param.name
-        self.type = param.typeparam
-        self.meta_info = param.get_meta_select()
-        if self.meta_info is not None:  # select in object
-            if self.type == 1:  # Integer
-                self.value = convert_to_int()
-            elif self.type == 2:  # Real
-                self.value = convert_to_float()
-            else:
-                self.value = six.text_type(param.value)
-            self.args = {'oldtype': self.type, 'Multi': False}
-            self.type = 6
-        if self.type == 0:  # String
-            self.value = six.text_type(param.value)
-            self.args = {'Multi': False, 'HyperText': False}
-        elif self.type == 1:  # Integer
-            self.args = {'Min': 0, 'Max': 10000000}
-            self.value = convert_to_int()
-        elif self.type == 2:  # Real
-            self.value = convert_to_float()
-            self.args = {'Min': 0, 'Max': 10000000, 'Prec': 2}
-        elif self.type == 3:  # Boolean
-            self.value = (param.value == 'True')
-            self.args = {}
-        elif self.type == 4:  # Select
-            self.value = convert_to_int()
-            self.args = {'Enum': 0}
-        elif self.type == 5:  # password
-            self.value = six.text_type(param.value)
-            self.args = {}
+    def _assign_params(self, param):
         try:
             current_args = eval(param.args)
         except Exception as expt:
@@ -100,6 +51,41 @@ class ParamCache(object):
         for arg_key in self.args.keys():
             if arg_key in current_args.keys():
                 self.args[arg_key] = current_args[arg_key]
+
+    def __init__(self, name, param=None):
+        if param is None:
+            param = Parameter.objects.get(name=name)
+        self.db_obj = None
+        self.name = param.name
+        self.type = param.typeparam
+        self.args = {}
+        self.meta_info = param.get_meta_select()
+        if self.meta_info is not None:  # select in object
+            if self.type == Parameter.TYPE_INTEGER:  # Integer
+                self.value = param.convert_to_int()
+            elif self.type == Parameter.TYPE_REAL:  # Real
+                self.value = param.convert_to_float()
+            else:
+                self.value = six.text_type(param.value)
+            self.args.update({'oldtype': self.type, 'Multi': False})
+            self.type = Parameter.TYPE_META
+        if self.type == Parameter.TYPE_STRING:  # String
+            self.value = six.text_type(param.value)
+            self.args.update({'Multi': False, 'HyperText': False})
+        elif self.type == Parameter.TYPE_INTEGER:  # Integer
+            self.args.update({'Min': 0, 'Max': 10000000})
+            self.value = param.convert_to_int()
+        elif self.type == Parameter.TYPE_REAL:  # Real
+            self.value = param.convert_to_float()
+            self.args.update({'Min': 0, 'Max': 10000000, 'Prec': 2})
+        elif self.type == Parameter.TYPE_BOOL:  # Boolean
+            self.value = (param.value == 'True')
+        elif self.type == Parameter.TYPE_SELECT:  # Select
+            self.value = param.convert_to_int()
+            self.args.update({'Enum': 0})
+        elif self.type == Parameter.TYPE_PASSWORD:  # password
+            self.value = six.text_type(param.value)
+        self._assign_params(param)
 
     def get_label_comp(self):
         lbl = XferCompLabelForm('lbl_' + self.name)
@@ -113,7 +99,7 @@ class ParamCache(object):
         else:
             db_mdl = None
         if not self.meta_info[4]:
-            if (self.args['oldtype'] == 1) or (self.args['oldtype'] == 2):
+            if (self.args['oldtype'] == Parameter.TYPE_INTEGER) or (self.args['oldtype'] == Parameter.TYPE_REAL):
                 selection.append((0, None))
             else:
                 selection.append(('', None))
@@ -125,28 +111,28 @@ class ParamCache(object):
         return selection
 
     def get_write_comp(self):
-        if self.type == 0:  # String
+        param_cmp = None
+        if self.type == Parameter.TYPE_STRING:  # String
             if self.args['Multi']:
                 param_cmp = XferCompMemo(self.name)
                 param_cmp.with_hypertext = self.args['HyperText']
             else:
                 param_cmp = XferCompEdit(self.name)
             param_cmp.set_value(self.value)
-        elif self.type == 1:  # Integer
-            param_cmp = XferCompFloat(
-                self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
+        elif self.type == Parameter.TYPE_INTEGER:  # Integer
+            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
-        elif self.type == 2:  # Real
+        elif self.type == Parameter.TYPE_REAL:  # Real
             param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args[
                                       'Max'], precval=self.args['Prec'])
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
-        elif self.type == 3:  # Boolean
+        elif self.type == Parameter.TYPE_BOOL:  # Boolean
             param_cmp = XferCompCheck(self.name)
             param_cmp.set_value(six.text_type(self.value))
             param_cmp.set_needed(True)
-        elif self.type == 4:  # Select
+        elif self.type == Parameter.TYPE_SELECT:  # Select
             param_cmp = XferCompSelect(self.name)
             selection = []
             for sel_idx in range(0, self.args['Enum']):
@@ -154,11 +140,11 @@ class ParamCache(object):
             param_cmp.set_select(selection)
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
-        elif self.type == 5:  # password
+        elif self.type == Parameter.TYPE_PASSWORD:  # password
             param_cmp = XferCompPassword(self.name)
             param_cmp.security = 0
             param_cmp.set_value('')
-        elif self.type == 6:  # select in object
+        elif self.type == Parameter.TYPE_META:  # select in object
             if self.args['Multi']:
                 param_cmp = XferCompCheckList(self.name)
                 param_cmp.simple = 2
@@ -167,19 +153,20 @@ class ParamCache(object):
             param_cmp.set_needed(self.meta_info[4])
             param_cmp.set_select(self._get_selection_from_object())
             param_cmp.set_value(self.value)
-        param_cmp.description = six.text_type(ugettext_lazy(self.name))
+        if param_cmp is not None:
+            param_cmp.description = six.text_type(ugettext_lazy(self.name))
         return param_cmp
 
     def get_read_text(self):
         value_text = ""
-        if self.type == 3:  # Boolean
+        if self.type == Parameter.TYPE_BOOL:  # Boolean
             if self.value:
                 value_text = ugettext_lazy("Yes")
             else:
                 value_text = ugettext_lazy("No")
-        elif self.type == 4:  # Select
+        elif self.type == Parameter.TYPE_SELECT:  # Select
             value_text = ugettext_lazy(self.name + ".%d" % self.value)
-        elif self.type == 6:  # selected
+        elif self.type == Parameter.TYPE_META:  # selected
             if self.meta_info[3] == "id":
                 db_obj = self.get_object()
                 if db_obj is not None:
@@ -201,21 +188,21 @@ class ParamCache(object):
 
     def get_read_comp(self):
         param_cmp = XferCompLabelForm(self.name)
-        if self.type == 5:  # password
+        if self.type == Parameter.TYPE_PASSWORD:  # password
             param_cmp.set_value(''.ljust(len(self.value), '*'))
         else:
             param_cmp.set_value(self.get_read_text())
         return param_cmp
 
     def get_object(self):
-        if self.type == 0:  # String
+        if self.type == Parameter.TYPE_STRING:  # String
             if self.db_obj is None:
                 try:
                     self.db_obj = (loads(self.value),)
                 except Exception:
                     self.db_obj = (None,)
             return self.db_obj[0]
-        elif (self.type == 6):
+        elif (self.type == Parameter.TYPE_META):
             if self.db_obj is None:
                 try:
                     if self.args['Multi']:

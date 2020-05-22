@@ -76,24 +76,27 @@ class Authentification(XferContainerAbstract):
     caption = 'info'
     observer_name = 'core.auth'
 
-    def fillresponse(self, username, password, info):
+    def _set_authentification(self, username, password):
         from django.contrib.auth import authenticate, login, logout
+        if self.request.user.is_authenticated:
+            logout(self.request)
+        if (username == '') and (password == '') and not secure_mode_connect():
+            self.params["ses"] = 'null'
+            self.connection_success()
+        else:
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(self.request, user)
+                self.params["ses"] = user.username
+                self.connection_success()
+            else:
+                self.must_autentificate('BADAUTH')
+
+    def fillresponse(self, username, password, info):
         if (username == '') and (password is None):
             self.must_autentificate('')
         elif (username is not None) and (password is not None):
-            if self.request.user.is_authenticated:
-                logout(self.request)
-            if (username == '') and (password == '') and not secure_mode_connect():
-                self.params["ses"] = 'null'
-                self.connection_success()
-            else:
-                user = authenticate(username=username, password=password)
-                if user is not None:
-                    login(self.request, user)
-                    self.params["ses"] = user.username
-                    self.connection_success()
-                else:
-                    self.must_autentificate('BADAUTH')
+            self._set_authentification(username, password)
         elif info is not None:
             self.connection_success()
         else:

@@ -361,6 +361,21 @@ class LucteriosInstance(LucteriosManage):
         if appli_name is not None:
             self.appli_name = appli_name
 
+    def _set_extra_no_json(self, extra):
+        for item in extra.split(','):
+            if '=' in item:
+                key, value = item.split('=')[:2]
+                if (value.lower() == 'true') or (value.lower() == 'false'):
+                    self.extra[key] = value.lower() == 'true'
+                elif value.isnumeric():
+                    self.extra[key] = int(value)
+                elif value.replace('.', '').isnumeric():
+                    self.extra[key] = float(value)
+                elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
+                    self.extra[key] = value[1:-1].split(';')
+                else:
+                    self.extra[key] = value
+
     def set_extra(self, extra):
         self.extra[''] = extra
         if (len(extra) > 0) and (extra[0] == '{'):
@@ -368,19 +383,7 @@ class LucteriosInstance(LucteriosManage):
             for key, value in extra_obj.items():
                 self.extra[key] = value
         else:
-            for item in extra.split(','):
-                if '=' in item:
-                    key, value = item.split('=')[:2]
-                    if (value.lower() == 'true') or (value.lower() == 'false'):
-                        self.extra[key] = value.lower() == 'true'
-                    elif value.isnumeric():
-                        self.extra[key] = int(value)
-                    elif value.replace('.', '').isnumeric():
-                        self.extra[key] = float(value)
-                    elif (len(value) > 0) and (value[0] == '[') and (value[-1] == ']'):
-                        self.extra[key] = value[1:-1].split(';')
-                    else:
-                        self.extra[key] = value
+            self._set_extra_no_json(extra)
 
     def set_database(self, database):
         if database is not None:
@@ -542,9 +545,7 @@ class LucteriosInstance(LucteriosManage):
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
-    def clear(self, only_delete=False, ignore_db=None):
-        self.read(True)
-        from lucterios.framework.filetools import get_user_dir
+    def _sql_to_clear(self, only_delete):
         from django.db import connection
         option = 'CASCADE'
         if self.database[0] == 'postgresql':
@@ -562,6 +563,13 @@ class LucteriosInstance(LucteriosManage):
                     curs.execute('SET foreign_key_checks = 0;')
             except Exception:
                 option = 'CASCADE'
+        return sql_cmd, option
+
+    def clear(self, only_delete=False, ignore_db=None):
+        self.read(True)
+        from lucterios.framework.filetools import get_user_dir
+        from django.db import connection
+        sql_cmd, option = self._sql_to_clear(only_delete)
         loop = 10
         while loop > 0:
             tables = connection.introspection.table_names()
@@ -617,6 +625,30 @@ class LucteriosInstance(LucteriosManage):
         if self.name != '' and isfile(self.setting_path) and isfile(self.instance_conf):
             self.read(False)
 
+    def _read_databases(self, databases):
+        self.databases = databases
+        self.database = databases['default']['ENGINE']
+        if "sqlite3" in self.database:
+            self.database = 'sqlite', {}
+        if "mysql" in self.database:
+            self.database = 'mysql', self._get_db_info_()
+        if "postgresql" in self.database:
+            self.database = 'postgresql', self._get_db_info_()
+
+    def _read_modules(self, install_apps):
+        self.modules = ()
+        for appname in install_apps:
+            if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
+                self.modules = self.modules + (six.text_type(appname), )
+
+    def _read_extra(self, extra):
+        self.extra = extra
+        try:
+            from lucterios.CORE.parameters import Params
+            self.extra[''] = {'mode': (Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
+        except Exception:
+            self.extra[''] = {'mode': None}
+
     def read(self, virtual_setup=False):
         clear_modules()
         import django.conf
@@ -640,26 +672,10 @@ class LucteriosInstance(LucteriosManage):
             setting_module = import_module(self.setting_module_name)
             set_locale_lang(setting_module.LANGUAGE_CODE)
         self.secret_key = setting_module.SECRET_KEY
-        self.extra = setting_module.EXTRA
-        self.databases = setting_module.DATABASES
-        self.database = setting_module.DATABASES['default']['ENGINE']
-        if "sqlite3" in self.database:
-            self.database = ('sqlite', {})
-        if "mysql" in self.database:
-            self.database = ('mysql', self._get_db_info_())
-        if "postgresql" in self.database:
-            self.database = ('postgresql', self._get_db_info_())
         self.appli_name = setting_module.APPLIS_MODULE.__name__
-        self.modules = ()
-        for appname in setting_module.INSTALLED_APPS:
-            if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
-                self.modules = self.modules + (six.text_type(appname),)
-        try:
-            from lucterios.CORE.parameters import Params
-            self.extra[''] = {'mode': (
-                Params.getvalue("CORE-connectmode"), Params.gettext("CORE-connectmode"))}
-        except Exception:
-            self.extra[''] = {'mode': None}
+        self._read_databases(setting_module.DATABASES)
+        self._read_modules(setting_module.INSTALLED_APPS)
+        self._read_extra(setting_module.EXTRA)
         self.print_info_("""Instance %s:
     path\t%s
     appli\t%s
@@ -708,6 +724,21 @@ class LucteriosInstance(LucteriosManage):
                          self.name)
         self.refresh(False)
 
+    def _get_security_password(self, security_param):
+        passwd = security_param['']
+        for sec_item in SECURITY_LIST:
+            if (sec_item in security_param.keys()) and (sec_item != SECURITY_PASSWD):
+                item_str = "%s=%s" % (sec_item, security_param[sec_item])
+                if passwd[:len(item_str)] == item_str:
+                    passwd = passwd[len(item_str) + 1:]
+                elif passwd[-1 * len(item_str):] == item_str:
+                    passwd = passwd[:-1 * len(item_str) - 1]
+                else:
+                    item_idx = passwd.find(item_str)
+                    if item_idx != -1:
+                        passwd = passwd[:item_idx] + passwd[item_idx + len(item_str):]
+        return passwd[len(SECURITY_PASSWD) + 1:]
+
     def security(self):
         if self.name == '':
             raise AdminException("Instance not precise!")
@@ -717,27 +748,12 @@ class LucteriosInstance(LucteriosManage):
         self.read(False)
         self.clear_info_()
         if SECURITY_PASSWD in security_param.keys():
-            passwd = security_param['']
-            for sec_item in SECURITY_LIST:
-                if (sec_item in security_param.keys()) and (sec_item != SECURITY_PASSWD):
-                    item_str = "%s=%s" % (sec_item, security_param[sec_item])
-                    if passwd[:len(item_str)] == item_str:
-                        passwd = passwd[len(item_str) + 1:]
-                    elif passwd[-1 * len(item_str):] == item_str:
-                        passwd = passwd[:-1 * len(item_str) - 1]
-                    else:
-                        item_idx = passwd.find(item_str)
-                        if item_idx != -1:
-                            passwd = passwd[:item_idx] + \
-                                passwd[item_idx + len(item_str):]
-            passwd = passwd[len(SECURITY_PASSWD) + 1:]
+            passwd = self._get_security_password(security_param)
             from lucterios.CORE.models import LucteriosUser
-            adm_user = LucteriosUser.objects.get(
-                username='admin')
+            adm_user = LucteriosUser.objects.get(username='admin')
             adm_user.set_password(passwd)
             adm_user.save()
-            self.print_info_("Admin password change in '%s'." %
-                             self.name)
+            self.print_info_("Admin password change in '%s'." % self.name)
         if (SECURITY_MODE in security_param.keys()) and (int(security_param[SECURITY_MODE]) in [0, 1, 2]):
             from lucterios.CORE.models import Parameter
             from lucterios.CORE.parameters import Params
@@ -745,7 +761,6 @@ class LucteriosInstance(LucteriosManage):
             db_param.value = six.text_type(security_param[SECURITY_MODE])
             db_param.save()
             Params.clear()
-
             self.print_info_("Security mode change in '%s'." % self.name)
 
     def refresh(self, check_dependancy=True):

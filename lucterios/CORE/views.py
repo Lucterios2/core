@@ -414,17 +414,7 @@ class PrintModelEdit(XferContainerCustom):
         for name, value in self.item.model_associated().get_all_print_fields():
             memo_comp.add_sub_menu(name, value)
 
-    def fillresponse(self):
-        img_title = XferCompImage('img')
-        img_title.set_location(0, 0, 1, 6)
-        img_title.set_value(self.icon_path())
-        self.add_component(img_title)
-        lab = XferCompLabelForm('title')
-        lab.set_location(1, 0, 2)
-        lab.set_value_as_title(_("Print models"))
-        self.add_component(lab)
-        self.fill_from_model(2, 1, False, ['name'])
-        self.fill_from_model(2, 2, True, ['kind'])
+    def _fill_from_kind(self):
         self.item.mode = int(self.item.mode)
         if self.item.kind == 1:
             self.fill_from_model(2, 3, False, ['mode'])
@@ -437,6 +427,19 @@ class PrintModelEdit(XferContainerCustom):
             self._fill_label_editor()
         elif (self.item.kind == 2) or ((self.item.kind == 1) and (self.item.mode == 1)):
             self._fill_report_editor()
+
+    def fillresponse(self):
+        img_title = XferCompImage('img')
+        img_title.set_location(0, 0, 1, 6)
+        img_title.set_value(self.icon_path())
+        self.add_component(img_title)
+        lab = XferCompLabelForm('title')
+        lab.set_location(1, 0, 2)
+        lab.set_value_as_title(_("Print models"))
+        self.add_component(lab)
+        self.fill_from_model(2, 1, False, ['name'])
+        self.fill_from_model(2, 2, True, ['kind'])
+        self._fill_from_kind()
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
@@ -969,6 +972,16 @@ class ObjectImport(XferContainerCustom):
                 new_row[field_description[0]] = row[fields_association[field_description[0]]].strip()
         return new_row
 
+    def _get_field_info(self, fieldname):
+        dep_field = self.model.get_field_by_name(fieldname)
+        title = dep_field.verbose_name
+        hfield = get_format_from_field(dep_field)
+        if isinstance(hfield, six.text_type) and (';' in hfield):
+            hfield = hfield.split(';')
+            format_str = ";".join(hfield[1:])
+            hfield = hfield[0]
+        return title, hfield, format_str
+
     def _read_csv_and_convert(self):
         fields_association = {}
         for param_key in self.params.keys():
@@ -981,13 +994,7 @@ class ObjectImport(XferContainerCustom):
                 fieldname, title = fieldname
                 hfield = None
             else:
-                dep_field = self.model.get_field_by_name(fieldname)
-                title = dep_field.verbose_name
-                hfield = get_format_from_field(dep_field)
-                if isinstance(hfield, six.text_type) and (';' in hfield):
-                    hfield = hfield.split(';')
-                    format_str = ";".join(hfield[1:])
-                    hfield = hfield[0]
+                title, hfield, format_str = self._get_field_info(fieldname)
             if fieldname in fields_association.keys():
                 fields_description.append((fieldname, title, hfield, format_str))
         self._read_csv()
@@ -997,10 +1004,66 @@ class ObjectImport(XferContainerCustom):
                 csv_readed.append(self._convert_record(fields_association, fields_description, row))
         return fields_description, csv_readed
 
-    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
+    def _fillcontent_step1(self, lbl):
+        lbl = XferCompLabelForm('modelname')
+        lbl.set_value(self.model._meta.verbose_name.title())
+        lbl.set_location(1, 0)
+        lbl.description = _('model')
+        self.add_component(lbl)
+        self._read_csv()
+        self.new_tab(_("Fields"))
+        self._select_fields()
+        self.new_tab(_("Current content"))
+        self._show_initial_csv()
+
+    def _fillcontent_step2(self):
+        lbl = XferCompLabelForm('modelname')
+        lbl.set_value(self.model._meta.verbose_name.title())
+        lbl.set_location(1, 0)
+        lbl.description = _('model')
+        self.add_component(lbl)
+        fields_description, csv_readed = self._read_csv_and_convert()
+        tbl = XferCompGrid('CSV')
+        for field_description in fields_description:
+            tbl.add_header(field_description[0], field_description[1], field_description[2], formatstr=field_description[3])
+        row_idx = 1
+        for row in csv_readed:
+            for field_description in fields_description:
+                tbl.set_value(row_idx, field_description[0], row[field_description[0]])
+            row_idx += 1
+        tbl.set_location(1, 1, 2)
+        self.add_component(tbl)
+        lbl = XferCompLabelForm('nb_line')
+        lbl.set_value(_("Total number of items: %d") % (row_idx - 1))
+        lbl.set_location(1, 2, 2)
+        self.add_component(lbl)
+
+    def _fillcontent_step3(self, dateformat):
         def add_item_if_not_null(new_item):
             if new_item is not None:
                 self.items_imported[new_item.id] = new_item
+        _fields_description, csv_readed = self._read_csv_and_convert()
+        self.model.initialize_import()
+        self.items_imported = {}
+        for rowdata in csv_readed:
+            add_item_if_not_null(self.model.import_data(rowdata, dateformat))
+        add_item_if_not_null(self.model.finalize_import())
+        lbl = XferCompLabelForm('result')
+        if len(self.items_imported) == 0:
+            lbl.set_value_as_header(_("no item are been imported"))
+        elif len(self.items_imported) == 1:
+            lbl.set_value_as_header(_("1 item are been imported"))
+        else:
+            lbl.set_value_as_header(_("%d items are been imported") % len(self.items_imported))
+        lbl.set_location(1, 2, 2)
+        self.add_component(lbl)
+        lbl = XferCompLabelForm('import_error')
+        lbl.set_color('red')
+        lbl.set_value(self.model.get_import_logs())
+        lbl.set_location(1, 3, 2)
+        self.add_component(lbl)
+
+    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
 
         if modelname is not None:
             self.model = apps.get_model(modelname)
@@ -1014,70 +1077,21 @@ class ObjectImport(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         if step == 0:
-            lbl = self._select_csv_parameters()
+            self._select_csv_parameters()
             step = 1
         elif step == 1:
-            lbl = XferCompLabelForm('modelname')
-            lbl.set_value(self.model._meta.verbose_name.title())
-            lbl.set_location(1, 0)
-            lbl.description = _('model')
-            self.add_component(lbl)
-            self._read_csv()
-            self.new_tab(_("Fields"))
-            self._select_fields()
-            self.new_tab(_("Current content"))
-            self._show_initial_csv()
+            self._fillcontent_step1()
             step = 2
         elif step == 2:
-            lbl = XferCompLabelForm('modelname')
-            lbl.set_value(self.model._meta.verbose_name.title())
-            lbl.set_location(1, 0)
-            lbl.description = _('model')
-            self.add_component(lbl)
-            fields_description, csv_readed = self._read_csv_and_convert()
-            tbl = XferCompGrid('CSV')
-            for field_description in fields_description:
-                tbl.add_header(field_description[0], field_description[1], field_description[2], formatstr=field_description[3])
-            row_idx = 1
-            for row in csv_readed:
-                for field_description in fields_description:
-                    tbl.set_value(row_idx, field_description[0], row[field_description[0]])
-                row_idx += 1
-            tbl.set_location(1, 1, 2)
-            self.add_component(tbl)
-            lbl = XferCompLabelForm('nb_line')
-            lbl.set_value(_("Total number of items: %d") % (row_idx - 1))
-            lbl.set_location(1, 2, 2)
-            self.add_component(lbl)
+            self._fillcontent_step2()
             step = 3
         elif step == 3:
-            fields_description, csv_readed = self._read_csv_and_convert()
-            self.model.initialize_import()
-            self.items_imported = {}
-            for rowdata in csv_readed:
-                add_item_if_not_null(self.model.import_data(rowdata, dateformat))
-            add_item_if_not_null(self.model.finalize_import())
-            lbl = XferCompLabelForm('result')
-            if len(self.items_imported) == 0:
-                lbl.set_value_as_header(_("no item are been imported"))
-            elif len(self.items_imported) == 1:
-                lbl.set_value_as_header(_("1 item are been imported"))
-            else:
-                lbl.set_value_as_header(_("%d items are been imported") % len(self.items_imported))
-            lbl.set_location(1, 2, 2)
-            self.add_component(lbl)
-            lbl = XferCompLabelForm('import_error')
-            lbl.set_color('red')
-            lbl.set_value(self.model.get_import_logs())
-            lbl.set_location(1, 3, 2)
-            self.add_component(lbl)
+            self._fillcontent_step3(dateformat)
             step = 4
         if step < 4:
             if step > 1:
-                self.add_action(self.get_action(_('Back'), "images/left.png"),
-                                close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
-            self.add_action(self.get_action(_('Ok'), "images/ok.png"),
-                            close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
+                self.add_action(self.get_action(_('Back'), "images/left.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
+            self.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
             self.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         else:
             self.add_action(WrapAction(_("Close"), "images/close.png"))

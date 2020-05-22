@@ -49,8 +49,18 @@ from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistr
 
 
 class Parameter(LucteriosModel):
+    TYPE_STRING = 0
+    TYPE_INTEGER = 1
+    TYPE_REAL = 2
+    TYPE_BOOL = 3
+    TYPE_SELECT = 4
+    TYPE_PASSWORD = 5
+    TYPE_META = 6
+    TYPE_LIST = ((TYPE_STRING, _('String')), (TYPE_INTEGER, _('Integer')), (TYPE_REAL, _('Real')),
+                 (TYPE_BOOL, _('Boolean')), (TYPE_SELECT, _('Select')), (TYPE_PASSWORD, _('Password')), (TYPE_META, _('Meta')))
+
     name = models.CharField(_('name'), max_length=100, unique=True)
-    typeparam = models.IntegerField(choices=((0, _('String')), (1, _('Integer')), (2, _('Real')), (3, _('Boolean')), (4, _('Select'))), default=0)
+    typeparam = models.IntegerField(choices=TYPE_LIST, default=0)
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
     metaselect = models.TextField('meta', blank=True)
@@ -90,31 +100,35 @@ class Parameter(LucteriosModel):
     @classmethod
     def change_value(cls, pname, pvalue):
         db_param = cls.objects.get(name=pname)
-        if (db_param.typeparam == 3) and isinstance(pvalue, six.text_type):
+        if (db_param.typeparam == cls.TYPE_BOOL) and isinstance(pvalue, six.text_type):
             db_param.value = six.text_type((pvalue == '1') or (pvalue == 'o'))
         else:
             db_param.value = pvalue
         db_param.save()
 
+    def _meta_from_script(self, meta_select):
+        import importlib
+        meta_select = list(meta_select)
+        sys_modules = dict(sys.modules)
+        last = None
+        for item_val in meta_select[2].split(';'):
+            if item_val.startswith('import '):
+                module_name = item_val[7:]
+                mod_imported = importlib.import_module(module_name)
+                sys_modules[module_name] = mod_imported
+            else:
+                last = eval(item_val, sys_modules)
+        meta_select[2] = last
+        return meta_select
+
     def get_meta_select(self):
         from django.db.models import Q
-        import importlib
         meta_select = None
         if self.metaselect != "":
             meta_select = eval(self.metaselect)
             if (len(meta_select) == 5) and isinstance(meta_select[0], six.text_type) and isinstance(meta_select[1], six.text_type) and isinstance(meta_select[3], six.text_type) and isinstance(meta_select[4], bool):
                 if isinstance(meta_select[2], six.text_type):
-                    meta_select = list(meta_select)
-                    sys_modules = dict(sys.modules)
-                    last = None
-                    for item_val in meta_select[2].split(';'):
-                        if item_val.startswith('import '):
-                            module_name = item_val[7:]
-                            mod_imported = importlib.import_module(module_name)
-                            sys_modules[module_name] = mod_imported
-                        else:
-                            last = eval(item_val, sys_modules)
-                    meta_select[2] = last
+                    meta_select = self._meta_from_script(meta_select)
                 elif not isinstance(meta_select[2], Q) and not isinstance(meta_select[2], list):
                     meta_select = None
             else:
@@ -125,6 +139,22 @@ class Parameter(LucteriosModel):
         from lucterios.CORE.parameters import ParamCache
         param = ParamCache(self.name, self)
         return six.text_type(param.get_read_text())
+
+    def convert_to_int(self):
+        try:
+            return int(self.value)
+        except ValueError:
+            if self.value == 'False':
+                return 0
+            if self.value == 'True':
+                return 1
+            return int('0' + self.value)
+
+    def convert_to_float(self):
+        try:
+            return float(self.value)
+        except ValueError:
+            return float('0' + self.value)
 
     class Meta(object):
         verbose_name = _('parameter')

@@ -52,6 +52,18 @@ from lucterios.framework.model_fields import get_obj_contains, PrintFieldsPlugIn
     is_simple_field, LucteriosVirtualField
 
 
+def add_sub_field_for_print(fields, field_name, field_title, model):
+    for sub_title, sub_name in model.get_all_print_fields(False):
+        fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
+
+
+def eval_sublist(field_list, field_value):
+    field_val = []
+    for sub_model in field_value.all():
+        field_val.append(sub_model.evaluate("#" + ".".join(field_list[1:])))
+    return "{[br/]}".join(field_val)
+
+
 class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
@@ -381,13 +393,21 @@ class LucteriosModel(models.Model):
             dep_field = None
         return dep_field
 
+    def get_value_for_evaluate(self, field_list, field_value):
+        dep_field = self.get_field_by_name(field_list[0])
+        if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
+            field_value = adapt_value(field_value)
+            formatnum, formatstr = extract_format(get_format_from_field(dep_field))
+            field_val = format_to_string(field_value, formatnum, formatstr)
+        elif field_value is None:
+            field_val = ""
+        elif isinstance(field_value, LucteriosModel) and not hasattr(field_value, "all"):
+            field_val = field_value.evaluate("#" + ".".join(field_list[1:]))
+        else:
+            field_val = eval_sublist(field_list, field_value)
+        return field_val
+
     def evaluate(self, text):
-        def eval_sublist(field_list, field_value):
-            field_val = []
-            for sub_model in field_value.all():
-                field_val.append(
-                    sub_model.evaluate("#" + ".".join(field_list[1:])))
-            return "{[br/]}".join(field_val)
         if text == '#':
             return six.text_type(self)
         value = text
@@ -403,26 +423,37 @@ class LucteriosModel(models.Model):
                 elif field_list[0][-4:] == '_set':
                     field_val = eval_sublist(field_list, field_value)
                 else:
-                    dep_field = self.get_field_by_name(field_list[0])
-                    if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
-                        field_value = adapt_value(field_value)
-                        formatnum, formatstr = extract_format(get_format_from_field(dep_field))
-                        field_val = format_to_string(field_value, formatnum, formatstr)
-                    else:
-                        if field_value is None:
-                            field_val = ""
-                        elif isinstance(field_value, LucteriosModel) and not hasattr(field_value, "all"):
-                            field_val = field_value.evaluate("#" + ".".join(field_list[1:]))
-                        else:
-                            field_val = eval_sublist(field_list, field_value)
+                    field_val = self.get_value_for_evaluate(field_list, field_value)
                 value = value.replace(field, six.text_type(field_val))
         return value
 
+    def _append_sub_field_for_print(self, field_name, with_plugin):
+        fields = []
+        sub_fields = field_name.split('.')
+        try:
+            dep_field = self._meta.get_field(sub_fields[0])
+            field_title = dep_field.verbose_name
+            if len(sub_fields) == 1:
+                if is_simple_field(dep_field):
+                    fields.append((field_title, field_name))
+                else:
+                    add_sub_field_for_print(fields, field_name, field_title, dep_field.remote_field.model)
+            else:
+                for sub_title, __new_field in dep_field.remote_field.model.get_field_for_print(with_plugin, ".".join(sub_fields[1:])):
+                    if sub_title != '':
+                        fields.append(("%s > %s" % (field_title, sub_title), field_name))
+                    else:
+                        fields.append((field_title, field_name))
+
+        except (FieldDoesNotExist, AttributeError):
+            if (field_name == 'str'):
+                fields.append(("", field_name))
+            elif hasattr(self, field_name):
+                fields.append((field_name, field_name))
+        return fields
+
     @classmethod
     def get_field_for_print(cls, with_plugin, field_name):
-        def add_sub_field(field_name, field_title, model):
-            for sub_title, sub_name in model.get_all_print_fields(False):
-                fields.append(("%s > %s" % (field_title, sub_title), "%s.%s" % (field_name, sub_name)))
         fields = []
         item = cls()
         if PrintFieldsPlugIn.is_plugin(field_name):
@@ -431,7 +462,7 @@ class LucteriosModel(models.Model):
         elif field_name[-4:] == '_set':
             child = getattr(item, field_name)
             field_title = child.model._meta.verbose_name
-            add_sub_field(field_name, field_title, child.model)
+            add_sub_field_for_print(fields, field_name, field_title, child.model)
         elif isinstance(field_name, tuple):
             sub_title, field_name = field_name
             if field_name.split('.')[0][-4:] == '_set':
@@ -449,26 +480,7 @@ class LucteriosModel(models.Model):
             for (sub_title, __new_field) in child.model.get_field_for_print(with_plugin, last_field_name):
                 fields.append(("%s > %s" % (field_title, sub_title), field_name))
         else:
-            sub_fields = field_name.split('.')
-            try:
-                dep_field = item._meta.get_field(sub_fields[0])
-                field_title = dep_field.verbose_name
-                if len(sub_fields) == 1:
-                    if is_simple_field(dep_field):
-                        fields.append((field_title, field_name))
-                    else:
-                        add_sub_field(field_name, field_title, dep_field.remote_field.model)
-                else:
-                    for (sub_title, __new_field) in dep_field.remote_field.model.get_field_for_print(with_plugin, ".".join(sub_fields[1:])):
-                        if sub_title != '':
-                            fields.append(("%s > %s" % (field_title, sub_title), field_name))
-                        else:
-                            fields.append((field_title, field_name))
-            except (FieldDoesNotExist, AttributeError):
-                if (field_name == 'str'):
-                    fields.append(("", field_name))
-                elif hasattr(item, field_name):
-                    fields.append((field_name, field_name))
+            fields.extend(item._append_sub_field_for_print(field_name, with_plugin))
         return fields
 
     @classmethod
@@ -513,27 +525,23 @@ class LucteriosModel(models.Model):
             return LucteriosEditor(self)
 
     @classmethod
-    def get_permission(cls, show=False, add=False, delete=False):
-        perm_filter = Q()
-        if show:
-            perm_filter |= Q(codename__istartswith="change_")
-        else:
-            perm_filter |= ~Q(codename__istartswith="change_")
-        if add:
-            perm_filter |= Q(codename__istartswith="add_")
-        else:
-            perm_filter |= ~Q(codename__istartswith="add_")
-        if delete:
-            perm_filter |= Q(codename__istartswith="delete_")
-        else:
-            perm_filter |= ~Q(codename__istartswith="delete_")
+    def _get_sub_class(cls):
         current_class = cls
         while current_class._meta.proxy is True:
             for sub_class in current_class.__mro__:
                 if (sub_class != current_class) and hasattr(current_class, '_meta'):
                     current_class = sub_class
                     break
-        perm_filter = Q(content_type__app_label=current_class._meta.app_label) & Q(content_type__model=current_class._meta.object_name.lower())
+        return current_class
+
+    @classmethod
+    def get_permission(cls, show=False, add=False, delete=False):
+        perm_filter = Q()
+        perm_filter |= Q(codename__istartswith="change_") if show else ~Q(codename__istartswith="change_")
+        perm_filter |= Q(codename__istartswith="add_") if add else ~Q(codename__istartswith="add_")
+        perm_filter |= Q(codename__istartswith="delete_") if delete else ~Q(codename__istartswith="delete_")
+        current_class = cls._get_sub_class()
+        perm_filter &= Q(content_type__app_label=current_class._meta.app_label) & Q(content_type__model=current_class._meta.object_name.lower())
         for item in Permission.objects.filter(perm_filter):
             if (item.codename.startswith("change_") and show) or (item.codename.startswith("add_") and add) or (item.codename.startswith("delete_") and delete):
                 yield item
@@ -817,7 +825,7 @@ class LucteriosLogEntry(LucteriosModel):
                         for sub_fieldname, diff_value in value_item['changes'].items():
                             sub_dep_field = sub_model._meta.get_field(sub_fieldname)
                             if (sub_dep_field is None) or (not sub_dep_field.editable or sub_dep_field.primary_key):
-                                do_continue = True
+                                continue
                             new_line = self.get_new_line(action_id, sub_dep_field, diff_value)
                             res_data.append(self.TEXT_LINE % new_line)
                     else:

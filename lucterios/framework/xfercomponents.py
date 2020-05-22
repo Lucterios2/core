@@ -288,16 +288,13 @@ class XferCompLabelForm(XferComponent):
             value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))
         elif isinstance(old_obj, XferCompDate):
             format_string = 'D'
-            if not isinstance(value, date):
-                value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:3]])
+            value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:3]]) if not isinstance(value, date) else value
         elif isinstance(old_obj, XferCompDateTime):
             format_string = 'H'
-            if not isinstance(value, datetime):
-                value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))])
+            value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))]) if not isinstance(value, datetime) else value
         elif isinstance(old_obj, XferCompTime):
             format_string = 'T'
-            if not isinstance(value, time):
-                value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:2]])
+            value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:2]]) if not isinstance(value, time) else value
         elif isinstance(old_obj, XferCompFloat):
             format_string = 'N%d' % old_obj.prec
         new_lbl = cls(old_obj.name)

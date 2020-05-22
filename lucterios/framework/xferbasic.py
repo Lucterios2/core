@@ -27,7 +27,7 @@ from inspect import isfunction
 from logging import getLogger
 
 from django.utils.translation import ugettext as _
-from django.utils import translation, six
+from django.utils import six
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
@@ -103,36 +103,22 @@ class XferContainerAbstract(View):
         return ret_act
 
     def getparam(self, key, default_value=None):
-        if key in self.params.keys():
+        param_value = default_value
+        try:
             param_value = self.params[key]
-            try:
-                if isinstance(default_value, bool):
-                    param_value = (("%s" % param_value).lower() != 'false') and (param_value != '0') and (param_value != '') and (param_value != 'n')
-                elif isinstance(default_value, int):
-                    if param_value == NULL_VALUE:
-                        param_value = None
-                    else:
-                        param_value = int(param_value)
-                elif isinstance(default_value, float):
-                    if param_value == NULL_VALUE:
-                        param_value = None
-                    else:
-                        param_value = float(param_value)
-                elif isinstance(default_value, tuple):
-                    if param_value == '':
-                        param_value = ()
-                    else:
-                        param_value = tuple(param_value.replace(',', ';').split(';'))
-                elif isinstance(default_value, list):
-                    if param_value == '':
-                        param_value = []
-                    else:
-                        param_value = param_value.replace(',', ';').split(';')
-            except ValueError:
-                param_value = default_value
-            return param_value
-        else:
-            return default_value
+            if isinstance(default_value, bool):
+                param_value = (("%s" % param_value).lower() != 'false') and (param_value != '0') and (param_value != '') and (param_value != 'n')
+            elif isinstance(default_value, int):
+                param_value = int(param_value) if param_value != NULL_VALUE else None
+            elif isinstance(default_value, float):
+                param_value = float(param_value) if param_value != NULL_VALUE else None
+            elif isinstance(default_value, tuple):
+                param_value = tuple(param_value.replace(',', ';').split(';')) if param_value != '' else ()
+            elif isinstance(default_value, list):
+                param_value = param_value.replace(',', ';').split(';') if param_value != '' else []
+        except (ValueError, KeyError):
+            pass
+        return param_value
 
     def _load_unique_record(self, itemid):
         try:
