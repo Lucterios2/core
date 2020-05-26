@@ -976,6 +976,7 @@ class ObjectImport(XferContainerCustom):
         dep_field = self.model.get_field_by_name(fieldname)
         title = dep_field.verbose_name
         hfield = get_format_from_field(dep_field)
+        format_str = "%s"
         if isinstance(hfield, six.text_type) and (';' in hfield):
             hfield = hfield.split(';')
             format_str = ";".join(hfield[1:])
