@@ -1004,7 +1004,7 @@ class ObjectImport(XferContainerCustom):
                 csv_readed.append(self._convert_record(fields_association, fields_description, row))
         return fields_description, csv_readed
 
-    def _fillcontent_step1(self, lbl):
+    def _fillcontent_step1(self):
         lbl = XferCompLabelForm('modelname')
         lbl.set_value(self.model._meta.verbose_name.title())
         lbl.set_location(1, 0)
