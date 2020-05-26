@@ -103,7 +103,6 @@ class XferContainerAbstract(View):
         return ret_act
 
     def getparam(self, key, default_value=None):
-        param_value = default_value
         try:
             param_value = self.params[key]
             if isinstance(default_value, bool):
@@ -117,7 +116,7 @@ class XferContainerAbstract(View):
             elif isinstance(default_value, list):
                 param_value = param_value.replace(',', ';').split(';') if param_value != '' else []
         except (ValueError, KeyError):
-            pass
+            param_value = default_value
         return param_value
 
     def _load_unique_record(self, itemid):
