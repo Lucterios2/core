@@ -130,7 +130,9 @@ class FieldDescItem(object):
             self.dbfieldname = self.fieldname[2]
             self.initial_q = self.fieldname[3]
             self.fieldname = self.fieldname[0]
-        self.sub_fieldnames = self.fieldname.split('.')
+            self.sub_fieldnames = self.fieldname.split('.')[-1:]
+        else:
+            self.sub_fieldnames = self.fieldname.split('.')
 
     def _init_for_list(self, sub_model, multi):
         if len(self.sub_fieldnames) == 1:
@@ -168,12 +170,8 @@ class FieldDescItem(object):
                 self.dbfieldname = self.sub_fieldnames[0]
                 # field real in model
                 if not dep_field.auto_created or dep_field.concrete:
-                    # field not many-to-many
-                    if not (dep_field.is_relation and dep_field.many_to_many):
-                        self.dbfield = dep_field
-                    else:
-                        self.dbfield = dep_field
-                self.description = self.dbfield.verbose_name
+                    self.dbfield = dep_field
+                    self.description = self.dbfield.verbose_name
         else:
             self.description = self.dbfield.verbose_name
 
