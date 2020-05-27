@@ -27,6 +27,7 @@ import re
 import json
 import logging
 from datetime import datetime
+from copy import deepcopy
 
 from django_fsm.signals import post_transition
 
@@ -93,7 +94,7 @@ class LucteriosModel(models.Model):
         return cls.get_default_fields()
 
     @classmethod
-    def convert_field_for_search(cls, fieldname, fieldsearched):
+    def convert_field_for_search(cls, fieldname, fieldsearched, add_verbose=True):
         def convertQ(query):
             if isinstance(query, Q):
                 for q_idx in range(len(query.children)):
@@ -111,11 +112,12 @@ class LucteriosModel(models.Model):
             else:
                 field_name = fieldname
             field = cls.get_field_by_name(field_name)
+            newfielddb = deepcopy(fieldsearched[1])
             if hasattr(field, 'verbose_name'):
-                fieldsearched[1].verbose_name = field.verbose_name + ' > ' + fieldsearched[1].verbose_name
-            else:
-                fieldsearched[1].verbose_name = field.related_model._meta.verbose_name + ' > ' + fieldsearched[1].verbose_name
-            return (fieldname + "." + fieldsearched[0], fieldsearched[1], field_name + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
+                newfielddb.verbose_name = str(field.verbose_name) + ' > ' + str(fieldsearched[1].verbose_name)
+            elif add_verbose:
+                newfielddb.verbose_name = str(field.related_model._meta.verbose_name) + ' > ' + str(fieldsearched[1].verbose_name)
+            return (fieldname + "." + fieldsearched[0], newfielddb, field_name + "__" + fieldsearched[2], convertQ(fieldsearched[3]))
 
     @classmethod
     def get_print_fields(cls):
