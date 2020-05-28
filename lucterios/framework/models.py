@@ -113,7 +113,9 @@ class LucteriosModel(models.Model):
                 field_name = fieldname
             field = cls.get_field_by_name(field_name)
             newfielddb = deepcopy(fieldsearched[1])
-            if hasattr(field, 'verbose_name'):
+            if isinstance(add_verbose, str):
+                newfielddb.verbose_name = str(add_verbose) + ' > ' + str(fieldsearched[1].verbose_name)
+            elif hasattr(field, 'verbose_name'):
                 newfielddb.verbose_name = str(field.verbose_name) + ' > ' + str(fieldsearched[1].verbose_name)
             elif add_verbose:
                 newfielddb.verbose_name = str(field.related_model._meta.verbose_name) + ' > ' + str(fieldsearched[1].verbose_name)
