@@ -110,8 +110,8 @@ def get_package_list():
         # RECORDs should be part of .dist-info metadatas
         if dist.has_metadata('RECORD'):
             lines = dist.get_metadata_lines('RECORD')
-            paths = [l.split(',')[0].replace('/', os.sep) for l in lines]
-            paths = [os.path.join(dist.location, p) for p in paths]
+            paths = [line_item.split(',')[0].replace('/', os.sep) for line_item in lines]
+            paths = [os.path.join(dist.location, path_item) for path_item in paths]
         # Otherwise use pip's log for .egg-info's
         elif dist.has_metadata('installed-files.txt'):
             paths = dist.get_metadata_lines('installed-files.txt')
