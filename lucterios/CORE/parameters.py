@@ -52,14 +52,7 @@ class ParamCache(object):
             if arg_key in current_args.keys():
                 self.args[arg_key] = current_args[arg_key]
 
-    def __init__(self, name, param=None):
-        if param is None:
-            param = Parameter.objects.get(name=name)
-        self.db_obj = None
-        self.name = param.name
-        self.type = param.typeparam
-        self.args = {}
-        self.meta_info = param.get_meta_select()
+    def _compute_metainfo(self, param):
         if self.meta_info is not None:  # select in object
             if self.type == Parameter.TYPE_INTEGER:  # Integer
                 self.value = param.convert_to_int()
@@ -69,6 +62,8 @@ class ParamCache(object):
                 self.value = six.text_type(param.value)
             self.args.update({'oldtype': self.type, 'Multi': False})
             self.type = Parameter.TYPE_META
+
+    def _compute_type(self, param):
         if self.type == Parameter.TYPE_STRING:  # String
             self.value = six.text_type(param.value)
             self.args.update({'Multi': False, 'HyperText': False})
@@ -79,12 +74,23 @@ class ParamCache(object):
             self.value = param.convert_to_float()
             self.args.update({'Min': 0, 'Max': 10000000, 'Prec': 2})
         elif self.type == Parameter.TYPE_BOOL:  # Boolean
-            self.value = (param.value == 'True')
+            self.value = param.value == 'True'
         elif self.type == Parameter.TYPE_SELECT:  # Select
             self.value = param.convert_to_int()
             self.args.update({'Enum': 0})
         elif self.type == Parameter.TYPE_PASSWORD:  # password
             self.value = six.text_type(param.value)
+
+    def __init__(self, name, param=None):
+        if param is None:
+            param = Parameter.objects.get(name=name)
+        self.db_obj = None
+        self.name = param.name
+        self.type = param.typeparam
+        self.args = {}
+        self.meta_info = param.get_meta_select()
+        self._compute_metainfo(param)
+        self._compute_type(param)
         self._assign_params(param)
 
     def get_label_comp(self):
@@ -110,6 +116,14 @@ class ParamCache(object):
                 selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
         return selection
 
+    def _get_meta_comp(self):
+        if self.args['Multi']:
+            param_cmp = XferCompCheckList(self.name)
+            param_cmp.simple = 2
+        else:
+            param_cmp = XferCompSelect(self.name)
+        return param_cmp
+
     def get_write_comp(self):
         param_cmp = None
         if self.type == Parameter.TYPE_STRING:  # String
@@ -124,8 +138,7 @@ class ParamCache(object):
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
         elif self.type == Parameter.TYPE_REAL:  # Real
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args[
-                                      'Max'], precval=self.args['Prec'])
+            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=self.args['Prec'])
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
         elif self.type == Parameter.TYPE_BOOL:  # Boolean
@@ -134,9 +147,7 @@ class ParamCache(object):
             param_cmp.set_needed(True)
         elif self.type == Parameter.TYPE_SELECT:  # Select
             param_cmp = XferCompSelect(self.name)
-            selection = []
-            for sel_idx in range(0, self.args['Enum']):
-                selection.append((sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)))
+            selection = [(sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self.args['Enum'])]
             param_cmp.set_select(selection)
             param_cmp.set_value(self.value)
             param_cmp.set_needed(True)
@@ -145,17 +156,30 @@ class ParamCache(object):
             param_cmp.security = 0
             param_cmp.set_value('')
         elif self.type == Parameter.TYPE_META:  # select in object
-            if self.args['Multi']:
-                param_cmp = XferCompCheckList(self.name)
-                param_cmp.simple = 2
-            else:
-                param_cmp = XferCompSelect(self.name)
+            param_cmp = self._get_meta_comp()
             param_cmp.set_needed(self.meta_info[4])
             param_cmp.set_select(self._get_selection_from_object())
             param_cmp.set_value(self.value)
-        if param_cmp is not None:
-            param_cmp.description = six.text_type(ugettext_lazy(self.name))
+        param_cmp.description = six.text_type(ugettext_lazy(self.name))
         return param_cmp
+
+    def _get_text_for_meta(self):
+        if self.meta_info[3] == "id":
+            db_obj = self.get_object()
+            if db_obj is not None:
+                value_text = six.text_type(db_obj)
+            else:
+                value_text = "---"
+        elif self.args['Multi']:
+            selection = dict(self._get_selection_from_object())
+            try:
+                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self.value.split(';')])
+            except TypeError:
+                value_text = "{[br/]}".join(self.value.split(';'))
+        else:
+            selection = dict(self._get_selection_from_object())
+            value_text = selection[self.value] if self.value in selection else self.value
+        return value_text
 
     def get_read_text(self):
         value_text = ""
@@ -167,21 +191,7 @@ class ParamCache(object):
         elif self.type == Parameter.TYPE_SELECT:  # Select
             value_text = ugettext_lazy(self.name + ".%d" % self.value)
         elif self.type == Parameter.TYPE_META:  # selected
-            if self.meta_info[3] == "id":
-                db_obj = self.get_object()
-                if db_obj is not None:
-                    value_text = six.text_type(db_obj)
-                else:
-                    value_text = "---"
-            elif self.args['Multi']:
-                selection = dict(self._get_selection_from_object())
-                try:
-                    value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self.value.split(';')])
-                except TypeError:
-                    value_text = "{[br/]}".join(self.value.split(';'))
-            else:
-                selection = dict(self._get_selection_from_object())
-                value_text = selection[self.value] if self.value in selection else self.value
+            value_text = self._get_text_for_meta()
         else:
             value_text = self.value
         return value_text
