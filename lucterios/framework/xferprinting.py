@@ -193,7 +193,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
         gui.add_component(print_mode)
         if self.selector is not None:
             self._add_option_selectors(gui)
-        gui.add_action(self.get_action(_("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        gui.add_action(self.return_action(_("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 

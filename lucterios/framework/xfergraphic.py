@@ -71,6 +71,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.custom = XferContainerCustom()
         self.custom.model = model
         self.custom._initialize(self.request)
+        self.custom.url_text = self.url_text
         self.custom.is_view_right = self.is_view_right
         self.custom.caption = self.caption
         self.custom.extension = self.extension
@@ -133,7 +134,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
-            btn.set_action(self.request, self.get_action(_('Traitment...'), ""), params={"RELOAD": "YES"})
+            btn.set_action(self.request, self.return_action(_('Traitment...'), ""), params={"RELOAD": "YES"})
             btn.java_script = "parent.refresh()"
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
@@ -156,7 +157,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.extension = self.extension
                 dlg.action = self.action
                 dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-                dlg.add_action(self.get_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
+                dlg.add_action(self.return_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
                 dlg.add_action(WrapAction(_("No"), "images/cancel.png"))
                 dlg.closeaction = self.closeaction
                 return dlg.get_post(request, *args, **kwargs)

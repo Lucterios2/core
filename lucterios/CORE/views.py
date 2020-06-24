@@ -394,7 +394,7 @@ class PrintModelList(XferListEditor):
         model_sel.set_location(1, 1)
         model_sel.set_select(model_list)
         model_sel.set_value(modelname)
-        model_sel.set_action(self.request, self.get_action("", ""), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        model_sel.set_action(self.request, self.return_action("", ""), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(model_sel)
         self.filter = Q(modelname=modelname)
         self.fieldnames = ['name', 'kind', 'is_default']
@@ -418,7 +418,7 @@ class PrintModelEdit(XferContainerCustom):
         self.item.mode = int(self.item.mode)
         if self.item.kind == 1:
             self.fill_from_model(2, 3, False, ['mode'])
-            self.get_components('mode').set_action(self.request, self.get_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+            self.get_components('mode').set_action(self.request, self.return_action('', ''), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
             if (self.item.mode == 1) and (self.item.value[:6] != '<model'):
                 self.item.value = "<model>\n<body>\n<text>%s</text></body>\n</model>" % self.item.value
         if self.item.kind == 0:
@@ -541,7 +541,7 @@ class PrintModelReload(XferContainerAcknowledge):
             sel.set_location(2, 1)
             dlg.add_component(sel)
 
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(self.return_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if self.item.load_model(model_module, self.getparam("default_model", ""), is_default=None):
@@ -581,7 +581,7 @@ class PrintModelImport(XferContainerAcknowledge):
             upload.set_location(2, 1)
             dlg.add_component(upload)
 
-            dlg.add_action(self.get_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
+            dlg.add_action(self.return_action(TITLE_OK, "images/ok.png"), close=CLOSE_YES, params={'SAVE': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         else:
             if 'import_model' in self.request.FILES.keys():
@@ -745,12 +745,12 @@ class ObjectMerge(XferContainerAcknowledge):
                 grid.set_value(item.id, 'value', six.text_type(item))
                 grid.set_value(item.id, 'select', item.id == self.item.id)
             grid.set_location(1, 1)
-            grid.add_action(self.request, self.get_action(_("Edit"), "images/show.png"),
+            grid.add_action(self.request, self.return_action(_("Edit"), "images/show.png"),
                             modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, params={"CONFIRME": 'OPEN'})
-            grid.add_action(self.request, self.get_action(_("Select"), "images/ok.png"),
+            grid.add_action(self.request, self.return_action(_("Select"), "images/ok.png"),
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
+            dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
                            params={'CONFIRME': 'YES', 'mrg_' + self.field_id: self.item.id})
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
@@ -812,7 +812,7 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_select(self.item.__class__.get_select_contact_type(False))
             lbl.set_location(2, 3)
             dlg.add_component(lbl)
-            dlg.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
+            dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         else:
             new_model = apps.get_model(self.getparam('newmodel'))
@@ -1091,8 +1091,8 @@ class ObjectImport(XferContainerCustom):
             step = 4
         if step < 4:
             if step > 1:
-                self.add_action(self.get_action(_('Back'), "images/left.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
-            self.add_action(self.get_action(_('Ok'), "images/ok.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
+                self.add_action(self.return_action(_('Back'), "images/left.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
+            self.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
             self.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
         else:
             self.add_action(WrapAction(_("Close"), "images/close.png"))
@@ -1141,7 +1141,7 @@ class ConfigurationWizard(XferListEditor):
             btn = XferCompButton("prec_wizard")
             btn.set_location(0, 0)
             btn.set_is_mini(True)
-            btn.set_action(self.request, self.get_action(_("Prec"), "images/left.png"),
+            btn.set_action(self.request, self.return_action(_("Prec"), "images/left.png"),
                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step - 1})
             self.add_component(btn)
         lbl = XferCompLabelForm('progress')
@@ -1153,7 +1153,7 @@ class ConfigurationWizard(XferListEditor):
             btn = XferCompButton("next_wizard")
             btn.set_location(5, 0)
             btn.set_is_mini(True)
-            btn.set_action(self.request, self.get_action(_("Next"), "images/right.png"),
+            btn.set_action(self.request, self.return_action(_("Next"), "images/right.png"),
                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step + 1})
             self.add_component(btn)
         lbl = XferCompLabelForm('sep1')
@@ -1220,7 +1220,7 @@ def conf_wizard_core(wizard_ident, xfer):
         xfer.add_component(lbl)
         Params.fill(xfer, ['CORE-Wizard'], 1, 6, False)
         check = xfer.get_components("CORE-Wizard")
-        check.set_action(xfer.request, xfer.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        check.set_action(xfer.request, xfer.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         lbl = XferCompLabelForm('lbl_wizard')
         lbl.set_value_as_name(check.description)
         lbl.set_location(2, 6)

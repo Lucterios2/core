@@ -261,7 +261,7 @@ class AudiLogConfig(XferListEditor):
         sel.set_location(1, row)
         sel.description = _("content type")
         sel._check_case()
-        sel.set_action(self.request, self.get_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        sel.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(sel)
         self.filter = Q(modelname=sel.value)
 

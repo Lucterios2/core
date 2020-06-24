@@ -491,7 +491,7 @@ if ((type=='list') || (type=='listmult')) {
         comp.is_default = True
         comp.set_is_mini(True)
         comp.set_location(4, 10, 1, 7)
-        comp.set_action(self.request, self.get_action("", "images/add.png"), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
+        comp.set_action(self.request, self.return_action("", "images/add.png"), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
@@ -548,7 +548,7 @@ if ((type=='list') || (type=='listmult')) {
             comp = XferCompButton("searchButtonDel_" + criteria_id)
             comp.set_is_mini(True)
             comp.set_location(4, row)
-            comp.set_action(self.request, self.get_action("", "images/delete.png"),
+            comp.set_action(self.request, self.return_action("", "images/delete.png"),
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': criteria_id})
             self.add_component(comp)
             row += 1

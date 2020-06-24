@@ -167,7 +167,7 @@ class XferSavedCriteriaSearchEditor(XferSearchEditor):
         sel.set_location(1, new_row + 1, 3)
         sel.set_needed(False)
         sel.set_select_query(saved_list)
-        sel.set_action(self.request, self.get_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
+        sel.set_action(self.request, self.return_action(), close=CLOSE_NO, modal=FORMTYPE_REFRESH)
         self.add_component(sel)
         if len(self.criteria_list) > 0:
             from lucterios.CORE.views import SavedCriteriaAddModify
