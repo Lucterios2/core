@@ -90,7 +90,7 @@ class TestComposants(XferContainerCustom):
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
                      ck1=False, slct1='1', flt2=5, cl1=['1', '2'], cl2=['b', 'd', 'f'], stm1='2008-07-12 23:47:31'):
-        act_modif = self.get_action('Modify', '')
+        act_modif = self.return_action('Modify', '')
 
         lbl = XferCompLabelForm('Lbl2')
         lbl.set_value('editor=' + six.text_type(edt1))
@@ -238,7 +238,7 @@ class TestNullComposants(XferContainerCustom):
     icon = "5.png"
 
     def fillresponse(self, flt1=0.0, flt2=0, dt1='01-01-2010', tm1='12:00', stm1='01-01-2010 12:00'):
-        act_modif = self.get_action('Modify', '')
+        act_modif = self.return_action('Modify', '')
 
         flt = XferCompFloat('flt1')
         flt.set_value(flt1)
@@ -306,7 +306,7 @@ class SimpleGrid(XferContainerCustom):
         grid.set_value(5, "col3", False)
         grid.set_value(5, "col4", "string")
 
-        # grid.add_action(self.get_action('Reopen', ''),-1, {'modal':FORMTYPE_REFRESH})
+        # grid.add_action(self.return_action('Reopen', ''),-1, {'modal':FORMTYPE_REFRESH})
         self.add_component(grid)
 
 

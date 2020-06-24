@@ -102,6 +102,15 @@ class XferContainerAbstract(View):
                              is_view_right=getattr(cls, 'is_view_right', None))
         return ret_act
 
+    def return_action(self, caption=None, icon_path=None):
+        if caption is None:
+            caption = self.caption
+        if icon_path is None:
+            icon_path = getattr(self, 'icon', '')
+        ret_act = WrapAction(caption, icon_path, url_text=self.url_text,
+                             is_view_right=getattr(self, 'is_view_right', None))
+        return ret_act
+
     def getparam(self, key, default_value=None):
         try:
             param_value = self.params[key]
@@ -216,7 +225,7 @@ class XferContainerAbstract(View):
     def _initialize(self, request, *_, **kwargs):
         from django.conf import settings
         if hasattr(self.__class__, 'is_view_right'):
-            self.get_action().raise_bad_permission(request)
+            self.return_action().raise_bad_permission(request)
         if hasattr(request, 'session'):
             request.session.set_expiry(12 * 60)  # 12 min of idle timeout
         path_list = request.path.split('/')
