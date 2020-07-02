@@ -23,7 +23,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils import six
 
 INTERNAL = 0
 CRITIC = 1
@@ -50,13 +49,13 @@ def get_error_trace():
     import sys
     import traceback
     trace = traceback.extract_tb(sys.exc_info()[2])[3:]
-    res = six.text_type('')
+    res = str('')
     for item in trace:
         try:
-            res += six.text_type("%s in line %d in %s : %s{[br/]}") % item
+            res += str("%s in line %d in %s : %s{[br/]}") % item
         except Exception:
             try:
-                res += six.text_type("%s in line %d in %s : %s{[br/]}") % (item.filename, item.lineno, item.name, item.line)
+                res += str("%s in line %d in %s : %s{[br/]}") % (item.filename, item.lineno, item.name, item.line)
             except Exception:
                 res += "???{[br/]}"
     return res

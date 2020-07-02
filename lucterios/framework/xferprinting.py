@@ -31,7 +31,6 @@ from zipfile import ZipFile
 from _io import BytesIO
 
 from django.utils.translation import ugettext as _
-from django.utils import six
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
@@ -90,9 +89,9 @@ class XferContainerPrint(XferContainerAbstract):
             for pdf_name, pdf_content in self.get_persistent_pdfreport():
                 if isinstance(pdf_content, BytesIO):
                     pdf_content = pdf_content.read()
-                if isinstance(pdf_content, six.text_type):
+                if isinstance(pdf_content, str):
                     pdf_content = pdf_content.encode()
-                if isinstance(pdf_content, six.binary_type):
+                if isinstance(pdf_content, bytes):
                     zip_ref.writestr(zinfo_or_arcname=pdf_name, data=pdf_content)
         return filename
 
@@ -131,10 +130,10 @@ class XferContainerPrint(XferContainerAbstract):
             elif isinstance(option_selector, tuple):
                 comp = XferCompFloat(name_selector, option_selector[0], option_selector[1], option_selector[2])
                 comp.set_value(option_selector[0])
-            elif isinstance(option_selector, six.binary_type):
+            elif isinstance(option_selector, bytes):
                 comp = XferCompEdit(name_selector)
                 comp.set_value(option_selector.decode())
-            elif isinstance(option_selector, six.text_type):
+            elif isinstance(option_selector, str):
                 comp = XferCompMemo(name_selector)
                 comp.with_hypertext = True
                 comp.set_value(option_selector)
@@ -235,7 +234,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                 self.report_content = b64encode(report_generator.generate_report(self.request, self.report_mode == PRINT_CSV_FILE))
 
     def get_print_name(self):
-        return six.text_type(self.caption)
+        return str(self.caption)
 
     def _finalize(self):
         self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content.decode()}

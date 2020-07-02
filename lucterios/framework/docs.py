@@ -22,7 +22,6 @@ You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from django.utils import six
 from django.conf import settings
 from django.utils.module_loading import import_module
 from django.utils.translation import get_language
@@ -36,19 +35,19 @@ def find_doc(appname):
         dirname(module.__file__), "static", appname, 'doc_%s' % get_language())
     if isdir(doc_path):
         if hasattr(module, '__title__'):
-            return (appname, six.text_type(module.__title__()))
+            return (appname, str(module.__title__()))
         else:
             return (appname, appname)
     return None
 
 
 def defaultDocs(request):
-    from django.shortcuts import render_to_response
+    from django.shortcuts import render
     dictionary = {}
-    dictionary['title'] = six.text_type(settings.APPLIS_NAME)
+    dictionary['title'] = str(settings.APPLIS_NAME)
     dictionary['subtitle'] = settings.APPLIS_SUBTITLE()
     dictionary['applogo'] = settings.APPLIS_LOGO
-    dictionary['version'] = six.text_type(settings.APPLIS_VERSION)
+    dictionary['version'] = str(settings.APPLIS_VERSION)
     dictionary['lang'] = get_language()
     dictionary['menus'] = []
     dictionary['menus'].append(find_doc(settings.APPLIS_MODULE.__name__))
@@ -58,4 +57,4 @@ def defaultDocs(request):
             if help_item is not None:
                 dictionary['menus'].append(help_item)
     dictionary['menus'].append(find_doc('lucterios.CORE'))
-    return render_to_response('main_docs.html', context=dictionary)
+    return render(request, 'main_docs.html', context=dictionary)

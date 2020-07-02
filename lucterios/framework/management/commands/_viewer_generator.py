@@ -30,7 +30,6 @@ from os.path import isfile, join, isdir, dirname, basename
 from glob import glob
 
 from django.utils.module_loading import import_module
-from django.utils import six
 from django_fsm import FSMFieldMixin
 
 from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
@@ -195,9 +194,9 @@ class Generator(object):
 
     def writedata(self, text):
         try:
-            self.viewfile.write(six.binary_type(text, 'UTF-8'))
+            self.viewfile.write(bytes(text, 'UTF-8'))
         except Exception:
-            self.viewfile.write(six.binary_type(text))
+            self.viewfile.write(bytes(text))
 
     def _write_header(self, model_name, item_actions, is_new):
         if is_new:
@@ -261,8 +260,8 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
         with open(viewer_file, 'ab') as self.viewfile:
             self._write_header(model_name, item_actions, is_new)
             class_inst = getattr(self.module_obj, model_name)
-            verbose_name = six.text_type(class_inst._meta.verbose_name)
-            verbose_name_plural = six.text_type(
+            verbose_name = str(class_inst._meta.verbose_name)
+            verbose_name_plural = str(
                 class_inst._meta.verbose_name_plural)
             for item_name in sorted(list(item_actions.keys())):
                 acts = item_actions[item_name]
@@ -272,7 +271,7 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
                     for field in class_inst._meta.get_fields():
                         if isinstance(field, FSMFieldMixin):
                             loop.append({'statname': field.name})
-                    six.print_(loop)
+                    print(loop)
                 else:
                     loop = [{'statname': ''}]
                 for item in loop:

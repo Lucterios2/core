@@ -40,9 +40,8 @@ from django.apps.registry import apps
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User, Permission
-from django.utils import six, timezone
+from django.utils import timezone
 from django.utils.encoding import smart_text
-from django.utils.six import integer_types
 from django.utils.translation import ugettext_lazy as _
 from django.utils.module_loading import import_module
 
@@ -104,7 +103,7 @@ class LucteriosModel(models.Model):
                 return (field_name + '__' + query[0], query[1])
             else:
                 return None
-        if isinstance(fieldsearched, six.text_type):
+        if isinstance(fieldsearched, str):
             return fieldname + "." + fieldsearched
         elif len(fieldsearched) == 4:
             if fieldname[-4:] == '_set':
@@ -217,7 +216,7 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def _convert_field_booleanfield(cls, fieldvalue, **_args):
-        fieldvalue = (six.text_type(fieldvalue) == 'True') or (six.text_type(fieldvalue).lower() == 'yes') or (six.text_type(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
+        fieldvalue = (str(fieldvalue) == 'True') or (str(fieldvalue).lower() == 'yes') or (str(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
         return fieldvalue
 
     @classmethod
@@ -226,7 +225,7 @@ class LucteriosModel(models.Model):
             sub_value = fieldvalue
             fieldvalue = None
             for sub_item in dep_field.remote_field.model.objects.all():
-                if six.text_type(sub_item.get_final_child()) == six.text_type(sub_value):
+                if str(sub_item.get_final_child()) == str(sub_value):
                     fieldvalue = sub_item
                     break
             if fieldvalue is None:
@@ -413,7 +412,7 @@ class LucteriosModel(models.Model):
 
     def evaluate(self, text):
         if text == '#':
-            return six.text_type(self)
+            return str(self)
         value = text
         if text is not None:
             for field in self.TO_EVAL_FIELD.findall(text):
@@ -428,7 +427,7 @@ class LucteriosModel(models.Model):
                     field_val = eval_sublist(field_list, field_value)
                 else:
                     field_val = self.get_value_for_evaluate(field_list, field_value)
-                value = value.replace(field, six.text_type(field_val))
+                value = value.replace(field, str(field_val))
         return value
 
     def _append_sub_field_for_print(self, field_name, with_plugin):
@@ -626,7 +625,7 @@ class LogEntryManager(models.Manager):
             kwargs.setdefault('object_pk', pk)
             kwargs.setdefault('object_repr', smart_text(instance))
 
-            if isinstance(pk, integer_types):
+            if isinstance(pk, int):
                 kwargs.setdefault('object_id', pk)
 
             get_additional_data = getattr(instance, 'get_additional_data', None)
@@ -660,7 +659,7 @@ class LogEntryManager(models.Manager):
 
         pk = self._get_pk_value(instance)
 
-        if isinstance(pk, integer_types):
+        if isinstance(pk, int):
             return self.filter(modelname=instance.__class__.get_long_name(), object_id=pk)
         else:
             return self.filter(modelname=instance.__class__.get_long_name(), object_pk=smart_text(pk))
@@ -680,7 +679,7 @@ class LogEntryManager(models.Manager):
         modelname = queryset.model.get_long_name()
         primary_keys = list(queryset.values_list(queryset.model._meta.pk.name, flat=True))
 
-        if isinstance(primary_keys[0], integer_types):
+        if isinstance(primary_keys[0], int):
             return self.filter(modelname=modelname).filter(Q(object_id__in=primary_keys)).distinct()
         elif isinstance(queryset.model._meta.pk, models.UUIDField):
             primary_keys = [smart_text(pk) for pk in primary_keys]
@@ -746,9 +745,9 @@ class LucteriosLogEntry(LucteriosModel):
         @classmethod
         def get_action_title(cls, action_id):
             for choices_id, choices_val in cls.choices:
-                if six.text_type(choices_id) == six.text_type(action_id):
-                    return six.text_type(choices_val)
-            return six.text_type(action_id)
+                if str(choices_id) == str(action_id):
+                    return str(choices_val)
+            return str(action_id)
 
     messagetxt = LucteriosVirtualField(verbose_name=_('change message'), compute_from='get_message')
     modelname = models.CharField(db_index=True, max_length=255, blank=False, null=False, verbose_name=_("content type"))
@@ -790,7 +789,7 @@ class LucteriosLogEntry(LucteriosModel):
         res = []
         for modelname in cls.objects.values_list('modelname', flat=True).distinct():
             model_item = apps.get_model(modelname)
-            res.append((modelname, six.text_type(model_item._meta.verbose_name)))
+            res.append((modelname, str(model_item._meta.verbose_name)))
         return sorted(list(set(res)), key=lambda item: item[1])
 
     def get_field(self, name):
@@ -870,7 +869,7 @@ class LucteriosLogEntry(LucteriosModel):
             additional_data[sender_ident][log_action].extend(addon_data)
         else:
             additional_data[sender_ident][log_action].append(addon_data)
-        self.additional_data = json.dumps(additional_data, default=six.text_type)
+        self.additional_data = json.dumps(additional_data, default=str)
         self.save()
 
     class Meta(object):
@@ -910,4 +909,4 @@ def correct_db_field(fields):
     except Exception:
         logging.getLogger('lucterios.framwork').exception("correct_db_field")
     if ret > 0:
-        six.print_("%s DB corrections" % ret)
+        print("%s DB corrections" % ret)

@@ -39,7 +39,6 @@ from re import compile
 
 from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
-from django.utils import six
 
 from lucterios.framework.settings import get_lan_ip
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title
@@ -130,7 +129,7 @@ class EditorInstance(object):
 
     def _define_values(self):
         from lucterios.framework.settings import DEFAULT_LANGUAGES
-        self.mode_values = [six.text_type(ugettext("CORE-connectmode.0")), six.text_type(ugettext("CORE-connectmode.1")), six.text_type(ugettext("CORE-connectmode.2"))]
+        self.mode_values = [str(ugettext("CORE-connectmode.0")), str(ugettext("CORE-connectmode.1")), str(ugettext("CORE-connectmode.2"))]
         self.lang_values = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.dbtype_values = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()

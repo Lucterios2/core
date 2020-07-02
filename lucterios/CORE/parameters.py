@@ -27,7 +27,6 @@ from logging import getLogger
 import threading
 
 from django.utils.translation import ugettext_lazy
-from django.utils import six
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -59,13 +58,13 @@ class ParamCache(object):
             elif self.type == Parameter.TYPE_REAL:  # Real
                 self.value = param.convert_to_float()
             else:
-                self.value = six.text_type(param.value)
+                self.value = str(param.value)
             self.args.update({'oldtype': self.type, 'Multi': False})
             self.type = Parameter.TYPE_META
 
     def _compute_type(self, param):
         if self.type == Parameter.TYPE_STRING:  # String
-            self.value = six.text_type(param.value)
+            self.value = str(param.value)
             self.args.update({'Multi': False, 'HyperText': False})
         elif self.type == Parameter.TYPE_INTEGER:  # Integer
             self.args.update({'Min': 0, 'Max': 10000000})
@@ -79,7 +78,7 @@ class ParamCache(object):
             self.value = param.convert_to_int()
             self.args.update({'Enum': 0})
         elif self.type == Parameter.TYPE_PASSWORD:  # password
-            self.value = six.text_type(param.value)
+            self.value = str(param.value)
 
     def __init__(self, name, param=None):
         if param is None:
@@ -113,7 +112,7 @@ class ParamCache(object):
             selection = self.meta_info[2]
         else:
             for obj_item in db_mdl.objects.filter(self.meta_info[2]):
-                selection.append((getattr(obj_item, self.meta_info[3]), six.text_type(obj_item)))
+                selection.append((getattr(obj_item, self.meta_info[3]), str(obj_item)))
         return selection
 
     def _get_meta_comp(self):
@@ -143,7 +142,7 @@ class ParamCache(object):
             param_cmp.set_needed(True)
         elif self.type == Parameter.TYPE_BOOL:  # Boolean
             param_cmp = XferCompCheck(self.name)
-            param_cmp.set_value(six.text_type(self.value))
+            param_cmp.set_value(str(self.value))
             param_cmp.set_needed(True)
         elif self.type == Parameter.TYPE_SELECT:  # Select
             param_cmp = XferCompSelect(self.name)
@@ -160,14 +159,14 @@ class ParamCache(object):
             param_cmp.set_needed(self.meta_info[4])
             param_cmp.set_select(self._get_selection_from_object())
             param_cmp.set_value(self.value)
-        param_cmp.description = six.text_type(ugettext_lazy(self.name))
+        param_cmp.description = str(ugettext_lazy(self.name))
         return param_cmp
 
     def _get_text_for_meta(self):
         if self.meta_info[3] == "id":
             db_obj = self.get_object()
             if db_obj is not None:
-                value_text = six.text_type(db_obj)
+                value_text = str(db_obj)
             else:
                 value_text = "---"
         elif self.args['Multi']:
@@ -284,7 +283,7 @@ class Params(object):
     def gettext(cls, name):
         cls._paramlock.acquire()
         try:
-            return six.text_type(cls._get(name).get_read_text())
+            return str(cls._get(name).get_read_text())
         finally:
             cls._paramlock.release()
 

@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 
 from django.db import models, migrations
 import django.core.validators
-from django.utils import six
 from lucterios.CORE.models import PrintModel
 from lucterios.framework.model_fields import LucteriosDecimalField
 
@@ -42,7 +41,7 @@ def initial_values(*args):
 class Migration(migrations.Migration):
 
     dependencies = [
-        (six.text_type("CORE"), six.text_type("0001_initial")),
+        (str("CORE"), str("0001_initial")),
     ]
 
     operations = [

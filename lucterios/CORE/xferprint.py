@@ -25,7 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.printgenerators import ActionGenerator, ListingGenerator, LabelGenerator, ReportingGenerator
@@ -62,8 +61,8 @@ class XferPrintListing(XferContainerPrint):
         if (self.info == '') and (self.getparam('CRITERIA') is not None):
             info_list = get_info_list(self.getparam('CRITERIA'), self.model)
             self.info = '{[br]}'.join(info_list)
-        self.selector.append(("TITLE", _('title'), six.text_type(self.getparam("TITLE", self.caption)).encode()))
-        self.selector.append(("INFO", _('comment'), six.text_type(self.getparam("INFO", self.info))))
+        self.selector.append(("TITLE", _('title'), str(self.getparam("TITLE", self.caption)).encode()))
+        self.selector.append(("INFO", _('comment'), str(self.getparam("INFO", self.info))))
         self.selector.append(("WITHNUM", _('with number?'), self.getparam("WITHNUM", self.with_num is True)))
         self.caption = self.getparam("TITLE", self.caption)
         self.info = self.getparam("INFO", self.info).replace("{[br]}", "{[br/]}")

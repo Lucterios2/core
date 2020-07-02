@@ -28,7 +28,6 @@ import json
 
 from django.db.models.base import Model
 from django.db.models.signals import pre_save, post_save, post_delete, m2m_changed
-from django.utils import six
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.models import LucteriosLogEntry
@@ -43,7 +42,7 @@ def log_create(sender, instance, created, **kwargs):
         instance._last_log = LucteriosLogEntry.objects.log_create(
             instance,
             action=LucteriosLogEntry.Action.CREATE,
-            changes=json.dumps(changes, default=six.text_type),
+            changes=json.dumps(changes, default=str),
         )
 
 
@@ -63,7 +62,7 @@ def log_update(sender, instance, **kwargs):
                 instance._last_log = LucteriosLogEntry.objects.log_create(
                     instance,
                     action=LucteriosLogEntry.Action.UPDATE,
-                    changes=json.dumps(changes, default=six.text_type),
+                    changes=json.dumps(changes, default=str),
                 )
 
 
@@ -74,7 +73,7 @@ def log_delete(sender, instance, **kwargs):
         instance._last_log = LucteriosLogEntry.objects.log_create(
             instance,
             action=LucteriosLogEntry.Action.DELETE,
-            changes=json.dumps(changes, default=six.text_type),
+            changes=json.dumps(changes, default=str),
         )
 
 
@@ -90,7 +89,7 @@ def lct_log_create(sender, instance, created, **kwargs):
             changes = model_instance_diff(None, instance)
             if not hasattr(sub_obj, '_last_log'):
                 sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
-            sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+            sub_obj._last_log.change_additional_data(str(instance._meta.verbose_name),
                                                      LucteriosLogEntry.Action.ADD,
                                                      {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
@@ -101,7 +100,7 @@ def _log_change_additionnal(instance, sub_obj, changes, kwargs):
             log_update(sub_obj.__class__, sub_obj, **kwargs)
             if not hasattr(sub_obj, '_last_log'):
                 sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
-        sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name), LucteriosLogEntry.Action.UPDATE,
+        sub_obj._last_log.change_additional_data(str(instance._meta.verbose_name), LucteriosLogEntry.Action.UPDATE,
                                                  {'modelname': instance.__class__.get_long_name(), 'changes': changes})
     return
 
@@ -136,7 +135,7 @@ def lct_log_delete(sender, instance, **kwargs):
             changes = model_instance_diff(instance, None)
             if not hasattr(sub_obj, '_last_log'):
                 sub_obj._last_log = LucteriosLogEntry.objects.log_create(sub_obj, action=LucteriosLogEntry.Action.UPDATE, changes='{}', additional_data='{}')
-            sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+            sub_obj._last_log.change_additional_data(str(instance._meta.verbose_name),
                                                      LucteriosLogEntry.Action.DELETE,
                                                      {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 
@@ -162,8 +161,8 @@ def lct_log_m2m(sender, instance, action, model, pk_set, **kwargs):
                 changes = {}
                 changes[attrname] = [','.join(data_m2m), ','.join(data_m2m)]
                 first_fieldname = instance.get_default_fields()[0]
-                changes[first_fieldname] = [six.text_type(getattr(instance, first_fieldname)), six.text_type(getattr(instance, first_fieldname))]
-                sub_obj._last_log.change_additional_data(six.text_type(instance._meta.verbose_name),
+                changes[first_fieldname] = [str(getattr(instance, first_fieldname)), str(getattr(instance, first_fieldname))]
+                sub_obj._last_log.change_additional_data(str(instance._meta.verbose_name),
                                                          log_action,
                                                          {'modelname': instance.__class__.get_long_name(), 'changes': changes})
 

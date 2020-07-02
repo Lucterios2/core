@@ -33,7 +33,6 @@ from hashlib import md5
 from _io import BytesIO
 import io
 
-from django.utils import six
 
 from lucterios.framework.tools import get_binay
 
@@ -182,7 +181,7 @@ def xml_validator(some_xml_string, xsd_file):
         objectify.fromstring(some_xml_string, parser)
         return None
     except XMLSyntaxError as xml_error:
-        return six.text_type(xml_error)
+        return str(xml_error)
 
 
 def remove_accent(text, replace_space=False):

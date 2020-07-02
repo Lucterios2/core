@@ -35,7 +35,6 @@ import warnings
 import locale
 import sys
 
-from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_text
@@ -98,21 +97,21 @@ class WrapAction(object):
 
     def get_action_json(self, desc='', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         json_res = {}
-        json_res['text'] = six.text_type(self.caption)
+        json_res['text'] = str(self.caption)
         json_res['id'] = self.url_text
         if self.icon_path != "":
-            json_res['icon'] = six.text_type(self.icon_path)
+            json_res['icon'] = str(self.icon_path)
         if self.extension != "":
             json_res['extension'] = self.extension
         if self.action != "":
             json_res['action'] = self.action
         if desc != "":
-            json_res["help"] = six.text_type(desc)
-        json_res['modal'] = six.text_type(modal)
-        json_res['close'] = six.text_type(close)
-        json_res['unique'] = six.text_type(unique)
+            json_res["help"] = str(desc)
+        json_res['modal'] = str(modal)
+        json_res['close'] = str(close)
+        json_res['unique'] = str(unique)
         if isinstance(self.modal, int):
-            json_res['modal'] = six.text_type(self.modal)
+            json_res['modal'] = str(self.modal)
         json_res['params'] = params
         return json_res
 
@@ -193,7 +192,7 @@ class ActionsManage(object):
                         if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
                             acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
                     except Exception:
-                        six.print_('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
+                        print('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
                         raise
             if key is not None:
                 acts.sort(key=key)
@@ -294,9 +293,9 @@ class ActionsManage(object):
                         source_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.source][0]
                         target_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.target][0]
                         title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
-                        xclass.trans_list[transition.name] = (transition.source, six.text_type(source_label),
-                                                              transition.target, six.text_type(target_label),
-                                                              transition.name, six.text_type(title))
+                        xclass.trans_list[transition.name] = (transition.source, str(source_label),
+                                                              transition.target, str(target_label),
+                                                              transition.name, str(title))
                         new_dict = dict(options)
                         if 'close' in new_dict:
                             del new_dict['close']
@@ -460,9 +459,9 @@ def get_dico_from_setquery(setquery):
     if setquery.model == Permission:
         for record in setquery:
             try:
-                rigths = six.text_type(record.codename).split("_")
+                rigths = str(record.codename).split("_")
                 if rigths[0] not in ['add', 'change', 'view', 'delete']:
-                    res_dico[six.text_type(record.id)] = six.text_type(_(record.name))
+                    res_dico[str(record.id)] = str(_(record.name))
                 else:
                     if rigths[0] == 'add':
                         rigth_name = _('add')
@@ -472,7 +471,7 @@ def get_dico_from_setquery(setquery):
                         rigth_name = _('delete')
                     elif rigths[0] == 'view':
                         continue
-                    res_dico.append((six.text_type(record.id),
+                    res_dico.append((str(record.id),
                                      "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
                                                        record.content_type.name,
                                                        rigth_name)))
@@ -481,16 +480,16 @@ def get_dico_from_setquery(setquery):
         res_dico.sort(key=lambda item: item[1])
     else:
         for record in setquery:
-            res_dico.append((six.text_type(record.id), six.text_type(record)))
+            res_dico.append((str(record.id), str(record)))
     return res_dico
 
 
 def get_binay(text):
-    return six.binary_type(text, 'ascii')
+    return bytes(text, 'ascii')
 
 
 def toHtml(text):
-    text = six.text_type(text)
+    text = str(text)
     pos_in = text.find('&')
     while pos_in != -1:
         pos_out = text.find(';', pos_in, pos_in + 8)
@@ -537,10 +536,10 @@ def adapt_value(value):
     if hasattr(value, 'all'):
         values = []
         for val_item in value.all():
-            values.append(six.text_type(val_item))
+            values.append(str(val_item))
         return values
     elif isinstance(value, LucteriosModel):
-        return six.text_type(value.get_final_child())
+        return str(value.get_final_child())
     elif isinstance(value, Decimal):
         return float(value)
     else:
@@ -597,7 +596,7 @@ def _convert_value_B(value, format_num):
 
 
 def _convert_value_D(value, format_num):
-    if isinstance(value, six.text_type):
+    if isinstance(value, str):
         value = get_date_formating(datetime.strptime(value.split(' ')[0], "%Y-%m-%d").date())
     else:
         value = get_date_formating(value)
@@ -605,7 +604,7 @@ def _convert_value_D(value, format_num):
 
 
 def _convert_value_T(value, format_num):
-    if isinstance(value, six.text_type):
+    if isinstance(value, str):
         if '.' in value:
             current_time = datetime.strptime(value, "%H:%M:%S.%f").time()
         else:
@@ -617,7 +616,7 @@ def _convert_value_T(value, format_num):
 
 
 def _convert_value_H(value, format_num):
-    if isinstance(value, six.text_type):
+    if isinstance(value, str):
         value = get_date_formating(datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f"))
     else:
         value = get_date_formating(value)
@@ -657,9 +656,9 @@ def format_value(value, format_num):
     if isinstance(format_num, dict):
         new_format_num = {}
         for key, val in format_num.items():
-            new_format_num[six.text_type(key)] = val
-        if six.text_type(value) in new_format_num.keys():
-            value = new_format_num[six.text_type(value)]
+            new_format_num[str(key)] = val
+        if str(value) in new_format_num.keys():
+            value = new_format_num[str(value)]
         format_num = ''
     try:
         fct = getattr(sys.modules[__name__], "_convert_value_%s" % format_num[0:1], None)
@@ -668,7 +667,7 @@ def format_value(value, format_num):
     except Exception:
         pass
     if sub_format is not None:
-        value = sub_format.replace('{0}', six.text_type(value))
+        value = sub_format.replace('{0}', str(value))
     return value
 
 
@@ -706,7 +705,7 @@ def format_to_string(value, format_num, format_str):
         value = [format_value(value, format_num)]
 
     if '{1}' not in format_str:
-        value = ['{[br/]}'.join([six.text_type(item) for item in value])]
+        value = ['{[br/]}'.join([str(item) for item in value])]
 
     res_txt = format_str
     for val_idx in range(len(value)):
@@ -721,7 +720,7 @@ def get_format_from_field(dep_field):
     elif hasattr(dep_field, 'format_string'):
         return dep_field.format_string
     elif hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-        choices_dict = {choices_key: six.text_type(choices_value) for choices_key, choices_value in dep_field.choices}
+        choices_dict = {choices_key: str(choices_value) for choices_key, choices_value in dep_field.choices}
         return choices_dict
     elif getattr(dep_field, 'unique_for_year', False) or getattr(dep_field, 'unique_for_month', False) or getattr(dep_field, 'unique_for_date', False):
         return None
@@ -744,8 +743,8 @@ def get_format_from_field(dep_field):
 def extract_format(format_string):
     _formatstr = None
     _formatnum = None
-    if isinstance(format_string, six.text_type) or isinstance(format_string, dict):
-        if isinstance(format_string, six.text_type) and (';' in format_string):
+    if isinstance(format_string, str) or isinstance(format_string, dict):
+        if isinstance(format_string, str) and (';' in format_string):
             format_string = format_string.split(';')
             _formatnum = format_string[0]
             _formatstr = ";".join(format_string[1:])

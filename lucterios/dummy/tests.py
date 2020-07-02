@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 from datetime import datetime
 from time import sleep
 
-from django.utils import six
 from django.utils.translation import activate
 from django.conf import settings
 
@@ -254,7 +253,7 @@ class DummyTest(LucteriosTest):
 class DummyTestAsynchronous(AsychronousLucteriosTest):
 
     def test_scheduler(self):
-        six.print_('-- Begin test_scheduler --')
+        print('-- Begin test_scheduler --')
         self.factory.xfer = SessionList()
         self.calljson('/CORE/sessionList', {}, False)
         self.assert_observer('core.custom', 'CORE', 'sessionList')
@@ -295,4 +294,4 @@ class DummyTestAsynchronous(AsychronousLucteriosTest):
         self.assert_observer('core.custom', 'CORE', 'sessionList')
         self.assert_count_equal('tasks', 0)
 
-        six.print_('-- End test_scheduler --')
+        print('-- End test_scheduler --')

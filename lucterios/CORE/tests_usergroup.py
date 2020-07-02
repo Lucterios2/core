@@ -26,7 +26,6 @@ from __future__ import unicode_literals
 from datetime import date
 
 from django.contrib.auth.models import Permission
-from django.utils import six
 
 from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework import tools, signal_and_lock
@@ -411,7 +410,7 @@ class UserTest(LucteriosTest):
 
         new_test.calljson('/CORE/usersEdit', {'user_actif': '3'})
         new_test.assert_observer('core.exception', 'CORE', 'usersEdit')
-        new_test.assert_json_equal('', 'message', six.text_type("Enregistrement verrouillé par 'admin'!"))
+        new_test.assert_json_equal('', 'message', str("Enregistrement verrouillé par 'admin'!"))
         new_test.assert_json_equal('', 'code', '3')
 
         self.calljson('/CORE/unlock', {'user_actif': '3', "LOCK_IDENT": 'lucterios.CORE.models-LucteriosUser-3'})
@@ -549,7 +548,7 @@ class GroupTest(LucteriosTest):
         self.factory.xfer = GroupsEdit()
         self.calljson('/CORE/groupsEdit', {'group': '50'}, False)
         self.assert_observer('core.exception', 'CORE', 'groupsEdit')
-        self.assert_json_equal('', 'message', six.text_type("Cet enregistrement n'existe pas!\nVeuillez rafraichir votre application."))
+        self.assert_json_equal('', 'message', str("Cet enregistrement n'existe pas!\nVeuillez rafraichir votre application."))
         self.assert_json_equal('', 'code', '3')
 
     def test_groupadd_same(self):
@@ -563,7 +562,7 @@ class GroupTest(LucteriosTest):
         self.assertEqual(self.json_context["name"], 'mygroup')
         self.assertEqual(self.json_context["permissions"], '1;3;5;7')
         self.assert_json_equal('', 'type', '3')
-        self.assert_json_equal('', 'text', six.text_type('Cet enregistrement existe déjà!'))
+        self.assert_json_equal('', 'text', str('Cet enregistrement existe déjà!'))
         self.assertEqual(len(self.json_actions), 1)
         self.assert_action_equal(self.json_actions[0], ('Recommencer', None, "CORE", "groupsEdit", 1, 1, 1))
 
@@ -603,7 +602,7 @@ class GroupTest(LucteriosTest):
 
         new_test.calljson('/CORE/groupsEdit', {'group': '1'})
         new_test.assert_observer('core.exception', 'CORE', 'groupsEdit')
-        new_test.assert_json_equal('', 'message', six.text_type("Enregistrement verrouillé par 'admin'!"))
+        new_test.assert_json_equal('', 'message', str("Enregistrement verrouillé par 'admin'!"))
         new_test.assert_json_equal('', 'code', '3')
 
         self.calljson('/CORE/exitConnection', {})

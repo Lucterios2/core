@@ -36,7 +36,6 @@ from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models.signals import post_migrate
 from django.utils.translation import ugettext_lazy as _, ugettext_lazy
-from django.utils import six
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
     LucteriosLogEntry
@@ -68,7 +67,7 @@ class Parameter(LucteriosModel):
     value_txt = LucteriosVirtualField(verbose_name=_('value'), compute_from='get_value')
 
     def __str__(self):
-        return six.text_type(ugettext_lazy(self.name))
+        return str(ugettext_lazy(self.name))
 
     @classmethod
     def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
@@ -100,8 +99,8 @@ class Parameter(LucteriosModel):
     @classmethod
     def change_value(cls, pname, pvalue):
         db_param = cls.objects.get(name=pname)
-        if (db_param.typeparam == cls.TYPE_BOOL) and isinstance(pvalue, six.text_type):
-            db_param.value = six.text_type((pvalue == '1') or (pvalue == 'o'))
+        if (db_param.typeparam == cls.TYPE_BOOL) and isinstance(pvalue, str):
+            db_param.value = str((pvalue == '1') or (pvalue == 'o'))
         else:
             db_param.value = pvalue
         db_param.save()
@@ -126,8 +125,8 @@ class Parameter(LucteriosModel):
         meta_select = None
         if self.metaselect != "":
             meta_select = eval(self.metaselect)
-            if (len(meta_select) == 5) and isinstance(meta_select[0], six.text_type) and isinstance(meta_select[1], six.text_type) and isinstance(meta_select[3], six.text_type) and isinstance(meta_select[4], bool):
-                if isinstance(meta_select[2], six.text_type):
+            if (len(meta_select) == 5) and isinstance(meta_select[0], str) and isinstance(meta_select[1], str) and isinstance(meta_select[3], str) and isinstance(meta_select[4], bool):
+                if isinstance(meta_select[2], str):
                     meta_select = self._meta_from_script(meta_select)
                 elif not isinstance(meta_select[2], Q) and not isinstance(meta_select[2], list):
                     meta_select = None
@@ -138,7 +137,7 @@ class Parameter(LucteriosModel):
     def get_value(self):
         from lucterios.CORE.parameters import ParamCache
         param = ParamCache(self.name, self)
-        return six.text_type(param.get_read_text())
+        return str(param.get_read_text())
 
     def convert_to_int(self):
         try:
@@ -358,7 +357,7 @@ class PrintModel(LucteriosModel):
         return apps.get_model(self.modelname)
 
     def model_associated_title(self):
-        return six.text_type(self.model_associated()._meta.verbose_name)
+        return str(self.model_associated()._meta.verbose_name)
 
     @property
     def page_width(self):
@@ -539,9 +538,9 @@ def post_after_migrate(sender, **kwargs):
     if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
         from django.conf import settings
         set_locale_lang(settings.LANGUAGE_CODE)
-        six.print_('check parameters')
+        print('check parameters')
         Signal.call_signal("checkparam")
-        six.print_('convert data')
+        print('convert data')
         Signal.call_signal("convertdata")
 
 

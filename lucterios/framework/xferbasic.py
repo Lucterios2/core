@@ -27,7 +27,6 @@ from inspect import isfunction
 from logging import getLogger
 
 from django.utils.translation import ugettext as _
-from django.utils import six
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
@@ -151,8 +150,8 @@ class XferContainerAbstract(View):
     def _search_model(self):
         self.has_changed = False
         if self.model is not None:
-            if isinstance(self.field_id, six.integer_types):
-                ids = six.text_type(self.field_id)
+            if isinstance(self.field_id, int):
+                ids = str(self.field_id)
             else:
                 ids = self.getparam(self.field_id)
             if ids is not None:
@@ -327,9 +326,9 @@ class XferContainerException(XferContainerAbstract):
 
     def fillresponse(self):
         type_text = self.exception.__class__.__name__
-        msg_text = six.text_type(self.exception)
+        msg_text = str(self.exception)
         if isinstance(self.exception, LucteriosException):
-            code_text = six.text_type(self.exception.code)
+            code_text = str(self.exception.code)
         else:
             code_text = '0'
         self.responsejson['exception'] = {'message': msg_text, 'code': code_text, 'debug': get_error_trace(), 'type': type_text}

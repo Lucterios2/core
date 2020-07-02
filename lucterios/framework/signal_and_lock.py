@@ -27,7 +27,6 @@ import threading
 import logging
 
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -85,9 +84,9 @@ class Signal(object):
                         try:
                             app_title = appmodule.__title__()
                         except TypeError:
-                            app_title = six.text_type(appmodule.__title__)
+                            app_title = str(appmodule.__title__)
                     else:
-                        app_title = six.text_type(appmodule)
+                        app_title = str(appmodule)
                     packages[new_package[-1]] = app_title
         finally:
             cls._signlock.release()
@@ -123,8 +122,8 @@ class RecordLocker(object):
             from django.conf import settings
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
             if session_key is not None:
-                lock_ident = "-".join((six.text_type(model_item.__module__),
-                                       six.text_type(model_item.__class__.__name__), six.text_type(model_item.pk)))
+                lock_ident = "-".join((str(model_item.__module__),
+                                       str(model_item.__class__.__name__), str(model_item.pk)))
                 params['LOCK_IDENT'] = lock_ident
                 if lock_ident in cls._lock_list.keys():
                     old_session_key = cls._lock_list[lock_ident]
@@ -148,8 +147,8 @@ class RecordLocker(object):
         logging.getLogger("lucterios.core.record").debug(">> is_lock %s", model_item)
         cls._lock.acquire()
         try:
-            lock_ident = "-".join((six.text_type(model_item.__module__),
-                                   six.text_type(model_item.__class__.__name__), six.text_type(model_item.pk)))
+            lock_ident = "-".join((str(model_item.__module__),
+                                   str(model_item.__class__.__name__), str(model_item.pk)))
             return lock_ident in cls._lock_list.keys()
         finally:
             cls._lock.release()
@@ -160,7 +159,7 @@ class RecordLocker(object):
         logging.getLogger("lucterios.core.record").debug(">> has_item_lock %s", model_class)
         cls._lock.acquire()
         try:
-            lock_root = "-".join((six.text_type(model_class.__module__), six.text_type(model_class.__name__)))
+            lock_root = "-".join((str(model_class.__module__), str(model_class.__name__)))
             for lock_ident in cls._lock_list.keys():
                 if lock_ident.startswith(lock_root):
                     return True

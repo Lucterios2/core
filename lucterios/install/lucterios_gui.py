@@ -33,7 +33,6 @@ from threading import Thread
 
 from django.utils.module_loading import import_module
 from django.utils.translation import ugettext
-from django.utils import six
 
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none
 
@@ -204,11 +203,11 @@ class InstanceEditor(Toplevel, EditorInstance):
             current_inst_names = luct_glo.listing()
             appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
             default_name_idx = 1
-            while appli_root_name + six.text_type(default_name_idx) in current_inst_names:
+            while appli_root_name + str(default_name_idx) in current_inst_names:
                 default_name_idx += 1
             self.name.delete(0, END)
             self.name.insert(
-                0, appli_root_name + six.text_type(default_name_idx))
+                0, appli_root_name + str(default_name_idx))
             mod_depended = self.mod_applis[appli_id][2]
             self.modules.select_clear(0, self.modules.size())
             for mod_idx in range(len(self.module_data)):

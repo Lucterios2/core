@@ -39,7 +39,6 @@ from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWid
 
 from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
-from django.utils import six
 
 from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
 from lucterios.install.graphic_lib import LucteriosMain, EditorInstance
@@ -148,9 +147,9 @@ class InstanceDlg(QDialog, EditorInstance):
         appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
         if self.is_new_instance:
             default_name_idx = 1
-            while appli_root_name + six.text_type(default_name_idx) in self.current_inst_names:
+            while appli_root_name + str(default_name_idx) in self.current_inst_names:
                 default_name_idx += 1
-            self.inst_name.setText(appli_root_name + six.text_type(default_name_idx))
+            self.inst_name.setText(appli_root_name + str(default_name_idx))
 
     def dbtypechange(self, dbtype_id):
         self.db_name.setEnabled(dbtype_id != 0)

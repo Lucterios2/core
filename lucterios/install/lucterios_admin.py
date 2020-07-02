@@ -31,7 +31,6 @@ from os import mkdir
 from os.path import join, isdir, isfile, abspath
 from optparse import OptionParser
 from importlib import import_module
-from django.utils import six
 from time import sleep
 
 import sys
@@ -101,7 +100,7 @@ def get_module_title(module_name):
         result = getattr(current_mod, '__title__')()
     except AttributeError:
         result = "??? (%s)" % module_name
-    return six.text_type(result)
+    return str(result)
 
 
 def get_package_list():
@@ -170,7 +169,7 @@ class LucteriosManage(object):
 
     def show_info_(self):
         for msg_item in self.msg_list:
-            six.print_(msg_item)
+            print(msg_item)
 
 
 class LucteriosGlobal(LucteriosManage):
@@ -476,7 +475,7 @@ class LucteriosInstance(LucteriosManage):
     def _get_module_text(self):
         modules_text = ''
         for module_item in self.modules:
-            modules_text += '"%s"' % six.text_type(module_item)
+            modules_text += '"%s"' % str(module_item)
             modules_text += ','
         return modules_text
 
@@ -485,12 +484,10 @@ class LucteriosInstance(LucteriosManage):
         for db_ident, db_values in self.databases.items():
             file_py.write('     "%s": {\n' % db_ident)
             for db_key, db_data in db_values.items():
-                if isinstance(db_data, six.string_types):
-                    file_py.write('         "%s": "%s",\n' %
-                                  (db_key.upper(), db_data))
+                if isinstance(db_data, str):
+                    file_py.write('         "%s": "%s",\n' % (db_key.upper(), db_data))
                 else:
-                    file_py.write('         "%s": %s,\n' %
-                                  (db_key.upper(), db_data))
+                    file_py.write('         "%s": %s,\n' % (db_key.upper(), db_data))
             file_py.write('     },\n')
         file_py.write('}\n')
 
@@ -536,7 +533,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write('# extra\n')
             for key, value in self.extra.items():
                 if key != '':
-                    if isinstance(value, six.text_type):
+                    if isinstance(value, str):
                         file_py.write('%s = "%s"\n' % (key, value))
                     else:
                         file_py.write('%s = %s\n' % (key, value))
@@ -639,7 +636,7 @@ class LucteriosInstance(LucteriosManage):
         self.modules = ()
         for appname in install_apps:
             if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
-                self.modules = self.modules + (six.text_type(appname), )
+                self.modules = self.modules + (str(appname), )
 
     def _read_extra(self, extra):
         self.extra = extra
@@ -758,7 +755,7 @@ class LucteriosInstance(LucteriosManage):
             from lucterios.CORE.models import Parameter
             from lucterios.CORE.parameters import Params
             db_param = Parameter.objects.get(name='CORE-connectmode')
-            db_param.value = six.text_type(security_param[SECURITY_MODE])
+            db_param.value = str(security_param[SECURITY_MODE])
             db_param.save()
             Params.clear()
             self.print_info_("Security mode change in '%s'." % self.name)
@@ -796,7 +793,7 @@ class LucteriosInstance(LucteriosManage):
         with open(target_filename, 'w') as output:
             with connection.cursor() as curs:
                 curs.execute("SELECT app,name FROM django_migrations ORDER BY applied")
-                output.write(six.text_type(curs.fetchall()))
+                output.write(str(curs.fetchall()))
         import tarfile
         with tarfile.open(self.filename, "w:gz") as tar:
             tar.add(output_filename, arcname="dump.json")
@@ -934,8 +931,8 @@ class LucteriosInstance(LucteriosManage):
                     "%s.migrations.%s" % (target_conf.module.__name__, target[1]))
                 for migr_obj in getmembers(migrat_mod):
                     if isfunction(migr_obj[1]) and (migr_obj[0][0] != '_'):
-                        six.print_("run %s.%s.%s" %
-                                   (target[0], target[1], migr_obj[0]))
+                        print("run %s.%s.%s" %
+                              (target[0], target[1], migr_obj[0]))
                         migr_obj[1]()
             except Exception:
                 pass
@@ -1050,13 +1047,12 @@ def main():
         else:
             parser.print_help()
     except AdminException as error:
-        parser.error(six.text_type(error))
+        parser.error(str(error))
 
 
 def setup_from_none():
     lang = os.environ['LANG'][:2] if 'LANG' in os.environ else 'fr'
-    if six.PY3:
-        clear_modules()
+    clear_modules()
     from lucterios.framework.settings import fill_appli_settings
     from lucterios.framework.tools import set_locale_lang
     import types
@@ -1072,7 +1068,7 @@ def setup_from_none():
     try:
         module = types.ModuleType("default_setting")
     except TypeError:
-        module = types.ModuleType(six.binary_type("default_setting"))
+        module = types.ModuleType(bytes("default_setting"))
     setattr(module, '__file__', ".")
     setattr(module, 'SECRET_KEY', "default_setting")
     setattr(module, 'LANGUAGE_CODE', lang)

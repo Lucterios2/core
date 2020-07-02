@@ -28,7 +28,6 @@ from logging import getLogger
 import warnings
 
 from django.utils.translation import ugettext as _
-from django.utils import six
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -127,10 +126,10 @@ class XferContainerAcknowledge(XferContainerAbstract):
         lbl.set_location(1, 0)
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
-            lbl.set_value(six.text_type(self.traitment_data[2]))
+            lbl.set_value(str(self.traitment_data[2]))
             dlg.add_action(WrapAction(_("Close"), "images/close.png"))
         else:
-            lbl.set_value_center("{[br/]}" + six.text_type(self.traitment_data[1]))
+            lbl.set_value_center("{[br/]}" + str(self.traitment_data[1]))
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
             btn.set_size(50, 300)
@@ -235,7 +234,7 @@ class XferContainerDialogBox(XferContainerAbstract):
             self.actions.append((action, modal, close, SELECT_NONE, params))
 
     def _finalize(self):
-        self.responsejson['data'] = {'text': six.text_type(self.msgtext), 'type': self.msgtype}
+        self.responsejson['data'] = {'text': str(self.msgtext), 'type': self.msgtype}
         self.responsejson['actions'] = get_actions_json(self.actions)
         XferContainerAbstract._finalize(self)
 
@@ -290,7 +289,7 @@ class XferContainerCustom(XferContainerAbstract):
             value = old_obj.value
             if isinstance(old_obj.select_list, list):
                 for key, sel_val in old_obj.select_list:
-                    if six.text_type(value) == six.text_type(key):
+                    if str(value) == str(key):
                         value = sel_val
                         break
                 self.remove_component(cmp_name)
@@ -315,7 +314,7 @@ class XferContainerCustom(XferContainerAbstract):
 
     def find_tab(self, tab_name):
         num = -1
-        tab_name = six.text_type(tab_name)
+        tab_name = str(tab_name)
         for comp in self.components.values():
             if isinstance(comp, XferCompTab):
                 if comp.value == tab_name:
@@ -345,7 +344,7 @@ class XferContainerCustom(XferContainerAbstract):
                 self.tab = num
                 self.components = new_components
             new_tab = XferCompTab("__tab_%d" % self.tab)
-            new_tab.set_value(six.text_type(tab_name))
+            new_tab.set_value(str(tab_name))
             new_tab.set_location(-1, -1)
             self.add_component(new_tab)
         else:
@@ -499,7 +498,7 @@ class XferContainerCustom(XferContainerAbstract):
                 nb_current_line = 0
                 for sub_field_name in line_field_name:
                     nb_current_line += 1
-                    if isinstance(sub_field_name, six.text_type):
+                    if isinstance(sub_field_name, str):
                         dep_field = self.item.get_field_by_name(sub_field_name)
                         if (dep_field is not None) and dep_field.is_relation and dep_field.many_to_many:
                             nb_current_line += 2
@@ -536,7 +535,7 @@ class XferContainerCustom(XferContainerAbstract):
                     comp.set_model(child, None, self)
                     comp.add_action_notified(self, model=child.model)
                     comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
-                    comp.description = six.text_type(child.model._meta.verbose_name)
+                    comp.description = str(child.model._meta.verbose_name)
                     self.add_component(comp)
                     offset += 1 + comp_col_addon
                 else:
@@ -554,9 +553,9 @@ class XferContainerCustom(XferContainerAbstract):
                             comp = self.get_writing_comp(field_name)
                         comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
                         if verbose_name is None:
-                            comp.description = six.text_type(dep_field.verbose_name)
+                            comp.description = str(dep_field.verbose_name)
                         else:
-                            comp.description = six.text_type(verbose_name)
+                            comp.description = str(verbose_name)
                         self.add_component(comp)
                         offset += 1 + comp_col_addon
             row += height

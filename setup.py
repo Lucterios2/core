@@ -41,14 +41,13 @@ setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
-        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Natural Language :: French',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -64,5 +63,5 @@ setup(
         "lucterios.framework": ['locale/*/*/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["pip ~=20.0", "Django ~=2.2", "django-fsm ~=2.7", "lxml ~=4.4", "Pillow ~=6.2", "reportlab ~=3.5", "APScheduler ~=3.6", "Babel ~=2.7", "pyqt5 ~=5.13"],
+    install_requires=["pip ~=20.1", "Django ~=3.0", "django-fsm ~=2.7", "lxml ~=4.5", "Pillow ~=7.2", "reportlab ~=3.5", "APScheduler ~=3.6", "Babel ~=2.8", "pyqt5 ~=5.15"],
 )

@@ -32,7 +32,7 @@ from django.db.models import Transform
 from django.db.models.lookups import RegisterLookupMixin
 from django.db.models.signals import pre_save
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six, formats
+from django.utils import formats
 from django.utils.translation import ugettext_lazy as _
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -54,7 +54,7 @@ def get_value_if_choices(value, dep_field):
     if hasattr(dep_field, 'choices') and (dep_field.choices is not None) and (len(dep_field.choices) > 0):
         for choices_key, choices_value in dep_field.choices:
             if choices_key == int(value):
-                value = six.text_type(choices_value)
+                value = str(choices_value)
                 break
     elif hasattr(dep_field, 'decimal_places'):
         format_txt = "%%.%df" % dep_field.decimal_places
@@ -71,14 +71,14 @@ def get_obj_contains(new_item):
     field_val = []
     for key, val in new_item.__dict__.items():
         if (key != 'id') and (key[0] != '_'):
-            field_val.append("%s=%s" % (key, six.text_type(val).replace('{[br/]}', "\n").strip().replace("\n", '<br/>')))
+            field_val.append("%s=%s" % (key, str(val).replace('{[br/]}', "\n").strip().replace("\n", '<br/>')))
     return field_val
 
 
 def get_subfield_show(initial_fields, subtable):
     fields = []
     for item in initial_fields:
-        if isinstance(item, six.text_type):
+        if isinstance(item, str):
             fields.append("%s.%s" % (subtable, item))
         if isinstance(item, tuple):
             colres = []
@@ -94,7 +94,7 @@ def get_subfield_show(initial_fields, subtable):
 
 def generic_format_string(self):
     if hasattr(self, '_format_string'):
-        if isinstance(self._format_string, six.text_type):
+        if isinstance(self._format_string, str):
             return self._format_string
         elif isinstance(self._format_string, FunctionType):
             return self._format_string()

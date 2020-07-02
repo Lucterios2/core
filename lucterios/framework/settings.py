@@ -32,8 +32,6 @@ from os.path import dirname, join, isdir
 from locale import getdefaultlocale
 from importlib import import_module
 
-from django.utils import six
-
 from lucterios.framework.filetools import readimage_to_base64, read_file
 
 
@@ -86,8 +84,8 @@ def get_lan_ip():
 
 
 DEFAULT_LANGUAGES = (
-    ('en', six.text_type('English')),
-    ('fr', six.text_type('Français')),
+    ('en', 'English'),
+    ('fr', 'Français'),
 )
 
 
@@ -138,15 +136,16 @@ DEFAULT_SETTINGS = {
     ],
     'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
                    'DIRS': [dirname(__file__)],
-                   'OPTIONS': {'context_processors': (
-                               'django.core.context_processors.i18n',
-                               'django.contrib.auth.context_processors.auth',
-                               'django.contrib.messages.context_processors.messages',
-                               ),
-                               'loaders': (
-                               'django.template.loaders.filesystem.Loader',
-                               'django.template.loaders.app_directories.Loader',
-                   ), }
+                   'OPTIONS': {
+                       'context_processors': (
+                           'django.template.context_processors.request',
+                           'django.contrib.auth.context_processors.auth',
+                           'django.contrib.messages.context_processors.messages',
+                       ),
+                       'loaders': (
+                           'django.template.loaders.filesystem.Loader',
+                           'django.template.loaders.app_directories.Loader',
+                       ), }
                    }, ],
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': get_locale_lang(),

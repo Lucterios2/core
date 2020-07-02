@@ -24,7 +24,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from lucterios.framework.test import LucteriosTest, add_empty_user
-from django.utils import six
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.parameters import Params
 from lucterios.framework.tools import WrapAction
@@ -41,7 +40,7 @@ class AuthentificationTest(LucteriosTest):
 
     def test_blank(self):
         response = self.client.call('/', {})
-        self.assertEqual(response.content, six.binary_type('', 'ascii'))
+        self.assertEqual(response.content, bytes('', 'ascii'))
 
     def test_menu_noconnect(self):
         self.calljson('/CORE/menu', {})
@@ -74,10 +73,10 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
         self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
-        self.assertEqual(self.response_json['connexion']['SUBTITLE'], six.text_type('Application générique de gestion'))
-        self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.4.')
+        self.assertEqual(self.response_json['connexion']['SUBTITLE'], str('Application générique de gestion'))
+        self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.5.')
         self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
-        self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.4.')
+        self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.5.')
         self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
         self.assertEqual(self.response_json['connexion']['LOGONAME'][0:20], 'data:image/*;base64,')
         self.assertEqual(self.response_json['connexion']['SUPPORT_EMAIL'][0:8], 'support@')
@@ -100,7 +99,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(len(self.response_json['menus'][0]['menus']), 1)
 
         self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
-        self.assertEqual(self.response_json['menus'][1]['text'], six.text_type('Général'))
+        self.assertEqual(self.response_json['menus'][1]['text'], str('Général'))
         self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
         self.assertEqual(self.response_json['menus'][1]['menus'][0]['text'], 'Mot de passe')
 
@@ -133,7 +132,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(len(self.response_json['menus']), 3)
         self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
         self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
-        self.assertEqual(self.response_json['menus'][1]['text'], six.text_type('Général'))
+        self.assertEqual(self.response_json['menus'][1]['text'], str('Général'))
         self.assertEqual(len(self.response_json['menus'][1]['menus']), 1)
         self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
         self.assertEqual(self.response_json['menus'][1]['menus'][0]['text'], 'Mot de passe')
@@ -169,7 +168,7 @@ class AuthentificationTest(LucteriosTest):
 
         self.assertEqual(len(self.response_json['menus']), 1)
         self.assertEqual(self.response_json['menus'][0]['id'], 'dummy.foo')
-        self.assertEqual(self.response_json['menus'][0]['text'], six.text_type('Dummy'))
+        self.assertEqual(self.response_json['menus'][0]['text'], str('Dummy'))
         self.assertEqual(len(self.response_json['menus'][0]['menus']), 6)
 
     def test_connect_free(self):
@@ -265,17 +264,17 @@ class AuthentificationTest(LucteriosTest):
 
         self.calljson('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_json_equal('', 'message', six.text_type('Mot de passe actuel erroné!'))
+        self.assert_json_equal('', 'message', str('Mot de passe actuel erroné!'))
         self.assert_json_equal('', 'code', '3')
 
         self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
-        self.assert_json_equal('', 'message', six.text_type('Les mots de passes sont différents!'))
+        self.assert_json_equal('', 'message', str('Les mots de passes sont différents!'))
         self.assert_json_equal('', 'code', '3')
 
         self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.dialogbox', 'CORE', 'modifyPassword')
-        self.assert_json_equal('', 'text', six.text_type('Mot de passe modifié'))
+        self.assert_json_equal('', 'text', str('Mot de passe modifié'))
         self.assert_json_equal('', 'type', '1')
 
         self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})

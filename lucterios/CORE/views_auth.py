@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from django.utils import six, translation
+from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, get_actions_json, CLOSE_YES
@@ -49,7 +49,7 @@ def get_info_server():
                 try:
                     app_title = appmodule.__title__()
                 except TypeError:
-                    app_title = six.text_type(appmodule.__title__)
+                    app_title = str(appmodule.__title__)
                 res.append("%s=%s" % (app_title, appmodule.__version__))
     res.append("")
     if (PluginManager.get_instance().count > 0):
@@ -111,22 +111,22 @@ class Authentification(XferContainerAbstract):
         import os
         LucteriosSession.clean_anonymous()
         info_cnx = {}
-        info_cnx['TITLE'] = six.text_type(settings.APPLIS_NAME)
+        info_cnx['TITLE'] = str(settings.APPLIS_NAME)
         info_cnx['SUBTITLE'] = settings.APPLIS_SUBTITLE()
-        info_cnx['VERSION'] = six.text_type(settings.APPLIS_VERSION)
-        info_cnx['SERVERVERSION'] = six.text_type(lucterios.CORE.__version__)
-        info_cnx['COPYRIGHT'] = six.text_type(settings.APPLIS_COPYRIGHT)
+        info_cnx['VERSION'] = str(settings.APPLIS_VERSION)
+        info_cnx['SERVERVERSION'] = str(lucterios.CORE.__version__)
+        info_cnx['COPYRIGHT'] = str(settings.APPLIS_COPYRIGHT)
         info_cnx['LOGONAME'] = settings.APPLIS_LOGO.decode()
         info_cnx['BACKGROUND'] = settings.APPLIS_BACKGROUND.decode()
         info_cnx['STYLE'] = settings.APPLIS_STYLE.decode()
-        info_cnx['SUPPORT_EMAIL'] = six.text_type(settings.APPLI_EMAIL)
-        info_cnx['SUPPORT_HTML'] = six.text_type(settings.APPLI_SUPPORT())
+        info_cnx['SUPPORT_EMAIL'] = str(settings.APPLI_EMAIL)
+        info_cnx['SUPPORT_HTML'] = str(settings.APPLI_SUPPORT())
         info_cnx['INFO_SERVER'] = get_info_server()
         setting_module_name = os.getenv("DJANGO_SETTINGS_MODULE", "???.???")
         info_cnx['INSTANCE'] = setting_module_name.split('.')[0]
         info_cnx['MESSAGE_BEFORE'] = Params.getvalue("CORE-MessageBefore")
         info_cnx['LANGUAGE'] = self.language
-        info_cnx['MODE'] = six.text_type(Params.getvalue("CORE-connectmode"))
+        info_cnx['MODE'] = str(Params.getvalue("CORE-connectmode"))
         if self.request.user.is_authenticated:
             info_cnx['LOGIN'] = self.request.user.username
             info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)

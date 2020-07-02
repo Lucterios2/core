@@ -26,9 +26,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 import threading
 import time
+from functools import partial
 
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.functional import curry
 from django.db.models.signals import pre_save
 from django.conf import settings
 from django.apps import apps
@@ -37,7 +37,6 @@ from lucterios.framework.xferbasic import XferContainerException
 from lucterios.framework.error import LucteriosRedirectException
 from lucterios.framework.tools import FORMTYPE_MODAL, CLOSE_YES
 from lucterios.framework.models import LucteriosLogEntry
-from django.utils import six
 
 
 class LucteriosErrorMiddleware(XferContainerException):
@@ -111,7 +110,7 @@ class AuditlogMiddleware(MiddlewareMixin):
 
         # Connect signal for automatic logging
         if hasattr(request, 'user') and is_authenticated(request.user):
-            set_actor = curry(self.set_actor, user=request.user, signal_duid=threadlocal.auditlog['signal_duid'])
+            set_actor = partial(self.set_actor, user=request.user, signal_duid=threadlocal.auditlog['signal_duid'])
             pre_save.connect(set_actor, sender=LucteriosLogEntry, dispatch_uid=threadlocal.auditlog['signal_duid'], weak=False)
 
     def process_response(self, request, response):
@@ -147,6 +146,6 @@ class AuditlogMiddleware(MiddlewareMixin):
             except ValueError:
                 auth_user_model = apps.get_model('auth', 'user')
             if sender == LucteriosLogEntry and isinstance(user, auth_user_model) and instance.username is None:
-                instance.username = six.text_type(user)
+                instance.username = str(user)
 
             instance.remote_addr = threadlocal.auditlog['remote_addr']

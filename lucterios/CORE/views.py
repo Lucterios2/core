@@ -36,7 +36,6 @@ import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import http_date
-from django.utils import six
 from django.http.response import StreamingHttpResponse
 from django.apps.registry import apps
 from django.conf import settings
@@ -113,7 +112,7 @@ class Download(XferContainerAbstract):
         try:
             self._initialize(request, *args, **kwargs)
             full_path = join(
-                get_user_dir(), six.text_type(self.getparam('filename')))
+                get_user_dir(), str(self.getparam('filename')))
             if not isfile(full_path):
                 raise LucteriosException(IMPORTANT, _("File not found!"))
             sign = self.getparam('sign', '')
@@ -742,7 +741,7 @@ class ObjectMerge(XferContainerAcknowledge):
             grid.add_header('value', _('designation'))
             grid.add_header('select', _('is main?'), 'B')
             for item in self.items:
-                grid.set_value(item.id, 'value', six.text_type(item))
+                grid.set_value(item.id, 'value', str(item))
                 grid.set_value(item.id, 'select', item.id == self.item.id)
             grid.set_location(1, 1)
             grid.add_action(self.request, self.return_action(_("Edit"), "images/show.png"),
@@ -793,7 +792,7 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_location(1, 1)
             dlg.add_component(lbl)
             lbl = XferCompLabelForm('record')
-            lbl.set_value(six.text_type(self.item))
+            lbl.set_value(str(self.item))
             lbl.set_location(2, 1)
             dlg.add_component(lbl)
             lbl = XferCompLabelForm('lbl_current')
@@ -977,7 +976,7 @@ class ObjectImport(XferContainerCustom):
         title = dep_field.verbose_name
         hfield = get_format_from_field(dep_field)
         format_str = "%s"
-        if isinstance(hfield, six.text_type) and (';' in hfield):
+        if isinstance(hfield, str) and (';' in hfield):
             hfield = hfield.split(';')
             format_str = ";".join(hfield[1:])
             hfield = hfield[0]
@@ -1206,7 +1205,7 @@ def conf_wizard_core(wizard_ident, xfer):
             Params.clear()
         lbl = XferCompLabelForm('title')
         lbl.set_centered()
-        lbl.set_value_as_info(six.text_type(settings.APPLIS_NAME))
+        lbl.set_value_as_info(str(settings.APPLIS_NAME))
         lbl.set_location(0, 3, 6)
         xfer.add_component(lbl)
         lbl = XferCompImage('img')
@@ -1227,7 +1226,7 @@ def conf_wizard_core(wizard_ident, xfer):
         xfer.add_component(lbl)
         check.description = ""
     elif (xfer is not None) and (wizard_ident == "core_users"):
-        xfer.add_title(six.text_type(settings.APPLIS_NAME), _("Groups and users"))
+        xfer.add_title(str(settings.APPLIS_NAME), _("Groups and users"))
         param_lists = ['CORE-connectmode', 'CORE-Wizard']
         Params.fill(xfer, param_lists, 1, xfer.get_max_row() + 1)
         btn = XferCompButton('editparam')

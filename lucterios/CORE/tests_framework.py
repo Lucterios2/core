@@ -24,8 +24,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
-from django.utils import six
-
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING, XferContainerCustom
 from lucterios.framework.tools import WrapAction
@@ -55,8 +53,8 @@ class GenericTest(LucteriosTest):
 
     def test_help(self):
         response = self.client.get('/Docs', {})
-        self.assertEqual(response.status_code, 200, "HTTP error:" + six.text_type(response.status_code))
-        help_content = six.text_type(response.content.decode('utf-8'))
+        self.assertEqual(response.status_code, 200, "HTTP error:" + str(response.status_code))
+        help_content = str(response.content.decode('utf-8'))
         self.assertGreaterEqual(help_content.find('<html>'), 17, help_content)
         self.assertLessEqual(help_content.find('<html>'), 21, help_content)
 

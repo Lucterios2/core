@@ -32,7 +32,7 @@ from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET
 
 from django.test import TestCase, Client, RequestFactory
 from django.test.testcases import TransactionTestCase
-from django.utils import six, timezone
+from django.utils import timezone
 
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
@@ -150,9 +150,9 @@ class LucteriosTestAbstract(object):
         if isfile(filename):
             unlink(filename)
         if base64_content is None:
-            pdf_value = b64decode(six.text_type(self.response_json['print']["content"]))
+            pdf_value = b64decode(str(self.response_json['print']["content"]))
         else:
-            pdf_value = b64decode(six.text_type(base64_content))
+            pdf_value = b64decode(str(base64_content))
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
         with open(filename, "wb") as pdf_writer:
             pdf_writer.write(pdf_value)
@@ -222,7 +222,7 @@ class LucteriosTestAbstract(object):
     def print_xml(self, xpath):
         self.assertTrue(self.response_xml is not None)
         xml_value = self.get_first_xpath(xpath)
-        six.print_(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8').decode("utf-8"))
+        print(etree.tostring(xml_value, xml_declaration=True, pretty_print=True, encoding='utf-8').decode("utf-8"))
 
     def _get_json_dump(self, values):
         try:
@@ -230,14 +230,14 @@ class LucteriosTestAbstract(object):
             import json
             return json.dumps(values, cls=DjangoJSONEncoder, indent=3)
         except Exception:
-            return six.text_type(values)
+            return str(values)
 
     def print_json(self, path=None):
         if path is None:
             path = self.response_json
-        elif isinstance(path, six.text_type):
+        elif isinstance(path, str):
             path = self.get_json_path(path)
-        six.print_(self._get_json_dump(path))
+        print(self._get_json_dump(path))
 
     def assert_count_equal(self, path, size):
         if self.response_json is None:
@@ -274,13 +274,13 @@ class LucteriosTestAbstract(object):
         txt_value = self.get_json_path(comp_name)
         if isinstance(txtrange, tuple):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
-            value = six.text_type(value)[0:len(txt_value)]
+            value = str(value)[0:len(txt_value)]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
         if (isinstance(txt_value, float) and is_number(value)) or (isinstance(value, float) and is_number(txt_value)):
             self.assertAlmostEqual(float(txt_value), float(value), msg="%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value), delta=delta)
-        elif isinstance(txt_value, six.text_type) or isinstance(value, six.text_type):
-            self.assertEqual(six.text_type(txt_value), six.text_type(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
+        elif isinstance(txt_value, str) or isinstance(value, str):
+            self.assertEqual(str(txt_value), str(value), "%s[%s]: %s => %s" % (comp_type, comp_name, txt_value, value))
         elif isinstance(txt_value, list) and isinstance(value, list):
             self._assert_json_list_equal(comp_type, comp_name, value, txt_value, delta=delta)
         elif isinstance(txt_value, dict) and isinstance(value, dict):
@@ -296,7 +296,7 @@ class LucteriosTestAbstract(object):
             txt_value = txt_value[txtrange[0]:txtrange[1]]
         if isinstance(txtrange, bool):
             txt_value = txt_value[0:len(value)]
-        self.assertEqual(six.text_type(txt_value).strip(), six.text_type(value).strip(), "%s: %s => %s" % (xpath, txt_value, value))
+        self.assertEqual(str(txt_value).strip(), str(value).strip(), "%s: %s => %s" % (xpath, txt_value, value))
 
     def assert_attrib_equal(self, path, name, value):
         if self.response_json is None:
@@ -304,7 +304,7 @@ class LucteriosTestAbstract(object):
             attr_value = xml_value.get(name)
         else:
             attr_value = self.json_comp[path][name]
-        self.assertEqual(six.text_type(attr_value), six.text_type(value), "%s/@%s: %s => %s" % (path, name, attr_value, value))
+        self.assertEqual(str(attr_value), str(value), "%s/@%s: %s => %s" % (path, name, attr_value, value))
 
     def assert_observer(self, obsname, extension, action):
         self.assertTrue(self.response_json is not None)
@@ -321,10 +321,10 @@ class LucteriosTestAbstract(object):
                 self.assertListEqual([(names, ident) for ident, names in comp_coord.items() if len(names) > 1], [], 'components have same coordonates')
         except AssertionError:
             if self.json_meta['observer'] == 'core.exception':
-                six.print_("Error:" + self.response_json['exception']['message'])
-                six.print_("Call-stack:" + self.response_json['exception']['debug'].replace("{[br/]}", "\n"))
+                print("Error:" + self.response_json['exception']['message'])
+                print("Call-stack:" + self.response_json['exception']['debug'].replace("{[br/]}", "\n"))
             if self.json_meta['observer'] == 'core.dialogbox':
-                six.print_("Message:" + self.json_data['text'])
+                print("Message:" + self.json_data['text'])
             raise
 
     def assert_comp_equal(self, path, text, coord, txtrange=None):
@@ -334,17 +334,17 @@ class LucteriosTestAbstract(object):
         self.assert_coordcomp_equal(path, coord)
 
     def assert_coordcomp_equal(self, path, coord):
-        self.assert_attrib_equal(path, "x", six.text_type(coord[0]))
-        self.assert_attrib_equal(path, "y", six.text_type(coord[1]))
-        self.assert_attrib_equal(path, "colspan", six.text_type(coord[2]))
-        self.assert_attrib_equal(path, "rowspan", six.text_type(coord[3]))
+        self.assert_attrib_equal(path, "x", str(coord[0]))
+        self.assert_attrib_equal(path, "y", str(coord[1]))
+        self.assert_attrib_equal(path, "colspan", str(coord[2]))
+        self.assert_attrib_equal(path, "rowspan", str(coord[3]))
         if len(coord) > 4:
-            self.assert_attrib_equal(path, "tab", six.text_type(coord[4]))
+            self.assert_attrib_equal(path, "tab", str(coord[4]))
 
     def assert_action_equal(self, path, act_desc):
         self.assertTrue(self.response_json is not None)
         act = path
-        if isinstance(path, six.text_type):
+        if isinstance(path, str):
             act = self.get_json_path(path)
         self.assertEqual(act['text'], act_desc[0])
         if act_desc[1] is None:
@@ -356,22 +356,22 @@ class LucteriosTestAbstract(object):
         if len(act_desc) > 2:
             self.assertEqual(act['extension'], act_desc[2])
             self.assertEqual(act['action'], act_desc[3])
-            self.assertEqual(act['close'], six.text_type(act_desc[4]))
-            self.assertEqual(act['modal'], six.text_type(act_desc[5]))
-            self.assertEqual(act['unique'], six.text_type(act_desc[6]))
+            self.assertEqual(act['close'], str(act_desc[4]))
+            self.assertEqual(act['modal'], str(act_desc[5]))
+            self.assertEqual(act['unique'], str(act_desc[6]))
             if len(act_desc) > 7:
                 try:
                     for key, value in act_desc[7].items():
-                        self.assertEqual(six.text_type(act['params'][key]), six.text_type(value))
+                        self.assertEqual(str(act['params'][key]), str(value))
                 except Exception:
-                    six.print_(six.text_type(act['params']))
+                    print(str(act['params']))
                     raise
         else:
             self.assertTrue('extension' not in act.keys())
             self.assertTrue('action' not in act.keys())
-            self.assertEqual(path['close'], six.text_type(1))
-            self.assertEqual(path['modal'], six.text_type(1))
-            self.assertEqual(path['unique'], six.text_type(1))
+            self.assertEqual(path['close'], str(1))
+            self.assertEqual(path['modal'], str(1))
+            self.assertEqual(path['unique'], str(1))
 
     def assert_select_equal(self, path, selects, checked=None):
         if checked is None:
@@ -388,7 +388,7 @@ class LucteriosTestAbstract(object):
                     vid = case[0]
                     self.assertEqual(selects[vid], case[1])
             except Exception:
-                six.print_(self.json_comp[path]['case'])
+                print(self.json_comp[path]['case'])
                 raise
         else:
             self.assertEqual(len(self.json_comp[path]['case']), selects)

@@ -28,7 +28,6 @@ from copy import deepcopy
 from os.path import join, dirname, isfile, basename
 from logging import getLogger
 
-from django.utils import six
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 
@@ -70,7 +69,7 @@ def remove_format(xml_text):
 
 
 def calcul_text_size(text, font_size=9, line_height=10, text_align='left', is_cell=False):
-    text = six.text_type(text)
+    text = str(text)
     text = text.replace('<br/>', '\n')
     text = text.replace('{[br/]}', '\n')
     text = text.replace('{[newline]}', '\n')
@@ -219,7 +218,7 @@ class PrintTable(PrintItem):
                     size_y = int(round(img_size[1] * DPI))
                 else:
                     size_x, size_y = calcul_text_size(value, 9, 10, "start", True)
-                self.rows[row_idx].append(six.text_type(value))
+                self.rows[row_idx].append(str(value))
                 self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
                 hd_idx += 1
             self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
@@ -314,7 +313,7 @@ class PrintLabel(PrintItem):
             self.value = self.comp.get_print_value()
         except Exception:
             getLogger("lucterios.core.print").exception('PrintLabel')
-            self.value = six.text_type(self.comp.value)
+            self.value = str(self.comp.value)
         self.init_label()
 
     def init_label(self):
@@ -420,7 +419,7 @@ class ReportGenerator(object):
             xml_rep_content = etree.XML(report_content)
             for xml_br in xml_rep_content.xpath("//br"):
                 xml_br.text = ','
-            content = six.text_type(csv_transform(xml_rep_content)).encode('utf-8')
+            content = str(csv_transform(xml_rep_content)).encode('utf-8')
         else:
             try:
                 content = transforme_xml2pdf(report_content, self.watermark)
@@ -607,7 +606,7 @@ class ReportModelGenerator(ReportGenerator):
     def _get_sub_values(item_xml, current_item):
         sub_values = [current_item]
         data = item_xml.get('data')
-        if hasattr(current_item, six.text_type(data)):
+        if hasattr(current_item, str(data)):
             new_value = getattr(current_item, data)
             if data[-4:] == '_set':
                 sub_values = new_value.all()
@@ -772,7 +771,7 @@ class LabelGenerator(ReportModelGenerator):
                 try:
                     docroot = etree.XML(labelval)
                 except etree.XMLSyntaxError:
-                    six.print_(labelval)
+                    print(labelval)
                     raise
                 for xml_text in docroot.find('body').iter():
                     if xml_text.tag == 'body':

@@ -27,7 +27,6 @@ from __future__ import unicode_literals
 import json
 
 from django.utils.translation import ugettext_lazy as _
-from django.utils import six
 from django.db.models.fields.related import ManyToManyField
 from django.db.models import Q
 
@@ -143,7 +142,7 @@ class FieldDescItem(object):
             self.field_list = []
             for select_obj in sub_model.objects.all():
                 self.field_list.append(
-                    (six.text_type(select_obj.id), six.text_type(select_obj)))
+                    (str(select_obj.id), str(select_obj)))
         else:
             sub_fied_desc = FieldDescItem(".".join(self.sub_fieldnames[1:]))
             if not sub_fied_desc.init(sub_model):
@@ -181,12 +180,12 @@ class FieldDescItem(object):
             self.field_list = []
             for choice_id, choice_val in dbfield.choices:
                 self.field_list.append(
-                    (six.text_type(choice_id), six.text_type(choice_val)))
+                    (str(choice_id), str(choice_val)))
         else:
             self.field_type = TYPE_FLOAT
             min_value, max_value = get_range_value(dbfield)
             self.field_list = [
-                (six.text_type(min_value), six.text_type(max_value), '0')]
+                (str(min_value), str(max_value), '0')]
 
     def init(self, model):
 
@@ -199,7 +198,7 @@ class FieldDescItem(object):
             elif isinstance(self.dbfield, DecimalField):
                 self.field_type = TYPE_FLOAT
                 min_value, max_value = get_range_value(self.dbfield)
-                self.field_list = [(six.text_type(min_value), six.text_type(max_value), six.text_type(self.dbfield.decimal_places))]
+                self.field_list = [(str(min_value), str(max_value), str(self.dbfield.decimal_places))]
             elif isinstance(self.dbfield, BooleanField):
                 self.field_type = TYPE_BOOL
             elif isinstance(self.dbfield, TextField):
@@ -374,7 +373,7 @@ class FieldDescList(object):
                 if field_desc_item is not None:
                     filter_result = filter_result & field_desc_item.get_query(new_val, new_op)
                     desc_text = field_desc_item.get_criteria_description(new_op, new_val)
-                    criteria_desc[six.text_type(crit_index)] = desc_text
+                    criteria_desc[str(crit_index)] = desc_text
                     crit_index += 1
         return filter_result, criteria_desc
 

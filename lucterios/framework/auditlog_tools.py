@@ -29,7 +29,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import DateTimeField, NOT_PROVIDED
 from django.db.models.base import Model
 from django.utils.encoding import smart_text
-from django.utils import six, timezone
+from django.utils import timezone
 from django.conf import settings
 
 
@@ -181,10 +181,10 @@ def model_instance_diff(old, new):
 
 def get_sender_ident_for_m2m(sender, instance):
     from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
-    sender_ident = six.text_type(sender)
-    attrname = six.text_type(instance._meta.verbose_name),
+    sender_ident = str(sender)
+    attrname = str(instance._meta.verbose_name),
     for m2m_property in LucteriosAuditlogModelRegistry.get_m2m_property(instance.__class__):
         if m2m_property.through == sender:
-            sender_ident = six.text_type(m2m_property.field.verbose_name)
+            sender_ident = str(m2m_property.field.verbose_name)
             attrname = m2m_property.field.name
     return sender_ident, attrname

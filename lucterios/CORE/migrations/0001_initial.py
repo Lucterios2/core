@@ -28,16 +28,16 @@ from __future__ import unicode_literals
 import django.core.validators
 from django.db import models, migrations
 from django.contrib.auth.models import User
-from django.utils import six, timezone
+from django.utils import timezone
 from lucterios.CORE.models import Label
 
 
 def initial_values(*args):
     # pylint: disable=unused-argument, no-member, expression-not-assigned
     admin = User.objects.create_user(
-        six.text_type('admin'), '', six.text_type('admin'), last_login=timezone.now())
-    admin.first_name = six.text_type('administrator')
-    admin.last_name = six.text_type('ADMIN')
+        str('admin'), '', str('admin'), last_login=timezone.now())
+    admin.first_name = str('administrator')
+    admin.last_name = str('ADMIN')
     admin.is_staff = True
     admin.is_superuser = True
     admin.is_active = True
@@ -60,7 +60,7 @@ def initial_values(*args):
 class Migration(migrations.Migration):
 
     dependencies = [
-        (six.text_type("auth"), six.text_type("0001_initial")),
+        (str("auth"), str("0001_initial")),
     ]
 
     operations = [

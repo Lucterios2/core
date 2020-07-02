@@ -28,7 +28,6 @@ from logging import getLogger
 from django.utils.translation import ugettext_lazy as _
 from django.db import IntegrityError
 from django.db.models import Q
-from django.utils import six
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, WrapAction, ActionsManage,\
@@ -157,7 +156,7 @@ class XferAddEditor(XferContainerCustom):
 
     def _initialize(self, request, *_, **kwargs):
         XferContainerCustom._initialize(self, request, *_, **kwargs)
-        if isinstance(self.redirect_to_show, six.text_type):
+        if isinstance(self.redirect_to_show, str):
             self.with_auditlog_btn = (ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self) is None)
 
     def fillresponse(self):
@@ -276,7 +275,7 @@ class XferSave(XferContainerAcknowledge):
                     self.item.save()
             except IntegrityError as err:
                 getLogger("lucterios.core.container").info("%s", err)
-                six.print_(err)
+                print(err)
                 self.raise_except(
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
@@ -284,7 +283,7 @@ class XferSave(XferContainerAcknowledge):
         if self.getparam('URL_TO_REDIRECT') is not None:
             url_text = self.getparam('URL_TO_REDIRECT')
             self.redirect_action(WrapAction('', '', url_text=url_text), params={self.field_id: self.item.id})
-        elif isinstance(self.redirect_to_show, six.text_type):
+        elif isinstance(self.redirect_to_show, str):
             self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self),
                                  params={self.field_id: self.item.id})
 

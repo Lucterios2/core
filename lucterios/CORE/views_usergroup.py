@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.apps.registry import apps
 from django.db.models import Q
@@ -37,12 +38,10 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGL
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession, Signal
 from lucterios.framework.models import LucteriosLogEntry
+from lucterios.framework.model_fields import LucteriosScheduler
 
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states
 from lucterios.CORE.parameters import Params
-from django.contrib.contenttypes.models import ContentType
-from django.utils import six
-from lucterios.framework.model_fields import LucteriosScheduler
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
 
@@ -231,7 +230,7 @@ class AuditLogShow(XferContainerCustom):
         else:
             content_type = ContentType.objects.get_for_model(self.model)
             lbl = XferCompLabelForm('ModelName')
-            lbl.set_value_as_header(six.text_type(content_type))
+            lbl.set_value_as_header(str(content_type))
             lbl.description = _("content type")
             lbl.set_location(1, 0, 2)
             self.add_component(lbl)

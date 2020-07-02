@@ -25,7 +25,6 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from base64 import b64decode
 
-from django.utils import six
 from django.utils.translation import activate
 from django.conf import settings
 
@@ -250,7 +249,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleListing()
         self.calljson('/lucterios.dummy/exampleListing', {'PRINT_MODE': '4', 'MODEL': 1, 'TITLE': 'special example', 'INFO': 'comment', 'WITHNUM': True}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleListing')
-        csv_value = b64decode(six.text_type(self.response_json['print']["content"])).decode("utf-8")
+        csv_value = b64decode(str(self.response_json['print']["content"])).decode("utf-8")
         content_csv = csv_value.split('\n')
         self.assertEqual(len(content_csv), 40, str(content_csv))
         self.assertEqual(content_csv[1].strip(), '"special example"')
@@ -302,7 +301,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleReporting()
         self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '4', 'MODEL': 3}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
-        csv_value = b64decode(six.text_type(self.response_json['print']["content"])).decode("utf-8")
+        csv_value = b64decode(str(self.response_json['print']["content"])).decode("utf-8")
         content_csv = csv_value.split('\n')
         self.assertEqual(len(content_csv), 10 * 30 + 1, str(content_csv))
         self.assertEqual(content_csv[3].strip(), '"A abc"')

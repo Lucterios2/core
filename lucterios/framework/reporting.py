@@ -30,7 +30,6 @@ from lxml import etree
 from logging import getLogger
 from re import compile, sub
 
-from django.utils import six
 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
@@ -207,7 +206,7 @@ class ConvertHTML_XMLReportlab(object):
                     item_lindent = int(xmlrl_item.attrib['lindent']) if 'lindent' in xmlrl_item.attrib else 0
                     self.fill_attrib(xmlrl_item, sub_xmlrl)
                     if (sub_lindent + item_lindent) > 0:
-                        sub_xmlrl.attrib['lindent'] = six.text_type(sub_lindent + item_lindent)
+                        sub_xmlrl.attrib['lindent'] = str(sub_lindent + item_lindent)
                     self.fill_text_if_not_null(xmlrl_item, sub_xmlrl)
                     add_xmlrl(sub_xmlrl)
                     extra_xmlrl = self._new_para()
@@ -483,7 +482,7 @@ class LucteriosPDF(object):
             line_height = int(xmltext.get('line_height'))
         style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size,
                                alignment=alignment, leading=line_height)
-        # six.print_("%s:%s" % (xmltext.tag, para_text))
+        # print("%s:%s" % (xmltext.tag, para_text))
         texts = []
         for para_text in para_text_list:
             try:
@@ -539,7 +538,7 @@ class LucteriosPDF(object):
                     row_line.append(paras[0][0])
                 col_idx += 1
             table_height = get_table_heigth(data + [row_line], width_columns)
-            # six.print_("table y:%f height:%f h-b:%F" % (current_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
+            # print("table y:%f height:%f h-b:%F" % (current_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
             if (current_y + table_height) > (self.height - self.bottom_h - self.b_margin):
                 draw_table(width_columns, data)
                 self.add_page()
@@ -609,10 +608,10 @@ class LucteriosPDF(object):
             mtd = 'parse_' + child.tag.lower()
             if hasattr(self, mtd):
                 fct = getattr(self, mtd)
-                # six.print_("print: %s (x=%f,y=%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
+                # print("print: %s (x=%f,y=%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
                 fct(child, current_x, current_y, current_w, current_h)
             else:
-                six.print_("Unsupported method: " + mtd)
+                print("Unsupported method: " + mtd)
         self.y_offset = last_y_offset
 
     def add_page(self):
@@ -624,7 +623,7 @@ class LucteriosPDF(object):
                 getLogger('lucterios.printing').debug("== add_page ==")
                 self.draw_header()
                 self.draw_footer()
-                # six.print_("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
+                # print("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
                 getLogger('lucterios.printing').debug("\t>> body <<")
                 self.y_offset = self.header_h + self.t_margin
                 self.position_y = self.y_offset
@@ -676,7 +675,7 @@ def transform_file_xml2pdf(xml_filename, pdf_filename):
         pdf_content = transforme_xml2pdf(flb.read())
     if isfile(pdf_filename):
         unlink(pdf_filename)
-    if pdf_content != six.text_type(''):
+    if pdf_content != str(''):
         with open(pdf_filename, 'wb') as flb:
             flb.write(pdf_content)
     return isfile(pdf_filename)

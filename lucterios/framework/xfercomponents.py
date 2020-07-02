@@ -27,7 +27,6 @@ from logging import getLogger
 from datetime import datetime, time, date
 import warnings
 
-from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -87,19 +86,19 @@ class XferComponent(object):
         compjson['name'] = self.name
         compjson['component'] = self._component_ident
         compjson['description'] = self.description
-        if isinstance(self.tab, six.integer_types):
+        if isinstance(self.tab, int):
             compjson['tab'] = self.tab
-        if isinstance(self.col, six.integer_types):
+        if isinstance(self.col, int):
             compjson['x'] = self.col
-        if isinstance(self.row, six.integer_types):
+        if isinstance(self.row, int):
             compjson['y'] = self.row
-        if isinstance(self.colspan, six.integer_types):
+        if isinstance(self.colspan, int):
             compjson['colspan'] = self.colspan
-        if isinstance(self.rowspan, six.integer_types):
+        if isinstance(self.rowspan, int):
             compjson['rowspan'] = self.rowspan
-        if isinstance(self.vmin, six.integer_types):
+        if isinstance(self.vmin, int):
             compjson['VMin'] = self.vmin
-        if isinstance(self.hmin, six.integer_types):
+        if isinstance(self.hmin, int):
             compjson['HMin'] = self.hmin
         compjson['needed'] = self.needed
         return compjson
@@ -143,10 +142,10 @@ class XferCompImage(XferComponent):
         self.type = ""
 
     def set_value(self, value):
-        if isinstance(value, six.binary_type):
+        if isinstance(value, bytes):
             self.value = value.decode("utf-8")
         else:
-            self.value = six.text_type(value)
+            self.value = str(value)
 
     def get_json(self):
         compjson = XferComponent.get_json(self)
@@ -183,7 +182,7 @@ class XferCompLabelForm(XferComponent):
         elif isinstance(value, bool):
             self.value = bool(value)
         elif isinstance(value, object):
-            self.value = six.text_type(value)
+            self.value = str(value)
         else:
             self.value = value
 
@@ -271,7 +270,7 @@ class XferCompLabelForm(XferComponent):
             old_obj.select_list = list(old_obj.select_list.items())
         if isinstance(old_obj.select_list, list):
             for key, sel_val in old_obj.select_list:
-                format_string[key] = six.text_type(sel_val)
+                format_string[key] = str(sel_val)
         return format_string
 
     @classmethod
@@ -288,13 +287,13 @@ class XferCompLabelForm(XferComponent):
             value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))
         elif isinstance(old_obj, XferCompDate):
             format_string = 'D'
-            value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:3]]) if not isinstance(value, date) else value
+            value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:3]]) if not isinstance(value, date) else value
         elif isinstance(old_obj, XferCompDateTime):
             format_string = 'H'
-            value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))]) if not isinstance(value, datetime) else value
+            value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))]) if not isinstance(value, datetime) else value
         elif isinstance(old_obj, XferCompTime):
             format_string = 'T'
-            value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', six.text_type(value))[:2]]) if not isinstance(value, time) else value
+            value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:2]]) if not isinstance(value, time) else value
         elif isinstance(old_obj, XferCompFloat):
             format_string = 'N%d' % old_obj.prec
         new_lbl = cls(old_obj.name)
@@ -472,7 +471,7 @@ class XferCompXML(XferCompButton):
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['submenu'] = list(self.sub_menu)
-        if isinstance(self.schema, six.binary_type):
+        if isinstance(self.schema, bytes):
             self.schema = self.schema.decode()
         compjson['schema'] = self.schema
         return compjson
@@ -527,7 +526,7 @@ class XferCompCheck(XferCompButton):
         if value is None:
             self.value = None
         else:
-            value = six.text_type(value)
+            value = str(value)
             if (value == 'False') or (value == '0') or (value == '') or (value == 'n'):
                 self.value = 0
             else:
@@ -559,7 +558,7 @@ class XferCompSelect(XferCompButton):
             try:
                 self.select_list.append((item.id, item.get_text_value()))
             except AttributeError:
-                self.select_list.append((item.id, six.text_type(item)))
+                self.select_list.append((item.id, str(item)))
         self._check_case()
 
     def set_value(self, value):
@@ -572,7 +571,7 @@ class XferCompSelect(XferCompButton):
         else:
             value_found = False
             for select_item in self.select_list:
-                if six.text_type(select_item[0]) == six.text_type(self.value):
+                if str(select_item[0]) == str(self.value):
                     return select_item[1]
             if not value_found:
                 return self.select_list[0][1]
@@ -585,7 +584,7 @@ class XferCompSelect(XferCompButton):
         if len(list_of_select) > 0:
             value_found = False
             for select_item in list_of_select:
-                if six.text_type(select_item[0]) == six.text_type(self.value):
+                if str(select_item[0]) == str(self.value):
                     value_found = True
             if not value_found:
                 self.value = list_of_select[0][0]
@@ -607,13 +606,13 @@ class XferCompCheckList(XferCompButton):
         self.simple = False
 
     def set_value(self, value):
-        if isinstance(value, six.text_type):
+        if isinstance(value, str):
             value = value.split(";")
         else:
             value = list(value)
         self.value = []
         for item in value:
-            self.value.append(six.text_type(item))
+            self.value.append(str(item))
 
     def set_select(self, select_list):
         self.select_list = select_list
@@ -621,7 +620,7 @@ class XferCompCheckList(XferCompButton):
     def set_select_query(self, query):
         self.select_list = []
         for item in query:
-            self.select_list.append((item.id, six.text_type(item)))
+            self.select_list.append((item.id, str(item)))
 
     def _get_content(self):
         return ''
@@ -677,7 +676,7 @@ class XferCompDownLoad(XferCompButton):
         self.maxsize = 1048576
 
     def set_filename(self, filename):
-        self.filename = six.text_type(filename).strip()
+        self.filename = str(filename).strip()
 
     def set_download(self, filename):
         sign_value = md5sum(filename)
@@ -797,7 +796,7 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 if header.htype == 'N0':
                     new_record[header.name] = 0
-                elif isinstance(header.htype, six.text_type) and header.htype.startswith('N'):
+                elif isinstance(header.htype, str) and header.htype.startswith('N'):
                     new_record[header.name] = 0.0
                 elif header.htype == 'B':
                     new_record[header.name] = False
@@ -832,7 +831,7 @@ class XferCompGrid(XferComponent):
             for header in self.headers:
                 json_record[header.name] = adapt_value(record[header.name])
             for rec_name in record.keys():
-                if isinstance(rec_name, six.text_type) and rec_name.startswith('__') and (rec_name not in self.headers):
+                if isinstance(rec_name, str) and rec_name.startswith('__') and (rec_name not in self.headers):
                     json_record[rec_name] = record[rec_name]
             compjson.append(json_record)
         return compjson
@@ -848,7 +847,7 @@ class XferCompGrid(XferComponent):
                     try:
                         first_record = query_set[0]
                         first_value = getattr(first_record, fieldname)
-                        if isinstance(first_value, six.text_type) and first_value.startswith(BASE64_PREFIX):
+                        if isinstance(first_value, str) and first_value.startswith(BASE64_PREFIX):
                             hfield = 'icon'
                     except Exception:
                         pass
@@ -859,7 +858,7 @@ class XferCompGrid(XferComponent):
             else:
                 dep_field = query_set.model.get_field_by_name(fieldname)
                 hfield = get_format_from_field(dep_field)
-                if isinstance(hfield, six.text_type) and (';' in hfield):
+                if isinstance(hfield, str) and (';' in hfield):
                     hfield = hfield.split(';')
                     format_str = ";".join(hfield[1:])
                     hfield = hfield[0]
@@ -889,7 +888,7 @@ class XferCompGrid(XferComponent):
                     resvalue = []
                     sub_items = getattr(child, fieldname).all()
                     for sub_items_value in sub_items:
-                        resvalue.append(six.text_type(sub_items_value))
+                        resvalue.append(str(sub_items_value))
                 else:
                     resvalue = child
                     for field_name in fieldname.split('.'):

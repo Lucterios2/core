@@ -32,7 +32,6 @@ import sys
 import os
 import inspect
 from glob import glob
-from django.utils import six
 try:
     from importlib import reload  # pylint: disable=redefined-builtin,no-name-in-module
 except ImportError:
@@ -205,9 +204,9 @@ class Generator(object):
 
     def writedata(self, text):
         try:
-            self.viewfile.write(six.binary_type(text, 'UTF-8'))
+            self.viewfile.write(bytes(text, 'UTF-8'))
         except Exception:
-            self.viewfile.write(six.binary_type(text))
+            self.viewfile.write(bytes(text))
 
     def _write_header(self, model_name, item_actions, is_new):
         if is_new:
@@ -265,9 +264,8 @@ from django.utils.translation import ugettext_lazy as _\n\n""")
         with open(viewer_file, 'wb') as self.viewfile:
             self._write_header(model_name, item_actions, is_new)
             class_inst = getattr(self.module_obj, model_name)
-            verbose_name = six.text_type(class_inst._meta.verbose_name)
-            verbose_name_plural = six.text_type(
-                class_inst._meta.verbose_name_plural)
+            verbose_name = str(class_inst._meta.verbose_name)
+            verbose_name_plural = str(class_inst._meta.verbose_name_plural)
             for item_name in sorted(list(item_actions.keys())):
                 acts = item_actions[item_name]
                 actions, caption, right, menuext = self._define_params(
@@ -304,4 +302,4 @@ if __name__ == '__main__':
     try:
         main()
     except GeneratorException as gen:
-        showerror("View generator", six.text_type(gen))
+        showerror("View generator", str(gen))
