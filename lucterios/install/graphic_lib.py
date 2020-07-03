@@ -42,6 +42,7 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.settings import get_lan_ip
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title
+from os.path import isfile
 
 
 FIRST_HTTP_PORT = 8100
@@ -89,6 +90,30 @@ class RunServer(object):
         self.process = None
         self.out = None
 
+    @classmethod
+    def get_serverfile_name(cls, instance_name):
+        return "%s/server_pid" % instance_name
+
+    def save_serverfile(self):
+        with open(self.get_serverfile_name(self.instance_name), "w") as pid_file:
+            pid_file.write('%d:%d' % (self.port, self.process.pid))
+
+    def delete_serverfile(self):
+        if isfile(self.get_serverfile_name(self.instance_name)):
+            os.unlink(self.get_serverfile_name(self.instance_name))
+
+    @classmethod
+    def read_serverfile(cls, instance_name):
+        port, pid = None, None
+        if isfile(cls.get_serverfile_name(instance_name)):
+            try:
+                with open(cls.get_serverfile_name(instance_name), "r") as pid_file:
+                    port, pid = pid_file.read().strip().split(':')
+                port, pid = int(port), int(pid)
+            except Exception:
+                port, pid = None, None
+        return port, pid
+
     def start(self):
         self.stop()
         cmd = [sys.executable, 'manage_%s.py' % self.instance_name,
@@ -98,16 +123,18 @@ class RunServer(object):
         if self.process.poll() is not None:
             self.stop()
             raise RunException(ugettext("Error to start!"))
-        self.open_url()
+        self.save_serverfile()
 
     def open_url(self):
         webbrowser.open_new("http://%(ip)s:%(port)d" % {'ip': self.lan_ip, 'port': self.port})
 
-    def stop(self):
+    def stop(self, remove_file=True):
         if self.is_running():
             self.process.terminate()
         self.process = None
         self.out = None
+        if remove_file:
+            self.delete_serverfile()
 
     def is_running(self):
         return (self.process is not None) and (self.process.poll() is None)
@@ -186,6 +213,7 @@ class LucteriosMain(object):
             while process_startup.is_alive():
                 # print('updating')
                 self.splash.update()
+            self.run_all_needed()
         finally:
             self.remove_splash_screen()
 
@@ -197,11 +225,20 @@ class LucteriosMain(object):
                 all_stop = False
         return all_stop
 
+    def run_all_needed(self):
+        luct_glo = LucteriosGlobal()
+        for instance_name in luct_glo.listing():
+            if instance_name not in self.running_instance.keys():
+                self.running_instance[instance_name] = None
+            port, _pid = RunServer.read_serverfile(instance_name)
+            if port is not None:
+                self.open_inst(instance_name, port)
+
     def stop_all(self):
         instance_names = list(self.running_instance.keys())
         for old_item in instance_names:
             if self.running_instance[old_item] is not None:
-                self.running_instance[old_item].stop()
+                self.running_instance[old_item].stop(remove_file=False)
                 del self.running_instance[old_item]
 
     @classmethod
@@ -285,22 +322,23 @@ class LucteriosMain(object):
         self.refresh()
 
     @ThreadRun
-    def open_inst(self):
+    def open_inst(self, instance_name=None, port=None):
         global FIRST_HTTP_PORT
-        instance_name = self.get_selected_instance_name()
+        instance_name = self.get_selected_instance_name() if instance_name is None else instance_name
         if (instance_name != '') and (instance_name is not None):
             try:
                 if instance_name not in self.running_instance.keys():
                     self.running_instance[instance_name] = None
                 if self.running_instance[instance_name] is None:
-                    port = FIRST_HTTP_PORT
-                    for inst_obj in self.running_instance.values():
-                        if (inst_obj is not None) and (inst_obj.port >= port):
-                            port = inst_obj.port + 1
+                    if port is None:
+                        port = FIRST_HTTP_PORT
+                        for inst_obj in self.running_instance.values():
+                            if (inst_obj is not None) and (inst_obj.port >= port):
+                                port = inst_obj.port + 1
                     self.running_instance[instance_name] = RunServer(instance_name, port)
                     self.running_instance[instance_name].start()
                 else:
-                    self.running_instance[instance_name].stop()
+                    self.running_instance[instance_name].stop(remove_file=True)
                     self.running_instance[instance_name] = None
             except RunException:
                 FIRST_HTTP_PORT += 10
@@ -308,9 +346,15 @@ class LucteriosMain(object):
             finally:
                 self.refresh(instance_name)
 
+    @ThreadRun
+    def open_browser(self):
+        instance_name = self.get_selected_instance_name()
+        if (instance_name != '') and (instance_name is not None) and (instance_name in self.running_instance.keys()) and (self.running_instance[instance_name] is not None):
+            self.running_instance[instance_name].open_url()
+
     def stop_current_instance(self, instance_name):
         if (instance_name != '') and (self.running_instance[instance_name] is not None) and self.running_instance[instance_name].is_running():
-            self.running_instance[instance_name].stop()
+            self.running_instance[instance_name].stop(remove_file=True)
             self.running_instance[instance_name] = None
 
     @ThreadRun

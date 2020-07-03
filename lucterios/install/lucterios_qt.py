@@ -33,7 +33,8 @@ import sys
 
 from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
     QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit,\
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout,\
+    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
@@ -86,6 +87,79 @@ class InstanceModel(QAbstractListModel):
         else:
             self.current_item = None
         self.parent().reload()
+
+
+class AboutDlg(QDialog):
+
+    def __init__(self, title):
+        super(AboutDlg, self).__init__()
+        self.setWindowTitle(title)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        buttonBox.accepted.connect(self.accept)
+        self.content = QLabel(self)
+        self.content.setAlignment(Qt.AlignTop or Qt.AlignRight)
+        self.content.setTextFormat(Qt.RichText)
+        self.content.setText("")
+        scroll = QScrollArea(self)
+        scroll.setWidget(self.content)
+        scroll.setWidgetResizable(True)
+        icon = QLabel(self)
+        icon.setAlignment(Qt.AlignTop or Qt.AlignCenter)
+        icon.setPixmap(QPixmap(join(dirname(import_module('lucterios.install').__file__), "lucterios.png")))
+        layouth = QHBoxLayout()
+        layouth.addWidget(icon)
+        layouth.addWidget(scroll)
+
+        layoutv = QVBoxLayout()
+        layoutv.addLayout(layouth)
+        layoutv.addWidget(buttonBox)
+        self.setLayout(layoutv)
+        self.setFixedSize(QSize(750, 550))
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+    def refresh_data(self):
+        from django import VERSION
+        from platform import uname
+        self.django_version = "%d.%d.%d" % (VERSION[0], VERSION[1], VERSION[2])
+        self.os_version = "%s %s %s" % (uname()[0], uname()[4], uname()[2])
+        lct_glob = LucteriosGlobal()
+        self.mod_lucterios, self.mod_applis, self.mod_modules = lct_glob.installed()
+        self.extra_urls = lct_glob.get_extra_urls()
+
+    def show(self):
+        from platform import python_version
+        import os
+        CONST_LIGNE = "<tr><th width='30%%'>%s</th><td width='70%%'>%s<br/></td></tr>"
+        CONST_SUB_TABLE = CONST_LIGNE.replace("%s<br/>", "<table width='100%%'>%s</table><br/>")
+        CONST_SUB_LIGNE = "<tr><td width='50%%'><u>%s</u></td><td width='50%%'>%s</td></tr>"
+
+        about_content = "<h1><center>%s</center></h1>" % ugettext("About Lucterios Launcher")
+        about_content += "<table width='100%'>"
+
+        install = ""
+        install += CONST_SUB_LIGNE % (ugettext('Installer'), os.environ.get('LUCTERIOS_INSTALL', '???'))
+        install += CONST_SUB_LIGNE % (ugettext('Operating System'), self.os_version)
+        install += CONST_SUB_LIGNE % (ugettext('Django'), self.django_version)
+        install += CONST_SUB_LIGNE % (ugettext('Python'), python_version())
+        about_content += CONST_SUB_TABLE % (ugettext("Install"), install)
+
+        about_content += CONST_LIGNE % (ugettext('Lucterios core'), self.mod_lucterios[1])
+        appli = ""
+        for appli_item in self.mod_applis:
+            appli += CONST_SUB_LIGNE % (appli_item[0], appli_item[1])
+        about_content += CONST_SUB_TABLE % (ugettext("Application"), appli)
+
+        modules = ""
+        for module_item in self.mod_modules:
+            modules += CONST_SUB_LIGNE % (module_item[0], module_item[1])
+        about_content += CONST_SUB_TABLE % (ugettext("Modules"), modules)
+
+        if len(self.extra_urls) > 0:
+            about_content += CONST_LIGNE % (ugettext('Pypi servers'), "<br/>".join(self.extra_urls))
+
+        about_content += "</table>"
+        self.content.setText(about_content)
+        self.exec_()
 
 
 class InstanceDlg(QDialog, EditorInstance):
@@ -255,6 +329,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.img_path = join(dirname(import_module('lucterios.install').__file__), "lucterios.png")
         self.instances_model = InstanceModel(self)
         self.has_checked = False
+        self.closed_asked = False
+        self.about_dlg = None
         self.refreshslot.connect(self.refresh_ex)
         self.enableslot.connect(self.enable_ex)
         self.progressslot.connect(self.step_progress)
@@ -265,6 +341,10 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.start_up_app()
 
     def closeEvent(self, event):
+        event.ignore()
+        self.hide()
+
+    def check_close(self):
         all_stop = True
         instance_names = list(self.running_instance.keys())
         for old_item in instance_names:
@@ -272,12 +352,11 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
                 all_stop = False
         result = all_stop or (QMessageBox.question(self, ugettext("Lucterios launcher"),
                                                    ugettext("An instance is always running.\nDo you want to close?"), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes)
-        event.ignore()
         if result:
             self.stop_all()
-            event.accept()
         else:
             self.refresh()
+        return result
 
     def initUI(self):
         self.icon_path = join(dirname(import_module('lucterios.CORE').__file__), 'static', 'lucterios.CORE', 'images')
@@ -297,16 +376,18 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def set_actions(self):
         self.refreshAct = QAction(QIcon(join(self.icon_path, 'refresh.png')), ugettext('Refresh'), self)
         self.refreshAct.setShortcut('F5')
-        self.refreshAct.triggered.connect(self.instances_model.refresh)
+        self.refreshAct.triggered.connect(self.refresh_all)
         self.upgradeAct = QAction(QIcon(join(self.icon_path, 'upload.png')), ugettext('Update'), self)
         self.upgradeAct.setShortcut('Ctrl+U')
         self.upgradeAct.setEnabled(False)
         self.upgradeAct.triggered.connect(self.upgrade)
-        self.exitAct = QAction(QIcon(join(self.icon_path, 'exit.png')), ugettext('Exit'), self)
+        self.exitAct = QAction(QIcon(join(self.icon_path, 'exit.png')), ugettext('Close'), self)
         self.exitAct.setShortcut('Ctrl+Q')
         self.exitAct.triggered.connect(self.close)
 
-        self.launchAct = QAction(QIcon(join(self.icon_path, 'right.png')), ugettext("Launch"), self)
+        self.browserAct = QAction(QIcon(join(self.icon_path, 'browser.png')), ugettext("Browser"), self)
+        self.browserAct.triggered.connect(lambda: self.open_browser())
+        self.launchAct = QAction(QIcon(join(self.icon_path, 'ok.png')), ugettext("Launch"), self)
         self.launchAct.triggered.connect(lambda: self.open_inst())
         self.modifyAct = QAction(QIcon(join(self.icon_path, 'edit.png')), ugettext("Modify"), self)
         self.modifyAct.triggered.connect(self.modify_inst)
@@ -319,6 +400,9 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.addAct = QAction(QIcon(join(self.icon_path, 'add.png')), ugettext("Add"), self)
         self.addAct.triggered.connect(self.add_inst)
 
+        self.aboutAct = QAction(QIcon(join(self.icon_path, 'help.png')), ugettext("About Lucterios Launcher"), self)
+        self.aboutAct.triggered.connect(self.about)
+
     def set_menu(self):
         menubar = self.menuBar()
         fileMenu = menubar.addMenu(ugettext('Main'))
@@ -327,7 +411,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         fileMenu.addSeparator()
         fileMenu.addAction(self.exitAct)
 
-        instanceMenu = menubar.addMenu(ugettext('Instance'))
+        instanceMenu = menubar.addMenu(ugettext('Instances'))
+        instanceMenu.addAction(self.browserAct)
         instanceMenu.addAction(self.launchAct)
         instanceMenu.addAction(self.modifyAct)
         instanceMenu.addAction(self.saveAct)
@@ -335,21 +420,26 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         instanceMenu.addAction(self.deleteAct)
         instanceMenu.addAction(self.addAct)
 
+        helpMenu = menubar.addMenu(ugettext('Help'))
+        helpMenu.addAction(self.aboutAct)
+
     def set_toolsbar(self):
         self.maintools = self.addToolBar('Main')
         self.maintools.addAction(self.refreshAct)
         self.maintools.addAction(self.upgradeAct)
         self.maintools.addAction(self.exitAct)
         self.instancetools = self.addToolBar('Instance')
+        self.instancetools.addAction(self.browserAct)
         self.instancetools.addAction(self.launchAct)
         self.instancetools.addAction(self.modifyAct)
         self.instancetools.addAction(self.saveAct)
         self.instancetools.addAction(self.restoreAct)
         self.instancetools.addAction(self.deleteAct)
         self.instancetools.addAction(self.addAct)
+        helptools = self.addToolBar('Help')
+        helptools.addAction(self.aboutAct)
 
     def set_components(self):
-        tabs = QTabWidget(self)
         splitter = QSplitter(Qt.Horizontal)
         self.instances = QListView(self)
         self.instances.clicked.connect(self.instances_model.changed)
@@ -363,16 +453,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         scroll1.setWidgetResizable(True)
         splitter.addWidget(scroll1)
         splitter.setSizes([150, 700])
-        tabs.addTab(splitter, ugettext('Instances'))
-        self.modules = QLabel(self)
-        self.modules.setAlignment(Qt.AlignTop or Qt.AlignRight)
-        self.modules.setTextFormat(Qt.RichText)
-        scroll2 = QScrollArea(self)
-        scroll2.setWidget(self.modules)
-        scroll2.setWidgetResizable(True)
-        splitter.addWidget(scroll2)
-        tabs.addTab(scroll2, ugettext('Modules'))
-        self.setCentralWidget(tabs)
+        self.setCentralWidget(splitter)
         self.progressBar = QProgressBar()
         self.progressBar.setMinimum(1)
         self.progressBar.setMaximum(100)
@@ -387,14 +468,19 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             inst = LucteriosInstance(self.instances_model.current_item)
             inst.read()
             if self.running_instance[inst.name] is not None and self.running_instance[inst.name].is_running():
-                inst_status = ugettext("=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[inst.name].lan_ip, 'port': self.running_instance[inst.name].port}
+                inst_status = ugettext("Running in <a href='http://%(ip)s:%(port)d'>http://%(ip)s:%(port)d</a>") % {'ip': self.running_instance[inst.name].lan_ip, 'port': self.running_instance[inst.name].port}
                 btn_text = ugettext("Stop")
+                btn_icon_path = join(self.icon_path, 'close.png')
+                self.browserAct.setEnabled(True)
             else:
-                inst_status = ugettext("=> Stopped\n")
+                inst_status = ugettext("Stopped")
                 btn_text = ugettext("Launch")
+                btn_icon_path = join(self.icon_path, 'ok.png')
+                self.browserAct.setEnabled(False)
             content = "<h1><center>%s</center></h1>" % inst.name
-            content += "<p>%s<br/></p>" % inst_status
+            content += "<center>%s</center><br/>" % inst_status
             self.launchAct.setText(btn_text)
+            self.launchAct.setIcon(QIcon(btn_icon_path))
             content += "<table width='100%'>"
             content += "<tr><th style='width:30%%;min-width:150px;'>%s</th><td>%s<br/></td></tr>" % (ugettext("Application"), inst.get_appli_txt())
             content += "<tr><th>%s</th><td>%s<br/></td></tr>" % (ugettext("Modules"), inst.get_module_txt().replace(',', '<br/>'))
@@ -406,24 +492,17 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             self.instance.setText("<h1><center>%s</center></h1>" % self.instances_model.current_item)
 
     def set_modules_info(self):
-        lct_glob = LucteriosGlobal()
-        mod_lucterios, mod_applis, mod_modules = lct_glob.installed()
-        content = "<tr><th width='30%%'>%s</th><td>%s<br/></td></tr>" % (ugettext('Lucterios core'), mod_lucterios[1])
-        appli = ""
-        for appli_item in mod_applis:
-            appli += "<tr><td style='width:30%%;min-width:100px;'>%s</td><td>%s</td></tr>" % (appli_item[0], appli_item[1])
-        content += "<tr><th>%s</th><td><table width='80%%'>%s</table><br/></td></tr>" % (ugettext("Application"), appli)
-        modules = ""
-        for module_item in mod_modules:
-            modules += "<tr><td style='width:30%%;min-width:100px;'>%s</td><td>%s</td></tr>" % (module_item[0], module_item[1])
-        content += "<tr><th>%s</th><td><table width='80%%'>%s</table><br/></td></tr>" % (ugettext("Modules"), modules)
-        extra_urls = lct_glob.get_extra_urls()
-        if len(extra_urls) > 0:
-            content += "<tr><th>%s</th><td>%s</td></tr>" % (ugettext('Pypi servers'), "<br/>".join(extra_urls))
-        self.modules.setText("<table width='100%'>" + content + "</table>")
+        if self.about_dlg is None:
+            self.about_dlg = AboutDlg(ugettext("Lucterios launcher"))
+        self.about_dlg.refresh_data()
+
         self.has_checked = True
         self.run_after(1000, lambda: Thread(target=self.check).start())
         self.statusBar().showMessage(ugettext("Search upgrade"))
+
+    def refresh_all(self):
+        self.has_checked = False
+        self.instances_model.refresh()
 
     def refresh(self, instance_name=None):
         if instance_name == '':
@@ -439,6 +518,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             self.instances_model.changed(index)
 
     def reload(self):
+        self.browserAct.setEnabled(False)
         self.launchAct.setEnabled(self.instances_model.current_item is not None)
         self.modifyAct.setEnabled(self.instances_model.current_item is not None)
         self.deleteAct.setEnabled(self.instances_model.current_item is not None)
@@ -471,6 +551,12 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             QMessageBox.critical(self, text, message)
         else:
             QMessageBox.information(self, text, message)
+        if self.closed_asked:
+            self.stop_all()
+            QApplication.quit()
+
+    def about(self):
+        self.about_dlg.show()
 
     def show_splash_screen(self):
         splash_pix = QPixmap(350, 200)
@@ -543,6 +629,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
 
     def set_ugrade_state_ex(self, upgrade_mode):
         if upgrade_mode == 2:
+            self.closed_asked = True
             msg = ugettext("The application must restart")
             self.show_info(ugettext("Lucterios launcher"), msg)
             self.upgradeAct.setEnabled(False)
@@ -590,11 +677,38 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
                 self.restore_instance(instance_name, file_name)
 
 
+class LucteriosTrayIcon(QSystemTrayIcon):
+
+    def __init__(self):
+        self.lct = LucteriosQtMain()
+        QSystemTrayIcon.__init__(self, QIcon(self.lct.img_path))
+        self.launchAct = QAction(QIcon(join(self.lct.icon_path, 'config.png')), ugettext("Open"), self)
+        self.launchAct.triggered.connect(self.open)
+        self.exitAct = QAction(QIcon(join(self.lct.icon_path, 'exit.png')), ugettext('Exit'), self)
+        self.exitAct.setShortcut('Ctrl+Q')
+        self.exitAct.triggered.connect(self.close)
+        menu = QMenu()
+        menu.addAction(self.launchAct)
+        menu.addAction(self.exitAct)
+        self.setContextMenu(menu)
+
+    def show(self):
+        QSystemTrayIcon.show(self)
+        self.open()
+
+    def open(self):
+        self.lct.show()
+
+    def close(self):
+        if self.lct.check_close():
+            QApplication.quit()
+
+
 def main():
     setup_from_none()
     app = QApplication(sys.argv)
-    lct = LucteriosQtMain()
-    lct.show()
+    traylct = LucteriosTrayIcon()
+    traylct.show()
     sys.exit(app.exec_())
 
 

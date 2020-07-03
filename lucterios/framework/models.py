@@ -231,7 +231,7 @@ class LucteriosModel(models.Model):
             if fieldvalue is None:
                 base_dep_field = cls.get_field_by_name(fieldname.split('.')[0])
                 if not base_dep_field.null:
-                    raise LucteriosException(GRAVE, _("%s '%s' unknown !") % (base_dep_field.verbose_name, sub_value))
+                    raise LucteriosException(GRAVE, _("%(name)s '%(value)s' unknown !") % {'name': base_dep_field.verbose_name, 'value': sub_value})
         return fieldvalue
 
     @classmethod

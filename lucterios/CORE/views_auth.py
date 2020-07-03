@@ -118,7 +118,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['COPYRIGHT'] = str(settings.APPLIS_COPYRIGHT)
         info_cnx['LOGONAME'] = settings.APPLIS_LOGO.decode()
         info_cnx['BACKGROUND'] = settings.APPLIS_BACKGROUND.decode()
-        info_cnx['STYLE'] = settings.APPLIS_STYLE.decode()
+        info_cnx['STYLE'] = settings.APPLIS_STYLE if not hasattr(settings.APPLIS_STYLE, 'decode') else settings.APPLIS_STYLE.decode()
         info_cnx['SUPPORT_EMAIL'] = str(settings.APPLI_EMAIL)
         info_cnx['SUPPORT_HTML'] = str(settings.APPLI_SUPPORT())
         info_cnx['INFO_SERVER'] = get_info_server()

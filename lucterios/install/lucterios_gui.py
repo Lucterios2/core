@@ -404,8 +404,10 @@ class LucteriosMainForm(Tk, LucteriosMain):
         self.btninstframe = Frame(frm_inst, bd=1)
         self.btninstframe.grid(row=1, column=0, columnspan=1)
         self.btninstframe.grid_columnconfigure(0, weight=1)
-        Button(self.btninstframe, text=ugettext("Launch"), width=25, command=self.open_inst).grid(
-            row=0, column=0, columnspan=2, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Browser"), width=10,
+               command=self.open_browser).grid(row=0, column=0, sticky=(N, S))
+        Button(self.btninstframe, text=ugettext("Launch"), width=10,
+               command=self.open_inst).grid(row=0, column=1, sticky=(N, S))
         Button(self.btninstframe, text=ugettext("Modify"), width=10,
                command=self.modify_inst).grid(row=1, column=0, sticky=(N, S))
         Button(self.btninstframe, text=ugettext("Delete"), width=10,
@@ -575,18 +577,20 @@ class LucteriosMainForm(Tk, LucteriosMain):
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
                         self.instance_txt.insert(END, ugettext("=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[instance_name].lan_ip, 'port': self.running_instance[instance_name].port})
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Stop")
+                        self.btninstframe.winfo_children()[0].disabled = False
+                        self.btninstframe.winfo_children()[1]["text"] = ugettext("Stop")
                     else:
                         self.running_instance[instance_name] = None
                         self.instance_txt.insert(END, ugettext("=> Stopped\n"))
-                        self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
+                        self.btninstframe.winfo_children()[0].disabled = True
+                        self.btninstframe.winfo_children()[1]["text"] = ugettext("Launch")
                 else:
                     self.btninstframe.winfo_children()[0]["text"] = ugettext("Launch")
-                self.btninstframe.winfo_children()[0].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[1].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[2].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[3].disabled = (instance_name == '')
                 self.btninstframe.winfo_children()[4].disabled = (instance_name == '')
+                self.btninstframe.winfo_children()[5].disabled = (instance_name == '')
                 self.instance_txt.configure(state=DISABLED)
             finally:
                 setup_from_none()
