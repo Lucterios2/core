@@ -30,6 +30,8 @@ import sys
 import webbrowser
 import logging
 import os
+import signal
+from os.path import isfile
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
 from traceback import print_exc
@@ -42,7 +44,6 @@ from django.utils.module_loading import import_module
 
 from lucterios.framework.settings import get_lan_ip
 from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, get_module_title
-from os.path import isfile
 
 
 FIRST_HTTP_PORT = 8100
@@ -230,7 +231,12 @@ class LucteriosMain(object):
         for instance_name in luct_glo.listing():
             if instance_name not in self.running_instance.keys():
                 self.running_instance[instance_name] = None
-            port, _pid = RunServer.read_serverfile(instance_name)
+            port, pid = RunServer.read_serverfile(instance_name)
+            if pid is not None:
+                try:
+                    os.kill(pid, signal.SIGTERM)
+                except ProcessLookupError:
+                    pass
             if port is not None:
                 self.open_inst(instance_name, port)
 

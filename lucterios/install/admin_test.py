@@ -37,6 +37,7 @@ from lucterios.framework.juxd import JUXDTestRunner
 class BaseTest(unittest.TestCase):
 
     def setUp(self):
+        print('>>> %s.%s >>>' % (self.__class__.__name__, self._testMethodName))
         self.path_dir = join(dirname(dirname(dirname(__file__))), "test")
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
@@ -49,13 +50,14 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         rmtree(self.path_dir, True)
+        print('<<< %s.%s <<<' % (self.__class__.__name__, self._testMethodName))
 
 
 class TestGlobal(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        os.environ['extra_url'] = "http://pypi.lucterios.org/simple"
+        os.environ['extra_url'] = "http://192.168.0.206/simple/"
         delete_path(join(self.path_dir, 'extra_url'))
 
     def test_installed(self):
@@ -86,7 +88,7 @@ class TestGlobal(BaseTest):
             old_http_proxy = None
         try:
             self.assertEqual(
-                ['--quiet', '--extra-index-url', 'http://pypi.lucterios.org/simple', '--trusted-host', 'pypi.lucterios.org'], self.luct_glo.get_default_args_([]))
+                ['--quiet', '--extra-index-url', 'http://192.168.0.206/simple/', '--trusted-host', '192.168.0.206'], self.luct_glo.get_default_args_([]))
             del os.environ['extra_url']
             self.assertEqual(['--quiet'], self.luct_glo.get_default_args_([]))
             self.write_extraurl_file([])
