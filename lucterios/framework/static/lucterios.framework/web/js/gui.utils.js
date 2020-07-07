@@ -169,6 +169,7 @@ var GUIManage = GUIBasic
 					resize: $.proxy(function(event, ui) {
 						unusedVariables(event, ui);
 						var tabid;
+						this.change_size_childreen();
 						if ((this.mCallback !== null) && (this.mCallback.gui_finalize !== undefined)) {
 							this.mCallback.gui_finalize(0);
 							tabid = $("#" + this.mCallback.getId()).prop('tabid');
@@ -269,7 +270,6 @@ var GUIManage = GUIBasic
 				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
 				$("#" + this.mId + " .tabContent").each(function() {
 					$(this).tabs({
-						heightStyle: "fill",
 						activate : $.proxy(function(event, ui) {
 							var tabid = ui.newTab.index();
 							unusedVariables(event);
@@ -308,6 +308,20 @@ var GUIManage = GUIBasic
 						btn.find('img').remove();
 						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
 					}
+				}
+				this.change_size_childreen();
+			},
+
+			change_size_childreen : function() {
+				var childreen, height, sum_height=0, child_idx, new_height;
+				childreen = $("#" + this.mId)[0].childNodes;
+				if (childreen.length>1) {
+					for(child_idx=0;child_idx<childreen.length;child_idx++) {
+						sum_height=sum_height+childreen[child_idx].clientHeight;
+					}
+					height=$("#" + this.mId)[0].clientHeight;
+					new_height = childreen[childreen.length-1].clientHeight + height - sum_height - 25;
+					childreen[childreen.length-1].style["min-height"] = new_height+"px";
 				}
 			},
 

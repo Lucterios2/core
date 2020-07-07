@@ -280,7 +280,6 @@ italic {
 }
 
 .ui-tabs-panel {
-	max-height: 400px;
 	overflow: auto;
 }
 

@@ -90,9 +90,25 @@ def get_user_path(rootpath, filename):
 
 
 def readimage_to_base64(file_path, with_prefix=True):
+    def get_prefix(image_bin):
+        import re
+        check_img_ext = re.compile(r'^[a-z]{3}$')
+        prefix = BASE64_PREFIX
+        try:
+            image_ext = file_path[-3:].lower().lower()
+            if check_img_ext.match(image_ext):
+                prefix = BASE64_PREFIX.replace('*', image_ext)
+            else:
+                image_ext = image_bin[1:4].decode().lower()
+                if check_img_ext.match(image_ext):
+                    prefix = BASE64_PREFIX.replace('*', image_ext)
+        except Exception:
+            pass
+        return prefix
     with open(file_path, "rb") as image_file:
         if with_prefix:
-            return get_binay(BASE64_PREFIX) + b64encode(image_file.read())
+            image_bin = image_file.read()
+            return get_binay(get_prefix(image_bin)) + b64encode(image_bin)
         else:
             return b64encode(image_file.read())
 
