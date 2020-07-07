@@ -32,7 +32,7 @@ import logging
 import os
 import signal
 from socket import socket, AF_INET, SOCK_STREAM
-from os.path import isfile
+from os.path import isfile, join, dirname
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
 from traceback import print_exc
@@ -118,10 +118,14 @@ class RunServer(object):
 
     def start(self):
         self.stop()
-        cmd = [sys.executable, 'manage_%s.py' % self.instance_name, 'runserver',
-               '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
+        current_env = os.environ.copy()
+        current_env['DJANGO_SETTINGS_MODULE'] = '%s.settings' % self.instance_name
+        gunicorn_path = join(dirname(sys.executable), "gunicorn")
+        cmd = [gunicorn_path, "lucterios.framework.wsgi",
+               "--bind", '0.0.0.0:%d' % self.port, "-w", "1", "--timeout", "600",
+               "--access-logfile", join(self.instance_name, "access.log"), "--error-logfile", join(self.instance_name, "error.log")]
         logging.getLogger(__name__).info("start instance : %s" % cmd)
-        self.process = Popen(cmd)
+        self.process = Popen(cmd, env=current_env)
         sleep(3.0)
         if self.process.poll() is not None:
             self.stop()
@@ -271,6 +275,7 @@ class LucteriosMain(object):
                 # print('updating')
                 self.splash.update()
             self.run_all_needed()
+            self.run_after(1000, lambda: Thread(target=self.check).start())
         finally:
             self.remove_splash_screen()
 

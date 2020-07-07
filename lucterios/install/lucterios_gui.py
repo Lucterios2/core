@@ -503,8 +503,6 @@ class LucteriosMainForm(Tk, LucteriosMain):
         self.module_txt.config(state=DISABLED)
         self.has_checked = True
 
-        self.run_after(1000, lambda: Thread(target=self.check).start())
-
     def _refresh_instance_list(self):
         self.instance_list.delete(0, END)
         luct_glo = LucteriosGlobal()

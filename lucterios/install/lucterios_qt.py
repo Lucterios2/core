@@ -492,18 +492,20 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         except Exception:
             self.instance.setText("<h1><center>%s</center></h1>" % self.instances_model.current_item)
 
+    def check(self):
+        self.statusBar().showMessage(ugettext("Search upgrade"))
+        LucteriosMain.check(self)
+
     def set_modules_info(self):
         if self.about_dlg is None:
             self.about_dlg = AboutDlg(ugettext("Lucterios launcher"))
         self.about_dlg.refresh_data()
-
         self.has_checked = True
-        self.run_after(1000, lambda: Thread(target=self.check).start())
-        self.statusBar().showMessage(ugettext("Search upgrade"))
 
     def refresh_all(self):
         self.has_checked = False
         self.instances_model.refresh()
+        self.run_after(1000, lambda: Thread(target=self.check).start())
 
     def refresh(self, instance_name=None):
         if instance_name == '':
