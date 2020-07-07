@@ -1,4 +1,4 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,G_Version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,get_version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
 /*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 
 function insertStyle(rule) {
@@ -115,7 +115,7 @@ function about_function() {
 	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>" + "<table width='100%'>" + "<tr><td colspan='2'><font size='+1'><center>"
 			+ Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>" + "<tr><td><center>"
 			+ Singleton().getTranslate("Server") + "</td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>" + "<tr><td><center>"
-			+ Singleton().getTranslate("AJAX client") + "</td><td><center>" + G_Version + "</center></td></tr>" + "</table>", 3);
+			+ Singleton().getTranslate("AJAX client") + "</td><td><center>" + get_version() + "</center></td></tr>" + "</table>", 3);
 	table[3] = [];
 	table[3][0] = new compBasic("<center><img src='images/LucteriosImage.png'></center>", 3);
 	table[4] = [];

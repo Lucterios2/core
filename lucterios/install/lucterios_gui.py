@@ -43,7 +43,7 @@ from tkinter.messagebox import showerror, showinfo, askokcancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter import Image
 from lucterios.install.graphic_lib import ThreadRun, LucteriosMain,\
-    EditorInstance
+    EditorInstance, LucteriosChecker
 
 READLONY = 'readonly'
 VALUES = 'values'
@@ -327,7 +327,6 @@ class LucteriosMainForm(Tk, LucteriosMain):
             self.tk.call('wm', 'iconphoto', self._w, self.img)
         except Exception:
             self.img = None
-        self.start_up_app()
         self.has_checked = False
         self.title(ugettext("Lucterios launcher"))
         self.minsize(475, 260)
@@ -359,6 +358,11 @@ class LucteriosMainForm(Tk, LucteriosMain):
         self.btnupgrade.grid(row=0, column=1, padx=3, pady=3, sticky=(N, S))
         Button(self.btnframe, text=ugettext("Close"), width=20, command=self.on_closing).grid(
             row=0, column=2, padx=3, pady=3, sticky=(N, S))
+        self.start_up_app()
+
+    def show(self):
+        self.update()
+        self.deiconify()
 
     def show_splash_screen(self):
         if sys.platform != 'darwin':
@@ -652,8 +656,13 @@ class LucteriosMainForm(Tk, LucteriosMain):
 
 def main():
     setup_from_none()
-    lct_form = LucteriosMainForm()
-    lct_form.execute()
+    with LucteriosChecker() as checher:
+        if checher.execute():
+            lct_form = LucteriosMainForm()
+            checher.open_function = lambda: lct_form.show()
+            lct_form.execute()
+        else:
+            sys.exit(1)
 
 
 if __name__ == '__main__':

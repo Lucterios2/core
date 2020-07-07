@@ -2,7 +2,17 @@
  * User: lag Date: 26/11/13 Time: 13:49 Config unit for lucterios client
  */
 
-var G_Version = '1.2.0.17111115';
+function get_version() {
+	var allText, rawFile = new XMLHttpRequest();
+	rawFile.open("GET", "conf/build", false);
+	rawFile.onreadystatechange = function() {
+		if (rawFile.readyState === 4) {
+			allText = rawFile.responseText;
+		}
+	}
+	rawFile.send();
+	return allText;
+}
 
 var G_With_Extra_Menu = false;
 

@@ -326,10 +326,13 @@ class LucteriosGlobal(LucteriosManage):
         if clear_info:
             self.clear_info_()
         for instance in instances:
-            luct = LucteriosInstance(
-                instance, instance_path=self.instance_path)
-            luct.refresh()
-            self.print_info_("Refresh %s" % instance)
+            try:
+                luct = LucteriosInstance(instance, instance_path=self.instance_path)
+                luct.refresh()
+            except Exception as error:
+                self.print_info_("Bad refresh %s (%s)" % (instance, error))
+            finally:
+                self.print_info_("Refresh %s" % instance)
         return instances
 
 

@@ -42,7 +42,8 @@ from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
-from lucterios.install.graphic_lib import LucteriosMain, EditorInstance
+from lucterios.install.graphic_lib import LucteriosMain, EditorInstance,\
+    LucteriosChecker
 
 
 class InstanceModel(QAbstractListModel):
@@ -682,6 +683,9 @@ class LucteriosTrayIcon(QSystemTrayIcon):
     def __init__(self):
         self.lct = LucteriosQtMain()
         QSystemTrayIcon.__init__(self, QIcon(self.lct.img_path))
+        self._init_gui()
+
+    def _init_gui(self):
         self.launchAct = QAction(QIcon(join(self.lct.icon_path, 'config.png')), ugettext("Open"), self)
         self.launchAct.triggered.connect(self.open)
         self.exitAct = QAction(QIcon(join(self.lct.icon_path, 'exit.png')), ugettext('Exit'), self)
@@ -706,10 +710,16 @@ class LucteriosTrayIcon(QSystemTrayIcon):
 
 def main():
     setup_from_none()
-    app = QApplication(sys.argv)
-    traylct = LucteriosTrayIcon()
-    traylct.show()
-    sys.exit(app.exec_())
+    with LucteriosChecker() as checher:
+        if checher.execute():
+            app = QApplication(sys.argv)
+            traylct = LucteriosTrayIcon()
+            checher.open_function = lambda: traylct.open()
+            traylct.show()
+            exit_ret = app.exec_()
+        else:
+            exit_ret = 1
+        sys.exit(exit_ret)
 
 
 if __name__ == '__main__':

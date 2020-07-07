@@ -31,6 +31,7 @@ import webbrowser
 import logging
 import os
 import signal
+from socket import socket, AF_INET, SOCK_STREAM
 from os.path import isfile
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
@@ -117,8 +118,9 @@ class RunServer(object):
 
     def start(self):
         self.stop()
-        cmd = [sys.executable, 'manage_%s.py' % self.instance_name,
-               'runserver', '--nostatic', '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
+        cmd = [sys.executable, 'manage_%s.py' % self.instance_name, 'runserver',
+               '--noreload', '--traceback', '0.0.0.0:%d' % self.port]
+        logging.getLogger(__name__).info("start instance : %s" % cmd)
         self.process = Popen(cmd)
         sleep(3.0)
         if self.process.poll() is not None:
@@ -196,6 +198,60 @@ class EditorInstance(object):
         return lct_inst, applis_id, mode_id, typedb_index, current_lang
 
 
+class LucteriosChecker(Thread):
+
+    HOST = '127.0.0.1'
+    PORT = 9901
+
+    def __init__(self):
+        Thread.__init__(self)
+        self.open_function = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _type, _value, _tb):
+        self.stop()
+
+    def run(self):
+        try:
+            while self.loop:
+                conn, _addr = self.current_socket.accept()
+                with conn:
+                    while self.loop:
+                        binary_data = conn.recv(1024)
+                        if not binary_data:
+                            break
+                        if self.open_function is not None:
+                            self.open_function()
+                        conn.sendall(b'OK')
+        finally:
+            self.stop()
+
+    def stop(self):
+        self.loop = False
+        self.current_socket.close()
+
+    def send_message(self):
+        with socket(AF_INET, SOCK_STREAM) as client_socket:
+            client_socket.connect((self.HOST, self.PORT))
+            client_socket.sendall(b'OPEN')
+            client_socket.recv(1024)
+
+    def execute(self):
+        try:
+            self.current_socket = socket(AF_INET, SOCK_STREAM)
+            self.current_socket.bind((self.HOST, self.PORT))
+            self.current_socket.listen()
+            self.loop = True
+            self.start()
+            return True
+        except OSError:
+            print("Exist yet, open windows")
+            self.send_message()
+            return False
+
+
 class LucteriosMain(object):
 
     show_error_fct = None
@@ -235,7 +291,7 @@ class LucteriosMain(object):
             if pid is not None:
                 try:
                     os.kill(pid, signal.SIGTERM)
-                except ProcessLookupError:
+                except (ProcessLookupError, OSError):
                     pass
             if port is not None:
                 self.open_inst(instance_name, port)
