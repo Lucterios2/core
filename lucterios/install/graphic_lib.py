@@ -120,10 +120,7 @@ class RunServer(object):
         self.stop()
         current_env = os.environ.copy()
         current_env['DJANGO_SETTINGS_MODULE'] = '%s.settings' % self.instance_name
-        gunicorn_path = join(dirname(sys.executable), "gunicorn")
-        cmd = [gunicorn_path, "lucterios.framework.wsgi",
-               "--bind", '0.0.0.0:%d' % self.port, "-w", "1", "--timeout", "600",
-               "--access-logfile", join(self.instance_name, "access.log"), "--error-logfile", join(self.instance_name, "error.log")]
+        cmd = [sys.executable, "-m", "waitress", "--port", str(self.port), "lucterios.framework.wsgi:application"]
         logging.getLogger(__name__).info("start instance : %s" % cmd)
         self.process = Popen(cmd, env=current_env)
         sleep(3.0)
