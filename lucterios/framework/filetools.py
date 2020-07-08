@@ -31,6 +31,7 @@ from os.path import join, exists, dirname, isfile
 from os import makedirs, environ
 from hashlib import md5
 from _io import BytesIO
+from re import match
 import io
 
 
@@ -89,6 +90,10 @@ def get_user_path(rootpath, filename):
     return join(root_path, filename)
 
 
+def is_image_base64(image_content):
+    return match(BASE64_PREFIX.replace('*', '.+'), image_content) is not None
+
+
 def readimage_to_base64(file_path, with_prefix=True):
     def get_prefix(image_bin):
         import re
@@ -114,8 +119,8 @@ def readimage_to_base64(file_path, with_prefix=True):
 
 
 def save_from_base64(base64stream):
-    if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
-        stream = base64stream[len(BASE64_PREFIX):]
+    if is_image_base64(base64stream):
+        _, stream = base64stream.split(";base64,")
         md5res = md5()
         md5res.update(stream)
         file_name = md5res.hexdigest() + ".jpg"
@@ -128,8 +133,8 @@ def save_from_base64(base64stream):
 
 
 def open_from_base64(base64stream):
-    if base64stream[:len(BASE64_PREFIX)] == BASE64_PREFIX:
-        stream = base64stream[len(BASE64_PREFIX):]
+    if is_image_base64(base64stream):
+        _, stream = base64stream.split(";base64,")
     else:
         _, stream = base64stream.split(";")
     return BytesIO(b64decode(stream))
@@ -178,7 +183,7 @@ def get_image_size(image_path):
     from PIL import Image
     filep = None
     try:
-        if image_path[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+        if is_image_base64(image_path):
             filep = open_from_base64(image_path)
         else:
             filep = open(get_image_absolutepath(image_path), "rb")

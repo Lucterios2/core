@@ -78,7 +78,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
         self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.5.')
         self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
-        self.assertEqual(self.response_json['connexion']['LOGONAME'][0:20], 'data:image/*;base64,')
+        self.assertEqual(self.response_json['connexion']['LOGONAME'][0:22], 'data:image/png;base64,')
         self.assertEqual(self.response_json['connexion']['SUPPORT_EMAIL'][0:8], 'support@')
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')

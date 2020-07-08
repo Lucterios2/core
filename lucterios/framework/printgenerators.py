@@ -36,7 +36,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.tools import toHtml, format_to_string
-from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size
+from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
 from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract
 
@@ -158,7 +158,7 @@ class PrintImage(PrintItem):
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
         if self.comp.type != '':
-            if self.comp.value[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+            if is_image_base64(self.comp.value):
                 self.value = self.comp.value
             else:
                 self.value = BASE64_PREFIX + self.comp.value
@@ -254,7 +254,7 @@ class PrintTable(PrintItem):
             for value in row:
                 xml_text = convert_to_html(
                     'cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
-                if value[:len(BASE64_PREFIX)] == BASE64_PREFIX:
+                if is_image_base64(value):
                     xml_text.attrib['image'] = "1"
                 new_row.append(xml_text)
 

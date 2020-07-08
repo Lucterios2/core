@@ -28,8 +28,8 @@ from os import unlink, system
 from reportlab.pdfgen import canvas
 from lxml import etree
 from logging import getLogger
-from re import compile, sub
-
+from re import sub
+from copy import deepcopy
 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
@@ -40,8 +40,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.tables import TableStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
-from lucterios.framework.filetools import BASE64_PREFIX, open_from_base64
-from copy import deepcopy
+from lucterios.framework.filetools import open_from_base64, is_image_base64
 
 
 def get_size(xmltext, name):
@@ -530,7 +529,7 @@ class LucteriosPDF(object):
             row_line = []
             col_idx = 0
             for cell in row.xpath('cell'):
-                if (cell.text is not None) and (cell.text[:len(BASE64_PREFIX)] == BASE64_PREFIX):
+                if (cell.text is not None) and is_image_base64(cell.text):
                     img = self.parse_image(cell, -1000, -1000, None, None)
                     row_line.append(img)
                 else:
@@ -554,8 +553,7 @@ class LucteriosPDF(object):
             from PIL import ImageFile
             ImageFile.LOAD_TRUNCATED_IMAGES = True
             img_content = xmlimage.text.strip()
-            is_base64 = img_content[:len(BASE64_PREFIX)] == BASE64_PREFIX
-            if is_base64:
+            if is_image_base64(img_content):
                 img_file = open_from_base64(img_content)
             else:
                 img_file = open(img_content, "rb")
