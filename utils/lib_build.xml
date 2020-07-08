@@ -42,6 +42,9 @@
 		<antcall target="del_instance" />
 	</target>
 
+	<target name="clear_addon">
+	</target>
+
 	<target name="clear">
 		<delete dir="dist" />
 		<delete dir="${project.test.instance}" />
@@ -66,7 +69,7 @@
 				<delete dir="${basedir}/@{packageitem}/static/${module_name}/doc_en" />
 			</sequential>
 		</for>
-
+		<antcall target="clear_addon"/>
 	</target>
 
 	<target name="init_addon">

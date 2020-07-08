@@ -1,0 +1,13 @@
+{
+  "name": "Client Lucterios",
+  "short_name": "Client Lucterios",
+  "description": "Javascript client for Lucterios.",
+  "start_url": "index.html",
+  "scope": "index.html",
+  "icons": [],
+  "default_locale": "fr",
+  "display": "standalone",
+  "background_color": "#FFF",
+  "theme_color": "#000",
+  "orientation": "landscape"
+}

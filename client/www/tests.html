@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Tests du Client Lucterios AJAX</title>
+<link rel="stylesheet" href="css/font-awesome.min.css" />
+<link rel="stylesheet" href="test/qunit-1.12.0.css">
+<link rel="stylesheet" href="lib/jquery-ui.min.css" />
+<link rel="stylesheet" href="lib/jquery-ui.structure.min.css" />
+<link rel="stylesheet" href="lib/jquery-te-1.4.0.css" />
+<link rel="stylesheet" href="lib/jquery.splitter.css" />
+<link rel="stylesheet" href="lib/jquery.contextMenu.min.css" />
+<link rel="stylesheet" href="css/lct-ui.theme.css?v=1.4.0" />
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture"></div>
+	<script src="test/qunit-1.12.0.js"></script>
+	<script src="lib/head.min.js"></script>
+	<script src="conf/conf.js?v=1.4.0"></script>
+	<script src="js/import.js?v=1.4.0"></script>
+	<div id="lucteriosClient"></div>
+	<script type="text/javascript" src="cordova.js"></script>
+	<script>
+		head.js("test/mock.js?v=1.4.0", "test/tranportRest.js?v=1.4.0", "test/action.js?v=1.4.0", "test/observer_factoryRest.js?v=1.4.0", 
+				"test/observer.js?v=1.4.0","test/observer.custom.js?v=1.4.0", "test/observer.menu.js?v=1.4.0")
+	</script>
+</body>
+</html>

@@ -7,19 +7,36 @@
 	<property name="project.packname" value="lucterios.egg-info" />
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
+	<property name="web.client" value="client/www/" />
+	<property name="web.browser" value="client/platforms/browser/www/" />
 	<property name="web.path" value="lucterios/framework/static/lucterios.framework/web" />
 	<property name="web.version" value="1.4.0" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
-	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${web.path}/jslint/jslint4java-2.0.5.jar" />
+	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${web.client}/jslint/jslint4java-2.0.5.jar" />
+
+	<target name="clear_addon">
+		<mkdir dir="${web.path}" />
+		<delete dir="${web.path}" />
+		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
+			<arg value="clean" />
+		</exec>
+	</target>
 
 	<target name="init_addon">
-		<copy file="${web.path}/deployed/conf_template.js" tofile="${web.path}/conf/conf.js" />
-		<echo message="${web.version}.${build_number}" file="${web.path}/conf/build" append="false" />
+		<mkdir dir="${web.client}/conf" />
+		<echo message="${web.version}.${build_number}" file="${web.client}/conf/build" append="false" />
+		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
+			<arg value="build" />
+			<arg value="browser" />
+		</exec>
+		<copy todir="${web.path}">
+		  <fileset dir="${web.browser}"/>
+		</copy>
 		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
 			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
 			<formatter type="xml" destfile="jslint_results.xml" />
-			<fileset dir="${web.path}" includes="js/*.js" />
+			<fileset dir="${web.client}" includes="js/*.js" />
 		</jslint>
 	</target>
 
