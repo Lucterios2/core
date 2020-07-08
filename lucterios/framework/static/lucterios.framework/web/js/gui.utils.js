@@ -114,225 +114,241 @@ var GUIBasic = Class.extend({
 
 });
 
-var GUIManage = GUIBasic
-		.extend({
-			mButtons : [],
-			withForm : false,
-			defaultbtn : '',
+var GUIManage = GUIBasic.extend({
+	mButtons : [],
+	withForm : false,
+	defaultbtn : '',
 
-			addcontent : function(aHtmlBody, aButtons) {
-				if (this.withForm) {
-					this.mHtmlBody = '<form id="frm_{0}">{1}</form>'.format(this.mId, aHtmlBody);
-				} else {
-					this.mHtmlBody = aHtmlBody;
-				}
-				this.mButtons = aButtons;
-			},
+	addcontent : function(aHtmlBody, aButtons) {
+		if (this.withForm) {
+			this.mHtmlBody = '<form id="frm_{0}">{1}</form>'.format(this.mId, aHtmlBody);
+		} else {
+			this.mHtmlBody = aHtmlBody;
+		}
+		this.mButtons = aButtons;
+	},
 
-			get_button_list : function() {
-				var buttonlist = [], iAct, new_button = {};
-				for (iAct = 0; iAct < this.mButtons.length; iAct += 1) {
-					buttonlist[buttonlist.length] = this.mButtons[iAct].get_button();
-				}
+	get_button_list : function() {
+		var buttonlist = [], iAct, new_button = {};
+		for (iAct = 0; iAct < this.mButtons.length; iAct += 1) {
+			buttonlist[buttonlist.length] = this.mButtons[iAct].get_button();
+		}
 
-				if (buttonlist.length === 0) {
-					new_button = {
-						text : Singleton().getTranslate("Close")
-					};
-					if (this.mCallback !== null) {
-						new_button.click = $.proxy(function() {
-							this.close(true);
-						}, this.mCallback);
-					} else {
-						new_button.click = function() {
-							$(this).dialog("close");
-						};
-					}
-					buttonlist = [ new_button ];
-				}
-				return buttonlist;
-			},
-
-			buildStruct : function(isModal) {
-				var args = {}, titlebar = null;
-				args = {
-					title : this.mTitle,
-					width : 'auto',
-					height : 'auto',
-					modal : isModal,
-					classes : {
-						"ui-dialog" : "lct-dialog",
-						"ui-dialog-content" : "lct-dlgcontent",
-						"ui-dialog-buttonpane" : "lct-dlgbtnpn",
-						"ui-dialog-buttonset" : "lct-dlgbtnset"
-					},
-					resize: $.proxy(function(event, ui) {
-						unusedVariables(event, ui);
-						var tabid;
-						this.change_size_childreen();
-						if ((this.mCallback !== null) && (this.mCallback.gui_finalize !== undefined)) {
-							this.mCallback.gui_finalize(0);
-							tabid = $("#" + this.mCallback.getId()).prop('tabid');
-							if (tabid !== undefined) {
-								this.mCallback.gui_finalize(tabid+1);
-							} else {
-								this.mCallback.gui_finalize(1);
-							}																
-						}				
-					},this),
-					buttons : this.get_button_list(),
-					close : $.proxy(function(event, ui) {
-						unusedVariables(event, ui);
-						this.close();
-					}, this)
+		if (buttonlist.length === 0) {
+			new_button = {
+				text : Singleton().getTranslate("Close")
+			};
+			if (this.mCallback !== null) {
+				new_button.click = $.proxy(function() {
+					this.close(true);
+				}, this.mCallback);
+			} else {
+				new_button.click = function() {
+					$(this).dialog("close");
 				};
-				if (!isModal) {
-					args.width = 1200;
-					args.height = 600;					
-				}
-				$("#" + this.mId).dialog(args);
-				if (isModal) {
-					$("#" + this.mId).css('max-height', String($(window).height()-150)+'px');
-					$("#" + this.mId).parent().css('top', String(($(window).height()-$("#" + this.mId).parent().height())/2)+'px');
-				}
-				if (this.mCallback !== null) {
-					titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
-					$('<button id="refresh_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
-							.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
-							.append('<span class="ui-button-text">refresh</span>')
-							.appendTo(titlebar)
-							.hover(function() {$(this).addClass('ui-state-hover');}, function() {$(this).removeClass('ui-state-hover');})
-							.click($.proxy(function() {this.refresh();}, this.mCallback));
-					if (!isModal) {
-						$('<button id="fullscreen_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-fullscreen" role="button" aria-disabled="false" title="full"></button>')
-								.append('<span class="ui-button-icon-primary ui-icon ui-icon-arrow-4-diag"/>')
-								.append('<span class="ui-button-text">full</span>')
-								.appendTo(titlebar);
-						$("#fullscreen_"+ this.mId).click($.proxy(this.fullscreen, this));
-					}
-				}
-				$("#" + this.mId).keyup($.proxy(this.manageKey, this));
-				$("#" + this.mId).css("padding", "0em .5em 2em .5em");
-			},
-			
-			fullscreen : function() {
-				var id_hgt, parent_hgt, diff_hgt, new_width, new_height, new_top, new_left, old_size=$("#"+this.mId).data('old_size');
-				if ((old_size === undefined) || (old_size === null)) {
-					new_width = $(document).width();
-					new_height = $(document).height();
-					new_top = '0px';
-					new_left = '0px'; 
-					$("#"+this.mId).data('old_size', [$("#"+this.mId).parent().width(),$("#"+this.mId).parent().height(),$("#"+this.mId).parent().css('top'),$("#"+this.mId).parent().css('left')]);
-				} else {
-					new_width = old_size[0];
-					new_height = old_size[1];
-					new_top = old_size[2];
-					new_left = old_size[3];
-					$("#"+this.mId).data('old_size', null);
-				}
-				id_hgt = $("#"+this.mId).height();
-				parent_hgt=$("#"+this.mId).parent().height();
-				$("#"+this.mId).parent().css({
-			        'width': new_width,
-			        'height': new_height,
-			        'left': new_left,
-			        'top': new_top									
-				});
-				diff_hgt = $("#"+this.mId).parent().height() - parent_hgt;
-				$("#"+this.mId).height(id_hgt+diff_hgt);
-			},
-
-			manageKey : function(event) {
-				var btn;
-				if ((event.keyCode === 13) && (this.defaultbtn !== '')) {
-					btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
-					if (btn.length === 1) {
-						btn.click();
-                        btn.focusout();                                                                  
-                        btn.change();                                               
-					}
-				}
-			},
-
-			correctStruct : function() {
-				if ($("#" + this.mId).hasClass("ui-dialog-content")) {
-					$("#" + this.mId).dialog('option', 'buttons', this.get_button_list());
-				}
-			},
-
-			memorize_size : function() {
-				var jcnt = this.getHtmlDom();
-				jcnt[0].style.height = (jcnt[0].clientHeight + 10) + 'px';
-				jcnt[0].style.width = (jcnt[0].clientWidth + 5) + 'px';
-			},
-
-			buildFinal : function() {
-				var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
-				$("#" + this.mId + " .tabContent").each(function() {
-					$(this).tabs({
-						activate : $.proxy(function(event, ui) {
-							var tabid = ui.newTab.index();
-							unusedVariables(event);
-							this.parent().prop('tabid', tabid);
-							if ((callback !== null) && (callback.gui_finalize !== undefined)) {
-								callback.gui_finalize(tabid+1);
-							}				
-						}, $(this))
-					});
-				});
-				$(".datepicker").each(function() {
-					$(this).datepicker({
-						showOn : "button",
-						buttonImage : "images/calendar.png",
-						buttonImageOnly : true,
-						changeMonth : true,
-						changeYear : true,
-						dateFormat : 'dd/mm/yy'
-					}, $.datepicker.regional.fr);
-				});
-				$(".timespinner").each(function() {
-					$(this).timespinner();
-				});
-				for (iAct = 0; iAct < this.mButtons.length; iAct++) {
-					if (this.mButtons[iAct].getIcon() !== '') {
-						btn_icon = Singleton().Transport().getIconUrl(this.mButtons[iAct].getIcon());
-						btn = parent.find("div > div.lct-dlgbtnset > button:eq({0})".format(iAct));
-						btn.find('img').remove();
-						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
-					}
-				}
-				if (this.mButtons.length === 0) {
-					btn = parent.find("div > div.lct-dlgbtnset > button:eq(0)");
-					if ((btn.length === 1) && (parent.find("div > div > button:eq(1)").length === 0)) {
-						btn_icon = Singleton().Transport().getIconUrl("static/lucterios.CORE/images/close.png");
-						btn.find('img').remove();
-						btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
-					}
-				}
-				this.change_size_childreen();
-			},
-
-			change_size_childreen : function() {
-				var childreen, height, sum_height=0, child_idx, new_height;
-				childreen = $("#" + this.mId)[0].childNodes;
-				if (childreen.length>1) {
-					for(child_idx=0;child_idx<childreen.length;child_idx++) {
-						sum_height=sum_height+childreen[child_idx].clientHeight;
-					}
-					height=$("#" + this.mId)[0].clientHeight;
-					new_height = childreen[childreen.length-1].clientHeight + height - sum_height - 25;
-					childreen[childreen.length-1].style["min-height"] = new_height+"px";
-				}
-			},
-
-			dispose : function() {
-				if (document.getElementById(this.mId) !== null) {
-					$("#" + this.mId).dialog("destroy");
-					$("#" + this.mId).remove();
-				}
 			}
+			buttonlist = [ new_button ];
+		}
+		return buttonlist;
+	},
 
+	buildStruct : function(isModal) {
+		var args = {}, titlebar = null;
+		args = {
+			title : this.mTitle,
+			width : 'auto',
+			height : 'auto',
+			modal : isModal,
+			classes : {
+				"ui-dialog" : "lct-dialog",
+				"ui-dialog-content" : "lct-dlgcontent",
+				"ui-dialog-buttonpane" : "lct-dlgbtnpn",
+				"ui-dialog-buttonset" : "lct-dlgbtnset"
+			},
+			resize: $.proxy(function(event, ui) {
+				unusedVariables(event, ui);
+				var tabid;
+				this.change_size_childreen();
+				if ((this.mCallback !== null) && (this.mCallback.gui_finalize !== undefined)) {
+					this.mCallback.gui_finalize(0);
+					tabid = $("#" + this.mCallback.getId()).prop('tabid');
+					if (tabid !== undefined) {
+						this.mCallback.gui_finalize(tabid+1);
+					} else {
+						this.mCallback.gui_finalize(1);
+					}																
+				}				
+			},this),
+			buttons : this.get_button_list(),
+			close : $.proxy(function(event, ui) {
+				unusedVariables(event, ui);
+				this.close();
+			}, this)
+		};
+		if (!isModal) {
+			args.width = 1200;
+			args.height = 600;					
+		}
+		$("#" + this.mId).dialog(args);
+		if (isModal) {
+			$("#" + this.mId).css('max-height', String($(window).height()-150)+'px');
+			$("#" + this.mId).parent().css('top', String(($(window).height()-$("#" + this.mId).parent().height())/2)+'px');
+		}
+		if (this.mCallback !== null) {
+			titlebar = $("#" + this.mId).parent().find('.ui-dialog-titlebar');
+			$('<button id="refresh_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-refresh" role="button" aria-disabled="false" title="refresh"></button>')
+					.append('<span class="ui-button-icon-primary ui-icon ui-icon-refresh"/>')
+					.append('<span class="ui-button-text">refresh</span>')
+					.appendTo(titlebar)
+					.hover(function() {$(this).addClass('ui-state-hover');}, function() {$(this).removeClass('ui-state-hover');})
+					.click($.proxy(function() {this.refresh();}, this.mCallback));
+			if (!isModal) {
+				$('<button id="fullscreen_'+ this.mId + '" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only ui-dialog-titlebar-fullscreen" role="button" aria-disabled="false" title="full"></button>')
+						.append('<span class="ui-button-icon-primary ui-icon ui-icon-arrow-4-diag"/>')
+						.append('<span class="ui-button-text">full</span>')
+						.appendTo(titlebar);
+				$("#fullscreen_"+ this.mId).click($.proxy(this.fullscreen, this));
+			}
+		}
+		$("#" + this.mId).keyup($.proxy(this.manageKey, this));
+		$("#" + this.mId).css("padding", "0em .5em 2em .5em");
+	},
+	
+	resize_screen : function(width, height, top, left) {
+		var id_hgt, parent_hgt, diff_hgt;
+		id_hgt = $("#"+this.mId).height();
+		parent_hgt=$("#"+this.mId).parent().height();
+		$("#"+this.mId).parent().css({
+	        'width': width,
+	        'height': height,
+	        'left': left,
+	        'top': top									
 		});
+		diff_hgt = $("#"+this.mId).parent().height() - parent_hgt;
+		$("#"+this.mId).height(id_hgt+diff_hgt);
+	},
+	
+	fullscreen : function() {
+		var new_width, new_height, new_top, new_left, old_size=$("#"+this.mId).data('old_size');
+		if ((old_size === undefined) || (old_size === null)) {
+			new_width = $(document).width();
+			new_height = $(document).height();
+			new_top = '0px';
+			new_left = '0px'; 
+			$("#"+this.mId).data('old_size', [$("#"+this.mId).parent().width(),$("#"+this.mId).parent().height(),$("#"+this.mId).parent().css('top'),$("#"+this.mId).parent().css('left')]);
+		} else {
+			new_width = old_size[0];
+			new_height = old_size[1];
+			new_top = old_size[2];
+			new_left = old_size[3];
+			$("#"+this.mId).data('old_size', null);
+		}
+		this.resize_screen(new_width, new_height, new_top, new_left);
+	},
+
+	manageKey : function(event) {
+		var btn;
+		if ((event.keyCode === 13) && (this.defaultbtn !== '')) {
+			btn = $("#" + this.mCallback.getId()).find(this.defaultbtn);
+			if (btn.length === 1) {
+				btn.click();
+                btn.focusout();                                                                  
+                btn.change();                                               
+			}
+		}
+	},
+
+	correctStruct : function() {
+		if ($("#" + this.mId).hasClass("ui-dialog-content")) {
+			$("#" + this.mId).dialog('option', 'buttons', this.get_button_list());
+		}
+	},
+
+	memorize_size : function() {
+		var jcnt = this.getHtmlDom();
+		jcnt[0].style.height = (jcnt[0].clientHeight + 10) + 'px';
+		jcnt[0].style.width = (jcnt[0].clientWidth + 5) + 'px';
+	},
+
+	buildFinal : function() {
+		var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
+		$("#" + this.mId + " .tabContent").each(function() {
+			$(this).tabs({
+				activate : $.proxy(function(event, ui) {
+					var tabid = ui.newTab.index();
+					unusedVariables(event);
+					this.parent().prop('tabid', tabid);
+					if ((callback !== null) && (callback.gui_finalize !== undefined)) {
+						callback.gui_finalize(tabid+1);
+					}				
+				}, $(this))
+			});
+		});
+		$(".datepicker").each(function() {
+			$(this).datepicker({
+				showOn : "button",
+				buttonImage : "images/calendar.png",
+				buttonImageOnly : true,
+				changeMonth : true,
+				changeYear : true,
+				dateFormat : 'dd/mm/yy'
+			}, $.datepicker.regional.fr);
+		});
+		$(".timespinner").each(function() {
+			$(this).timespinner();
+		});
+		for (iAct = 0; iAct < this.mButtons.length; iAct++) {
+			if (this.mButtons[iAct].getIcon() !== '') {
+				btn_icon = Singleton().Transport().getIconUrl(this.mButtons[iAct].getIcon());
+				btn = parent.find("div > div.lct-dlgbtnset > button:eq({0})".format(iAct));
+				btn.find('img').remove();
+				btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
+			}
+		}
+		if (this.mButtons.length === 0) {
+			btn = parent.find("div > div.lct-dlgbtnset > button:eq(0)");
+			if ((btn.length === 1) && (parent.find("div > div > button:eq(1)").length === 0)) {
+				btn_icon = Singleton().Transport().getIconUrl("static/lucterios.CORE/images/close.png");
+				btn.find('img').remove();
+				btn.prepend('<img height="24px" src="{0}" />'.format(btn_icon));
+			}
+		}
+		this.change_size_childreen();
+	},
+
+	change_size_childreen : function() {
+		var childreen, height, sum_height=0, child_idx, new_height;
+		$("#"+this.mId).data('size', [$("#"+this.mId).parent().width(),$("#"+this.mId).parent().height(),$("#"+this.mId).parent().css('top'),$("#"+this.mId).parent().css('left')]);
+		childreen = $("#" + this.mId)[0].childNodes;
+		if (childreen.length>1) {
+			for(child_idx=0;child_idx<childreen.length;child_idx++) {
+				sum_height=sum_height+childreen[child_idx].clientHeight;
+			}
+			height=$("#" + this.mId)[0].clientHeight;
+			new_height = childreen[childreen.length-1].clientHeight + height - sum_height - 25;
+			childreen[childreen.length-1].style["min-height"] = new_height+"px";
+		}
+	},
+
+	reloadSize : function() {
+		var new_width, new_height, new_top, new_left, current_size=$("#"+this.mId).data('size');
+		if ((current_size !== undefined) && (current_size !== null)) {
+			new_width = current_size[0];
+			new_height = current_size[1];
+			new_top = current_size[2];
+			new_left = current_size[3];
+			this.resize_screen(new_width, new_height, new_top, new_left);
+		}
+	},
+	
+	dispose : function() {
+		if (document.getElementById(this.mId) !== null) {
+			$("#" + this.mId).dialog("destroy");
+			$("#" + this.mId).remove();
+		}
+	}
+
+});
 
 String.prototype.convertLuctoriosFormatToHtml = function() {
 	var text = this.replace(">", "&gt;");

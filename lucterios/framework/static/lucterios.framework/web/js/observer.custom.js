@@ -24,7 +24,7 @@ var ObserverCustom = ObserverGUI.extend({
 		this._super(aTitle, aGUIType);
 		this.setActive(true);
 
-		var comp_idx, fieldname, gui_val, tabid;
+		var comp_idx, fieldname, gui_val, tabid, old_size;
 		this.mGUI = new GUIManage(this.getId(), this.mTitle, this);
 		this.mGUI.addcontent(this.getHtmlFromComponent(), this.buildButtons());
 		this.mGUI.defaultbtn = this.mDefaultBtn;
@@ -49,6 +49,13 @@ var ObserverCustom = ObserverGUI.extend({
 		fieldname = $("#" + this.getId()).prop('fieldname');
 		if (fieldname !== undefined) {
 			$("#" + this.getId()).find("[name='{0}']:eq(0)".format(fieldname)).focus();
+		}
+		old_size=$("#"+this.getId()).data('old_size');
+		if ((old_size !== undefined) && (old_size !== null)) {
+			$("#"+this.getId()).data('old_size', null);
+			this.mGUI.fullscreen();
+		} else {
+			this.mGUI.reloadSize();
 		}
 
 	},
