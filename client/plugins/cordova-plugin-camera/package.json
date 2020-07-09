@@ -1,0 +1,179 @@
+{
+  "_args": [
+    [
+      "cordova-plugin-camera@4.1.0",
+      "/home/lag/dev/lct-core/client"
+    ]
+  ],
+  "_from": "cordova-plugin-camera@4.1.0",
+  "_hasShrinkwrap": false,
+  "_id": "cordova-plugin-camera@4.1.0",
+  "_inCache": true,
+  "_installable": true,
+  "_integrity": "",
+  "_location": "/cordova-plugin-camera",
+  "_nodeVersion": "12.3.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/cordova-plugin-camera_4.1.0_1562860092585_0.5723536708900867"
+  },
+  "_npmUser": {
+    "email": "piotrowski+npmjs.com@gmail.com",
+    "name": "sujan12"
+  },
+  "_npmVersion": "6.9.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "name": "cordova-plugin-camera",
+    "raw": "cordova-plugin-camera@4.1.0",
+    "rawSpec": "4.1.0",
+    "scope": null,
+    "spec": "4.1.0",
+    "type": "version"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-plugin-camera/-/cordova-plugin-camera-4.1.0.tgz",
+  "_shasum": "6474a3e080c4662aa00fd7425705d301c693ddc0",
+  "_shrinkwrap": null,
+  "_spec": "cordova-plugin-camera@4.1.0",
+  "_where": "/home/lag/dev/lct-core/client",
+  "author": {
+    "name": "Apache Software Foundation"
+  },
+  "bugs": {
+    "url": "https://github.com/apache/cordova-plugin-camera/issues"
+  },
+  "cordova": {
+    "id": "cordova-plugin-camera",
+    "platforms": [
+      "android",
+      "browser",
+      "ios",
+      "osx",
+      "windows"
+    ]
+  },
+  "dependencies": {},
+  "description": "Cordova Camera Plugin",
+  "devDependencies": {
+    "eslint": "^4.3.0",
+    "eslint-config-semistandard": "^11.0.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.3.0",
+    "eslint-plugin-node": "^5.0.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1"
+  },
+  "directories": {},
+  "dist": {
+    "fileCount": 54,
+    "integrity": "sha512-fCLhWjWYn49q3X5xaypAPgTz6MAWSKFFQvD2Gpi5SuVlrRPRphtX2jIqR2zCBuDTBR082QVnlc+yUDXt65Mjgw==",
+    "npm-signature": "-----BEGIN PGP SIGNATURE-----\r\nVersion: OpenPGP.js v3.0.4\r\nComment: https://openpgpjs.org\r\n\r\nwsFcBAEBCAAQBQJdJ1o9CRA9TVsSAnZWagAAlEcP/3407WcEwAZU7XyiJVYH\ngQuqEiFwmGTEZdNZtrQOQCUXtDaUR1rMqRZdwq+RAcrva7PqQsJxDUJm3Vcu\nP8vaWNkDSFWc4o8hzF0yY/qGsJPJZAVkckY4ewmh5dhFdflOGduhm2nE1dlS\n4Ypb3K+u/D56NrhAfcc6krA0kJUVn49PHNBjARYMI+k3iIRC8ByWL79EiHOg\neItzkwN3zkNXZ9femfNMfE2G9K6ARlpuXPwz4pd4YxJGMEjSs5DH4yX0COO5\n8xbkfeJdlEUhXNkBUl7+aozygK8es0z6hu1Mpmw7pnss8udTMapy3e66qRpN\nJy8tS6QdSHAiKma/+tmwABa/Kvr/+uNp9NDJ/zv8EOCr4EqnE++LiQt3Rexo\n/y8sVPTcGHJ5B2hyVPOLcLW6xA4/NW649rPdF0UBTNnRTu5qFNOt88qTKQO1\n1/pBnxB89Bb2rkypUt/F8uywS807LmKV9qgds9CdZMYC0QP8McDAH5el8ho7\nqcy4BxXPJZrHtwwHlfr+H5c+KtbeGSpJBYeNq9FAxYdw6IBw4On3PZYZHIOU\n8InDJTkCf5VJaIiGFisXiJbnKjg7YwG2r7A9hkcmC1bgeuVnG40/k3ZDEelK\nWwRfLh/AMYcgJQDqpqWzotUc54z9ErdnTRRwUkVa/kIBWeUoTVPl9HMkecHz\nKl97\r\n=Oqyo\r\n-----END PGP SIGNATURE-----\r\n",
+    "shasum": "6474a3e080c4662aa00fd7425705d301c693ddc0",
+    "tarball": "https://registry.npmjs.org/cordova-plugin-camera/-/cordova-plugin-camera-4.1.0.tgz",
+    "unpackedSize": 427595
+  },
+  "engines": {
+    "cordovaDependencies": {
+      "3.0.0": {
+        "cordova-android": ">=6.3.0"
+      },
+      "4.1.0": {
+        "cordova": ">=7.1.0",
+        "cordova-android": ">=6.3.0"
+      },
+      "5.0.0": {
+        "cordova": ">100"
+      }
+    }
+  },
+  "homepage": "https://github.com/apache/cordova-plugin-camera#readme",
+  "keywords": [
+    "camera",
+    "cordova",
+    "cordova-android",
+    "cordova-browser",
+    "cordova-ios",
+    "cordova-osx",
+    "cordova-windows",
+    "ecosystem:cordova"
+  ],
+  "license": "Apache-2.0",
+  "maintainers": [
+    {
+      "name": "filmaj",
+      "email": "maj.fil@gmail.com"
+    },
+    {
+      "name": "anis",
+      "email": "anis.kadri@gmail.com"
+    },
+    {
+      "name": "brodybits",
+      "email": "chris@brody.consulting"
+    },
+    {
+      "name": "cordovaowner",
+      "email": "apachecordovabot@gmail.com"
+    },
+    {
+      "name": "csantanapr",
+      "email": "csantana23@gmail.com"
+    },
+    {
+      "name": "dpogue",
+      "email": "darryl@dpogue.ca"
+    },
+    {
+      "name": "erisu",
+      "email": "erisu.dev@outlook.jp"
+    },
+    {
+      "name": "bowserj",
+      "email": "bowserj@apache.org"
+    },
+    {
+      "name": "jcesarmobile",
+      "email": "jcesarmobile@gmail.com"
+    },
+    {
+      "name": "macdonst",
+      "email": "simon.macdonald@gmail.com"
+    },
+    {
+      "name": "purplecabbage",
+      "email": "purplecabbage@gmail.com"
+    },
+    {
+      "name": "shazron",
+      "email": "shazron@gmail.com"
+    },
+    {
+      "name": "stevegill",
+      "email": "stevengill97@gmail.com"
+    },
+    {
+      "name": "sujan12",
+      "email": "piotrowski+npmjs.com@gmail.com"
+    },
+    {
+      "name": "surajpindoria",
+      "email": "suraj.pindoria@yahoo.com"
+    }
+  ],
+  "name": "cordova-plugin-camera",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apache/cordova-plugin-camera.git"
+  },
+  "scripts": {
+    "eslint": "node node_modules/eslint/bin/eslint www && node node_modules/eslint/bin/eslint src && node node_modules/eslint/bin/eslint tests",
+    "test": "npm run eslint"
+  },
+  "types": "./types/index.d.ts",
+  "version": "4.1.0"
+}

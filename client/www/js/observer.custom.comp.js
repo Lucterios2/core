@@ -1,4 +1,4 @@
-/*global $,LucteriosException,Uint8Array,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,format_to_string,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables*/
+/*global $,LucteriosException,Uint8Array,CRITIC,IMPORTANT,GRAVE,MINOR,compGeneric,Class,Singleton,format_to_string,post_log,SELECT_NONE,SELECT_SINGLE,SELECT_MULTI,zip,NULL_VALUE,unusedVariables,Camera*/
 /*jslint regexp: true */
 
 // image
@@ -236,7 +236,7 @@ var compButton = compAbstractEvent.extend({
 	isMini : false,
 	hasBeenClicked : false,
 	notify_performed : null,
-	btnaction : null,	
+	btnaction : null,
 	tag : 'button',
 
 	initial : function(component) {
@@ -248,9 +248,9 @@ var compButton = compAbstractEvent.extend({
 
 	actionPerformed : function() {
 		this.hasBeenClicked = true;
-		if (this.notify_performed!==null) {
+		if (this.notify_performed !== null) {
 			this.notify_performed();
-		}			
+		}
 		this.btnaction.actionPerformed();
 		this.hasBeenClicked = false;
 	},
@@ -497,7 +497,7 @@ var compFloat = compAbstractEvent.extend({
 			return NULL_VALUE;
 		}
 		val_num = this.getGUIComp().val();
-		val_num = val_num.replace(",", ".").replace(/[^0-9\.\-]/g,"");
+		val_num = val_num.replace(",", ".").replace(/[^0-9\.\-]/g, "");
 		if (isNaN(val_num)) {
 			val_num = 0;
 		}
@@ -1267,15 +1267,96 @@ var compUpload = compGeneric
 				this.httpFile = component.http_file;
 				this.maxsize = component.maxsize || 0;
 				this.tag = 'input';
+				this.selected_file = null;
 			},
 
 			get_Html : function() {
 				var html, args = {
 					'type' : "file",
-					'accept' : this.filter
+					'accept' : this.filter,
+					'style' : 'opacity: 0;width:75%;'
 				};
-				html = this.getBuildHtml(args, true, true);
-				return "<div class='drop_zone'>" + html + "<div>" + Singleton().getTranslate("Drag one file to this zone ...") + "</div>" + "</div>";
+				html = "<div class='drop_zone'>";
+				html += "<button class='fileSelect'>";
+				html += '<img src="{0}" title="{1}"/>'.format(Singleton().Transport().getIconUrl('static/lucterios.CORE/images/open.png'),
+						Singleton().getTranslate("File"));
+				html += "</button>";
+				html += "<button class='cameraTakePicture'>";
+				html += '<img src="{0}" title="{1}"/>'.format(Singleton().Transport().getIconUrl('static/lucterios.CORE/images/camera.png'),
+						Singleton().getTranslate("Picture"));
+				html += "</button>";
+				html += "<img class='pictureToUpload' style='display:none;'></img>";
+				html += "<div class='filename'>---</div>";
+				html += this.getBuildHtml(args, false, true);
+				html += "<div>";
+				html += Singleton().getTranslate("Drag one file to this zone ...");
+				html += "</div>";
+				html += "</div>";
+				return html;
+			},
+
+			addAction : function() {
+				var gui_comp = this.getGUIComp();
+				gui_comp.change($.proxy(this.fileselected, this));
+				gui_comp.parent().find('.fileSelect').click($.proxy(this.openfile, this));
+				gui_comp.parent().find('.cameraTakePicture').click($.proxy(this.cameraTakePicture, this));
+			},
+
+			openfile : function() {
+				var gui_comp = this.getGUIComp();
+				gui_comp.click();
+			},
+
+			fileselected : function() {
+				var comp = this.getGUIComp();
+				if (comp[0].files.length > 0) {
+					this.selected_file = comp[0].files[0];
+				} else {
+					this.selected_file = null;
+				}
+				this.getFileContentBase64();
+			},
+
+			getValue : function() {
+				var filename_comp = this.getGUIComp().parent().find('.filename'), image_comp = this.getGUIComp().parent().find('.pictureToUpload'), oFReader;
+				image_comp.prop('src', "");
+				image_comp.css('display','none');
+				if (this.selected_file !== null) {
+					filename_comp.text(this.selected_file.name);
+					if (this.selected_file.type.split('/')[0] === 'image') {
+						oFReader = new FileReader();
+						oFReader.onload = function(oFREvent) {
+							var image_data = new Image();
+							image_data.src = oFREvent.target.result;
+							image_data.onload = function () {
+			                    var margin_top = (50-(this.height*50/this.width))/2;
+			                    image_comp.css('margin-top','{0}px'.format(margin_top));
+							};
+							image_comp.prop('src', oFREvent.target.result);
+							image_comp.css('display','block');
+						};
+						oFReader.readAsDataURL(this.selected_file);
+					}
+				} else {
+					filename_comp.text("---");
+				}
+				return this.selected_file;
+			},
+
+			fillValue : function(params) {
+				var file_to_zip = this.getValue(), new_file;
+				if (file_to_zip !== null) {
+					if (this.content_isloading) {
+						throw new LucteriosException(MINOR, Singleton().getTranslate("Loading..."));
+					}
+					if (this.content !== null) {
+						params.put(this.name, this.content);
+						if (this.compress) {
+							new_file = this.getValue();
+							params.put(this.name + "_FILENAME", new_file.name);
+						}
+					}
+				}
 			},
 
 			getEncodeFile : function(fileToSend) {
@@ -1331,34 +1412,38 @@ var compUpload = compGeneric
 				}
 			},
 
-			addAction : function() {
-				var gui_comp = this.getGUIComp();
-				gui_comp.change($.proxy(this.getFileContentBase64, this));
+			cameraTakePicture : function() {
+				$("div.cordova-camera-capture").remove();
+				navigator.camera.getPicture($.proxy(this.onCamSuccess, this), $.proxy(this.onCamFail, this), {
+					quality : 50,
+					destinationType : Camera.DestinationType.DATA_URI,
+					encodingType : Camera.EncodingType.PNG,
+					allowEdit : true,
+					correctOrientation : true,
+					cameraDirection : Camera.Direction.BACK
+				});
 			},
 
-			getValue : function() {
-				var comp = this.getGUIComp();
-				if (comp[0].files.length > 0) {
-					return comp[0].files[0];
+			onCamSuccess : function(imageData) {
+				var bstr, img_size, u8arr, comp, img_file, image_name, today = new Date();
+				image_name = "image_{0}-{1}-{2}_{3}-{4}.png".format(today.getFullYear(), (today.getMonth() + 1).toString().lpad('0', 2), today.getDate().toString()
+						.lpad('0', 2), today.getHours().toString().lpad('0', 2), today.getMinutes().toString().lpad('0', 2));
+
+				comp = this.getGUIComp();
+				bstr = atob(imageData);
+				img_size = bstr.length;
+				u8arr = new Uint8Array(img_size);
+				while (img_size--) {
+					u8arr[img_size] = bstr.charCodeAt(img_size);
 				}
-				return null;
+				this.selected_file = new File([ u8arr ], image_name, {type : 'image/png'});
+				this.getFileContentBase64();
+				$("div.cordova-camera-capture").remove();				
 			},
 
-			fillValue : function(params) {
-				var file_to_zip = this.getValue(), new_file;
-				if (file_to_zip !== null) {
-					if (this.content_isloading) {
-						throw new LucteriosException(MINOR, Singleton().getTranslate("Loading..."));
-					}
-					if (this.content !== null) {
-						params.put(this.name, this.content);
-						if (this.compress) {
-							new_file = this.getValue();
-							params.put(this.name + "_FILENAME", new_file.name);
-						}
-					}
-				}
-			}
+			onCamFail : function() {
+				$("div.cordova-camera-capture").remove();			
+			},
 
 		});
 

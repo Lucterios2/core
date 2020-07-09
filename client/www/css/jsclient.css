@@ -329,7 +329,6 @@ italic {
 	height: 20px
 }
 
-
 .class_header {
 	cursor: pointer;
 }
@@ -363,8 +362,7 @@ italic {
 	left: -10px;
 }
 
-@
--moz-document url-prefix () { .lctbtnmini img {
+@supports (-moz-appearance:none ) { .lctbtnmini img {
 	position: relative;
 	left: -10px;
 }
@@ -675,10 +673,54 @@ img.memobtn {
 	background-color: #F0F0F0;
 	padding: 5px;
 	border-radius: 5px;
+	min-height: 55px;
 }
 
 .drop_zone div {
 	text-align: center;
 	width: 100%;
 	font-style: italic;
+}
+
+.drop_zone div.filename {
+	font-style: none;
+	font-weight: bold;
+}
+
+.drop_zone button.fileSelect {
+	width: 60px;
+	height: 50px;
+	float: left;
+}
+
+.drop_zone button.cameraTakePicture {
+	width: 60px;
+	height: 50px;
+	float: right;
+}
+
+.drop_zone button img {
+	width: 48px;
+	margin-top: -2px;
+	margin-left: -2px;
+}
+
+@supports (-moz-appearance:none ) { .drop_zone button img {
+	margin-top: -5px;
+	margin-left: -20px;
+}
+
+}
+.drop_zone img.pictureToUpload {
+	border: black solide 1px;
+	width: 50px;
+	margin-right: 5px;
+	float: right;
+}
+
+.cordova-camera-capture video {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	border: black solid 1px;
 }
