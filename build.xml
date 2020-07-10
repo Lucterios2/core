@@ -21,11 +21,14 @@
 		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
 			<arg value="clean" />
 		</exec>
+		<mkdir dir="${basedir}/client/platforms/electron/build" />
 	</target>
 
 	<target name="init_addon">
 		<mkdir dir="${web.client}/conf" />
 		<echo message="${web.version}.${build_number}" file="${web.client}/conf/build" append="false" />
+		<replaceregexp file="${basedir}/client/config.xml" match='version="[0-9\.]+"' replace='version="${web.version}"' byline="true" />	
+		<replaceregexp file="${basedir}/client/package.json" match='"version": "[0-9\.]+",' replace='"version": "${web.version}",' byline="true" />	
 		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
 			<arg value="build" />
 			<arg value="browser" />

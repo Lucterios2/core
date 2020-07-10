@@ -1,4 +1,4 @@
-/*global $,Class,HashMap,post_log,g_translation, Uint8Array, unusedVariables, URL*/
+/*global $,Class,HashMap,post_log,g_translation, Uint8Array, unusedVariables, URL, device*/
 
 var SingletonObj = null;
 var g_InitialCallBack = null;
@@ -187,4 +187,8 @@ var SingletonClose = function() {
 		SingletonObj.close();
 	}
 	SingletonObj = null;
+};
+
+var get_device_info = function() {
+	return Singleton().getTranslate("{0} on {1}").format(device.platform, device.model);
 };

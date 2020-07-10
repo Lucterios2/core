@@ -1,0 +1,22 @@
+{
+	"electron": {
+		"linux": {
+			"package": [
+				"tar.gz",
+				"deb",
+				"rpm"
+			]
+		},
+		"mac": {
+			"package": [
+				"dmg"
+			]
+		},
+		"windows": {
+			"package": [
+				"nsis",
+				"zip"
+			]
+		}
+	}
+}

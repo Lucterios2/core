@@ -1,4 +1,4 @@
-/*global $,Class,navigator,ObserverAbstract,get_version,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack,LucteriosException,IMPORTANT */
+/*global $,Class,navigator,ObserverAbstract,get_version,get_device_info,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack,LucteriosException,IMPORTANT */
 
 var ApplicationDescription = Class.extend({
 
@@ -156,15 +156,15 @@ var ApplicationDescription = Class.extend({
 		if ((aComplement !== null) && (aComplement.length > 0)) {
 			resValue += aComplement + "<br>";
 		}
-		resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>" + "<table width='100%'>" + "<tr><td><center>"
-				+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
-				+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion
-				+ "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("AJAX Client") + "</center></td><td><center>" + get_version()
-				+ "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Browser") + "</center></td><td><center><font size='-1'>"
-				+ navigator.userAgent.replace(') ', ')<br>') + "</font></center></td></tr>" + "<tr><td><center>"
-				+ Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>'
-				+ get_serverurl() + "</font></center></td></tr>" + "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth
-				+ "</i></font></center></td></tr>" + "</table><hr>";
+		resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>" + 
+				"<table width='100%'>" 
+				+ "<tr><td><center>"+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
+				+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion + "</center></td></tr>"
+				+ "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>"
+				+ "<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info() + "</center></td></tr>" 
+				+ "<tr><td><center>" + Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>' + get_serverurl() + "</font></center></td></tr>" 
+				+ "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth + "</i></font></center></td></tr>" 
+				+ "</table><hr>";
 		if ((this.mInfoServer !== null) && (this.mInfoServer.length > 0)) {
 			resValue += this.mInfoServer.convertLuctoriosFormatToHtml() + "<br>";
 		}

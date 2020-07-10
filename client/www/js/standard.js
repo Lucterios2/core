@@ -1,5 +1,5 @@
 /*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,get_version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
-/*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint,device*/
+/*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint,get_device_info*/
 
 function insertStyle(rule) {
 	var css = document.createElement("style");
@@ -101,10 +101,6 @@ function sendsupport_function() {
 	window.location = Singleton().mDesc.fillEmailSupport(Singleton().getTranslate("Bug report"), complement);
 }
 
-function get_device_info(){
-		return Singleton().getTranslate("{0} on {1}").format(device.platform,device.model);
-}
-
 function about_function() {
 	var mDescription = Singleton().mDesc, table = [], html, acts = [];
 	table[0] = [];
@@ -119,9 +115,9 @@ function about_function() {
 	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>" + 
 			"<table width='100%'>" + 
 			"<tr><td colspan='2'><font size='+1'><center>" + Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Server") + "</td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</td><td><center>" + get_version() + "</center></td></tr>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Device client") + "</td><td><center>" + get_device_info() + "</center></td></tr>" + 
+			"<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>" + 
+			"<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>" + 
+			"<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info() + "</center></td></tr>" + 
 			"</table>", 3);
 	table[3] = [];
 	table[3][0] = new compBasic("<center><img src='images/LucteriosImage.png'></center>", 3);
