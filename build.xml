@@ -21,7 +21,7 @@
 		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
 			<arg value="clean" />
 		</exec>
-		<mkdir dir="${basedir}/client/platforms/electron/build" />
+		<delete dir="${basedir}/client/platforms/electron/build" />
 	</target>
 
 	<target name="init_addon">
