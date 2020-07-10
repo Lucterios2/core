@@ -264,12 +264,6 @@ var GUIManage = GUIBasic.extend({
 		}
 	},
 
-	memorize_size : function() {
-		var jcnt = this.getHtmlDom();
-		jcnt[0].style.height = (jcnt[0].clientHeight + 10) + 'px';
-		jcnt[0].style.width = (jcnt[0].clientWidth + 5) + 'px';
-	},
-
 	buildFinal : function() {
 		var parent = $("#" + this.mId).parent(), iAct, btn_icon, btn, callback=this.mCallback;
 		$("#" + this.mId + " .tabContent").each(function() {
@@ -325,7 +319,7 @@ var GUIManage = GUIBasic.extend({
 				sum_height=sum_height+childreen[child_idx].clientHeight;
 			}
 			height=$("#" + this.mId)[0].clientHeight;
-			new_height = childreen[childreen.length-1].clientHeight + height - sum_height - 25;
+			new_height = childreen[childreen.length-1].clientHeight + height - sum_height - 50;
 			childreen[childreen.length-1].style["min-height"] = new_height+"px";
 		}
 	},

@@ -37,7 +37,7 @@ from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
 from lucterios.framework.models import get_format_from_field, extract_format,\
     LucteriosVirtualField
 from lucterios.framework.xferbasic import NULL_VALUE
-from lucterios.framework.filetools import md5sum, BASE64_PREFIX
+from lucterios.framework.filetools import md5sum, is_image_base64
 
 
 class XferComponent(object):
@@ -847,7 +847,7 @@ class XferCompGrid(XferComponent):
                     try:
                         first_record = query_set[0]
                         first_value = getattr(first_record, fieldname)
-                        if isinstance(first_value, str) and first_value.startswith(BASE64_PREFIX):
+                        if isinstance(first_value, str) and is_image_base64(first_value):
                             hfield = 'icon'
                     except Exception:
                         pass

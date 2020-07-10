@@ -36,9 +36,6 @@ var ObserverCustom = ObserverGUI.extend({
 				gui_val.getGUIComp().focusin($.proxy(this.savefocusin, this));
 			}
 		}
-		if (aGUIType === FORM_MODAL) {
-			this.mGUI.memorize_size();
-		}
 		this.gui_finalize(0);
 		tabid = $("#" + this.getId()).prop('tabid');
 		if (tabid !== undefined) {

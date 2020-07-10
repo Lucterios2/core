@@ -68,7 +68,7 @@ var ObserverException = ObserverAbstract.extend({
     },
 
     except_show : function () {
-        var err_title = '', image_name = '', image_url = '', table = [], titles = [], contents = [], extra_id, rep, pos, comp, current_gui, self;
+        var jcnt, err_title = '', image_name = '', image_url = '', table = [], titles = [], contents = [], extra_id, rep, pos, comp, current_gui, self;
         switch (this.code) {
         case FAILURE:
         case CRITIC:
@@ -152,7 +152,9 @@ var ObserverException = ObserverAbstract.extend({
         });
         comp.find("table:eq(0) > tbody > tr:eq(2) > td:eq(0)").hide();
         this.mGUI.moveCenter();
-        this.mGUI.memorize_size();
+	jcnt = this.mGUI.getHtmlDom();
+	jcnt[0].style.height = (jcnt[0].clientHeight + 10) + 'px';
+	jcnt[0].style.width = (jcnt[0].clientWidth + 5) + 'px';
     },
 
     sendSupport : function () {

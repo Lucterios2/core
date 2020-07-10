@@ -266,22 +266,23 @@ class ConvertHTML_XMLReportlab(object):
         self.options = options
         self.fill_text_if_not_null(html_items, self.xmlrl_result)
         for self.html_item in html_items:
-            xmlrl_item = self.create_xml_node()
-            if xmlrl_item is not None:
-                new_parser = self.__class__(xmlrl_item, self.no_para)
-                new_parser.run(self.html_item, self.options)
-                if xmlrl_item.tag == 'para':
-                    self._reoganize_para(xmlrl_item)
-                    if self.html_item.tag in self.options.keys():
-                        self.options[self.html_item.tag] -= 1
-                elif xmlrl_item.tag == 'span':
-                    self.xmlrl_result.extend(xmlrl_item)
-                    self.fill_text_if_not_null(xmlrl_item, self.xmlrl_result)
-                elif (len(xmlrl_item) > 0) and (xmlrl_item[0].tag == 'para'):
-                    self._switch_para(xmlrl_item)
-                else:
-                    self.xmlrl_result.append(xmlrl_item)
-                self.manage_chip()
+            if isinstance(self.html_item.tag, str):
+                xmlrl_item = self.create_xml_node()
+                if xmlrl_item is not None:
+                    new_parser = self.__class__(xmlrl_item, self.no_para)
+                    new_parser.run(self.html_item, self.options)
+                    if xmlrl_item.tag == 'para':
+                        self._reoganize_para(xmlrl_item)
+                        if self.html_item.tag in self.options.keys():
+                            self.options[self.html_item.tag] -= 1
+                    elif xmlrl_item.tag == 'span':
+                        self.xmlrl_result.extend(xmlrl_item)
+                        self.fill_text_if_not_null(xmlrl_item, self.xmlrl_result)
+                    elif (len(xmlrl_item) > 0) and (xmlrl_item[0].tag == 'para'):
+                        self._switch_para(xmlrl_item)
+                    else:
+                        self.xmlrl_result.append(xmlrl_item)
+                    self.manage_chip()
         self._all_in_para()
 
     @classmethod
