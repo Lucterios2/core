@@ -1265,6 +1265,7 @@ var compUpload = compGeneric.extend({
 		this.compress = component.compress;
 		this.httpFile = component.http_file;
 		this.maxsize = component.maxsize || 0;
+		this.withcam = component.withcam;
 		this.tag = 'input';
 		this.selected_file = null;
 	},
@@ -1280,10 +1281,12 @@ var compUpload = compGeneric.extend({
 		html += '<img src="{0}" title="{1}"/>'.format(Singleton().Transport().getIconUrl('static/lucterios.CORE/images/open.png'),
 				Singleton().getTranslate("File"));
 		html += "</button>";
-		html += "<button class='cameraTakePicture'>";
-		html += '<img src="{0}" title="{1}"/>'.format(Singleton().Transport().getIconUrl('static/lucterios.CORE/images/camera.png'),
-				Singleton().getTranslate("Picture"));
-		html += "</button>";
+		if (this.withcam) {
+			html += "<button class='cameraTakePicture'>";
+			html += '<img src="{0}" title="{1}"/>'.format(Singleton().Transport().getIconUrl('static/lucterios.CORE/images/camera.png'),
+					Singleton().getTranslate("Picture"));
+			html += "</button>";
+		}
 		html += "<img class='pictureToUpload' style='display:none;'></img>";
 		html += "<div class='filename'>---</div>";
 		html += this.getBuildHtml(args, false, true);

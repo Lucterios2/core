@@ -73,6 +73,7 @@ g_translation.fr.put("Device client", "Dispositif client");
 g_translation.fr.put("File","Fichier");
 g_translation.fr.put("Picture", "Image");
 g_translation.fr.put("Take picture","Capturer une image");
+g_translation.fr.put('Browser does not support camera :(','Ce navigateur ne supporte pas les webcams :(');
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Yes", "Yes");
@@ -143,3 +144,4 @@ g_translation.en.put("Device client", "Device client");
 g_translation.en.put("File","File");
 g_translation.en.put("Picture", "Picture");
 g_translation.en.put("Take picture","Take picture");
+g_translation.en.put('Browser does not support camera :(','Browser does not support camera :(');
