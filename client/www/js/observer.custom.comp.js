@@ -1438,8 +1438,11 @@ var compUpload = compGeneric.extend({
 		$("div.cordova-camera-capture").remove();				
 	},
 
-	onCamFail : function() {
-		$("div.cordova-camera-capture").remove();			
+	onCamFail : function(error) {
+		$("div.cordova-camera-capture").remove();
+		if ((error !== undefined) && (error.message !== undefined)) {
+			throw new LucteriosException(IMPORTANT, error.message);
+		}
 	}
 
 });

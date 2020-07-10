@@ -170,6 +170,7 @@ var ObserverException = ObserverAbstract.extend({
 
 window.onerror = function myErrorHandler(errorMsg, source, lineno, columnNo, error) {
     var error_desc, stack, obs, type_error, errname;
+    stack = source + "->" + lineno + ':' + columnNo;
     if (error !== undefined) {
         if (error.type !== undefined) {
             type_error = error.type;
@@ -177,8 +178,12 @@ window.onerror = function myErrorHandler(errorMsg, source, lineno, columnNo, err
             error_desc = [];
             error_desc[0] = error.message;
             error_desc[1] = error.info;
-            error_desc[2] = error.extra.toString();
-            stack = error.fileName + ":" + error.lineNumber + ':' + error.columnNumber;
+            if (error.extra!==undefined) {
+            	error_desc[2] = error.extra.toString();
+            }
+            if (error.fileName!==undefined) {
+            	stack = error.fileName + ":" + error.lineNumber + ':' + error.columnNumber;
+            }
         } else {
             type_error = FAILURE;
             errname = error.name;

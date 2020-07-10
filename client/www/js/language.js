@@ -70,6 +70,7 @@ g_translation.fr.put("ShowNB", "{0} résultats.");
 g_translation.fr.put("Drag one file to this zone ...", "Glisser un fichier dans cette zone ...");
 g_translation.fr.put("{0} on {1}", "'{0}' sur '{1}'");
 g_translation.fr.put("Device client", "Dispositif client");
+g_translation.fr.put("File","Fichier");
 g_translation.fr.put("Picture", "Image");
 g_translation.fr.put("Take picture","Capturer une image");
 
@@ -139,5 +140,6 @@ g_translation.en.put("ShowNB", "{0} items.");
 g_translation.en.put("Drag one file to this zone ...", "Drag one file to this zone ...");
 g_translation.en.put("{0} on {1}", "'{0}' on '{1}'");
 g_translation.en.put("Device client", "Device client");
+g_translation.en.put("File","File");
 g_translation.en.put("Picture", "Picture");
 g_translation.en.put("Take picture","Take picture");
