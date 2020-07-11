@@ -1,4 +1,4 @@
-/*global $,Class,navigator,ObserverAbstract,get_version,get_device_info,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack,LucteriosException,IMPORTANT */
+/*global $,Class,navigator,ObserverAbstract,get_version,get_device_info,ActionInt,Singleton,HashMap,compBasic,GUIManage,createTable,unusedVariables,get_serverurl,run_CleanCallBack,LucteriosException,IMPORTANT,config_servers,G_Multi_Server */
 
 var ApplicationDescription = Class.extend({
 
@@ -215,21 +215,31 @@ var ObserverAuthentification = ObserverAbstract.extend({
 	},
 
 	setContent : function(aJSON) {
+		var extra_id;
 		this._super(aJSON);
 		this.acts = [];
 		this.acts[0] = new ActionInt();
 		this.acts[0].initializeEx(this, null, 'Ok');
-		this.acts[0].mIcon = "static/lucterios.CORE/images/ok.png";
+		this.acts[0].mIcon = "images/ok.png";
 		this.acts[0].callback = $.proxy(function(aParams) {
 			if (this.mGUI !== null) {
 				var login = aParams.get('username'), pass = aParams.get('password');
 				Singleton().Factory().setAuthentification(login, pass);
 			}
 		}, this);
-		this.acts[1] = new ActionInt();
-		this.acts[1].initializeEx(this, Singleton().Factory(), Singleton().getTranslate("Cancel"));
-		this.acts[1].mIcon = "static/lucterios.CORE/images/cancel.png";
-		this.acts[1].callback = function() {
+		if (G_Multi_Server === true) {
+			this.acts[1] = new ActionInt();
+			this.acts[1].initializeEx(null, null, Singleton().getTranslate("Servers"));
+			this.acts[1].mIcon = "images/status.png";
+			this.acts[1].callback = config_servers;
+			extra_id = 2;
+		} else {
+			extra_id = 1;
+		}		
+		this.acts[extra_id] = new ActionInt();
+		this.acts[extra_id].initializeEx(this, Singleton().Factory(), Singleton().getTranslate("Cancel"));
+		this.acts[extra_id].mIcon = "images/cancel.png";
+		this.acts[extra_id].callback = function() {
 			Singleton().setInfoDescription(null, false);
 		};
 		this.mActions = this.mJSON.actions;
