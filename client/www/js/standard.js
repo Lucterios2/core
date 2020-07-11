@@ -1,5 +1,6 @@
 /*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,get_version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
-/*global HttpTransportImpl,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint,get_device_info*/
+/*global HttpTransportImpl,HttpTransportLocal,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
+/*global LucteriosException,IMPORTANT,get_device_info, get_serverurl, G_Multi_Server, ServerManager */
 
 function insertStyle(rule) {
 	var css = document.createElement("style");
@@ -82,6 +83,24 @@ function first_action() {
 	}
 }
 
+function config_servers() {
+	/*global main*/
+	var servers_mng;
+	clean_function();
+	Singleton().setHttpTransportClass(HttpTransportLocal);
+	Singleton().setFactory(new ObserverFactoryRestImpl());
+	Singleton().setActionClass(ActionInt);
+	Singleton().Factory().clearObserverList();
+
+	document.title = Singleton().getTranslate("Configuration");
+	if (G_Multi_Server === false) {
+		throw new LucteriosException(IMPORTANT, "No configuration !");
+	}
+	servers_mng = new ServerManager();
+	servers_mng.reload = main;
+	servers_mng.show();
+}
+
 function aboutmore_function() {
 	var table = [];
 	table[0] = [];
@@ -112,13 +131,12 @@ function about_function() {
 			+ mDescription.getCopyRigth() + "</i></center></font></td><td>" + "</table>", 2, 1);
 
 	table[2] = [];
-	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>" + 
-			"<table width='100%'>" + 
-			"<tr><td colspan='2'><font size='+1'><center>" + Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>" + 
-			"<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info() + "</center></td></tr>" + 
-			"</table>", 3);
+	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>" + "<table width='100%'>" + "<tr><td colspan='2'><font size='+1'><center>"
+			+ Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>" + "<tr><td><center>"
+			+ Singleton().getTranslate("Server") + "</center></td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>"
+			+ "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>"
+			+ "<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info()
+			+ "</center></td></tr>" + "</table>", 3);
 	table[3] = [];
 	table[3][0] = new compBasic("<center><img src='images/LucteriosImage.png'></center>", 3);
 	table[4] = [];
@@ -143,15 +161,15 @@ function about_function() {
 
 	acts[0] = new ActionInt();
 	acts[0].initializeEx(null, null, Singleton().getTranslate("ask support"));
-	acts[0].mIcon = "static/lucterios.CORE/images/right.png";
+	acts[0].mIcon = "images/right.png";
 	acts[0].callback = sendsupport_function;
 	acts[1] = new ActionInt();
 	acts[1].initializeEx(null, null, Singleton().getTranslate("More..."));
-	acts[1].mIcon = "static/lucterios.CORE/images/info.png";
+	acts[1].mIcon = "images/info.png";
 	acts[1].callback = aboutmore_function;
 	acts[2] = new ActionInt();
 	acts[2].initializeEx(null, null, Singleton().getTranslate("Close"));
-	acts[2].mIcon = "static/lucterios.CORE/images/close.png";
+	acts[2].mIcon = "images/close.png";
 	acts[2].callback = $.proxy(this.mGUI.close, this.mGUI);
 
 	this.mGUI.addcontent(createTable(table), acts);
@@ -194,6 +212,14 @@ function initial_function(aInitialHeader) {
 			html += Singleton().getTranslate('Refresh');
 			html += "</span>";
 			html += "</label>";
+			if (G_Multi_Server === true) {
+				html += "<label id='servers' class='ui-widget-header ui-corner-all' >";
+				html += "<span class='fa fa-database'/>";
+				html += "<span name='headertle'>";
+				html += Singleton().getTranslate('Servers');
+				html += "</span>";
+				html += "</label>";
+			}
 			html += "<label id='about' class='ui-widget-header ui-corner-all' >";
 			html += "<span class='fa fa-info-circle'/>";
 			html += "<span name='headertle'>";
@@ -214,6 +240,9 @@ function initial_function(aInitialHeader) {
 				$("#disconnect").css('visibility', 'hidden');
 			} else {
 				$("#disconnect").click(disconnect_function);
+			}
+			if (G_Multi_Server === true) {
+				$("#servers").click(config_servers);
 			}
 			$("#about").click(about_function);
 			$("#help").click(help_function);
@@ -244,8 +273,15 @@ function initial_function(aInitialHeader) {
 	}
 }
 
-set_InitialCallBack(initial_function);
-set_CleanCallBack(clean_function);
-first_action();
-setInterval(refreshCurrentAcideMenu, 5 * 60 * 1000); // Watchdog 5 min
+function main() {
+	set_InitialCallBack(initial_function);
+	set_CleanCallBack(clean_function);
+	setInterval(refreshCurrentAcideMenu, 5 * 60 * 1000); // Watchdog 5 min
+	if (get_serverurl() !== null) {
+		first_action();
+	} else {
+		config_servers();
+	}
+}
 
+main();

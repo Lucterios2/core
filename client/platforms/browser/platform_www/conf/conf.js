@@ -1,5 +1,5 @@
 /**
- * User: lag Date: 26/11/13 Time: 13:49 Config unit for lucterios client
+ * Config unit for lucterios Cordova (browser)
  */
 
 function get_version() {
@@ -17,6 +17,8 @@ function get_version() {
 var G_With_Extra_Menu = false;
 
 var G_Active_Log = false;
+
+var G_Multi_Server = false;
 
 function get_serverurl() {
 	var fullurl = window.location.href;

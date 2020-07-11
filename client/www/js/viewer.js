@@ -108,6 +108,10 @@ function initial_function() {
 	}
 }
 
-set_InitialCallBack(initial_function);
-set_CleanCallBack(clean_function);
-first_action();
+function main() {
+	set_InitialCallBack(initial_function);
+	set_CleanCallBack(clean_function);
+	first_action();
+}
+
+main();

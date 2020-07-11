@@ -388,7 +388,6 @@ var compGrid = compGeneric
 				$("#" + this.owner.getId()).prop('scroll_{0}'.format(this.name), div_scroll[0].scrollTop);
 			},
 
-
 			gui_finalize : function() {
 				return;
 			},
@@ -486,7 +485,7 @@ var compGrid = compGeneric
 			},
 
 			dbclick : function() {
-				if ((this.buttons.length > 0) && (this.getSelectedId() > 0)) {
+				if ((this.buttons.length > 0) && (this.getSelectedId().length === 1)) {
 					var iBtn, sel_btn = -1;
 					this.selectChange();
 					for (iBtn = this.buttons.length - 1; iBtn >= 0; iBtn--) {

@@ -19,21 +19,19 @@ var ObserverDialogBox = ObserverGUI.extend({
 		var image_name = '', table = [];
 		switch (this.mType) {
 		case 2:
-			image_name = "static/lucterios.CORE/images/confirm.png";
+			image_name = "images/confirm.png";
 			break;
 		case 3:
-			image_name = "static/lucterios.CORE/images/warning.png";
+			image_name = "images/warning.png";
 			break;
 		case 4:
-			image_name = "static/lucterios.CORE/images/error.png";
+			image_name = "images/error.png";
 			break;
 		default:
-			image_name = "static/lucterios.CORE/images/info.png";
+			image_name = "images/info.png";
 			break;
 		}
-		image_name = Singleton().Transport().getIconUrl(image_name);
 		this.mText = this.mText.convertLuctoriosFormatToHtml();
-
 		table[0] = [];
 		table[0][0] = new compBasic("<img src='" + image_name + "' alt='" + image_name + "'></img>");
 		table[0][1] = new compBasic("<label>" + this.mText + "</label>");

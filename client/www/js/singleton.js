@@ -126,10 +126,12 @@ var SingletonClass = Class.extend({
 	},
 
 	setHttpTransportClass : function(aTransportClass) {
+		this.mTransportObj = null;
 		this.mTransportClass = aTransportClass;
 	},
 
 	setActionClass : function(aActionClass) {
+		this.mActionObj = null;
 		this.mActionClass = aActionClass;
 	},
 

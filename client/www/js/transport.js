@@ -140,3 +140,12 @@ var HttpTransportImpl = HttpTransportAbstract.extend({
 	}
 
 });
+
+var HttpTransportLocal = HttpTransportAbstract.extend({
+
+	getIconUrl : function(icon) {
+		var icon_list = icon.split('/');
+		return "images/" + icon_list[icon_list.length - 1];
+	}
+
+});
