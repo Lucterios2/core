@@ -3,8 +3,7 @@
 		"linux": {
 			"package": [
 				"tar.gz",
-				"deb",
-				"rpm"
+				"AppImage"
 			]
 		},
 		"mac": {
