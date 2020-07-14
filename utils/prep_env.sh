@@ -14,7 +14,7 @@ echo "coverage" >> requirement.txt
 echo "radon" >> requirement.txt
 echo "wheel" >> requirement.txt
 echo "Sphinx" >> requirement.txt
-echo "mariadb" >> requirement.txt
+echo "mysqlclient" >> requirement.txt
 echo "psycopg2-binary" >> requirement.txt
 
 [ -d $virt_name ] && rm -rf $virt_name
