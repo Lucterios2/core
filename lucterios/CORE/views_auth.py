@@ -115,6 +115,10 @@ class Authentification(XferContainerAbstract):
         info_cnx['SUBTITLE'] = settings.APPLIS_SUBTITLE()
         info_cnx['VERSION'] = str(settings.APPLIS_VERSION)
         info_cnx['SERVERVERSION'] = str(lucterios.CORE.__version__)
+        build_cordova = os.path.join(os.path.dirname(os.path.dirname(__file__)), "framework", "static", "lucterios.framework", "web", "conf", "build")
+        if os.path.isfile(build_cordova):
+            with open(build_cordova, 'r') as build_file:
+                info_cnx['CORDOVAVERSION'] = build_file.read()
         info_cnx['COPYRIGHT'] = str(settings.APPLIS_COPYRIGHT)
         info_cnx['LOGONAME'] = settings.APPLIS_LOGO.decode()
         info_cnx['BACKGROUND'] = settings.APPLIS_BACKGROUND.decode()

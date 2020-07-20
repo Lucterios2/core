@@ -83,6 +83,7 @@ g_translation.fr.put('Add new server address', 'Ajouter une nouvelle adresse de 
 g_translation.fr.put('Manage server addresses', 'Gérer des adresses de serveurs');
 g_translation.fr.put("Add server", "Ajouter un serveur");
 g_translation.fr.put("Servers", "Les serveurs");
+g_translation.fr.put("Client obselete", "Client obsolète <br/> Effectuer un mise à jour");
 
 g_translation.put("en", new HashMap());
 g_translation.en.put("Yes", "Yes");
@@ -163,3 +164,4 @@ g_translation.en.put('Add new server address', 'Add new server address');
 g_translation.en.put('Manage server addresses', 'Manage server addresses');
 g_translation.en.put("Add server", "Add server");
 g_translation.en.put("Servers", "Servers");
+g_translation.en.put("Client obselete", "Obsolete client <br/> Perform an update");

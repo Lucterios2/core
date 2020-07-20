@@ -5,6 +5,8 @@ var ApplicationDescription = Class.extend({
 	mTitle : '',
 	mApplisVersion : '',
 	mServerVersion : '',
+	mCordovaVersionCurrent : '',
+	mCordovaVersionExpected : '',
 	mCopyRigth : '',
 	mLogoIconName : '',
 	mBackground : '',
@@ -25,6 +27,7 @@ var ApplicationDescription = Class.extend({
 		this.mApplisVersion = aAppliVersion;
 		this.mServerVersion = aServerVersion;
 		this.mCopyRigth = aCopyRigth;
+		this.mCordovaVersionCurrent = get_version();
 	},
 
 	setLogoIconName : function(aLogoIconName) {
@@ -144,6 +147,34 @@ var ApplicationDescription = Class.extend({
 		this.mLanguage = language;
 	},
 
+	getCordovaVersionExpected : function() {
+		return this.mCordovaVersionExpected;
+	},
+
+	setCordovaVersionExpected : function(cordovaVersionExpected) {
+		this.mCordovaVersionExpected = cordovaVersionExpected;
+	},
+
+	isCordovaVersionOk : function() {
+		var version_expected, version_current, result = true;
+		if (this.mCordovaVersionExpected !== undefined) {
+			version_expected = this.mCordovaVersionExpected.split('.');
+			version_current = this.mCordovaVersionCurrent.split('.');
+			result = (parseInt(version_expected[0], 10) === parseInt(version_current[0], 10))
+					&& (parseInt(version_expected[1], 10) === parseInt(version_current[1], 10))
+					&& (parseInt(version_expected[2], 10) <= parseInt(version_current[2], 10))
+		}
+		return result;
+	},
+
+	getCordovaVersionCurrent : function() {
+		var result = this.mCordovaVersionCurrent;
+		if (!this.isCordovaVersionOk()) {
+			result = "<u>{0} ({1})</u>".format(result, Singleton().getTranslate("Client obselete").replace('<br/>', ':'));
+		}
+		return result;
+	},
+
 	fillEmailSupport : function(aTitle, aComplement) {
 		var email = this.mSupportEmail, url = "mailto:" + email;
 		url += "?subject=" + aTitle;
@@ -156,15 +187,15 @@ var ApplicationDescription = Class.extend({
 		if ((aComplement !== null) && (aComplement.length > 0)) {
 			resValue += aComplement + "<br>";
 		}
-		resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>" + 
-				"<table width='100%'>" 
-				+ "<tr><td><center>"+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
-				+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion + "</center></td></tr>"
-				+ "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>"
-				+ "<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info() + "</center></td></tr>" 
-				+ "<tr><td><center>" + Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>' + get_serverurl() + "</font></center></td></tr>" 
-				+ "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth + "</i></font></center></td></tr>" 
-				+ "</table><hr>";
+		resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>" + "<table width='100%'>" + "<tr><td><center>"
+				+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
+				+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion
+				+ "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>"
+				+ this.getCordovaVersionCurrent() + "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Device client")
+				+ "</center></td><td><center>" + get_device_info() + "</center></td></tr>" + "<tr><td><center>"
+				+ Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>'
+				+ get_serverurl() + "</font></center></td></tr>" + "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth
+				+ "</i></font></center></td></tr>" + "</table><hr>";
 		if ((this.mInfoServer !== null) && (this.mInfoServer.length > 0)) {
 			resValue += this.mInfoServer.convertLuctoriosFormatToHtml() + "<br>";
 		}
@@ -235,7 +266,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			extra_id = 2;
 		} else {
 			extra_id = 1;
-		}		
+		}
 		this.acts[extra_id] = new ActionInt();
 		this.acts[extra_id].initializeEx(this, Singleton().Factory(), Singleton().getTranslate("Cancel"));
 		this.acts[extra_id].mIcon = "images/cancel.png";
@@ -244,13 +275,14 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		};
 		this.mActions = this.mJSON.actions;
 	},
-	
+
 	get_desc : function() {
-		var json_connection, desc=null;
+		var json_connection, desc = null;
 		if (this.mJSON.connexion !== undefined) {
 			json_connection = this.mJSON.connexion;
 			desc = new ApplicationDescription(json_connection.TITLE, json_connection.COPYRIGHT, json_connection.VERSION,
 					json_connection.SERVERVERSION);
+			desc.setCordovaVersionExpected(json_connection.CORDOVAVERSION);
 			desc.setLogoIconName(json_connection.LOGONAME);
 			desc.setBackground(json_connection.BACKGROUND);
 			desc.setStyle(json_connection.STYLE);

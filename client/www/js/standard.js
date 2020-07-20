@@ -1,4 +1,4 @@
-/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,get_version,refreshCurrentAcideMenu,info_openclose,ActionInt*/
+/*global $,HashMap,SingletonObj,SingletonClose,Singleton,set_InitialCallBack,GUIManage,compBasic,createTable,createGuid,FAILURE,set_CleanCallBack,refreshCurrentAcideMenu,info_openclose,ActionInt*/
 /*global HttpTransportImpl,HttpTransportLocal,ObserverFactoryImpl,ObserverFactoryRestImpl,ActionImpl,ObserverAuthentification,ObserverMenu,ObserverDialogBox,ObserverCustom,ObserverAcknowledge,ObserverException,ObserverPrint*/
 /*global LucteriosException,IMPORTANT,get_device_info, get_serverurl, G_Multi_Server, ServerManager */
 
@@ -134,7 +134,7 @@ function about_function() {
 	table[2][0] = new compBasic("<HR SIZE='2' WIDTH='100%' ALIGN=center>" + "<table width='100%'>" + "<tr><td colspan='2'><font size='+1'><center>"
 			+ Singleton().getTranslate("Use the <i>Lucterios</i> framework") + "</center></font></td><td>" + "<tr><td><center>"
 			+ Singleton().getTranslate("Server") + "</center></td><td><center>" + mDescription.getServerVersion() + "</center></td></tr>"
-			+ "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + get_version() + "</center></td></tr>"
+			+ "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>" + mDescription.getCordovaVersionCurrent() + "</center></td></tr>"
 			+ "<tr><td><center>" + Singleton().getTranslate("Device client") + "</center></td><td><center>" + get_device_info()
 			+ "</center></td></tr>" + "</table>", 3);
 	table[3] = [];

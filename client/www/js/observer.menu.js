@@ -233,6 +233,9 @@ var ObserverMenu = ObserverAbstract.extend({
 		if ((Singleton().mDesc !== null) && (Singleton().mDesc.mSupportHTML !== '')) {
 			$("#mainMenu").append("<div id='support'>" + Singleton().mDesc.mSupportHTML.convertLuctoriosFormatToHtml() + '</div>');
 		}
+		if ((Singleton().mDesc !== null) && (!Singleton().mDesc.isCordovaVersionOk())) {
+			$("#mainMenu").append("<div id='versionclient'>" + Singleton().getTranslate("Client obselete") + '</div>');
+		}
 		if (this.aside_menu === null) {
 			$("#menuContainer").css('left', '0px');
 			$("#support").css('display', 'none');
