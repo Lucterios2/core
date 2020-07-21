@@ -294,7 +294,7 @@ var GUIManage = GUIBasic.extend({
 		for (iAct = 0; iAct < this.mButtons.length; iAct++) {
 			if (this.mButtons[iAct].getIcon() !== '') {
 				btn_icon = this.mButtons[iAct].getIcon();
-				if (btn_icon.startsWith('static/')) {
+				if (btn_icon.startsWith('/static/')) {
 					btn_icon = Singleton().Transport().getIconUrl(btn_icon);
 				}
 				btn = parent.find("div > div.lct-dlgbtnset > button:eq({0})".format(iAct));
