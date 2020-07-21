@@ -162,7 +162,7 @@ var ApplicationDescription = Class.extend({
 			version_current = this.mCordovaVersionCurrent.split('.');
 			result = (parseInt(version_expected[0], 10) === parseInt(version_current[0], 10))
 					&& (parseInt(version_expected[1], 10) === parseInt(version_current[1], 10))
-					&& (parseInt(version_expected[2], 10) <= parseInt(version_current[2], 10))
+					&& (parseInt(version_expected[2], 10) <= parseInt(version_current[2], 10));
 		}
 		return result;
 	},
