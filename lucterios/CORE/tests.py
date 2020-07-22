@@ -39,11 +39,11 @@ class AuthentificationTest(LucteriosTest):
         add_empty_user()
 
     def test_blank(self):
-        response = self.client.call('/', {})
+        response = self.client.call('/', {}, 'get')
         self.assertEqual(response.content, bytes('', 'ascii'))
 
     def test_menu_noconnect(self):
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.auth', 'CORE', 'menu')
         self.assert_json_equal('', '', 'NEEDAUTH')
         self.assertTrue('connexion' in self.response_json.keys())
@@ -91,7 +91,7 @@ class AuthentificationTest(LucteriosTest):
         self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.menu', 'CORE', 'menu')
 
         self.assertEqual(len(self.response_json['menus']), 4)
@@ -115,7 +115,7 @@ class AuthentificationTest(LucteriosTest):
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.auth', 'CORE', 'menu')
         self.assert_json_equal('', '', 'NEEDAUTH')
 
@@ -126,7 +126,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
         self.assertEqual(self.response_json['connexion']['MODE'], '0')
 
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.menu', 'CORE', 'menu')
 
         self.assertEqual(len(self.response_json['menus']), 3)
@@ -138,7 +138,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['menus'][1]['menus'][0]['text'], 'Mot de passe')
         self.assertEqual(self.response_json['menus'][2]['id'], 'dummy.foo')
 
-        self.calljson('/CORE/configuration', {})
+        self.calljson('/CORE/configuration', {}, 'get')
         self.assert_observer('core.exception', 'CORE', 'configuration')
         self.assert_json_equal('', "message", "Mauvaise permission pour 'empty'")
 
@@ -163,7 +163,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['REALNAME'], '')
         self.assertEqual(self.response_json['connexion']['MODE'], '1')
 
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.menu', 'CORE', 'menu')
 
         self.assertEqual(len(self.response_json['menus']), 1)
@@ -202,11 +202,11 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
         self.assertTrue(act2.check_permission(request), 'check_permission CORE.change_parameter')
 
-        self.calljson('/CORE/configuration', {})
+        self.calljson('/CORE/configuration', {}, 'get')
         self.assert_observer('core.custom', 'CORE', 'configuration')
         self.assert_json_equal('LABELFORM', "CORE-connectmode", "Accès libre")
 
-        self.calljson('/CORE/menu', {})
+        self.calljson('/CORE/menu', {}, 'get')
         self.assert_observer('core.menu', 'CORE', 'menu')
         self.assertEqual(len(self.response_json['menus']), 3)
         self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')

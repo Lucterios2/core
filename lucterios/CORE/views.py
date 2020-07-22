@@ -74,6 +74,7 @@ def right_status(request):
 class StatusMenu(XferContainerCustom):
     caption = _("Summary")
     icon = "status.png"
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("summary", self)
@@ -87,6 +88,7 @@ def right_situation(request):
 class SituationMenu(XferContainerCustom):
     caption = _("Situation")
     icon = "status.png"
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         signal_and_lock.Signal.call_signal("situation", self)
@@ -106,7 +108,7 @@ signal_and_lock.unlocker_view_class = Unlock
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
@@ -137,17 +139,18 @@ class Download(XferContainerAbstract):
 @MenuManage.describ('')
 class Menu(XferContainerMenu):
     caption = 'menu'
+    methods_allowed = ('GET', )
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
             if request.user.is_authenticated or not secure_mode_connect():
-                return XferContainerMenu.get_post(self, request, *args, **kwargs)
+                return XferContainerMenu.request_handling(self, request, *args, **kwargs)
             else:
                 from lucterios.CORE.views_auth import Authentification
                 auth = Authentification()
-                return auth.get_post(request, *args, **kwargs)
+                return auth.request_handling(request, *args, **kwargs)
         finally:
             getLogger("lucterios.core.request").debug(
                 "<< get %s [%s]", request.path, request.user)
@@ -268,6 +271,8 @@ def auth_action_core(actions_basic):
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
+    readonly = True
+    methods_allowed = ('GET', )
 
     def fillresponse(self):
         img_title = XferCompImage('img')
@@ -1110,6 +1115,8 @@ class ConfigurationWizard(XferListEditor):
     icon = "images/config.png"
     model = None
     field_id = ''
+    readonly = True
+    methods_allowed = ('POST', )
 
     def add_name(self, pos, name):
         lbl = XferCompLabelForm('name_%d' % pos)

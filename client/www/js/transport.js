@@ -44,8 +44,8 @@ var HttpTransportAbstract = Class.extend({
 		}
 	},
 
-	transfertFileFromServerString : function(aWebFile, aParams) {
-		unusedVariables(aWebFile, aParams);
+	transfertFileFromServerString : function(aWebFile, aParams, aMethod) {
+		unusedVariables(aWebFile, aParams, aMethod);
 		return "";
 	},
 
@@ -74,18 +74,26 @@ var HttpTransportAbstract = Class.extend({
 
 var HttpTransportImpl = HttpTransportAbstract.extend({
 
-	transfertFileFromServerString : function(aWebFile, aParams) {
-		var reponsetext = "", formdata = new FormData(), error_num = -1, code_error;
+	transfertFileFromServerString : function(aWebFile, aParams, aMethod) {
+		var reponsetext = "", formdata = new FormData(), error_num = -1, code_error, url_params="";
+		if (aMethod === undefined) {
+			aMethod = "GET";
+		}
 		if (aParams !== null) {
-			aParams.keys().forEach(function(key) {
-				formdata.append(key, aParams.get(key));
-			});
+			if (aMethod === 'GET') {
+				url_params = "?" + Object.keys(aParams).map(key => `${key}=${aParams[key]}`).join('&');
+			}
+			else {
+				aParams.keys().forEach(function(key) {
+					formdata.append(key, aParams.get(key));
+				});
+			}
 		}
 		formdata.append('FORMAT', 'JSON');
 
 		$.ajax({
-			url : this.getServerUrl() + aWebFile,
-			type : "POST",
+			url : this.getServerUrl() + aWebFile + url_params,
+			type : aMethod,
 			data : formdata,
 			dataType : "json",
 			processData : false,

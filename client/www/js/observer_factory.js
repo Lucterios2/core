@@ -26,12 +26,12 @@ var ObserverFactoryAbstract = Class.extend({
 		return new observer_class();
 	},
 
-	transfertFromServer : function(aExtension, aAction, aParam) {
-		unusedVariables(aExtension, aAction, aParam);
+	transfertFromServer : function(aExtension, aAction, aParam, aMethod) {
+		unusedVariables(aExtension, aAction, aParam, aMethod);
 		return null;
 	},
 
-	callAction : function(aExtension, aAction, aParam) {
+	callAction : function(aExtension, aAction, aParam, aMethod) {
 		unusedVariables(aExtension, aAction, aParam);
 		return null;
 	},
@@ -46,7 +46,7 @@ var ObserverFactoryAbstract = Class.extend({
 			param.put('password', aPassWord);
 			this.mTransport.setLastLogin(aLogin);
 		}
-		aut = this.callAction('CORE', "authentification", param, null);
+		aut = this.callAction('CORE', "authentification", param, null, "POST");
 		if (aut.getObserverName() === "core.auth") {
 			xml_aut = aut.getContent();
 			if (xml_aut.context && xml_aut.context.ses) {
@@ -64,8 +64,8 @@ var ObserverFactoryAbstract = Class.extend({
 
 var ObserverFactoryImpl = ObserverFactoryAbstract.extend({
 
-	callAction : function(aExtension, aAction, aParam, aObserver) {
-		var res_obs = null, json_rep = this.transfertFromServer(aExtension, aAction, aParam), observer_name, source_extension, source_action;
+	callAction : function(aExtension, aAction, aParam, aObserver, aMethod) {
+		var res_obs = null, json_rep = this.transfertFromServer(aExtension, aAction, aParam, aMethod), observer_name, source_extension, source_action;
 		if (json_rep && json_rep.meta) {
 			observer_name = json_rep.meta.observer;
 			if (this.mObserverList.hasOwnProperty(observer_name)) {
@@ -73,13 +73,13 @@ var ObserverFactoryImpl = ObserverFactoryAbstract.extend({
 				source_action = json_rep.meta.action;
 				if (aObserver === null) {
 					res_obs = this.factoryObserver(observer_name);
-					res_obs.setSource(source_extension, source_action);
+					res_obs.setSource(source_extension, source_action, aMethod);
 				} else {
 					res_obs = aObserver;
 					if ((res_obs.getObserverName() !== observer_name) || (source_action === "") || (source_extension === "")) {
 						if ((observer_name === "core.auth") || (observer_name === "core.exception")) {
 							res_obs = this.factoryObserver(observer_name);
-							res_obs.setSource(source_extension, source_action);
+							res_obs.setSource(source_extension, source_action, aMethod);
 						} else {
 							throw new LucteriosException(GRAVE, "Erreur de parsing (refresh)" + aObserver.getObserverName() + " -> " + observer_name,
 									this.m_Parameters, JSON.stringify(json_rep));
@@ -103,7 +103,7 @@ var ObserverFactoryImpl = ObserverFactoryAbstract.extend({
 });
 
 var ObserverFactoryRestImpl = ObserverFactoryImpl.extend({
-	transfertFromServer : function(aExtension, aAction, aParam) {
+	transfertFromServer : function(aExtension, aAction, aParam, aMethod) {
 		var val, self = this, web_file = aExtension + "/" + aAction;
 		this.m_Parameters = web_file + "?";
 		aParam.keys().forEach(function(key) {
@@ -123,6 +123,6 @@ var ObserverFactoryRestImpl = ObserverFactoryImpl.extend({
 			}
 		});
 		post_log("Ask " + self.m_Parameters);
-		return this.mTransport.transfertFileFromServerString(web_file, aParam);
+		return this.mTransport.transfertFileFromServerString(web_file, aParam, aMethod);
 	}
 });

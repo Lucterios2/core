@@ -94,6 +94,8 @@ def add_auditlogs_button(xfer, model, posx, posy):
 class XferListEditor(XferContainerCustom):
     multi_page = True
     with_auditlog_btn = True
+    readonly = True
+    methods_allowed = ('GET', )
 
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
@@ -153,6 +155,8 @@ class XferAddEditor(XferContainerCustom):
     redirect_to_show = 'Show'
     locked = True
     with_auditlog_btn = True
+    readonly = False
+    methods_allowed = ('POST', 'PUT')
 
     def _initialize(self, request, *_, **kwargs):
         XferContainerCustom._initialize(self, request, *_, **kwargs)
@@ -176,7 +180,7 @@ class XferAddEditor(XferContainerCustom):
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
@@ -201,13 +205,13 @@ class XferAddEditor(XferContainerCustom):
         save.raise_except_class = self.__class__
         save.closeaction = self.closeaction
         save.redirect_to_show = self.redirect_to_show
-        return save.get(request, *args, **kwargs)
+        return save.post(request, *args, **kwargs)
 
 
 class XferShowEditor(XferContainerCustom):
-
     locked = True
     readonly = True
+    methods_allowed = ('GET', )
     with_auditlog_btn = True
 
     def __init__(self, **kwargs):
@@ -229,6 +233,8 @@ class XferShowEditor(XferContainerCustom):
 
 
 class XferDelete(XferContainerAcknowledge):
+    readonly = True
+    methods_allowed = ('DELETE', )
 
     def _search_model(self):
         if self.model is None:
@@ -262,6 +268,8 @@ class XferDelete(XferContainerAcknowledge):
 class XferSave(XferContainerAcknowledge):
     raise_except_class = None
     redirect_to_show = 'Show'
+    readonly = False
+    methods_allowed = ('POST', 'PUT')
 
     def fillresponse(self):
         if "SAVE" in self.params.keys():
@@ -289,6 +297,8 @@ class XferSave(XferContainerAcknowledge):
 
 
 class XferTransition(XferContainerAcknowledge):
+    readonly = False
+    methods_allowed = ('POST', 'PUT')
 
     def __init__(self, **kwargs):
         XferContainerAcknowledge.__init__(self, **kwargs)

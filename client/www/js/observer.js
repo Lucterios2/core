@@ -38,6 +38,10 @@ var ObserverAbstract = Class.extend({
 		return this.mAction;
 	},
 
+	getSourceMethod : function() {
+		return this.mMethod;
+	},
+
 	getSourceExtension : function() {
 		return this.mExtension;
 	},
@@ -62,10 +66,11 @@ var ObserverAbstract = Class.extend({
 		return this.mTitle;
 	},
 
-	setSource : function(aExtension, aAction) {
+	setSource : function(aExtension, aAction, aMethod) {
 		this.mID = createGuid();
 		this.mExtension = aExtension;
 		this.mAction = aAction;
+		this.mMethod = aMethod;
 	},
 
 	setCaption : function(aTitle) {
@@ -97,7 +102,7 @@ var ObserverAbstract = Class.extend({
 				}
 			}
 			this.mRefresh = Singleton().CreateAction();
-			this.mRefresh.initializeEx(this, Singleton().Factory(), this.getTitle(), this.getSourceExtension(), this.getSourceAction());
+			this.mRefresh.initializeEx(this, Singleton().Factory(), this.getTitle(), this.getSourceExtension(), this.getSourceAction(), this.getSourceMethod());
 			this.mRefresh.setFormType(FORM_REFRESH);
 			this.mRefresh.setClose(false);
 			this.mRefresh.setUsedContext(true);

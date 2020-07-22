@@ -138,16 +138,16 @@ class XferContainerAcknowledge(XferContainerAbstract):
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
             dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
-        return dlg.get_post(request, *args, **kwargs)
+        return dlg.request_handling(request, *args, **kwargs)
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
             ">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             self.fillresponse(**self._get_params())
             if self.custom is not None:
-                return self.custom.get(request, *args, **kwargs)
+                return self.custom.request_handling(request, *args, **kwargs)
             if (self.title != '') and (self.getparam("CONFIRME") != "YES"):
                 dlg = XferContainerDialogBox()
                 dlg.request = self.request
@@ -159,7 +159,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.add_action(self.return_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
                 dlg.add_action(WrapAction(_("No"), "images/cancel.png"))
                 dlg.closeaction = self.closeaction
-                return dlg.get_post(request, *args, **kwargs)
+                return dlg.request_handling(request, *args, **kwargs)
             elif self.msg != "":
                 dlg = XferContainerDialogBox()
                 dlg.request = self.request
@@ -167,7 +167,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.set_dialog(self.msg, self.typemsg)
                 dlg.add_action(WrapAction(_("Ok"), "images/ok.png"))
                 dlg.closeaction = self.closeaction
-                return dlg.get_post(request, *args, **kwargs)
+                return dlg.request_handling(request, *args, **kwargs)
             elif self.except_msg != "":
                 dlg = XferContainerDialogBox()
                 dlg.request = self.request
@@ -179,7 +179,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                     if self.check_action_permission(except_action.get_action()):
                         dlg.add_action(except_action.get_action(_("Retry"), ""))
                 dlg.closeaction = self.closeaction
-                return dlg.get_post(request, *args, **kwargs)
+                return dlg.request_handling(request, *args, **kwargs)
             elif self.traitment_data is not None:
                 return self._get_from_custom(request, *args, **kwargs)
             else:

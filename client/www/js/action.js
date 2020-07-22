@@ -21,6 +21,7 @@ var ActionAbstract = Class.extend({
 	mFormType : FORM_NOMODAL,
 	mClose : true,
 	mSelect : SELECT_NONE,
+	mMethod : "GET",
 	mIcon : '',
 	mSizeIcon : '',
 	mKeyStroke : '',
@@ -40,7 +41,7 @@ var ActionAbstract = Class.extend({
 
 	initialize : function(aOwner, aFactory, aJSON) {
 		var xmlparams, index;
-		this.initializeEx(aOwner, aFactory, aJSON.text, aJSON.extension, aJSON.action);
+		this.initializeEx(aOwner, aFactory, aJSON.text, aJSON.extension, aJSON.action, aJSON.method);
 		if (aJSON.id !== null) {
 			this.mID = aJSON.id;
 		}
@@ -58,13 +59,14 @@ var ActionAbstract = Class.extend({
 		}
 	},
 
-	initializeEx : function(aOwner, aFactory, aTitle, aExtension, aAction) {
+	initializeEx : function(aOwner, aFactory, aTitle, aExtension, aAction, aMethod) {
 		this.mOwner = aOwner;
 		this.mFactory = aFactory;
 		this.mTitle = aTitle || '';
 		this.mExtraParam = new HashMap();
 		this.mTitle = this.mTitle.replace(MNEMONIC_CHAR, '');
 		this.mExtension = aExtension || '';
+		this.mMethod = aMethod || "GET";
 		this.mAction = aAction || '';
 		this.mID = createGuid();
 	},
@@ -197,7 +199,7 @@ var ActionImpl = ActionAbstract.extend({
 		if (this.mFormType === FORM_REFRESH) {
 			old_observrer = this.getOwner();
 		}
-		current_obs = this.mFactory.callAction(this.mExtension, this.mAction, aParam, old_observrer);
+		current_obs = this.mFactory.callAction(this.mExtension, this.mAction, aParam, old_observrer, this.mMethod);
 
 		if (!this.mUsedContext && (this.mOwner !== null)) {
 			if ((this.mClose) || (this.mFormType === FORM_REFRESH)) {

@@ -128,7 +128,7 @@ class UserTest(LucteriosTest):
         self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/usersDelete', {'user_actif': '1'})
+        self.calljson('/CORE/usersDelete', {'user_actif': '1'}, 'delete')
         self.assert_observer('core.exception', 'CORE', 'usersDelete')
         self.assert_json_equal('', "message", "Vous ne pouvez vous supprimer!")
 
@@ -653,7 +653,7 @@ class SessionTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/sessionList', {})
+        self.calljson('/CORE/sessionList', {}, 'get')
         self.assert_observer('core.custom', 'CORE', 'sessionList')
         self.assertEqual(self.json_meta['title'], 'Sessions & taches')
         self.assertEqual(len(self.json_context), 0)
@@ -678,14 +678,14 @@ class SessionTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/sessionList', {})
+        self.calljson('/CORE/sessionList', {}, 'get')
         self.assert_count_equal("session", 1)
         session_id = self.json_data["session"][0]["id"]
 
-        self.calljson('/CORE/sessionDelete', {'session': session_id, 'CONFIRME': 'YES'})
+        self.calljson('/CORE/sessionDelete', {'session': session_id, 'CONFIRME': 'YES'}, 'delete')
         self.assert_observer('core.acknowledge', 'CORE', 'sessionDelete')
 
-        self.calljson('/CORE/sessionList', {})
+        self.calljson('/CORE/sessionList', {}, 'get')
         self.assert_observer('core.custom', 'CORE', 'sessionList')
         self.assert_count_equal("session", 1)
         self.assert_json_equal('', 'session/@0/id', session_id)

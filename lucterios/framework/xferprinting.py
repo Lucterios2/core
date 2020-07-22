@@ -196,13 +196,13 @@ parent.get('print_sep').setEnabled(!is_persitent);
         gui.add_action(WrapAction(_("Close"), "images/close.png"))
         return gui
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             if (self.getparam("PRINT_PERSITENT", False) is True) and isinstance(self.get_persistent_pdfreport(), list):
                 dlg = self._get_zipextract()
-                return dlg.get_post(request, *args, **kwargs)
+                return dlg.request_handling(request, *args, **kwargs)
             else:
                 report_mode = self.getparam("PRINT_MODE")
                 if report_mode is not None:
@@ -210,7 +210,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                 self.fillresponse(**self._get_params())
                 if ((self.selector is not None) or (len(self.print_selector) > 1) or (self.get_persistent_pdfreport() is not None)) and (report_mode is None):
                     dlg = self._get_from_selector()
-                    return dlg.get_post(request, *args, **kwargs)
+                    return dlg.request_handling(request, *args, **kwargs)
                 else:
                     self._finalize()
                     return self.get_response()

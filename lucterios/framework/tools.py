@@ -78,7 +78,7 @@ class WrapAction(object):
 
     mode_connect_notfree = None
 
-    def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right=''):
+    def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, url_text, extension)
         self.modal = None
@@ -89,6 +89,7 @@ class WrapAction(object):
         else:
             self.extension = extension
             self.action = action
+        self.method = method
         self.pos = pos
 
     def set_value(self, caption, icon_path):
@@ -110,6 +111,7 @@ class WrapAction(object):
         json_res['modal'] = str(modal)
         json_res['close'] = str(close)
         json_res['unique'] = str(unique)
+        json_res['method'] = str(self.method)
         if isinstance(self.modal, int):
             json_res['modal'] = str(self.modal)
         json_res['params'] = params
@@ -235,18 +237,7 @@ class ActionsManage(object):
     @classmethod
     def wrapp_affect_generic(cls, ident, title, icon, condition=None, **options):
         def wrapper(xclass):
-            if 'model_name' in options.keys() and (options['model_name'] is not None):
-                model_name = options['model_name']
-            else:
-                model_name = xclass.model.get_long_name()
-            cls._actlock.acquire()
-            try:
-                if model_name not in cls._ACTION_LIST.keys():
-                    cls._ACTION_LIST[model_name] = []
-                cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, condition, options))
-                return xclass
-            finally:
-                cls._actlock.release()
+            return cls.add_action_generic(xclass, ident, title, icon, condition, **options)
         return wrapper
 
     @classmethod

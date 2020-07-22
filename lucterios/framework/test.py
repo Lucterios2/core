@@ -31,6 +31,7 @@ from contextlib import closing
 from socket import socket, AF_INET, SOCK_STREAM, SO_REUSEADDR, SOL_SOCKET
 
 from django.test import TestCase, Client, RequestFactory
+from django.test.client import MULTIPART_CONTENT
 from django.test.testcases import TransactionTestCase
 from django.utils import timezone
 
@@ -72,8 +73,14 @@ class XmlClient(Client):
         Client.__init__(self)
         self.language = language
 
-    def call(self, path, data):
-        return self.post(path, data, HTTP_ACCEPT_LANGUAGE=self.language)
+    def call(self, path, data, method):
+        from urllib.parse import urlencode
+        method = method.lower()
+        request_action = getattr(self, method, self.post)
+        if method in ('get', 'delete'):
+            path = path + '?' + urlencode(data, doseq=True)
+            data = None
+        return request_action(path, data, HTTP_ACCEPT_LANGUAGE=self.language)
 
 
 class XmlRequestFactory(RequestFactory):
@@ -99,7 +106,7 @@ class XmlRequestFactory(RequestFactory):
         request = None
         try:
             request = self.create_request(path, data)
-            return self.xfer.get(request)
+            return self.xfer.request_handling(request)
         except Exception as expt:
             if request is None:
                 request = self.post(path, {})
@@ -167,11 +174,11 @@ class LucteriosTestAbstract(object):
         self.response_xml = root
 
     def call_ex(self, path, data, is_client, status_expected=200):
-        if is_client:
-            self.response = self.client.call(path, data)
-        else:
+        if is_client is False:
             self.assertEqual('/' + self.factory.xfer.url_text, path)
             self.response = self.factory.call(path, data)
+        else:
+            self.response = self.client.call(path, data, is_client if isinstance(is_client, str) else 'post')
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
 

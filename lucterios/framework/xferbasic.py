@@ -30,12 +30,11 @@ from django.utils.translation import ugettext as _
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
-
-from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES,\
-    set_locale_lang
-from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT
-from lucterios.framework import signal_and_lock
 from django.http.response import JsonResponse
+
+from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES, set_locale_lang
+from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT, GRAVE
+from lucterios.framework import signal_and_lock
 
 NULL_VALUE = 'NULL'
 
@@ -56,6 +55,7 @@ class XferContainerAbstract(View):
     field_id = ''
     locked = False
     readonly = False
+    methods_allowed = ('POST', )
 
     def __init__(self, **kwargs):
         View.__init__(self, **kwargs)
@@ -98,7 +98,7 @@ class XferContainerAbstract(View):
         if icon_path is None:
             icon_path = getattr(cls, 'icon', '')
         ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
-                             is_view_right=getattr(cls, 'is_view_right', None))
+                             is_view_right=getattr(cls, 'is_view_right', None), method=cls.methods_allowed[0])
         return ret_act
 
     def return_action(self, caption=None, icon_path=None):
@@ -107,7 +107,7 @@ class XferContainerAbstract(View):
         if icon_path is None:
             icon_path = getattr(self, 'icon', '')
         ret_act = WrapAction(caption, icon_path, url_text=self.url_text,
-                             is_view_right=getattr(self, 'is_view_right', None))
+                             is_view_right=getattr(self, 'is_view_right', None), method=self.methods_allowed[0])
         return ret_act
 
     def getparam(self, key, default_value=None):
@@ -230,12 +230,15 @@ class XferContainerAbstract(View):
         path_list = request.path.split('/')
         self.extension, self.action = path_list[-2:]
         self.request = request
-        for key in kwargs.keys():
-            self.params[key] = kwargs[key]
-        for key in request.GET.keys():
-            self.params[key] = request.GET[key]
-        for key in request.POST.keys():
-            self.params[key] = request.POST[key]
+        try:
+            form_data_post, form_data_files = request.parse_file_upload(request.META, request)
+            request.POST = form_data_post
+            request._files = form_data_files
+        except Exception:
+            form_data_post = request.POST
+        for param_dict in (kwargs, request.GET, form_data_post):
+            for key in param_dict.keys():
+                self.params[key] = param_dict[key]
         if 'FORMAT' in self.params.keys():
             self.format = self.params['FORMAT']
             del self.params['FORMAT']
@@ -282,7 +285,7 @@ class XferContainerAbstract(View):
             params[arg_name] = self.getparam(arg_name, default_val)
         return params
 
-    def get_post(self, request, *args, **kwargs):
+    def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
@@ -294,11 +297,25 @@ class XferContainerAbstract(View):
         finally:
             getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
 
+    def _check_method(self, method):
+        if method not in self.methods_allowed:
+            raise LucteriosException(GRAVE, _('http method "%s" not allowed !') % method)
+
     def get(self, request, *args, **kwargs):
-        return self.get_post(request, *args, **kwargs)
+        self._check_method('GET')
+        return self.request_handling(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.get_post(request, *args, **kwargs)
+        self._check_method('POST')
+        return self.request_handling(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        self._check_method('PUT')
+        return self.request_handling(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        self._check_method('DELETE')
+        return self.request_handling(request, *args, **kwargs)
 
 
 class XferContainerMenu(XferContainerAbstract):
