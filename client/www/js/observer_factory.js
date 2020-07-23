@@ -32,7 +32,7 @@ var ObserverFactoryAbstract = Class.extend({
 	},
 
 	callAction : function(aExtension, aAction, aParam, aMethod) {
-		unusedVariables(aExtension, aAction, aParam);
+		unusedVariables(aExtension, aAction, aParam, aMethod);
 		return null;
 	},
 

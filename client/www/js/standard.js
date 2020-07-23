@@ -22,7 +22,7 @@ function clean_function() {
 function refresh_function() {
 	clean_function();
 	var act = Singleton().CreateAction();
-	act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'authentification');
+	act.initializeEx(null, Singleton().Factory(), '', 'CORE', 'authentification', 'POST');
 	act.getParameters = function() {
 		var param = new HashMap();
 		param.put('info', 'true');

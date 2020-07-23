@@ -166,6 +166,7 @@ def right_changepassword(request):
 class ChangePassword(XferContainerCustom):
     caption = _("Password")
     icon = "passwd.png"
+    methods_allowed = ('PUT', )
 
     def fillresponse(self):
         img = XferCompImage('img')
@@ -197,6 +198,7 @@ class ChangePassword(XferContainerCustom):
 class ModifyPassword(XferContainerAcknowledge):
     caption = _("Password")
     icon = "passwd.png"
+    methods_allowed = ('PUT', )
 
     def fillresponse(self, oldpass='', newpass1='', newpass2=''):
         if not self.request.user.check_password(oldpass):

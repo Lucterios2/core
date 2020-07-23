@@ -75,15 +75,18 @@ var HttpTransportAbstract = Class.extend({
 var HttpTransportImpl = HttpTransportAbstract.extend({
 
 	transfertFileFromServerString : function(aWebFile, aParams, aMethod) {
-		var reponsetext = "", formdata = new FormData(), error_num = -1, code_error, url_params="";
+		var reponsetext = "", formdata = new FormData(), error_num = -1, code_error, url_params = "", parts;
 		if (aMethod === undefined) {
 			aMethod = "GET";
 		}
 		if (aParams !== null) {
 			if (aMethod === 'GET') {
-				url_params = "?" + Object.keys(aParams).map(key => `${key}=${aParams[key]}`).join('&');
-			}
-			else {
+				parts = [];
+				aParams.keys().forEach(function(key) {
+					parts.push("{0}={1}".format(encodeURIComponent(key), encodeURIComponent(aParams[key])));
+				});
+				url_params = "?" + parts.join('&');
+			} else {
 				aParams.keys().forEach(function(key) {
 					formdata.append(key, aParams.get(key));
 				});
