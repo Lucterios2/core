@@ -108,7 +108,7 @@ signal_and_lock.unlocker_view_class = Unlock
 
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
-    methods_allowed = ('GET', )
+    methods_allowed = ('GET', 'POST', 'PUT')
 
     def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(

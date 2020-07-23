@@ -65,7 +65,7 @@ test("Actions", function() {
 	var params = new HashMap();
 	params.put('username', 'admin');
 	params.put('password', 'admin');
-	json_retour = this.transport.transfertFileFromServerString('CORE/authentification', params);
+	json_retour = this.transport.transfertFileFromServerString('CORE/authentification', params ,'POST');
 	equal(Object.keys(json_retour).length, 5, "2eme reponse size");
 	equal(json_retour.data, "OK", "2eme reponse - data");
 	equal(json_retour.close, null, "2eme reponse - close");
