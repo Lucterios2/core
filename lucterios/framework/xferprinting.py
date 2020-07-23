@@ -53,6 +53,8 @@ class XferContainerPrint(XferContainerAbstract):
 
     observer_name = "core.print"
     with_text_export = False
+    readonly = True
+    methods_allowed = ('GET', )
 
     def __init__(self):
         XferContainerAbstract.__init__(self)

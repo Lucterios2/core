@@ -297,24 +297,24 @@ class XferContainerAbstract(View):
         finally:
             getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
 
-    def _check_method(self, method):
+    def _check_method(self, method, url):
         if method not in self.methods_allowed:
-            raise LucteriosException(GRAVE, _('http method "%s" not allowed !') % method)
+            raise LucteriosException(GRAVE, _('http method "%(method)s" not allowed for "%(url)s" !') % {'method': method, 'url': url})
 
     def get(self, request, *args, **kwargs):
-        self._check_method('GET')
+        self._check_method('GET', request.path)
         return self.request_handling(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        self._check_method('POST')
+        self._check_method('POST', request.path)
         return self.request_handling(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        self._check_method('PUT')
+        self._check_method('PUT', request.path)
         return self.request_handling(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
-        self._check_method('DELETE')
+        self._check_method('DELETE', request.path)
         return self.request_handling(request, *args, **kwargs)
 
 

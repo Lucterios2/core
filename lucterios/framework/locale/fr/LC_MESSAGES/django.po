@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-03 15:35+0000\n"
-"PO-Revision-Date: 2020-07-03 16:05+0200\n"
+"POT-Creation-Date: 2020-07-23 08:42+0000\n"
+"PO-Revision-Date: 2020-07-23 10:42+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 2.3\n"
 
 #: main_docs.html:5 main_docs.html:112
 msgid "User manual"
@@ -71,7 +71,7 @@ msgstr "création"
 msgid "update"
 msgstr "modification"
 
-#: models.py:740 tools.py:471
+#: models.py:740 tools.py:462
 msgid "delete"
 msgstr "supprimer"
 
@@ -79,7 +79,7 @@ msgstr "supprimer"
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:742 tools.py:467
+#: models.py:742 tools.py:458
 msgid "add"
 msgstr "ajouter"
 
@@ -156,24 +156,24 @@ msgstr "L'impression échoue !"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:140
+#: tools.py:142
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:142
+#: tools.py:144
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:469
+#: tools.py:460
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:564 xfergraphic.py:159
+#: tools.py:555 xfergraphic.py:159
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:566 xfergraphic.py:160
+#: tools.py:557 xfergraphic.py:160
 msgid "No"
 msgstr "Non"
 
@@ -185,24 +185,24 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:44 xferadvance.py:227 xfergraphic.py:130 xferprinting.py:120
-#: xferprinting.py:196 xfersearch.py:580
+#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:130 xferprinting.py:122
+#: xferprinting.py:198 xfersearch.py:582
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:45 xfercomponents.py:703
+#: xferadvance.py:45 xfercomponents.py:705
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:46 xfercomponents.py:703
+#: xferadvance.py:46 xfercomponents.py:705
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:47 xfercomponents.py:704
+#: xferadvance.py:47 xfercomponents.py:706
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:48 xfercomponents.py:704
+#: xferadvance.py:48 xfercomponents.py:706
 msgid "Add"
 msgstr "Ajouter"
 
@@ -218,7 +218,7 @@ msgstr "Sauver"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:52 xferprinting.py:195
+#: xferadvance.py:52 xferprinting.py:197
 msgid "Print"
 msgstr "Imprimer"
 
@@ -235,7 +235,7 @@ msgstr "Étiquette"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:218 xferbasic.py:148
+#: xferadvance.py:222 xferbasic.py:148
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -243,40 +243,45 @@ msgstr ""
 "Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xferadvance.py:235
+#: xferadvance.py:241
 msgid "No model"
 msgstr "Pas de modèle"
 
-#: xferadvance.py:245
+#: xferadvance.py:251
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:256
+#: xferadvance.py:262
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:257
+#: xferadvance.py:263
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:280
+#: xferadvance.py:288
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferadvance.py:311
+#: xferadvance.py:321
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}Une condition ne doit pas être vérifiée."
 
-#: xferadvance.py:314
+#: xferadvance.py:324
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
-#: xferadvance.py:324
+#: xferadvance.py:334
 msgid "Bad transition"
 msgstr "Mauvaise transition"
+
+#: xferbasic.py:302
+#, python-format
+msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
+msgstr "la méthode http \"%(method)s\" n'est pas autorisée pour \"%(url)s\" !"
 
 #: xfergraphic.py:136
 msgid "Traitment..."
@@ -302,19 +307,19 @@ msgstr ""
 msgid "DUPLICATA"
 msgstr "DUPLICATA"
 
-#: xferprinting.py:167
+#: xferprinting.py:169
 msgid "Get saved report"
 msgstr "Obtenir le rapport sauvegardé"
 
-#: xferprinting.py:191
+#: xferprinting.py:193
 msgid "Kind of report"
 msgstr "Type de rapport"
 
-#: xferprinting.py:221
+#: xferprinting.py:223
 msgid "PDF file"
 msgstr "Fichier PDF"
 
-#: xferprinting.py:223
+#: xferprinting.py:225
 msgid "CSV file"
 msgstr "Fichier CSV"
 
@@ -354,11 +359,11 @@ msgstr "ou"
 msgid "and"
 msgstr "et"
 
-#: xfersearch.py:106 xfersearch.py:534
+#: xfersearch.py:106 xfersearch.py:536
 msgid "Your criteria of search"
 msgstr "Votre critère de recherche"
 
-#: xfersearch.py:108 xfersearch.py:537
+#: xfersearch.py:108 xfersearch.py:539
 msgid "No criteria of search"
 msgstr "Pas de critère de recherche"
 
@@ -367,7 +372,7 @@ msgstr "Pas de critère de recherche"
 msgid "%d items"
 msgstr "%d éléments"
 
-#: xfersearch.py:471
+#: xfersearch.py:473
 msgid "New criteria"
 msgstr "Nouveau critère"
 

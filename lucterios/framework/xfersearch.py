@@ -379,6 +379,8 @@ class FieldDescList(object):
 
 
 class XferSearchEditor(XferContainerCustom):
+    readonly = True
+    methods_allowed = ('GET', )
 
     def __init__(self):
         XferContainerCustom.__init__(self)
