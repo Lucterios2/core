@@ -348,7 +348,7 @@ class LucteriosTestAbstract(object):
         if len(coord) > 4:
             self.assert_attrib_equal(path, "tab", str(coord[4]))
 
-    def assert_action_equal(self, path, act_desc):
+    def assert_action_equal(self, method, path, act_desc):
         self.assertTrue(self.response_json is not None)
         act = path
         if isinstance(path, str):
@@ -361,6 +361,7 @@ class LucteriosTestAbstract(object):
         else:
             self.assertEqual(act['icon'], '/static/' + act_desc[1])
         if len(act_desc) > 2:
+            self.assertEqual(act['method'], method)
             self.assertEqual(act['extension'], act_desc[2])
             self.assertEqual(act['action'], act_desc[3])
             self.assertEqual(act['close'], str(act_desc[4]))
