@@ -71,7 +71,7 @@ class DummyTest(LucteriosTest):
         self.assert_json_equal('', 'type', '1')
         self.assert_json_equal('', 'text', 'Hello world (None,4)!')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal(self.json_actions[0], ('Ok', 'images/ok.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'images/ok.png'))
 
     def test_multi(self):
         self.calljson('/lucterios.dummy/multi', {})
@@ -133,7 +133,7 @@ class DummyTest(LucteriosTest):
                             ('FLOAT', 'flt2'), ('CHECKLIST', 'cl1')]:
             self.assertEqual(self.json_comp[name]['component'], tag)
             act = self.json_comp[name]['action']
-            self.assert_action_equal(act, ('Modify', None, 'lucterios.dummy', 'testComposants', '0', '2', '1'))
+            self.assert_action_equal('POST', act, ('Modify', None, 'lucterios.dummy', 'testComposants', '0', '2', '1'))
 
     def test_testcomposants_again(self):
 

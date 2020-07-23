@@ -197,6 +197,9 @@
 		<delete file=".coverage" />
 		<delete file="coverage.xml" />
 		<delete file="coverage3.xml" />
+		<exec executable="${project.pythonexe}" dir="${basedir}" output="rest_api.txt" failonerror="false">
+			<arg line="manage_${project.test.instance}.py lucterios_restapi" />
+		</exec>		
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<arg line="-m coverage erase" />
 		</exec>

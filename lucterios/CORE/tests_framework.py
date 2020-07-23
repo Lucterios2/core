@@ -25,7 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from lucterios.framework.test import LucteriosTest
-from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_WARNING, XferContainerCustom
+from lucterios.framework.xfergraphic import XFER_DBOX_WARNING, XferContainerCustom
 from lucterios.framework.tools import WrapAction
 
 from lucterios.CORE.models import Parameter
@@ -76,7 +76,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(len(self.json_context), 0)
         self.assertEqual(len(self.json_actions), 0)
         self.assertTrue('close' in self.response_json.keys())
-        self.assert_action_equal(self.response_json['close'], ("close", None, "customer", "list", 1, 1, 1))
+        self.assert_action_equal('POST', self.response_json['close'], ("close", None, "customer", "list", 1, 1, 1))
 
     def test_redirect(self):
         def fillresponse_redirect():
@@ -87,7 +87,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(len(self.json_context), 0)
         self.assertEqual(len(self.json_actions), 0)
         self.assertTrue('action' in self.response_json.keys())
-        self.assert_action_equal(self.response_json['action'], ("redirect", None, "customer", "list", 1, 1, 1))
+        self.assert_action_equal('POST', self.response_json['action'], ("redirect", None, "customer", "list", 1, 1, 1))
 
     def test_confirme(self):
         self.value = False
@@ -102,8 +102,8 @@ class GenericTest(LucteriosTest):
         self.assert_json_equal('', 'type', '2')
         self.assert_json_equal('', 'text', 'Do you want?')
         self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal(self.json_actions[0], ('Oui', 'images/ok.png', 'customer', 'details', 1, 1, 1, {'CONFIRME': "YES"}))
-        self.assert_action_equal(self.json_actions[1], ('Non', 'images/cancel.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Oui', 'images/ok.png', 'customer', 'details', 1, 1, 1, {'CONFIRME': "YES"}))
+        self.assert_action_equal('POST', self.json_actions[1], ('Non', 'images/cancel.png'))
 
         self.calljson('/customer/details', {'CONFIRME': 'YES'}, False)
         self.assertEqual(self.value, True)
@@ -118,7 +118,7 @@ class GenericTest(LucteriosTest):
         self.assert_json_equal('', 'type', '3')
         self.assert_json_equal('', 'text', 'Finished!')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal(self.json_actions[0], ('Ok', 'images/ok.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'images/ok.png'))
 
     def test_traitment(self):
         self.value = False
@@ -135,10 +135,10 @@ class GenericTest(LucteriosTest):
         self.assert_count_equal('', 3)
         self.assert_json_equal('LABELFORM', "info", '{[br/]}Traitment{[br/]}Wait...')
         self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
-        self.assert_action_equal(self.json_comp['Next']['action'], ('Traitement...', None, 'customer', 'details', 1, 1, 1, {'RELOAD': "YES"}))
+        self.assert_action_equal('POST', self.json_comp['Next']['action'], ('Traitement...', None, 'customer', 'details', 1, 1, 1, {'RELOAD': "YES"}))
         self.assert_attrib_equal('Next', 'javascript', 'parent.refresh()')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal(self.json_actions[0], ('Annuler', 'images/cancel.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'images/cancel.png'))
 
         self.calljson('/customer/details', {'RELOAD': 'YES'}, False)
         self.assertEqual(self.value, True)
@@ -148,7 +148,7 @@ class GenericTest(LucteriosTest):
         self.assert_count_equal('', 2)
         self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
         self.assert_json_equal('LABELFORM', "info", 'Done')
-        self.assert_action_equal(self.json_actions[0], ('Fermer', 'images/close.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Fermer', 'images/close.png'))
 
     def test_parameters_text(self):
         param = Parameter.objects.create(name='param_text', typeparam=0)
