@@ -583,12 +583,12 @@ class XferContainerCustom(XferContainerAbstract):
             else:
                 self.item.editor.edit(self)
 
-    def add_action(self, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, params=None):
+    def add_action(self, action, pos_act=-1, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         if self.check_action_permission(action):
             if pos_act != -1:
-                self.actions.insert(pos_act, (action, modal, close, SELECT_NONE, params))
+                self.actions.insert(pos_act, (action, modal, close, unique, params))
             else:
-                self.actions.append((action, modal, close, SELECT_NONE, params))
+                self.actions.append((action, modal, close, unique, params))
 
     def get_sort_components(self):
         return sorted(self.components.values(), key=lambda item: item.get_id())

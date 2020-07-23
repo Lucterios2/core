@@ -183,7 +183,7 @@ class UserTest(LucteriosTest):
         self.assertEqual(self.json_context['user_actif'], '3')
         self.assertEqual(len(self.json_actions), 3)
         self.assert_action_equal(self.json_actions[0], ('Ok', 'images/ok.png', 'CORE', 'usersEdit', 1, 1, 1, {'SAVE': 'YES'}))
-        self.assert_action_equal(self.json_actions[1], ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 1))
+        self.assert_action_equal(self.json_actions[1], ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
         self.assert_action_equal(self.json_actions[2], ('Annuler', 'images/cancel.png'))
 
         self.assert_json_equal('IMAGE', "img", '/static/lucterios.CORE/images/user.png')
