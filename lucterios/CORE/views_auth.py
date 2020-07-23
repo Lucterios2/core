@@ -165,7 +165,7 @@ class Authentification(XferContainerAbstract):
 @MenuManage.describ('')
 class ExitConnection(XferContainerAcknowledge):
     caption = 'exit'
-    methods_allowed = ('POST', 'GET', 'PUT', 'DELETE')
+    methods_allowed = ('GET', 'POST', 'PUT', 'DELETE')
 
     def fillresponse(self):
         from django.contrib.auth import logout

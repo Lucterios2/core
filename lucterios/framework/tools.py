@@ -163,25 +163,6 @@ class ActionsManage(object):
     _actlock = threading.RLock()
 
     @classmethod
-    def affect(cls, *arg_tuples):
-        warnings.warn("[ActionsManage.affect(%s)] Deprecated in Lucterios 2.2" % arg_tuples, DeprecationWarning)
-
-        def wrapper(item):
-            cls._actlock.acquire()
-            try:
-                model_name = arg_tuples[0]
-                action_types = arg_tuples[1:]
-                for action_type in action_types:
-                    ident = "%s@%s" % (model_name, action_type)
-                    cls._VIEW_LIST[ident] = item
-                    logging.getLogger("lucterios.core.action").debug(
-                        "new affection: %s", ident)
-                return item
-            finally:
-                cls._actlock.release()
-        return wrapper
-
-    @classmethod
     def get_actions(cls, ident, xfer, model_name=None, key=None, **args):
         cls._actlock.acquire()
         try:
@@ -244,6 +225,7 @@ class ActionsManage(object):
     def affect_list(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
+        options['unique'] = SELECT_NONE
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_LIST, title, icon, condition, **options)
 
     @classmethod
@@ -257,12 +239,14 @@ class ActionsManage(object):
     def affect_show(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
+        options['unique'] = SELECT_SINGLE
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_SHOW, title, icon, condition, **options)
 
     @classmethod
     def affect_edit(cls, title, icon, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, **options):
         options['close'] = close
         options['modal'] = modal
+        options['unique'] = SELECT_SINGLE
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, icon, condition, **options)
 
     @classmethod

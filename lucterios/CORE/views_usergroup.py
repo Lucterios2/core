@@ -30,7 +30,7 @@ from django.apps.registry import apps
 from django.db.models import Q
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE,\
-    TITLE_CLOSE
+    TITLE_CLOSE, XferShowEditor
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
     XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm
@@ -206,7 +206,7 @@ class SessionDelete(XferDelete):
 
 @MenuManage.describ('sessions.change_session')
 @ActionsManage.affect_other(_("Show log"), "images/auditlog.png")
-class AuditLogShow(XferContainerCustom):
+class AuditLogShow(XferShowEditor):
     caption = _("Show log")
     icon = "auditlog.png"
     model = LucteriosLogEntry

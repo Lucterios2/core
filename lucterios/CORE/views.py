@@ -97,6 +97,7 @@ class SituationMenu(XferContainerCustom):
 @MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
     caption = 'unlock'
+    methods_allowed = ('GET', 'POST', 'PUT', 'DELETE')
 
     def fillresponse(self):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)
@@ -107,6 +108,7 @@ signal_and_lock.unlocker_view_class = Unlock
 
 @MenuManage.describ('')
 class Download(XferContainerAbstract):
+    methods_allowed = ('GET', )
 
     def request_handling(self, request, *args, **kwargs):
         getLogger("lucterios.core.request").debug(
@@ -1111,7 +1113,7 @@ def right_show_wizard(request):
     return Params.getvalue("CORE-Wizard") and (request.user.is_superuser or not secure_mode_connect())
 
 
-@MenuManage.describ("CORE.change_parameter")
+@MenuManage.describ("CORE.add_parameter")
 class ConfigurationWizard(XferListEditor):
     caption = _("Configuration wizard")
     icon = "images/config.png"
