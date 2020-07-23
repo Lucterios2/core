@@ -262,17 +262,17 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
-        self.calljson('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'}, 'put')
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'aaa', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
         self.assert_json_equal('', 'message', str('Mot de passe actuel erroné!'))
         self.assert_json_equal('', 'code', '3')
 
-        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'}, 'put')
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '456'})
         self.assert_observer('core.exception', 'CORE', 'modifyPassword')
         self.assert_json_equal('', 'message', str('Les mots de passes sont différents!'))
         self.assert_json_equal('', 'code', '3')
 
-        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'}, 'put')
+        self.calljson('/CORE/modifyPassword', {'oldpass': 'empty', 'newpass1': '123', 'newpass2': '123'})
         self.assert_observer('core.dialogbox', 'CORE', 'modifyPassword')
         self.assert_json_equal('', 'text', str('Mot de passe modifié'))
         self.assert_json_equal('', 'type', '1')

@@ -80,7 +80,7 @@ class XmlClient(Client):
         if method in ('get', 'delete'):
             path = path + '?' + urlencode(data, doseq=True)
             data = None
-        return request_action(path, data, HTTP_ACCEPT_LANGUAGE=self.language)
+        return request_action(path, data, content_type=MULTIPART_CONTENT, HTTP_ACCEPT_LANGUAGE=self.language)
 
 
 class XmlRequestFactory(RequestFactory):
