@@ -42,8 +42,7 @@ from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
-from lucterios.install.graphic_lib import LucteriosMain, EditorInstance,\
-    LucteriosChecker
+from lucterios.install.graphic_lib import LucteriosMain, EditorInstance, LucteriosChecker
 
 
 class InstanceModel(QAbstractListModel):
@@ -705,6 +704,13 @@ class LucteriosTrayIcon(QSystemTrayIcon):
     def open(self):
         self.lct.show()
 
+    def refresh(self):
+        self.lct.show()
+        self.lct.refresh_all()
+
+    def startedlist(self):
+        return self.lct.started_list()
+
     def close(self):
         if self.lct.check_close():
             QApplication.quit()
@@ -716,7 +722,8 @@ def main():
         if checher.execute():
             app = QApplication(sys.argv)
             traylct = LucteriosTrayIcon()
-            checher.open_function = lambda: traylct.open()
+            checher.open_function = lambda: traylct.refresh()
+            checher.startedlist_function = lambda: traylct.startedlist()
             traylct.show()
             exit_ret = app.exec_()
         else:

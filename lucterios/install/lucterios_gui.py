@@ -29,21 +29,18 @@ from __future__ import unicode_literals
 import sys
 from os.path import join, dirname, expanduser
 from time import sleep
-from threading import Thread
 
 from django.utils.module_loading import import_module
 from django.utils.translation import ugettext
 
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none
-
-from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar,\
-    TclError
+from tkinter import Toplevel, Tk, ttk, Label, Entry, Frame, Button, Listbox, Text, StringVar, TclError
 from tkinter import E, W, N, S, END, NORMAL, DISABLED, EXTENDED, CENTER
 from tkinter.messagebox import showerror, showinfo, askokcancel
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter import Image
-from lucterios.install.graphic_lib import ThreadRun, LucteriosMain,\
-    EditorInstance, LucteriosChecker
+
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none
+from lucterios.install.graphic_lib import ThreadRun, LucteriosMain, EditorInstance, LucteriosChecker
 
 READLONY = 'readonly'
 VALUES = 'values'
@@ -658,6 +655,7 @@ def main():
         if checher.execute():
             lct_form = LucteriosMainForm()
             checher.open_function = lambda: lct_form.show()
+            checher.startedlist_function = lambda: lct_form.started_list()
             lct_form.execute()
         else:
             sys.exit(1)

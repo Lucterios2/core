@@ -32,13 +32,14 @@ import logging
 import os
 import signal
 from socket import socket, AF_INET, SOCK_STREAM
-from os.path import isfile, join, dirname
+from os.path import isfile
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
 from traceback import print_exc
 from multiprocessing.context import Process
 from threading import Thread
 from re import compile
+from json import dumps
 
 from django.utils.translation import ugettext
 from django.utils.module_loading import import_module
@@ -129,8 +130,11 @@ class RunServer(object):
             raise RunException(ugettext("Error to start!"))
         self.save_serverfile()
 
+    def get_url(self):
+        return "http://%(ip)s:%(port)d" % {'ip': self.lan_ip, 'port': self.port}
+
     def open_url(self):
-        webbrowser.open_new("http://%(ip)s:%(port)d" % {'ip': self.lan_ip, 'port': self.port})
+        webbrowser.open_new(self.get_url())
 
     def stop(self, remove_file=True):
         if self.is_running():
@@ -207,6 +211,7 @@ class LucteriosChecker(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.open_function = None
+        self.startedlist_function = None
 
     def __enter__(self):
         return self
@@ -223,9 +228,14 @@ class LucteriosChecker(Thread):
                         binary_data = conn.recv(1024)
                         if not binary_data:
                             break
-                        if self.open_function is not None:
-                            self.open_function()
-                        conn.sendall(b'OK')
+                        if binary_data == b'OPEN':
+                            if self.open_function is not None:
+                                self.open_function()
+                        if self.startedlist_function is not None:
+                            result = dumps(self.startedlist_function()).encode()
+                        else:
+                            result = b'OK'
+                        conn.sendall(result)
         finally:
             self.stop()
 
@@ -237,7 +247,9 @@ class LucteriosChecker(Thread):
         with socket(AF_INET, SOCK_STREAM) as client_socket:
             client_socket.connect((self.HOST, self.PORT))
             client_socket.sendall(b'OPEN')
-            client_socket.recv(1024)
+            result = client_socket.recv(1024)
+            if isinstance(result, bytes):
+                return result.decode()
 
     def execute(self):
         try:
@@ -249,7 +261,7 @@ class LucteriosChecker(Thread):
             return True
         except OSError:
             print("Exist yet, open windows")
-            self.send_message()
+            print(self.send_message())
             return False
 
 
@@ -304,6 +316,13 @@ class LucteriosMain(object):
             if self.running_instance[old_item] is not None:
                 self.running_instance[old_item].stop(remove_file=False)
                 del self.running_instance[old_item]
+
+    def started_list(self):
+        result = {}
+        for instance_name, instance_item in self.running_instance.items():
+            if instance_item is not None:
+                result[instance_name] = instance_item.get_url()
+        return result
 
     @classmethod
     def show_info(self, text, message):
