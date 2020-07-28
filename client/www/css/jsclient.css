@@ -452,6 +452,10 @@ button span img {
 	width: 95%;
 }
 
+div.jqte {
+	min-width: 400px;
+}
+
 .grid {
 	min-height: 200px;
 	width: 100%;
@@ -690,7 +694,7 @@ img.memobtn {
 	background-color: #F0F0F0;
 	padding: 5px;
 	border-radius: 5px;
-	min-height: 55px;
+	min-height: 70px;
 }
 
 .drop_zone div {

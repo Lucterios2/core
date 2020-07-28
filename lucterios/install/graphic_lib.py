@@ -134,7 +134,7 @@ class RunServer(object):
         return "http://%(ip)s:%(port)d" % {'ip': self.lan_ip, 'port': self.port}
 
     def open_url(self):
-        webbrowser.open_new(self.get_url())
+        webbrowser.open_new("http://localhost:%(port)d" % {'port': self.port})
 
     def stop(self, remove_file=True):
         if self.is_running():

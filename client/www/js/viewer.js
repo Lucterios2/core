@@ -95,7 +95,7 @@ function initial_function() {
 			}
 			act = Singleton().CreateAction();
 			act.mFormType = FORM_MODAL;
-			act.initializeEx(null, Singleton().Factory(), '', G_params.ext, G_params.act);
+			act.initializeEx(null, Singleton().Factory(), '', G_params.ext, G_params.act, G_params.method);
 			act.getParameters = function() {
 				var param = new HashMap();
 				jQuery.each(G_params.params, function(key, data) {

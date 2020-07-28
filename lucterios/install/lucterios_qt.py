@@ -468,7 +468,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             inst = LucteriosInstance(self.instances_model.current_item)
             inst.read()
             if self.running_instance[inst.name] is not None and self.running_instance[inst.name].is_running():
-                inst_status = ugettext("Running in <a href='http://%(ip)s:%(port)d'>http://%(ip)s:%(port)d</a>") % {'ip': self.running_instance[inst.name].lan_ip, 'port': self.running_instance[inst.name].port}
+                inst_status = ugettext("Running in <a href='%(url)s'>%(url)s</a>") % {'url': self.running_instance[inst.name].get_url()}
                 btn_text = ugettext("Stop")
                 btn_icon_path = join(self.icon_path, 'close.png')
                 self.browserAct.setEnabled(True)

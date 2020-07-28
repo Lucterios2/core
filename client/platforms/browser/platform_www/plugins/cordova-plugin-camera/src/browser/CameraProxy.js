@@ -135,7 +135,7 @@ cordova.define("cordova-plugin-camera.CameraProxy", function(require, exports, m
 				audio : false
 			}, successCallback, errorCallback);
 		} else {
-			alert(Singleton().getTranslate('Browser does not support camera :('));
+			alert_function(Singleton().getTranslate('Browser does not support camera for this address :('));
 		}
 	}
 

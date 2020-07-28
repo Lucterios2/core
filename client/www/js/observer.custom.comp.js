@@ -597,8 +597,11 @@ var compMemo = compAbstractEvent.extend({
 	},
 
 	get_Html : function() {
-		var isub_menu, sub_menu, html = '';
-		html += '<textarea {0}">{1}</textarea>'.format(this.getAttribHtml({}, true), this.initialVal());
+		var isub_menu, sub_menu, html = '', attrib={};
+		if (this.with_hypertext) {
+			attrib={'style':'min-width: 400px;min-height: 240px;'};
+		}
+		html += '<textarea {0}">{1}</textarea>'.format(this.getAttribHtml(attrib, true), this.initialVal());
 		if (this.with_hypertext && (this.submenu.length > 0)) {
 			html += '<ul id="menu_{0}" style="width: 30px">'.format(this.get_id());
 			html += '<li>';

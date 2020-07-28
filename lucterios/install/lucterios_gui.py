@@ -575,7 +575,7 @@ class LucteriosMainForm(Tk, LucteriosMain):
                         END, ugettext("Extra\t\t%s\n") % inst.get_extra_txt())
                     self.instance_txt.insert(END, '\n')
                     if self.running_instance[instance_name] is not None and self.running_instance[instance_name].is_running():
-                        self.instance_txt.insert(END, ugettext("=> Running in http://%(ip)s:%(port)d\n") % {'ip': self.running_instance[instance_name].lan_ip, 'port': self.running_instance[instance_name].port})
+                        self.instance_txt.insert(END, ugettext("Running in <a href='%(url)s'>%(url)s</a>") % {'url': self.running_instance[inst.name].get_url()})
                         self.btninstframe.winfo_children()[0].disabled = False
                         self.btninstframe.winfo_children()[1]["text"] = ugettext("Stop")
                     else:

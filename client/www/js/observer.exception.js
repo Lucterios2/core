@@ -185,6 +185,21 @@ var ObserverException = ObserverAbstract
 
 		});
 
+alert_function = function(message) {
+	obs = new ObserverException();
+	obs.setContent({
+		"exception" : {
+			"message" : message,
+			"code" : IMPORTANT,
+			"debug" : "",
+			"type" : "",
+			"requette" : "",
+			"reponse" : ""
+		}
+	});
+	obs.show('alert');	
+};
+
 window.onerror = function myErrorHandler(errorMsg, source, lineno, columnNo, error) {
 	var error_desc, stack, obs, type_error, errname;
 	stack = source + "->" + lineno + ':' + columnNo;

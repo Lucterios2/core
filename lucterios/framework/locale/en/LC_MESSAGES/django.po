@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-23 08:42+0000\n"
+"POT-Creation-Date: 2020-07-28 10:02+0000\n"
 "PO-Revision-Date: 2020-07-23 10:41+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -68,7 +68,7 @@ msgstr "create"
 msgid "update"
 msgstr "update"
 
-#: models.py:740 tools.py:462
+#: models.py:740 tools.py:446
 msgid "delete"
 msgstr "delete"
 
@@ -76,7 +76,7 @@ msgstr "delete"
 msgid "remove"
 msgstr "remove"
 
-#: models.py:742 tools.py:458
+#: models.py:742 tools.py:442
 msgid "add"
 msgstr "add"
 
@@ -162,15 +162,15 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:460
+#: tools.py:444
 msgid "view"
 msgstr "view"
 
-#: tools.py:555 xfergraphic.py:159
+#: tools.py:539 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:557 xfergraphic.py:160
+#: tools.py:541 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 
