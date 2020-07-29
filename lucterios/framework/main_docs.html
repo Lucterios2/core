@@ -2,6 +2,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta http-equiv="Content-Security-Policy" content="frame-src 'self';default-src 'self' data: 'unsafe-eval' 'unsafe-inline'">
 <title>{% trans "User manual" %}</title>
 <style type="text/css">
 <!--
@@ -16,8 +19,8 @@ BODY {
 	text-align: center;
 	vertical-align: middle;
 	color: #0C3762;
-    position: relative;
-    top: -64px;
+	position: relative;
+	top: -64px;
 }
 
 #header {
@@ -30,7 +33,7 @@ BODY {
 
 #header img {
 	margin-left: 5%;
-	height:64px;
+	height: 64px;
 }
 
 #menu {
@@ -42,21 +45,21 @@ BODY {
 
 ul {
 	list-style-type: none;
-	text-align:left;
-	padding-left:0px;
+	text-align: left;
+	padding-left: 0px;
 }
 
 li {
-    position: relative;
-    display: inline-block;
-    text-align: left;
-    padding: 5px 10px 5px 10px;
+	position: relative;
+	display: inline-block;
+	text-align: left;
+	padding: 5px 10px 5px 10px;
 	margin: 3px 3px 3px 3px;
 	background-color: #FFFFFF;
 	border: 1px SOLID black;
 	color: #DC3C01;
 	font-weight: bold;
-	width:90%;
+	width: 90%;
 }
 
 #content {
@@ -67,7 +70,6 @@ li {
 	height: 80%;
 	overflow: auto;
 }
-
 
 #foot {
 	background-color: #2D2DFF;
@@ -81,7 +83,6 @@ li {
 	width: 99%;
 	height: 15px;
 }
-
 -->
 </style>
 <script language="javascript">
@@ -93,17 +94,17 @@ li {
 </script>
 </head>
 
-<body onload='showcontent("{{ menus.0.0 }}","{{ lang }}")')>
+<body onload='showcontent("{{ menus.0.0 }}","{{ lang }}")'>
 	<div id="header">
-		<img src="{{ applogo }}"/>
+		<img src="{{ applogo }}" />
 		<div class="title">{{ title }}</div>
 	</div>
 
 	<div id="menu">
 		<ul>
-{% for menu in menus %}
+			{% for menu in menus %}
 			<li onclick='showcontent("{{ menu.0 }}","{{ lang }}")'>{{menu.1}}</li>
-{% endfor %}
+			{% endfor %}
 		</ul>
 	</div>
 

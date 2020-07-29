@@ -46,7 +46,7 @@ def defaultDocs(request):
     dictionary = {}
     dictionary['title'] = str(settings.APPLIS_NAME)
     dictionary['subtitle'] = settings.APPLIS_SUBTITLE()
-    dictionary['applogo'] = settings.APPLIS_LOGO
+    dictionary['applogo'] = settings.APPLIS_LOGO.decode() if hasattr(settings.APPLIS_LOGO, 'decode') else settings.APPLIS_LOGO
     dictionary['version'] = str(settings.APPLIS_VERSION)
     dictionary['lang'] = get_language()
     dictionary['menus'] = []
