@@ -386,20 +386,21 @@ class LucteriosTestAbstract(object):
             tag = 'SELECT'
         else:
             tag = 'CHECKLIST'
+        values = self.json_comp[path]
         self.assertTrue(self.response_json is not None)
         self.assertTrue(self.response_xml is None)
-        self.assertEqual(self.json_comp[path]['component'], tag)
+        self.assertEqual(values['component'], tag)
         if isinstance(selects, dict):
-            self.assertEqual(len(self.json_comp[path]['case']), len(selects))
+            self.assertEqual(len(values['case']), len(selects))
             try:
-                for case in self.json_comp[path]['case']:
+                for case in values['case']:
                     vid = case[0]
                     self.assertEqual(selects[vid], case[1])
             except Exception:
-                print(self.json_comp[path]['case'])
+                print(values['case'])
                 raise
         else:
-            self.assertEqual(len(self.json_comp[path]['case']), selects)
+            self.assertEqual(len(values['case']), selects, "Select of %s different: %d=>%d\n%s" % (path, len(values['case']), selects, self._get_json_dump(values)))
 
     def assert_grid_equal(self, path, headers, nb_records):
         import json
