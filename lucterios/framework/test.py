@@ -391,7 +391,7 @@ class LucteriosTestAbstract(object):
         self.assertTrue(self.response_xml is None)
         self.assertEqual(values['component'], tag)
         if isinstance(selects, dict):
-            self.assertEqual(len(values['case']), len(selects))
+            self.assertEqual(len(values['case']), len(selects), "Select of %s different: %d=>%d\n%s" % (path, len(values['case']), len(selects), self._get_json_dump(values)))
             try:
                 for case in values['case']:
                     vid = case[0]
