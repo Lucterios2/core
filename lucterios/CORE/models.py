@@ -55,11 +55,11 @@ class Parameter(LucteriosModel):
     TYPE_SELECT = 4
     TYPE_PASSWORD = 5
     TYPE_META = 6
-    TYPE_LIST = ((TYPE_STRING, _('String')), (TYPE_INTEGER, _('Integer')), (TYPE_REAL, _('Real')),
+    LIST_TYPES = ((TYPE_STRING, _('String')), (TYPE_INTEGER, _('Integer')), (TYPE_REAL, _('Real')),
                  (TYPE_BOOL, _('Boolean')), (TYPE_SELECT, _('Select')), (TYPE_PASSWORD, _('Password')), (TYPE_META, _('Meta')))
 
     name = models.CharField(_('name'), max_length=100, unique=True)
-    typeparam = models.IntegerField(choices=TYPE_LIST, default=0)
+    typeparam = models.IntegerField(choices=LIST_TYPES, default=0)
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
     metaselect = models.TextField('meta', blank=True)
