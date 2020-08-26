@@ -181,6 +181,7 @@ class LucteriosTestAbstract(object):
             self.response = self.client.call(path, data, is_client if isinstance(is_client, str) else 'post')
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
+        self.content = self.response.content.decode().strip()
 
     def calljson(self, path, data, is_client=True):
         import json
