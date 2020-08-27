@@ -289,7 +289,7 @@ class XferSave(XferContainerAcknowledge):
         if self.except_msg == '':
             self.item.editor.saving(self)
         for param_name in list(self.params.keys()):
-            if len(self.params[param_name]) > 100:
+            if isinstance(self.params[param_name], str) and len(self.params[param_name]) > 100:
                 del self.params[param_name]
         if self.getparam('URL_TO_REDIRECT') is not None:
             url_text = self.getparam('URL_TO_REDIRECT')

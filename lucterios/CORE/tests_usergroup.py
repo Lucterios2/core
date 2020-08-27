@@ -397,7 +397,7 @@ class UserTest(LucteriosTest):
         self.calljson('/CORE/usersEdit', {'user_actif': '3'})
         self.assert_observer('core.custom', 'CORE', 'usersEdit')
         self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('GET', self.response_json['close'], ('unlock', None, "CORE", "unlock", 1, 1, 1))
+        self.assert_action_equal('POST', self.response_json['close'], ('unlock', None, "CORE", "unlock", 1, 1, 1))
         self.assertEqual(len(self.json_context), 2)
         self.assertEqual(self.json_context["user_actif"], '3')
         self.assertEqual(self.json_context["LOCK_IDENT"], 'lucterios.CORE.models-LucteriosUser-3')
@@ -589,7 +589,7 @@ class GroupTest(LucteriosTest):
 
         self.calljson('/CORE/groupsEdit', {'group': '1'})
         self.assert_observer('core.custom', 'CORE', 'groupsEdit')
-        self.assert_action_equal('GET', self.response_json['close'], ('unlock', None, "CORE", "unlock", 1, 1, 1))
+        self.assert_action_equal('POST', self.response_json['close'], ('unlock', None, "CORE", "unlock", 1, 1, 1))
         self.assertEqual(len(self.json_context), 2)
         self.assertEqual(self.json_context["group"], '1')
         self.assertEqual(self.json_context["LOCK_IDENT"], 'lucterios.CORE.models-LucteriosGroup-1')
