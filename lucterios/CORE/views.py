@@ -97,7 +97,7 @@ class SituationMenu(XferContainerCustom):
 @MenuManage.describ('')
 class Unlock(XferContainerAcknowledge):
     caption = 'unlock'
-    methods_allowed = ('GET', 'POST', 'PUT', 'DELETE')
+    methods_allowed = ('POST', 'PUT', 'GET', 'DELETE')
 
     def fillresponse(self):
         signal_and_lock.RecordLocker.unlock(self.request, self.params)

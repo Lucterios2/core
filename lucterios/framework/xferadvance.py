@@ -288,6 +288,9 @@ class XferSave(XferContainerAcknowledge):
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
             self.item.editor.saving(self)
+        for param_name in list(self.params.keys()):
+            if len(self.params[param_name]) > 100:
+                del self.params[param_name]
         if self.getparam('URL_TO_REDIRECT') is not None:
             url_text = self.getparam('URL_TO_REDIRECT')
             self.redirect_action(WrapAction('', '', url_text=url_text), params={self.field_id: self.item.id})
