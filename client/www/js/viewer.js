@@ -67,7 +67,7 @@ function first_action() {
 	if ((G_params !== null) && (G_params.ses !== undefined)) {
 		Singleton().Transport().setSession("");
 		Singleton().Transport().setSession(G_params.ses);
-		$.cookie('sessionid', session, {
+		$.cookie('sessionid', G_params.ses, {
 			path : '/',
 			expires : 0.007
 		});

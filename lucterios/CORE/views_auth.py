@@ -34,6 +34,8 @@ from lucterios.framework.models import LucteriosSession
 
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.framework.plugins import PluginManager
+from lucterios.CORE.models import LucteriosUser
+from django.contrib.auth.models import AnonymousUser
 
 
 def get_info_server():
@@ -92,12 +94,20 @@ class Authentification(XferContainerAbstract):
             else:
                 self.must_autentificate('BADAUTH')
 
-    def fillresponse(self, username, password, info):
+    def _check_session(self, ses):
+        from django.contrib.auth import login
+        session = LucteriosSession.objects.filter(session_key=ses).first() if ses is not None else None
+        user = LucteriosUser.objects.filter(username=session.username).first() if session is not None else None
+        if user is not None:
+            login(self.request, user)
+
+    def fillresponse(self, username, password, info, ses=None):
         if (username == '') and (password is None):
             self.must_autentificate('')
         elif (username is not None) and (password is not None):
             self._set_authentification(username, password)
         elif info is not None:
+            self._check_session(ses)
             self.connection_success()
         else:
             if self.request.user.is_authenticated or not secure_mode_connect():

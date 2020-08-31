@@ -2,27 +2,27 @@
 
 var ApplicationDescription = Class.extend({
 
-	mTitle : '',
-	mApplisVersion : '',
-	mServerVersion : '',
-	mCordovaVersionCurrent : '',
-	mCordovaVersionExpected : '',
-	mCopyRigth : '',
-	mLogoIconName : '',
-	mBackground : '',
-	mStyle : '',
-	mLogin : '',
-	mInfoServer : '',
-	mSupportEmail : '',
-	mSupportHTML : '',
-	mSubTitle : '',
-	mRealName : '',
-	mInstanceName : '',
-	mMessageBefore : '',
-	mMode : 0,
-	mLanguage : '',
+	mTitle: '',
+	mApplisVersion: '',
+	mServerVersion: '',
+	mCordovaVersionCurrent: '',
+	mCordovaVersionExpected: '',
+	mCopyRigth: '',
+	mLogoIconName: '',
+	mBackground: '',
+	mStyle: '',
+	mLogin: '',
+	mInfoServer: '',
+	mSupportEmail: '',
+	mSupportHTML: '',
+	mSubTitle: '',
+	mRealName: '',
+	mInstanceName: '',
+	mMessageBefore: '',
+	mMode: 0,
+	mLanguage: '',
 
-	init : function(aTitle, aCopyRigth, aAppliVersion, aServerVersion) {
+	init: function (aTitle, aCopyRigth, aAppliVersion, aServerVersion) {
 		this.mTitle = aTitle;
 		this.mApplisVersion = aAppliVersion;
 		this.mServerVersion = aServerVersion;
@@ -30,23 +30,23 @@ var ApplicationDescription = Class.extend({
 		this.mCordovaVersionCurrent = get_version();
 	},
 
-	setLogoIconName : function(aLogoIconName) {
+	setLogoIconName: function (aLogoIconName) {
 		this.mLogoIconName = aLogoIconName;
 	},
 
-	setBackground : function(aBackground) {
+	setBackground: function (aBackground) {
 		this.mBackground = aBackground;
 	},
 
-	setStyle : function(aStyle) {
+	setStyle: function (aStyle) {
 		this.mStyle = aStyle;
 	},
 
-	getTitle : function() {
+	getTitle: function () {
 		return this.mTitle;
 	},
 
-	getConnectUser : function() {
+	getConnectUser: function () {
 		var res = this.mRealName;
 		if (this.mLogin !== '') {
 			res += " ({0}@{1})".format(this.mLogin, this.mInstanceName);
@@ -56,118 +56,118 @@ var ApplicationDescription = Class.extend({
 		return res;
 	},
 
-	getLogoIconName : function() {
+	getLogoIconName: function () {
 		return this.mLogoIconName;
 	},
 
-	getApplisVersion : function() {
+	getApplisVersion: function () {
 		return this.mApplisVersion;
 	},
 
-	getServerVersion : function() {
+	getServerVersion: function () {
 		return this.mServerVersion;
 	},
 
-	getCopyRigth : function() {
+	getCopyRigth: function () {
 		return this.mCopyRigth;
 	},
 
-	getInfoServer : function() {
+	getInfoServer: function () {
 		return this.mInfoServer;
 	},
 
-	getSupportEmail : function() {
+	getSupportEmail: function () {
 		return this.mSupportEmail;
 	},
 
-	getSupportHTML : function() {
+	getSupportHTML: function () {
 		return this.mSupportHTML;
 	},
 
-	getLogin : function() {
+	getLogin: function () {
 		return this.mLogin;
 	},
 
-	getSubTitle : function() {
+	getSubTitle: function () {
 		return this.mSubTitle;
 	},
 
-	getRealName : function() {
+	getRealName: function () {
 		return this.mRealName;
 	},
 
-	getMode : function() {
+	getMode: function () {
 		return this.mMode;
 	},
 
-	setLogin : function(aLogin) {
+	setLogin: function (aLogin) {
 		this.mLogin = aLogin;
 	},
 
-	setInfoServer : function(aInfoServer) {
+	setInfoServer: function (aInfoServer) {
 		this.mInfoServer = aInfoServer;
 		if (Array.isArray(this.mInfoServer)) {
 			this.mInfoServer = this.mInfoServer.join('{[br/]}');
 		}
 	},
 
-	setSupportEmail : function(aSupportEmail) {
+	setSupportEmail: function (aSupportEmail) {
 		this.mSupportEmail = aSupportEmail;
 	},
 
-	setSupportHTML : function(aSupportHTML) {
+	setSupportHTML: function (aSupportHTML) {
 		this.mSupportHTML = aSupportHTML;
 	},
 
-	setSubTitle : function(aSubTitle) {
+	setSubTitle: function (aSubTitle) {
 		this.mSubTitle = aSubTitle;
 	},
 
-	setRealName : function(aRealName) {
+	setRealName: function (aRealName) {
 		this.mRealName = aRealName;
 	},
 
-	setMode : function(aMode) {
+	setMode: function (aMode) {
 		this.mMode = aMode;
 	},
 
-	setInstanceName : function(aInstanceName) {
+	setInstanceName: function (aInstanceName) {
 		this.mInstanceName = aInstanceName;
 	},
 
-	setMessageBefore : function(aMessageBefore) {
+	setMessageBefore: function (aMessageBefore) {
 		this.mMessageBefore = aMessageBefore;
 	},
 
-	getLanguage : function() {
+	getLanguage: function () {
 		return this.mLanguage;
 	},
 
-	setLanguage : function(language) {
+	setLanguage: function (language) {
 		this.mLanguage = language;
 	},
 
-	getCordovaVersionExpected : function() {
+	getCordovaVersionExpected: function () {
 		return this.mCordovaVersionExpected;
 	},
 
-	setCordovaVersionExpected : function(cordovaVersionExpected) {
+	setCordovaVersionExpected: function (cordovaVersionExpected) {
 		this.mCordovaVersionExpected = cordovaVersionExpected;
 	},
 
-	isCordovaVersionOk : function() {
+	isCordovaVersionOk: function () {
 		var version_expected, version_current, result = true;
 		if (this.mCordovaVersionExpected !== undefined) {
 			version_expected = this.mCordovaVersionExpected.split('.');
 			version_current = this.mCordovaVersionCurrent.split('.');
 			result = (parseInt(version_expected[0], 10) === parseInt(version_current[0], 10))
-					&& (parseInt(version_expected[1], 10) === parseInt(version_current[1], 10))
-					&& (parseInt(version_expected[2], 10) <= parseInt(version_current[2], 10));
+				&& (parseInt(version_expected[1], 10) === parseInt(version_current[1], 10))
+				&& (parseInt(version_expected[2], 10) <= parseInt(version_current[2], 10));
 		}
 		return result;
 	},
 
-	getCordovaVersionCurrent : function() {
+	getCordovaVersionCurrent: function () {
 		var result = this.mCordovaVersionCurrent;
 		if (!this.isCordovaVersionOk()) {
 			result = "<u>{0} ({1})</u>".format(result, Singleton().getTranslate("Client obselete").replace('<br/>', ':'));
@@ -175,34 +175,34 @@ var ApplicationDescription = Class.extend({
 		return result;
 	},
 
-	fillEmailSupport : function(aTitle, aComplement) {
+	fillEmailSupport: function (aTitle, aComplement) {
 		var email = this.mSupportEmail, url = "mailto:" + email;
 		url += "?subject=" + aTitle;
 		url += "&body=" + this.getText(aComplement).replace("+", " ");
 		return url;
 	},
 
-	getHTML : function(aComplement) {
+	getHTML: function (aComplement) {
 		var resValue = "";
 		if ((aComplement !== null) && (aComplement.length > 0)) {
 			resValue += aComplement + "<br>";
 		}
 		resValue += "<hr><center><h1>" + this.mTitle + "</h1></center>" + "<table width='100%'>" + "<tr><td><center>"
-				+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
-				+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion
-				+ "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>"
-				+ this.getCordovaVersionCurrent() + "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Device client")
-				+ "</center></td><td><center>" + get_device_info() + "</center></td></tr>" + "<tr><td><center>"
-				+ Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>'
-				+ get_serverurl() + "</font></center></td></tr>" + "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth
-				+ "</i></font></center></td></tr>" + "</table><hr>";
+			+ Singleton().getTranslate("Version") + "</center></td><td><center>" + this.mApplisVersion + "</center></td></tr>"
+			+ "<tr><td><center>" + Singleton().getTranslate("Server") + "</center></td><td><center>" + this.mServerVersion
+			+ "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Cordova client") + "</center></td><td><center>"
+			+ this.getCordovaVersionCurrent() + "</center></td></tr>" + "<tr><td><center>" + Singleton().getTranslate("Device client")
+			+ "</center></td><td><center>" + get_device_info() + "</center></td></tr>" + "<tr><td><center>"
+			+ Singleton().getTranslate("Connection") + "</center></td><td><center><font size='-1'>" + this.getConnectUser() + '<br>'
+			+ get_serverurl() + "</font></center></td></tr>" + "<tr><td colspan='2'><center><font size='-1'><i>" + this.mCopyRigth
+			+ "</i></font></center></td></tr>" + "</table><hr>";
 		if ((this.mInfoServer !== null) && (this.mInfoServer.length > 0)) {
 			resValue += this.mInfoServer.convertLuctoriosFormatToHtml() + "<br>";
 		}
 		return resValue;
 	},
 
-	getText : function(aComplement) {
+	getText: function (aComplement) {
 		var text_html = this.getHTML(aComplement), pos1 = 1, pos2 = 1;
 		while ((pos1 > 0) && (pos2 > 0)) {
 			pos1 = text_html.indexOf("<style type=\"text/css\">");
@@ -212,7 +212,7 @@ var ApplicationDescription = Class.extend({
 			}
 		}
 		text_html = text_html.replace(
-				/(<center>|<\/center>|<table width='100%'>|<\/table>|<tr><td>|<tr><td colspan='2'>|<font size='-1'>|<\/font>|<i>|<\/i>)/g, "");
+			/(<center>|<\/center>|<table width='100%'>|<\/table>|<tr><td>|<tr><td colspan='2'>|<font size='-1'>|<\/font>|<i>|<\/i>)/g, "");
 		text_html = text_html.replace(/<h1>\s*/g, "#### ");
 		text_html = text_html.replace(/[<br>|\\s|\n]*<\/h1>/g, " ####\n");
 		text_html = text_html.replace("<b>", "[");
@@ -235,24 +235,24 @@ var ApplicationDescription = Class.extend({
 });
 
 var ObserverAuthentification = ObserverAbstract.extend({
-	refreshMenu : true,
+	refreshMenu: true,
 
-	acts : null,
+	acts: null,
 
-	mActions : null,
+	mActions: null,
 
-	getObserverName : function() {
+	getObserverName: function () {
 		return "core.auth";
 	},
 
-	setContent : function(aJSON) {
+	setContent: function (aJSON) {
 		var extra_id;
 		this._super(aJSON);
 		this.acts = [];
 		this.acts[0] = new ActionInt();
 		this.acts[0].initializeEx(this, null, 'Ok');
 		this.acts[0].mIcon = "images/ok.png";
-		this.acts[0].callback = $.proxy(function(aParams) {
+		this.acts[0].callback = $.proxy(function (aParams) {
 			if (this.mGUI !== null) {
 				var login = aParams.get('username'), pass = aParams.get('password');
 				Singleton().Factory().setAuthentification(login, pass);
@@ -270,18 +270,18 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		this.acts[extra_id] = new ActionInt();
 		this.acts[extra_id].initializeEx(this, Singleton().Factory(), Singleton().getTranslate("Cancel"));
 		this.acts[extra_id].mIcon = "images/cancel.png";
-		this.acts[extra_id].callback = function() {
+		this.acts[extra_id].callback = function () {
 			Singleton().setInfoDescription(null, false);
 		};
 		this.mActions = this.mJSON.actions;
 	},
 
-	get_desc : function() {
+	get_desc: function () {
 		var json_connection, desc = null;
 		if (this.mJSON.connexion !== undefined) {
 			json_connection = this.mJSON.connexion;
 			desc = new ApplicationDescription(json_connection.TITLE, json_connection.COPYRIGHT, json_connection.VERSION,
-					json_connection.SERVERVERSION);
+				json_connection.SERVERVERSION);
 			desc.setCordovaVersionExpected(json_connection.CORDOVAVERSION);
 			desc.setLogoIconName(json_connection.LOGONAME);
 			desc.setBackground(json_connection.BACKGROUND);
@@ -300,7 +300,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		return desc;
 	},
 
-	show : function(aTitle, aGUIType) {
+	show: function (aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
 		var cdate = this.mJSON.data, desc = this.get_desc();
 		if (cdate !== "OK") {
@@ -319,7 +319,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		}
 	},
 
-	getParameters : function(aCheckNull) {
+	getParameters: function (aCheckNull) {
 		unusedVariables(aCheckNull);
 		var requete = new HashMap(), jcnt, login, pass;
 		if (this.mGUI !== null) {
@@ -333,17 +333,17 @@ var ObserverAuthentification = ObserverAbstract.extend({
 		return requete;
 	},
 
-	closeEx : function() {
+	closeEx: function () {
 		if (this.mGUI !== null) {
 			this.mGUI.dispose();
 		}
 	},
 
-	getRefreshMenu : function() {
+	getRefreshMenu: function () {
 		return this.refreshMenu;
 	},
 
-	show_logon : function(cdate) {
+	show_logon: function (cdate) {
 		var text = "", table = [], index, logbox_id, extra_acts = [], extra_table = [];
 		if (Singleton().Transport().getLastLogin() !== '') {
 			if ("BADAUTH" === cdate) {
@@ -371,7 +371,7 @@ var ObserverAuthentification = ObserverAbstract.extend({
 				extra_acts[index] = Singleton().CreateAction();
 				extra_acts[index].initialize(this, Singleton().Factory(), this.mActions[index]);
 				extra_table[0][index] = new compBasic('<center><button id="btn_{0}_{1}"><span style="font-size:10px;">{2}</span></button></center>'
-						.format(this.getId(), index, extra_acts[index].getTitle()));
+					.format(this.getId(), index, extra_acts[index].getTitle()));
 			}
 			table[3] = [];
 			table[3][0] = new compBasic(createTable(extra_table), 2);
@@ -386,11 +386,11 @@ var ObserverAuthentification = ObserverAbstract.extend({
 			$('#btn_{0}_{1}'.format(this.getId(), index)).click($.proxy(extra_acts[index].actionPerformed, extra_acts[index]));
 		}
 		logbox_id = this.mGUI.mId;
-		$('#frm_' + logbox_id).submit(function(event) {
+		$('#frm_' + logbox_id).submit(function (event) {
 			event.preventDefault();
 		});
 
-		$('#frm_' + logbox_id).find("[name='password'],[name='username']").bind("keydown", function(event) {
+		$('#frm_' + logbox_id).find("[name='password'],[name='username']").bind("keydown", function (event) {
 			var result, btns, keycode = (event.keyCode || event.which || event.charCode);
 			if (keycode === 13) {
 				btns = $("div.ui-dialog-buttonset > button.ui-button");
@@ -407,11 +407,19 @@ var ObserverAuthentification = ObserverAbstract.extend({
 
 var WrongObserverAuthentification = ObserverAuthentification.extend({
 
-	getObserverName : function() {
+	getObserverName: function () {
 		return "core.auth";
 	},
 
-	show_logon : function(cdate) {
-		unusedVariables(cdate);
+	show_logon: function (cdate) {
+		var text = "";
+		if ("BADAUTH" === cdate) {
+			text = Singleton().getTranslate("Login or password wrong!", "Alias ou Mot de passe incorrect!");
+		} else if ("NEEDAUTH" === cdate) {
+			text = Singleton().getTranslate("Please, identify you");
+		} else if (cdate !== '') {
+			text = "'" + cdate + "'";
+		}
+		throw new LucteriosException(IMPORTANT, text);
 	}
 });
