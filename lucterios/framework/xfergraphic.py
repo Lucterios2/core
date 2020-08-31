@@ -38,6 +38,7 @@ from lucterios.framework.xfercomponents import XferCompTab, XferCompImage, XferC
 from lucterios.framework.tools import get_dico_from_setquery, WrapAction, SELECT_NONE, get_actions_json, adapt_value
 from lucterios.framework.tools import get_corrected_setquery, FORMTYPE_MODAL, CLOSE_YES
 from lucterios.framework.models import get_format_from_field
+from lucterios.framework.filetools import is_image_base64
 
 
 def get_range_value(model_field):
@@ -374,10 +375,13 @@ class XferContainerCustom(XferContainerAbstract):
         if isinstance(dep_field, EmailField):
             comp = XferCompLinkLabel(prefix + field_name)
             comp.set_link('mailto:' + value)
+        elif isinstance(value, str) and is_image_base64(value):
+            comp = XferCompImage(prefix + field_name)
         else:
             comp = XferCompLabelForm(prefix + field_name)
         comp.set_value(value)
-        comp.set_format(get_format_from_field(dep_field))
+        if (dep_field is not None) and hasattr(comp, "set_format"):
+            comp.set_format(get_format_from_field(dep_field))
         return comp
 
     def _get_value_from_field(self, field_name, dep_field, default):
@@ -553,7 +557,7 @@ class XferContainerCustom(XferContainerAbstract):
                             comp = self.get_writing_comp(field_name)
                         comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
                         if verbose_name is None:
-                            comp.description = str(dep_field.verbose_name)
+                            comp.description = str(dep_field.verbose_name) if dep_field is not None else ""
                         else:
                             comp.description = str(verbose_name)
                         self.add_component(comp)
