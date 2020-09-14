@@ -185,8 +185,8 @@ var ObserverException = ObserverAbstract
 
 		});
 
-alert_function = function(message) {
-	obs = new ObserverException();
+var alert_function = function(message) {
+	var obs = new ObserverException();
 	obs.setContent({
 		"exception" : {
 			"message" : message,
@@ -197,7 +197,7 @@ alert_function = function(message) {
 			"reponse" : ""
 		}
 	});
-	obs.show('alert');	
+	obs.show('alert');
 };
 
 window.onerror = function myErrorHandler(errorMsg, source, lineno, columnNo, error) {
