@@ -35,6 +35,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
 from reportlab.lib.units import mm
 from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.colors import HexColor
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.tables import TableStyle
@@ -317,10 +318,18 @@ class ConvertHTML_XMLReportlab(object):
         return reportlab_xml_list
 
 
-TABLE_STYLE = TableStyle([
-    ('GRID', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0)),
-    ('BOX', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0))
-])
+def get_table_style(rows_grey=None):
+    cmds = [
+        ('GRID', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0)),
+        ('BOX', (0, 0), (-1, -1), 0.3 * mm, (0, 0, 0))
+    ]
+    cmds.append(('BACKGROUND', (0, 0), (-1, 0), HexColor(0x808080)))
+    cmds.append(('VALIGN', (0, 0), (-1, 0), 'TOP')),
+    if isinstance(rows_grey, list):
+        for row_idx in rows_grey:
+            cmds.append(('BACKGROUND', (0, row_idx), (-1, row_idx), HexColor(0xE8E8E8)))
+    return TableStyle(cmds)
+
 
 g_initial_fonts = False
 
@@ -356,6 +365,72 @@ def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_
         height = font_size * len(lines)
     height += abs(line_height - font_size) * 2
     return width / mm, height / mm
+
+
+class TableManage(object):
+
+    def __init__(self, parent, xmlcolumns, current_w, current_h):
+        self.parent = parent
+        self.max_current_h = 0
+        self.cellcolumns = []
+        self.width_columns = []
+        self.current_w = current_w
+        self.current_h = current_h
+        for xmlcolumn in xmlcolumns:
+            current_w = get_size(xmlcolumn, 'width')
+            self.width_columns.append(current_w)
+            cells = xmlcolumn.xpath('cell')
+            paras, _ = parent.create_para(cells[0], current_w, 0, 0.85)
+            self.max_current_h = max(self.max_current_h, paras[0][1])
+            self.cellcolumns.append(paras[0][0])
+        self.clean()
+        self.row_idx = 1
+
+    def analyse_row(self, row):
+        self.row_line = []
+        col_idx = 0
+        for cell in row.xpath('cell'):
+            if (cell.text is not None) and is_image_base64(cell.text):
+                img = self.parent.parse_image(cell, -1000, -1000, None, None)
+                self.row_line.append(img)
+            else:
+                paras, _ = self.parent.create_para(cell, self.width_columns[col_idx], 0)
+                self.row_line.append(paras[0][0])
+            col_idx += 1
+        color_ref = row.get('color_ref')
+        if color_ref is None:
+            self.is_gray = (self.row_idx % 2) != 0
+        else:
+            if self.last_color_ref is None:
+                self.is_gray = False
+            elif self.last_color_ref != color_ref:
+                self.is_gray = not self.is_gray
+            self.last_color_ref = color_ref
+
+    def clean(self):
+        self.color_ref = None
+        self.last_color_ref = None
+        self.row_colors = []
+        self.data = [self.cellcolumns]
+
+    def check_heigth(self):
+        table = Table(self.data + [self.row_line], style=get_table_style(), colWidths=self.width_columns)
+        _, table_h = table.wrapOn(self.parent.pdf, self.current_w, self.current_h)
+        return table_h
+
+    def draw_table(self, pos_x, pos_y):
+        # getLogger('lucterios.printing').debug("-- parse_table (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", pos_x, pos_y, self.current_h, self.current_w)
+        table = Table(self.data, style=get_table_style(self.row_colors), colWidths=self.width_columns)
+        _, new_current_h = table.wrapOn(self.parent.pdf, self.current_w, self.current_h)
+        table.drawOn(self.parent.pdf, pos_x, pos_y - new_current_h)
+        self.row_idx = 0
+        return max(new_current_h, self.current_h)
+
+    def append_line(self):
+        self.data.append(self.row_line)
+        self.row_idx += 1
+        if self.is_gray:
+            self.row_colors.append(self.row_idx)
 
 
 class LucteriosPDF(object):
@@ -509,45 +584,17 @@ class LucteriosPDF(object):
         return cellcolumns, width_columns, max_current_h
 
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
-
-        def get_table_heigth(current_data, current_width_columns):
-            table = Table(
-                current_data, style=TABLE_STYLE, colWidths=current_width_columns)
-            _, table_h = table.wrapOn(self.pdf, current_w, current_h)
-            return table_h
-
-        def draw_table(width_columns, data):
-            table = Table(data, style=TABLE_STYLE, colWidths=width_columns)
-            _, new_current_h = table.wrapOn(self.pdf, current_w, current_h)
-            table.drawOn(
-                self.pdf, current_x, self.height - current_y - new_current_h)
-            self.position_y = current_y + max(new_current_h, current_h)
-            return
-        cellcolumns, width_columns, _ = self.extract_columns_for_table(xmltable.xpath('columns'))
-        data = []
-        data.append(cellcolumns)
+        table_manage = TableManage(self, xmltable.xpath('columns'), current_w, current_h)
         for row in xmltable.xpath('rows'):
-            row_line = []
-            col_idx = 0
-            for cell in row.xpath('cell'):
-                if (cell.text is not None) and is_image_base64(cell.text):
-                    img = self.parse_image(cell, -1000, -1000, None, None)
-                    row_line.append(img)
-                else:
-                    paras, _ = self.create_para(cell, width_columns[col_idx], 0)
-                    row_line.append(paras[0][0])
-                col_idx += 1
-            table_height = get_table_heigth(data + [row_line], width_columns)
-            # print("table y:%f height:%f h-b:%F" % (current_y / mm, table_height / mm, (self.height - self.bottom_h - self.b_margin) / mm))
+            table_manage.analyse_row(row)
+            table_height = table_manage.check_heigth()
             if (current_y + table_height) > (self.height - self.bottom_h - self.b_margin):
-                draw_table(width_columns, data)
+                self.position_y = current_y + table_manage.draw_table(current_x, self.height - current_y)
                 self.add_page()
                 current_y = self.header_h + self.t_margin
-                data = []
-                data.append(cellcolumns)
-            data.append(row_line)
-        getLogger('lucterios.printing').debug("-- parse_table (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", current_x, current_y, current_h, current_w)
-        draw_table(width_columns, data)
+                table_manage.clean()
+            table_manage.append_line()
+        self.position_y = current_y + table_manage.draw_table(current_x, self.height - current_y)
 
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         if (xmlimage.text is not None) and (xmlimage.text.strip() != ''):

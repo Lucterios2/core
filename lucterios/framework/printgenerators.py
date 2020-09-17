@@ -251,6 +251,10 @@ class PrintTable(PrintItem):
     def write_rows(self, xml_table):
         for row in self.rows:
             new_row = etree.SubElement(xml_table, "rows")
+            if hasattr(row, 'get_color_ref'):
+                color_ref = row.get_color_ref()
+                if color_ref is not None:
+                    new_row.attrib['color_ref'] = str(color_ref)
             for value in row:
                 xml_text = convert_to_html(
                     'cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
@@ -640,9 +644,11 @@ class ReportModelGenerator(ReportGenerator):
             for sub_value in sub_values:
                 sub_value.set_context(xfer)
                 new_row = etree.SubElement(new_item, 'rows')
+                color_ref = sub_value.get_color_ref()
+                if color_ref is not None:
+                    new_row.attrib['color_ref'] = str(color_ref)
                 for cell in row.xpath('cell'):
-                    new_cell = convert_to_html(
-                        'cell', sub_value.evaluate(cell.text))
+                    new_cell = convert_to_html('cell', sub_value.evaluate(cell.text))
                     ReportModelGenerator.copy_attribs(cell, new_cell)
                     new_row.append(new_cell)
         node.append(new_item)
@@ -717,6 +723,9 @@ class ListingGenerator(ReportModelGenerator):
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
             new_row = etree.SubElement(xml_table, "rows")
+            color_ref = item.get_color_ref()
+            if color_ref is not None:
+                new_row.attrib['color_ref'] = str(color_ref)
             if self.with_num:
                 xml_text = convert_to_html('cell', "%d" % row_id, "sans-serif", 6, 6, "start")
                 new_row.append(xml_text)
