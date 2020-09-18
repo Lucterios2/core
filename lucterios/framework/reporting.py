@@ -383,8 +383,21 @@ class TableManage(object):
             paras, _ = parent.create_para(cells[0], current_w, 0, 0.85)
             self.max_current_h = max(self.max_current_h, paras[0][1])
             self.cellcolumns.append(paras[0][0])
+        self.last_color_ref = None
+        self.color_ref = None
+        self._is_gray = False
         self.clean()
-        self.row_idx = 1
+
+    def is_gray(self):
+        if self.color_ref is None:
+            self._is_gray = not self._is_gray
+        else:
+            if self.last_color_ref is None:
+                self._is_gray = True
+            elif self.last_color_ref != self.color_ref:
+                self._is_gray = not self._is_gray
+            self.last_color_ref = self.color_ref
+        return self._is_gray
 
     def analyse_row(self, row):
         self.row_line = []
@@ -397,19 +410,9 @@ class TableManage(object):
                 paras, _ = self.parent.create_para(cell, self.width_columns[col_idx], 0)
                 self.row_line.append(paras[0][0])
             col_idx += 1
-        color_ref = row.get('color_ref')
-        if color_ref is None:
-            self.is_gray = (self.row_idx % 2) != 0
-        else:
-            if self.last_color_ref is None:
-                self.is_gray = False
-            elif self.last_color_ref != color_ref:
-                self.is_gray = not self.is_gray
-            self.last_color_ref = color_ref
+        self.color_ref = row.get('color_ref')
 
     def clean(self):
-        self.color_ref = None
-        self.last_color_ref = None
         self.row_colors = []
         self.data = [self.cellcolumns]
 
@@ -423,14 +426,12 @@ class TableManage(object):
         table = Table(self.data, style=get_table_style(self.row_colors), colWidths=self.width_columns)
         _, new_current_h = table.wrapOn(self.parent.pdf, self.current_w, self.current_h)
         table.drawOn(self.parent.pdf, pos_x, pos_y - new_current_h)
-        self.row_idx = 0
         return max(new_current_h, self.current_h)
 
     def append_line(self):
         self.data.append(self.row_line)
-        self.row_idx += 1
-        if self.is_gray:
-            self.row_colors.append(self.row_idx)
+        if self.is_gray():
+            self.row_colors.append(len(self.data) - 1)
 
 
 class LucteriosPDF(object):
