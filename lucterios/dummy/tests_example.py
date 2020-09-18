@@ -29,13 +29,15 @@ from django.utils.translation import activate
 from django.conf import settings
 
 from lucterios.framework.test import LucteriosTest
-from lucterios.framework.printgenerators import ActionGenerator
+from lucterios.framework.printgenerators import ActionGenerator,\
+    ReportingGenerator
 from lucterios.framework.tools import set_locale_lang
 
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
-    OtherAddModify, OtherShow, ExampleReporting
+    OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList
 from lucterios.dummy.models import Example
+from lucterios.CORE.models import PrintModel
 
 
 class ExampleTest(LucteriosTest):
@@ -203,6 +205,25 @@ class ExampleTest(LucteriosTest):
         self.assert_observer('core.print', 'lucterios.dummy', 'examplePrint')
         self.save_pdf()
 
+    def testprintlist(self):
+        self.factory.xfer = ExamplePrintList()
+        self.calljson('/lucterios.dummy/examplePrintList', {}, False)
+        self.assert_observer('core.print', 'lucterios.dummy', 'examplePrintList')
+        self.save_pdf()
+
+    def testprintlist_saved(self):
+        self.factory.xfer = ExamplePrintList()
+        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 1, "PRINT_MODE": 3, "PRINT_PERSITENT": True}, False)
+        self.assert_observer('core.print', 'lucterios.dummy', 'examplePrintList')
+        content_value = b64decode(str(self.response_json['print']["content"]))
+        self.assertEqual(content_value, b"aaa")
+
+    def testprintlist_saved_list(self):
+        self.factory.xfer = ExamplePrintList()
+        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 2, "PRINT_MODE": 3, "PRINT_PERSITENT": True}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'examplePrintList')
+        self.assert_json_equal('DOWNLOAD', "filename", 'pdfreports.zip')
+
     def testlabel(self):
         self.factory.xfer = ExampleLabel()
         self.calljson('/lucterios.dummy/exampleLabel', {}, False)
@@ -328,6 +349,17 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal('page[1]/body/table/rows/cell[1]', '12')
         self.assert_xml_equal('page[1]/body/table/rows/cell[2]/font', '1 224,06 €')
 
+    def test_printreporting_created(self):
+        model_value = PrintModel.objects.filter(kind=2, modelname=Example.get_long_name()).order_by('-is_default', 'id').first()
+        exampes = []
+        for item_idx in range(0, 10):
+            exampes.append(Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                                  date='1997-10-07', time='21:43', valid=True, comment=""))
+        pdf_content = ReportingGenerator.createpdf_from_model(exampes, model_value.value, model_value.mode, watermark='TESTING')
+        self.assertEqual(pdf_content[:4], "%PDF".encode('ascii', 'ignore'))
+        with open(self._get_pdf_filename(None), "wb") as pdf_writer:
+            pdf_writer.write(pdf_content)
+
     def testreporting_pdf(self):
         for item_idx in range(0, 150):
             Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
@@ -336,6 +368,22 @@ class ExampleTest(LucteriosTest):
         self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '3', 'MODEL': 3}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
         self.save_pdf()
+
+    def testreporting_pdf_duplicate(self):
+        for item_idx in range(0, 150):
+            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
+                                   date='1997-10-07', time='21:43', valid=True, comment="")
+        self.factory.xfer = ExampleReporting()
+        self.factory.xfer._pdfreport = "report"
+        self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '3', 'MODEL': 3}, False)
+        self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
+        self.save_pdf()
+
+    def testreporting_pdf_created(self):
+        pdf_content = ActionGenerator.createpdf_from_action(ExampleShow, {'example': '2'}, "Title of example", 297, 210)
+        self.assertEqual(pdf_content[:4], "%PDF".encode('ascii', 'ignore'))
+        with open(self._get_pdf_filename(None), "wb") as pdf_writer:
+            pdf_writer.write(pdf_content)
 
     def test_other_list(self):
         self.factory.xfer = OtherList()

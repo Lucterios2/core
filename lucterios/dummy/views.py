@@ -365,6 +365,25 @@ class ExampleListing(XferPrintListing):
     field_id = 'example'
 
 
+@ActionsManage.affect_list(TITLE_PRINT, "images/print.png")
+@MenuManage.describ('dummy.change_example')
+class ExamplePrintList(XferPrintAction):
+    caption = _("Example")
+    icon = "9.png"
+    model = Example
+    field_id = 'example'
+    action_class = ExampleList
+
+    def _get_persistent_pdfreport(self):
+        persistent_pdfreport = self.getparam('persistent_pdfreport', 0)
+        if persistent_pdfreport == 1:
+            return b"aaa"
+        elif persistent_pdfreport == 2:
+            return [('file1.txt', b"aaa"), ('file2.txt', b"bbb"), ('file3.txt', b"ccc")]
+        else:
+            return None
+
+
 @ActionsManage.affect_list("Reporting", "images/print.png")
 @MenuManage.describ('dummy.change_example')
 class ExampleReporting(XferPrintReporting):

@@ -58,7 +58,7 @@ class XferContainerPrint(XferContainerAbstract):
 
     def __init__(self):
         XferContainerAbstract.__init__(self)
-        self.report_content = ""
+        self.report_content = b''
         self.report_mode = PRINT_PDF_FILE
         self.print_selector = []
         self.selector = None

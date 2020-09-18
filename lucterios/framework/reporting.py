@@ -43,6 +43,8 @@ from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from lucterios.framework.filetools import open_from_base64, is_image_base64
 
+WATERMARK_NB = 2
+
 
 def get_size(xmltext, name):
     try:
@@ -571,19 +573,6 @@ class LucteriosPDF(object):
             texts.append((text, new_current_h))
         return texts, style
 
-    def extract_columns_for_table(self, xmlcolumns):
-        max_current_h = 0
-        cellcolumns = []
-        width_columns = []
-        for xmlcolumn in xmlcolumns:
-            current_w = get_size(xmlcolumn, 'width')
-            width_columns.append(current_w)
-            cells = xmlcolumn.xpath('cell')
-            paras, _ = self.create_para(cells[0], current_w, 0, 0.85)
-            max_current_h = max(max_current_h, paras[0][1])
-            cellcolumns.append(paras[0][0])
-        return cellcolumns, width_columns, max_current_h
-
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
         table_manage = TableManage(self, xmltable.xpath('columns'), current_w, current_h)
         for row in xmltable.xpath('rows'):
@@ -680,12 +669,11 @@ class LucteriosPDF(object):
     def draw_header(self):
         getLogger('lucterios.printing').debug("\t>> header <<")
         if self.watermark != '':
-            watermark_nb = 2
-            for watermark_iter in range(watermark_nb):
+            for watermark_iter in range(WATERMARK_NB):
                 self.pdf.saveState()
                 self.pdf.setFont('sans-serif-bold', 50)
                 self.pdf.setFillColorRGB(0.8, 0.8, 0.8)
-                self.pdf.translate(self.width / 2, self.height * (watermark_iter + 1) / (watermark_nb + 1))
+                self.pdf.translate(self.width / 2, self.height * (watermark_iter + 1) / (WATERMARK_NB + 1))
                 self.pdf.rotate(30)
                 self.pdf.drawCentredString(0, 0, self.watermark)
                 self.pdf.restoreState()
@@ -715,25 +703,3 @@ def transforme_xml2pdf(xml_content, watermark):
     lpdf = LucteriosPDF(watermark)
     lpdf.execute(xml_content)
     return lpdf.output()
-
-
-def transform_file_xml2pdf(xml_filename, pdf_filename):
-    with open(xml_filename, 'rb') as flb:
-        pdf_content = transforme_xml2pdf(flb.read())
-    if isfile(pdf_filename):
-        unlink(pdf_filename)
-    if pdf_content != str(''):
-        with open(pdf_filename, 'wb') as flb:
-            flb.write(pdf_content)
-    return isfile(pdf_filename)
-
-
-def main():
-    import sys
-    file_name = sys.argv[1]
-    if transform_file_xml2pdf(file_name, file_name + '.pdf'):
-        system("acroread %s.pdf" % file_name)
-
-
-if __name__ == '__main__':
-    main()

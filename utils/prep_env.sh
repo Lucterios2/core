@@ -12,9 +12,9 @@ echo "PyCryptodome" >> requirement.txt
 echo "pycodestyle" >> requirement.txt
 echo "coverage" >> requirement.txt
 echo "radon" >> requirement.txt
+echo "flake8_polyfill" >> requirement.txt
 echo "wheel" >> requirement.txt
 echo "Sphinx" >> requirement.txt
-echo "mysqlclient" >> requirement.txt
 echo "psycopg2-binary" >> requirement.txt
 
 [ -d $virt_name ] && rm -rf $virt_name
@@ -25,6 +25,8 @@ python3 -m virtualenv --python=$PYTHONVER $virt_name
 source $virt_name/bin/activate
 
 pip install -U -r requirement.txt
+
+pip install -U mysqlclient || echo 'mysql problem !'
 
 pip list
 

@@ -8,6 +8,7 @@
 	<property name="project.packagename" value="" />
 	<property name="project.packname" value="" />
 	<property name="project.name" value="" />
+	<property name="project.radon.exclude" value="" />
 	<property name="project.pythonpath" value="${env.PYTHONPATH}" />
 	<property name="project.modules" value="" />
 	<property name="project.appli" value="lucterios.standard" />
@@ -116,7 +117,7 @@
 	<target name="radon">
 		<basename property="currentname" file="${basedir}"/>
 		<exec executable="${project.pythonexe}" dir="${basedir}/..">
-			<arg line="-m radon cc -n C -a -s ${currentname}" />
+			<arg line="-m radon cc -n C -a -s '${currentname}' -e '${project.radon.exclude}'" />
 			<redirector output="radon_results.txt" />
 		</exec>
 		<exec executable="cat">
