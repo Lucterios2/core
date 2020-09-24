@@ -23,212 +23,17 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from logging import getLogger
+from json import dumps
 import threading
 
 from django.utils.translation import ugettext_lazy
-from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.CORE.models import Parameter
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect,\
-    XferCompPassword, XferCompCheckList
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools, signal_and_lock
-from json import loads, dumps
 from lucterios.framework.plugins import PluginManager
 
-
-class ParamCache(object):
-
-    def _assign_params(self, param):
-        try:
-            current_args = eval(param.args)
-        except Exception as expt:
-            getLogger(__name__).exception(expt)
-            current_args = {}
-        for arg_key in self.args.keys():
-            if arg_key in current_args.keys():
-                self.args[arg_key] = current_args[arg_key]
-
-    def _compute_metainfo(self, param):
-        if self.meta_info is not None:  # select in object
-            if self.type == Parameter.TYPE_INTEGER:  # Integer
-                self.value = param.convert_to_int()
-            elif self.type == Parameter.TYPE_REAL:  # Real
-                self.value = param.convert_to_float()
-            else:
-                self.value = str(param.value)
-            self.args.update({'oldtype': self.type, 'Multi': False})
-            self.type = Parameter.TYPE_META
-
-    def _compute_type(self, param):
-        if self.type == Parameter.TYPE_STRING:  # String
-            self.value = str(param.value)
-            self.args.update({'Multi': False, 'HyperText': False})
-        elif self.type == Parameter.TYPE_INTEGER:  # Integer
-            self.args.update({'Min': 0, 'Max': 10000000})
-            self.value = param.convert_to_int()
-        elif self.type == Parameter.TYPE_REAL:  # Real
-            self.value = param.convert_to_float()
-            self.args.update({'Min': 0, 'Max': 10000000, 'Prec': 2})
-        elif self.type == Parameter.TYPE_BOOL:  # Boolean
-            self.value = param.value == 'True'
-        elif self.type == Parameter.TYPE_SELECT:  # Select
-            self.value = param.convert_to_int()
-            self.args.update({'Enum': 0})
-        elif self.type == Parameter.TYPE_PASSWORD:  # password
-            self.value = str(param.value)
-
-    def __init__(self, name, param=None):
-        if param is None:
-            param = Parameter.objects.get(name=name)
-        self.db_obj = None
-        self.name = param.name
-        self.type = param.typeparam
-        self.args = {}
-        self.meta_info = param.get_meta_select()
-        self._compute_metainfo(param)
-        self._compute_type(param)
-        self._assign_params(param)
-
-    def get_label_comp(self):
-        lbl = XferCompLabelForm('lbl_' + self.name)
-        lbl.set_value_as_name(ugettext_lazy(self.name))
-        return lbl
-
-    def _get_selection_from_object(self):
-        selection = []
-        if (self.meta_info[0] != "") and (self.meta_info[1] != ""):
-            db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-        else:
-            db_mdl = None
-        if not self.meta_info[4]:
-            if (self.args['oldtype'] == Parameter.TYPE_INTEGER) or (self.args['oldtype'] == Parameter.TYPE_REAL):
-                selection.append((0, None))
-            else:
-                selection.append(('', None))
-        if db_mdl is None:
-            selection = self.meta_info[2]
-        else:
-            for obj_item in db_mdl.objects.filter(self.meta_info[2]):
-                selection.append((getattr(obj_item, self.meta_info[3]), str(obj_item)))
-        return selection
-
-    def _get_meta_comp(self):
-        if self.args['Multi']:
-            param_cmp = XferCompCheckList(self.name)
-            param_cmp.simple = 2
-        else:
-            param_cmp = XferCompSelect(self.name)
-        return param_cmp
-
-    def get_write_comp(self):
-        param_cmp = None
-        if self.type == Parameter.TYPE_STRING:  # String
-            if self.args['Multi']:
-                param_cmp = XferCompMemo(self.name)
-                param_cmp.with_hypertext = self.args['HyperText']
-            else:
-                param_cmp = XferCompEdit(self.name)
-            param_cmp.set_value(self.value)
-        elif self.type == Parameter.TYPE_INTEGER:  # Integer
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=0)
-            param_cmp.set_value(self.value)
-            param_cmp.set_needed(True)
-        elif self.type == Parameter.TYPE_REAL:  # Real
-            param_cmp = XferCompFloat(self.name, minval=self.args['Min'], maxval=self.args['Max'], precval=self.args['Prec'])
-            param_cmp.set_value(self.value)
-            param_cmp.set_needed(True)
-        elif self.type == Parameter.TYPE_BOOL:  # Boolean
-            param_cmp = XferCompCheck(self.name)
-            param_cmp.set_value(str(self.value))
-            param_cmp.set_needed(True)
-        elif self.type == Parameter.TYPE_SELECT:  # Select
-            param_cmp = XferCompSelect(self.name)
-            selection = [(sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self.args['Enum'])]
-            param_cmp.set_select(selection)
-            param_cmp.set_value(self.value)
-            param_cmp.set_needed(True)
-        elif self.type == Parameter.TYPE_PASSWORD:  # password
-            param_cmp = XferCompPassword(self.name)
-            param_cmp.security = 0
-            param_cmp.set_value('')
-        elif self.type == Parameter.TYPE_META:  # select in object
-            param_cmp = self._get_meta_comp()
-            param_cmp.set_needed(self.meta_info[4])
-            param_cmp.set_select(self._get_selection_from_object())
-            param_cmp.set_value(self.value)
-        param_cmp.description = str(ugettext_lazy(self.name))
-        return param_cmp
-
-    def _get_text_for_meta(self):
-        if self.meta_info[3] == "id":
-            db_obj = self.get_object()
-            if db_obj is not None:
-                value_text = str(db_obj)
-            else:
-                value_text = "---"
-        elif self.args['Multi']:
-            selection = dict(self._get_selection_from_object())
-            try:
-                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self.value.split(';')])
-            except TypeError:
-                value_text = "{[br/]}".join(self.value.split(';'))
-        else:
-            selection = dict(self._get_selection_from_object())
-            value_text = selection[self.value] if self.value in selection else self.value
-        return value_text
-
-    def get_read_text(self):
-        value_text = ""
-        if self.type == Parameter.TYPE_BOOL:  # Boolean
-            if self.value:
-                value_text = ugettext_lazy("Yes")
-            else:
-                value_text = ugettext_lazy("No")
-        elif self.type == Parameter.TYPE_SELECT:  # Select
-            value_text = ugettext_lazy(self.name + ".%d" % self.value)
-        elif self.type == Parameter.TYPE_META:  # selected
-            value_text = self._get_text_for_meta()
-        else:
-            value_text = self.value
-        return value_text
-
-    def get_read_comp(self):
-        param_cmp = XferCompLabelForm(self.name)
-        if self.type == Parameter.TYPE_PASSWORD:  # password
-            param_cmp.set_value(''.ljust(len(self.value), '*'))
-        else:
-            param_cmp.set_value(self.get_read_text())
-        return param_cmp
-
-    def get_object(self):
-        if self.type == Parameter.TYPE_STRING:  # String
-            if self.db_obj is None:
-                try:
-                    self.db_obj = (loads(self.value),)
-                except Exception:
-                    self.db_obj = (None,)
-            return self.db_obj[0]
-        elif (self.type == Parameter.TYPE_META):
-            if self.db_obj is None:
-                try:
-                    if self.args['Multi']:
-                        query = {self.meta_info[3] + '__in': self.value.split(';')}
-                    else:
-                        query = {self.meta_info[3]: self.value}
-                    db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
-                    db_objs = db_mdl.objects.filter(**query)
-                    if len(db_objs) > 0:
-                        self.db_obj = (db_objs[0],)
-                    else:
-                        self.db_obj = (None,)
-                except Exception:
-                    self.db_obj = (None,)
-            return self.db_obj[0]
-        else:
-            return None
+from lucterios.CORE.models import Parameter
 
 
 class Params(object):
@@ -249,7 +54,7 @@ class Params(object):
     def _get(cls, name):
         if name not in cls._PARAM_CACHE_LIST.keys():
             try:
-                cls._PARAM_CACHE_LIST[name] = ParamCache(name)
+                cls._PARAM_CACHE_LIST[name] = Parameter.objects.get(name=name)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
             except Exception:
@@ -260,22 +65,20 @@ class Params(object):
     def getvalue(cls, name):
         cls._paramlock.acquire()
         try:
-            return cls._get(name).value
+            return cls._get(name).get_value_typed()
         finally:
             cls._paramlock.release()
 
     @classmethod
     def setvalue(cls, name, value):
-        param = Parameter.objects.get(name=name)
-        param.value = value
-        param.save()
+        Parameter.change_value(name, value)
         cls.clear()
 
     @classmethod
     def getobject(cls, name):
         cls._paramlock.acquire()
         try:
-            return cls._get(name).get_object()
+            return cls._get(name).get_value_object()
         finally:
             cls._paramlock.release()
 
@@ -283,7 +86,7 @@ class Params(object):
     def gettext(cls, name):
         cls._paramlock.acquire()
         try:
-            return str(cls._get(name).get_read_text())
+            return str(cls._get(name).get_value_text())
         finally:
             cls._paramlock.release()
 

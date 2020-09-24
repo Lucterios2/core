@@ -41,7 +41,7 @@ from lucterios.framework.model_fields import LucteriosScheduler
 from lucterios.CORE.xferprint import XferPrintAction, XferPrintListing, XferPrintLabel, XferPrintReporting
 from lucterios.CORE.editors import XferSavedCriteriaSearchEditor
 from lucterios.CORE.parameters import Params
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, Preference
 
 from lucterios.dummy.models import Example, Other
 
@@ -335,6 +335,13 @@ class ExampleAddModify(XferAddEditor):
     icon = "9.png"
     model = Example
     field_id = 'example'
+
+    def fillresponse(self):
+        if self.item.id is None:
+            self.item.value = Preference.get_value('dummy-default-value', self.request.user)
+            self.item.price = Preference.get_value('dummy-default-price', self.request.user)
+            self.item.valid = Preference.get_value('dummy-default-valid', self.request.user)
+        XferAddEditor.fillresponse(self)
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)

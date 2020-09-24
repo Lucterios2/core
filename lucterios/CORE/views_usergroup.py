@@ -41,7 +41,8 @@ from lucterios.framework.signal_and_lock import LucteriosSession, Signal
 from lucterios.framework.models import LucteriosLogEntry
 from lucterios.framework.model_fields import LucteriosScheduler
 
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states,\
+    Preference
 from lucterios.CORE.parameters import Params
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
@@ -85,6 +86,7 @@ class UsersList(XferListEditor):
 
     def fillresponse_header(self):
         self.filter = Q(is_active=True)
+        self.new_tab(_('Users'))
 
     def fillresponse_body(self):
         XferListEditor.fillresponse_body(self)
@@ -95,6 +97,9 @@ class UsersList(XferListEditor):
         self.get_components('user_actif').description = _("List of active users")
         self.get_components('user_inactif').vmin = 200
         self.get_components('user_inactif').description = _("List of inactive users")
+        self.new_tab(_('Preferences'))
+        self.fieldnames = None
+        self.fill_grid(1, Preference, 'preference', Preference.objects.filter(user__isnull=True))
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
@@ -154,6 +159,15 @@ class UsersDelete(XferDelete):
                 raise LucteriosException(
                     IMPORTANT, _("You can delete yourself!"))
         XferDelete.fillresponse(self)
+
+
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
+@MenuManage.describ('auth.add_user')
+class PreferenceEdit(XferAddEditor):
+    caption_modify = _("Modify preference")
+    icon = "user.png"
+    model = Preference
+    field_id = 'preference'
 
 
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session and tasks."))

@@ -30,7 +30,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.signal_and_lock import Signal
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, Preference
 from lucterios.framework.auditlog import auditlog
 from lucterios.framework.model_fields import LucteriosDecimalField,\
     LucteriosVirtualField
@@ -99,4 +99,7 @@ def dummy_auditlog_register():
 
 @Signal.decorate('checkparam')
 def dummy_checkparam():
-    Parameter.check_and_create(name="dummy-value", typeparam=0, title=_("dummy-value"), args="{}", value='')
+    Parameter.check_and_create(name="dummy-value", typeparam=Parameter.TYPE_STRING, title=_("dummy-value"), args="{}", value='')
+    Preference.check_and_create(name="dummy-default-value", typeparam=Preference.TYPE_INTEGER, title=_("dummy-default-value"), args="{'min':0,'max':10}", value='0')
+    Preference.check_and_create(name="dummy-default-price", typeparam=Preference.TYPE_REAL, title=_("dummy-default-price"), args="{'min':0,'max':1000,'prec':2}", value='100')
+    Preference.check_and_create(name="dummy-default-valid", typeparam=Preference.TYPE_BOOL, title=_("dummy-default-valid"), args="{}", value='False')

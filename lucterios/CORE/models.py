@@ -26,12 +26,11 @@ from __future__ import unicode_literals
 from os.path import dirname, join, exists, isfile
 from os import walk, makedirs, unlink
 from shutil import rmtree
-from zipfile import ZipFile
-import sys
-from zipfile import BadZipFile
+from zipfile import ZipFile, BadZipFile
 from imp import load_source
 
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models.signals import post_migrate
@@ -39,15 +38,16 @@ from django.utils.translation import ugettext_lazy as _, ugettext_lazy
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
     LucteriosLogEntry
-from lucterios.framework.error import LucteriosException, IMPORTANT
+from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.framework.tools import set_locale_lang
 from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistry
+from django.db.models.query import QuerySet
 
 
-class Parameter(LucteriosModel):
+class AbstractSetting(LucteriosModel):
     TYPE_STRING = 0
     TYPE_INTEGER = 1
     TYPE_REAL = 2
@@ -58,20 +58,19 @@ class Parameter(LucteriosModel):
     LIST_TYPES = ((TYPE_STRING, _('String')), (TYPE_INTEGER, _('Integer')), (TYPE_REAL, _('Real')),
                   (TYPE_BOOL, _('Boolean')), (TYPE_SELECT, _('Select')), (TYPE_PASSWORD, _('Password')), (TYPE_META, _('Meta')))
 
-    name = models.CharField(_('name'), max_length=100, unique=True)
     typeparam = models.IntegerField(choices=LIST_TYPES, default=0)
     args = models.CharField(_('arguments'), max_length=200, default="{}")
     value = models.TextField(_('value'), blank=True)
     metaselect = models.TextField('meta', blank=True)
 
-    value_txt = LucteriosVirtualField(verbose_name=_('value'), compute_from='get_value')
+    value_txt = LucteriosVirtualField(verbose_name=_('value'), compute_from='get_value_text')
+    title = LucteriosVirtualField(verbose_name=_('name'), compute_from='__str__')
 
     def __str__(self):
         return str(ugettext_lazy(self.name))
 
     @classmethod
-    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
-        param, created = Parameter.objects.get_or_create(name=name)
+    def _check_and_change(self, created, typeparam, title, args, value, param_titles, meta, param):
         if created:
             param.title = title
             param.typeparam = typeparam
@@ -94,6 +93,251 @@ class Parameter(LucteriosModel):
         elif param.args != args:
             param.args = args
             param.save()
+
+    def _value_to_int(self):
+        try:
+            return int(self.value)
+        except ValueError:
+            if self.value == 'False':
+                return 0
+            if self.value == 'True':
+                return 1
+            return int('0' + self.value)
+
+    def _value_to_float(self):
+        try:
+            return float(self.value)
+        except ValueError:
+            return float('0' + self.value)
+
+    def _get_text_for_meta(self):
+        if self.meta_info[3] == "id":
+            db_obj = self.get_value_object()
+            if db_obj is not None:
+                value_text = str(db_obj)
+            else:
+                value_text = "---"
+        elif self._correct_args['Multi']:
+            selection = dict(self._selection_from_object())
+            try:
+                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self._correct_value.split(';')])
+            except TypeError:
+                value_text = "{[br/]}".join(self._correct_value.split(';'))
+        else:
+            selection = dict(self._selection_from_object())
+            value_text = selection[self._correct_value] if self._correct_value in selection else self._correct_value
+        return value_text
+
+    def _selection_from_object(self):
+        from django.apps import apps
+        selection = []
+        if self.correct_type == Parameter.TYPE_META:  # select in object
+            if (self.meta_info[0] != "") and (self.meta_info[1] != ""):
+                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+            else:
+                db_mdl = None
+            if not self.meta_info[4]:
+                if (self.typeparam == Parameter.TYPE_INTEGER) or (self.typeparam == Parameter.TYPE_REAL):
+                    selection.append((0, None))
+                else:
+                    selection.append(('', None))
+            if db_mdl is None:
+                selection = self.meta_info[2]
+            else:
+                for obj_item in db_mdl.objects.filter(self.meta_info[2]):
+                    selection.append((getattr(obj_item, self.meta_info[3]), str(obj_item)))
+        return selection
+
+    def _get_meta_comp(self):
+        from lucterios.framework.xfercomponents import XferCompSelect, XferCompCheckList
+        if self._correct_args['Multi']:
+            param_cmp = XferCompCheckList(self.name)
+            param_cmp.simple = 2
+        else:
+            param_cmp = XferCompSelect(self.name)
+        return param_cmp
+
+    def _meta_from_script(self):
+        import importlib
+        import sys
+        self._meta_info = list(self._meta_info)
+        sys_modules = dict(sys.modules)
+        last = None
+        for item_val in self._meta_info[2].split(';'):
+            if item_val.startswith('import '):
+                module_name = item_val[7:]
+                mod_imported = importlib.import_module(module_name)
+                sys_modules[module_name] = mod_imported
+            else:
+                last = eval(item_val, sys_modules)
+        self._meta_info[2] = last
+
+    @property
+    def meta_info(self):
+        if not hasattr(self, "_meta_info"):
+            from django.db.models import Q
+            self._meta_info = None
+            if self.metaselect != "":
+                self._meta_info = eval(self.metaselect)
+                if (len(self._meta_info) == 5) and isinstance(self._meta_info[0], str) and isinstance(self._meta_info[1], str) and isinstance(self._meta_info[3], str) and isinstance(self._meta_info[4], bool):
+                    if isinstance(self._meta_info[2], str):
+                        self._meta_from_script()
+                    elif not isinstance(self._meta_info[2], Q) and not isinstance(self._meta_info[2], list):
+                        self._meta_info = None
+                else:
+                    self._meta_info = None
+        return self._meta_info
+
+    @property
+    def correct_type(self):
+        if not hasattr(self, "_correct_type"):
+            self._correct_type = self.typeparam
+            if self.meta_info is not None:  # select in object
+                self._correct_type = Parameter.TYPE_META
+        return self._correct_type
+
+    def correct_args_value(self):
+        if hasattr(self, "_correct_args") and hasattr(self, "_correct_value"):
+            return
+        self._correct_args = {}
+        self._correct_value = None
+        if self.correct_type == Parameter.TYPE_STRING:  # String
+            self._correct_value = str(self.value)
+            self._correct_args.update({'Multi': False, 'HyperText': False})
+        elif self.typeparam == Parameter.TYPE_INTEGER:  # Integer
+            self._correct_args.update({'Min': 0, 'Max': 10000000})
+            self._correct_value = self._value_to_int()
+        elif self.typeparam == Parameter.TYPE_REAL:  # Real
+            self._correct_value = self._value_to_float()
+            self._correct_args.update({'Min': 0, 'Max': 10000000, 'Prec': 2})
+        elif self.correct_type == Parameter.TYPE_BOOL:  # Boolean
+            self._correct_value = self.value == 'True'
+        elif self.correct_type == Parameter.TYPE_SELECT:  # Select
+            self._correct_value = self._value_to_int()
+            self._correct_args.update({'Enum': 0})
+        else:
+            self._correct_value = str(self.value)
+        try:
+            current_args = eval(self.args)
+        except Exception:
+            current_args = {}
+        for arg_key in self._correct_args.keys():
+            if arg_key in current_args.keys():
+                self._correct_args[arg_key] = current_args[arg_key]
+
+    def get_value_typed(self):
+        self.correct_args_value()
+        return self._correct_value
+
+    def get_value_text(self):
+        value_text = ""
+        self.correct_args_value()
+        if self.correct_type == Parameter.TYPE_BOOL:  # Boolean
+            if self._correct_value:
+                value_text = ugettext_lazy("Yes")
+            else:
+                value_text = ugettext_lazy("No")
+        elif self.correct_type == Parameter.TYPE_SELECT:  # Select
+            value_text = ugettext_lazy(self.name + ".%d" % self._correct_value)
+        elif self.correct_type == Parameter.TYPE_META:  # selected
+            value_text = self._get_text_for_meta()
+        else:
+            value_text = self._correct_value
+        return value_text
+
+    def get_value_object(self):
+        from json import loads
+        from django.apps import apps
+        self.correct_args_value()
+        if self.correct_type == Parameter.TYPE_STRING:  # String
+            try:
+                db_obj = loads(self._correct_value)
+            except Exception:
+                db_obj = None
+            return db_obj
+        elif (self.correct_type == Parameter.TYPE_META):
+            try:
+                if self.args['Multi']:
+                    query = {self.meta_info[3] + '__in': self._correct_value.split(';')}
+                else:
+                    query = {self.meta_info[3]: self._correct_value}
+                db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
+                db_obj = db_mdl.objects.filter(**query).first()
+            except Exception:
+                db_obj = None
+            return db_obj
+        else:
+            return None
+
+    def get_label_comp(self):
+        from lucterios.framework.xfercomponents import XferCompLabelForm
+        lbl = XferCompLabelForm('lbl_' + self.name)
+        lbl.set_value_as_name(ugettext_lazy(self.name))
+        return lbl
+
+    def get_write_comp(self):
+        from lucterios.framework.xfercomponents import XferCompMemo, XferCompEdit, XferCompFloat, XferCompCheck, XferCompSelect, XferCompPassword
+        param_cmp = None
+        self.correct_args_value()
+        if self.correct_type == Parameter.TYPE_STRING:  # String
+            if self._correct_args['Multi']:
+                param_cmp = XferCompMemo(self.name)
+                param_cmp.with_hypertext = self._correct_args['HyperText']
+            else:
+                param_cmp = XferCompEdit(self.name)
+            param_cmp.set_value(self._correct_value)
+        elif self.correct_type == Parameter.TYPE_INTEGER:  # Integer
+            param_cmp = XferCompFloat(self.name, minval=self._correct_args['Min'], maxval=self._correct_args['Max'], precval=0)
+            param_cmp.set_value(self._correct_value)
+            param_cmp.set_needed(True)
+        elif self.correct_type == Parameter.TYPE_REAL:  # Real
+            param_cmp = XferCompFloat(self.name, minval=self._correct_args['Min'], maxval=self._correct_args['Max'], precval=self._correct_args['Prec'])
+            param_cmp.set_value(self._correct_value)
+            param_cmp.set_needed(True)
+        elif self.correct_type == Parameter.TYPE_BOOL:  # Boolean
+            param_cmp = XferCompCheck(self.name)
+            param_cmp.set_value(str(self._correct_value))
+            param_cmp.set_needed(True)
+        elif self.correct_type == Parameter.TYPE_SELECT:  # Select
+            param_cmp = XferCompSelect(self.name)
+            selection = [(sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self._correct_args['Enum'])]
+            param_cmp.set_select(selection)
+            param_cmp.set_value(self._correct_value)
+            param_cmp.set_needed(True)
+        elif self.correct_type == Parameter.TYPE_PASSWORD:  # password
+            param_cmp = XferCompPassword(self.name)
+            param_cmp.security = 0
+            param_cmp.set_value('')
+        elif self.correct_type == Parameter.TYPE_META:  # select in object
+            param_cmp = self._get_meta_comp()
+            param_cmp.set_needed(self.meta_info[4])
+            param_cmp.set_select(self._selection_from_object())
+            param_cmp.set_value(self._correct_value)
+        param_cmp.description = str(ugettext_lazy(self.name))
+        return param_cmp
+
+    def get_read_comp(self):
+        from lucterios.framework.xfercomponents import XferCompLabelForm
+        param_cmp = XferCompLabelForm(self.name)
+        self.correct_args_value()
+        if self.correct_type == Parameter.TYPE_PASSWORD:  # password
+            param_cmp.set_value(''.ljust(len(self._correct_value), '*'))
+        else:
+            param_cmp.set_value(self.get_value_text())
+        return param_cmp
+
+    class Meta(object):
+        abstract = True
+
+
+class Parameter(AbstractSetting):
+
+    name = models.CharField(_('name'), max_length=100, unique=True)
+
+    @classmethod
+    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
+        param, created = Parameter.objects.get_or_create(name=name)
+        cls._check_and_change(created, typeparam, title, args, value, param_titles, meta, param)
         return created
 
     @classmethod
@@ -105,63 +349,101 @@ class Parameter(LucteriosModel):
             db_param.value = pvalue
         db_param.save()
 
-    def _meta_from_script(self, meta_select):
-        import importlib
-        meta_select = list(meta_select)
-        sys_modules = dict(sys.modules)
-        last = None
-        for item_val in meta_select[2].split(';'):
-            if item_val.startswith('import '):
-                module_name = item_val[7:]
-                mod_imported = importlib.import_module(module_name)
-                sys_modules[module_name] = mod_imported
-            else:
-                last = eval(item_val, sys_modules)
-        meta_select[2] = last
-        return meta_select
-
-    def get_meta_select(self):
-        from django.db.models import Q
-        meta_select = None
-        if self.metaselect != "":
-            meta_select = eval(self.metaselect)
-            if (len(meta_select) == 5) and isinstance(meta_select[0], str) and isinstance(meta_select[1], str) and isinstance(meta_select[3], str) and isinstance(meta_select[4], bool):
-                if isinstance(meta_select[2], str):
-                    meta_select = self._meta_from_script(meta_select)
-                elif not isinstance(meta_select[2], Q) and not isinstance(meta_select[2], list):
-                    meta_select = None
-            else:
-                meta_select = None
-        return meta_select
-
-    def get_value(self):
-        from lucterios.CORE.parameters import ParamCache
-        param = ParamCache(self.name, self)
-        return str(param.get_read_text())
-
-    def convert_to_int(self):
-        try:
-            return int(self.value)
-        except ValueError:
-            if self.value == 'False':
-                return 0
-            if self.value == 'True':
-                return 1
-            return int('0' + self.value)
-
-    def convert_to_float(self):
-        try:
-            return float(self.value)
-        except ValueError:
-            return float('0' + self.value)
-
     class Meta(object):
         verbose_name = _('parameter')
         verbose_name_plural = _('parameters')
         default_permissions = ['add', 'change']
 
 
+class Preference(AbstractSetting):
+
+    name = models.CharField(_('name'), max_length=100, unique=False)
+    user = models.ForeignKey("LucteriosUser", verbose_name=_('user'), null=True, default=None, on_delete=models.CASCADE)
+
+    @classmethod
+    def get_default_fields(cls):
+        return ['title', 'value_txt']
+
+    @classmethod
+    def get_edit_fields(cls):
+        return []
+
+    @classmethod
+    def check_and_create(cls, name, typeparam, title, args, value, param_titles=None, meta=None):
+        param, created = Preference.objects.get_or_create(name=name, user=None)
+        cls._check_and_change(created, typeparam, title, args, value, param_titles, meta, param)
+        return created
+
+    @classmethod
+    def change_value(cls, pname, pvalue, user=None):
+        if isinstance(user, int):
+            user = LucteriosUser.objects.get(id=user) if user != 0 else None
+        if (user is None) or user.is_anonymous:
+            user = None
+        try:
+            db_param = cls.objects.get(name=pname, user=user)
+            if (pvalue is None) and (user is not None):
+                db_param.delete()
+                return
+        except ObjectDoesNotExist:
+            if user is None:
+                raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
+            elif pvalue is None:
+                return
+            init_param = cls.objects.get(name=pname, user=None)
+            db_param = cls.objects.create(name=pname, user=user, typeparam=init_param.typeparam, args=init_param.args, metaselect=init_param.metaselect)
+        if (db_param.typeparam == cls.TYPE_BOOL) and isinstance(pvalue, str):
+            db_param.value = str((pvalue == '1') or (pvalue == 'o'))
+        else:
+            db_param.value = pvalue
+        db_param.save()
+
+    @classmethod
+    def get_value(cls, pname, user=None):
+        if isinstance(user, int):
+            user = LucteriosUser.objects.get(id=user)
+        if (user is None) or user.is_anonymous:
+            user = None
+        try:
+            query = models.Q(name=pname) & (models.Q(user=user) | models.Q(user=None))
+            db_param = cls.objects.filter(query).order_by('name', '-user').first()
+            if db_param is None:
+                raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
+        except Exception:
+            raise LucteriosException(GRAVE, "Preference %s not found!" % pname)
+        return db_param.get_value_typed()
+
+    class Meta(object):
+        ordering = ['name']
+        verbose_name = _('preference')
+        verbose_name_plural = _('preferences')
+        default_permissions = ['add', 'change']
+
+
 class LucteriosUser(User, LucteriosModel):
+
+    class PreferenceUser(QuerySet):
+
+        def __init__(self, model=None, query=None, using=None, hints=None):
+            QuerySet.__init__(self, model=Preference, query=query, using=using, hints=hints)
+            self._result_cache = None
+            self.pt_id = 0
+            self.model._meta.pk = Preference()._meta.pk
+            self.user = self._hints['user']
+
+        def _fetch_all(self):
+            if self._result_cache is None:
+                self._result_cache = []
+                last_name = None
+                for pref in Preference.objects.filter(models.Q(user=self.user) | models.Q(user=None)).order_by('name', '-user'):
+                    if last_name != pref.name:
+                        if pref.user is None:
+                            self._result_cache.append(Preference(id=pref.name, name=pref.name, user=self.user, value=pref.value,
+                                                                 typeparam=pref.typeparam, args=pref.args, metaselect=pref.metaselect))
+                        else:
+                            pref.id = pref.name
+                            self._result_cache.append(pref)
+                        last_name = pref.name
 
     @classmethod
     def get_default_fields(cls):
@@ -171,7 +453,8 @@ class LucteriosUser(User, LucteriosModel):
     def get_edit_fields(cls):
         return {'': ['username'],
                 _('Informations'): ['is_active', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email'],
-                _('Permissions'): ['groups', 'user_permissions']}
+                _('Permissions'): ['groups', 'user_permissions'],
+                _('Preferences'): ['preferences_set']}
 
     @classmethod
     def get_show_fields(cls):
@@ -192,6 +475,10 @@ class LucteriosUser(User, LucteriosModel):
             return True
         else:
             return False
+
+    @property
+    def preferences_set(self):
+        return self.PreferenceUser(hints={'user': self})
 
     class Meta(User.Meta):
 

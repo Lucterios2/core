@@ -35,7 +35,7 @@ from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.signal_and_lock import Signal
 
-from lucterios.CORE.models import SavedCriteria
+from lucterios.CORE.models import SavedCriteria, Preference
 from lucterios.framework.plugins import PluginManager
 
 
@@ -138,6 +138,46 @@ class LucteriosGroupEditor(LucteriosEditor):
                     if xfer.item.id in new_permissions[plugin_name]:
                         new_permissions[plugin_name].remove(xfer.item.id)
             PluginManager.set_param(new_permissions)
+
+
+class PreferenceEditor(LucteriosEditor):
+
+    def edit(self, xfer):
+        user_id = xfer.getparam('user_actif', xfer.getparam('user_inactif', 0))
+        pname = xfer.getparam('preferences', '')
+        if pname != '':
+            xfer.item = Preference.objects.filter(name=pname, user_id=user_id).first()
+            if xfer.item is None:
+                xfer.item = Preference.objects.get(name=pname, user=None)
+            xfer.item.user_id = user_id
+        fieldname = ['title']
+        if user_id != 0:
+            fieldname.append('user')
+        xfer.fill_from_model(1, 1, True, fieldname)
+        comp = xfer.item.get_write_comp()
+        comp.set_location(1, 3)
+        comp.description = _('value')
+        xfer.add_component(comp)
+        if user_id != 0:
+            check = XferCompCheck('setdefault')
+            check.set_value(False)
+            check.set_location(1, 4)
+            check.description = _('reset to default')
+            check.java_script = """
+var check_default=current.getValue();
+parent.get('%s').setEnabled(!check_default);
+""" % comp.name
+            xfer.add_component(check)
+
+    def saving(self, xfer):
+        user_id = xfer.getparam('user_actif', xfer.getparam('user_inactif', 0))
+        pname = xfer.getparam('preferences', xfer.item.name)
+        if xfer.getparam('setdefault', False) is True:
+            Preference.change_value(pname, None, user=user_id)
+        else:
+            pvalue = xfer.getparam(pname)
+            if pvalue is not None:
+                Preference.change_value(pname, pvalue, user=user_id)
 
 
 class SavedCriteriaEditor(LucteriosEditor):

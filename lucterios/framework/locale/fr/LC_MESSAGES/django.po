@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-07-28 10:02+0000\n"
+"POT-Creation-Date: 2020-09-24 12:14+0000\n"
 "PO-Revision-Date: 2020-07-23 10:42+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "X-Translated-Using: django-rosetta 0.7.8\n"
 "X-Generator: Poedit 2.3\n"
 
-#: main_docs.html:5 main_docs.html:112
+#: main_docs.html:8 main_docs.html:113
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
@@ -147,7 +147,7 @@ msgstr "entrée d'historique"
 msgid "log entries"
 msgstr "entrées d'historiques"
 
-#: printgenerators.py:428
+#: printgenerators.py:432
 msgid "This impression failed !"
 msgstr "L'impression échoue !"
 
@@ -169,23 +169,23 @@ msgstr "Mauvaise permission pour '%s'"
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:539 xfergraphic.py:159
+#: tools.py:539 xfergraphic.py:160
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:541 xfergraphic.py:160
+#: tools.py:541 xfergraphic.py:161
 msgid "No"
 msgstr "Non"
 
-#: xferadvance.py:42 xfergraphic.py:168
+#: xferadvance.py:42 xfergraphic.py:169
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:43 xfergraphic.py:140
+#: xferadvance.py:43 xfergraphic.py:141
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:130 xferprinting.py:122
+#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:131 xferprinting.py:122
 #: xferprinting.py:198 xfersearch.py:582
 msgid "Close"
 msgstr "Fermer"
@@ -265,16 +265,16 @@ msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
-#: xferadvance.py:321
+#: xferadvance.py:324
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}Une condition ne doit pas être vérifiée."
 
-#: xferadvance.py:324
+#: xferadvance.py:327
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 
-#: xferadvance.py:334
+#: xferadvance.py:337
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
@@ -283,11 +283,11 @@ msgstr "Mauvaise transition"
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "la méthode http \"%(method)s\" n'est pas autorisée pour \"%(url)s\" !"
 
-#: xfergraphic.py:136
+#: xfergraphic.py:137
 msgid "Traitment..."
 msgstr "Traitement..."
 
-#: xfergraphic.py:180
+#: xfergraphic.py:181
 msgid "Retry"
 msgstr "Recommencer"
 
