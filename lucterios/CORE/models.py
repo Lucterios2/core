@@ -117,7 +117,7 @@ class AbstractSetting(LucteriosModel):
                 value_text = str(db_obj)
             else:
                 value_text = "---"
-        elif self._correct_args['Multi']:
+        elif ('Multi' in self._correct_args) and self._correct_args['Multi']:
             selection = dict(self._selection_from_object())
             try:
                 value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self._correct_value.split(';')])
@@ -150,7 +150,7 @@ class AbstractSetting(LucteriosModel):
 
     def _get_meta_comp(self):
         from lucterios.framework.xfercomponents import XferCompSelect, XferCompCheckList
-        if self._correct_args['Multi']:
+        if ('Multi' in self._correct_args) and self._correct_args['Multi']:
             param_cmp = XferCompCheckList(self.name)
             param_cmp.simple = 2
         else:
