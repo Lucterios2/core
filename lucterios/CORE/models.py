@@ -257,7 +257,7 @@ class AbstractSetting(LucteriosModel):
             return db_obj
         elif (self.correct_type == Parameter.TYPE_META):
             try:
-                if self.args['Multi']:
+                if ('Multi' in self._correct_args) and self._correct_args['Multi']:
                     query = {self.meta_info[3] + '__in': self._correct_value.split(';')}
                 else:
                     query = {self.meta_info[3]: self._correct_value}

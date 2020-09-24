@@ -32,7 +32,7 @@ from lucterios.framework import tools, signal_and_lock
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
-    AudiLogConfig, GroupsDelete
+    AudiLogConfig, GroupsDelete, PreferenceEdit
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
 from lucterios.CORE.views import Unlock
@@ -89,6 +89,8 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('#user_inactif/actions', 2)
         self.assert_action_equal('POST', '#user_inactif/actions/@0', ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
         self.assert_action_equal('DELETE', '#user_inactif/actions/@1', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
+
+        self.assert_grid_equal('preference', {"title": "nom", "value_txt": "valeur"}, 3)
 
     def test_userdelete(self):
         add_user("user1")
@@ -211,6 +213,9 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('TAB', '__tab_2', "Permissions")
         self.assert_comp_equal(('CHECKLIST', "groups"), [], (0, 0, 3, 1))
         self.assert_comp_equal(('CHECKLIST', "user_permissions"), [], (0, 1, 3, 1))
+
+        self.assert_json_equal('TAB', '__tab_3', "Préférences")
+        self.assert_grid_equal('preferences', {"title": "nom", "value_txt": "valeur"}, 3)
 
     def test_usermodif(self):
         add_user("user1")
@@ -461,6 +466,104 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('', 'lucterioslogentry/@1/object_repr', "abc")
         self.assert_json_equal('', 'lucterioslogentry/@2/action', 0)
         self.assert_json_equal('', 'lucterioslogentry/@2/object_repr', "abc")
+
+    def test_default_preference(self):
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+
+        self.assert_count_equal('preference', 3)
+        self.assert_json_equal('', 'preference/@0/id', 2)
+        self.assert_json_equal('', 'preference/@0/title', 'dummy-default-price')
+        self.assert_json_equal('', 'preference/@0/value_txt', '100')
+        self.assert_json_equal('', 'preference/@1/id', 3)
+        self.assert_json_equal('', 'preference/@1/title', 'dummy-default-valid')
+        self.assert_json_equal('', 'preference/@1/value_txt', 'Non')
+        self.assert_json_equal('', 'preference/@2/id', 1)
+        self.assert_json_equal('', 'preference/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preference/@2/value_txt', '0')
+        self.assert_count_equal('#preference/actions', 1)
+        self.assert_action_equal('POST', '#preference/actions/@0', ('Modifier', 'images/edit.png', 'CORE', 'preferenceEdit', 0, 1, 0))
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preference': 2}, False)
+        self.assert_observer('core.custom', 'CORE', 'preferenceEdit')
+        self.assert_count_equal('', 3)
+        self.assert_json_equal('LABELFORM', 'title', 'dummy-default-price')
+        self.assert_json_equal('FLOAT', 'dummy-default-price', '100')
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('', 'preference/@0/title', 'dummy-default-price')
+        self.assert_json_equal('', 'preference/@0/value_txt', '49.99')
+
+    def test_user_preferences(self):
+        user = add_user("user1")
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'user_actif': user.id}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
+        self.assert_count_equal('preferences', 3)
+        self.assert_json_equal('', 'preferences/@0/id', 'dummy-default-price')
+        self.assert_json_equal('', 'preferences/@0/title', 'dummy-default-price')
+        self.assert_json_equal('', 'preferences/@0/value_txt', '100')
+        self.assert_json_equal('', 'preferences/@1/id', 'dummy-default-valid')
+        self.assert_json_equal('', 'preferences/@1/title', 'dummy-default-valid')
+        self.assert_json_equal('', 'preferences/@1/value_txt', 'Non')
+        self.assert_json_equal('', 'preferences/@2/id', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/value_txt', '0')
+        self.assert_count_equal('#preferences/actions', 1)
+        self.assert_action_equal('POST', '#preferences/actions/@0', ('Modifier', 'images/edit.png', 'CORE', 'preferenceEdit', 0, 1, 0))
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id}, False)
+        self.assert_observer('core.custom', 'CORE', 'preferenceEdit')
+        self.assert_count_equal('', 5)
+        self.assert_json_equal('LABELFORM', 'title', 'dummy-default-value')
+        self.assert_json_equal('LABELFORM', 'user', 'user1')
+        self.assert_json_equal('FLOAT', 'dummy-default-value', '0')
+        self.assert_json_equal('CHECK', 'setdefault', False)
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'user_actif': user.id}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
+        self.assert_count_equal('preferences', 3)
+        self.assert_json_equal('', 'preferences/@2/id', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/value_txt', '7')
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('', 'preference/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preference/@2/value_txt', '0')
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'user_actif': user.id}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
+        self.assert_count_equal('preferences', 3)
+        self.assert_json_equal('', 'preferences/@2/id', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preferences/@2/value_txt', '0')
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('', 'preference/@2/title', 'dummy-default-value')
+        self.assert_json_equal('', 'preference/@2/value_txt', '0')
 
 
 class GroupTest(LucteriosTest):

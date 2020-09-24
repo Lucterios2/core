@@ -26,18 +26,22 @@ from __future__ import unicode_literals
 from base64 import b64decode
 
 from django.utils.translation import activate
+from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
-from lucterios.framework.test import LucteriosTest
+from lucterios.framework.test import LucteriosTest, add_user
 from lucterios.framework.printgenerators import ActionGenerator,\
     ReportingGenerator
 from lucterios.framework.tools import set_locale_lang
+
+from lucterios.CORE.models import PrintModel
+from lucterios.CORE.views_usergroup import PreferenceEdit
+from lucterios.CORE.parameters import Params
 
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
     OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList
 from lucterios.dummy.models import Example
-from lucterios.CORE.models import PrintModel
 
 
 class ExampleTest(LucteriosTest):
@@ -486,3 +490,89 @@ class ExampleTest(LucteriosTest):
         self.assert_xml_equal("page/body/text[14]", 'Non')
         self.assert_xml_equal("page/body/text[15]/b", 'comment')
         self.assert_xml_equal("page/body/text[16]", None)
+
+    def test_default_preference(self):
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preference': 1, 'SAVE': 'YES', 'dummy-default-value': '7'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preference': 3, 'SAVE': 'YES', 'dummy-default-valid': 'o'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = ExampleAddModify()
+        self.factory.user = add_user("user1", is_superuser=True)
+        self.calljson('/lucterios.dummy/exampleAddModify', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleAddModify')
+        self.assert_count_equal('', 8)
+        self.assert_json_equal('EDIT', "name", "")
+        self.assert_json_equal('FLOAT', "value", 7)
+        self.assert_json_equal('FLOAT', "price", 49.99)
+        self.assert_json_equal('DATE', "date", None)
+        self.assert_json_equal('TIME', "time", "00:00:00")
+        self.assert_json_equal('CHECK', "valid", 1)
+        self.assert_json_equal('MEMO', "comment", "")
+
+        Params.setvalue('CORE-connectmode', '2')
+        self.factory.xfer = ExampleAddModify()
+        self.factory.user = AnonymousUser()
+        self.calljson('/lucterios.dummy/exampleAddModify', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleAddModify')
+        self.assert_count_equal('', 8)
+        self.assert_json_equal('EDIT', "name", "")
+        self.assert_json_equal('FLOAT', "value", 7)
+        self.assert_json_equal('FLOAT', "price", 49.99)
+        self.assert_json_equal('DATE', "date", None)
+        self.assert_json_equal('TIME', "time", "00:00:00")
+        self.assert_json_equal('CHECK', "valid", 1)
+        self.assert_json_equal('MEMO', "comment", "")
+
+    def test_user_preference(self):
+        user = add_user("user1", is_superuser=True)
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': False}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': False}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = ExampleAddModify()
+        self.factory.user = user
+        self.calljson('/lucterios.dummy/exampleAddModify', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleAddModify')
+        self.assert_count_equal('', 8)
+        self.assert_json_equal('EDIT', "name", "")
+        self.assert_json_equal('FLOAT', "value", 7)
+        self.assert_json_equal('FLOAT', "price", 49.99)
+        self.assert_json_equal('DATE', "date", None)
+        self.assert_json_equal('TIME', "time", "00:00:00")
+        self.assert_json_equal('CHECK', "valid", 1)
+        self.assert_json_equal('MEMO', "comment", "")
+
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': True}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+        self.factory.xfer = PreferenceEdit()
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': True}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
+
+        self.factory.xfer = ExampleAddModify()
+        self.factory.xfer.user = user
+        self.calljson('/lucterios.dummy/exampleAddModify', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleAddModify')
+        self.assert_count_equal('', 8)
+        self.assert_json_equal('EDIT', "name", "")
+        self.assert_json_equal('FLOAT', "value", 0)
+        self.assert_json_equal('FLOAT', "price", 100)
+        self.assert_json_equal('DATE', "date", None)
+        self.assert_json_equal('TIME', "time", "00:00:00")
+        self.assert_json_equal('CHECK', "valid", 0)
+        self.assert_json_equal('MEMO', "comment", "")

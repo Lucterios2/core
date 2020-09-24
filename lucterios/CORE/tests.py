@@ -177,10 +177,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
 
-        param = Parameter.objects.get(name='CORE-connectmode')
-        param.value = '2'
-        param.save()
-        Params.clear()
+        Params.setvalue('CORE-connectmode', '2')
 
         self.calljson('/CORE/authentification', {'username': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')

@@ -113,6 +113,24 @@ class UsersEdit(XferAddEditor):
     field_id = 'user_actif'
 
 
+@MenuManage.describ('auth.change_user')
+class UsersPreference(XferContainerCustom):
+    caption = _("User preferences")
+    icon = "settings.png"
+    model = LucteriosUser
+    field_id = 'user_actif'
+
+    def fillresponse(self):
+        self.item = LucteriosUser.objects.get(id=self.request.user.id)
+        self.params['username'] = self.item.username
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
+        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+
+
 @ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
 @ActionsManage.affect_edit(_("Disabled"), "images/delete.png", condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
@@ -161,11 +179,15 @@ class UsersDelete(XferDelete):
         XferDelete.fillresponse(self)
 
 
+def right_edit_preference(request):
+    return UsersEnabled.get_action().check_permission(request) or (not request.user.is_anonymous and (request.user.username == request.POST['username']))
+
+
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
-@MenuManage.describ('auth.add_user')
+@MenuManage.describ(right_edit_preference)
 class PreferenceEdit(XferAddEditor):
     caption_modify = _("Modify preference")
-    icon = "user.png"
+    icon = "settings.png"
     model = Preference
     field_id = 'preference'
 

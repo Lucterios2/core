@@ -28,7 +28,7 @@ from lucterios.framework.test import LucteriosTest
 from lucterios.framework.xfergraphic import XFER_DBOX_WARNING, XferContainerCustom
 from lucterios.framework.tools import WrapAction
 
-from lucterios.CORE.models import Parameter
+from lucterios.CORE.models import Parameter, LucteriosGroup
 from lucterios.CORE.parameters import Params
 from lucterios.CORE.views import ParamSave
 
@@ -282,3 +282,40 @@ class GenericTest(LucteriosTest):
         self.calljson('/CORE/paramSave', {'params': 'param_select', 'param_select': '1'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
         self.assertEqual(Params.getvalue('param_select'), 1)
+
+    def test_parameters_meta(self):
+        LucteriosGroup.objects.create(name='group #1')
+        grp2 = LucteriosGroup.objects.create(name='group #2')
+
+        param = Parameter.objects.create(name='param_meta', typeparam=1)
+        param.args = ""
+        param.value = '0'
+        param.metaselect = '("CORE","LucteriosGroup","django.db.models.Q()", "id", False)'
+        param.save()
+
+        Params.fill(self.xfer, ['param_meta'], 1, 1, True)
+        self.callparam()
+        self.assert_count_equal('', 1)
+        self.assert_json_equal('LABELFORM', "param_meta", '---')
+
+        Params.fill(self.xfer, ['param_meta'], 1, 1, False)
+        self.callparam()
+        self.assert_count_equal('', 1)
+        self.assert_json_equal('SELECT', "param_meta", '0')
+        self.assert_select_equal("param_meta", {0: None, 1: "# Coeur (administration)", 2: 'group #1', 3: 'group #2'})
+
+        self.factory.xfer = ParamSave()
+        self.calljson('/CORE/paramSave', {'params': 'param_meta', 'param_meta': '3'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'paramSave')
+
+        Params.fill(self.xfer, ['param_meta'], 1, 1, False)
+        self.callparam()
+        self.assert_json_equal('SELECT', "param_meta", '3')
+
+        Params.fill(self.xfer, ['param_meta'], 1, 1, True)
+        self.callparam()
+        self.assert_count_equal('', 1)
+        self.assert_json_equal('LABELFORM', "param_meta", 'group #2')
+
+        self.assertEqual(Params.getvalue('param_meta'), 3)
+        self.assertEqual(Params.getobject('param_meta'), grp2)

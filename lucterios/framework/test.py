@@ -49,12 +49,13 @@ def is_number(text):
         return False
 
 
-def add_user(username):
+def add_user(username, is_superuser=False):
     user = LucteriosUser.objects.create_user(
         username=username, password=username, last_login=timezone.now())
     user.first_name = username
     user.last_name = username.upper()
     user.is_staff = False
+    user.is_superuser = is_superuser
     user.is_active = True
     user.save()
     return user
