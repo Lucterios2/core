@@ -111,18 +111,18 @@ class AbstractSetting(LucteriosModel):
             return float('0' + self.value)
 
     def _get_text_for_meta(self):
-        if self.meta_info[3] == "id":
+        if ('Multi' in self._correct_args) and self._correct_args['Multi']:
+            selection = dict(self._selection_from_object())
+            try:
+                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self._correct_value])
+            except TypeError:
+                value_text = "{[br/]}".join(self._correct_value)
+        elif self.meta_info[3] == "id":
             db_obj = self.get_value_object()
             if db_obj is not None:
                 value_text = str(db_obj)
             else:
                 value_text = "---"
-        elif ('Multi' in self._correct_args) and self._correct_args['Multi']:
-            selection = dict(self._selection_from_object())
-            try:
-                value_text = "{[br/]}".join([selection[value] if value in selection else value for value in self._correct_value.split(';')])
-            except TypeError:
-                value_text = "{[br/]}".join(self._correct_value.split(';'))
         else:
             selection = dict(self._selection_from_object())
             value_text = selection[self._correct_value] if self._correct_value in selection else self._correct_value
@@ -136,7 +136,7 @@ class AbstractSetting(LucteriosModel):
                 db_mdl = apps.get_model(self.meta_info[0], self.meta_info[1])
             else:
                 db_mdl = None
-            if not self.meta_info[4]:
+            if not self.meta_info[4] and not (('Multi' in self._correct_args) and self._correct_args['Multi']):
                 if (self.typeparam == Parameter.TYPE_INTEGER) or (self.typeparam == Parameter.TYPE_REAL):
                     selection.append((0, None))
                 else:
@@ -201,12 +201,19 @@ class AbstractSetting(LucteriosModel):
             return
         self._correct_args = {}
         self._correct_value = None
+        try:
+            current_args = eval(self.args)
+        except Exception:
+            current_args = {}
         if self.correct_type == Parameter.TYPE_STRING:  # String
             self._correct_value = str(self.value)
             self._correct_args.update({'Multi': False, 'HyperText': False})
         elif self.typeparam == Parameter.TYPE_INTEGER:  # Integer
-            self._correct_args.update({'Min': 0, 'Max': 10000000})
-            self._correct_value = self._value_to_int()
+            if (self.correct_type == Parameter.TYPE_META) and ('Multi' in current_args) and current_args['Multi']:
+                self._correct_value = [int(val) for val in self.value.split(';') if val.strip() != '']
+            else:
+                self._correct_args.update({'Min': 0, 'Max': 10000000})
+                self._correct_value = self._value_to_int()
         elif self.typeparam == Parameter.TYPE_REAL:  # Real
             self._correct_value = self._value_to_float()
             self._correct_args.update({'Min': 0, 'Max': 10000000, 'Prec': 2})
@@ -217,10 +224,8 @@ class AbstractSetting(LucteriosModel):
             self._correct_args.update({'Enum': 0})
         else:
             self._correct_value = str(self.value)
-        try:
-            current_args = eval(self.args)
-        except Exception:
-            current_args = {}
+        if self.correct_type == Parameter.TYPE_META:
+            self._correct_args.update({'Multi': False})
         for arg_key in self._correct_args.keys():
             if arg_key in current_args.keys():
                 self._correct_args[arg_key] = current_args[arg_key]
