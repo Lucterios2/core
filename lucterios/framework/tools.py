@@ -436,7 +436,7 @@ def get_dico_from_setquery(setquery):
             try:
                 rigths = str(record.codename).split("_")
                 if rigths[0] not in ['add', 'change', 'view', 'delete']:
-                    res_dico[str(record.id)] = str(_(record.name))
+                    res_dico.append((str(record.id), str(_(record.name))))
                 else:
                     if rigths[0] == 'add':
                         rigth_name = _('add')
