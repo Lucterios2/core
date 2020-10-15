@@ -532,13 +532,13 @@ class ExampleTest(LucteriosTest):
     def test_user_preference(self):
         user = add_user("user1", is_superuser=True)
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': False}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': False}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': False}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': False}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = ExampleAddModify()
@@ -555,13 +555,13 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('MEMO', "comment", "")
 
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': True}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-price', 'user': user.id, 'SAVE': 'YES', 'dummy-default-price': '49.99', 'setdefault': True}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': True}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-valid', 'user': user.id, 'SAVE': 'YES', 'dummy-default-valid': 'o', 'setdefault': True}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = ExampleAddModify()

@@ -52,7 +52,7 @@ class LucteriosUserEditor(LucteriosEditor):
         new_row = obj_email.row
         ckk = XferCompCheck('password_change')
         ckk.set_location(0, new_row + 1, 1, 1)
-        ckk.set_value(False)
+        ckk.set_value('n')
         ckk.description = _("To change password?")
         ckk.java_script = """
 var pwd_change=current.getValue();
@@ -77,10 +77,11 @@ parent.get('password2').setEnabled(pwd_change);
             ckkg.description = _("Generate new password?")
             ckkg.set_value(False)
             ckkg.java_script = """
-    var pwd_change=current.getValue();
-    parent.get('password_change').setEnabled(!pwd_change);
-    parent.get('password1').setEnabled(!pwd_change);
-    parent.get('password2').setEnabled(!pwd_change);
+    var pwd_generate=current.getValue();
+    var pwd_change=parent.get('password_change').getValue();
+    parent.get('password_change').setEnabled(!pwd_generate);
+    parent.get('password1').setEnabled(!pwd_generate && pwd_change);
+    parent.get('password2').setEnabled(!pwd_generate && pwd_change);
     """
             xfer.add_component(ckkg)
         if xfer.getparam("IDENT_READ") is not None:
@@ -146,6 +147,8 @@ class PreferenceEditor(LucteriosEditor):
         user_id = xfer.getparam('user_actif', xfer.getparam('user_inactif', 0))
         pname = xfer.getparam('preferences', '')
         if pname != '':
+            if (user_id == 0) and not xfer.request.user.is_anonymous:
+                user_id = xfer.request.user.id
             xfer.item = Preference.objects.filter(name=pname, user_id=user_id).first()
             if xfer.item is None:
                 xfer.item = Preference.objects.get(name=pname, user=None)
@@ -153,6 +156,7 @@ class PreferenceEditor(LucteriosEditor):
         fieldname = ['title']
         if user_id != 0:
             fieldname.append('user')
+        xfer.params['user'] = user_id
         xfer.fill_from_model(1, 1, True, fieldname)
         comp = xfer.item.get_write_comp()
         comp.set_location(1, 3)
@@ -170,7 +174,7 @@ parent.get('%s').setEnabled(!check_default);
             xfer.add_component(check)
 
     def saving(self, xfer):
-        user_id = xfer.getparam('user_actif', xfer.getparam('user_inactif', 0))
+        user_id = xfer.getparam('user', 0)
         pname = xfer.getparam('preferences', xfer.item.name)
         if xfer.getparam('setdefault', False) is True:
             Preference.change_value(pname, None, user=user_id)

@@ -418,6 +418,10 @@ class Preference(AbstractSetting):
             raise LucteriosException(GRAVE, "Preference %s not found!" % pname)
         return db_param.get_value_typed()
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.name != '':
+            AbstractSetting.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
     class Meta(object):
         ordering = ['name']
         verbose_name = _('preference')

@@ -491,9 +491,10 @@ class UserTest(LucteriosTest):
         self.assert_count_equal('', 3)
         self.assert_json_equal('LABELFORM', 'title', 'dummy-default-price')
         self.assert_json_equal('FLOAT', 'dummy-default-price', '100')
+        self.assertEqual(self.json_context['user'], 0)
 
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
+        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'user':0, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = UsersList()
@@ -528,9 +529,10 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('LABELFORM', 'user', 'user1')
         self.assert_json_equal('FLOAT', 'dummy-default-value', '0')
         self.assert_json_equal('CHECK', 'setdefault', False)
+        self.assertEqual(self.json_context['user'], user.id)
 
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': False}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = UsersEdit()
@@ -548,7 +550,7 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('', 'preference/@2/value_txt', '0')
 
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user_actif': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
+        self.calljson('/CORE/preferenceEdit', {'preferences': 'dummy-default-value', 'user': user.id, 'SAVE': 'YES', 'dummy-default-value': '7', 'setdefault': True}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = UsersEdit()
