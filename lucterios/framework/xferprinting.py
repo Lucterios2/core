@@ -44,6 +44,11 @@ from lucterios.framework.xfersearch import get_search_query
 PRINT_PDF_FILE = 3
 PRINT_CSV_FILE = 4
 
+PRINT_EXT_FILE = {
+    PRINT_PDF_FILE: 'pdf',
+    PRINT_CSV_FILE: 'csv',
+}
+
 
 class XferContainerPrint(XferContainerAbstract):
 
@@ -233,7 +238,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                     report_generator.watermark = self.PRINT_DUPLICATA
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = b64encode(report_generator.generate_report(self.request, self.report_mode == PRINT_CSV_FILE))
+                self.report_content = b64encode(report_generator.generate_report(self.request, PRINT_EXT_FILE[self.report_mode]))
 
     def get_print_name(self):
         return str(self.caption)

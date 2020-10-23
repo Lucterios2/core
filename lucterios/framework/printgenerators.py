@@ -25,8 +25,9 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from lxml import etree
 from copy import deepcopy
-from os.path import join, dirname, isfile, basename
+from os.path import dirname, basename
 from logging import getLogger
+from importlib import import_module
 
 from django.db.models import Q
 from django.utils.translation import ugettext as _
@@ -34,11 +35,11 @@ from django.utils.translation import ugettext as _
 from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
-from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
+from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.tools import toHtml, format_to_string
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
-from lucterios.framework.reporting import transforme_xml2pdf, get_text_size
 from lucterios.framework.xferbasic import XferContainerAbstract
+from lucterios.framework.xferprinting import PRINT_PDF_FILE, PRINT_EXT_FILE
 
 DPI = 0.3528125
 
@@ -66,20 +67,6 @@ def remove_format(xml_text):
     xml_text = xml_text.replace('{[underline]}', '')
     xml_text = xml_text.replace('{[/underline]}', '')
     return xml_text
-
-
-def calcul_text_size(text, font_size=9, line_height=10, text_align='left', is_cell=False):
-    text = str(text)
-    text = text.replace('<br/>', '\n')
-    text = text.replace('{[br/]}', '\n')
-    text = text.replace('{[newline]}', '\n')
-    if text == '\n':
-        text = 'A'
-    width, height = get_text_size(
-        remove_format(text), font_size, line_height, text_align, is_cell)
-    width = max(10.0, width * 1.2)
-    height = height * 1.2
-    return width, height
 
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
@@ -152,6 +139,18 @@ class PrintItem(object):
         for col_idx in range(self.col, self.col + self.colspan):
             self.width = self.width + self.owner.col_width[self.tab][col_idx]
 
+    def calcul_text_size(self, text, font_size=9, line_height=10, text_align='left', is_cell=False):
+        text = str(text)
+        text = text.replace('<br/>', '\n')
+        text = text.replace('{[br/]}', '\n')
+        text = text.replace('{[newline]}', '\n')
+        if text == '\n':
+            text = 'A'
+        width, height = self.owner.get_text_size(remove_format(text), font_size, line_height, text_align, is_cell)
+        width = max(10.0, width * 1.2)
+        height = height * 1.2
+        return width, height
+
 
 class PrintImage(PrintItem):
 
@@ -198,7 +197,7 @@ class PrintTable(PrintItem):
 
     def compute_table_size(self):
         for header in self.comp.headers:
-            size_cx, size_cy = calcul_text_size(header.descript, 9, 10, "center", True)
+            size_cx, size_cy = self.calcul_text_size(header.descript, 9, 10, "center", True)
             self.size_rows[0] = max(self.size_rows[0], size_cy)
             self.columns.append([header.descript, size_cx * self.RATIO])
         row_idx = 0
@@ -217,7 +216,7 @@ class PrintTable(PrintItem):
                     size_x = int(round(img_size[0] * DPI))
                     size_y = int(round(img_size[1] * DPI))
                 else:
-                    size_x, size_y = calcul_text_size(value, 9, 10, "start", True)
+                    size_x, size_y = self.calcul_text_size(value, 9, 10, "start", True)
                 self.rows[row_idx].append(str(value))
                 self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
                 hd_idx += 1
@@ -232,7 +231,7 @@ class PrintTable(PrintItem):
         for size_row in self.size_rows:
             size_y += size_row
         if len(self.size_rows) == 1:
-            _cx, size_cy = calcul_text_size("A", 9, 10, "center", True)
+            _cx, size_cy = self.calcul_text_size("A", 9, 10, "center", True)
             size_y += size_cy
         return size_y, size_x
 
@@ -268,7 +267,7 @@ class PrintTable(PrintItem):
             for _ in self.columns:
                 row.append('')
             self.rows.append(row)
-            self.size_rows.append(calcul_text_size('')[1])
+            self.size_rows.append(self.calcul_text_size('')[1])
         xml_table = etree.Element('table')
         self.width_ratio = self.width / self.size_x
         self.letter_ratio = min(1.33, max(0.66, self.width_ratio))
@@ -290,7 +289,7 @@ class PrintTab(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        self.size_x, size_y = calcul_text_size(self.comp.value)
+        self.size_x, size_y = self.calcul_text_size(self.comp.value)
         self.height = size_y + self.SEP_HEIGHT * 2
 
     def calcul_position(self):
@@ -321,7 +320,7 @@ class PrintLabel(PrintItem):
         self.init_label()
 
     def init_label(self):
-        self.size_x, self.height = calcul_text_size(self.value)
+        self.size_x, self.height = self.calcul_text_size(self.value)
         self.height = self.height * 1.1
 
     def get_xml(self):
@@ -348,6 +347,7 @@ class ReportGenerator(object):
         self.mode = 0
         self.xfer = XferContainerAbstract()
         self.watermark = ""
+        self.get_text_size = None
 
     def fill_attrib_headerfooter(self):
         if self.header is not None:
@@ -403,6 +403,10 @@ class ReportGenerator(object):
             self.xfer._initialize(request)
 
     def generate(self, request):
+        def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):
+            return 1, 1
+        if self.get_text_size is None:
+            self.get_text_size = get_text_size
         self.modelxml = etree.Element('model')
         self.add_page()
         self.fill_content(request)
@@ -412,28 +416,26 @@ class ReportGenerator(object):
         getLogger("lucterios.core.print").debug(xml_generated.decode("utf-8"))
         return xml_generated
 
-    def generate_report(self, request, is_csv):
+    def generate_report(self, request, report_format):
+        try:
+            reporting_modulename = "lucterios.framework.reporting_%s" % report_format
+            reporting_module = import_module(reporting_modulename)
+            self.get_text_size = getattr(reporting_module, "get_text_size", None)
+            build_from_xml = getattr(reporting_module, "build_from_xml")
+        except Exception:
+            getLogger('lucterios.core.print').exception("import of %s", reporting_modulename)
+            raise LucteriosException(IMPORTANT, _('Report format "%s" not supported !') % report_format)
+
         report_content = self.generate(request)
-        if is_csv:
-            xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
-            if not isfile(xsl_file):
-                raise LucteriosException(GRAVE, "Error:no csv xsl file!")
-            with open(xsl_file, 'rb') as xsl_file:
-                csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
-            xml_rep_content = etree.XML(report_content)
-            for xml_br in xml_rep_content.xpath("//br"):
-                xml_br.text = ','
-            content = str(csv_transform(xml_rep_content)).encode('utf-8')
-        else:
-            try:
-                content = transforme_xml2pdf(report_content, self.watermark)
-            except ValueError:
-                getLogger("lucterios.core.print").exception('transforme_xml2pdf')
-                raise LucteriosException(IMPORTANT, _('This impression failed !'))
-        if len(content) > 0:
-            return content
-        else:
-            return ""
+        try:
+            content = build_from_xml(report_content, self.watermark)
+            if len(content) > 0:
+                return content
+            else:
+                return ""
+        except ValueError:
+            getLogger("lucterios.core.print").exception('build_from_xml')
+            raise LucteriosException(IMPORTANT, _('This impression failed !'))
 
 
 class ActionGenerator(ReportGenerator):
@@ -450,7 +452,7 @@ class ActionGenerator(ReportGenerator):
         generator.title = title
         generator.page_width = page_width
         generator.page_height = page_height
-        return generator.generate_report(pdf_request, False)
+        return generator.generate_report(pdf_request, PRINT_EXT_FILE[PRINT_PDF_FILE])
 
     def __init__(self, action, tab_change_page):
         ReportGenerator.__init__(self)
@@ -833,7 +835,7 @@ class ReportingGenerator(ReportGenerator):
         generator.model_text = model_text
         generator.mode = mode
         generator.watermark = watermark
-        return generator.generate_report(pdf_request, False)
+        return generator.generate_report(pdf_request, PRINT_EXT_FILE[PRINT_PDF_FILE])
 
     def __init__(self):
         ReportGenerator.__init__(self)

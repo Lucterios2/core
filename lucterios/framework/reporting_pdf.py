@@ -23,8 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import isfile, join, dirname
-from os import unlink, system
+from os.path import join, dirname
 from reportlab.pdfgen import canvas
 from lxml import etree
 from logging import getLogger
@@ -351,22 +350,6 @@ def initial_fonts():
         pdfmetrics.registerFontFamily("sans-serif", normal="sans-serif", bold="sans-serif-bold",
                                       italic="sans-serif-italic", boldItalic="sans-serif-bolditalic")
         g_initial_fonts = True
-
-
-def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):
-    initial_fonts()
-    lines = para_text.split('\n')
-    max_line = ""
-    for line in lines:
-        if len(line) > len(max_line):
-            max_line = line
-    width = stringWidth(max_line, "sans-serif", font_size)
-    if is_cell:
-        height = font_size * max(1, len(lines) * 2 / 3)
-    else:
-        height = font_size * len(lines)
-    height += abs(line_height - font_size) * 2
-    return width / mm, height / mm
 
 
 class TableManage(object):
@@ -699,7 +682,23 @@ class LucteriosPDF(object):
         return self.pdf.getpdfdata()
 
 
-def transforme_xml2pdf(xml_content, watermark):
+def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):
+    initial_fonts()
+    lines = para_text.split('\n')
+    max_line = ""
+    for line in lines:
+        if len(line) > len(max_line):
+            max_line = line
+    width = stringWidth(max_line, "sans-serif", font_size)
+    if is_cell:
+        height = font_size * max(1, len(lines) * 2 / 3)
+    else:
+        height = font_size * len(lines)
+    height += abs(line_height - font_size) * 2
+    return width / mm, height / mm
+
+
+def build_from_xml(xml_content, watermark):
     lpdf = LucteriosPDF(watermark)
     lpdf.execute(xml_content)
     return lpdf.output()
