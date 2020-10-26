@@ -238,7 +238,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                     report_generator.watermark = self.PRINT_DUPLICATA
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = b64encode(report_generator.generate_report(self.request, PRINT_EXT_FILE[self.report_mode]))
+                self.report_content = b64encode(report_generator.generate_report(self.request, PRINT_EXT_FILE[self.report_mode] if self.report_mode in PRINT_EXT_FILE else 'pdf'))
 
     def get_print_name(self):
         return str(self.caption)

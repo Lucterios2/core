@@ -443,6 +443,7 @@ class ExampleTest(LucteriosTest):
 
     def test_printaction(self):
         generator = ActionGenerator(ExampleShow(), False)
+        generator.change_format('pdf')
         xml = generator.generate(self.factory.create_request('/lucterios.dummy/examplePrint', {'example': '2'}))
         self.parse_xml(xml, 'model', False)
         # self.print_xml('')

@@ -416,7 +416,7 @@ class ReportGenerator(object):
         getLogger("lucterios.core.print").debug(xml_generated.decode("utf-8"))
         return xml_generated
 
-    def generate_report(self, request, report_format):
+    def change_format(self, report_format):
         try:
             reporting_modulename = "lucterios.framework.reporting_%s" % report_format
             reporting_module = import_module(reporting_modulename)
@@ -425,7 +425,10 @@ class ReportGenerator(object):
         except Exception:
             getLogger('lucterios.core.print').exception("import of %s", reporting_modulename)
             raise LucteriosException(IMPORTANT, _('Report format "%s" not supported !') % report_format)
+        return build_from_xml
 
+    def generate_report(self, request, report_format):
+        build_from_xml = self.change_format(report_format)
         report_content = self.generate(request)
         try:
             content = build_from_xml(report_content, self.watermark)

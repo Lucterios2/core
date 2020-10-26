@@ -464,7 +464,7 @@ def get_binay(text):
 
 
 def toHtml(text):
-    text = str(text)
+    text = str(text).strip()
     pos_in = text.find('&')
     while pos_in != -1:
         pos_out = text.find(';', pos_in, pos_in + 8)
