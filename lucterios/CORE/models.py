@@ -411,7 +411,10 @@ class Preference(AbstractSetting):
             user = None
         try:
             query = models.Q(name=pname) & (models.Q(user=user) | models.Q(user=None))
-            db_param = cls.objects.filter(query).order_by('name', '-user').first()
+            db_param = None
+            for param_item in cls.objects.filter(query).order_by('name', '-user'):
+                if (db_param is None) or (param_item.user is not None):
+                    db_param = param_item
             if db_param is None:
                 raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
         except Exception:
@@ -440,19 +443,29 @@ class LucteriosUser(User, LucteriosModel):
             self.model._meta.pk = Preference()._meta.pk
             self.user = self._hints['user']
 
+        def add_pref(self, new_pref):
+            if new_pref.user is None:
+                self._result_cache.append(Preference(id=new_pref.name, name=new_pref.name, user=self.user,
+                                                     value=new_pref.value, typeparam=new_pref.typeparam,
+                                                     args=new_pref.args, metaselect=new_pref.metaselect))
+            else:
+                new_pref.id = new_pref.name
+                self._result_cache.append(new_pref)
+
         def _fetch_all(self):
             if self._result_cache is None:
                 self._result_cache = []
-                last_name = None
+                last_pref = None
                 for pref in Preference.objects.filter(models.Q(user=self.user) | models.Q(user=None)).order_by('name', '-user'):
-                    if last_name != pref.name:
-                        if pref.user is None:
-                            self._result_cache.append(Preference(id=pref.name, name=pref.name, user=self.user, value=pref.value,
-                                                                 typeparam=pref.typeparam, args=pref.args, metaselect=pref.metaselect))
-                        else:
-                            pref.id = pref.name
-                            self._result_cache.append(pref)
-                        last_name = pref.name
+                    if last_pref is None:
+                        last_pref = pref
+                    elif last_pref.name != pref.name:
+                        self.add_pref(last_pref)
+                        last_pref = pref
+                    elif pref.user is not None:
+                        last_pref = pref
+            if last_pref is not None:
+                self.add_pref(last_pref)
 
     @classmethod
     def get_default_fields(cls):
