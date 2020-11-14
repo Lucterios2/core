@@ -1,4 +1,5 @@
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:fo="http://www.w3.org/1999/XSL/Format" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+	xmlns:ext="lucterios" version="1.0">
 	<xsl:output method="text" omit-xml-declaration="yes" indent="no"/>
 	<xsl:template match="/">
 		<xsl:apply-templates select="model"/>
@@ -27,13 +28,13 @@
 	</xsl:template>
 
 	<xsl:template match="text">
-		<xsl:text>"</xsl:text><xsl:value-of select="normalize-space(.)"/><xsl:text>"</xsl:text>
+		<xsl:text>"</xsl:text><xsl:value-of select="ext:formater(.)"/><xsl:text>"</xsl:text>
 	</xsl:template>
 
 	<xsl:template match="table">
 		<xsl:for-each select="columns">
 			<xsl:for-each select="cell">
-				<xsl:text>"</xsl:text><xsl:value-of select="normalize-space(.)"/><xsl:text>"</xsl:text><xsl:text>;</xsl:text>
+				<xsl:text>"</xsl:text><xsl:value-of select="ext:formater(.)"/><xsl:text>"</xsl:text><xsl:text>;</xsl:text>
 			</xsl:for-each>
 		</xsl:for-each>
 <xsl:text>
@@ -41,7 +42,7 @@
 		<xsl:for-each select="rows">
 			<xsl:for-each select="cell">
 				<xsl:if test="substring(normalize-space(text()),1,10) != 'data:image'">				 
-					<xsl:text>"</xsl:text><xsl:value-of select="normalize-space(.)"/><xsl:text>"</xsl:text>
+					<xsl:text>"</xsl:text><xsl:value-of select="ext:formater(.)"/><xsl:text>"</xsl:text>
 				</xsl:if>
 				<xsl:text>;</xsl:text>
 			</xsl:for-each>

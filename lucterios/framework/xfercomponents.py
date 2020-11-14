@@ -172,6 +172,9 @@ class XferCompLabelForm(XferComponent):
         if formatstr is not None:
             self._formatstr = formatstr
 
+    def get_format(self):
+        return self._formatnum, self._formatstr
+
     def set_value(self, value):
         if value is None:
             self.value = None
