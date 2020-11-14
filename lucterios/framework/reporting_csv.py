@@ -31,12 +31,32 @@ def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_
     return 1, 1
 
 
+class LucteriosXLTExtension(object):
+
+    def _node_to_string(self, first_node):
+        text_value = ""
+        if first_node.text is not None:
+            text_value += first_node.text.strip() + ' '
+        for item in first_node:
+            text_value += self._node_to_string(item) + ' '
+        if first_node.tail is not None:
+            text_value += first_node.tail.strip() + ' '
+        return text_value.strip()
+
+    def formater(self, context_xml, input_xml):
+        if len(input_xml) > 0:
+            return self._node_to_string(input_xml[0])
+        else:
+            return ''
+
+
 def build_from_xml(xml_content, watermark):
     xsl_file = join(dirname(__file__), "ConvertxlpToCSV.xsl")
     if not isfile(xsl_file):
         raise LucteriosException(GRAVE, "Error:no csv xsl file!")
     with open(xsl_file, 'rb') as xsl_file:
-        csv_transform = etree.XSLT(etree.XML(xsl_file.read()))
+        extensions = etree.Extension(LucteriosXLTExtension(), ('formater',), ns='lucterios')
+        csv_transform = etree.XSLT(etree.XML(xsl_file.read()), extensions=extensions)
     xml_rep_content = etree.XML(xml_content)
     for xml_br in xml_rep_content.xpath("//br"):
         xml_br.text = ','

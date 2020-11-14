@@ -464,6 +464,7 @@ def get_binay(text):
 
 
 def toHtml(text):
+    from lxml import etree
     text = str(text).strip()
     pos_in = text.find('&')
     while pos_in != -1:
@@ -483,7 +484,9 @@ def toHtml(text):
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
     text = text.replace('<br>', '<br/>')
-    return text
+    html_node = etree.HTML('<div>%s</div>' % text)
+    html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
+    return html_text.strip()[5:-6]
 
 
 def convert_date(current_date, defaultdate=None):

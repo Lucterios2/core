@@ -28,6 +28,7 @@ from copy import deepcopy
 from os.path import dirname, basename
 from logging import getLogger
 from importlib import import_module
+from json import dumps
 
 from django.db.models import Q
 from django.utils.translation import ugettext as _
@@ -71,10 +72,7 @@ def remove_format(xml_text):
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
     try:
-        html_text = ''
-        html_node = etree.HTML('<div>%s</div>' % toHtml(text))
-        html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
-        html_text = html_text.strip()[5:-6]
+        html_text = toHtml(text)
         xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text})
         xml_text.attrib['font_family'] = font_family
         xml_text.attrib['font_size'] = "%d" % font_size
@@ -243,8 +241,7 @@ class PrintTable(PrintItem):
             size_col = int(round(self.width_ratio * column[1]))
             new_col = etree.SubElement(xml_table, "columns")
             new_col.attrib['width'] = "%d.0" % size_col
-            xml_text = convert_to_html(
-                'cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", self.size_ratio(9), self.size_ratio(10), "center")
+            xml_text = convert_to_html('cell', "{[i]}%s{[/i]}" % column[0], "sans-serif", self.size_ratio(9), self.size_ratio(10), "center")
             new_col.append(xml_text)
 
     def write_rows(self, xml_table):
@@ -255,8 +252,7 @@ class PrintTable(PrintItem):
                 if color_ref is not None:
                     new_row.attrib['color_ref'] = str(color_ref)
             for value in row:
-                xml_text = convert_to_html(
-                    'cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
+                xml_text = convert_to_html('cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
                 if is_image_base64(value):
                     xml_text.attrib['image'] = "1"
                 new_row.append(xml_text)
@@ -318,6 +314,7 @@ class PrintLabel(PrintItem):
             getLogger("lucterios.core.print").exception('PrintLabel')
             self.value = str(self.comp.value)
         self.init_label()
+        self.with_formating = True
 
     def init_label(self):
         self.size_x, self.height = self.calcul_text_size(self.value)
@@ -326,6 +323,14 @@ class PrintLabel(PrintItem):
     def get_xml(self):
         xml_text = convert_to_html('text', self.value)
         self.fill_attrib(xml_text)
+        if self.with_formating:
+            formatnum, formatstr = self.comp.get_format()
+            if (formatnum is not None) or (formatstr is not None):
+                xml_text.attrib['jsonvalue'] = dumps(self.comp.value)
+                if formatnum is not None:
+                    xml_text.attrib['formatnum'] = dumps(formatnum)
+                if formatstr is not None:
+                    xml_text.attrib['formatstr'] = formatstr
         return xml_text
 
 
@@ -510,6 +515,7 @@ class ActionGenerator(ReportGenerator):
                     lbl_item.col = new_item.col
                     lbl_item.colspan = 1
                     lbl_item.init_label()
+                    lbl_item.with_formating = False
                     new_item.col = new_item.col + 1
                     new_item.colspan = new_item.colspan - 1
                 if new_item.tab not in col_size.keys():
