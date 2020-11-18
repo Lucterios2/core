@@ -45,7 +45,11 @@ class LucteriosXLTExtension(object):
 
     def formater(self, context_xml, input_xml):
         if len(input_xml) > 0:
-            return self._node_to_string(input_xml[0])
+            text_value = self._node_to_string(input_xml[0])
+            for _loop in range(3):
+                text_value = text_value.replace(' ,', ',')
+                text_value = text_value.replace(', ', ',')
+            return text_value
         else:
             return ''
 
