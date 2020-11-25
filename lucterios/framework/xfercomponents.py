@@ -176,6 +176,7 @@ class XferCompLabelForm(XferComponent):
         return self._formatnum, self._formatstr
 
     def set_value(self, value):
+        from decimal import Decimal
         if value is None:
             self.value = None
         elif isinstance(value, datetime) or isinstance(value, time) or isinstance(value, date):
@@ -184,6 +185,10 @@ class XferCompLabelForm(XferComponent):
             self.value = list(value)
         elif isinstance(value, bool):
             self.value = bool(value)
+        elif isinstance(value, float) or isinstance(value, Decimal):
+            self.value = float(value)
+        elif isinstance(value, int):
+            self.value = int(value)
         elif isinstance(value, object):
             self.value = str(value)
         else:

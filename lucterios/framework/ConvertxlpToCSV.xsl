@@ -28,7 +28,8 @@
 	</xsl:template>
 
 	<xsl:template match="text">
-		<xsl:text>"</xsl:text><xsl:value-of select="ext:formater(.)"/><xsl:text>"</xsl:text>
+		<xsl:text>"</xsl:text><xsl:value-of select="ext:formater(.)"/><xsl:text>"
+</xsl:text>
 	</xsl:template>
 
 	<xsl:template match="table">

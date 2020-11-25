@@ -409,6 +409,21 @@ class LucteriosModel(models.Model):
             field_val = eval_sublist(field_list, field_value)
         return field_val
 
+    def evaluate_with_formating(self, text):
+        value, formatnum, formatstr = None, None, None
+        matchfield = self.TO_EVAL_FIELD.match(text)
+        if (matchfield is not None) and (matchfield.span() == (0, len(text))):
+            field_list = text[1:].split('.')
+            if hasattr(self, field_list[0]):
+                field_value = getattr(self, field_list[0])
+                dep_field = self.get_field_by_name(field_list[0])
+                if (dep_field is None or is_simple_field(dep_field)) and not isinstance(field_value, LucteriosModel):
+                    value = adapt_value(field_value)
+                    formatnum, formatstr = extract_format(get_format_from_field(dep_field))
+                elif isinstance(field_value, LucteriosModel) and not hasattr(field_value, "all"):
+                    value, formatnum, formatstr = field_value.evaluate_with_formating("#" + ".".join(field_list[1:]))
+        return value, formatnum, formatstr
+
     def evaluate(self, text):
         if text == '#':
             return str(self)

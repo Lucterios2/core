@@ -25,13 +25,11 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from datetime import datetime, date, time
 from calendar import monthrange
-from _decimal import Decimal
 from babel.numbers import format_currency
 from babel.dates import format_date, format_time, format_datetime
 
 import threading
 import logging
-import warnings
 import locale
 import sys
 
@@ -489,6 +487,35 @@ def toHtml(text):
     return html_text.strip()[5:-6]
 
 
+def clean_xml(xmltext):
+    xmltext.text = ''
+    for subitem in xmltext:
+        xmltext.remove(subitem)
+    xmltext.tail = ''
+
+
+def change_with_format(xmltext):
+    from lxml import etree
+    from json import loads
+    currentvalue = xmltext.get('jsonvalue')
+    if currentvalue is not None:
+        clean_xml(xmltext)
+        formatstr = xmltext.get('formatstr')
+        formatnum = xmltext.get('formatnum')
+        current_html = toHtml(format_to_string(loads(currentvalue), loads(formatnum) if formatnum is not None else None, formatstr))
+        if current_html.startswith('<'):
+            try:
+                sub_xml = etree.XML(current_html)
+                xmltext.append(sub_xml)
+            except etree.XMLSyntaxError:
+                xmltext.text = current_html
+        else:
+            xmltext.text = current_html
+        return True
+    else:
+        return False
+
+
 def convert_date(current_date, defaultdate=None):
     if isinstance(current_date, date):
         return current_date
@@ -510,6 +537,7 @@ def same_day_months_after(start_date, months=1):
 
 
 def adapt_value(value):
+    from decimal import Decimal
     from lucterios.framework.models import LucteriosModel
     if hasattr(value, 'all'):
         values = []
