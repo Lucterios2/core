@@ -361,21 +361,20 @@ class LucteriosModel(models.Model):
     def merge_objects(self, alias_objects=[]):
         from django.contrib.contenttypes.fields import GenericForeignKey
         from lucterios.framework.signal_and_lock import Signal
-
         if not isinstance(alias_objects, list):
             alias_objects = [alias_objects]
-
+        if len(alias_objects) == 0:
+            return
         primary_class = self.__class__
         for alias_object in alias_objects:
             if not isinstance(alias_object, primary_class):
                 raise TypeError('Only models of same class can be merged')
 
+        Signal.call_signal("pre_merge", self, alias_objects)
         generic_fields = []
         for model in apps.get_models():
             generic_fields.extend(filter(lambda x: isinstance(x, GenericForeignKey), model.__dict__.values()))
-
         blank_local_fields = set([field.attname for field in self._meta.local_fields if getattr(self, field.attname) in [None, '']])
-
         for alias_object in alias_objects:
             self._merge_fields_object(alias_object)
             self._merge_genericfield_object(alias_object, generic_fields)
