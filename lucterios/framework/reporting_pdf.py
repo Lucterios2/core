@@ -30,7 +30,6 @@ from logging import getLogger
 from re import sub
 from copy import deepcopy
 from json import loads
-from json.decoder import JSONDecodeError
 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
@@ -43,7 +42,8 @@ from reportlab.platypus.tables import TableStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from lucterios.framework.filetools import open_from_base64, is_image_base64
-from lucterios.framework.tools import format_to_string, toHtml
+from lucterios.framework.tools import format_to_string, toHtml,\
+    change_with_format
 
 WATERMARK_NB = 2
 
@@ -524,27 +524,8 @@ class LucteriosPDF(object):
             current_y = self.y_offset + get_size(xmlitem, 'top')
         return current_y
 
-    def _change_with_format(self, xmltext):
-        currentvalue = xmltext.get('jsonvalue')
-        if currentvalue is not None:
-            xmltext.text = ''
-            for subitem in xmltext:
-                xmltext.remove(subitem)
-            formatstr = xmltext.get('formatstr')
-            formatnum = xmltext.get('formatnum')
-            current_html = toHtml(format_to_string(loads(currentvalue), loads(formatnum) if formatnum is not None else None, formatstr))
-            if current_html.startswith('<'):
-                try:
-                    sub_xml = etree.XML(current_html)
-                    xmltext.append(sub_xml)
-                except etree.XMLSyntaxError:
-                    xmltext.text = current_html
-            else:
-                xmltext.text = current_html
-            xmltext.tail = ''
-
     def create_para(self, xmltext, current_w, current_h, offset_font_size=0, no_para=False):
-        self._change_with_format(xmltext)
+        change_with_format(xmltext)
         para_text_list = ConvertHTML_XMLReportlab.convert(xmltext, no_para)
         font_name = xmltext.get('font_family')
         if font_name is None:

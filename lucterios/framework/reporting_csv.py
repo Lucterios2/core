@@ -25,6 +25,7 @@ from os.path import join, dirname, isfile
 from lxml import etree
 
 from lucterios.framework.error import LucteriosException, GRAVE
+from lucterios.framework.tools import change_with_format
 
 
 def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):
@@ -34,6 +35,7 @@ def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_
 class LucteriosXLTExtension(object):
 
     def _node_to_string(self, first_node):
+        change_with_format(first_node)
         text_value = ""
         if first_node.text is not None:
             text_value += first_node.text.strip() + ' '

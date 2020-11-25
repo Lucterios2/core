@@ -37,7 +37,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import toHtml, format_to_string
+from lucterios.framework.tools import toHtml, format_to_string, clean_xml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xferprinting import PRINT_PDF_FILE, PRINT_EXT_FILE
@@ -103,6 +103,26 @@ def convert_text_xml(xml_text):
     else:
         text_align = 'center'
     return convert_to_html(xml_text.tag, xml_text.text, font_family, font_size, line_height, text_align)
+
+
+def add_formating_xml(xml_text, value, formatnum, formatstr):
+    def jsonconverter(data):
+        from datetime import datetime, date, time
+        from decimal import Decimal
+        if isinstance(data, Decimal):
+            return float(data)
+        elif isinstance(data, datetime) or isinstance(data, date) or isinstance(data, time) or (type(data).__name__ == '__proxy__'):
+            return str(data)
+    if (formatnum is not None) or (formatstr is not None):
+        xml_text.attrib['jsonvalue'] = dumps(value, default=jsonconverter)
+        if formatnum is not None:
+            xml_text.attrib['formatnum'] = dumps(formatnum)
+        if formatstr is not None:
+            xml_text.attrib['formatstr'] = formatstr
+        clean_xml(xml_text)
+        return True
+    else:
+        return False
 
 
 class PrintItem(object):
@@ -207,7 +227,7 @@ class PrintTable(PrintItem):
                 self.size_rows.append(0)
             hd_idx = 0
             for header in self.comp.headers:
-                value = format_to_string(record[header.name], header.htype, header.formatstr)
+                value = record[header.name]
                 if header.htype == 'icon':
                     value = BASE64_PREFIX + value
                     img_size = get_image_size(value)
@@ -215,7 +235,7 @@ class PrintTable(PrintItem):
                     size_y = int(round(img_size[1] * DPI))
                 else:
                     size_x, size_y = self.calcul_text_size(value, 9, 10, "start", True)
-                self.rows[row_idx].append(str(value))
+                self.rows[row_idx].append((value, header.htype, header.formatstr))
                 self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
                 hd_idx += 1
             self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
@@ -251,17 +271,20 @@ class PrintTable(PrintItem):
                 color_ref = row.get_color_ref()
                 if color_ref is not None:
                     new_row.attrib['color_ref'] = str(color_ref)
-            for value in row:
-                xml_text = convert_to_html('cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
-                if is_image_base64(value):
+            for value, formatnum, formatstr in row:
+                if formatnum == 'icon':
+                    xml_text = convert_to_html('cell', value, "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
                     xml_text.attrib['image'] = "1"
+                else:
+                    xml_text = convert_to_html('cell', '', "sans-serif", self.size_ratio(9), self.size_ratio(10), "start")
+                    add_formating_xml(xml_text, value, formatnum, formatstr)
                 new_row.append(xml_text)
 
     def get_xml(self):
         if len(self.rows) == 0:
             row = []
             for _ in self.columns:
-                row.append('')
+                row.append(('', None, None))
             self.rows.append(row)
             self.size_rows.append(self.calcul_text_size('')[1])
         xml_table = etree.Element('table')
@@ -325,12 +348,7 @@ class PrintLabel(PrintItem):
         self.fill_attrib(xml_text)
         if self.with_formating:
             formatnum, formatstr = self.comp.get_format()
-            if (formatnum is not None) or (formatstr is not None):
-                xml_text.attrib['jsonvalue'] = dumps(self.comp.value)
-                if formatnum is not None:
-                    xml_text.attrib['formatnum'] = dumps(formatnum)
-                if formatstr is not None:
-                    xml_text.attrib['formatstr'] = formatstr
+            add_formating_xml(xml_text, self.comp.value, formatnum, formatstr)
         return xml_text
 
 
@@ -632,11 +650,21 @@ class ReportModelGenerator(ReportGenerator):
         return sub_values
 
     @staticmethod
+    def _create_new_xml(sub_value, itemtext, tagname):
+        value, formatnum, formatstr = sub_value.evaluate_with_formating(itemtext.strip())
+        if (value is None) and (formatnum is None) and (formatstr is None):
+            new_item = convert_to_html(tagname, sub_value.evaluate(itemtext))
+        else:
+            new_item = convert_to_html(tagname, '')
+            add_formating_xml(new_item, value, formatnum, formatstr)
+        return new_item
+
+    @staticmethod
     def _append_text(item, current_item, node, xfer):
         sub_values = ReportModelGenerator._get_sub_values(item, current_item)
         for sub_value in sub_values:
             sub_value.set_context(xfer)
-            new_item = convert_to_html('text', sub_value.evaluate(item.text))
+            new_item = ReportModelGenerator._create_new_xml(sub_value, item.text, 'text')
             ReportModelGenerator.copy_attribs(item, new_item)
             node.append(new_item)
 
@@ -647,7 +675,7 @@ class ReportModelGenerator(ReportGenerator):
         for column in item.xpath('columns'):
             new_column = etree.SubElement(new_item, 'columns')
             new_column.attrib['width'] = column.get('width')
-            new_cell = convert_to_html('cell', current_item.evaluate(column.text))
+            new_cell = ReportModelGenerator._create_new_xml(current_item, column.text, 'cell')
             ReportModelGenerator.copy_attribs(column, new_cell)
             new_column.append(new_cell)
         for row in item.xpath('rows'):
@@ -659,7 +687,7 @@ class ReportModelGenerator(ReportGenerator):
                 if color_ref is not None:
                     new_row.attrib['color_ref'] = str(color_ref)
                 for cell in row.xpath('cell'):
-                    new_cell = convert_to_html('cell', sub_value.evaluate(cell.text))
+                    new_cell = ReportModelGenerator._create_new_xml(sub_value, cell.text, 'cell')
                     ReportModelGenerator.copy_attribs(cell, new_cell)
                     new_row.append(new_cell)
         node.append(new_item)
