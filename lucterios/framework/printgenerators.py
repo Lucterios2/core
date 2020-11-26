@@ -652,7 +652,7 @@ class ReportModelGenerator(ReportGenerator):
     @staticmethod
     def _create_new_xml(sub_value, itemtext, tagname):
         value, formatnum, formatstr = sub_value.evaluate_with_formating(itemtext.strip())
-        if (value is None) and (formatnum is None) and (formatstr is None):
+        if (formatnum is None) and (formatstr is None):
             new_item = convert_to_html(tagname, sub_value.evaluate(itemtext))
         else:
             new_item = convert_to_html(tagname, '')
