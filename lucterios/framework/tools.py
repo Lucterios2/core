@@ -503,10 +503,14 @@ def change_with_format(xmltext):
         formatstr = xmltext.get('formatstr')
         formatnum = xmltext.get('formatnum')
         current_html = toHtml(format_to_string(loads(currentvalue), loads(formatnum) if formatnum is not None else None, formatstr))
-        if current_html.startswith('<'):
+        tag_open = current_html.find('<')
+        tag_close = current_html.rfind('>')
+        if (tag_open != -1) and (tag_close != -1):
             try:
-                sub_xml = etree.XML(current_html)
+                sub_xml = etree.XML(current_html[tag_open:tag_close + 1])
                 xmltext.append(sub_xml)
+                xmltext.text = current_html[:tag_open]
+                xmltext.tail = current_html[tag_close + 1:]
             except etree.XMLSyntaxError:
                 xmltext.text = current_html
         else:
