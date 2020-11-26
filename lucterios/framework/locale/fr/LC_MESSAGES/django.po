@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-24 12:14+0000\n"
-"PO-Revision-Date: 2020-07-23 10:42+0200\n"
+"POT-Creation-Date: 2020-11-26 18:09+0000\n"
+"PO-Revision-Date: 2020-11-26 19:11+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -41,113 +41,118 @@ msgstr "heure courante"
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' inconnu(e) !"
 
-#: models.py:517
+#: models.py:531
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:558
+#: models.py:572
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:559
+#: models.py:573
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:599
+#: models.py:613
 msgid "session"
 msgstr "session"
 
-#: models.py:600
+#: models.py:614
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:738
+#: models.py:752
 msgid "create"
 msgstr "création"
 
-#: models.py:739
+#: models.py:753
 msgid "update"
 msgstr "modification"
 
-#: models.py:740 tools.py:446
+#: models.py:754 tools.py:444
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:741
+#: models.py:755
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:742 tools.py:442
+#: models.py:756 tools.py:440
 msgid "add"
 msgstr "ajouter"
 
-#: models.py:752 models.py:759
+#: models.py:766 models.py:773
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:753
+#: models.py:767
 msgid "content type"
 msgstr "type de contenu"
 
-#: models.py:754
+#: models.py:768
 msgid "actor"
 msgstr "utilisateur"
 
-#: models.py:755
+#: models.py:769
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:756
+#: models.py:770
 msgid "object id"
 msgstr "object id"
 
-#: models.py:757
+#: models.py:771
 msgid "object representation"
 msgstr "identifiant"
 
-#: models.py:758
+#: models.py:772
 msgid "action"
 msgstr "action"
 
-#: models.py:760
+#: models.py:774
 msgid "remote address"
 msgstr "adresse distante"
 
-#: models.py:761
+#: models.py:775
 msgid "date"
 msgstr "date"
 
-#: models.py:762
+#: models.py:776
 msgid "additional data"
 msgstr "données additionnelles"
 
-#: models.py:768
+#: models.py:782
 msgid "Created {repr:s}"
 msgstr "Création de {repr:s}"
 
-#: models.py:770
+#: models.py:784
 msgid "Updated {repr:s}"
 msgstr "Modification de {repr:s}"
 
-#: models.py:772
+#: models.py:786
 msgid "Deleted {repr:s}"
 msgstr "Suppression de {repr:s}"
 
-#: models.py:774
+#: models.py:788
 msgid "Logged {repr:s}"
 msgstr "Journalisation de {repr:s}"
 
-#: models.py:879
+#: models.py:893
 msgid "log entry"
 msgstr "entrée d'historique"
 
-#: models.py:880
+#: models.py:894
 msgid "log entries"
 msgstr "entrées d'historiques"
 
-#: printgenerators.py:432
+#: printgenerators.py:453
+#, python-format
+msgid "Report format \"%s\" not supported !"
+msgstr "Format de rapport \"%s\" non supporté !"
+
+#: printgenerators.py:467
 msgid "This impression failed !"
 msgstr "L'impression échoue !"
 
@@ -156,24 +161,24 @@ msgstr "L'impression échoue !"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:142
+#: tools.py:140
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:144
+#: tools.py:142
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:444
+#: tools.py:442
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:539 xfergraphic.py:160
+#: tools.py:568 xfergraphic.py:160
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:541 xfergraphic.py:161
+#: tools.py:570 xfergraphic.py:161
 msgid "No"
 msgstr "Non"
 
@@ -185,24 +190,24 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:131 xferprinting.py:122
-#: xferprinting.py:198 xfersearch.py:582
+#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:131 xferprinting.py:130
+#: xferprinting.py:206 xfersearch.py:582
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:45 xfercomponents.py:705
+#: xferadvance.py:45 xfercomponents.py:713
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:46 xfercomponents.py:705
+#: xferadvance.py:46 xfercomponents.py:713
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:47 xfercomponents.py:706
+#: xferadvance.py:47 xfercomponents.py:714
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:48 xfercomponents.py:706
+#: xferadvance.py:48 xfercomponents.py:714
 msgid "Add"
 msgstr "Ajouter"
 
@@ -218,7 +223,7 @@ msgstr "Sauver"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:52 xferprinting.py:197
+#: xferadvance.py:52 xferprinting.py:205
 msgid "Print"
 msgstr "Imprimer"
 
@@ -291,11 +296,11 @@ msgstr "Traitement..."
 msgid "Retry"
 msgstr "Recommencer"
 
-#: xferprinting.py:50
+#: xferprinting.py:57
 msgid "{[hr/]}Regenerate new report"
 msgstr "{[hr/]}Re-générer un nouveau rapport"
 
-#: xferprinting.py:51
+#: xferprinting.py:58
 msgid ""
 "{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
 "do."
@@ -303,25 +308,29 @@ msgstr ""
 "{[u]}Attention:{[/u]} Des éléments ont des raports sauvegardés mais devront "
 "être regénérés."
 
-#: xferprinting.py:52
+#: xferprinting.py:59
 msgid "DUPLICATA"
 msgstr "DUPLICATA"
 
-#: xferprinting.py:169
+#: xferprinting.py:177
 msgid "Get saved report"
 msgstr "Obtenir le rapport sauvegardé"
 
-#: xferprinting.py:193
+#: xferprinting.py:201
 msgid "Kind of report"
 msgstr "Type de rapport"
 
-#: xferprinting.py:223
+#: xferprinting.py:231
 msgid "PDF file"
 msgstr "Fichier PDF"
 
-#: xferprinting.py:225
+#: xferprinting.py:233
 msgid "CSV file"
 msgstr "Fichier CSV"
+
+#: xferprinting.py:234
+msgid "ODS file"
+msgstr "Fichier ODS"
 
 #: xfersearch.py:51
 msgid "equals"

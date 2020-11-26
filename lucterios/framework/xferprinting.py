@@ -41,10 +41,12 @@ from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.xfersearch import get_search_query
 
+PRINT_ODS_FILE = 2
 PRINT_PDF_FILE = 3
 PRINT_CSV_FILE = 4
 
 PRINT_EXT_FILE = {
+    PRINT_ODS_FILE: 'ods',
     PRINT_PDF_FILE: 'pdf',
     PRINT_CSV_FILE: 'csv',
 }
@@ -65,6 +67,7 @@ class XferContainerPrint(XferContainerAbstract):
         XferContainerAbstract.__init__(self)
         self.report_content = b''
         self.report_mode = PRINT_PDF_FILE
+        self.report_ext = ''
         self.print_selector = []
         self.selector = None
 
@@ -228,21 +231,23 @@ parent.get('print_sep').setEnabled(!is_persitent);
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]
         if self.with_text_export:
             self.print_selector.append((PRINT_CSV_FILE, _('CSV file')))
+            self.print_selector.append((PRINT_ODS_FILE, _('ODS file')))
         if (self.getparam("PRINT_PERSITENT", False) is True):
             self.report_mode = PRINT_PDF_FILE
             self.report_content = b64encode(self.get_persistent_pdfreport())
         elif self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
+                self.report_ext = PRINT_EXT_FILE[self.report_mode] if self.report_mode in PRINT_EXT_FILE else 'pdf'
                 if self.get_persistent_pdfreport() is not None:
                     report_generator.watermark = self.PRINT_DUPLICATA
                 if report_generator.title == '':
                     report_generator.title = self.caption
-                self.report_content = b64encode(report_generator.generate_report(self.request, PRINT_EXT_FILE[self.report_mode] if self.report_mode in PRINT_EXT_FILE else 'pdf'))
+                self.report_content = b64encode(report_generator.generate_report(self.request, self.report_ext))
 
     def get_print_name(self):
         return str(self.caption)
 
     def _finalize(self):
-        self.responsejson['print'] = {'mode': self.report_mode, 'title': self.get_print_name(), 'content': self.report_content.decode()}
+        self.responsejson['print'] = {'mode': self.report_mode, 'extension': self.report_ext, 'title': self.get_print_name(), 'content': self.report_content.decode()}
         XferContainerAbstract._finalize(self)

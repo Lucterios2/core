@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-24 12:14+0000\n"
-"PO-Revision-Date: 2020-07-23 10:41+0200\n"
+"POT-Creation-Date: 2020-11-26 18:09+0000\n"
+"PO-Revision-Date: 2020-11-26 19:10+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
@@ -40,111 +40,116 @@ msgstr "current hour"
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' unknown !"
 
-#: models.py:517
+#: models.py:531
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:558
+#: models.py:572
 msgid "username"
 msgstr "username"
 
-#: models.py:559
+#: models.py:573
 msgid "is active"
 msgstr "is active"
 
-#: models.py:599
+#: models.py:613
 msgid "session"
 msgstr "session"
 
-#: models.py:600
+#: models.py:614
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:738
+#: models.py:752
 msgid "create"
 msgstr "create"
 
-#: models.py:739
+#: models.py:753
 msgid "update"
 msgstr "update"
 
-#: models.py:740 tools.py:446
+#: models.py:754 tools.py:444
 msgid "delete"
 msgstr "delete"
 
-#: models.py:741
+#: models.py:755
 msgid "remove"
 msgstr "remove"
 
-#: models.py:742 tools.py:442
+#: models.py:756 tools.py:440
 msgid "add"
 msgstr "add"
 
-#: models.py:752 models.py:759
+#: models.py:766 models.py:773
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:753
+#: models.py:767
 msgid "content type"
 msgstr "content type"
 
-#: models.py:754
+#: models.py:768
 msgid "actor"
 msgstr "actor"
 
-#: models.py:755
+#: models.py:769
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:756
+#: models.py:770
 msgid "object id"
 msgstr "object id"
 
-#: models.py:757
+#: models.py:771
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:758
+#: models.py:772
 msgid "action"
 msgstr "action"
 
-#: models.py:760
+#: models.py:774
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:761
+#: models.py:775
 msgid "date"
 msgstr "date"
 
-#: models.py:762
+#: models.py:776
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:768
+#: models.py:782
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:770
+#: models.py:784
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:772
+#: models.py:786
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:774
+#: models.py:788
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:879
+#: models.py:893
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:880
+#: models.py:894
 msgid "log entries"
 msgstr "log entries"
 
-#: printgenerators.py:432
+#: printgenerators.py:453
+#, python-format
+msgid "Report format \"%s\" not supported !"
+msgstr "Report format \"%s\" not supported !"
+
+#: printgenerators.py:467
 msgid "This impression failed !"
 msgstr "This impression failed !"
 
@@ -153,24 +158,24 @@ msgstr "This impression failed !"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:142
+#: tools.py:140
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:144
+#: tools.py:142
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:444
+#: tools.py:442
 msgid "view"
 msgstr "view"
 
-#: tools.py:539 xfergraphic.py:160
+#: tools.py:568 xfergraphic.py:160
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:541 xfergraphic.py:161
+#: tools.py:570 xfergraphic.py:161
 msgid "No"
 msgstr "No"
 
@@ -182,24 +187,24 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:131 xferprinting.py:122
-#: xferprinting.py:198 xfersearch.py:582
+#: xferadvance.py:44 xferadvance.py:231 xfergraphic.py:131 xferprinting.py:130
+#: xferprinting.py:206 xfersearch.py:582
 msgid "Close"
 msgstr "Close"
 
-#: xferadvance.py:45 xfercomponents.py:705
+#: xferadvance.py:45 xfercomponents.py:713
 msgid "Edit"
 msgstr "Edit"
 
-#: xferadvance.py:46 xfercomponents.py:705
+#: xferadvance.py:46 xfercomponents.py:713
 msgid "Modify"
 msgstr "Modify"
 
-#: xferadvance.py:47 xfercomponents.py:706
+#: xferadvance.py:47 xfercomponents.py:714
 msgid "Delete"
 msgstr "Delete"
 
-#: xferadvance.py:48 xfercomponents.py:706
+#: xferadvance.py:48 xfercomponents.py:714
 msgid "Add"
 msgstr "Add"
 
@@ -215,7 +220,7 @@ msgstr "Save"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:52 xferprinting.py:197
+#: xferadvance.py:52 xferprinting.py:205
 msgid "Print"
 msgstr "Print"
 
@@ -288,11 +293,11 @@ msgstr "Traitment..."
 msgid "Retry"
 msgstr "Retry"
 
-#: xferprinting.py:50
+#: xferprinting.py:57
 msgid "{[hr/]}Regenerate new report"
 msgstr "{[hr/]}Regenerate new report"
 
-#: xferprinting.py:51
+#: xferprinting.py:58
 msgid ""
 "{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
 "do."
@@ -300,25 +305,29 @@ msgstr ""
 "{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
 "do."
 
-#: xferprinting.py:52
+#: xferprinting.py:59
 msgid "DUPLICATA"
 msgstr "DUPLICATE"
 
-#: xferprinting.py:169
+#: xferprinting.py:177
 msgid "Get saved report"
 msgstr "Get saved report"
 
-#: xferprinting.py:193
+#: xferprinting.py:201
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:223
+#: xferprinting.py:231
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:225
+#: xferprinting.py:233
 msgid "CSV file"
 msgstr "CSV file"
+
+#: xferprinting.py:234
+msgid "ODS file"
+msgstr "ODS file"
 
 #: xfersearch.py:51
 msgid "equals"
