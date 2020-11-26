@@ -35,7 +35,6 @@ def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_
 class LucteriosXLTExtension(object):
 
     def _node_to_string(self, first_node):
-        change_with_format(first_node)
         text_value = ""
         if first_node.text is not None:
             text_value += first_node.text.strip() + ' '
@@ -47,6 +46,7 @@ class LucteriosXLTExtension(object):
 
     def formater(self, context_xml, input_xml):
         if len(input_xml) > 0:
+            change_with_format(input_xml[0])
             text_value = self._node_to_string(input_xml[0])
             for _loop in range(3):
                 text_value = text_value.replace(' ,', ',')

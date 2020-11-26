@@ -29,7 +29,6 @@ from lxml import etree
 from logging import getLogger
 from re import sub
 from copy import deepcopy
-from json import loads
 
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Image, Paragraph, Table
@@ -41,18 +40,11 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus.tables import TableStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
-from lucterios.framework.filetools import open_from_base64, is_image_base64
-from lucterios.framework.tools import format_to_string, toHtml,\
-    change_with_format
+from lucterios.framework.filetools import is_image_base64
+from lucterios.framework.tools import change_with_format
+from lucterios.framework.reporting_base import LucteriosBase
 
 WATERMARK_NB = 2
-
-
-def get_size(xmltext, name):
-    try:
-        return float(xmltext.get(name)) * mm
-    except TypeError:
-        return 0
 
 
 class ConvertHTML_XMLReportlab(object):
@@ -365,7 +357,7 @@ class TableManage(object):
         self.current_w = current_w
         self.current_h = current_h
         for xmlcolumn in xmlcolumns:
-            current_w = get_size(xmlcolumn, 'width')
+            current_w = LucteriosPDF.get_size(xmlcolumn, 'width')
             self.width_columns.append(current_w)
             cells = xmlcolumn.xpath('cell')
             paras, _ = parent.create_para(cells[0], current_w, 0, 0.85)
@@ -422,107 +414,24 @@ class TableManage(object):
             self.row_colors.append(len(self.data) - 1)
 
 
-class LucteriosPDF(object):
+class LucteriosPDF(LucteriosBase):
 
     def __init__(self, watermark):
+        LucteriosBase.__init__(self, watermark)
         self.pdf = canvas.Canvas("lucterios.pdf")
         self.styles = getSampleStyleSheet()
-        self.xml = None
-        self.pages = None
-        self._width = 0
-        self._height = 0
-        self._l_margin = 0
-        self._t_margin = 0
-        self._r_margin = 0
-        self._b_margin = 0
-        self._header_h = 0
-        self._bottom_h = 0
-        self._y_offset = 0
-        self._position_y = 0
-        self.current_page = None
-        self.is_changing_page = False
-        self.watermark = watermark.strip()
         initial_fonts()
 
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def height(self):
-        return self._height
-
-    @property
-    def l_margin(self):
-        return self._l_margin
-
-    @property
-    def t_margin(self):
-        return self._t_margin
-
-    @property
-    def r_margin(self):
-        return self._r_margin
-
-    @property
-    def b_margin(self):
-        return self._b_margin
-
-    @property
-    def header_h(self):
-        return self._header_h
-
-    @property
-    def bottom_h(self):
-        return self._bottom_h
-
-    @property
-    def y_offset(self):
-        return self._y_offset
-
-    @property
-    def position_y(self):
-        return self._position_y
-
-    @y_offset.setter
-    def y_offset(self, value):
-        self._y_offset = value
-        getLogger('lucterios.printing').debug("y_offset=%.2f", self._y_offset)
-
-    @position_y.setter
-    def position_y(self, value):
-        self._position_y = value
-        getLogger('lucterios.printing').debug("position_y=%.2f" % self._position_y)
+    @classmethod
+    def get_size(cls, xmltext, name):
+        try:
+            return float(xmltext.get(name)) * mm
+        except TypeError:
+            return 0
 
     def _init(self):
-        self.pages = self.xml.xpath('page')
-        self._width = get_size(self.xml, 'page_width')
-        self._height = get_size(self.xml, 'page_height')
-        self._l_margin = get_size(self.xml, 'margin_left')
-        self._t_margin = get_size(self.xml, 'margin_top')
-        self._r_margin = get_size(self.xml, 'margin_right')
-        self._b_margin = get_size(self.xml, 'margin_bottom')
-        if len(self.pages) > 0:
-            header = self.pages[0].xpath('header')
-            bottom = self.pages[0].xpath('bottom')
-            self._header_h = get_size(header[0], 'extent')
-            self._bottom_h = get_size(bottom[0], 'extent')
-        getLogger('lucterios.printing').debug("Init (H=%.2f/W=%.2f) margin[l=%.2f,t=%.2f,r=%.2f,b=%.2f] - header_h=%.2f/bottom_h=%.2f",
-                                              self.height, self.width,
-                                              self.l_margin, self.t_margin, self.r_margin, self.b_margin,
-                                              self._header_h, self._bottom_h)
+        LucteriosBase._init(self)
         self.pdf.setPageSize((self.width, self.height))
-
-    def get_top_component(self, xmlitem):
-        spacing = get_size(xmlitem, 'spacing')
-        if abs(spacing) > 0.001:
-            if abs(self.position_y - self.y_offset) > 0.001:
-                current_y = max(self.y_offset, self.position_y + spacing)
-            else:
-                current_y = self.y_offset
-        else:
-            current_y = self.y_offset + get_size(xmlitem, 'top')
-        return current_y
 
     def create_para(self, xmltext, current_w, current_h, offset_font_size=0, no_para=False):
         change_with_format(xmltext)
@@ -575,13 +484,7 @@ class LucteriosPDF(object):
 
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         if (xmlimage.text is not None) and (xmlimage.text.strip() != ''):
-            from PIL import ImageFile
-            ImageFile.LOAD_TRUNCATED_IMAGES = True
-            img_content = xmlimage.text.strip()
-            if is_image_base64(img_content):
-                img_file = open_from_base64(img_content)
-            else:
-                img_file = open(img_content, "rb")
+            img_file = self.open_image(xmlimage)
             try:
                 img = Image(img_file)
                 if current_h is not None:
@@ -617,26 +520,6 @@ class LucteriosPDF(object):
             y_offset += new_current_h
         self.position_y = current_y + max(sum_current_h, current_h)
 
-    def _parse_comp(self, comp, y_offset):
-        last_y_offset = self.y_offset
-        self.y_offset = y_offset
-        self.position_y = y_offset
-        for child in comp:
-            if self.position_y > (self.height - self.b_margin - self.bottom_h):
-                self.add_page()
-            current_x = self.l_margin + get_size(child, 'left')
-            current_y = self.get_top_component(child)
-            current_w = get_size(child, 'width')
-            current_h = get_size(child, 'height')
-            mtd = 'parse_' + child.tag.lower()
-            if hasattr(self, mtd):
-                fct = getattr(self, mtd)
-                # print("print: %s (x=%f,y=%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
-                fct(child, current_x, current_y, current_w, current_h)
-            else:
-                print("Unsupported method: " + mtd)
-        self.y_offset = last_y_offset
-
     def add_page(self):
         if not self.is_changing_page:
             self.is_changing_page = True
@@ -653,37 +536,22 @@ class LucteriosPDF(object):
             finally:
                 self.is_changing_page = False
 
-    def draw_header(self):
-        getLogger('lucterios.printing').debug("\t>> header <<")
-        if self.watermark != '':
-            for watermark_iter in range(WATERMARK_NB):
-                self.pdf.saveState()
-                self.pdf.setFont('sans-serif-bold', 50)
-                self.pdf.setFillColorRGB(0.8, 0.8, 0.8)
-                self.pdf.translate(self.width / 2, self.height * (watermark_iter + 1) / (WATERMARK_NB + 1))
-                self.pdf.rotate(30)
-                self.pdf.drawCentredString(0, 0, self.watermark)
-                self.pdf.restoreState()
-        header = self.current_page.xpath('header')
-        self._parse_comp(header[0], self.t_margin)
-
-    def draw_footer(self):
-        getLogger('lucterios.printing').debug("\t>> footer <<")
-        bottom = self.current_page.xpath('bottom')
-        self._parse_comp(bottom[0], self.height - self.b_margin - self.bottom_h)
-
-    def execute(self, xml_content):
-        self.xml = etree.fromstring(xml_content)
-        self._init()
-        for page in self.pages:
-            self.current_page = page
-            bodies = self.current_page.xpath('body')
-            for body in bodies:
-                self.add_page()
-                self._parse_comp(body, self.header_h + self.t_margin)
+    def draw_watermark(self):
+        for watermark_iter in range(WATERMARK_NB):
+            self.pdf.saveState()
+            self.pdf.setFont('sans-serif-bold', 50)
+            self.pdf.setFillColorRGB(0.8, 0.8, 0.8)
+            self.pdf.translate(self.width / 2, self.height * (watermark_iter + 1) / (WATERMARK_NB + 1))
+            self.pdf.rotate(30)
+            self.pdf.drawCentredString(0, 0, self.watermark)
+            self.pdf.restoreState()
 
     def output(self):
         return self.pdf.getpdfdata()
+
+
+def get_letter_ratio(width_ratio):
+    return min(1.2, max(0.8, width_ratio))
 
 
 def get_text_size(para_text, font_size=9, line_height=10, text_align='left', is_cell=False):

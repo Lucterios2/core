@@ -37,7 +37,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import toHtml, format_to_string, clean_xml
+from lucterios.framework.tools import toHtml, clean_xml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xferprinting import PRINT_PDF_FILE, PRINT_EXT_FILE
@@ -289,7 +289,7 @@ class PrintTable(PrintItem):
             self.size_rows.append(self.calcul_text_size('')[1])
         xml_table = etree.Element('table')
         self.width_ratio = self.width / self.size_x
-        self.letter_ratio = min(1.33, max(0.66, self.width_ratio))
+        self.letter_ratio = self.owner.get_letter_ratio(self.width_ratio)
         self.write_columns(xml_table)
         self.write_rows(xml_table)
         self.fill_attrib(xml_table)
@@ -371,6 +371,7 @@ class ReportGenerator(object):
         self.xfer = XferContainerAbstract()
         self.watermark = ""
         self.get_text_size = None
+        self.get_letter_ratio = None
 
     def fill_attrib_headerfooter(self):
         if self.header is not None:
@@ -430,6 +431,8 @@ class ReportGenerator(object):
             return 1, 1
         if self.get_text_size is None:
             self.get_text_size = get_text_size
+        if self.get_letter_ratio is None:
+            self.get_letter_ratio = lambda _ratio: 1
         self.modelxml = etree.Element('model')
         self.add_page()
         self.fill_content(request)
@@ -444,6 +447,7 @@ class ReportGenerator(object):
             reporting_modulename = "lucterios.framework.reporting_%s" % report_format
             reporting_module = import_module(reporting_modulename)
             self.get_text_size = getattr(reporting_module, "get_text_size", None)
+            self.get_letter_ratio = getattr(reporting_module, "get_letter_ratio", None)
             build_from_xml = getattr(reporting_module, "build_from_xml")
         except Exception:
             getLogger('lucterios.core.print').exception("import of %s", reporting_modulename)
@@ -458,7 +462,7 @@ class ReportGenerator(object):
             if len(content) > 0:
                 return content
             else:
-                return ""
+                return b""
         except ValueError:
             getLogger("lucterios.core.print").exception('build_from_xml')
             raise LucteriosException(IMPORTANT, _('This impression failed !'))

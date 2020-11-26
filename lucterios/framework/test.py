@@ -120,6 +120,7 @@ class LucteriosTestAbstract(object):
     language = 'fr'
 
     PDF_DIRECTORY = 'pdf'
+    ODS_DIRECTORY = 'ods'
 
     def __init__(self):
         self.xfer_class = XferContainerAcknowledge
@@ -142,13 +143,24 @@ class LucteriosTestAbstract(object):
         notfree_mode_connect()
         if not isdir(self.PDF_DIRECTORY):
             makedirs(self.PDF_DIRECTORY)
+        if not isdir(self.ODS_DIRECTORY):
+            makedirs(self.ODS_DIRECTORY)
         for ident in range(10):
             filename = self._get_pdf_filename(ident if ident > 0 else None)
+            if isfile(filename):
+                unlink(filename)
+            filename = self._get_ods_filename(ident if ident > 0 else None)
             if isfile(filename):
                 unlink(filename)
 
     def _get_pdf_filename(self, ident):
         filename = join(self.PDF_DIRECTORY, "%s-%s-%s%s.pdf" % (self.__class__.__module__, self.__class__.__name__,
+                                                                self._testMethodName,
+                                                                "-%03d" % ident if ident is not None else ""))
+        return filename
+
+    def _get_ods_filename(self, ident):
+        filename = join(self.ODS_DIRECTORY, "%s-%s-%s%s.ods" % (self.__class__.__module__, self.__class__.__name__,
                                                                 self._testMethodName,
                                                                 "-%03d" % ident if ident is not None else ""))
         return filename
@@ -164,6 +176,18 @@ class LucteriosTestAbstract(object):
         self.assertEqual(pdf_value[:4], "%PDF".encode('ascii', 'ignore'))
         with open(filename, "wb") as pdf_writer:
             pdf_writer.write(pdf_value)
+
+    def save_ods(self, base64_content=None, ident=None):
+        filename = self._get_ods_filename(ident)
+        if isfile(filename):
+            unlink(filename)
+        if base64_content is None:
+            ods_value = b64decode(str(self.response_json['print']["content"]))
+        else:
+            ods_value = b64decode(str(base64_content))
+        self.assertEqual(ods_value[30:84], "mimetypeapplication/vnd.oasis.opendocument.spreadsheet".encode('ascii', 'ignore'))
+        with open(filename, "wb") as ods_writer:
+            ods_writer.write(ods_value)
 
     def parse_xml(self, xml, root_tag='REPONSE', first_child=True):
         contentxml = etree.fromstring(xml)

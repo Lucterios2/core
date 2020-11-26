@@ -461,7 +461,7 @@ def get_binay(text):
     return bytes(text, 'ascii')
 
 
-def toHtml(text):
+def toHtml(text, totext=True):
     from lxml import etree
     text = str(text).strip()
     pos_in = text.find('&')
@@ -483,8 +483,11 @@ def toHtml(text):
     text = text.replace(']}', '>')
     text = text.replace('<br>', '<br/>')
     html_node = etree.HTML('<div>%s</div>' % text)
-    html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
-    return html_text.strip()[5:-6]
+    if totext:
+        html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
+        return html_text.strip()[5:-6]
+    else:
+        return html_node.find('body/div')
 
 
 def clean_xml(xmltext):
@@ -495,26 +498,17 @@ def clean_xml(xmltext):
 
 
 def change_with_format(xmltext):
-    from lxml import etree
     from json import loads
     currentvalue = xmltext.get('jsonvalue')
     if currentvalue is not None:
         clean_xml(xmltext)
         formatstr = xmltext.get('formatstr')
         formatnum = xmltext.get('formatnum')
-        current_html = toHtml(format_to_string(loads(currentvalue), loads(formatnum) if formatnum is not None else None, formatstr))
-        tag_open = current_html.find('<')
-        tag_close = current_html.rfind('>')
-        if (tag_open != -1) and (tag_close != -1):
-            try:
-                sub_xml = etree.XML(current_html[tag_open:tag_close + 1])
-                xmltext.append(sub_xml)
-                xmltext.text = current_html[:tag_open]
-                xmltext.tail = current_html[tag_close + 1:]
-            except etree.XMLSyntaxError:
-                xmltext.text = current_html
-        else:
-            xmltext.text = current_html
+        current_html = toHtml(format_to_string(loads(currentvalue), loads(formatnum) if formatnum is not None else None, formatstr), totext=False)
+        for sub_html in current_html:
+            xmltext.append(sub_html)
+        xmltext.text = current_html.text
+        xmltext.tail = current_html.tail
         return True
     else:
         return False

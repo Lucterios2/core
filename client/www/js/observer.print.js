@@ -21,19 +21,22 @@ var ObserverPrint = ObserverAbstract.extend({
 		var print_elements = this.mJSON.print;
 		this.title = print_elements.title;
 		this.mode = parseInt(print_elements.mode, 10) || MODE_PREVIEW;
+		if (print_elements.extension === undefined) {
+			if (this.mode === MODE_EXPORT_CSV) {
+				this.extension = '.csv';
+			} else {
+				this.extension = '.pdf';
+			}
+		} else {
+			this.extension = '.' + print_elements.extension;
+		}
 		this.print_content = print_elements.content;
 	},
 
 	show : function(aTitle, aGUIType) {
 		this._super(aTitle, aGUIType);
-
 		var file_name = this.title.getFileNameWithoutForgottenChar();
-		if (this.mode === MODE_EXPORT_CSV) {
-			file_name += '.csv';
-		} else {
-			file_name += '.pdf';
-		}
-
+		file_name += this.extension;
 		Singleton().mFileManager.saveFile(this.print_content, file_name);
 	}
 });
