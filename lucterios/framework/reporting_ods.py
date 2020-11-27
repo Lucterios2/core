@@ -26,15 +26,106 @@ import sys
 from _io import BytesIO
 from logging import getLogger
 from uuid import uuid4
+from json import loads
+from xml.sax import ContentHandler, parseString
 
 from odf.opendocument import OpenDocumentSpreadsheet
 from odf.table import Table, TableRow, TableCell, TableColumn
 from odf.style import Style, TableColumnProperties, TableRowProperties, ParagraphProperties, TextProperties, TableCellProperties
+from odf.number import Number, DateStyle, NumberStyle, DayOfWeek, Month, Year, Day
 from odf.draw import Frame, Image
-from odf.text import P
+from odf.text import P, Span
 
 from lucterios.framework.reporting_base import LucteriosBase
 from lucterios.framework.tools import change_with_format
+
+
+class ParserParam(ContentHandler):
+
+    class TextInfo(object):
+
+        def __init__(self, owner):
+            self.owner = owner
+            self.bold = False
+            self.italic = False
+            self.underline = False
+            self.color = None
+
+        def clone(self):
+            new_obj = ParserParam.TextInfo(self.owner)
+            new_obj.bold = self.bold
+            new_obj.italic = self.italic
+            new_obj.underline = self.underline
+            new_obj.color = self.color
+            return new_obj
+
+        def setParam(self, param, attrs):
+            if param == 'b':
+                self.bold = True
+            if param == 'i':
+                self.italic = True
+            if param == 'u':
+                self.underline = True
+            if param == 'fond':
+                self.color = attrs.getValue('color')
+
+        def cloneWithParam(self, param, attrs):
+            new_obj = self.clone()
+            new_obj.setParam(param, attrs)
+            return new_obj
+
+        def getStyle(self):
+            new_style, new_property = self.owner.create_text_property()
+            if self.bold:
+                new_property.setAttribute("fontweight", "bold")
+            if self.italic:
+                new_property.setAttribute("fontstyle", "italic")
+            if self.underline:
+                new_property.setAttribute("textunderlinestyle", "solid")
+                new_property.setAttribute("textunderlinewidth", "auto")
+                new_property.setAttribute("textunderlinecolor", "font-colot")
+            return new_style
+
+    def __init__(self, owner):
+        self.owner = owner
+        self.with_center = False
+
+    def startDocument(self):
+        self.paragraph_list = []
+        self.text_info_list = [self.TextInfo(self.owner)]
+        self.current_paragraph = P()
+        self.last_tag = None
+
+    def startElement(self, name, attrs):
+        if name == 'center':
+            self.with_center = True
+            if len(self.current_paragraph.childNodes) > 0:
+                self.paragraph_list.append(self.current_paragraph)
+                self.current_paragraph = P()
+        elif name in ('b', 'u', 'i', 'font'):
+            self.text_info_list.append(self.text_info_list[-1].cloneWithParam(name, attrs))
+
+    def characters(self, content):
+        content = content.strip()
+        if content != '':
+            Span(parent=self.current_paragraph, text=content, stylename=self.text_info_list[-1].getStyle())
+
+    def endElement(self, name):
+        if name in ('b', 'u', 'i', 'font'):
+            del self.text_info_list[-1]
+        elif name in ('br', 'center'):
+            self.paragraph_list.append(self.current_paragraph)
+            self.current_paragraph = P()
+        self.last_tag = name
+
+    def endDocument(self):
+        if (len(self.current_paragraph.childNodes) > 0) or (self.last_tag == 'br'):
+            self.paragraph_list.append(self.current_paragraph)
+
+    def run(self, xmltext):
+        from lxml import etree
+        parseString(etree.tostring(xmltext, xml_declaration=False, encoding='utf-8').decode("utf-8"), self)
+        return self.paragraph_list
 
 
 class LucteriosODS(LucteriosBase):
@@ -51,14 +142,24 @@ class LucteriosODS(LucteriosBase):
     def _init(self):
         LucteriosBase._init(self)
         TableColumn(parent=self.first_sheet, numbercolumnsrepeated=int((self.width + self.r_margin + self.l_margin) / self.WIDTH_COL), stylename=self.style_width_col)
-        self.style_num = 0
-        self.photo_num = 0
+        self.init_height = self.height
 
     def initial_fonts(self):
+        self.style_text_num = 0
+        self.style_celltext_num = 0
+        self.style_photo_num = 0
         self.style_width_col = Style(parent=self.opendoc.automaticstyles, name='col-lct', family='table-column')
         TableColumnProperties(parent=self.style_width_col, columnwidth='%.0fmm' % self.WIDTH_COL)
         self.style_heigh_row = Style(parent=self.opendoc.automaticstyles, name='row-lct', family='table-row')
         TableRowProperties(parent=self.style_heigh_row, rowheight='%.0fmm' % self.HEIGHT_ROW)
+        date_style = DateStyle(parent=self.opendoc.automaticstyles, name='LongDate', automaticorder="true", formatsource="language")
+        date_style.appendChild(DayOfWeek(style='long'))
+        date_style.appendChild(Day(style='long'))
+        date_style.appendChild(Month(style='long'))
+        date_style.appendChild(Year(style='long'))
+        for prec in range(10):
+            number_style = NumberStyle(parent=self.opendoc.automaticstyles, name="Prec%d" % prec)
+            number_style.appendChild(Number(decimalplaces='0', minintegerdigits=prec))
 
     def coord_cell(self, current_x, current_y, current_w, current_h):
         cell_posx = int(0.5 + current_x / self.WIDTH_COL)
@@ -87,18 +188,13 @@ class LucteriosODS(LucteriosBase):
                     P(parent=self.get_cell(cell_posx + coloffset, cell_posy + rowoffset), text='.')
         return current_cell
 
-    def _node_to_string(self, first_node):
-        text_value = ""
-        if first_node.text is not None:
-            text_value += first_node.text.strip() + ' '
-        for item in first_node:
-            text_value += self._node_to_string(item) + ' '
-        if first_node.tail is not None:
-            text_value += first_node.tail.strip() + ' '
-        return text_value.strip()
+    def create_text_property(self):
+        self.style_text_num += 1
+        new_style = Style(parent=self.opendoc.automaticstyles, name="T%d" % self.style_text_num, family='text')
+        return new_style, TextProperties(parent=new_style)
 
-    def create_style_text(self, xmltext, border, bgdcolor):
-        self.style_num += 1
+    def create_style_celltext(self, xmltext, border, bgdcolor):
+        self.style_celltext_num += 1
         font_name = xmltext.get('font_family')
         if font_name is None:
             font_name = 'sans-serif'
@@ -113,7 +209,7 @@ class LucteriosODS(LucteriosBase):
             font_size = 10.0
         else:
             font_size = float(xmltext.get('font_size'))
-        new_style = Style(parent=self.opendoc.automaticstyles, name="ce%d" % self.style_num, family='table-cell')
+        new_style = Style(parent=self.opendoc.automaticstyles, name="ce%d" % self.style_celltext_num, family='table-cell')
         cellprop = TableCellProperties(parent=new_style, textalignsource="fix", repeatcontent="false", wrapoption="wrap", verticalalign="middle")
         if border:
             cellprop.setAttribute('border', "0.06pt solid #000000")
@@ -126,17 +222,50 @@ class LucteriosODS(LucteriosBase):
         return new_style
 
     def create_style_photo(self):
-        self.photo_num += 1
-        return Style(parent=self.opendoc.automaticstyles, name="photo%d" % self.photo_num, family="graphic")
+        self.style_photo_num += 1
+        return Style(parent=self.opendoc.automaticstyles, name="photo%d" % self.style_photo_num, family="graphic")
+
+    def get_datastyle(self, current_cell):
+        stylename = current_cell.getAttribute('stylename')
+        for sub_style in reversed(self.opendoc.automaticstyles.childNodes):
+            if sub_style.getAttribute('name') == stylename:
+                return sub_style
+
+    def format_cell(self, current_cell, formatnum, jsonvalue):
+        currentvalue = loads(jsonvalue)
+        if isinstance(currentvalue, list):
+            return
+        if isinstance(currentvalue, dict):
+            currentvalue = currentvalue['value']
+        if formatnum[0] in ('N', 'C'):
+            try:
+                currentvalue = float(currentvalue)
+                current_cell.setAttribute('valuetype', 'float')
+                prec = int(formatnum[1])
+                current_cell.setAttribute('value', round(currentvalue, prec))
+                self.get_datastyle(current_cell).setAttribute('datastylename', "Prec%d" % prec)
+            except ValueError:
+                pass
+        elif formatnum[0] == 'D':
+            current_cell.setAttribute('valuetype', 'date')
+            current_cell.setAttribute('value', str(currentvalue))
+            self.get_datastyle(current_cell).setAttribute('datastylename', "LongDate")
 
     def create_cell(self, xmltext, cell_posx, cell_posy, cell_spanx, cell_spany, border=False, bgdcolor=None):
         change_with_format(xmltext)
-        celltext = self._node_to_string(xmltext)
-        if (celltext.strip() != '') or border:
+        parser = ParserParam(self)
+        paras = parser.run(xmltext)
+        if (len(paras) > 0) or border:
+            if parser.with_center:
+                xmltext.set('text_align', 'center')
             current_cell = self.get_cell(cell_posx, cell_posy, cell_spanx, cell_spany)
-            current_cell.setAttribute('stylename', self.create_style_text(xmltext, border, bgdcolor))
-            P(parent=current_cell, text=celltext)
-            getLogger('lucterios.printing.ods').debug("%s : cell_posx=%.1f, cell_posy=%.1f, cell_spanx=%.1f, cell_spany=%.1f", celltext,
+            current_cell.setAttribute('stylename', self.create_style_celltext(xmltext, border, bgdcolor))
+            formatnum = xmltext.get('formatnum')
+            if (formatnum is not None) and (formatnum[1] in ('C', 'N', 'D')):
+                self.format_cell(current_cell, loads(formatnum), xmltext.get('jsonvalue'))
+            for para in paras:
+                current_cell.appendChild(para)
+            getLogger('lucterios.printing.ods').debug("CELL : cell_posx=%.1f, cell_posy=%.1f, cell_spanx=%.1f, cell_spany=%.1f",
                                                       cell_posx, cell_posy, cell_spanx, cell_spany)
 
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
@@ -164,7 +293,6 @@ class LucteriosODS(LucteriosBase):
                 elif last_color_ref != color_ref:
                     is_gray = is_gray
                 last_color_ref = color_ref
-
             for cell in row.xpath('cell'):
                 colomn_span = colomns_spans[cell_idx]
                 self.create_cell(cell, cell_posx + sum_col_spans, current_posy, colomn_span, height_size, True, "#cccccc" if is_gray else None)
@@ -202,6 +330,8 @@ class LucteriosODS(LucteriosBase):
         if not self.is_changing_page:
             self.is_changing_page = True
             self.draw_header()
+        self.y_offset = self._height + self.header_h + self.t_margin
+        self._height += self.init_height
 
     def draw_watermark(self):
         pass

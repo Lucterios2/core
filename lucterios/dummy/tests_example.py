@@ -388,15 +388,6 @@ class ExampleTest(LucteriosTest):
         self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
         self.save_pdf()
 
-    def testreporting_ods(self):
-        for item_idx in range(0, 150):
-            Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,
-                                   date='1997-10-07', time='21:43', valid=True, comment="")
-        self.factory.xfer = ExampleReporting()
-        self.calljson('/lucterios.dummy/exampleReporting', {'PRINT_MODE': '2', 'MODEL': 3}, False)
-        self.assert_observer('core.print', 'lucterios.dummy', 'exampleReporting')
-        self.save_ods()
-
     def testreporting_pdf_duplicate(self):
         for item_idx in range(0, 150):
             Example.objects.create(name='uvw_%d' % item_idx, value=12 + item_idx, price=34.18 * item_idx + 78.15,

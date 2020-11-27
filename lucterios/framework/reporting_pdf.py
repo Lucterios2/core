@@ -88,7 +88,7 @@ class ConvertHTML_XMLReportlab(object):
                 style_val = style_item.split(':')
                 if len(style_val) == 2:
                     self.current_style[style_val[0].strip()] = style_val[1].strip()
-        getLogger('lucterios.printing').debug("]]] ConvertHTML_XMLReportlab.html_item(tag=%s / style= %s)", self._html_item.tag, self.current_style)
+        getLogger('lucterios.printing.pdf').debug("]]] ConvertHTML_XMLReportlab.html_item(tag=%s / style= %s)", self._html_item.tag, self.current_style)
 
     def fill_attrib(self, xml_source, xml_target):
         for key, val in xml_source.attrib.items():
@@ -284,7 +284,7 @@ class ConvertHTML_XMLReportlab(object):
 
     @classmethod
     def convert(cls, html_items, no_para):
-        getLogger('lucterios.printing').debug("\n[[[ ConvertHTML_XMLReportlab html = %s", etree.tostring(html_items, pretty_print=True).decode())
+        getLogger('lucterios.printing.pdf').debug("\n[[[ ConvertHTML_XMLReportlab html = %s", etree.tostring(html_items, pretty_print=True).decode())
         xmlrl_items = etree.Element('MULTI')
         parser = cls(xmlrl_items, no_para)
         parser.run(html_items)
@@ -310,7 +310,7 @@ class ConvertHTML_XMLReportlab(object):
             reportlab_xml_list.append(last_text)
         if len(reportlab_xml_list) == 0:
             reportlab_xml_list = ['']
-        getLogger('lucterios.printing').debug("[[[ ConvertHTML_XMLReportlab = %s", reportlab_xml_list)
+        getLogger('lucterios.printing.pdf').debug("[[[ ConvertHTML_XMLReportlab = %s", reportlab_xml_list)
         return reportlab_xml_list
 
 
@@ -402,7 +402,7 @@ class TableManage(object):
         return table_h
 
     def draw_table(self, pos_x, pos_y):
-        # getLogger('lucterios.printing').debug("-- parse_table (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", pos_x, pos_y, self.current_h, self.current_w)
+        # getLogger('lucterios.printing.pdf').debug("-- parse_table (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", pos_x, pos_y, self.current_h, self.current_w)
         table = Table(self.data, style=get_table_style(self.row_colors), colWidths=self.width_columns)
         _, new_current_h = table.wrapOn(self.parent.pdf, self.current_w, self.current_h)
         table.drawOn(self.parent.pdf, pos_x, pos_y - new_current_h)
@@ -494,7 +494,7 @@ class LucteriosPDF(LucteriosBase):
                     current_h = img.drawHeight
                     current_w = img.drawWidth
                 _, new_current_h = img.wrapOn(self.pdf, current_w, current_h)
-                getLogger('lucterios.printing').debug("-- parse_image (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", current_x, current_y, current_h, current_w)
+                getLogger('lucterios.printing.pdf').debug("-- parse_image (x=%.2f/y=%.2f/h=%.2f/w=%.2f) --", current_x, current_y, current_h, current_w)
                 img.drawOn(self.pdf, current_x, self.height - current_y - current_h)
                 self.position_y = current_y + max(new_current_h, current_h)
                 return img
@@ -510,7 +510,7 @@ class LucteriosPDF(LucteriosBase):
         sum_current_h = 0
         for _, new_current_h in paras:
             sum_current_h += new_current_h + SPACE_BETWEEN_PARA
-        getLogger('lucterios.printing').debug("-- parse_text (x=%.2f/y=%.2f/h=%.2f/w=%.2f) - sum_current_h=%.2f --", current_x, current_y, current_h, current_w, sum_current_h)
+        getLogger('lucterios.printing.pdf').debug("-- parse_text (x=%.2f/y=%.2f/h=%.2f/w=%.2f) - sum_current_h=%.2f --", current_x, current_y, current_h, current_w, sum_current_h)
         y_offset = 0
         for text, new_current_h in paras:
             if new_current_h == 0:
@@ -526,11 +526,11 @@ class LucteriosPDF(LucteriosBase):
             try:
                 if not self.pdf.pageHasData():
                     self.pdf.showPage()
-                getLogger('lucterios.printing').debug("== add_page ==")
+                getLogger('lucterios.printing.pdf').debug("== add_page ==")
                 self.draw_header()
                 self.draw_footer()
                 # print("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
-                getLogger('lucterios.printing').debug("\t>> body <<")
+                getLogger('lucterios.printing.pdf').debug("\t>> body <<")
                 self.y_offset = self.header_h + self.t_margin
                 self.position_y = self.y_offset
             finally:
