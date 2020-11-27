@@ -494,7 +494,7 @@ class UserTest(LucteriosTest):
         self.assertEqual(self.json_context['user'], 0)
 
         self.factory.xfer = PreferenceEdit()
-        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'user':0, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
+        self.calljson('/CORE/preferenceEdit', {'preference': 2, 'user': 0, 'SAVE': 'YES', 'dummy-default-price': '49.99'}, False)
         self.assert_observer('core.acknowledge', 'CORE', 'preferenceEdit')
 
         self.factory.xfer = UsersList()
