@@ -631,15 +631,20 @@ def _convert_value_N(value, format_num):
     return locale.format("%.*f", (int(format_num[1]), float(value)), True)
 
 
+def add_currency(value, format_num):
+    from django.utils import translation
+    tmp_val = format_currency(0, format_num[2:], locale=translation.get_language())
+    tmp_val = tmp_val.replace(',', '').replace('.', '')
+    for _ in range(6):
+        tmp_val = tmp_val.replace('00', '0')
+    value = tmp_val.replace('0', value)
+    return value
+
+
 def _convert_value_C(value, format_num):
     value = _convert_value_N(value, format_num)
     try:
-        from django.utils import translation
-        tmp_val = format_currency(0, format_num[2:], locale=translation.get_language())
-        tmp_val = tmp_val.replace(',', '').replace('.', '')
-        for _ in range(6):
-            tmp_val = tmp_val.replace('00', '0')
-        value = tmp_val.replace('0', value)
+        value = add_currency(value, format_num)
     except Exception:
         pass
     return value

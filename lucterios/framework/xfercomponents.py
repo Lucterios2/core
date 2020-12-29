@@ -278,7 +278,7 @@ class XferCompLabelForm(XferComponent):
             old_obj.select_list = list(old_obj.select_list.items())
         if isinstance(old_obj.select_list, list):
             for key, sel_val in old_obj.select_list:
-                format_string[key] = str(sel_val)
+                format_string[key] = str(sel_val) if sel_val is not None else '---'
         return format_string
 
     @classmethod
@@ -286,24 +286,27 @@ class XferCompLabelForm(XferComponent):
         import re
         format_string = None
         value = old_obj.value
-        if value is None:
+        try:
+            if value is None:
+                value = None
+            elif isinstance(old_obj, XferCompSelect):
+                format_string = cls._convert_select_to_label(old_obj)
+            elif isinstance(old_obj, XferCompCheck):
+                format_string = 'B'
+                value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))
+            elif isinstance(old_obj, XferCompDate):
+                format_string = 'D'
+                value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:3]]) if not isinstance(value, date) else value
+            elif isinstance(old_obj, XferCompDateTime):
+                format_string = 'H'
+                value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))]) if not isinstance(value, datetime) else value
+            elif isinstance(old_obj, XferCompTime):
+                format_string = 'T'
+                value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:2]]) if not isinstance(value, time) else value
+            elif isinstance(old_obj, XferCompFloat):
+                format_string = 'N%d' % old_obj.prec
+        except ValueError:
             value = None
-        elif isinstance(old_obj, XferCompSelect):
-            format_string = cls._convert_select_to_label(old_obj)
-        elif isinstance(old_obj, XferCompCheck):
-            format_string = 'B'
-            value = ((value is True) or (value == 1) or (isinstance(value, str) and (value.lower()[0] == 't')))
-        elif isinstance(old_obj, XferCompDate):
-            format_string = 'D'
-            value = date(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:3]]) if not isinstance(value, date) else value
-        elif isinstance(old_obj, XferCompDateTime):
-            format_string = 'H'
-            value = datetime(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))]) if not isinstance(value, datetime) else value
-        elif isinstance(old_obj, XferCompTime):
-            format_string = 'T'
-            value = time(*[int(subvalue) for subvalue in re.split(r'[^\d]', str(value))[:2]]) if not isinstance(value, time) else value
-        elif isinstance(old_obj, XferCompFloat):
-            format_string = 'N%d' % old_obj.prec
         new_lbl = cls(old_obj.name)
         new_lbl.set_value(value)
         new_lbl.set_format(format_string)

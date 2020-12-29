@@ -32,12 +32,13 @@ from xml.sax import ContentHandler, parseString
 from odf.opendocument import OpenDocumentSpreadsheet
 from odf.table import Table, TableRow, TableCell, TableColumn
 from odf.style import Style, TableColumnProperties, TableRowProperties, ParagraphProperties, TextProperties, TableCellProperties
-from odf.number import Number, DateStyle, NumberStyle, DayOfWeek, Month, Year, Day
+from odf.number import Number, DateStyle, NumberStyle, DayOfWeek, CurrencySymbol, CurrencyStyle, Month, Year, Day
 from odf.draw import Frame, Image
 from odf.text import P, Span
 
 from lucterios.framework.reporting_base import LucteriosBase
-from lucterios.framework.tools import change_with_format
+from lucterios.framework.tools import change_with_format, add_currency, toHtml
+from lucterios.framework.filetools import is_image_base64
 
 
 class ParserParam(ContentHandler):
@@ -88,7 +89,7 @@ class ParserParam(ContentHandler):
 
     def __init__(self, owner):
         self.owner = owner
-        self.with_center = False
+        self.para_align = 'left'
 
     def startDocument(self):
         self.paragraph_list = []
@@ -96,12 +97,20 @@ class ParserParam(ContentHandler):
         self.current_paragraph = P()
         self.last_tag = None
 
+    def add_paragraph(self):
+        if len(self.current_paragraph.childNodes) > 0:
+            self.paragraph_list.append(self.current_paragraph)
+            self.current_paragraph = P()
+
     def startElement(self, name, attrs):
         if name == 'center':
-            self.with_center = True
-            if len(self.current_paragraph.childNodes) > 0:
-                self.paragraph_list.append(self.current_paragraph)
-                self.current_paragraph = P()
+            self.para_align = 'center'
+            self.add_paragraph()
+        elif name == 'p':
+            align = attrs.getValue('align')
+            if align == 'right':
+                self.para_align = 'right'
+                self.add_paragraph()
         elif name in ('b', 'u', 'i', 'font'):
             self.text_info_list.append(self.text_info_list[-1].cloneWithParam(name, attrs))
 
@@ -124,7 +133,15 @@ class ParserParam(ContentHandler):
 
     def run(self, xmltext):
         from lxml import etree
-        parseString(etree.tostring(xmltext, xml_declaration=False, encoding='utf-8').decode("utf-8"), self)
+        formatstr = xmltext.get('formatstr')
+        if not isinstance(formatstr, str) or (formatstr.count('%s') != 1):
+            formatstr = "%s"
+        try:
+            xml_content_string = toHtml(formatstr) % etree.tostring(xmltext, xml_declaration=False, encoding='utf-8').decode("utf-8")
+        except Exception:
+            print('formatstr', formatstr)
+            raise
+        parseString("<span>%s</span>" % xml_content_string, self)
         return self.paragraph_list
 
 
@@ -157,9 +174,20 @@ class LucteriosODS(LucteriosBase):
         date_style.appendChild(Day(style='long'))
         date_style.appendChild(Month(style='long'))
         date_style.appendChild(Year(style='long'))
-        for prec in range(10):
-            number_style = NumberStyle(parent=self.opendoc.automaticstyles, name="Prec%d" % prec)
-            number_style.appendChild(Number(decimalplaces='0', minintegerdigits=prec))
+        self.decStyleList = []
+
+    def getDecStyle(self, formatnum):
+        if formatnum not in self.decStyleList:
+            prec = int(formatnum[1])
+            if formatnum[0] == 'C':
+                currency_style = CurrencyStyle(parent=self.opendoc.automaticstyles, name=formatnum)
+                currency_style.appendChild(Number(decimalplaces=prec, minintegerdigits='1'))
+                currency_style.appendChild(CurrencySymbol(text=add_currency('', formatnum)))
+            else:
+                number_style = NumberStyle(parent=self.opendoc.automaticstyles, name=formatnum)
+                number_style.appendChild(Number(decimalplaces=prec, minintegerdigits='1'))
+            self.decStyleList.append(formatnum)
+        return formatnum
 
     def coord_cell(self, current_x, current_y, current_w, current_h):
         cell_posx = int(0.5 + current_x / self.WIDTH_COL)
@@ -233,54 +261,84 @@ class LucteriosODS(LucteriosBase):
 
     def format_cell(self, current_cell, formatnum, jsonvalue):
         currentvalue = loads(jsonvalue)
-        if isinstance(currentvalue, list):
-            return
-        if isinstance(currentvalue, dict):
-            currentvalue = currentvalue['value']
+        if isinstance(currentvalue, list) or isinstance(currentvalue, dict):
+            return True
+        result = True
         if formatnum[0] in ('N', 'C'):
             try:
-                currentvalue = float(currentvalue)
-                current_cell.setAttribute('valuetype', 'float')
                 prec = int(formatnum[1])
-                current_cell.setAttribute('value', round(currentvalue, prec))
-                self.get_datastyle(current_cell).setAttribute('datastylename', "Prec%d" % prec)
+                if currentvalue is not None:
+                    if formatnum[0] == 'C':
+                        current_cell.setAttribute('valuetype', 'currency')
+                        current_cell.setAttribute('currency', formatnum[2:])
+                    else:
+                        current_cell.setAttribute('valuetype', 'float')
+                    current_cell.setAttribute('value', round(float(currentvalue), prec))
+                else:
+                    current_cell.setAttribute('valuetype', 'string')
+                    result = False
+                self.get_datastyle(current_cell).setAttribute('datastylename', self.getDecStyle(formatnum))
             except ValueError:
                 pass
         elif formatnum[0] == 'D':
-            current_cell.setAttribute('valuetype', 'date')
-            current_cell.setAttribute('value', str(currentvalue))
+            if currentvalue is not None:
+                current_cell.setAttribute('valuetype', 'date')
+                current_cell.setAttribute('datevalue', str(currentvalue))
+            else:
+                current_cell.setAttribute('valuetype', 'string')
+                result = False
             self.get_datastyle(current_cell).setAttribute('datastylename', "LongDate")
+        return result
 
     def create_cell(self, xmltext, cell_posx, cell_posy, cell_spanx, cell_spany, border=False, bgdcolor=None):
         change_with_format(xmltext)
         parser = ParserParam(self)
         paras = parser.run(xmltext)
         if (len(paras) > 0) or border:
-            if parser.with_center:
-                xmltext.set('text_align', 'center')
+            if parser.para_align != 'left':
+                xmltext.set('text_align', parser.para_align)
             current_cell = self.get_cell(cell_posx, cell_posy, cell_spanx, cell_spany)
             current_cell.setAttribute('stylename', self.create_style_celltext(xmltext, border, bgdcolor))
             formatnum = xmltext.get('formatnum')
             if (formatnum is not None) and (formatnum[1] in ('C', 'N', 'D')):
-                self.format_cell(current_cell, loads(formatnum), xmltext.get('jsonvalue'))
+                if not self.format_cell(current_cell, loads(formatnum), xmltext.get('jsonvalue')):
+                    current_paragraph = P()
+                    Span(parent=current_paragraph, text='---', stylename=parser.text_info_list[0].getStyle())
+                    paras = [current_paragraph]
+            elif (formatnum is not None) and (formatnum[0] == '{'):
+                formatnum = loads(formatnum)
+                currentvalue = str(loads(xmltext.get('jsonvalue')))
+                current_paragraph = P()
+                if currentvalue in formatnum.keys():
+                    Span(parent=current_paragraph, text=formatnum[currentvalue], stylename=parser.text_info_list[0].getStyle())
+                paras = [current_paragraph]
             for para in paras:
                 current_cell.appendChild(para)
-            getLogger('lucterios.printing.ods').debug("CELL : cell_posx=%.1f, cell_posy=%.1f, cell_spanx=%.1f, cell_spany=%.1f",
-                                                      cell_posx, cell_posy, cell_spanx, cell_spany)
+            getLogger('lucterios.printing.ods').debug("CELL : cell_posx=%.1f, cell_posy=%.1f, cell_spanx=%.1f, cell_spany=%.1f : %s",
+                                                      cell_posx, cell_posy, cell_spanx, cell_spany, "|".join([str(para) for para in paras]))
 
     def parse_table(self, xmltable, current_x, current_y, current_w, current_h):
-        height_size = 1
         cell_posx, cell_posy, _cell_spanx, _cell_spany = self.coord_cell(current_x, current_y, current_w, current_h)
         colomns_spans = []
+        height_size = 1
         sum_col_spans = 0
         for xmlcolumn in xmltable.xpath('columns'):
             colomn_span = int(float(xmlcolumn.get('width')) / self.WIDTH_COL) + 1
             self.create_cell(xmlcolumn.xpath('cell')[0], cell_posx + sum_col_spans, cell_posy, colomn_span, height_size, True, "#808080")
             sum_col_spans += colomn_span
             colomns_spans.append(colomn_span)
+        current_posy = cell_posy + height_size
+        for row in xmltable.xpath('rows'):
+            cell_idx = 0
+            for cell in row.xpath('cell'):
+                colomn_span = colomns_spans[cell_idx]
+                if (cell.text is not None) and is_image_base64(cell.text):
+                    img_w, img_h = self.get_image_size(cell)
+                    row_span = int((img_h * self.WIDTH_COL * (colomn_span - 1) / (img_w * self.HEIGHT_ROW)) - 0.1)
+                    height_size = max(height_size, row_span)
+                cell_idx += 1
         last_color_ref = None
         is_gray = False
-        current_posy = cell_posy + height_size
         for row in xmltable.xpath('rows'):
             cell_idx = 0
             sum_col_spans = 0
@@ -295,7 +353,10 @@ class LucteriosODS(LucteriosBase):
                 last_color_ref = color_ref
             for cell in row.xpath('cell'):
                 colomn_span = colomns_spans[cell_idx]
-                self.create_cell(cell, cell_posx + sum_col_spans, current_posy, colomn_span, height_size, True, "#cccccc" if is_gray else None)
+                if (cell.text is not None) and is_image_base64(cell.text):
+                    self.create_image(cell, cell_posx + sum_col_spans, current_posy, colomn_span, height_size, self.WIDTH_COL * (colomn_span - 1), self.HEIGHT_ROW * height_size)
+                else:
+                    self.create_cell(cell, cell_posx + sum_col_spans, current_posy, colomn_span, height_size, True, "#cccccc" if is_gray else None)
                 sum_col_spans += colomn_span
                 cell_idx += 1
             current_posy += height_size
@@ -311,20 +372,39 @@ class LucteriosODS(LucteriosBase):
         self.position_y = (cell_posy + cell_spany) * self.HEIGHT_ROW
         return current_cell
 
+    def get_image_size(self, xmlimage):
+        img_file = self.open_image(xmlimage)
+        try:
+            import PIL.Image
+            with PIL.Image.open(img_file) as img:
+                return img.size
+        finally:
+            if img_file is not None:
+                img_file.close()
+
+    def create_image(self, xmlimage, cell_posx, cell_posy, cell_spanx, cell_spany, current_w, current_h):
+        img_w, img_h = self.get_image_size(xmlimage)
+        img_file = self.open_image(xmlimage)
+        try:
+            new_current_w = current_h * img_w / img_h
+            if new_current_w > current_w:
+                current_h = current_w * img_h / img_w
+            else:
+                current_w = new_current_w
+            mediatype = None
+            href = self.opendoc.addPicture("Pictures/%s" % (uuid4().hex.upper()), mediatype, img_file.read())
+            current_cell = self.get_cell(cell_posx, cell_posy, cell_spanx, cell_spany)
+            photoframe = Frame(stylename=self.create_style_photo(), width="%fmm" % current_w, height="%fmm" % current_h)
+            photoframe.addElement(Image(href=href))
+            current_cell.addElement(photoframe)
+        finally:
+            if img_file is not None:
+                img_file.close()
+
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         if (xmlimage.text is not None) and (xmlimage.text.strip() != ''):
-            img_file = self.open_image(xmlimage)
-            try:
-                cell_posx, cell_posy, cell_spanx, cell_spany = self.coord_cell(current_x, current_y, current_w, current_h)
-                mediatype = None
-                href = self.opendoc.addPicture("Pictures/%s" % (uuid4().hex.upper()), mediatype, img_file.read())
-                current_cell = self.get_cell(cell_posx, cell_posy, cell_spanx, cell_spany)
-                photoframe = Frame(stylename=self.create_style_photo(), width="%fmm" % current_w, height="%fmm" % current_h)
-                photoframe.addElement(Image(href=href))
-                current_cell.addElement(photoframe)
-            finally:
-                if img_file is not None:
-                    img_file.close()
+            cell_posx, cell_posy, cell_spanx, cell_spany = self.coord_cell(current_x, current_y, current_w, current_h)
+            self.create_image(xmlimage, cell_posx, cell_posy, cell_spanx, cell_spany, current_w, current_h)
 
     def add_page(self):
         if not self.is_changing_page:
