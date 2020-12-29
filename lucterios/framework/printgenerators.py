@@ -41,6 +41,7 @@ from lucterios.framework.tools import toHtml, clean_xml
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xferprinting import PRINT_PDF_FILE, PRINT_EXT_FILE
+from lucterios.framework.models import LucteriosModel
 
 DPI = 0.3528125
 
@@ -111,8 +112,10 @@ def add_formating_xml(xml_text, value, formatnum, formatstr):
         from decimal import Decimal
         if isinstance(data, Decimal):
             return float(data)
-        elif isinstance(data, datetime) or isinstance(data, date) or isinstance(data, time) or (type(data).__name__ == '__proxy__'):
+        elif isinstance(data, LucteriosModel) or isinstance(data, datetime) or isinstance(data, date) or isinstance(data, time) or (type(data).__name__ == '__proxy__'):
             return str(data)
+        else:
+            return data
     if (formatnum is not None) or (formatstr is not None):
         xml_text.attrib['jsonvalue'] = dumps(value, default=jsonconverter)
         if formatnum is not None:

@@ -94,7 +94,7 @@ var ObserverException = ObserverAbstract
 				image_url = 'images/' + image_name + '.png';
 				table[0] = [];
 				table[0][0] = new compBasic("<img src='" + image_url + "' alt='" + image_name + "'></img>");
-				table[0][1] = new compBasic("<label style='max-width:800px;overflow:auto;'><b>" + this.message + "</b></label>", 1, 1,
+				table[0][1] = new compBasic("<label style='max-width:800px;overflow:auto;'><b>" + this.message.convertLuctoriosFormatToHtml() + "</b></label>", 1, 1,
 						'width:100%;text-align:center;');
 
 				if ((this.code === FAILURE) || (this.code === CRITIC) || (this.code === GRAVE)) {
