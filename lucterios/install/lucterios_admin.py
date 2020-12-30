@@ -790,10 +790,10 @@ class LucteriosInstance(LucteriosManage):
         from django.core.management import call_command
         from django.db import connection
         output_filename = join(get_tmp_dir(), 'dump.json')
-        with open(output_filename, 'w') as output:
+        with open(output_filename, 'w', encoding="utf-8") as output:
             call_command('dumpdata', stdout=output)
         target_filename = join(get_tmp_dir(), 'target')
-        with open(target_filename, 'w') as output:
+        with open(target_filename, 'w', encoding="utf-8") as output:
             with connection.cursor() as curs:
                 curs.execute("SELECT app,name FROM django_migrations ORDER BY applied")
                 output.write(str(curs.fetchall()))
