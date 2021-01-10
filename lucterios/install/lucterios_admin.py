@@ -548,6 +548,12 @@ class LucteriosInstance(LucteriosManage):
     def _sql_to_clear(self, only_delete):
         from django.db import connection
         option = 'CASCADE'
+        # disable foreign keys
+        if self.database[0] == 'sqlite':
+            sql_set_foreign_key = 'PRAGMA foreign_keys = OFF;'
+        else:
+            sql_set_foreign_key = 'SET foreign_key_checks = 0;'
+
         if self.database[0] == 'postgresql':
             if only_delete:
                 sql_cmd = 'DELETE FROM "%s" %s;'
@@ -560,7 +566,7 @@ class LucteriosInstance(LucteriosManage):
                 sql_cmd = 'DROP TABLE IF EXISTS %s %s;'
             try:
                 with connection.cursor() as curs:
-                    curs.execute('SET foreign_key_checks = 0;')
+                    curs.execute(sql_set_foreign_key)
             except Exception:
                 option = 'CASCADE'
         return sql_cmd, option
