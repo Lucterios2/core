@@ -880,7 +880,7 @@ var compDate = compAbstractEvent.extend({
 	},
 
 	addAction : function() {
-		this.addActionEx(0);
+		this.addActionEx(2);
 	}
 });
 
@@ -1006,7 +1006,7 @@ var compDateTime = compAbstractEvent.extend({
 	addAction : function() {
 		var act_function = this.get_act_function();
 		if (act_function !== null) {
-			this.getGUIComp().focusout($.proxy(act_function, this));
+			this.getGUIComp().change($.proxy(act_function, this));
 			this.getGUICompTime().focusout($.proxy(act_function, this));
 		}
 		this.addActionNull(act_function);

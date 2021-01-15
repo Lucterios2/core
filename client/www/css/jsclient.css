@@ -354,6 +354,10 @@ italic {
 	font-size: 0.8em;
 }
 
+.class_controle p {
+	margin: 0px;
+}
+
 .class_checknull {
 	cursor: pointer;
 	border-radius: 4px;
@@ -374,14 +378,11 @@ italic {
 	padding: 0px;
 }
 
-.lctbtnmini img {
-	position: relative;
-	left: -10px;
-}
-
-@supports (-moz-appearance:none ) { .lctbtnmini img {
-	position: relative;
-	left: -10px;
+@-moz-document url-prefix() { 
+    .lctbtnmini img {
+	    position: relative;
+	    left: -10px;
+    }
 }
 
 }
