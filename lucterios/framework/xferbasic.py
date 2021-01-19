@@ -223,12 +223,6 @@ class XferContainerAbstract(View):
 
     def _initialize(self, request, *_, **kwargs):
         from django.conf import settings
-        if hasattr(self.__class__, 'is_view_right'):
-            self.return_action().raise_bad_permission(request)
-        if hasattr(request, 'session'):
-            request.session.set_expiry(12 * 60)  # 12 min of idle timeout
-        path_list = request.path.split('/')
-        self.extension, self.action = path_list[-2:]
         self.request = request
         try:
             form_data_post, form_data_files = request.parse_file_upload(request.META, request)
@@ -236,6 +230,12 @@ class XferContainerAbstract(View):
             request._files = form_data_files
         except Exception:
             form_data_post = request.POST
+        if hasattr(self.__class__, 'is_view_right'):
+            self.return_action().raise_bad_permission(request)
+        if hasattr(request, 'session'):
+            request.session.set_expiry(12 * 60)  # 12 min of idle timeout
+        path_list = request.path.split('/')
+        self.extension, self.action = path_list[-2:]
         for param_dict in (kwargs, request.GET, form_data_post):
             for key in param_dict.keys():
                 self.params[key] = param_dict[key]
