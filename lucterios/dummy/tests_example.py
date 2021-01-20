@@ -350,6 +350,7 @@ class ExampleTest(LucteriosTest):
         generator = xfer.get_report_generator()
         xml = generator.generate(xfer.request)
         self.parse_xml(xml, 'model', False)
+        self.print_xml('page[1]')
         self.assert_count_equal('page', 30)
         self.assert_xml_equal("page[1]/header/text/b", 'title')
         self.assert_xml_equal("page[1]/bottom/text/i", 'footer')

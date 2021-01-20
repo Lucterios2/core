@@ -106,7 +106,7 @@ class ParserParam(ContentHandler):
         if name == 'center':
             self.para_align = 'center'
             self.add_paragraph()
-        elif name == 'p':
+        elif (name == 'p') and ('align' in attrs.getNames()):
             align = attrs.getValue('align')
             if align == 'right':
                 self.para_align = 'right'

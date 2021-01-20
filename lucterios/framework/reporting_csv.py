@@ -51,6 +51,7 @@ class LucteriosXLTExtension(object):
             for _loop in range(3):
                 text_value = text_value.replace(' ,', ',')
                 text_value = text_value.replace(', ', ',')
+                text_value = text_value.replace(' ', ' ')
             return text_value
         else:
             return ''
