@@ -461,9 +461,10 @@ def get_binay(text):
     return bytes(text, 'ascii')
 
 
-def toHtml(text, totext=True):
+def toHtml(inittext, totext=True):
     from lxml import etree
-    text = str(text).strip()
+    from lxml.html.clean import Cleaner
+    text = str(inittext).strip()
     pos_in = text.find('&')
     while pos_in != -1:
         pos_out = text.find(';', pos_in, pos_in + 8)
@@ -481,12 +482,18 @@ def toHtml(text, totext=True):
     text = text.replace('{[/underline]}', '</u>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
+    if '<' in text:
+        cleaner = Cleaner(scripts=True, embedded=True, meta=True, page_structure=True, comments=True,
+                          links=True, inline_style=True, style=True, remove_unknown_tags=True)
+        text = cleaner.clean_html(text)
+        for sep_tag in ('p', 'span'):
+            if text.startswith('<%s>' % sep_tag) and text.endswith('</%s>' % sep_tag):
+                text = text[len(sep_tag) + 2:-len(sep_tag) - 3]
     text = text.replace('<br>', '<br/>')
-    html_node = etree.HTML('<div>%s</div>' % text)
     if totext:
-        html_text = etree.tostring(html_node.find('body/div'), xml_declaration=False, encoding='utf-8').decode("utf-8")
-        return html_text.strip()[5:-6]
+        return text
     else:
+        html_node = etree.HTML('<div>%s</div>' % text)
         return html_node.find('body/div')
 
 
