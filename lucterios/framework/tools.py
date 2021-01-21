@@ -461,7 +461,7 @@ def get_binay(text):
     return bytes(text, 'ascii')
 
 
-def toHtml(inittext, totext=True):
+def toHtml(inittext, totext=True, withclean=True):
     from lxml import etree
     from lxml.html.clean import Cleaner
     text = str(inittext).strip()
@@ -482,14 +482,16 @@ def toHtml(inittext, totext=True):
     text = text.replace('{[/underline]}', '</u>')
     text = text.replace('{[', '<')
     text = text.replace(']}', '>')
-    if '<' in text:
-        cleaner = Cleaner(scripts=True, embedded=True, meta=True, page_structure=True, comments=True,
-                          links=True, inline_style=True, style=True, remove_unknown_tags=True)
+    if withclean and ('<' in text):
+        cleaner = Cleaner(scripts=True, embedded=True, meta=True, page_structure=True, comments=True, forms=True,
+                          links=True, inline_style=True, style=True, remove_unknown_tags=True,
+                          remove_tags=["area", "base", "col", "img", "input", "param", "source", "track", "wbr"])
         text = cleaner.clean_html(text)
         for sep_tag in ('p', 'span'):
             if text.startswith('<%s>' % sep_tag) and text.endswith('</%s>' % sep_tag):
                 text = text[len(sep_tag) + 2:-len(sep_tag) - 3]
-    text = text.replace('<br>', '<br/>')
+    for auto_tag in ('br', 'hr'):
+        text = text.replace('<%s>' % auto_tag, '<%s/>' % auto_tag)
     if totext:
         return text
     else:
