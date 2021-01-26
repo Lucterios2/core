@@ -63,8 +63,13 @@ class Signal(object):
         try:
             if name in cls._SIGNAL_LIST.keys():
                 for sign_fct in cls._SIGNAL_LIST[name]:
-                    if sign_fct(*args):
-                        nb_call += 1
+                    try:
+                        if sign_fct(*args):
+                            nb_call += 1
+                    except LucteriosException:
+                        raise
+                    except Exception:
+                        logging.getLogger("lucterios.core.signal").exception("error to call '%s' with '%s'" % (name, args))
         finally:
             cls._signlock.release()
         logging.getLogger("lucterios.core.signal").debug("<< call_signal %s", name)

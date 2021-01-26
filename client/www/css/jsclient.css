@@ -453,6 +453,11 @@ button span img {
 	width: 95%;
 }
 
+select.lctjustify {
+	width: 100%;
+	margin-left: 5px;
+}
+
 div.jqte {
 	min-width: 400px;
 }
