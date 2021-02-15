@@ -36,7 +36,7 @@ import os
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.http import http_date
-from django.http.response import StreamingHttpResponse
+from django.http.response import StreamingHttpResponse, HttpResponse
 from django.apps.registry import apps
 from django.conf import settings
 from django.db.models import Q
@@ -111,22 +111,22 @@ class Download(XferContainerAbstract):
     methods_allowed = ('GET', 'POST', 'PUT')
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             full_path = join(
                 get_user_dir(), str(self.getparam('filename')))
             if not isfile(full_path):
-                raise LucteriosException(IMPORTANT, _("File not found!"))
+                response = HttpResponse(b'')
+                response["Content-Length"] = 0
+                return response
             sign = self.getparam('sign', '')
             if sign != md5sum(full_path):
                 raise LucteriosException(IMPORTANT, _("File invalid!"))
             content_type, encoding = mimetypes.guess_type(full_path)
             content_type = content_type or 'application/octet-stream'
             statobj = os.stat(full_path)
-            response = StreamingHttpResponse(open(full_path, 'rb'),
-                                             content_type=content_type)
+            response = StreamingHttpResponse(open(full_path, 'rb'), content_type=content_type)
             response["Last-Modified"] = http_date(statobj.st_mtime)
             if stat.S_ISREG(statobj.st_mode):
                 response["Content-Length"] = statobj.st_size
@@ -134,8 +134,7 @@ class Download(XferContainerAbstract):
                 response["Content-Encoding"] = encoding
             return response
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
 
 
 @MenuManage.describ('')

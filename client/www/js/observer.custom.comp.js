@@ -1493,7 +1493,7 @@ var compdownload = compGeneric
 			},
 
 			receive_blob : function(blob) {
-				if (this.compress) {
+				if (this.compress && (blob.size !==0)) {
 					zip.useWebWorkers = true;
 					zip.workerScriptsPath = "lib/";
 					var file_name_to_load = this.file_name;

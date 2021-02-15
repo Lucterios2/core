@@ -78,8 +78,11 @@ def get_user_dir():
 def md5sum(filename):
     md5res = md5()
     full_path = join(get_user_dir(), filename)
-    with open(full_path, 'rb') as readfile:
-        md5res.update(readfile.read())
+    if isfile(full_path):
+        with open(full_path, 'rb') as readfile:
+            md5res.update(readfile.read())
+    else:
+        md5res.update(b'')
     return md5res.hexdigest()
 
 
