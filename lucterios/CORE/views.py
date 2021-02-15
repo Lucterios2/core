@@ -114,15 +114,14 @@ class Download(XferContainerAbstract):
         getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
-            full_path = join(
-                get_user_dir(), str(self.getparam('filename')))
+            full_path = join(get_user_dir(), str(self.getparam('filename')))
+            sign = self.getparam('sign', '')
+            if sign != md5sum(full_path):
+                raise LucteriosException(IMPORTANT, _("File invalid!"))
             if not isfile(full_path):
                 response = HttpResponse(b'')
                 response["Content-Length"] = 0
                 return response
-            sign = self.getparam('sign', '')
-            if sign != md5sum(full_path):
-                raise LucteriosException(IMPORTANT, _("File invalid!"))
             content_type, encoding = mimetypes.guess_type(full_path)
             content_type = content_type or 'application/octet-stream'
             statobj = os.stat(full_path)

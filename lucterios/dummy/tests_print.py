@@ -292,7 +292,7 @@ class PrintTest(LucteriosTest):
         self.factory.xfer = Download()
         self.calljson('/CORE/download', {'filename': 'extract-5.mdl', 'sign': sign}, False)
         self.assert_observer('core.exception', 'CORE', 'download')
-        self.assert_json_equal("", "message", "Ficher non trouvé!")
+        self.assert_json_equal("", "message", "Fichier invalide!")
 
         self.factory.xfer = Download()
         response = self.factory.call('/CORE/download', {'filename': 'extract-2.mdl', 'sign': sign})
