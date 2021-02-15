@@ -427,7 +427,8 @@ class LucteriosTestAbstract(object):
             try:
                 for case in values['case']:
                     vid = case[0]
-                    self.assertEqual(selects[vid], case[1])
+                    self.assertIn(vid, selects.keys(), str(case))
+                    self.assertEqual(selects[vid], case[1], str(case))
             except Exception:
                 print(values['case'])
                 raise

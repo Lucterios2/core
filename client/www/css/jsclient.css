@@ -393,6 +393,7 @@ button span img {
 
 .lct-dlgcontent table tbody tr td {
 	padding: 2px;
+	vertical-align: top;
 }
 
 .lct-dlgcontent table tbody tr td label {
@@ -589,7 +590,6 @@ div.gridContent table tbody tr td {
 
 .gridActions button {
 	display: inline-block;
-	width: 140px;
 	margin: 2px;
 	padding: 0px;
 }

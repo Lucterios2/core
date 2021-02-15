@@ -693,8 +693,7 @@ class XferCompDownLoad(XferCompButton):
 
     def set_download(self, filename):
         sign_value = md5sum(filename)
-        self.set_filename(
-            "CORE/download?filename=%s&sign=%s" % (filename, sign_value))
+        self.set_filename("CORE/download?filename=%s&sign=%s" % (filename, sign_value))
 
     def get_json(self):
         compjson = XferCompButton.get_json(self)

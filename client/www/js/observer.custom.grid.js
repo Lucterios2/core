@@ -256,6 +256,7 @@ var compGrid = compGeneric
 						if (btn.action.mSelect !== SELECT_NONE) {
 							this.has_select = true;
 						}
+						btn.isMini = (btn.action.getTitle() === '');
 						this.buttons[this.buttons.length] = btn;
 					}
 				}
