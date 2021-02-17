@@ -802,7 +802,7 @@ class LabelGenerator(ReportModelGenerator):
             label_values.append("")
         for item in self.get_items_filtered():
             item.set_context(self.xfer)
-            label_values.append(item.evaluate(self.label_text))
+            label_values.append(item.evaluate(self.label_text).replace('&', '&amp;'))
         index = 0
         for labelval in label_values:
             if index == (self.label_size['columns'] * self.label_size['rows']):
@@ -826,7 +826,7 @@ class LabelGenerator(ReportModelGenerator):
                 try:
                     docroot = etree.XML(labelval)
                 except etree.XMLSyntaxError:
-                    print(labelval)
+                    print('XMLSyntaxError', labelval)
                     raise
                 for xml_text in docroot.find('body').iter():
                     if xml_text.tag == 'body':
