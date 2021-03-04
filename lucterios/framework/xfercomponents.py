@@ -779,6 +779,19 @@ class XferCompGrid(XferComponent):
             else:
                 self.actions.append((action, modal, close, unique, params))
 
+    def move_action(self, action_url, pos_act=-1):
+        search_action = None
+        for action in self.actions:
+            if action[0].url_text == action_url:
+                search_action = action
+                self.actions.remove(search_action)
+                break
+        if search_action is not None:
+            if pos_act != -1:
+                self.actions.insert(pos_act, search_action)
+            else:
+                self.actions.append(search_action)
+
     def define_page(self, xfer_custom=None):
         self.order_list = None
         if xfer_custom is not None:
