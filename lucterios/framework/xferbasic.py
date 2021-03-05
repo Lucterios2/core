@@ -37,6 +37,7 @@ from lucterios.framework.error import LucteriosException, get_error_trace, IMPOR
 from lucterios.framework import signal_and_lock
 
 NULL_VALUE = 'NULL'
+FORCE_CHANGED = '_force_changed_'
 
 
 class XferContainerAbstract(View):
@@ -148,7 +149,7 @@ class XferContainerAbstract(View):
                 IMPORTANT, _("This record not exist!\nRefresh your application."))
 
     def _search_model(self):
-        self.has_changed = False
+        self.has_changed = self.getparam(FORCE_CHANGED, False)
         if self.model is not None:
             if isinstance(self.field_id, int):
                 ids = str(self.field_id)

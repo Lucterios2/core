@@ -533,7 +533,10 @@ class LucteriosModel(models.Model):
     @property
     def editor(self):
         try:
-            root_module_name = ".".join(self.__module__.split('.')[:-1])
+            root_modules = self.__module__.split('.')[:-1]
+            if root_modules[-1] == 'models':
+                root_modules = root_modules[:-1]
+            root_module_name = ".".join(root_modules)
             module_editor = import_module(root_module_name + ".editors")
             class_name = self.__class__.__name__ + "Editor"
             class_editor = getattr(module_editor, class_name)
