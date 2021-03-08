@@ -23,7 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import isfile, join, dirname
+from os.path import isfile, join, dirname, basename
 from logging import getLogger
 from datetime import datetime
 from _io import StringIO, TextIOWrapper
@@ -127,6 +127,7 @@ class Download(XferContainerAbstract):
             statobj = os.stat(full_path)
             response = StreamingHttpResponse(open(full_path, 'rb'), content_type=content_type)
             response["Last-Modified"] = http_date(statobj.st_mtime)
+            response['Content-Disposition'] = 'attachment; filename="' + self.getparam('name', basename(full_path)) + '"'
             if stat.S_ISREG(statobj.st_mode):
                 response["Content-Length"] = statobj.st_size
             if encoding:
