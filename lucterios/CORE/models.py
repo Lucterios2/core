@@ -590,13 +590,20 @@ class Label(LucteriosModel):
 
 
 class PrintModel(LucteriosModel):
+    KIND_LISTING = 0
+    KIND_LABEL = 1
+    KIND_REPORT = 2
+    KIND_LIST = ((KIND_LISTING, _('Listing')), (KIND_LABEL, _('Label')), (KIND_REPORT, _('Report')))
+
+    MODE_SIMPLE = 0
+    MODE_ADVANCED = 1
+    MODE_LIST = ((MODE_SIMPLE, _('Simple')), (MODE_ADVANCED, _('Advanced')))
+
     name = models.CharField(_('name'), max_length=100, unique=False)
-    kind = models.IntegerField(
-        _('kind'), choices=((0, _('Listing')), (1, _('Label')), (2, _('Report'))))
+    kind = models.IntegerField(_('kind'), choices=KIND_LIST)
     modelname = models.CharField(_('model'), max_length=100)
     value = models.TextField(_('value'), blank=True)
-    mode = models.IntegerField(
-        _('mode'), choices=((0, _('Simple')), (1, _('Advanced'))), default=0)
+    mode = models.IntegerField(_('mode'), choices=MODE_LIST, default=MODE_SIMPLE)
     is_default = models.BooleanField(verbose_name=_('default'), default=False)
 
     def __str__(self):
