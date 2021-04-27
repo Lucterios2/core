@@ -155,6 +155,7 @@ DEFAULT_SETTINGS = {
     'USE_L10N': True,
     'USE_TZ': True,
     'DEBUG': True,
+    "DEFAULT_AUTO_FIELD": 'django.db.models.AutoField',
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',
