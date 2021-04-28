@@ -316,11 +316,14 @@ class LucteriosModel(models.Model):
                 alias_varname = related_object.get_accessor_name()
                 obj_varname = related_object.field.name
                 related_objects = getattr(alias_object, alias_varname)
-                for obj in related_objects.all():
-                    if hasattr(obj, "get_final_child"):
-                        obj = obj.get_final_child()
-                    setattr(obj, obj_varname, self)
-                    obj.save()
+                try:
+                    for obj in related_objects.all():
+                        if hasattr(obj, "get_final_child"):
+                            obj = obj.get_final_child()
+                        setattr(obj, obj_varname, self)
+                        obj.save()
+                except Exception:
+                    pass
             if related_object.many_to_many:
                 if related_object.auto_created:
                     alias_varname = related_object.get_accessor_name()
