@@ -1170,10 +1170,10 @@ var compCheckList = compSelect.extend({
 			}
 			html += '</select>';
 			html += '<div>';
-			html += '<button class="addall" name="{0}_addall"><span class="fa fa-angle-double-left"/></button>'.format(this.name);
-			html += '<button class="add" name="{0}_add"><span class="fa fa-angle-left"/></button>'.format(this.name);
-			html += '<button class="del" name="{0}_del"><span class="fa fa-angle-right"/></button>'.format(this.name);
-			html += '<button class="delall" name="{0}_delall"><span class="fa fa-angle-double-right"/></button>'.format(this.name);
+			html += '<button class="addall" name="{0}_addall"><span class="fa fa-angle-double-right"/></button>'.format(this.name);
+			html += '<button class="add" name="{0}_add"><span class="fa fa-angle-right"/></button>'.format(this.name);
+			html += '<button class="del" name="{0}_del"><span class="fa fa-angle-left"/></button>'.format(this.name);
+			html += '<button class="delall" name="{0}_delall"><span class="fa fa-angle-double-left"/></button>'.format(this.name);
 			html += '</div>';
 			html += '<select name="{0}_chosen" multiple = "multiple">'.format(this.name);
 			for (iHead = 0; iHead < this.cases.length; iHead++) {
