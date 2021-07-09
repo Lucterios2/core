@@ -8,13 +8,12 @@
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
 	<property name="project.radon.exclude" value="lct-core/client/**/*.py" />
-	<property name="web.client" value="client/www/" />
+	<property name="web.root" value="${basedir}/client" />
+	<property name="web.client" value="${web.root}/static" />
 	<property name="web.browser" value="client/platforms/browser/www/" />
 	<property name="web.path" value="lucterios/framework/static/lucterios.framework/web" />
-	<property name="web.version" value="1.4.5" />
+	<property name="web.version" value="1.5.0" />
 	<import file="${basedir}/utils/lib_build.xml" />
-
-	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpath="${web.client}/jslint/jslint4java-2.0.5.jar" />
 
 	<target name="clear_addon">
 		<mkdir dir="${web.path}" />
@@ -23,28 +22,51 @@
 			<arg value="clean" />
 		</exec>
 		<delete dir="${basedir}/client/platforms/electron/build" />
+		<delete dir="${web.root}/node_modules" />
 	</target>
 
 	<target name="init_addon">
 		<mkdir dir="${web.client}/conf" />
 		<echo message="${web.version}.${build_number}" file="${web.client}/conf/build" append="false" />
-		<replaceregexp file="${basedir}/client/config.xml" match='version="[0-9\.]+"' replace='version="${web.version}"' byline="true" />	
-		<replaceregexp file="${basedir}/client/package.json" match='"version": "[0-9\.]+",' replace='"version": "${web.version}",' byline="true" />	
-		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
+		<replaceregexp file="${web.root}/config.xml" match='version="[0-9\.]+"' replace='version="${web.version}"' byline="true" />	
+		<replaceregexp file="${web.root}/package.json" match='"version": "[0-9\.]+",' replace='"version": "${web.version}",' byline="true" />	
+		<exec executable="npm" dir="${web.root}" failonerror="true">
+			<arg value="install" />
+		</exec>
+		<exec executable="npm" dir="${web.root}" failonerror="true">
+			<arg value="run" />
+			<arg value="lint" />
+		</exec>
+	</target>
+
+	<target name="package_addon">
+		<exec executable="npm" dir="${web.root}" failonerror="true">
+			<arg value="run" />
+			<arg value="build" />
+		</exec>
+		<exec executable="cordova" dir="${web.root}" failonerror="true">
 			<arg value="build" />
 			<arg value="browser" />
 		</exec>
+		<replace file="${web.browser}/index.html" token='src=../../js/' value='src=js/' />
 		<copy todir="${web.path}">
 		  <fileset dir="${web.browser}"/>
 		</copy>
-		<jslint encoding="UTF-8" options="white,browser,plusplus,newcap,sloppy,nomen,evil,indent=4" haltOnFailure='false'>
-			<predef>jQuery, setTimeout, history, window, document, btoa, atob, FileReader, Blob</predef>
-			<formatter type="xml" destfile="jslint_results.xml" />
-			<fileset dir="${web.client}" includes="js/*.js" />
-		</jslint>
 	</target>
 
 	<target name="test_addon">
+		<exec executable="npm" dir="${web.root}" failonerror="true">
+			<arg value="run" />
+			<arg value="unit" />
+		</exec>
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg value="${web.root}/test/lcov_cobertura.py" />		
+			<arg value="${web.root}/test/coverage/lcov.info" />
+			<arg value="--base-dir" />
+			<arg value="${web.root}/src" />
+			<arg value="--output" />
+			<arg value="coverage_jsweb.xml" />
+		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="/usr/local/bin/coverage" />

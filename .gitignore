@@ -28,3 +28,5 @@ pep8_results.txt
 radon_results.txt
 requirement.txt
 
+client/www/
+client/www/

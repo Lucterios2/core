@@ -346,9 +346,15 @@
 	<target name="package_del">
 		<delete dir="${project.packname}" />
 	</target>
+	
+	<target name="package_addon">
+	</target>
 
 	<target name="package">
 		<delete file="MANIFEST" />
+		<antcall target="package_addon">
+			<param name="build_number" value="${projet.version.build}" />
+		</antcall>
 		<exec executable="${project.pythonexe}" failonerror="true">
 			<arg value="setup.py" />
 			<arg value="sdist" />
