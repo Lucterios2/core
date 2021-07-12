@@ -23,13 +23,16 @@
 	</target>
 
 	<target name="clear_addon">
-		<mkdir dir="${web.path}" />
 		<delete dir="${web.path}" />
+		<mkdir dir="${web.path}" />
 		<exec executable="cordova" dir="${web.root}" failonerror="false">
 			<arg value="clean" />
 		</exec>
 		<delete dir="${basedir}/client/platforms/electron/build" />
 		<delete dir="${web.root}/node_modules" />
+		<delete dir="${web.root}/plugins/cordova-plugin-camera" />
+		<delete dir="${web.root}/plugins/cordova-plugin-device" />
+		<delete dir="${web.root}/plugins/cordova-plugin-whitelist" />
 	</target>
 
 	<target name="init_addon">

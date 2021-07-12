@@ -1,22 +1,11 @@
 {
   "name": "ClientLucterios",
   "short_name": "ClientLucterios",
-  "description": "Description of your app from template",
+  "description": "Javascript client for Lucterios.",
   "start_url": "index.html",
   "scope": "index.html",
-  "icons": [
-    {
-      "src": "img/logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "img/splash.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "default_locale": "en",
+  "icons": [],
+  "default_locale": "fr",
   "display": "standalone",
   "background_color": "#FFF",
   "theme_color": "#000",

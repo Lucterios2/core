@@ -12,6 +12,9 @@
     },
     "cordova-plugin-device": {
       "PACKAGE_NAME": "ClientLucterios"
+    },
+    "cordova-plugin-camera": {
+      "PACKAGE_NAME": "ClientLucterios"
     }
   },
   "dependent_plugins": {}
