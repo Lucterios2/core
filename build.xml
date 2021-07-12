@@ -18,7 +18,7 @@
 	<target name="clear_addon">
 		<mkdir dir="${web.path}" />
 		<delete dir="${web.path}" />
-		<exec executable="cordova" dir="${basedir}/client" failonerror="true">
+		<exec executable="cordova" dir="${web.root}" failonerror="false">
 			<arg value="clean" />
 		</exec>
 		<delete dir="${basedir}/client/platforms/electron/build" />

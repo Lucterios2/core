@@ -22,7 +22,6 @@ error.log
 jslint_results.xml
 junit_admin_py3.xml
 doc_*/
-build
 junit*.xml
 pep8_results.txt
 radon_results.txt
