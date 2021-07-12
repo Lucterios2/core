@@ -8,6 +8,9 @@ const $ = require('jquery')
 const util = require('util')
 const atob = require('atob')
 const JSZip = require('jszip')
+global.$ = $
+global.util = util
+global.Singleton = Singleton
 
 var tinymce
 if (screen.istest === undefined) {
