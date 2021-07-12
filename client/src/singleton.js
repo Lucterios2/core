@@ -5,7 +5,6 @@ import { HashMap } from './utils.js'
 import { gTranslation } from './language.js'
 const $ = require('jquery')
 const util = require('util')
-const FileReader = require('filereader')
 const atob = require('atob')
 
 export var SingletonObj = null
@@ -31,7 +30,7 @@ export function setConfigServers (callBack) {
 export class FileManager {
   saveBlob (aBlob, aFileName) {
     var self = this
-    var reader = new FileReader()
+    var reader = new window.FileReader()
     reader.onload = function (event) {
       var content = event.target.result
       var pos

@@ -6,11 +6,9 @@ import { SELECT_NONE, SELECT_SINGLE, SELECT_MULTI } from './action.js'
 import { CompBasic, formatToString } from './gui.utils.js'
 const $ = require('jquery')
 const util = require('util')
-const FileReader = require('filereader')
 const atob = require('atob')
-const btoa = function (str) {
-  return Buffer.from(str).toString('base64')
-}
+const JSZip = require('jszip')
+
 var tinymce
 if (screen.istest === undefined) {
   tinymce = require('tinymce')
@@ -1373,17 +1371,17 @@ export class CompUpload extends CompGeneric {
       'style': 'opacity: 0;width:75%;'
     }
     html = '<div class=\'drop_zone\'>'
-    html += '<button class=\'file_select\'>'
+    html += '<button class=\'fileSelect\'>'
     html += util.format('<img src=\'%s\' title=\'%s\'/>', Singleton().Transport().getIconUrl('static/lucterios.CORE/images/open.png'),
       Singleton().getTranslate('File'))
     html += '</button>'
     if (this.withcam) {
-      html += '<button class=\'camera_take_picture\'>'
+      html += '<button class=\'cameraTakePicture\'>'
       html += util.format('<img src=\'%s\' title=\'%s\'/>', Singleton().Transport().getIconUrl('static/lucterios.CORE/images/camera.png'),
         Singleton().getTranslate('Picture'))
       html += '</button>'
     }
-    html += '<img class=\'picture_to_upload\' style=\'display:none;\'></img>'
+    html += '<img class=\'pictureToUpload\' style=\'display:none;\'></img>'
     html += '<div class=\'filename\'>---</div>'
     html += this.getBuildHtml(args, false, true)
     html += '<div>'
@@ -1412,30 +1410,44 @@ export class CompUpload extends CompGeneric {
     } else {
       this.selectedFile = null
     }
-    this.getEncodeFile(this.getValue())
+    this.getFileContentBase64()
+  }
+
+  getFileContentBase64 () {
+    this.content = null
+    this.content_isloading = true
+    if (this.compress) {
+      var self = this
+      var zip = new JSZip()
+      zip.file(this.name, this.getValue())
+      zip.generateAsync({ type: 'blob' }).then(function (blobResult) {
+        self.getEncodeFile(blobResult)
+      })
+    } else {
+      this.getEncodeFile(this.getValue())
+    }
   }
 
   getValue () {
     var filenameComp = this.getGUIComp().parent().find('.filename')
     var imageComp = this.getGUIComp().parent().find('.pictureToUpload')
-    var oFReader
     imageComp.prop('src', '')
     imageComp.css('display', 'none')
     if (this.selectedFile !== null) {
       filenameComp.text(this.selectedFile.name)
       if (this.selectedFile.type.split('/')[0] === 'image') {
-        oFReader = new FileReader()
-        oFReader.onload = function (oFREvent) {
+        var reader = new window.FileReader()
+        reader.onload = function (oEvent) {
           var imageData = new Image()
-          imageData.src = oFREvent.target.result
+          imageData.src = oEvent.target.result
           imageData.onload = function () {
             var marginTop = (50 - (this.height * 50 / this.width)) / 2
             imageComp.css('margin-top', util.format('%spx', marginTop))
           }
-          imageComp.prop('src', oFREvent.target.result)
+          imageComp.prop('src', oEvent.target.result)
           imageComp.css('display', 'block')
         }
-        oFReader.readAsDataURL(this.selectedFile)
+        reader.readAsDataURL(this.selectedFile)
       }
     } else {
       filenameComp.text('---')
@@ -1452,7 +1464,7 @@ export class CompUpload extends CompGeneric {
       if (this.content !== null) {
         params.put(this.name, this.content)
         if (this.compress) {
-          throw new LucteriosException(MINOR, 'compress not supported !')
+          params.put(this.name + '_FILENAME', fileToZip.name)
         }
       }
     }
@@ -1469,29 +1481,12 @@ export class CompUpload extends CompGeneric {
       this.content = fileToSend
       this.contentIsloading = false
     } else {
-      reader = new FileReader()
-      if (typeof reader.readAsBinaryString === 'function') {
-        reader.onload = $.proxy(function (readerEvt) {
-          var binaryString = readerEvt.target.result
-          this.content = fileToSend.name + ';' + btoa(binaryString)
-          this.contentIsloading = false
-        }, this)
-        reader.readAsBinaryString(fileToSend)
-      } else {
-        reader.addEventListener('loadend', function () {
-          var binary = ''
-          var bytes
-          var length
-          var iLetter
-          bytes = new Uint8Array(reader.result)
-          length = bytes.byteLength
-          for (iLetter = 0; iLetter < length; iLetter++) {
-            binary += String.fromCharCode(bytes[iLetter])
-          }
-          this.content = fileToSend.name + ';' + btoa(binary)
-        })
-        reader.readAsArrayBuffer(fileToSend)
-      }
+      reader = new window.FileReader()
+      reader.onload = $.proxy(function (readerEvt) {
+        this.content = readerEvt.target.result
+        this.contentIsloading = false
+      }, this)
+      reader.readAsDataURL(fileToSend)
     }
   }
 
@@ -1562,9 +1557,17 @@ export class CompDownload extends CompGeneric {
     Singleton().Transport().getFileContent(this.linkFileName, $.proxy(this.receiveBlob, this))
   }
 
-  receiveBlob (blob) {
+  async receiveBlob (blob) {
     if (this.compress && (blob.size !== 0)) {
-      throw new LucteriosException(MINOR, 'compress not supported !')
+      const zipFileLoaded = new JSZip()
+      const self = this
+      zipFileLoaded.loadAsync(blob.data).then(function (zip) {
+        zip.forEach(function (relativePath, zipEntry) {
+          zipEntry.async('base64').then(function (data) {
+            Singleton().mFileManager.saveFile(data, self.fileName)
+          })
+        })
+      })
     } else {
       Singleton().mFileManager.saveBlob(blob, this.fileName)
     }
