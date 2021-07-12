@@ -125,7 +125,7 @@ def save_from_base64(base64stream):
     if is_image_base64(base64stream):
         _, stream = base64stream.split(";base64,")
         md5res = md5()
-        md5res.update(stream)
+        md5res.update(stream.encode())
         file_name = md5res.hexdigest() + ".jpg"
     else:
         file_name, stream = base64stream.split(";")

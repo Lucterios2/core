@@ -18,7 +18,7 @@ module.exports = {
     '^.+\\.js$': '<rootDir>/node_modules/babel-jest',
     '.*\\.(vue)$': '<rootDir>/node_modules/vue-jest'
   },
-  reporters: ['default', ['jest-junit', { suiteName: 'jest tests', outputName: '<rootDir>/junit_jsweb.xml' }]],
+  reporters: ['default', ['jest-junit', { suiteName: 'jest tests', outputName: '../junit_jsweb.xml' }]],
   snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
   setupFiles: ['<rootDir>/test/setup'],
   coverageDirectory: '<rootDir>/test/coverage',
