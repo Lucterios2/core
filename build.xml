@@ -15,7 +15,7 @@
 	<property name="web.version" value="1.5.0" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
-	<target name="clienweb">
+	<target name="clientweb">
 		<antcall target="clear_addon" />
 		<antcall target="init_addon" />
 		<antcall target="package_addon" />

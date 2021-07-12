@@ -1,5 +1,5 @@
 'use strict'
-/* global Uint8Array, URL, device */
+/* global FileReader, Uint8Array, URL, device */
 
 import { HashMap } from './utils.js'
 import { gTranslation } from './language.js'
@@ -30,7 +30,7 @@ export function setConfigServers (callBack) {
 export class FileManager {
   saveBlob (aBlob, aFileName) {
     var self = this
-    var reader = new window.FileReader()
+    var reader = new FileReader()
     reader.onload = function (event) {
       var content = event.target.result
       var pos

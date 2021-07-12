@@ -526,7 +526,7 @@ def summary_dummy(xfer):
         xfer.add_component(lbl)
 
         btn = XferCompButton('btnscheduler')
-        btn.set_action(xfer.request, AddSchedulerTask.get_action('Task', ''))
+        btn.set_action(xfer.request, AddSchedulerTask.get_action('Task', ''), close=CLOSE_NO)
         btn.set_location(0, row + 2, 4)
         xfer.add_component(btn)
         lbl = XferCompLabelForm('dummy-value')
