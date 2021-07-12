@@ -26,7 +26,6 @@ junit*.xml
 pep8_results.txt
 radon_results.txt
 requirement.txt
-client/test/coverage/lcov-report/
-client/test/coverage/lcov.info
+client/test/coverage/
 client/www/
 client/www/

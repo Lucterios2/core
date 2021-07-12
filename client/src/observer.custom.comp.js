@@ -1,5 +1,5 @@
 'use strict'
-/* global Camera */
+/* global Camera, FileReader */
 import { LucteriosException, CRITIC, IMPORTANT, MINOR, postLog, unusedVariables, convertLuctoriosFormatToHtml, lpad } from './utils.js'
 import { Singleton } from './singleton.js'
 import { SELECT_NONE, SELECT_SINGLE, SELECT_MULTI } from './action.js'
@@ -1439,7 +1439,7 @@ export class CompUpload extends CompGeneric {
     if (this.selectedFile !== null) {
       filenameComp.text(this.selectedFile.name)
       if (this.selectedFile.type.split('/')[0] === 'image') {
-        var reader = new window.FileReader()
+        var reader = new FileReader()
         reader.onload = function (oEvent) {
           var imageData = new Image()
           imageData.src = oEvent.target.result
@@ -1484,7 +1484,7 @@ export class CompUpload extends CompGeneric {
       this.content = fileToSend
       this.contentIsloading = false
     } else {
-      reader = new window.FileReader()
+      reader = new FileReader()
       reader.onload = $.proxy(function (readerEvt) {
         this.content = readerEvt.target.result
         this.contentIsloading = false

@@ -1,4 +1,5 @@
 'use strict'
+/* global beforeEach, afterEach, describe, it, expect */
 import { HttpTransportStub, ObserverFactoryMock, ObserverAcknowledgeNoParent, UIMock } from './mock.js'
 import { Singleton, SingletonClose } from '../src/singleton.js'
 import { ObserverMenu } from '../src/observer.menu.js'
@@ -7,7 +8,6 @@ const html = require('fs').readFileSync('./index.html').toString()
 const $ = require('jquery')
 const currentUI = new UIMock()
 
-var mFileContent = null
 var mObsFactory = null
 
 beforeEach(() => {
@@ -24,14 +24,14 @@ afterEach(() => {
   SingletonClose()
 })
 
-describe('ObserverMenu',  () => {
+describe('ObserverMenu', () => {
   it('Menu_Simple', () => {
-    var json_receive = {
+    var jsonReceive = {
       'meta': {
-        observer : 'core.menu',
-        source_extension : 'CORE',
-        source_action : 'menu',
-        text : 'Menu de l application'
+        observer: 'core.menu',
+        source_extension: 'CORE',
+        source_action: 'menu',
+        text: 'Menu de l application'
       },
       'context': {},
       'menus': [ {
@@ -145,7 +145,7 @@ describe('ObserverMenu',  () => {
     currentUI.clean()
     var obs = new ObserverMenu()
     obs.setSource('CORE', 'menu')
-    obs.setContent(json_receive)
+    obs.setContent(jsonReceive)
     obs.show('')
 
     expect(obs.menu_list.length).toEqual(2)
@@ -165,7 +165,7 @@ describe('ObserverMenu',  () => {
 
     var lbl = jcnt.find('div:eq(0) > ul:eq(0) > li:eq(0) > a:eq(0) > span:eq(0)')
     expect(lbl.text()).toEqual('Général')
-    var lbl = jcnt.find('div:eq(0) > ul:eq(0) > li:eq(1) > a:eq(0) > span:eq(0)')
+    lbl = jcnt.find('div:eq(0) > ul:eq(0) > li:eq(1) > a:eq(0) > span:eq(0)')
     expect(lbl.text()).toEqual('Administration')
 
     var btn1 = jcnt.find('div:eq(0) > div:eq(0) > button:eq(0)')
@@ -178,27 +178,27 @@ describe('ObserverMenu',  () => {
 
     btn1.click()
     expect(mObsFactory.CallList.size()).toEqual(1)
-    var expected_cmd = 'CORE->changePassword()'
-    expect(mObsFactory.CallList.get(0)).toEqual(expected_cmd)
+    var expectedCmd = 'CORE->changePassword()'
+    expect(mObsFactory.CallList.get(0)).toEqual(expectedCmd)
 
     btn2.click()
     expect(mObsFactory.CallList.size()).toEqual(2)
-    var expected_cmd = 'CORE->savedCriteriaList()'
-    expect(mObsFactory.CallList.get(1)).toEqual(expected_cmd)
+    expectedCmd = 'CORE->savedCriteriaList()'
+    expect(mObsFactory.CallList.get(1)).toEqual(expectedCmd)
 
     obs.close()
   })
 
   it('Menu_Status', () => {
-    var json_receive = {
-      meta : {
-        observer : 'core.menu',
-        source_extension : 'CORE',
-        source_action : 'menu',
-        text : 'Menu de l application'
+    var jsonReceive = {
+      meta: {
+        observer: 'core.menu',
+        source_extension: 'CORE',
+        source_action: 'menu',
+        text: 'Menu de l application'
       },
       'context': {},
-      menus : [ {
+      menus: [ {
         'id': 'core.menu',
         'menus': [ {
           'params': null,
@@ -244,13 +244,11 @@ describe('ObserverMenu',  () => {
 
     var obs = new ObserverMenu()
     obs.setSource('CORE', 'menu')
-    obs.setContent(json_receive)
+    obs.setContent(jsonReceive)
     obs.show('')
 
     var gui = obs.getGUI()
     expect(gui == null).toEqual(true)
-
-    var jcnt = $('#menuContainer')
 
     obs.close()
   })
