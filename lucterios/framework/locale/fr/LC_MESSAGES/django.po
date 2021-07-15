@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-11-26 18:09+0000\n"
+"POT-Creation-Date: 2021-07-15 08:11+0000\n"
 "PO-Revision-Date: 2020-11-26 19:11+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -41,122 +41,122 @@ msgstr "heure courante"
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' inconnu(e) !"
 
-#: models.py:531
+#: models.py:534
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:572
+#: models.py:578
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:573
+#: models.py:579
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:613
+#: models.py:619
 msgid "session"
 msgstr "session"
 
-#: models.py:614
+#: models.py:620
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:752
+#: models.py:758
 msgid "create"
 msgstr "création"
 
-#: models.py:753
+#: models.py:759
 msgid "update"
 msgstr "modification"
 
-#: models.py:754 tools.py:444
+#: models.py:760 tools.py:444
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:755
+#: models.py:761
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:756 tools.py:440
+#: models.py:762 tools.py:440
 msgid "add"
 msgstr "ajouter"
 
-#: models.py:766 models.py:773
+#: models.py:772 models.py:779
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:767
+#: models.py:773
 msgid "content type"
 msgstr "type de contenu"
 
-#: models.py:768
+#: models.py:774
 msgid "actor"
 msgstr "utilisateur"
 
-#: models.py:769
+#: models.py:775
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:770
+#: models.py:776
 msgid "object id"
 msgstr "object id"
 
-#: models.py:771
+#: models.py:777
 msgid "object representation"
 msgstr "identifiant"
 
-#: models.py:772
+#: models.py:778
 msgid "action"
 msgstr "action"
 
-#: models.py:774
+#: models.py:780
 msgid "remote address"
 msgstr "adresse distante"
 
-#: models.py:775
+#: models.py:781
 msgid "date"
 msgstr "date"
 
-#: models.py:776
+#: models.py:782
 msgid "additional data"
 msgstr "données additionnelles"
 
-#: models.py:782
+#: models.py:788
 msgid "Created {repr:s}"
 msgstr "Création de {repr:s}"
 
-#: models.py:784
+#: models.py:790
 msgid "Updated {repr:s}"
 msgstr "Modification de {repr:s}"
 
-#: models.py:786
+#: models.py:792
 msgid "Deleted {repr:s}"
 msgstr "Suppression de {repr:s}"
 
-#: models.py:788
+#: models.py:794
 msgid "Logged {repr:s}"
 msgstr "Journalisation de {repr:s}"
 
-#: models.py:893
+#: models.py:899
 msgid "log entry"
 msgstr "entrée d'historique"
 
-#: models.py:894
+#: models.py:900
 msgid "log entries"
 msgstr "entrées d'historiques"
 
-#: printgenerators.py:453
+#: printgenerators.py:457
 #, python-format
 msgid "Report format \"%s\" not supported !"
 msgstr "Format de rapport \"%s\" non supporté !"
 
-#: printgenerators.py:467
+#: printgenerators.py:471
 msgid "This impression failed !"
 msgstr "L'impression échoue !"
 
-#: signal_and_lock.py:134
+#: signal_and_lock.py:139
 #, python-format
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
@@ -174,11 +174,11 @@ msgstr "Mauvaise permission pour '%s'"
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:568 xfergraphic.py:160
+#: tools.py:577 xfergraphic.py:160
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:570 xfergraphic.py:161
+#: tools.py:579 xfergraphic.py:161
 msgid "No"
 msgstr "Non"
 
@@ -195,19 +195,19 @@ msgstr "Annuler"
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:45 xfercomponents.py:713
+#: xferadvance.py:45 xfercomponents.py:715
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:46 xfercomponents.py:713
+#: xferadvance.py:46 xfercomponents.py:715
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:47 xfercomponents.py:714
+#: xferadvance.py:47 xfercomponents.py:716
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:48 xfercomponents.py:714
+#: xferadvance.py:48 xfercomponents.py:716
 msgid "Add"
 msgstr "Ajouter"
 
@@ -240,7 +240,7 @@ msgstr "Étiquette"
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:222 xferbasic.py:148
+#: xferadvance.py:222 xferbasic.py:149
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -283,7 +283,7 @@ msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
-#: xferbasic.py:302
+#: xferbasic.py:303
 #, python-format
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "la méthode http \"%(method)s\" n'est pas autorisée pour \"%(url)s\" !"
