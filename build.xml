@@ -59,6 +59,8 @@
 			<arg value="browser" />
 		</exec>
 		<replace file="${web.browser}/index.html" token='src=../../js/' value='src=js/' />
+		<copy file="${web.browser}/index.html" tofile="${web.browser}/viewer.html"/>
+		<replace file="${web.browser}/viewer.html" token='window.main()' value='window.viewer()' />
 		<copy todir="${web.path}">
 		  <fileset dir="${web.browser}"/>
 		</copy>

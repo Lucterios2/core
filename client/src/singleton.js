@@ -115,6 +115,8 @@ export class SingletonClass {
     this.mFileManager = new FileManager()
     this.mActionList = new HashMap()
     this.mSelectLang = null
+    this.mWaitingOn = function () {}
+    this.mWaitingOff = function () {}
   }
 
   getSelectLang () {
@@ -164,6 +166,8 @@ export class SingletonClass {
     if (this.mTransportObj === null) {
       var NewTransportClass = this.mTransportClass
       this.mTransportObj = new NewTransportClass()
+      this.mTransportObj.mWaitingOn = this.mWaitingOn
+      this.mTransportObj.mWaitingOff = this.mWaitingOff
     }
     return this.mTransportObj
   }

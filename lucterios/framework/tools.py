@@ -276,7 +276,7 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
 
-                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s'))" % (transition.name, state)
+                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s')) and getattr(xfer.item,'%s') == %d" % (transition.name, state, state, transition.source)
                         cond_fct = eval(cmd)
                         cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
                                                "images/transition.png", cond_fct, intop=True, close=close, **new_dict)

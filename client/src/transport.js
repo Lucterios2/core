@@ -9,6 +9,8 @@ const FormData = require('form-data')
 export class HttpTransportAbstract {
   constructor () {
     this.mLastLogin = ''
+    this.mWaitingOn = function () {}
+    this.mWaitingOff = function () {}
   }
 
   setLastLogin (aLastLogin) {
@@ -71,6 +73,14 @@ export class HttpTransportAbstract {
   getFileContent (aUrl) {
     unusedVariables(aUrl)
   }
+
+  waitingOn () {
+    this.mWaitingOn()
+  }
+
+  waitingOff () {
+    this.mWaitingOff()
+  }
 }
 
 export class HttpTransportImpl extends HttpTransportAbstract {
@@ -112,16 +122,21 @@ export class HttpTransportImpl extends HttpTransportAbstract {
         throw new LucteriosException(CRITIC, 'Internal error !', aWebFile, reponsetext)
       }
     }
-    if (aMethod === 'GET') {
-      await axios.get(fullurl).then(success).catch(failure)
-    } else if (aMethod === 'POST') {
-      await axios.post(fullurl, formData).then(success).catch(failure)
-    } else if (aMethod === 'PUT') {
-      await axios.put(fullurl, formData).then(success).catch(failure)
-    } else if (aMethod === 'DELETE') {
-      await axios.delete(fullurl).then(success).catch(failure)
-    } else {
-      throw new LucteriosException(GRAVE, Singleton().getTranslate('method unknown!'), aWebFile)
+    this.waitingOn()
+    try {
+      if (aMethod === 'GET') {
+        await axios.get(fullurl).then(success).catch(failure)
+      } else if (aMethod === 'POST') {
+        await axios.post(fullurl, formData).then(success).catch(failure)
+      } else if (aMethod === 'PUT') {
+        await axios.put(fullurl, formData).then(success).catch(failure)
+      } else if (aMethod === 'DELETE') {
+        await axios.delete(fullurl).then(success).catch(failure)
+      } else {
+        throw new LucteriosException(GRAVE, Singleton().getTranslate('method unknown!'), aWebFile)
+      }
+    } finally {
+      this.waitingOff()
     }
     return reponsetext
   }
@@ -138,11 +153,16 @@ export class HttpTransportImpl extends HttpTransportAbstract {
   }
 
   async getFileContent (aUrl, callback) {
-    await axios.post(this.getServerUrl() + aUrl, null, {responseType: 'blob'}).then(function (data) {
-      callback(data)
-    }).catch(function (error) {
-      console.log('HTTP ERROR:' + error)
-    })
+    this.waitingOn()
+    try {
+      await axios.post(this.getServerUrl() + aUrl, null, {responseType: 'blob'}).then(function (data) {
+        callback(data)
+      }).catch(function (error) {
+        console.log('HTTP ERROR:' + error)
+      })
+    } finally {
+      this.waitingOff()
+    }
   }
 }
 
