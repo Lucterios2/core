@@ -1260,7 +1260,7 @@ export class CompCheckList extends CompSelect {
       }
     } else {
       html += '<lct-checklist>'
-      html += util.format('<select name=\'%sAvailable\' multiple = \'multiple\'>', this.name)
+      html += util.format('<select name=\'%s_available\' multiple = \'multiple\'>', this.name)
       for (iHead = 0; iHead < this.cases.length; iHead++) {
         if (!this.cases[iHead].checked) {
           html += this.cases[iHead].getSubHtml(0)
@@ -1268,12 +1268,12 @@ export class CompCheckList extends CompSelect {
       }
       html += '</select>'
       html += '<div>'
-      html += util.format('<button class=\'addall\' name=\'%sAddall\'><span class=\'fa fa-angle-double-right\'/></button>', this.name)
-      html += util.format('<button class=\'add\' name=\'%sAdd\'><span class=\'fa fa-angle-right\'/></button>', this.name)
-      html += util.format('<button class=\'del\' name=\'%sDel\'><span class=\'fa fa-angle-left\'/></button>', this.name)
-      html += util.format('<button class=\'delall\' name=\'%sDelall\'><span class=\'fa fa-angle-double-left\'/></button>', this.name)
+      html += util.format('<button class=\'addall\' name=\'%s_addall\'><span class=\'fa fa-angle-double-right\'/></button>', this.name)
+      html += util.format('<button class=\'add\' name=\'%s_add\'><span class=\'fa fa-angle-right\'/></button>', this.name)
+      html += util.format('<button class=\'del\' name=\'%s_del\'><span class=\'fa fa-angle-left\'/></button>', this.name)
+      html += util.format('<button class=\'delall\' name=\'%s_delall\'><span class=\'fa fa-angle-double-left\'/></button>', this.name)
       html += '</div>'
-      html += util.format('<select name=\'%sChosen\' multiple = \'multiple\'>', this.name)
+      html += util.format('<select name=\'%s_chosen\' multiple = \'multiple\'>', this.name)
       for (iHead = 0; iHead < this.cases.length; iHead++) {
         if (this.cases[iHead].checked) {
           html += this.cases[iHead].getSubHtml(0)
@@ -1289,10 +1289,10 @@ export class CompCheckList extends CompSelect {
     if (this.simple === 1) {
       this.addActionEx(2)
     } else if (this.simple === 2) {
-      this.getGUIComp().find(util.format('button[name=\'%sAddall\']:eq(0)', this.name)).click($.proxy(this.addallbtn, this))
-      this.getGUIComp().find(util.format('button[name=\'%sAdd\']:eq(0)', this.name)).click($.proxy(this.addbtn, this))
-      this.getGUIComp().find(util.format('button[name=\'%sDel\']:eq(0)', this.name)).click($.proxy(this.delbtn, this))
-      this.getGUIComp().find(util.format('button[name=\'%sDelall\']:eq(0)', this.name)).click($.proxy(this.delallbtn, this))
+      this.getGUIComp().find(util.format('button[name=\'%s_addall\']:eq(0)', this.name)).click($.proxy(this.addallbtn, this))
+      this.getGUIComp().find(util.format('button[name=\'%s_add\']:eq(0)', this.name)).click($.proxy(this.addbtn, this))
+      this.getGUIComp().find(util.format('button[name=\'%s_del\']:eq(0)', this.name)).click($.proxy(this.delbtn, this))
+      this.getGUIComp().find(util.format('button[name=\'%s_delall\']:eq(0)', this.name)).click($.proxy(this.delallbtn, this))
     } else {
       this.addActionEx(0)
     }
@@ -1317,7 +1317,7 @@ export class CompCheckList extends CompSelect {
 
   addbtn () {
     var iHead
-    var valAvailable = this.getGUIComp().find(util.format('select[name=\'%sAvailable\']:eq(0)', this.name)).val()
+    var valAvailable = this.getGUIComp().find(util.format('select[name=\'%s_available\']:eq(0)', this.name)).val()
     if (valAvailable !== null) {
       for (iHead = 0; iHead < this.cases.length; iHead++) {
         if (valAvailable.indexOf(this.cases[iHead].id) !== -1) {
@@ -1330,7 +1330,7 @@ export class CompCheckList extends CompSelect {
 
   delbtn () {
     var iHead
-    var valChosen = this.getGUIComp().find(util.format('select[name=\'%sChosen\']:eq(0)', this.name)).val()
+    var valChosen = this.getGUIComp().find(util.format('select[name=\'%s_chosen\']:eq(0)', this.name)).val()
     if (valChosen !== null) {
       for (iHead = 0; iHead < this.cases.length; iHead++) {
         if (valChosen.indexOf(this.cases[iHead].id) !== -1) {

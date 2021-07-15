@@ -22,6 +22,7 @@ export function cleanFunction () {
       $(this).remove()
     }
   })
+  $('#lucteriosClient').html('')
 }
 
 export function helpFunction () {
@@ -44,37 +45,16 @@ export function aboutFunction () {
   table[0][1] = new CompBasic('<center><h1>' + mDescription.getTitle() + '</h1></center>', 2, 1)
   table[1] = []
   table[1][1] = new CompBasic('<table width="100%">' +
-      '<tr><td><center>' +
-      Singleton().getTranslate('Version') +
-      '</center></td><td><center>' +
-      mDescription.getApplisVersion() +
-      '</center></td></tr>' +
-      '<tr><td colspan="2"><font size="-1"><center><i>' +
-      mDescription.getCopyRigth() +
-      '</i></center></font></td><td>' +
-      '</table>', 2, 1)
+      '<tr><td><center>' + Singleton().getTranslate('Version') + '</center></td><td><center>' + mDescription.getApplisVersion() + '</center></td></tr>' +
+      '<tr><td colspan="2"><font size="-1"><center><i>' + mDescription.getCopyRigth() + '</i></center></font></td><td>' + '</table>', 2, 1)
 
   table[2] = []
   table[2][0] = new CompBasic('<HR SIZE="2" WIDTH="100%" ALIGN=center>' +
       '<table width="100%">' +
-      '<tr><td colspan="2"><font size="+1"><center>' +
-      Singleton().getTranslate('Use the <i>Lucterios</i> framework') +
-      '</center></font></td><td>' +
-      '<tr><td><center>' +
-      Singleton().getTranslate('Server') +
-      '</center></td><td><center>' +
-      mDescription.getServerVersion() +
-      '</center></td></tr>' +
-      '<tr><td><center>' +
-      Singleton().getTranslate('Cordova client') +
-      '</center></td><td><center>' +
-      mDescription.getCordovaVersionCurrent() +
-      '</center></td></tr>' +
-      '<tr><td><center>' +
-      Singleton().getTranslate('Device client') +
-      '</center></td><td><center>' +
-      getDeviceInfo() +
-      '</center></td></tr>' +
+      '<tr><td colspan="2"><font size="+1"><center>' + Singleton().getTranslate('Use the <i>Lucterios</i> framework') + '</center></font></td><td>' +
+      '<tr><td><center>' + Singleton().getTranslate('Server') + '</center></td><td><center>' + mDescription.getServerVersion() + '</center></td></tr>' +
+      '<tr><td><center>' + Singleton().getTranslate('Cordova client') + '</center></td><td><center>' + mDescription.getCordovaVersionCurrent() + '</center></td></tr>' +
+      '<tr><td><center>' + Singleton().getTranslate('Device client') + '</center></td><td><center>' + getDeviceInfo() + '</center></td></tr>' +
       '</table>', 3)
   table[3] = []
   table[3][0] = new CompBasic('<center><img src="images/LucteriosImage.png"></center>', 3)
