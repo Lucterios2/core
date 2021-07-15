@@ -22,7 +22,7 @@ class CompGridHeader {
     this.label = headcomp[1]
     this.type = headcomp[2]
     this.orderable = headcomp[3]
-    this.formatstr = (headcomp[4] || '%s').replace(/%s/g, '%s')
+    this.formatstr = (headcomp[4] || '%s')
     this.grid = grid
   }
 
@@ -181,11 +181,11 @@ export class CompGrid extends CompGeneric {
   initial (component) {
     super.initial(component)
     this.tag = 'div'
-    this.pageMax = parseInt(component.pageMax, 10) || 1
-    this.pageNum = parseInt(component.pageNum, 10) || 0
-    this.size_byPage = parseInt(component.size_byPage, 10) || 25
-    this.nbLines = parseInt(component.nbLines, 10) || 0
-    this.noPager = component.noPager || false
+    this.pageMax = parseInt(component['page_max'], 10) || 1
+    this.pageNum = parseInt(component['page_num'], 10) || 0
+    this.size_byPage = parseInt(component['size_by_page'], 10) || 25
+    this.nbLines = parseInt(component['nb_lines'], 10) || 0
+    this.noPager = component['no_pager'] || false
     this.selectedList = []
 
     this._orderManage(component)
@@ -316,7 +316,7 @@ export class CompGrid extends CompGeneric {
       html += '<span class="gridseparator"></span>'
       html += util.format(util.format('<span>%s</span><select class="ui-corner-all">', Singleton().getTranslate('Rpp')), '')
       for (rppindex = 0; rppindex < rPPOptions.length; rppindex++) {
-        html += util.format('<option value="%s" %s>%s</option>', rPPOptions[rppindex], rPPOptions[rppindex] === this.size_byPage ? 'selected' : '')
+        html += util.format('<option value="%s" %s>%s</option>', rPPOptions[rppindex], rPPOptions[rppindex] === this.size_byPage ? 'selected' : '', rPPOptions[rppindex])
       }
       html += '</select></span>'
       html += '<span class="gridseparator"></span>'
@@ -378,7 +378,7 @@ export class CompGrid extends CompGeneric {
       this.buttons[iBtn].addAction()
       this.buttons[iBtn].setSelectType(SELECT_NONE)
     }
-    pqPager = $('#' + this.owner.getId()).find(util.format('div[id="%sPager"]:eq(0)', this.name))
+    pqPager = $('#' + this.owner.getId()).find(util.format('div[id="%s_pager"]:eq(0)', this.name))
     pqPager.find('span.ui-icon-seek-first').parent().click($.proxy(function () {
       this.changeNumpage(0)
     }, this))
