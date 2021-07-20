@@ -35,12 +35,12 @@ export class ObserverAcknowledge extends ObserverAbstract {
     return requete
   }
 
-  show (aTitle, aGUIType) {
+  async show (aTitle, aGUIType) {
     super.show(aTitle, aGUIType)
     this.setActive(true)
     if (this.mRedirectAction !== null) {
-      this.mRedirectAction.actionPerformed()
+      await this.mRedirectAction.actionPerformed()
     }
-    this.close(this.mRedirectAction === null)
+    await this.close(this.mRedirectAction === null)
   }
 }

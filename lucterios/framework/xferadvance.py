@@ -181,8 +181,7 @@ class XferAddEditor(XferContainerCustom):
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             if self.getparam("SAVE") != "YES":
@@ -192,8 +191,7 @@ class XferAddEditor(XferContainerCustom):
             else:
                 return self.run_save(request, *args, **kwargs)
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
     def run_save(self, request, *args, **kwargs):
         save = XferSave()

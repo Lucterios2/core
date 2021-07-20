@@ -230,7 +230,7 @@ describe('Observer', () => {
     expect(Singleton().mDesc).toEqual(null)
   })
 
-  it('Acknowledge', () => {
+  it('Acknowledge', async () => {
     var jsonReceive = {
       'close': {
         'params': null,
@@ -268,7 +268,7 @@ describe('Observer', () => {
     var obs = new ObserverAcknowledge()
     obs.setSource('CORE', 'groupsEdit')
     obs.setContent(jsonReceive)
-    obs.show('Mon titre')
+    await obs.show('Mon titre')
 
     expect(obs.getGUI() == null).toEqual(true)
 

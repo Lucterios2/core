@@ -127,25 +127,24 @@ export class ObserverAbstract {
     unusedVariables(aIsActive)
   }
 
-  close (aMustRefreshParent) {
+  async close (aMustRefreshParent) {
     if (!this.closed) {
       this.closed = true
       this.closeEx()
       if (this.mCloseAction !== null) {
-        this.mCloseAction.actionPerformed()
+        await this.mCloseAction.actionPerformed()
       }
       this.mCloseAction = null
       var parent = this.getParent()
       if (aMustRefreshParent && (parent !== null)) {
-        parent.refresh()
+        await parent.refresh()
       }
-      parent = null
     }
   }
 
-  refresh () {
+  async refresh () {
     if (this.mRefresh !== null) {
-      this.mRefresh.actionPerformed()
+      await this.mRefresh.actionPerformed()
     }
   }
 

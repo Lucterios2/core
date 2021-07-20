@@ -111,7 +111,7 @@ class Download(XferContainerAbstract):
     methods_allowed = ('GET', 'POST', 'PUT')
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             full_path = join(get_user_dir(), str(self.getparam('filename')))
@@ -134,7 +134,7 @@ class Download(XferContainerAbstract):
                 response["Content-Encoding"] = encoding
             return response
         finally:
-            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
 
 @MenuManage.describ('')
@@ -143,8 +143,7 @@ class Menu(XferContainerMenu):
     methods_allowed = ('GET', )
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             if request.user.is_authenticated or not secure_mode_connect():
                 return XferContainerMenu.request_handling(self, request, *args, **kwargs)
@@ -153,8 +152,7 @@ class Menu(XferContainerMenu):
                 auth = Authentification()
                 return auth.request_handling(request, *args, **kwargs)
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
 
 def right_changepassword(request):

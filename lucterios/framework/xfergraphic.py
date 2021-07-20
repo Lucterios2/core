@@ -142,8 +142,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         return dlg.request_handling(request, *args, **kwargs)
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(
-            ">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             self.fillresponse(**self._get_params())
@@ -189,8 +188,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 self._finalize()
                 return self.get_response()
         finally:
-            getLogger("lucterios.core.request").debug(
-                "<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
     def _finalize(self):
         if self.redirect_act is not None:
