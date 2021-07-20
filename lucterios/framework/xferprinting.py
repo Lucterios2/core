@@ -207,7 +207,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
         return gui
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             if (self.getparam("PRINT_PERSITENT", False) is True) and isinstance(self.get_persistent_pdfreport(), list):
@@ -225,7 +225,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
                     self._finalize()
                     return self.get_response()
         finally:
-            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
     def fillresponse(self):
         self.print_selector = [(PRINT_PDF_FILE, _('PDF file'))]

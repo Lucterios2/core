@@ -287,7 +287,7 @@ class XferContainerAbstract(View):
         return params
 
     def request_handling(self, request, *args, **kwargs):
-        getLogger("lucterios.core.request").debug(">> get %s [%s]", request.path, request.user)
+        getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
             getLogger("lucterios.core.request").debug("... get params=%s", self.params)
@@ -296,7 +296,7 @@ class XferContainerAbstract(View):
             res = self.get_response()
             return res
         finally:
-            getLogger("lucterios.core.request").debug("<< get %s [%s]", request.path, request.user)
+            getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
     def _check_method(self, method, url):
         if method not in self.methods_allowed:

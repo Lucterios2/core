@@ -168,7 +168,7 @@ export class ActionAbstract {
       var param = this.getParameters()
       if (param !== null) {
         if ((this.mOwner !== null) && (this.mClose)) {
-          this.mOwner.close(false)
+          await this.mOwner.close(false)
         }
         if (this.mOwner !== null) {
           this.mOwner.setActive(false)
