@@ -215,5 +215,5 @@ export var SingletonClose = function () {
 }
 
 export var getDeviceInfo = function () {
-  return Singleton().getTranslate(util.format('%s on %s', device.platform, device.model))
+  return util.format(Singleton().getTranslate('%s on %s'), device.platform, device.model)
 }

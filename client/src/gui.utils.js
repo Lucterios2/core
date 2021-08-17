@@ -25,9 +25,9 @@ export class GUIBasic {
     return (item !== null)
   }
 
-  close () {
+  async close () {
     if (this.mCallback !== null) {
-      this.mCallback.close(true)
+      await this.mCallback.close(true)
     } else {
       this.dispose()
     }
@@ -111,27 +111,26 @@ export class GUIManage extends GUIBasic {
     this.mButtons = aButtons
   }
 
+  async actionClosePerformed () {
+    if (this.mCallback !== null) {
+      await this.mCallback.close(true)
+    } else {
+      $(this).dialog('close')
+    }
+  }
+
   getButtonList () {
     var buttonlist = []
     var iAct
-    var newButton = {}
+    var newButton
     for (iAct = 0; iAct < this.mButtons.length; iAct += 1) {
       buttonlist[buttonlist.length] = this.mButtons[iAct].getButton()
     }
 
     if (buttonlist.length === 0) {
-      newButton = {
-        text: Singleton().getTranslate('Close')
-      }
-      if (this.mCallback !== null) {
-        newButton.click = $.proxy(function () {
-          this.close(true)
-        }, this.mCallback)
-      } else {
-        newButton.click = function () {
-          $(this).dialog('close')
-        }
-      }
+      newButton = {}
+      newButton.text = Singleton().getTranslate('Close')
+      newButton.click = $.proxy(this.actionClosePerformed, this)
       buttonlist = [ newButton ]
     }
     return buttonlist
@@ -284,9 +283,6 @@ export class GUIManage extends GUIBasic {
         dateFormat: 'dd/mm/yy'
       }, $.datepicker.regional.fr)
     })
-    /* $('.timespinner').each(function () {
-      $(this).timespinner()
-    }) */
     for (iAct = 0; iAct < this.mButtons.length; iAct++) {
       if (this.mButtons[iAct].getIcon() !== '') {
         btnIcon = this.mButtons[iAct].getIcon()
