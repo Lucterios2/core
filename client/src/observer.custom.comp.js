@@ -169,7 +169,7 @@ export class CompGeneric extends CompBasic {
     if (this.needed && ((this.getValue() === null) || (this.getValue() === ''))) {
       msgText = Singleton().getTranslate('This field is needed!')
       if (this.description.length > 0) {
-        msgText = Singleton().getTranslate('The field \'%s\' is needed!').format(decodeURIComponent(this.description.replace(/\+/g, ' ')))
+        msgText = util.format(Singleton().getTranslate('The field \'%s\' is needed!'), decodeURIComponent(this.description.replace(/\+/g, ' ')))
       }
       throw new LucteriosException(MINOR, msgText)
     }
@@ -770,8 +770,12 @@ export class CompMemo extends CompAbstractEvent {
 
   fillValue (params) {
     var val
+    var textArea
     if (this.withHypertext) {
       val = tinymce.get(this.getIdent()).getContent()
+      textArea = document.createElement('textarea')
+      textArea.innerHTML = val
+      val = textArea.value
       params.put(this.name, val.replace(/\n/g, '{[br/]}').replace(/</g, '{[').replace(/>/g, ']}'))
     } else {
       val = this.getValue()

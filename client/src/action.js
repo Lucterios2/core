@@ -155,21 +155,18 @@ export class ActionAbstract {
       return false
     }
     if ((this.mExtension === '') || (this.mAction === '')) {
-      if ((this.mOwner !== null) && (this.mClose)) {
-        this.mOwner.close(true)
-      }
       return false
     }
     return true
   }
 
   async actionPerformed () {
+    var param = this.getParameters()
+    if ((this.mOwner !== null) && (this.mClose)) {
+      await this.mOwner.close(false)
+    }
     if (this.mustPerforme()) {
-      var param = this.getParameters()
       if (param !== null) {
-        if ((this.mOwner !== null) && (this.mClose)) {
-          await this.mOwner.close(false)
-        }
         if (this.mOwner !== null) {
           this.mOwner.setActive(false)
         }
