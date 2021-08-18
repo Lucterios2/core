@@ -36,7 +36,7 @@ from time import sleep
 import sys
 import os
 from json import loads, dumps
-from subprocess import call
+from subprocess import call, check_output, CalledProcessError
 
 
 INSTANCE_PATH = '.'
@@ -103,39 +103,49 @@ def get_module_title(module_name):
     return str(result)
 
 
-def get_package_list():
-    def get_files(dist):
-        paths = []
-        # RECORDs should be part of .dist-info metadatas
-        if dist.has_metadata('RECORD'):
-            lines = dist.get_metadata_lines('RECORD')
-            paths = [line_item.split(',')[0].replace('/', os.sep) for line_item in lines]
-            paths = [os.path.join(dist.location, path_item) for path_item in paths]
-        # Otherwise use pip's log for .egg-info's
-        elif dist.has_metadata('installed-files.txt'):
-            paths = dist.get_metadata_lines('installed-files.txt')
-            paths = [
-                os.path.join(dist.egg_info, p.replace('/', os.sep)) for p in paths]
-        elif os.path.join(dist.location, '__init__.py'):
-            paths = [os.path.join(dir_desc[0], file_item) for dir_desc in os.walk(
-                dist.location) for file_item in dir_desc[2] if file_item[-3:] == '.py']
-        return [os.path.relpath(p, dist.location) for p in paths]
+def import_metadata():
+    if sys.version_info >= (3, 8):
+        from importlib import metadata as importlib_metadata
+    else:
+        import importlib_metadata
+    return importlib_metadata
 
+
+def get_package_requires(name):
+    importlib_metadata = import_metadata()
+    requires = importlib_metadata.requires(name)
+    if isinstance(requires, list):
+        return [req.split(';')[0].strip().split(' ')[0] for req in requires]
+    else:
+        return []
+
+
+def get_package_files(name):
+    importlib_metadata = import_metadata()
+    return [os.sep.join([par.name for par in file_item.parents]) + file_item.name for file_item in importlib_metadata.files(name)]
+
+
+def get_package_listname():
+    importlib_metadata = import_metadata()
+    dists = importlib_metadata.distributions()
+    return [dist.metadata["Name"] for dist in dists]
+
+
+def get_package_list():
     def get_module_desc(modname):
         appmodule = import_module(modname)
         if hasattr(appmodule, 'link'):
             return (modname, appmodule.__version__, appmodule.link())
         else:
             return (modname, appmodule.__version__, [])
-    from pip._internal.utils.misc import get_installed_distributions
+    importlib_metadata = import_metadata()
     package_list = {}
-    dists = get_installed_distributions()
-    for dist in dists:
-        requires = [req.key for req in dist.requires()]
-        if (dist.key == 'lucterios') or ('lucterios' in requires):
+    for dist_name in get_package_listname():
+        requires = get_package_requires(dist_name)
+        if (dist_name == 'lucterios') or ('lucterios' in requires):
             current_applis = []
             current_modules = []
-            for file_item in get_files(dist):
+            for file_item in get_package_files(dist_name):
                 try:
                     py_mod_name = ".".join(file_item.split(os.sep)[:-1])
                     if file_item.endswith('appli_settings.py'):
@@ -146,8 +156,7 @@ def get_package_list():
                     pass
             current_applis.sort()
             current_modules.sort()
-            package_list[dist.key] = (
-                dist.version, current_applis, current_modules, requires)
+            package_list[dist_name] = (importlib_metadata.version(dist_name), current_applis, current_modules, requires)
     return package_list
 
 
@@ -225,11 +234,12 @@ class LucteriosGlobal(LucteriosManage):
                         extra_urls.append(line)
         return extra_urls
 
-    def get_default_args_(self, other_args):
+    def get_default_args_(self, other_args, with_quiet=True):
         import logging
         logging.captureWarnings(True)
         args = list(other_args)
-        args.append('--quiet')
+        if with_quiet:
+            args.append('--quiet')
         if 'http_proxy' in os.environ.keys():
             args.append('--proxy=' + os.environ['http_proxy'])
         extra_urls = self.get_extra_urls()
@@ -247,32 +257,29 @@ class LucteriosGlobal(LucteriosManage):
                         args.append(url_sep.groups()[2])
         return args
 
+    def get_pip_outdated(self):
+        options = " ".join(self.get_default_args_([], with_quiet=False))
+        outdated_list = check_output("pip list %s --outdated --format json" % options, shell=True)
+        return {outdated_item['name']: (outdated_item['version'], outdated_item['latest_version']) for outdated_item in loads(outdated_list)}
+
     def check(self):
-        from pip._internal.utils.misc import get_installed_distributions
-        from pip._internal.commands.list import ListCommand
-        try:
-            from pip._internal.utils.logging import _log_state
-            if not hasattr(_log_state, 'indentation'):
-                _log_state.indentation = 0
-        except Exception:
-            pass
+        importlib_metadata = import_metadata()
         check_list = {}
-        list_command = ListCommand(name="list", summary="")
-        options, _ = list_command.parse_args(self.get_default_args_([]))
-        unvers_packages = get_installed_distributions(local_only=options.local, user_only=options.user, editables_only=options.editable)
-        packages = list_command.iter_packages_latest_infos(unvers_packages, options)
         must_upgrade = False
+        pip_outdated = self.get_pip_outdated()
         self.print_info_("check list:")
-        for dist in packages:
-            requires = [req.key for req in dist.requires()]
-            if (dist.key == 'lucterios') or ('lucterios' in requires):
-                check_list[dist.project_name] = (dist.version, dist.latest_version, dist.latest_version > dist.parsed_version)
-                must_upgrade = must_upgrade or (dist.latest_version > dist.parsed_version)
-                if dist.latest_version > dist.parsed_version:
+        for dist_name in get_package_listname():
+            requires = get_package_requires(dist_name)
+            if (dist_name == 'lucterios') or ('lucterios' in requires):
+                parsed_version = importlib_metadata.version(dist_name)
+                latest_version = pip_outdated[dist_name][1] if dist_name in pip_outdated else parsed_version
+                check_list[dist_name] = (parsed_version, latest_version, latest_version > parsed_version)
+                must_upgrade = must_upgrade or (latest_version > parsed_version)
+                if latest_version > parsed_version:
                     text_version = 'to upgrade'
                 else:
                     text_version = ''
-                self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (dist.project_name, dist.version, dist.latest_version, text_version))
+                self.print_info_("%25s\t%10s\t=>\t%10s\t%s" % (dist_name, parsed_version, latest_version, text_version))
         if must_upgrade:
             self.print_info_("\t\t=> Must upgrade")
         else:
@@ -280,18 +287,18 @@ class LucteriosGlobal(LucteriosManage):
         return check_list, must_upgrade
 
     def pip_install(self, options):
-        return call("python -m pip %s" % " ".join(options), shell=True)
+        return call("pip install %s" % " ".join(options), shell=True)
 
     def update_dependancy(self):
-        from pip._internal.utils.misc import get_installed_distributions
+        importlib_metadata = import_metadata()
         module_dependancies = []
-        for dist in get_installed_distributions():
-            requires = [req.key for req in dist.requires()]
-            if (dist.key != 'lucterios') and ('lucterios' not in requires):
-                version_items = dist.version.split('.')
-                module_dependancies.append("%s==%s.*" % (dist.project_name, ".".join(version_items[:2])))
+        for dist_name in get_package_listname():
+            requires = get_package_requires(dist_name)
+            if (dist_name != 'lucterios') and ('lucterios' not in requires):
+                version_items = importlib_metadata.version(dist_name).split('.')
+                module_dependancies.append("%s==%s.*" % (dist_name, ".".join(version_items[:2])))
         if len(module_dependancies) > 0:
-            options = self.get_default_args_(['install', '-U'])
+            options = self.get_default_args_(['-U'])
             options.extend(module_dependancies)
             self.pip_install(options)
             self.print_info_("Try to update %d dependancy modules" % len(module_dependancies))
@@ -301,17 +308,16 @@ class LucteriosGlobal(LucteriosManage):
             return False
 
     def update(self):
-        from pip._internal.utils.misc import get_installed_distributions
         self.update_dependancy()
         module_list = []
-        for dist in get_installed_distributions():
-            requires = [req.key for req in dist.requires()]
-            if (dist.key == 'lucterios') or ('lucterios' in requires):
-                module_list.append(dist.project_name)
+        for dist_name in get_package_listname():
+            requires = get_package_requires(dist_name)
+            if (dist_name == 'lucterios') or ('lucterios' in requires):
+                module_list.append(dist_name)
         if len(module_list) > 0:
             try:
                 self.print_info_("Modules to update: %s" % ",".join(module_list))
-                options = self.get_default_args_(['install', '-U'])
+                options = self.get_default_args_(['-U'])
                 options.extend(module_list)
                 res = self.pip_install(options)
             finally:
