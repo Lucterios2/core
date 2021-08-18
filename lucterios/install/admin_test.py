@@ -448,7 +448,7 @@ if __name__ == "__main__":
     suite = TestSuite()
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
-    suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    # suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
     suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     JUXDTestRunner(verbosity=1).run(suite)
