@@ -30,7 +30,8 @@ from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from os.path import join, dirname, isfile, isdir
 import os
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none, delete_path
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none, delete_path,\
+    get_package_list
 from lucterios.framework.juxd import JUXDTestRunner
 
 
@@ -61,6 +62,8 @@ class TestGlobal(BaseTest):
         delete_path(join(self.path_dir, 'extra_url'))
 
     def test_installed(self):
+        pack_list = get_package_list()
+        self.assertEqual({}, pack_list)
         val = self.luct_glo.installed()
         self.assertEqual('lucterios', val[0][0])
         self.assertEqual('???', val[0][1][:3])
@@ -289,26 +292,25 @@ class TestAdminSQLite(BaseTest):
 
 class TestAdminMySQL(BaseTest):
 
+    mysql_options = '-pabc123'
+
     def setUp(self):
         BaseTest.setUp(self)
         self.data = {'dbname': 'testv2', 'username': 'myuser',
-                     'passwd': '123456', 'server': 'localhost'}
-        for cmd in ("CREATE DATABASE %(dbname)s",
+                     'passwd': '123456', 'server': 'localhost', 'options': self.mysql_options}
+        for cmd in ("CREATE DATABASE %(dbname)s CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci",
                     "GRANT all ON %(dbname)s.* TO %(username)s@'%(server)s' IDENTIFIED BY '%(passwd)s'",
                     "GRANT all ON %(dbname)s.* TO %(username)s@'127.0.0.1' IDENTIFIED BY '%(passwd)s'"):
-            complete_cmd = 'echo "%s;" | mysql -u root -pabc123' % (
-                cmd % self.data)
+            complete_cmd = 'echo "%s;" | mysql -u root %s' % (cmd % self.data, self.mysql_options)
             os.system(complete_cmd)
 
     def tearDown(self):
-        os.system(
-            'echo "DROP DATABASE %(dbname)s;" | mysql -u root -pabc123' % self.data)
+        os.system('echo "DROP DATABASE %(dbname)s;" | mysql -u root %(options)s' % self.data)
         BaseTest.tearDown(self)
 
     def run_mysql_cmd(self, cmd):
         mysqlres = join(self.path_dir, 'out.txt')
-        complete_cmd = 'echo "%s;" | mysql -u root -pabc123 > %s' % (
-            cmd % self.data, mysqlres)
+        complete_cmd = 'echo "%s;" | mysql -u root %s > %s' % (cmd % self.data, self.mysql_options, mysqlres)
         os.system(complete_cmd)
         with open(mysqlres, 'r') as res_file:
             for line in res_file.readlines():
@@ -318,8 +320,7 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
-        inst.set_database(
-            "mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         self.assertEqual(["inst_mysql"], self.luct_glo.listing())
 
@@ -356,8 +357,7 @@ class TestAdminMySQL(BaseTest):
         self.assertEqual(True, inst.archive())
 
         inst = LucteriosInstance("inst_mysql", self.path_dir)
-        inst.set_database(
-            "mysql:name=testv2,user=myuser,password=123456,host=localhost")
+        inst.set_database("mysql:name=testv2,user=myuser,password=123456,host=localhost")
         inst.add()
         inst.filename = join(self.path_dir, "inst_g.arc")
         self.assertEqual(True, inst.restore())
@@ -448,7 +448,7 @@ if __name__ == "__main__":
     suite = TestSuite()
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
-    # suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
+    suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
     suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
     suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     JUXDTestRunner(verbosity=1).run(suite)
