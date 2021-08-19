@@ -456,13 +456,12 @@ describe('Observer', () => {
   it('Dialog', async () => {
     var jsonReceive = {
       'context': {
-        'personneMorale': '100',
-        'CONFIRME': 'YES',
-        'bidule': 'aaa'
+        'personneMorale': '100'
       },
       'actions': [ {
         'params': {
-          'CONFIRME': 'YES'
+          'CONFIRME': 'YES',
+          'bidule': 'aaa'
         },
         'icon': '/static/lucterios.CORE/images/ok.png',
         'close': '0',
@@ -517,9 +516,8 @@ describe('Observer', () => {
     expect(currentUI.getTextButton(0, 0)).toEqual('Oui')
     expect(currentUI.getTextButton(0, 1)).toEqual('Non')
 
-    expect(obs.getContext().size()).toEqual(3)
+    expect(obs.getContext().size()).toEqual(1)
     expect(obs.getContext().get('personneMorale')).toEqual('100')
-    expect(obs.getContext().get('CONFIRME')).toEqual('YES')
 
     expect(mObsFactory.CallList.size()).toEqual(0)
 
@@ -528,7 +526,7 @@ describe('Observer', () => {
     expect(gui.isExist()).toEqual(true)
     expect(mObsFactory.CallList.size()).toEqual(2)
     expect(mObsFactory.CallList.get(0)).toEqual('lucterios.dummy->multi(personneMorale=\'100\',CONFIRME=\'YES\',bidule=\'aaa\',)')
-    expect(mObsFactory.CallList.get(1)).toEqual('lucterios.dummy->multi(personneMorale=\'100\',CONFIRME=\'YES\',bidule=\'aaa\',)')
+    expect(mObsFactory.CallList.get(1)).toEqual('lucterios.dummy->multi(personneMorale=\'100\',)')
 
     await currentUI.clickButton(0, 1)
     expect(!gui.isExist()).toEqual(true)

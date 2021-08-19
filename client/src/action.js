@@ -135,11 +135,16 @@ export class ActionAbstract {
 
   getParameters () {
     var param
+    var newParam
     if (this.mOwner !== null) {
       if (this.mUsedContext) {
-        param = this.mOwner.getContext()
+        newParam = this.mOwner.getContext()
       } else {
-        param = this.mOwner.getParameters(this.mCheckNull)
+        newParam = this.mOwner.getParameters(this.mCheckNull)
+      }
+      if (newParam !== null) {
+        param = new HashMap()
+        param.putAll(newParam)
       }
     } else {
       param = new HashMap()
