@@ -165,6 +165,7 @@ export class GUIManage extends GUIBasic {
         }
       }, this),
       buttons: this.getButtonList(),
+      open: function () {},
       close: $.proxy(function (event, ui) {
         unusedVariables(event, ui)
         this.close()
@@ -239,7 +240,8 @@ export class GUIManage extends GUIBasic {
 
   manageKey (event) {
     var btn
-    if ((event.keyCode === 13) && (this.defaultbtn !== '')) {
+    if ((event.keyCode === $.ui.keyCode.ENTER) && (this.defaultbtn !== '')) {
+      event.stopPropagation()
       btn = $('#' + this.mCallback.getId()).find(this.defaultbtn)
       if (btn.length === 1) {
         btn.click()
