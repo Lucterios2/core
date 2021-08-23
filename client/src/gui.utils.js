@@ -27,7 +27,7 @@ export class GUIBasic {
 
   async close () {
     if (this.mCallback !== null) {
-      await this.mCallback.close(true)
+      await this.mCallback.close()
     } else {
       this.dispose()
     }
@@ -113,7 +113,7 @@ export class GUIManage extends GUIBasic {
 
   async actionClosePerformed () {
     if (this.mCallback !== null) {
-      await this.mCallback.close(true)
+      await this.mCallback.close()
     } else {
       $(this).dialog('close')
     }

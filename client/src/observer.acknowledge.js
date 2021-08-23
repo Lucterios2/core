@@ -41,6 +41,6 @@ export class ObserverAcknowledge extends ObserverAbstract {
     if (this.mRedirectAction !== null) {
       await this.mRedirectAction.actionPerformed()
     }
-    await this.close(this.mRedirectAction === null)
+    await this.close()
   }
 }

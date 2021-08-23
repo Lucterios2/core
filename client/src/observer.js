@@ -127,7 +127,7 @@ export class ObserverAbstract {
     unusedVariables(aIsActive)
   }
 
-  async close (aMustRefreshParent) {
+  async close () {
     if (!this.closed) {
       this.closed = true
       this.closeEx()
@@ -136,7 +136,7 @@ export class ObserverAbstract {
       }
       this.mCloseAction = null
       var parent = this.getParent()
-      if (aMustRefreshParent && (parent !== null)) {
+      if (parent !== null) {
         await parent.refresh()
       }
     }
