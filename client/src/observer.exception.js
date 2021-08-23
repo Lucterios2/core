@@ -77,7 +77,7 @@ export class ObserverException extends ObserverAbstract {
     super.show(aTitle, aGUIType)
     this.setActive(true)
     this.exceptShow()
-    this.close(true)
+    this.close()
   }
 
   exceptShow () {

@@ -168,7 +168,7 @@ export class ActionAbstract {
   async actionPerformed () {
     var param = this.getParameters()
     if ((this.mOwner !== null) && (this.mClose)) {
-      await this.mOwner.close(false)
+      await this.mOwner.close()
     }
     if (this.mustPerforme()) {
       if (param !== null) {
@@ -210,7 +210,7 @@ export class ActionImpl extends ActionAbstract {
         currentObs.setParent(this.mOwner)
       }
     }
-    currentObs.show(this.mTitle, this.mFormType)
+    await currentObs.show(this.mTitle, this.mFormType)
   }
 }
 
