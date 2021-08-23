@@ -36,7 +36,7 @@ from time import sleep
 import sys
 import os
 from json import loads, dumps
-from subprocess import call, check_output, CalledProcessError
+from subprocess import call, check_output
 
 
 INSTANCE_PATH = '.'
@@ -122,7 +122,7 @@ def get_package_requires(name):
 
 def get_package_files(name):
     importlib_metadata = import_metadata()
-    return [os.sep.join([par.name for par in file_item.parents]) + file_item.name for file_item in importlib_metadata.files(name)]
+    return [str(file_item.locate()) for file_item in importlib_metadata.files(name) if file_item.name[-3:] == '.py']
 
 
 def get_package_listname():
@@ -147,7 +147,12 @@ def get_package_list():
             current_modules = []
             for file_item in get_package_files(dist_name):
                 try:
-                    py_mod_name = ".".join(file_item.split(os.sep)[:-1])
+                    path_list = file_item.split(os.sep)[:-1]
+                    try:
+                        path_list = path_list[path_list.index('site-packages') + 1:]
+                    except Exception:
+                        pass
+                    py_mod_name = ".".join(path_list)
                     if file_item.endswith('appli_settings.py'):
                         current_applis.append(get_module_desc(py_mod_name))
                     elif file_item.endswith('models.py'):
