@@ -293,7 +293,7 @@ export class CompAbstractEvent extends CompGeneric {
       this.action = null
     }
     this.javaScriptContent = component.javascript || ''
-    if (component.isDefault) {
+    if (component.is_default) {
       this.owner.mDefaultBtn = util.format('%s[name=\'%s\']', this.tag, this.name)
     }
   }

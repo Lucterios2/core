@@ -250,6 +250,8 @@ describe('ObserverMenu', () => {
     var gui = obs.getGUI()
     expect(gui == null).toEqual(true)
 
+    expect(mObsFactory.CallList.size()).toEqual(1)
+
     obs.close()
   })
 })
