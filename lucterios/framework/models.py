@@ -529,7 +529,7 @@ class LucteriosModel(models.Model):
         try:
             models.Model.delete(self, using=using)
         except ProtectedError:
-            logging.getLogger('lucterios.framwork').debug("delete", exc_info=True)
+            logging.getLogger('lucterios.framwork').exception("delete %s" % self)
             raise LucteriosException(IMPORTANT, _(
                 'Cannot delete this record: there are associated with some sub-record'))
 

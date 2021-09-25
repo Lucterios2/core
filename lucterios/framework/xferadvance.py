@@ -250,17 +250,21 @@ class XferDelete(XferContainerAcknowledge):
         ids = ids.split(';')
         self.items = self.model.objects.filter(pk__in=ids).distinct()
 
-    def fillresponse(self):
-
+    def check_can_delete(self):
         for item in self.items:
             cant_del_msg = item.get_final_child().can_delete()
             if cant_del_msg != '':
                 raise LucteriosException(IMPORTANT, cant_del_msg)
 
+    def delete_list(self):
+        for item in self.items:
+            item.get_final_child().delete()
+
+    def fillresponse(self):
+        self.check_can_delete()
         if self.confirme(ifplural(len(self.items), _("Do you want delete this %(name)s ?") % {'name': self.model._meta.verbose_name},
                                   _("Do you want delete those %(nb)s %(name)s ?") % {'nb': len(self.items), 'name': self.model._meta.verbose_name_plural})):
-            for item in self.items:
-                item.get_final_child().delete()
+            self.delete_list()
 
 
 class XferSave(XferContainerAcknowledge):
