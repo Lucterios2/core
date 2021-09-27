@@ -12,7 +12,7 @@
 	<property name="web.client" value="${web.root}/static" />
 	<property name="web.browser" value="client/platforms/browser/www/" />
 	<property name="web.path" value="lucterios/framework/static/lucterios.framework/web" />
-	<property name="web.version" value="1.5.1" />
+	<property name="web.version" value="1.5.2" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
 	<target name="clientweb">

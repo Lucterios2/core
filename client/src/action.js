@@ -53,6 +53,7 @@ export class ActionAbstract {
     this.mIcon = aJSON.icon || ''
     this.mSizeIcon = parseInt(aJSON.sizeicon, 10) || 0
     this.mKeyStroke = aJSON.shortcut
+    this.mCheckNull = (this.mExtension !== '') && (this.mAction !== '')
     if (aJSON.params) {
       xmlparams = Object.keys(aJSON.params)
       for (index = 0; index < xmlparams.length; index++) {
