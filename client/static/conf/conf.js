@@ -16,13 +16,10 @@ window.setVersionFct(function () {
 })
 
 window.setServerUrl(function () {
-  return 'http://127.0.0.1:8000/'
-  /*
   var fullurl = window.location.href
   var n = fullurl.lastIndexOf('/')
   n = fullurl.substr(0, n).lastIndexOf('/')
   return fullurl.substr(0, n) + '/'
-  */
 })
 
 window.setGlobalParam(true, false, false)
