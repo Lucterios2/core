@@ -68,13 +68,15 @@ def remove_format(xml_text):
     xml_text = xml_text.replace('{[/italic]}', '')
     xml_text = xml_text.replace('{[underline]}', '')
     xml_text = xml_text.replace('{[/underline]}', '')
+    xml_text = xml_text.replace('&nbsp;', '\u00a0')
     return xml_text
 
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
     try:
         html_text = toHtml(text)
-        xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text})
+        parser = etree.XMLParser(remove_blank_text=True, resolve_entities=False)
+        xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text}, parser=parser)
         xml_text.attrib['font_family'] = font_family
         xml_text.attrib['font_size'] = "%d" % font_size
         xml_text.attrib['line_height'] = "%d" % line_height
