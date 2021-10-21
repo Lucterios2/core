@@ -41,7 +41,7 @@ from threading import Thread
 from re import compile
 from json import dumps
 
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 from django.utils.module_loading import import_module
 
 from lucterios.framework.settings import get_lan_ip
@@ -64,7 +64,7 @@ def ProvideException(func):
         except Exception as e:
             print_exc()
             if LucteriosMain.show_error_fct is not None:
-                LucteriosMain.show_error_fct(ugettext("Lucterios launcher"), e)
+                LucteriosMain.show_error_fct(gettext("Lucterios launcher"), e)
     return wrapper
 
 
@@ -77,7 +77,7 @@ def ThreadRun(func):
             except Exception as e:
                 print_exc()
                 if LucteriosMain.show_error_fct is not None:
-                    LucteriosMain.show_error_fct(ugettext("Lucterios launcher"), e)
+                    LucteriosMain.show_error_fct(gettext("Lucterios launcher"), e)
             finally:
                 args[0].enabled(True)
         Thread(target=sub_fct).start()
@@ -127,7 +127,7 @@ class RunServer(object):
         sleep(3.0)
         if self.process.poll() is not None:
             self.stop()
-            raise RunException(ugettext("Error to start!"))
+            raise RunException(gettext("Error to start!"))
         self.save_serverfile()
 
     def get_url(self):
@@ -164,7 +164,7 @@ class EditorInstance(object):
 
     def _define_values(self):
         from lucterios.framework.settings import DEFAULT_LANGUAGES
-        self.mode_values = [str(ugettext("CORE-connectmode.0")), str(ugettext("CORE-connectmode.1")), str(ugettext("CORE-connectmode.2"))]
+        self.mode_values = [str(gettext("CORE-connectmode.0")), str(gettext("CORE-connectmode.1")), str(gettext("CORE-connectmode.2"))]
         self.lang_values = [lang[1] for lang in DEFAULT_LANGUAGES]
         self.dbtype_values = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
@@ -366,9 +366,9 @@ class LucteriosMain(object):
 
     def ugrade_message(self, must_upgrade):
         if must_upgrade:
-            msg = ugettext("Upgrade needs")
+            msg = gettext("Upgrade needs")
         else:
-            msg = ugettext("No upgrade")
+            msg = gettext("No upgrade")
         return msg
 
     def set_ugrade_state(self, upgrade_mode):
@@ -447,9 +447,9 @@ class LucteriosMain(object):
             file_name += '.lbk'
         proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'archive', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT, env=os.environ.copy())
         if proc_res.returncode == 0:
-            self.show_info(ugettext("Lucterios launcher"), ugettext("Instance saved to %s") % file_name)
+            self.show_info(gettext("Lucterios launcher"), gettext("Instance saved to %s") % file_name)
         else:
-            self.show_error(ugettext("Lucterios launcher"), ugettext("Instance not saved!"))
+            self.show_error(gettext("Lucterios launcher"), gettext("Instance not saved!"))
             logging.getLogger(__name__).error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
@@ -458,9 +458,9 @@ class LucteriosMain(object):
         self.stop_current_instance(instance_name)
         proc_res = run([sys.executable, '-m', 'lucterios.install.lucterios_admin', 'restore', '-n', instance_name, '-f', file_name], stdout=PIPE, stderr=STDOUT, env=os.environ.copy())
         if proc_res.returncode == 0:
-            self.show_info(ugettext("Lucterios launcher"), ugettext("Instance restore from %s") % file_name)
+            self.show_info(gettext("Lucterios launcher"), gettext("Instance restore from %s") % file_name)
         else:
-            self.show_error(ugettext("Lucterios launcher"), ugettext("Instance not restored!"))
+            self.show_error(gettext("Lucterios launcher"), gettext("Instance not restored!"))
             logging.getLogger(__name__).error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
