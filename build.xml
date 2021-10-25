@@ -1,17 +1,24 @@
 <project name="Lucterios2" default="all" basedir=".">
-	<property name="standard.path" value="${basedir}/../lct-standard" />
-	<property name="project.packagepath" value="lucterios/CORE,lucterios/framework,lucterios/install" />
-	<property name="project.packagename" value="lucterios.CORE lucterios.dummy" />
+	<property name="standard.path"
+		value="${basedir}/../lct-standard" />
+	<property name="project.packagepath"
+		value="lucterios/CORE,lucterios/framework,lucterios/install" />
+	<property name="project.packagename"
+		value="lucterios.CORE lucterios.dummy" />
 	<property name="project.name" value="lucterios" />
-	<property name="project.pythonpath" value="${standard.path}:${env.PYTHONPATH}" />
+	<property name="project.pythonpath"
+		value="${standard.path}:${env.PYTHONPATH}" />
 	<property name="project.packname" value="lucterios.egg-info" />
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
-	<property name="project.radon.exclude" value="lct-core/client/**/*.py" />
+	<property name="project.radon.exclude"
+		value="lct-core/client/**/*.py" />
 	<property name="web.root" value="${basedir}/client" />
 	<property name="web.client" value="${web.root}/static" />
-	<property name="web.browser" value="client/platforms/browser/www/" />
-	<property name="web.path" value="lucterios/framework/static/lucterios.framework/web" />
+	<property name="web.browser"
+		value="client/platforms/browser/www/" />
+	<property name="web.path"
+		value="lucterios/framework/static/lucterios.framework/web" />
 	<property name="web.version" value="1.5.2" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
@@ -37,9 +44,14 @@
 
 	<target name="init_addon">
 		<mkdir dir="${web.client}/conf" />
-		<echo message="${web.version}.${build_number}" file="${web.client}/conf/build" append="false" />
-		<replaceregexp file="${web.root}/config.xml" match='version="[0-9\.]+"' replace='version="${web.version}"' byline="true" />	
-		<replaceregexp file="${web.root}/package.json" match='"version": "[0-9\.]+",' replace='"version": "${web.version}",' byline="true" />	
+		<echo message="${web.version}.${build_number}"
+			file="${web.client}/conf/build" append="false" />
+		<replaceregexp file="${web.root}/config.xml"
+			match='version="[0-9\.]+"' replace='version="${web.version}"'
+			byline="true" />
+		<replaceregexp file="${web.root}/package.json"
+			match='"version": "[0-9\.]+",' replace='"version": "${web.version}",'
+			byline="true" />
 		<exec executable="npm" dir="${web.root}" failonerror="true">
 			<arg value="install" />
 		</exec>
@@ -58,21 +70,24 @@
 			<arg value="build" />
 			<arg value="browser" />
 		</exec>
-		<replace file="${web.browser}/index.html" token='src=../../js/' value='src=js/' />
-		<copy file="${web.browser}/index.html" tofile="${web.browser}/viewer.html"/>
-		<replace file="${web.browser}/viewer.html" token='window.main()' value='window.viewer()' />
+		<replace file="${web.browser}/index.html"
+			token='src=../../js/' value='src=js/' />
+		<copy file="${web.browser}/index.html"
+			tofile="${web.browser}/viewer.html" />
+		<replace file="${web.browser}/viewer.html"
+			token='window.main()' value='window.viewer()' />
 		<copy todir="${web.path}">
-		  <fileset dir="${web.browser}"/>
+			<fileset dir="${web.browser}" />
 		</copy>
 	</target>
-	
+
 	<target name="test_webclient">
 		<exec executable="npm" dir="${web.root}" failonerror="true">
 			<arg value="run" />
 			<arg value="unit" />
 		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg value="${web.root}/test/lcov_cobertura.py" />		
+			<arg value="${web.root}/test/lcov_cobertura.py" />
 			<arg value="${web.root}/test/coverage/lcov.info" />
 			<arg value="--base-dir" />
 			<arg value="${web.root}/src" />
@@ -90,10 +105,12 @@
 			<arg value="--append" />
 			<arg value="--branch" />
 			<arg value="--source=lucterios" />
-			<arg value="--omit=lucterios/install/lucterios_gui.py" />
+			<arg
+				value="--omit=lucterios/install/lucterios_gui.py,lucterios/install/lucterios_qt.py,lucterios/install/graphic_lib.py" />
 			<arg value="lucterios/install/admin_test.py" />
 		</exec>
-		<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
+		<replace file="${basedir}/results.xml" token="__main__."
+			value="lucterios-py3.TestAdmin." />
 		<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
 	</target>
 
