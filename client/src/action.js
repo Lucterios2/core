@@ -135,7 +135,7 @@ export class ActionAbstract {
   }
 
   getParameters () {
-    var param
+    var param = null
     var newParam
     if (this.mOwner !== null) {
       if (this.mUsedContext) {

@@ -19,7 +19,7 @@
 		value="client/platforms/browser/www/" />
 	<property name="web.path"
 		value="lucterios/framework/static/lucterios.framework/web" />
-	<property name="web.version" value="1.5.2" />
+	<property name="web.version" value="1.5.3" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
 	<target name="clientweb">
@@ -106,7 +106,7 @@
 			<arg value="--branch" />
 			<arg value="--source=lucterios" />
 			<arg
-				value="--omit=lucterios/install/lucterios_gui.py,lucterios/install/lucterios_qt.py,lucterios/install/graphic_lib.py" />
+				value="--omit=*/install/lucterios_gui.py,*/install/lucterios_qt.py,*/install/graphic_lib.py" />
 			<arg value="lucterios/install/admin_test.py" />
 		</exec>
 		<replace file="${basedir}/results.xml" token="__main__."

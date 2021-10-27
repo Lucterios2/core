@@ -354,6 +354,20 @@ describe('ObserverCustom', () => {
         'javascript': '',
         'needed': false,
         'x': 2
+      }, {
+        'action': null,
+        'colspan': 2,
+        'is_default': false,
+        'rowspan': 1,
+        'description': 'Captcha',
+        'tab': 0,
+        'is_mini': false,
+        'y': 15,
+        'name': 'captcha',
+        'component': 'CAPTCHA',
+        'javascript': '',
+        'needed': false,
+        'x': 1
       } ],
       'close': {
         'id': 'CORE/unlock',
@@ -375,7 +389,7 @@ describe('ObserverCustom', () => {
         'tel2': '',
         'comment': '',
         'img': '/static/lucterios.contacts/images/ourDetails.png',
-        'name': 'Association Multi-sport de d\u00e9monstration',
+        'name': 'Association Multi\'sport de d\u00e9monstration',
         'email': 'info@sd-libre.fr',
         'custom_5': 0,
         'tel1': '0987654321',
@@ -430,7 +444,7 @@ describe('ObserverCustom', () => {
     expect(comp.html()).toEqual('nom')
 
     comp = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > lct-ctrl > input')
-    expect(comp.val()).toEqual('Association Multi-sport de démonstration')
+    expect(comp.val()).toEqual('Association Multi\'sport de démonstration')
     comp.focus()
     comp.val('AAA')
 
@@ -506,6 +520,23 @@ describe('ObserverCustom', () => {
     comp.focus()
     comp.text('JJ\nKKKK')
 
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(11) > td:eq(1) > lct-cell > label')
+    expect(comp.html()).toEqual('Captcha')
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(11) > td:eq(1) > lct-cell > lct-ctrl')
+    var captchInfo = comp.text().split(' ')
+    var captchValue = 0
+    if (captchInfo[1] === '-') {
+      captchValue = parseInt(captchInfo[0]) - parseInt(captchInfo[4])
+    }
+    if (captchInfo[1] === '+') {
+      captchValue = parseInt(captchInfo[4]) - parseInt(captchInfo[0])
+    }
+    if (captchInfo[1] === 'x') {
+      captchValue = parseInt(captchInfo[4]) / parseInt(captchInfo[0])
+    }
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(11) > td:eq(1) > lct-cell > lct-ctrl > input')
+    comp.val(captchValue.toString())
+
     expect($.fn.dialog).toHaveBeenCalledTimes(1)
     expect(currentUI.optionsDialog.length).toBe(1)
     expect(currentUI.buttonCount(0)).toEqual(2)
@@ -521,7 +552,7 @@ describe('ObserverCustom', () => {
     expect(mObsFactory.CallList.size()).toEqual(2)
     var expectedCmd = 'CORE->unlock(LOCK_IDENT=\'lucterios.contacts.models-LegalEntity-1\',)'
     expect(mObsFactory.CallList.get(0)).toEqual(expectedCmd)
-    expectedCmd = 'lucterios.contacts->currentStructureAddModify(LOCK_IDENT=\'lucterios.contacts.models-LegalEntity-1\',name=\'AAA\',address=\'BBB{[br/]}CCC\',postal_code=\'123456\',city=\'DDDD\',country=\'EEEE\',tel1=\'FFFFF\',tel2=\'GGGGG\',email=\'IIIII\',comment=\'LL{[br/]}MMMM{[br/]}NN\',identify_number=\'JJ{[br/]}KKKK\',custom_1=\'\',custom_2=\'1\',custom_4=\'0\',custom_5=\'n\',SAVE=\'YES\',)'
+    expectedCmd = 'lucterios.contacts->currentStructureAddModify(LOCK_IDENT=\'lucterios.contacts.models-LegalEntity-1\',name=\'AAA\',address=\'BBB{[br/]}CCC\',postal_code=\'123456\',city=\'DDDD\',country=\'EEEE\',tel1=\'FFFFF\',tel2=\'GGGGG\',email=\'IIIII\',comment=\'LL{[br/]}MMMM{[br/]}NN\',identify_number=\'JJ{[br/]}KKKK\',custom_1=\'\',custom_2=\'1\',custom_4=\'0\',custom_5=\'n\',captcha=\'' + captchValue.toString() + '\',SAVE=\'YES\',)'
     expect(mObsFactory.CallList.get(1)).toEqual(expectedCmd)
   })
 
