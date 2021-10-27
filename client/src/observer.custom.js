@@ -64,6 +64,10 @@ export class ObserverCustom extends ObserverGUI {
     }
   }
 
+  showMessage (msg) {
+    showMessageDialog(msg, this.getTitle())
+  }
+
   checkCompoundValid () {
     var cmp
     var compIdx
@@ -76,10 +80,7 @@ export class ObserverCustom extends ObserverGUI {
       if (cmp !== null) {
         cmp.getGUIComp().focus()
       }
-      if (lctept.message !== '') {
-        showMessageDialog(lctept.message, this.getTitle())
-      }
-      return false
+      throw lctept
     }
     return true
   }
