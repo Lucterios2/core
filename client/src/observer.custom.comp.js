@@ -22,6 +22,10 @@ if (screen.istest === undefined) {
   }
 }
 
+function encodeApostrophe (initValue) {
+  return initValue.replace('\'', '&#39;')
+}
+
 export const NULL_VALUE = 'NULL'
 
 export class CompGeneric extends CompBasic {
@@ -557,7 +561,7 @@ export class CompEdit extends CompAbstractEvent {
     var args = {
       'type': 'text'
     }
-    args.value = this.initialVal()
+    args.value = encodeApostrophe(this.initialVal())
     return this.getBuildHtml(args, true, true)
   }
 
@@ -918,7 +922,7 @@ export class CompPassword extends CompAbstractEvent {
     var args = {
       'type': 'password'
     }
-    args.value = this.initialVal()
+    args.value = encodeApostrophe(this.initialVal())
     return this.getBuildHtml(args, true, true)
   }
 
