@@ -99,6 +99,135 @@ describe('ObserverCustom', () => {
     expect(mObsFactory.CallList.size()).toEqual(0)
   })
 
+  it('Custom_Password', async () => {
+    var jsonReceive = {
+      'data': {
+        'img': '/static/lucterios.CORE/images/passwd.png',
+        'newpass1': '',
+        'newpass2': ''
+      },
+      'comp': [
+        {
+          'name': 'img',
+          'component': 'IMAGE',
+          'description': '',
+          'tab': 0,
+          'x': 0,
+          'y': 0,
+          'colspan': 1,
+          'rowspan': 3,
+          'needed': false,
+          'type': ''
+        },
+        {
+          'name': 'newpass1',
+          'component': 'PASSWD',
+          'description': 'nouveau mot de passe',
+          'tab': 0,
+          'x': 1,
+          'y': 0,
+          'colspan': 1,
+          'rowspan': 1,
+          'needed': false,
+          'security': 1
+        },
+        {
+          'name': 'newpass2',
+          'component': 'PASSWD',
+          'description': 're-nouveau mot de passe',
+          'tab': 0,
+          'x': 1,
+          'y': 1,
+          'colspan': 1,
+          'rowspan': 1,
+          'needed': false,
+          'security': 1
+        }
+      ],
+      'actions': [
+        {
+          'text': 'Ok',
+          'id': 'CORE/modifyPassword',
+          'icon': '/static/lucterios.CORE/images/ok.png',
+          'extension': 'CORE',
+          'action': 'modifyPassword',
+          'modal': '1',
+          'close': '1',
+          'unique': '1',
+          'method': 'POST',
+          'params': null
+        },
+        {
+          'text': 'Annuler',
+          'id': '',
+          'icon': '/static/lucterios.CORE/images/cancel.png',
+          'modal': '1',
+          'close': '1',
+          'unique': '1',
+          'method': 'POST',
+          'params': null
+        }
+      ],
+      'meta': {
+        'observer': 'core.custom',
+        'extension': 'CORE',
+        'action': 'changePassword',
+        'title': 'Mot de passe'
+      },
+      'context': {},
+      'close': null
+    }
+    currentUI.clean()
+    var obs = new ObserverCustom()
+    obs.setSource('CORE', 'changePassword')
+    obs.setContent(jsonReceive)
+    obs.show('Mot de passe', FORM_MODAL)
+
+    var gui = obs.getGUI()
+    expect(gui != null).toEqual(true)
+    expect(gui.isExist()).toEqual(true)
+    var jcnt = gui.getHtmlDom()
+
+    var comp = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(0) > lct-cell > img')
+    var img = comp.attr('src')
+    expect(img.substring(0, img.indexOf('='))).toEqual('STUB//static/lucterios.CORE/images/passwd.png?val')
+
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > label')
+    expect(comp.html()).toEqual('nouveau mot de passe')
+
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(0) > lct-cell > label')
+    expect(comp.html()).toEqual('re-nouveau mot de passe')
+
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > lct-ctrl > input')
+    comp.val('empty')
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(0) > lct-cell > lct-ctrl > input')
+    comp.val('empty')
+
+    expect($.fn.dialog).toHaveBeenCalledTimes(1)
+    expect(currentUI.optionsDialog.length).toBe(1)
+    expect(currentUI.buttonCount(0)).toEqual(2)
+    expect(currentUI.getTextButton(0, 0)).toEqual('Ok')
+    expect(currentUI.getTextButton(0, 1)).toEqual('Annuler')
+
+    mObsFactory.init()
+
+    expect(mObsFactory.CallList.size()).toEqual(0)
+    await currentUI.clickButton(0, 0)
+    expect(currentUI.optionsDialog.length).toBe(2)
+    expect(mObsFactory.CallList.size()).toEqual(0)
+
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(1) > lct-cell > lct-ctrl > input')
+    comp.val('Empty123')
+    comp = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(0) > lct-cell > lct-ctrl > input')
+    comp.val('Empty123')
+    await currentUI.clickButton(0, 0)
+
+    expect(!gui.isExist()).toEqual(true)
+    expect(mObsFactory.CallList.size()).toEqual(1)
+    var expectedCmd = 'CORE->modifyPassword(newpass1=\'Empty123\',newpass2=\'Empty123\',)'
+    expect(mObsFactory.CallList.get(0)).toEqual(expectedCmd)
+  })
+
   it('Custom_EditMemo', async () => {
     var jsonReceive = {
       'context': {

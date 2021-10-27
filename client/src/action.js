@@ -167,22 +167,28 @@ export class ActionAbstract {
   }
 
   async actionPerformed () {
-    var param = this.getParameters()
-    if ((this.mOwner !== null) && (this.mClose)) {
-      await this.mOwner.close()
-    }
-    if (this.mustPerforme()) {
-      if (param !== null) {
-        if (this.mOwner !== null) {
-          this.mOwner.setActive(false)
-        }
-        try {
-          await this.runAction(param)
-        } finally {
-          if ((this.mOwner !== null) && (this.mFormType !== FORM_REFRESH)) {
-            this.mOwner.setActive(true)
+    try {
+      var param = this.getParameters()
+      if ((this.mOwner !== null) && (this.mClose)) {
+        await this.mOwner.close()
+      }
+      if (this.mustPerforme()) {
+        if (param !== null) {
+          if (this.mOwner !== null) {
+            this.mOwner.setActive(false)
+          }
+          try {
+            await this.runAction(param)
+          } finally {
+            if ((this.mOwner !== null) && (this.mFormType !== FORM_REFRESH)) {
+              this.mOwner.setActive(true)
+            }
           }
         }
+      }
+    } catch (lctept) {
+      if ((this.mOwner !== null) && (this.mOwner.showMessage !== undefined) && (lctept.message !== '')) {
+        this.mOwner.showMessage(lctept.message, this.getTitle())
       }
     }
   }
