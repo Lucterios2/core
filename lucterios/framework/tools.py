@@ -255,7 +255,7 @@ class ActionsManage(object):
         return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, icon, condition, **options)
 
     @classmethod
-    def affect_transition(cls, state, close=CLOSE_NO, multi_list=None, **options):
+    def affect_transition(cls, state, close=CLOSE_NO, multi_list=None, only_one=None, ignore_all=None, ignore_grid=None, **options):
         def wrapper(xclass):
             xclass.trans_list = {}
             for field in xclass.model._meta.get_fields():
@@ -276,19 +276,21 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
 
-                        cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s')) and getattr(xfer.item,'%s') == %d" % (transition.name, state, state, transition.source)
-                        cond_fct = eval(cmd)
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
-                                               "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
+                        if ((only_one is None) or (transition.name in only_one)) and ((ignore_all is None) or (transition.name not in ignore_all)):
+                            cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s')) and getattr(xfer.item,'%s') == %d" % (transition.name, state, state, transition.source)
+                            cond_fct = eval(cmd)
+                            cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
+                                                   "images/transition.png", cond_fct, intop=True, close=close, **new_dict)
 
-                        cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
-                        cond_fct = eval(cmd)
-                        if isinstance(multi_list, tuple) and (transition.name in multi_list):
-                            unique_opt = SELECT_MULTI
-                        else:
-                            unique_opt = SELECT_SINGLE
-                        cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png",
-                                               cond_fct, intop=False, close=CLOSE_NO, unique=unique_opt, **new_dict)
+                            if (ignore_grid is None) or (transition.name not in ignore_grid):
+                                cmd = "lambda xfer, gridname='': xfer.getparam('%s_filter', -1) == %d" % (state, transition.source)
+                                cond_fct = eval(cmd)
+                                if isinstance(multi_list, tuple) and (transition.name in multi_list):
+                                    unique_opt = SELECT_MULTI
+                                else:
+                                    unique_opt = SELECT_SINGLE
+                                cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, "images/transition.png",
+                                                       cond_fct, intop=False, close=CLOSE_NO, unique=unique_opt, **new_dict)
             return xclass
         return wrapper
 
@@ -433,21 +435,20 @@ def get_dico_from_setquery(setquery):
         for record in setquery:
             try:
                 rigths = str(record.codename).split("_")
-                if rigths[0] not in ['add', 'change', 'view', 'delete']:
-                    res_dico.append((str(record.id), str(_(record.name))))
+                if rigths[0] == 'add':
+                    rigth_name = _('add')
+                elif (rigths[0] == 'change'):
+                    rigth_name = _('view')
+                elif rigths[0] == 'delete':
+                    rigth_name = _('delete')
+                elif rigths[0] == 'view':
+                    continue
                 else:
-                    if rigths[0] == 'add':
-                        rigth_name = _('add')
-                    elif (rigths[0] == 'change'):
-                        rigth_name = _('view')
-                    elif rigths[0] == 'delete':
-                        rigth_name = _('delete')
-                    elif rigths[0] == 'view':
-                        continue
-                    res_dico.append((str(record.id),
-                                     "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
-                                                       record.content_type.name,
-                                                       rigth_name)))
+                    rigth_name = _(rigths[0])
+                res_dico.append((str(record.id),
+                                 "[%s] %s : %s" % (get_app_title(record.content_type.app_label),
+                                                   record.content_type.name,
+                                                   rigth_name)))
             except LookupError:
                 pass
         res_dico.sort(key=lambda item: item[1])
