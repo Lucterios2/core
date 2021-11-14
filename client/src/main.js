@@ -33,6 +33,7 @@ function standardInitial () {
 
   SingletonClose()
   Singleton().mWaitingOn = function () {
+    JsLoadingOverlay.stylesheetBaseURL = 'css/'
     JsLoadingOverlay.show({
       'overlayBackgroundColor': '#666666',
       'overlayOpacity': '0.6',

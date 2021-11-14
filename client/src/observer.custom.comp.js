@@ -798,6 +798,11 @@ export class CompMemo extends CompAbstractEvent {
     var self = this
     this.addActionEx(0)
     if (this.withHypertext) {
+      if (tinymce.get(self.getIdent()) !== null) {
+        try {
+          tinymce.remove('#' + this.getIdent())
+        } catch (err) {}
+      }
       tinymce.init({
         selector: '#' + this.getIdent()
       })
@@ -809,8 +814,8 @@ export class CompMemo extends CompAbstractEvent {
           var text, value
           value = ui.item[0].attributes.value
           if (value) {
-            text = $('#' + self.getId()).val()
-            $('#' + self.getId()).jqteVal(text + '#' + value.nodeValue)
+            text = $('#' + self.getIdent()).val()
+            tinymce.get(self.getIdent()).setContent(text + '#' + value.nodeValue)
           }
         }
       })
