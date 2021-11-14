@@ -751,3 +751,7 @@ img.memobtn {
 	display: block;
 	border: black solid 1px;
 }
+
+span.tox-statusbar__branding {
+    display: none;
+}
