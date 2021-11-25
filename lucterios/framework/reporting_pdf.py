@@ -105,7 +105,7 @@ class ConvertHTML_XMLReportlab(object):
                 item_target.tail = ""
             item_target.tail += item_source.tail
 
-    def _parse_span(self):
+    def _parse_span(self, text):
         xmlrl_item = None
         if 'font-size' in self.current_style:
             xmlrl_item = self._new_para()
@@ -115,7 +115,9 @@ class ConvertHTML_XMLReportlab(object):
             xmlrl_item.attrib['color'] = self.current_style['color']
         return xmlrl_item
 
-    def _parse_p(self):
+    def _parse_p(self, text):
+        if text is None:
+            return None
         if self.no_para:
             xmlrl_item = etree.Element("div")
             xmlrl_item.text = " "
@@ -126,24 +128,24 @@ class ConvertHTML_XMLReportlab(object):
             xmlrl_item.attrib['align'] = self.html_item.attrib['align']
         return xmlrl_item
 
-    def _parse_blockquote(self):
+    def _parse_blockquote(self, text):
         xmlrl_item = self._new_para()
         xmlrl_item.attrib['lindent'] = '20'
         if self.html_item.tag in self.options.keys():
             self.options[self.html_item.tag] += 1
         return xmlrl_item
 
-    def _parse_ul(self):
+    def _parse_ul(self, text):
         if self.html_item.tag in self.options.keys():
             self.options[self.html_item.tag] += 1
         return etree.Element('div')
 
-    def _parse_ol(self):
+    def _parse_ol(self, text):
         if self.html_item.tag in self.options.keys():
             self.options[self.html_item.tag] += 1
         return etree.Element('div')
 
-    def _parse_li(self):
+    def _parse_li(self, text):
         prefix = "\u00a0" * 4
         if self.options['ul'] > 0:
             bullet_element = etree.Element('b')
@@ -158,12 +160,12 @@ class ConvertHTML_XMLReportlab(object):
             self.xmlrl_result.append(bullet_element)
         return etree.Element('div')
 
-    def _parse_center(self):
+    def _parse_center(self, text):
         xmlrl_item = self._new_para()
         xmlrl_item.attrib['align'] = "center"
         return xmlrl_item
 
-    def _parse_hr(self):
+    def _parse_hr(self, text):
         xmlrl_item = self._new_para()
         xmlrl_item.attrib['borderColor'] = 'rgb(0,0,0)'
         xmlrl_item.attrib['borderWidth'] = '1pt'
@@ -172,7 +174,7 @@ class ConvertHTML_XMLReportlab(object):
         self.xmlrl_result.append(xmlrl_item)
         return None
 
-    def _parse_font(self):
+    def _parse_font(self, text):
         if self.html_item.attrib.get('Font-weight') == "bold":
             xmlrl_item = etree.Element('b')
         elif self.html_item.attrib.get('Font-style') == "italic":
@@ -247,7 +249,7 @@ class ConvertHTML_XMLReportlab(object):
         xmlrl_item = None
         if hasattr(self, "_parse_%s" % self.html_item.tag):
             funct = getattr(self, "_parse_%s" % self.html_item.tag)
-            xmlrl_item = funct()
+            xmlrl_item = funct(self.html_item.text)
         else:
             xmlrl_item = etree.Element(self.html_item.tag)
             self.fill_attrib(self.html_item, xmlrl_item)
