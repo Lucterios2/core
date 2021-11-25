@@ -4,6 +4,7 @@ import { LucteriosException, CRITIC, IMPORTANT, MINOR, postLog, unusedVariables,
 import { Singleton } from './singleton.js'
 import { SELECT_NONE, SELECT_SINGLE, SELECT_MULTI } from './action.js'
 import { CompBasic, formatToString } from './gui.utils.js'
+/* import ContextMenu from './contextmenu.js' */
 const $ = require('jquery')
 const util = require('util')
 const atob = require('atob')
@@ -676,6 +677,7 @@ export class CompFloat extends CompAbstractEvent {
 class EditorMenu {
   constructor (ownerId, selector, aSubMenu, callback) {
     var isubMenu, subMenu
+    var self = this
     this.ownerId = ownerId
     this.selector = selector
     if (callback) {
@@ -683,10 +685,17 @@ class EditorMenu {
     } else {
       this.callback = $.proxy(this.defaultCallback, this)
     }
-    this.submenus = {}
+    this.submenus = []
     for (isubMenu = 0; isubMenu < aSubMenu.length; isubMenu++) {
       subMenu = aSubMenu[isubMenu]
-      this.submenus[subMenu[1]] = { name: subMenu[0] }
+      this.submenus.push({
+        text: subMenu[0],
+        events: {
+          click: function (e) {
+            self.callback(subMenu[1])
+          }
+        }
+      })
     }
   }
 
@@ -695,8 +704,11 @@ class EditorMenu {
   }
 
   addMenuAction () {
-    if (Object.keys(this.submenus).length > 0) {
-      $('#' + this.ownerId).contextMenu({ selector: this.selector, items: this.submenus, callback: this.callback })
+    if (this.submenus.length > 0) {
+      /* const cmInstance = new ContextMenu(this.submenus)
+      document.querySelector('#' + this.ownerId + '>' + this.selector).addEventListener('contextmenu', function (e) {
+        cmInstance.display(e)
+      }) */
     }
   }
 
