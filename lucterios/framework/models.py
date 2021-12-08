@@ -216,8 +216,9 @@ class LucteriosModel(models.Model):
 
     @classmethod
     def _convert_field_booleanfield(cls, fieldvalue, **_args):
-        fieldvalue = (str(fieldvalue) == 'True') or (str(fieldvalue).lower() == 'yes') or (str(fieldvalue).lower() == 'oui') or (fieldvalue != 0)
-        return fieldvalue
+        tmp_value = str(fieldvalue).lower().strip()
+        field_value = (tmp_value == 'true') or (tmp_value[0] == 'y') or (tmp_value[0] == 'o') or (tmp_value == '1')
+        return field_value
 
     @classmethod
     def _convert_field_foreignkey(cls, fieldvalue, dep_field, fieldname, **_args):
