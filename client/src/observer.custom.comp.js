@@ -1444,6 +1444,7 @@ export class CompUpload extends CompGeneric {
   getFileContentBase64 () {
     this.content = null
     this.content_isloading = true
+    Singleton().Transport().waitingOn()
     if (this.compress) {
       var self = this
       var zip = new JSZip()
@@ -1501,18 +1502,27 @@ export class CompUpload extends CompGeneric {
   getEncodeFile (fileToSend) {
     var size
     var reader
+    var message
+    var comp
+    Singleton().Transport().waitingOff()
+    this.contentIsloading = false
     if (fileToSend.size > this.maxsize) {
       size = this.maxsize / (1024 * 1024)
-      throw new LucteriosException(IMPORTANT, util.format(Singleton().getTranslate('Upload impossible<br/>The file must be less than %sMo '), size))
+      message = util.format(Singleton().getTranslate('Upload impossible{[br/]}The file must be less than %sMo '), size)
+      if ((this.owner !== null) && (this.owner.showMessage !== undefined)) {
+        this.owner.showMessage(message, 3)
+      }
+      comp = this.getGUIComp()
+      comp[0].files = []
+      this.selectedFile = null
+      return
     }
     if (this.httpFile) {
       this.content = fileToSend
-      this.contentIsloading = false
     } else {
       reader = new FileReader()
       reader.onload = $.proxy(function (readerEvt) {
         this.content = readerEvt.target.result
-        this.contentIsloading = false
       }, this)
       reader.readAsDataURL(fileToSend)
     }

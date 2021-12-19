@@ -188,7 +188,7 @@ export class ActionAbstract {
       }
     } catch (lctept) {
       if ((this.mOwner !== null) && (this.mOwner.showMessage !== undefined) && (lctept.message !== '')) {
-        this.mOwner.showMessage(lctept.message, this.getTitle())
+        this.mOwner.showMessage(lctept.message, 4)
       }
     }
   }

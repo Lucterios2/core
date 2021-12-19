@@ -116,7 +116,7 @@ class ConvertHTML_XMLReportlab(object):
         return xmlrl_item
 
     def _parse_p(self, text):
-        if text is None:
+        if (text is None) and (len(self.html_item) == 0):
             return None
         if self.no_para:
             xmlrl_item = etree.Element("div")
