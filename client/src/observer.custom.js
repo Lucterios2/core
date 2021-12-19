@@ -64,8 +64,8 @@ export class ObserverCustom extends ObserverGUI {
     }
   }
 
-  showMessage (msg) {
-    showMessageDialog(msg, this.getTitle())
+  showMessage (msg, aType) {
+    showMessageDialog(msg, this.getTitle(), aType)
   }
 
   checkCompoundValid () {

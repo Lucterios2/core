@@ -49,9 +49,13 @@ export class ObserverDialogBox extends ObserverGUI {
   }
 }
 
-export var showMessageDialog = function (aText, aTitle) {
+export var showMessageDialog = function (aText, aTitle, aType) {
   var obs = new ObserverDialogBox()
-  obs.mType = 0
+  if (aType === undefined) {
+    obs.mType = 0
+  } else {
+    obs.mType = aType
+  }
   obs.mText = aText
   obs.show(aTitle)
 }
