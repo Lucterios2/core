@@ -576,6 +576,12 @@ class XferCompSelect(XferCompButton):
         self.value = value
         self._check_case()
 
+    def remove_select(self, value_to_remove):
+        self.select_list = list(self.select_list)
+        removes = [item for item in self.select_list if item[0] == value_to_remove]
+        for remove in removes:
+            self.select_list.remove(remove)
+
     def get_value_text(self):
         if isinstance(self.select_list, dict):
             return self.select_list[self.value]

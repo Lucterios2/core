@@ -821,13 +821,13 @@ class SavedCriteria(LucteriosModel):
 
 @Signal.decorate('checkparam')
 def core_checkparam():
-    Parameter.check_and_create(name='CORE-GUID', typeparam=0, title=_("CORE-GUID"), args="{'Multi':False}", value='')
-    Parameter.check_and_create(name='CORE-connectmode', typeparam=4, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
+    Parameter.check_and_create(name='CORE-GUID', typeparam=Parameter.TYPE_STRING, title=_("CORE-GUID"), args="{'Multi':False}", value='')
+    Parameter.check_and_create(name='CORE-connectmode', typeparam=Parameter.TYPE_SELECT, title=_("CORE-connectmode"), args="{'Enum':3}", value='0',
                                param_titles=(_("CORE-connectmode.0"), _("CORE-connectmode.1"), _("CORE-connectmode.2")))
-    Parameter.check_and_create(name='CORE-Wizard', typeparam=3, title=_("CORE-Wizard"), args="{}", value='True')
-    Parameter.check_and_create(name='CORE-MessageBefore', typeparam=0, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
-    Parameter.check_and_create(name='CORE-AuditLog', typeparam=0, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
-    Parameter.check_and_create(name='CORE-PluginPermission', typeparam=0, title=_("CORE-PluginPermission"), args="{'Multi':True, 'HyperText':False}", value='{}')
+    Parameter.check_and_create(name='CORE-Wizard', typeparam=Parameter.TYPE_BOOL, title=_("CORE-Wizard"), args="{}", value='True')
+    Parameter.check_and_create(name='CORE-MessageBefore', typeparam=Parameter.TYPE_STRING, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
+    Parameter.check_and_create(name='CORE-AuditLog', typeparam=Parameter.TYPE_STRING, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
+    Parameter.check_and_create(name='CORE-PluginPermission', typeparam=Parameter.TYPE_STRING, title=_("CORE-PluginPermission"), args="{'Multi':True, 'HyperText':False}", value='{}')
 
     LucteriosGroup.redefine_generic(_("# Core (administrator)"), Parameter.get_permission(True, True, True), SavedCriteria.get_permission(True, True, True), LucteriosLogEntry.get_permission(True, True, True),
                                     LucteriosGroup.get_permission(True, True, True), LucteriosUser.get_permission(True, True, True),
