@@ -126,6 +126,8 @@ class XferContainerAbstract(View):
                 param_value = param_value.replace(',', ';').split(';') if param_value != '' else []
             elif param_value == NULL_VALUE:
                 param_value = None
+            if (param_value is None) and (default_value == NULL_VALUE):
+                param_value = NULL_VALUE
         except (ValueError, KeyError):
             param_value = default_value
         return param_value
