@@ -34,7 +34,8 @@ import sys
 from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
     QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit,\
     QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout,\
-    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout
+    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout, QInputDialog,\
+    QPushButton
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
 
@@ -94,8 +95,15 @@ class AboutDlg(QDialog):
     def __init__(self, title):
         super(AboutDlg, self).__init__()
         self.setWindowTitle(title)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        buttonBox.accepted.connect(self.accept)
+        self.buttonClean = QPushButton(gettext('Clean'))
+        self.buttonClean.clicked.connect(self.clean_url)
+        self.buttonAdd = QPushButton(gettext('Add'))
+        self.buttonAdd.clicked.connect(self.add_url)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
+        self.buttonBox.addButton(self.buttonClean, QDialogButtonBox.ActionRole)
+        self.buttonBox.addButton(self.buttonAdd, QDialogButtonBox.ActionRole)
+        self.buttonBox.accepted.connect(self.accept)
+
         self.content = QLabel(self)
         self.content.setAlignment(Qt.AlignTop or Qt.AlignRight)
         self.content.setTextFormat(Qt.RichText)
@@ -106,14 +114,17 @@ class AboutDlg(QDialog):
         icon = QLabel(self)
         icon.setAlignment(Qt.AlignTop or Qt.AlignCenter)
         icon.setPixmap(QPixmap(join(dirname(import_module('lucterios.install').__file__), "lucterios.png")))
-        layouth = QHBoxLayout()
-        layouth.addWidget(icon)
-        layouth.addWidget(scroll)
+        layoutCmp = QHBoxLayout()
+        layoutCmp.addWidget(icon)
+        layoutCmp.addWidget(scroll)
 
-        layoutv = QVBoxLayout()
-        layoutv.addLayout(layouth)
-        layoutv.addWidget(buttonBox)
-        self.setLayout(layoutv)
+        layoutBt = QHBoxLayout()
+        layoutBt.addWidget(self.buttonBox)
+
+        layoutMain = QVBoxLayout()
+        layoutMain.addLayout(layoutCmp)
+        layoutMain.addLayout(layoutBt)
+        self.setLayout(layoutMain)
         self.setFixedSize(QSize(750, 550))
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -125,8 +136,32 @@ class AboutDlg(QDialog):
         lct_glob = LucteriosGlobal()
         self.mod_lucterios, self.mod_applis, self.mod_modules = lct_glob.installed()
         self.extra_urls = lct_glob.get_extra_urls()
+        if len(self.extra_urls) == 0:
+            self.buttonClean.hide()
+            self.buttonAdd.show()
+        else:
+            self.buttonAdd.hide()
+            self.buttonClean.show()
 
-    def show(self):
+    def reload(self):
+        self.refresh_data()
+        self.fill_content()
+        self.repaint()
+        self.update()
+
+    def clean_url(self):
+        lct_glob = LucteriosGlobal()
+        lct_glob.set_extra_urls("")
+        self.reload()
+
+    def add_url(self):
+        new_url, ok = QInputDialog.getText(self, 'Input Dialog', gettext('Enter your PyPi server url:'))
+        if ok:
+            lct_glob = LucteriosGlobal()
+            lct_glob.set_extra_urls(new_url)
+        self.reload()
+
+    def fill_content(self):
         from platform import python_version
         import os
         CONST_LIGNE = "<tr><th width='30%%'>%s</th><td width='70%%'>%s<br/></td></tr>"
@@ -159,6 +194,11 @@ class AboutDlg(QDialog):
 
         about_content += "</table>"
         self.content.setText(about_content)
+        self.content.repaint()
+        self.content.update()
+
+    def show(self):
+        self.fill_content()
         self.exec_()
 
 

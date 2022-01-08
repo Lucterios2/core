@@ -239,6 +239,17 @@ class LucteriosGlobal(LucteriosManage):
                         extra_urls.append(line)
         return extra_urls
 
+    def set_extra_urls(self, extra_url):
+        def url_ok(url):
+            import requests
+            response = requests.head(url, timeout=10)
+            return response.status_code < 400
+        with open(join(self.instance_path, EXTRA_URL), mode='w', encoding='utf-8') as url_file:
+            url_file.write("# Pypi server\n")
+            for line in extra_url.split(';'):
+                if line.startswith('http') and url_ok(line):
+                    url_file.write(line + "\n")
+
     def get_default_args_(self, other_args, with_quiet=True):
         import logging
         logging.captureWarnings(True)
