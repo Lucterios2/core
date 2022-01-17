@@ -275,7 +275,7 @@ class LucteriosGlobal(LucteriosManage):
 
     def get_pip_outdated(self):
         options = " ".join(self.get_default_args_([], with_quiet=False))
-        outdated_list = check_output("pip list %s --outdated --format json" % options, shell=True)
+        outdated_list = check_output("python3 -m pip list %s --outdated --format json" % options, shell=True)
         return {outdated_item['name']: (outdated_item['version'], outdated_item['latest_version']) for outdated_item in loads(outdated_list)}
 
     def check(self):
