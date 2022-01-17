@@ -27,8 +27,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from shutil import move
-from os import mkdir
-from os.path import join, isdir, isfile, abspath
+from os import mkdir, environ
+from os.path import join, isdir, isfile, abspath, dirname
 from optparse import OptionParser
 from importlib import import_module
 from time import sleep
@@ -37,6 +37,7 @@ import sys
 import os
 from json import loads, dumps
 from subprocess import call, check_output
+from sys import executable
 
 
 INSTANCE_PATH = '.'
@@ -274,8 +275,15 @@ class LucteriosGlobal(LucteriosManage):
         return args
 
     def get_pip_outdated(self):
+        env_variables = {}
+        for env_key, env_val in environ.items():
+            env_variables[env_key] = env_val
+        if (("virt" in executable) or ("venv" in executable)) and ('VIRTUAL_ENV' not in env_variables):
+            virtual_env = dirname(dirname(executable))
+            env_variables['VIRTUAL_ENV'] = virtual_env
+            env_variables['PATH'] = virtual_env + '/bin:' + env_variables['PATH']
         options = " ".join(self.get_default_args_([], with_quiet=False))
-        outdated_list = check_output("python3 -m pip list %s --outdated --format json" % options, shell=True)
+        outdated_list = check_output("python3 -m pip list %s --outdated --format json" % options, shell=True, env=env_variables)
         return {outdated_item['name']: (outdated_item['version'], outdated_item['latest_version']) for outdated_item in loads(outdated_list)}
 
     def check(self):
