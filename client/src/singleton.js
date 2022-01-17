@@ -28,19 +28,8 @@ export function setConfigServers (callBack) {
 }
 
 export class FileManager {
-  saveBlob (aBlob, aFileName) {
-    var self = this
-    var reader = new FileReader()
-    reader.onload = function (event) {
-      var content = event.target.result
-      var pos
-      if (content.substr(0, 5) === 'data:') {
-        pos = content.indexOf(';base64,')
-        content = content.substr(pos + 8)
-      }
-      self.saveFile(content, aFileName)
-    }
-    reader.readAsDataURL(aBlob)
+  saveBlob (aResponse, aFileName) {
+    this.openBlob(aResponse.data, aFileName)
   }
 
   saveFile (aContent, aFileName) {
@@ -53,8 +42,6 @@ export class FileManager {
     var byteArray
     var byteNumbers
     var slice
-    var mouseEvent
-    var hyperlink
     byteArrays = new [].constructor()
     for (offset = 0; offset < byteCharacters.length; offset += sliceSize) {
       slice = byteCharacters.slice(offset, offset + sliceSize)
@@ -65,14 +52,18 @@ export class FileManager {
       byteArray = new Uint8Array(byteNumbers)
       byteArrays.push(byteArray)
     }
-    blob = new Blob(byteArrays, {
-      type: 'application/x-json'
-    })
+    blob = new Blob(byteArrays, {type: 'application/x-json'})
+    this.openBlob(blob, aFileName)
+  }
+
+  openBlob (aBlob, aFileName) {
+    var mouseEvent
+    var hyperlink
     if (window.navigator.msSaveOrOpenBlob) {
-      window.navigator.msSaveOrOpenBlob(blob, aFileName)
+      window.navigator.msSaveOrOpenBlob(aBlob, aFileName)
     } else {
       hyperlink = document.createElement('a')
-      hyperlink.href = URL.createObjectURL(blob)
+      hyperlink.href = URL.createObjectURL(aBlob)
       hyperlink.target = '_blank'
       hyperlink.download = aFileName
       mouseEvent = document.createEvent('MouseEvent')
@@ -83,23 +74,6 @@ export class FileManager {
       } else if (window.webkitURL) {
         window.webkitURL.revokeObjectURL(hyperlink.href)
       }
-    }
-  }
-
-  oldSaveFile (aContent, aFileName) {
-    var hyperlink = document.createElement('a')
-    var mouseEvent
-    hyperlink.href = 'data:application/x-json;base64,' + aContent
-    hyperlink.target = '_blank'
-    hyperlink.download = aFileName
-
-    mouseEvent = document.createEvent('MouseEvent')
-    mouseEvent.initMouseEvent('click', true, true, window, 0, 0, 0, 80, 20, false, false, false, false, 0, null)
-    hyperlink.dispatchEvent(mouseEvent)
-    if (window.URL) {
-      window.URL.revokeObjectURL(hyperlink.href)
-    } else if (window.webkitURL) {
-      window.webkitURL.revokeObjectURL(hyperlink.href)
     }
   }
 }
