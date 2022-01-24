@@ -120,6 +120,16 @@ class UrlPatterns(list):
         self.extend(staticfiles_urlpatterns())
 
 
+def request_config():
+    try:
+        from django.http import request
+        from django.utils.regex_helper import _lazy_re_compile
+        if hasattr(request, "host_validation_re"):
+            setattr(request, "host_validation_re", _lazy_re_compile(r"^([a-z0-9.-_]+|\[[a-f0-9]*:[a-f0-9\.:]+\])(:\d+)?$"))
+    except Exception:
+        logging.getLogger('lucterios.core.init').exception("Error to config request")
+
+
 def get_url_patterns():
     url_patterns = UrlPatterns()
     for appname in settings.INSTALLED_APPS:
@@ -130,6 +140,7 @@ def get_url_patterns():
     logging.getLogger('lucterios.core.init').debug("Urls:" + '\n'.join(str(res_item) for res_item in url_patterns))
     Signal.call_signal("auditlog_register")
     LucteriosAuditlogModelRegistry.main_enabled()
+    request_config()
     return url_patterns
 
 
