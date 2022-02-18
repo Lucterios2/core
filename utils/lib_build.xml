@@ -182,7 +182,8 @@
 	<target name="add_instance">
 		<exec executable="${project.pythonexe}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
-			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
+			<arg value="-m" />
+			<arg value="lucterios.install.lucterios_admin" />
 			<arg value="add" />
 			<arg value="--name=${project.test.instance}" />
 			<arg value="--appli=${project.appli}" />
@@ -194,7 +195,8 @@
 	<target name="del_instance">
 		<exec executable="${project.pythonexe}" failonerror="true">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
-			<arg value="${core.path}/lucterios/install/lucterios_admin.py" />
+			<arg value="-m" />
+			<arg value="lucterios.install.lucterios_admin" />
 			<arg value="delete" />
 			<arg value="--name=${project.test.instance}" />
 			<arg value="--instance_path=${basedir}" />
