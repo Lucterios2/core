@@ -1,4 +1,5 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
+	<property environment="env" />
 	<property name="core.path" value="${basedir}/../lct-core" />
 	<property name="project.test.source" value="" />
 	<property name="project.test.omit" value="*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
@@ -12,7 +13,6 @@
 	<property name="project.pythonpath" value="${env.PYTHONPATH}" />
 	<property name="project.modules" value="" />
 	<property name="project.appli" value="lucterios.standard" />
-	<property environment="env" />
 
 	<taskdef resource="net/sf/antcontrib/antlib.xml">
 		<classpath>
