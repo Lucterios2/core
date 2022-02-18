@@ -33,7 +33,7 @@ function create_requirement
     else
       SETUP_PATH=*/setup.py
     fi
-    grep 'install_requires' $SETUP_PATH  | sed 's|.*install_requires=\[||g' | sed 's|\],||g' | sed 's|, |\n|g' | sed 's|"||g' | egrep -v 'lucterios|diacamma' | sort | uniq > requirement.txt
+    grep 'install_requires' $SETUP_PATH  | sed 's|.*install_requires=\[||g' | sed 's|\],||g' | sed 's|, |\n|g' | sed 's|"||g' | sort | uniq > requirement.txt
     echo "PyCryptodome" >> requirement.txt
     echo "pycodestyle" >> requirement.txt
     echo "coverage" >> requirement.txt
@@ -56,6 +56,8 @@ function main
     [ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
     
     source $virt_name/bin/activate
+    sed '/lucterios/d' requirement.txt
+    sed '/diacamma/d' requirement.txt
     pip install -U -r requirement.txt
     pip install -U mysqlclient || echo 'mysql problem !'
     pip list
