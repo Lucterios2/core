@@ -1,6 +1,19 @@
 <project name="Lucterios2_lib" default="all" basedir=".">
 	<property environment="env" />
-	<property name="core.path" value="${basedir}/../lct-core" />
+	<exec executable="python3" outputproperty="packages.path" failifexecutionfails="false" errorproperty="">
+		<arg value="-m" />
+		<arg value="site" />
+		<arg value="--user-site" />
+	</exec>
+	<if>
+		<available file="${basedir}/../lct-core/setup.py" />
+		<then>
+			<property name="core.path" value="${basedir}/../lct-core" />
+		</then>
+		<else>
+			<property name="core.path" value="${packages.path}" />
+		</else>
+	</if>		
 	<property name="project.test.source" value="" />
 	<property name="project.test.omit" value="*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
 	<property name="project.test.include" value="" />
