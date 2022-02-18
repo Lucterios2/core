@@ -8,7 +8,7 @@ function debian_install
     apt-get install -y --fix-missing
     apt-get install -y build-essential libxml2-dev libxml2 libxslt1-dev libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev  
     apt-get install -y latexmk texlive texlive-latex-extra texlive-lang-french
-    apt-get install -y sqlite3 git sphinx libopenjp2-tools
+    apt-get install -y sqlite3 git sphinx libopenjp2-tools gettext
     apt-get install -y locales wget zip
     sed -i 's/^.*\(en_US.UTF-8\)/\1/' /etc/locale.gen
     sed -i 's/^.*\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
