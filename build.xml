@@ -100,7 +100,8 @@
 		<antcall target="test_webclient" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
-			<arg value="/usr/local/bin/coverage" />
+			<arg value="-m" />
+			<arg value="coverage" />
 			<arg value="run" />
 			<arg value="--append" />
 			<arg value="--branch" />

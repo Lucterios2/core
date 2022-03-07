@@ -15,6 +15,15 @@ function debian_install
     locale-gen    
 }
 
+function debian_advanced
+{
+	apt-get install -y postgresql-9.4 postgresql-server-dev-9.4 postgresql-contrib-9.4
+	apt-get install -y mariadb-server mariadb-client
+	apt-get install -y npm node-gyp nodejs-dev libssl1.0-dev
+	apt-get install -y libopenjp2-tools rpm winehq-stable 
+	npm install -g cordova
+}
+
 function ant_install
 {
     apt-get install -y ant
@@ -42,31 +51,57 @@ function create_requirement
     echo "wheel" >> requirement.txt
     echo "Sphinx" >> requirement.txt
     echo "psycopg2-binary" >> requirement.txt
+    echo "anybadge" >> requirement.txt
+    
+	CurrentPath=$(dirname "$(readlink -f "$0")")    
+    echo """
+from xml.dom.minidom import parse
+import glob
+failures=0
+errors=0
+tests=0
+for junit in glob.glob('./junit_*.xml'):
+	dom=parse(junit)
+	failures+=int(dom.documentElement.getAttribute('failures'))
+	errors+=int(dom.documentElement.getAttribute('errors'))
+	tests+=int(dom.documentElement.getAttribute('tests'))
+print(int(100-(failures+errors)/tests))
+""" > $CurrentPath/extract_unit.py
 }
 
 function main
 {
-    [ -z "$PYTHONVER" ] && PYTHONVER=python3
-    virt_name=$1
-    [ -z "$virt_name" ] && virt_name=virt 
-    CurrentPath=$(dirname "$(readlink -f "$0")")
-    cd $CurrentPath/../..
-    [ -d $virt_name ] && rm -rf $virt_name
-    python3 -m virtualenv --python=$PYTHONVER $virt_name
-    [ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
-    
-    source $virt_name/bin/activate
-    sed '/lucterios/d' requirement.txt
-    sed '/diacamma/d' requirement.txt
-    pip install -U -r requirement.txt
-    pip install -U mysqlclient || echo 'mysql problem !'
-    pip list
-    deactivate
+	(
+	    [ -z "$PYTHONVER" ] && PYTHONVER=python3
+	    virt_name=$1
+	    [ -z "$virt_name" ] && virt_name=virt 
+	    CurrentPath=$(dirname "$(readlink -f "$0")")
+	    cd $CurrentPath/../..
+	    [ -d $virt_name ] && rm -rf $virt_name
+	    python3 -m virtualenv --python=$PYTHONVER $virt_name
+	    [ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
+	    
+	    create_requirement
+	    
+	    source $virt_name/bin/activate
+	    sed '/lucterios/d' requirement.txt
+	    sed '/diacamma/d' requirement.txt
+	    pip install -U -r requirement.txt
+	    pip install -U mysqlclient || echo 'mysql problem !'
+	    pip list
+	    deactivate
+    )
 }
 
 if [ "$1" == "debian" ]
 then
     debian_install
+    exit 0
+fi
+
+if [ "$1" == "advanced" ]
+then
+	debian_advanced
     exit 0
 fi
 
@@ -82,5 +117,4 @@ then
     exit 0
 fi
 
-create_requirement
 main $1
