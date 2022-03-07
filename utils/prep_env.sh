@@ -19,8 +19,7 @@ function debian_advanced
 {
 	apt-get install -y postgresql-9.4 postgresql-server-dev-9.4 postgresql-contrib-9.4
 	apt-get install -y mariadb-server mariadb-client
-	apt-get install -y npm node-gyp nodejs-dev libssl1.0-dev
-	apt-get install -y libopenjp2-tools rpm winehq-stable 
+	apt-get install -y npm node-gyp libnode-dev
 	npm install -g cordova
 }
 
