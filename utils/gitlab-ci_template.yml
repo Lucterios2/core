@@ -1,0 +1,60 @@
+variable:
+  - EXTRA_PIP:
+
+before_script:
+  - >
+    if [ -d utils ]
+    then
+      mkdir utils
+      wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Fprep_env.sh/raw?ref=master -O utils/prep_env.sh
+      wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Flib_build.xml/raw?ref=master -O utils/lib_build.xml  
+      chmod +x utils/prep_env.sh
+    fi
+  - ./utils/prep_env.sh debian
+  - ./utils/prep_env.sh ant
+  - ./utils/prep_env.sh requirement
+  - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple
+  - if [ ! -z "${EXTRA_PIP}" ]; then && python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple; fi
+
+check:
+  image: python:3.8
+  stage: check
+  script:
+    - ant clear init pep8 radon 
+
+.test_basic:
+  stage: test
+  script:
+    - ant clear init add_instance i18n tests
+  coverage: /\d+\%\s*$/    
+  artifacts:
+    paths:
+      - pep8.svg
+      - unittest.svg
+      - ods/*.ods
+      - pdf/*.pdf
+    reports:
+      junit: 
+        - junit_*.xml
+      cobertura:
+        - coverage3.xml
+
+test36:
+  extends: .test_basic
+  image: python:3.6
+
+test310:
+  extends: .test_basic
+  image: python:3.10
+  
+build:
+  image: python:3.8
+  stage: build
+  script:
+    - python3 -m pip install -U twine
+    - ant clear init add_instance i18n docs package  
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --skip-existing --repository-url https://gitlab.sleto.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*.whl  
+  artifacts:
+    paths:
+      - */*/pdf/build_*/latex/*.pdf 
+  allow_failure: true
