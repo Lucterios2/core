@@ -59,3 +59,4 @@ build:
     - python3 -m pip install -U twine
     - ant clear init add_instance i18n docs package  
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --skip-existing --repository-url https://gitlab.sleto.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*.whl  
+  allow_failure: true
