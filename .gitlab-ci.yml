@@ -1,6 +1,6 @@
 include:
   - project: 'lucterios2/lucterios'
-    ref: main
+    ref: master
     file: '/utils/gitlab-ci_template.yml'
 
 before_script:
