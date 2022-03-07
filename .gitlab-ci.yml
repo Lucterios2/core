@@ -1,0 +1,61 @@
+stages:
+  - check
+  - test
+  - build
+
+before_script:
+ - ./utils/prep_env.sh debian
+ - ./utils/prep_env.sh advanced
+ - ./utils/prep_env.sh ant
+ - ./utils/prep_env.sh requirement
+ - python3 -m pip install -U -r requirement.txt
+ - python3 -m pip install -U lucterios.standard --extra-index-url https://pypi.diacamma.org/simple
+
+check:
+  image: python:3.8
+  stage: check
+  script:
+    - ant clear init pep8 radon 
+
+.test_basic:
+  stage: test
+  script:
+    - ant clear init add_instance i18n tests
+  coverage: /\d+\%\s*$/    
+  artifacts:
+    paths:
+      - pep8.svg
+      - unittest.svg
+    reports:
+      junit: 
+        - junit_*.xml
+      cobertura:
+        - coverage3.xml
+
+test36:
+  extends: .test_basic
+  image: python:3.6
+
+test37:
+  extends: .test_basic
+  image: python:3.7
+      
+test38:
+  extends: .test_basic
+  image: python:3.8
+
+test39:
+  extends: .test_basic
+  image: python:3.9
+
+test310:
+  extends: .test_basic
+  image: python:3.10
+  
+build:
+  image: python:3.8
+  stage: build
+  script:
+    - python3 -m pip install -U twine
+    - ant clear init add_instance i18n docs package  
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --skip-existing --repository-url https://gitlab.sleto.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*.whl  

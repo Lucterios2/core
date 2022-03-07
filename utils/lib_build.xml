@@ -5,6 +5,13 @@
 		<arg value="site" />
 		<arg value="--user-site" />
 	</exec>
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar" />
+		</classpath>
+	</taskdef>
+	
 	<if>
 		<available file="${basedir}/../lct-core/setup.py" />
 		<then>
@@ -26,12 +33,6 @@
 	<property name="project.pythonpath" value="${env.PYTHONPATH}" />
 	<property name="project.modules" value="" />
 	<property name="project.appli" value="lucterios.standard" />
-
-	<taskdef resource="net/sf/antcontrib/antlib.xml">
-		<classpath>
-			<pathelement location="/usr/share/java/lib/ant-contrib-0.6.jar" />
-		</classpath>
-	</taskdef>
 
 	<if>
 		<available file="${basedir}/../virt/bin/python" />
@@ -115,6 +116,7 @@
 	</target>
 
 	<target name="pep8">
+		<delete file="pep8.svg" />
 		<exec executable="${project.pythonexe}">
 			<arg line="-m" />
 			<arg line="pycodestyle" />
@@ -124,6 +126,14 @@
 		</exec>
 		<exec executable="cat">
 			<arg line="pep8_results.txt" />
+		</exec>
+		<exec executable="${project.pythonexe}" outputproperty="pep8.val" failifexecutionfails="false" errorproperty="pep8.err">
+			<arg value="-c"/>
+			<arg value="print(len(open('pep8_results.txt','r').readlines()))"/>
+		</exec>
+		<echo message="pep8.val = ${pep8.val} / ${pep8.err}" />
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg line="-m anybadge --label=PEP8 --value=${pep8.val} --file=pep8.svg 0=green 5=yellow 10=orange 15=red" />
 		</exec>
 	</target>
 
@@ -214,6 +224,7 @@
 		<delete file=".coverage" />
 		<delete file="coverage.xml" />
 		<delete file="coverage3.xml" />
+		<delete file="unittest.svg" />
 		<exec executable="${project.pythonexe}" dir="${basedir}" output="rest_api.txt" failonerror="false">
 			<arg line="manage_${project.test.instance}.py lucterios_restapi" />
 		</exec>		
@@ -237,6 +248,13 @@
 		<replace file="coverage3.xml" token='filename="${project.name}' value='filename="${basedir}/${project.name}' />
 		<replaceregexp file="coverage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
+		<exec executable="${project.pythonexe}" outputproperty="unittest.val" failifexecutionfails="false" errorproperty="unittest.err">
+			<arg value="${basedir}/utils/extract_unit.py"/>
+		</exec>
+		<echo message="unittest.val = ${unittest.val} / ${unittest.err}" />
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg line="-m anybadge --label=UnitTest --value=${unittest.val} --suffix='%' --file=unittest.svg 50=red 75=orange 99=yellow 100=green" />
+		</exec>
 	</target>
 
 	<target name="docs_comp">
