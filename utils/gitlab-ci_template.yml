@@ -1,5 +1,5 @@
 variables:
-  EXTRA_PIP:
+  EXTRA_PIP: X
 
 before_script:
   - if [ -d utils ]; then mkdir utils; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Fprep_env.sh/raw?ref=master -O utils/prep_env.sh; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Flib_build.xml/raw?ref=master -O utils/lib_build.xml; chmod +x utils/prep_env.sh; fi
@@ -7,7 +7,7 @@ before_script:
   - ./utils/prep_env.sh ant
   - ./utils/prep_env.sh requirement
   - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple
-  - if [ ! -z "${EXTRA_PIP}" ]; then python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple; fi
+  - if [ "${EXTRA_PIP}" != "X" ]; then python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple; fi
 
 check:
   image: python:3.8
