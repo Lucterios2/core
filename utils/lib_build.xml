@@ -21,6 +21,15 @@
 			<property name="core.path" value="${packages.path}" />
 		</else>
 	</if>		
+	<if>
+		<available file="${basedir}/utils/extract_unit.py" />
+		<then>
+			<property name="extract.unit" value="${basedir}/utils/extract_unit.py"/>
+		</then>
+		<else>
+			<property name="extract.unit" value="${basedir}/../lct-core/utils/extract_unit.py" />
+		</else>
+	</if>
 	<property name="project.test.source" value="" />
 	<property name="project.test.omit" value="*/management/commands/*,test/*,*/virt/lib/*,manage_test.py" />
 	<property name="project.test.include" value="" />
@@ -249,7 +258,7 @@
 		<replaceregexp file="coverage3.xml" match="&lt;source&gt;.*&lt;/source&gt;" replace="&lt;source&gt;/&lt;/source&gt;" byline="true" />
 		<replace file="${basedir}/junit_py3.xml" token="${project.name}." value="${project.name}-py3." />
 		<exec executable="${project.pythonexe}" outputproperty="unittest.val" failifexecutionfails="false" errorproperty="unittest.err">
-			<arg value="${basedir}/utils/extract_unit.py"/>
+			<arg file="${extract.unit}" />
 		</exec>
 		<echo message="unittest.val = ${unittest.val} / ${unittest.err}" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
