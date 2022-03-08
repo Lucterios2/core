@@ -61,6 +61,6 @@ build:
     - eval `ssh-agent -s`
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
-    - scp dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
+    - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
   allow_failure: true
