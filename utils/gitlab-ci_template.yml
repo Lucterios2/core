@@ -56,9 +56,11 @@ build:
   stage: build
   script:
     - ant clear init add_instance i18n docs package
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
     - eval `ssh-agent -s`
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - ssh administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
+    - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
     - scp dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
-    - ssh administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
+    - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
   allow_failure: true
