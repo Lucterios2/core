@@ -3,15 +3,10 @@ include:
     ref: master
     file: '/utils/gitlab-ci_template.yml'
 
-before_script:
-  - ./utils/prep_env.sh debian
-  - ./utils/prep_env.sh advanced
-  - ./utils/prep_env.sh ant
-  - ./utils/prep_env.sh requirement
-  - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple
-  - python3 -m pip install -U lucterios.standard --extra-index-url https://pypi.diacamma.org/simple
+variables:
+  EXTRA_PIP: lucterios.standard
 
-stages:
-  - check
-  - test
-  - build
+before_script:
+  - *before_script_start
+  - ./utils/prep_env.sh advanced
+  - *before_script_end

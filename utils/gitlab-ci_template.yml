@@ -1,13 +1,24 @@
 variables:
   EXTRA_PIP: X
 
-before_script:
+stages:
+  - check
+  - test
+  - build
+
+.before_script_start: &before_script_start
   - if [ -d utils ]; then mkdir utils; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Fprep_env.sh/raw?ref=master -O utils/prep_env.sh; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Flib_build.xml/raw?ref=master -O utils/lib_build.xml; chmod +x utils/prep_env.sh; fi
   - ./utils/prep_env.sh debian
   - ./utils/prep_env.sh ant
   - ./utils/prep_env.sh requirement
-  - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple
-  - if [ "${EXTRA_PIP}" != "X" ]; then python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple; fi
+
+.before_script_end: &before_script_end
+  - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple --extra-index-url https://pypi.lucterios.org/simple
+  - if [ "${EXTRA_PIP}" != "X" ]; then python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple  --extra-index-url https://pypi.lucterios.org/simple; fi
+
+before_script:
+  - *before_script_start
+  - *before_script_end
 
 check:
   image: python:3.8
@@ -44,7 +55,10 @@ build:
   image: python:3.8
   stage: build
   script:
-    - python3 -m pip install -U twine
-    - ant clear init add_instance i18n docs package  
-    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --verbose --skip-existing --repository-url https://gitlab.sleto.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*.whl  
+    - ant clear init add_instance i18n docs package
+    - eval `ssh-agent -s`
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - ssh administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
+    - scp dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
+    - ssh administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
   allow_failure: true
