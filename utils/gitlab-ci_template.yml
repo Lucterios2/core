@@ -1,10 +1,13 @@
 variables:
   EXTRA_PIP: X
+  APPLICATION_TARGET: lucterios
+  MANUAL_PATH: lucterios.pdf
 
 stages:
   - check
   - test
   - build
+  - integration
 
 before_script:
   - if [ -d utils ]; then mkdir utils; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Fprep_env.sh/raw?ref=master -O utils/prep_env.sh; wget --header "PRIVATE-TOKEN:${GITLAB_TOKEN}" https://gitlab.sleto.fr/api/v4/projects/1/repository/files/utils%2Flib_build.xml/raw?ref=master -O utils/lib_build.xml; chmod +x utils/prep_env.sh; fi
@@ -57,4 +60,27 @@ build:
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
     - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
-  allow_failure: true
+  artifacts:
+    paths:
+      - dist/*.whl
+      - ${MANUAL_PATH}
+
+trigger_selenium36:
+  stage: integration
+  variables:
+    TARGET: "${APPLICATION_TARGET}"
+    PYTHON_VERSION: 3.6
+    BROWSER=chrome 
+  trigger:
+    project: lucterios/test-fct
+    strategy: depend
+
+trigger_selenium310:
+  stage: integration
+  variables:
+    TARGET: "${APPLICATION_TARGET}"
+    PYTHON_VERSION: 3.10
+    BROWSER=chrome
+  trigger:
+    project: lucterios/test-fct
+    strategy: depend
