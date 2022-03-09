@@ -70,7 +70,7 @@ trigger_selenium36:
   variables:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: 3.6
-    BROWSER=chrome 
+    BROWSER: chrome 
   trigger:
     project: lucterios/test-fct
     strategy: depend
@@ -80,7 +80,7 @@ trigger_selenium310:
   variables:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: 3.10
-    BROWSER=chrome
+    BROWSER: chrome
   trigger:
     project: lucterios/test-fct
     strategy: depend
