@@ -68,7 +68,7 @@ build:
 trigger_selenium36:
   stage: integration
   variables:
-    TARGET: "${APPLICATION_TARGET}"
+    TARGET: ${APPLICATION_TARGET}
     PYTHON_VERSION: 3.6
     BROWSER: chrome 
   trigger:
@@ -78,7 +78,7 @@ trigger_selenium36:
 trigger_selenium310:
   stage: integration
   variables:
-    TARGET: "${APPLICATION_TARGET}"
+    TARGET: ${APPLICATION_TARGET}
     PYTHON_VERSION: 3.10
     BROWSER: chrome
   trigger:
