@@ -27,7 +27,9 @@ check:
   stage: test
   script:
     - ant clear init add_instance i18n tests
+    - ./utils/prep_env.sh test
   coverage: /\d+\%\s*$/    
+  allow_failure: true
   artifacts:
     paths:
       - pep8.svg

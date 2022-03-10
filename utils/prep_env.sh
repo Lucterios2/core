@@ -66,6 +66,17 @@ print(int(100-(failures+errors)/tests))
 """ > $CurrentPath/extract_unit.py
 }
 
+function check_test
+{
+	CurrentPath=$(dirname "$(readlink -f "$0")")
+	unittest=$(python3 ${CurrentPath}/extract_unit.py)
+	if [ $unittest -ne 100 ]
+	then
+		echo "UnitTest is failed ($unittest %) !"
+		exit 1 
+	fi     
+}
+
 function main
 {
 	(
@@ -111,6 +122,12 @@ fi
 if [ "$1" == "requirement" ]
 then
     create_requirement
+    exit 0
+fi
+
+if [ "$1" == "test" ]
+then
+	check_test
     exit 0
 fi
 
