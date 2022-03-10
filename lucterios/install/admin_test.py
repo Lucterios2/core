@@ -39,6 +39,7 @@ class BaseTest(unittest.TestCase):
 
     def setUp(self):
         print('>>> %s.%s >>>' % (self.__class__.__name__, self._testMethodName))
+        os.environ['LANG'] = "en_EN.UTF-8"
         self.path_dir = join(dirname(dirname(dirname(__file__))), "test")
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
@@ -58,22 +59,49 @@ class TestGlobal(BaseTest):
 
     def setUp(self):
         BaseTest.setUp(self)
-        os.environ['extra_url'] = "http://192.168.0.206/simple/"
+        os.environ['extra_url'] = "https://pypi.lucterios.org/simple/"
         delete_path(join(self.path_dir, 'extra_url'))
+        self.maxDiff = 2500
+
+    def test_package_list(self):
+        pack_list = get_package_list()
+        self.assertEqual(['lucterios', 'lucterios-contacts', 'lucterios-documents', 'lucterios-standard'], sorted(list(pack_list.keys())))
+        self.assertEqual(4, len(pack_list['lucterios']))
+        self.assertEqual('2.6.', pack_list['lucterios'][0][:4])
+        self.assertEqual([], pack_list['lucterios'][1])
+        self.assertEqual(1, len(pack_list['lucterios'][2]))
+        self.assertEqual(3, len(pack_list['lucterios'][2][0]))
+        self.assertEqual('lucterios.CORE', pack_list['lucterios'][2][0][0])
+        self.assertEqual('2.6.', pack_list['lucterios'][2][0][1][:4])
+        self.assertEqual([], pack_list['lucterios'][2][0][2])
+        self.assertEqual(12, len(pack_list['lucterios'][3]))
 
     def test_installed(self):
-        pack_list = get_package_list()
-        self.assertEqual({}, pack_list)
         val = self.luct_glo.installed()
+        self.assertEqual(3, len(val))
+        self.assertEqual(2, len(val[0]))
         self.assertEqual('lucterios', val[0][0])
-        self.assertEqual('???', val[0][1][:3])
-        self.assertEqual(([], []), val[1:])
+        self.assertEqual('2.6.', val[0][1][:4])
+        self.assertEqual(1, len(val[1]))
+        self.assertEqual(3, len(val[1][0]))
+        self.assertEqual('lucterios.standard', val[1][0][0])
+        self.assertEqual('2.6.', val[1][0][1][:4])
+        self.assertEqual(['lucterios.contacts', 'lucterios.mailing', 'lucterios.documents'], val[1][0][2])
+        self.assertEqual(3, len(val[2]))
+        self.assertEqual([3, 3, 3], [len(item) for item in val[2]])
+        self.assertEqual(['lucterios.contacts', 'lucterios.mailing', 'lucterios.documents'], [item[0] for item in val[2]])
+        self.assertEqual(['2.6.', '2.6.', '2.6.'], [item[1][:4] for item in val[2]])
+        self.assertEqual([[], ['lucterios.contacts', 'lucterios.documents'], []], [item[2] for item in val[2]])
 
     def test_check(self):
         val = self.luct_glo.check()
-        list_key = list(val[0].keys())
-        list_key.sort()
-        self.assertEqual([], list_key)
+        self.assertEqual(2, len(val))
+        self.assertEqual(['lucterios', 'lucterios-contacts', 'lucterios-documents', 'lucterios-standard'], sorted(list(val[0].keys())))
+        self.assertEqual(3, len(val[0]['lucterios']))
+        self.assertEqual('2.6.', val[0]['lucterios'][0][:4])
+        self.assertEqual('2.6.', val[0]['lucterios'][1][:4])
+        self.assertEqual(bool, type(val[0]['lucterios'][2]))
+        self.assertEqual(bool, type(val[1]))
 
     def test_refresh_all(self):
         self.assertEqual([], self.luct_glo.refreshall())
@@ -91,16 +119,16 @@ class TestGlobal(BaseTest):
             old_http_proxy = None
         try:
             self.assertEqual(
-                ['--quiet', '--extra-index-url', 'http://192.168.0.206/simple/', '--trusted-host', '192.168.0.206'], self.luct_glo.get_default_args_([]))
+                ['--quiet', '--extra-index-url', 'https://pypi.lucterios.org/simple/'], self.luct_glo.get_default_args_([]))
             del os.environ['extra_url']
             self.assertEqual(['--quiet'], self.luct_glo.get_default_args_([]))
             self.write_extraurl_file([])
             self.assertEqual(['--quiet'], self.luct_glo.get_default_args_([]))
             self.write_extraurl_file(
-                ['# pypi server list', 'http://pypi.diacamma.org/simple', 'https://pypi.supersecure.net/simple', 'http://pypi.lucterios.org/simple', ''])
+                ['# pypi server list', 'https://pypi.diacamma.org/simple', 'https://pypi.supersecure.net/simple', 'http://192.168.0.206/simple', ''])
             self.assertEqual(
-                ['--quiet', '--extra-index-url', 'http://pypi.diacamma.org/simple', '--trusted-host', 'pypi.diacamma.org', '--extra-index-url', 'https://pypi.supersecure.net/simple',
-                 '--extra-index-url', 'http://pypi.lucterios.org/simple', '--trusted-host', 'pypi.lucterios.org'], self.luct_glo.get_default_args_([]))
+                ['--quiet', '--extra-index-url', 'https://pypi.diacamma.org/simple', '--extra-index-url', 'https://pypi.supersecure.net/simple',
+                 '--extra-index-url', 'http://192.168.0.206/simple', '--trusted-host', '192.168.0.206'], self.luct_glo.get_default_args_([]))
             self.write_extraurl_file([])
             os.environ['http_proxy'] = 'http://myproxy.truc.com:8000'
             self.write_extraurl_file([])
@@ -209,7 +237,7 @@ class TestAdminSQLite(BaseTest):
 
         inst = LucteriosInstance("inst_e", self.path_dir)
         inst.read()
-        self.assertEqual({'DEBUG': True, '': {'mode': (0, 'Connexion toujours nécessaire')},
+        self.assertEqual({'DEBUG': True, '': {'mode': (0, 'Connection always needed')},
                           'ALLOWED_HOSTS': ['localhost', '127.0.0.1'], 'DEFAULT_PAGE': 'cms/',
                           "NBMAX": 5, 'PIVALUE': 3.1415}, inst.extra)
         inst.modif()
@@ -449,7 +477,7 @@ if __name__ == "__main__":
     loader = TestLoader()
     suite.addTest(loader.loadTestsFromTestCase(TestAdminSQLite))
     # suite.addTest(loader.loadTestsFromTestCase(TestAdminMySQL))
-    suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
+    # suite.addTest(loader.loadTestsFromTestCase(TestAdminPostGreSQL))
     suite.addTest(loader.loadTestsFromTestCase(TestGlobal))
     JUXDTestRunner(verbosity=1).run(suite)
 else:
