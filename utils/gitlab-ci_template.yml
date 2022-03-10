@@ -72,7 +72,7 @@ trigger_selenium36:
     PYTHON_VERSION: "3.6"
     BROWSER: chrome 
   trigger:
-    project: lucterios/test-fct
+    project: lucterios2/test-fct
     strategy: depend
 
 trigger_selenium310:
@@ -82,5 +82,5 @@ trigger_selenium310:
     PYTHON_VERSION: "3.10"
     BROWSER: chrome
   trigger:
-    project: lucterios/test-fct
+    project: lucterios2/test-fct
     strategy: depend
