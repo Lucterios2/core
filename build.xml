@@ -96,8 +96,14 @@
 		</exec>
 	</target>
 
-	<target name="test_addon">
-		<antcall target="test_webclient" />
+	<target name="test_admin">
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg value="-m" />
+			<arg value="pip" />
+			<arg value="install" />
+			<arg value="-U" />
+			<arg value="lucterios_standard" />
+		</exec>
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="-m" />
@@ -110,9 +116,13 @@
 				value="--omit=*/install/lucterios_gui.py,*/install/lucterios_qt.py,*/install/graphic_lib.py" />
 			<arg value="lucterios/install/admin_test.py" />
 		</exec>
-		<replace file="${basedir}/results.xml" token="__main__."
-			value="lucterios-py3.TestAdmin." />
+		<replace file="${basedir}/results.xml" token="__main__." value="lucterios-py3.TestAdmin." />
 		<move file="${basedir}/results.xml" tofile="junit_admin_py3.xml" />
+	</target>
+
+	<target name="test_addon">
+		<antcall target="test_webclient" />
+		<antcall target="test_admin" />
 	</target>
 
 </project>

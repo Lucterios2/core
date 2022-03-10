@@ -17,8 +17,6 @@ function debian_install
 
 function debian_advanced
 {
-	apt-get install -y postgresql-9.4 postgresql-server-dev-9.4 postgresql-contrib-9.4
-	apt-get install -y mariadb-server mariadb-client
 	apt-get install -y npm node-gyp libnode-dev
 	npm install -g cordova
 }
@@ -83,8 +81,8 @@ function main
 	    create_requirement
 	    
 	    source $virt_name/bin/activate
-	    sed '/lucterios/d' requirement.txt
-	    sed '/diacamma/d' requirement.txt
+	    sed -i '/lucterios/d' requirement.txt
+	    sed -i '/diacamma/d' requirement.txt
 	    pip install -U -r requirement.txt
 	    pip install -U mysqlclient || echo 'mysql problem !'
 	    pip list
