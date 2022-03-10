@@ -75,7 +75,10 @@ def get_local_interfaces():
 
 
 def get_lan_ip():
-    ip_address = socket.gethostbyname(socket.gethostname())
+    try:
+        ip_address = socket.gethostbyname(socket.gethostname())
+    except socket.gaierror:
+        ip_address = "127.0.0.1"
     if ip_address.startswith("127.") and os.name != "nt":
         for ip_address in get_local_interfaces().values():
             if not ip_address.startswith("127."):
