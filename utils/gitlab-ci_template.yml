@@ -64,10 +64,12 @@ build:
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'rm -rf /home/administrateur/packages/*.whl'
     - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no dist/*.whl administrateur@dns.lucterios.org:/home/administrateur/packages
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no administrateur@dns.lucterios.org 'scp /home/administrateur/packages/*.whl python:/home/administrateur/pypi_lct/packages'
+    - export SHORT_MANUAL_PATH=$(basename ${MANUAL_PATH})
+    - if [ -f "${MANUAL_PATH}" ]; then cp ${MANUAL_PATH} ${SHORT_MANUAL_PATH}; fi
   artifacts:
     paths:
       - dist/*.whl
-      - ${MANUAL_PATH}
+      - ${SHORT_MANUAL_PATH}
 
 trigger_selenium36:
   stage: integration
@@ -82,6 +84,7 @@ trigger_selenium36:
       job: ${APPLICATION_TARGET}
       ref: master
       artifacts: true
+  allow_failure: true
 
 trigger_selenium310:
   stage: integration
@@ -96,3 +99,4 @@ trigger_selenium310:
       job: ${APPLICATION_TARGET}
       ref: master
       artifacts: true
+  allow_failure: true
