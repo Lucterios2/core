@@ -43,6 +43,7 @@ def find_doc(appname):
 
 def defaultDocs(request):
     from django.shortcuts import render
+    from django.http.response import JsonResponse
     dictionary = {}
     dictionary['title'] = str(settings.APPLIS_NAME)
     dictionary['subtitle'] = settings.APPLIS_SUBTITLE()
@@ -57,4 +58,7 @@ def defaultDocs(request):
             if help_item is not None:
                 dictionary['menus'].append(help_item)
     dictionary['menus'].append(find_doc('lucterios.CORE'))
-    return render(request, 'main_docs.html', context=dictionary)
+    if 'json' in request.GET:
+        return JsonResponse(dictionary, json_dumps_params={'indent': 3})
+    else:
+        return render(request, 'main_docs.html', context=dictionary)
