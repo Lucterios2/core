@@ -74,7 +74,7 @@ trigger_selenium36:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.6"
     BROWSER: chrome 
-  script:
+  after_script:
     - ls -lhR
   trigger:
     project: lucterios2/test-fct
@@ -86,7 +86,7 @@ trigger_selenium310:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.10"
     BROWSER: chrome
-  script:
+  after_script:
     - ls -lhR
   trigger:
     project: lucterios2/test-fct
