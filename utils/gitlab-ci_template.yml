@@ -36,9 +36,8 @@ check:
       - unittest.svg
       - ods/*.ods
       - pdf/*.pdf
+      - htmlcov/
     reports:
-      paths:
-        - htmlcov/
       junit: 
         - junit_*.xml
       cobertura:
