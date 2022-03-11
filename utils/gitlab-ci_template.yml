@@ -81,6 +81,7 @@ trigger_selenium36:
       job: ${APPLICATION_TARGET}
       ref: master
       artifacts: true
+      need: true
 
 trigger_selenium310:
   stage: integration
@@ -95,3 +96,4 @@ trigger_selenium310:
       job: ${APPLICATION_TARGET}
       ref: master
       artifacts: true
+      need: true
