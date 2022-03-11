@@ -36,9 +36,8 @@ check:
       - unittest.svg
       - ods/*.ods
       - pdf/*.pdf
+      - htmlcov/
     reports:
-      paths:
-        - htmlcov/
       junit: 
         - junit_*.xml
       cobertura:
@@ -77,14 +76,10 @@ trigger_selenium36:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.6"
     BROWSER: chrome 
-  script:
-    - ls -lhR
-  needs:
-    - project: lucterios2/test-fct
-      job: ${APPLICATION_TARGET}
-      ref: master
-      artifacts: true
   allow_failure: true
+  trigger:
+    project: lucterios2/test-fct
+    strategy: depend    
 
 trigger_selenium310:
   stage: integration
@@ -92,11 +87,7 @@ trigger_selenium310:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.10"
     BROWSER: chrome
-  script:
-    - ls -lhR
-  needs:
-    - project: lucterios2/test-fct
-      job: ${APPLICATION_TARGET}
-      ref: master
-      artifacts: true
   allow_failure: true
+  trigger:
+    project: lucterios2/test-fct
+    strategy: depend    
