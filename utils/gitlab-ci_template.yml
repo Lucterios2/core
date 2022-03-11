@@ -74,13 +74,13 @@ trigger_selenium36:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.6"
     BROWSER: chrome 
-  trigger:
-    project: lucterios2/test-fct
-    strategy: depend    
   artifacts:
     reports:
       junit: 
         - junit_*.xml
+  trigger:
+    project: lucterios2/test-fct
+    strategy: depend    
 
 trigger_selenium310:
   stage: integration
@@ -88,11 +88,10 @@ trigger_selenium310:
     TARGET: "${APPLICATION_TARGET}"
     PYTHON_VERSION: "3.10"
     BROWSER: chrome
-  trigger:
-    project: lucterios2/test-fct
-    strategy: depend    
   artifacts:
     reports:
       junit: 
         - junit_*.xml
-
+  trigger:
+    project: lucterios2/test-fct
+    strategy: depend    
