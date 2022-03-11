@@ -58,6 +58,16 @@ class GenericTest(LucteriosTest):
         self.assertGreaterEqual(help_content.find('<html>'), 17, help_content)
         self.assertLessEqual(help_content.find('<html>'), 21, help_content)
 
+    def test_help_json(self):
+        self.calljson('/Docs', {'json': ''}, 'GET')
+        self.assertEqual(len(self.response_json), 6)
+        self.assertEqual(self.response_json['title'], 'Lucterios standard')
+        self.assertEqual(self.response_json['subtitle'], 'Application générique de gestion')
+        self.assertEqual(self.response_json['applogo'][:21], 'data:image/png;base64')
+        self.assertEqual(self.response_json['version'][:4], '2.6.')
+        self.assertEqual(self.response_json['lang'], 'fr')
+        self.assertEqual(self.response_json['menus'], [['lucterios.standard', 'Lucterios standard'], ['lucterios.CORE', 'Cœur Lucterios']])
+
     def test_simple(self):
         self.calljson('/customer/details', {'id': 12, 'value': 'abc'}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')
