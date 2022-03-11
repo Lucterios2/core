@@ -251,6 +251,9 @@
 		<exec executable="${project.pythonexe}" dir="${basedir}">
 			<arg line="-m coverage xml" />
 		</exec>
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg line="-m coverage html" />
+		</exec>
 		<move file="coverage.xml" tofile="coverage3.xml" />
 		<replaceregexp file="coverage3.xml" match='name="\..*\.lucterios' replace='name="lucterios' byline="true" />
 		<replaceregexp file="coverage3.xml" match='name="\..*\.diacamma' replace='name="diacamma' byline="true" />
