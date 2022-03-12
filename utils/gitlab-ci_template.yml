@@ -26,7 +26,7 @@ check:
 .test_basic:
   stage: test
   script:
-    - ant clear init add_instance i18n tests
+    - ant clear init add_instance i18n docs tests
     - ./utils/prep_env.sh test
   coverage: /\d+\%\s*$/    
   allow_failure: true
