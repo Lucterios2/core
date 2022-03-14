@@ -59,10 +59,6 @@ class GenericTest(LucteriosTest):
         self.assertLessEqual(help_content.find('<html>'), 21, help_content)
 
     def test_help_json(self):
-        from django.utils.module_loading import import_module
-        from os.path import dirname, join
-        module = import_module('lucterios.CORE')
-        print('module', module, 'module.__file__', module.__file__, dirname(module.__file__), join(dirname(module.__file__), "static", 'lucterios.CORE', 'doc_en'))
         self.calljson('/Docs', {'json': ''}, 'GET')
         self.assertEqual(len(self.response_json), 6)
         self.assertEqual(self.response_json['title'], 'Lucterios standard')
@@ -70,7 +66,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(self.response_json['applogo'][:21], 'data:image/png;base64')
         self.assertEqual(self.response_json['version'][:4], '2.6.')
         self.assertEqual(self.response_json['lang'], 'fr')
-        self.assertEqual(self.response_json['menus'], [['lucterios.standard', 'Lucterios standard'], ['lucterios.CORE', 'Cœur Lucterios']])
+        self.assertEqual(self.response_json['menus'], [['lucterios.standard', 'Lucterios standard'], ['lucterios.dummy', 'My Dummy'], ['lucterios.CORE', 'Cœur Lucterios']])
 
     def test_simple(self):
         self.calljson('/customer/details', {'id': 12, 'value': 'abc'}, False)
