@@ -26,18 +26,11 @@ from django.conf import settings
 from django.utils.module_loading import import_module
 from django.utils.translation import get_language
 
-from os.path import dirname, join, isdir
-
 
 def find_doc(appname):
     module = import_module(appname)
-    doc_path = join(
-        dirname(module.__file__), "static", appname, 'doc_%s' % get_language())
-    if isdir(doc_path):
-        if hasattr(module, '__title__'):
-            return (appname, str(module.__title__()))
-        else:
-            return (appname, appname)
+    if hasattr(module, '__title__') and (hasattr(module, 'get_build') or hasattr(module, 'link')):
+        return (appname, str(module.__title__()))
     return None
 
 
