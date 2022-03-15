@@ -274,20 +274,14 @@
 		<if>
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
-				<property name="module_name_" value="${packageitem}" />
-				<loadresource property="module_name">
-					<propertyresource name="module_name_" />
-					<filterchain>
-						<tokenfilter>
-							<replaceregex pattern="/" replace="\." flags="g" />
-						</tokenfilter>
-					</filterchain>
-				</loadresource>
-				<basename property="module_name" file="${sub_path}" />
+				<echo message="${packageitem}" file="/tmp/packageitem" append="false" />
+				<exec executable="/bin/sed" outputproperty="module_name" failifexecutionfails="false" errorproperty="module_name.err">
+					<arg line="'s|/|\.|g' /tmp/packageitem" />
+				</exec>			
 				<tstamp>
 					<format property="currentyear" pattern="yyyy" unit="hour" />
 				</tstamp>
-				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packlongversion} / ${packshortversion} --" />
+				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packlongversion} / ${packshortversion} // ${sub_path}/static/${module_name}/doc_${lang} --" />
 				<delete dir="${sub_path}/docs/build_${lang}" />
 				<delete dir="${sub_path}/static/${module_name}/doc_${lang}" />
 				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}" />
@@ -355,6 +349,7 @@
 					</sequential>
 				</for>
 				<var name="packlongversion" value="${packversion}${build_file}" />
+				<echo message="-- basedir ${basedir} / packageitem @{packageitem} / packlongversion ${packlongversion} / packshortversion ${packshortversion} --" />
 				<antcall target="docs_comp">
 					<param name="basedir" value="${basedir}" />
 					<param name="packageitem" value="@{packageitem}" />
