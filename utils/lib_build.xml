@@ -275,16 +275,19 @@
 			<available file="${sub_path}/docs/${lang}" />
 			<then>
 				<echo message="${packageitem}" file="/tmp/packageitem" append="false" />
-				<exec executable="/bin/sed" outputproperty="module_name" failifexecutionfails="false" errorproperty="module_name.err">
+				<exec executable="cat">
+					<arg line="/tmp/packageitem" />
+				</exec>				
+				<exec executable="/bin/sed" outputproperty="modulename" failifexecutionfails="false" errorproperty="">
 					<arg line="'s|/|\.|g' /tmp/packageitem" />
 				</exec>			
 				<tstamp>
 					<format property="currentyear" pattern="yyyy" unit="hour" />
 				</tstamp>
-				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packlongversion} / ${packshortversion} // ${sub_path}/static/${module_name}/doc_${lang} --" />
+				<echo message="-- doc ${sub_path} / lang ${lang} / module ${modulename} / ${packlongversion} / ${packshortversion} // ${sub_path}/static/${modulename}/doc_${lang} --" />
 				<delete dir="${sub_path}/docs/build_${lang}" />
-				<delete dir="${sub_path}/static/${module_name}/doc_${lang}" />
-				<mkdir dir="${sub_path}/static/${module_name}/doc_${lang}" />
+				<delete dir="${sub_path}/static/${modulename}/doc_${lang}" />
+				<mkdir dir="${sub_path}/static/${modulename}/doc_${lang}" />
 				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true" />
 				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true" />
 				<replaceregexp file="${sub_path}/docs/${lang}/conf.py" match="version = '.*'" replace="version = '${packshortversion}'" byline="true" />
@@ -295,7 +298,7 @@
 					<env key="PATH" value="${basedir}/../virt/bin:${env.PATH}"/>				
 					<arg value="html" />
 				</exec>
-				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${module_name}/doc_${lang}" />
+				<move file="${sub_path}/docs/build_${lang}/html" tofile="${sub_path}/static/${modulename}/doc_${lang}" />
 			</then>
 		</if>
 	</target>
@@ -305,20 +308,10 @@
 		<if>
 			<available file="${sub_path}/pdf/${lang}" />
 			<then>
-				<property name="module_name_" value="${packageitem}" />
-				<loadresource property="module_name">
-					<propertyresource name="module_name_" />
-					<filterchain>
-						<tokenfilter>
-							<replaceregex pattern="/" replace="\." flags="g" />
-						</tokenfilter>
-					</filterchain>
-				</loadresource>
-				<basename property="module_name" file="${sub_path}" />
 				<tstamp>
 					<format property="currentyear" pattern="yyyy" unit="hour" />
 				</tstamp>
-				<echo message="-- doc ${sub_path} / lang ${lang} / module ${module_name} / ${packmiddleversion} / ${packshortversion} --" />
+				<echo message="-- doc ${sub_path} / lang ${lang} / ${packmiddleversion} / ${packshortversion} --" />
 				<delete dir="${sub_path}/pdf/build_${lang}" />
 				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="copyright = '.*'" replace="copyright = '${currentyear}, sd-libre'" byline="true" />
 				<replaceregexp file="${sub_path}/pdf/${lang}/conf.py" match="author = '.*'" replace="author = 'sd-libre'" byline="true" />
