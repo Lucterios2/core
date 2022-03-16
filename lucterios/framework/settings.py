@@ -166,6 +166,7 @@ DEFAULT_SETTINGS = {
     'TEST_RUNNER': 'lucterios.framework.juxd.JUXDTestSuiteRunner',
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
     'DEFAULT_PAGE': '/web/index.html',
+    'X_FRAME_OPTIONS': 'SAMEORIGIN',
     'LANGUAGES': DEFAULT_LANGUAGES,
     'LOGGING': {
         'version': 1, 'disable_existing_loggers': False,
