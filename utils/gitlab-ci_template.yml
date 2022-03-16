@@ -1,5 +1,6 @@
 variables:
   EXTRA_PIP: X
+  CLONE_LIST: X
   APPLICATION_TARGET: lucterios
   MANUAL_PATH: lucterios.pdf
 
@@ -14,8 +15,8 @@ before_script:
   - ./utils/prep_env.sh debian
   - ./utils/prep_env.sh ant
   - ./utils/prep_env.sh requirement
-  - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple --extra-index-url https://pypi.lucterios.org/simple
-  - if [ "${EXTRA_PIP}" != "X" ]; then python3 -m pip install -U ${EXTRA_PIP} --extra-index-url https://pypi.diacamma.org/simple  --extra-index-url https://pypi.lucterios.org/simple; fi
+  - ./utils/prep_env.sh install "${EXTRA_PIP}"
+  - ./utils/prep_env.sh clone "${CLONE_LIST}"
 
 check:
   image: python:3.8
