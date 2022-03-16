@@ -89,7 +89,7 @@ class TestGlobal(BaseTest):
         self.assertEqual(['lucterios.contacts', 'lucterios.mailing', 'lucterios.documents'], val[1][0][2])
         self.assertEqual(3, len(val[2]))
         self.assertEqual([3, 3, 3], [len(item) for item in val[2]])
-        self.assertEqual(['lucterios.contacts', 'lucterios.mailing', 'lucterios.documents'], [item[0] for item in val[2]])
+        self.assertEqual(['lucterios.contacts', 'lucterios.documents', 'lucterios.mailing'], sorted([item[0] for item in val[2]]))
         self.assertEqual(['2.6.', '2.6.', '2.6.'], [item[1][:4] for item in val[2]])
         self.assertEqual([[], ['lucterios.contacts', 'lucterios.documents'], []], [item[2] for item in val[2]])
 

@@ -9,7 +9,7 @@ function debian_install
     apt-get install -y build-essential libxml2-dev libxml2 libxslt1-dev libjpeg-dev libfreetype6 libfreetype6-dev zlib1g-dev  
     apt-get install -y latexmk texlive texlive-latex-extra texlive-lang-french
     apt-get install -y sqlite3 git sphinx libopenjp2-tools gettext
-    apt-get install -y locales wget zip
+    apt-get install -y locales wget zip git
     sed -i 's/^.*\(en_US.UTF-8\)/\1/' /etc/locale.gen
     sed -i 's/^.*\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
     locale-gen    
@@ -77,6 +77,16 @@ function check_test
 	fi     
 }
 
+function install_requirement
+{
+  extra_pip=$1
+  python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple --extra-index-url https://pypi.lucterios.org/simple
+  if [ "${extra_pip}" != "X" ]
+  then
+	python3 -m pip install -U ${extra_pip} --extra-index-url https://pypi.diacamma.org/simple  --extra-index-url https://pypi.lucterios.org/simple
+  fi	
+}
+
 function main
 {
 	(
@@ -99,6 +109,21 @@ function main
 	    pip list
 	    deactivate
     )
+}
+
+function clone_repo
+{
+	clone_list=$1
+	[ -z "$clone_list" ] && return
+	[ "$clone_list" == "X" ] && return
+	rm -rf clone
+    mkdir clone
+	for clone_item in ${clone_list}
+	do
+		readarray -d : -t clone_items <<< "$clone_item"
+		echo "$clone_item => ${clone_items[0]} + ${clone_items[1]}"
+		git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.sleto.fr/${clone_items[0]} clone/${clone_items[1]}
+	done
 }
 
 if [ "$1" == "debian" ]
@@ -125,9 +150,21 @@ then
     exit 0
 fi
 
+if [ "$1" == "install" ]
+then
+    install_requirement "$2"
+    exit 0
+fi
+
 if [ "$1" == "test" ]
 then
 	check_test
+    exit 0
+fi
+
+if [ "$1" == "clone" ]
+then
+	clone_repo "$2"
     exit 0
 fi
 
