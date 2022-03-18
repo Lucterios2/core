@@ -969,7 +969,10 @@ class ObjectImport(XferContainerCustom):
                 float_val = sub(r"( |[^0-9.])", "", float_val)
                 if float_val == '':
                     float_val = 0
-                new_row[field_description[0]] = float(float_val)
+                if field_description[2] == 'N0':
+                    new_row[field_description[0]] = int(float_val)
+                else:
+                    new_row[field_description[0]] = float(float_val)
             elif row[fields_association[field_description[0]]] is None:
                 new_row[field_description[0]] = None
             else:
