@@ -37,7 +37,7 @@ from lucterios.framework.xfercomponents import XferCompTab, \
     XferCompLinkLabel, XferCompLabelForm, XferCompImage, XferCompGrid, \
     XferCompDate, XferCompDateTime, XferCompSelect, XferCompTime, XferCompCheck
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from lucterios.framework.tools import toHtml, clean_xml
+from lucterios.framework.tools import toHtml, clean_xml, format_to_string
 from lucterios.framework.filetools import BASE64_PREFIX, get_image_absolutepath, get_image_size, is_image_base64
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.xferprinting import PRINT_PDF_FILE, PRINT_EXT_FILE
@@ -206,6 +206,7 @@ class PrintImage(PrintItem):
 class PrintTable(PrintItem):
 
     RATIO = 1.4
+    RATIO_NUM = 2.4
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
@@ -239,9 +240,12 @@ class PrintTable(PrintItem):
                     size_x = int(round(img_size[0] * DPI))
                     size_y = int(round(img_size[1] * DPI))
                 else:
-                    size_x, size_y = self.calcul_text_size(value, 9, 10, "start", True)
+                    size_x, size_y = self.calcul_text_size(format_to_string(value, header.htype, None), 9, 10, "start", True)
                 self.rows[row_idx].append((value, header.htype, header.formatstr))
-                self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
+                if (isinstance(header.htype, str) and (header.htype.startswith('C') or header.htype.startswith('N'))):
+                    self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO_NUM)
+                else:
+                    self.columns[hd_idx][1] = max(self.columns[hd_idx][1], size_x * self.RATIO)
                 hd_idx += 1
             self.size_rows[row_idx + 1] = max(self.size_rows[row_idx + 1], size_y)
             row_idx += 1
