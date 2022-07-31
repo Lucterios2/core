@@ -212,6 +212,20 @@
 		</exec>
 	</target>
 
+    <target name="dev_inst">
+        <exec executable="${project.pythonexe}">
+            <env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
+            <arg value="-m" />
+            <arg value="lucterios.install.lucterios_admin" />
+            <arg value="add" />
+            <arg value="--name=dev" />
+            <arg value="--appli=${project.appli}" />
+            <arg value="--module=${project.modules}" />
+            <arg value="--instance_path=${basedir}" />
+            <arg value="--extra=LANGUAGE_CODE=fr" />
+        </exec>
+    </target>
+
 	<target name="del_instance">
 		<exec executable="${project.pythonexe}" failonerror="true">
 			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
