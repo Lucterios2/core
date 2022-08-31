@@ -397,9 +397,9 @@ class XferContainerCustom(XferContainerAbstract):
                     val = default
         return val
 
-    def _create_comp_integerfield(self, field_name, dep_field):
+    def _create_comp_integerfield(self, field_name, dep_field, prefix=''):
         if (dep_field.choices is not None) and (len(dep_field.choices) > 0):
-            comp = XferCompSelect(field_name)
+            comp = XferCompSelect(prefix + field_name)
             comp.set_select(list(dep_field.choices))
             min_value = 0
         else:
@@ -408,39 +408,39 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_value(self._get_value_from_field(field_name, dep_field, min_value))
         return comp
 
-    def _create_comp_decimalfield(self, field_name, dep_field):
+    def _create_comp_decimalfield(self, field_name, dep_field, prefix=''):
         min_value, max_value = get_range_value(dep_field)
-        comp = XferCompFloat(field_name, min_value, max_value, dep_field.decimal_places)
+        comp = XferCompFloat(prefix + field_name, min_value, max_value, dep_field.decimal_places)
         comp.set_value(self._get_value_from_field(field_name, dep_field, min_value))
         return comp
 
-    def _create_comp_booleanfield(self, field_name, dep_field):
-        comp = XferCompCheck(field_name)
+    def _create_comp_booleanfield(self, field_name, dep_field, prefix=''):
+        comp = XferCompCheck(prefix + field_name)
         comp.set_value(self._get_value_from_field(field_name, dep_field, False))
         return comp
 
-    def _create_comp_textfield(self, field_name, dep_field):
-        comp = XferCompMemo(field_name)
+    def _create_comp_textfield(self, field_name, dep_field, prefix=''):
+        comp = XferCompMemo(prefix + field_name)
         comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
         return comp
 
-    def _create_comp_datefield(self, field_name, dep_field):
-        comp = XferCompDate(field_name)
+    def _create_comp_datefield(self, field_name, dep_field, prefix=''):
+        comp = XferCompDate(prefix + field_name)
         comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.date.today()))
         return comp
 
-    def _create_comp_timefield(self, field_name, dep_field):
-        comp = XferCompTime(field_name)
+    def _create_comp_timefield(self, field_name, dep_field, prefix=''):
+        comp = XferCompTime(prefix + field_name)
         comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.time()))
         return comp
 
-    def _create_comp_datetimefield(self, field_name, dep_field):
-        comp = XferCompDateTime(field_name)
+    def _create_comp_datetimefield(self, field_name, dep_field, prefix=''):
+        comp = XferCompDateTime(prefix + field_name)
         comp.set_value(self._get_value_from_field(field_name, dep_field, datetime.datetime.now()))
         return comp
 
-    def _create_comp_foreignkey(self, field_name, dep_field):
-        comp = XferCompSelect(field_name)
+    def _create_comp_foreignkey(self, field_name, dep_field, prefix=''):
+        comp = XferCompSelect(prefix + field_name)
         try:
             value = self.item
             for fieldname in field_name.split('.'):
@@ -459,8 +459,8 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_select_query(sub_select)
         return comp
 
-    def _create_comp_manytomanyfield(self, field_name, dep_field):
-        comp = XferCompCheckList(field_name)
+    def _create_comp_manytomanyfield(self, field_name, dep_field, prefix=''):
+        comp = XferCompCheckList(prefix + field_name)
         comp.simple = 2
         if self.item.id is not None:
             values = []
@@ -474,7 +474,7 @@ class XferContainerCustom(XferContainerAbstract):
         comp.set_select(sub_select)
         return comp
 
-    def get_writing_comp(self, field_name):
+    def get_writing_comp(self, field_name, prefix=''):
         from django.db.models.fields import IntegerField, DecimalField, BooleanField, TextField, DateField, TimeField, DateTimeField, CharField
         from django.db.models.fields.related import ForeignKey, ManyToManyField
         comp = None
@@ -483,10 +483,10 @@ class XferContainerCustom(XferContainerAbstract):
             if isinstance(dep_field, field_type):
                 fct = getattr(self, "_create_comp_%s" % field_type.__name__.lower(), None)
                 if fct is not None:
-                    comp = fct(field_name, dep_field)
+                    comp = fct(field_name, dep_field, prefix)
                     break
         if comp is None:
-            comp = XferCompEdit(field_name)
+            comp = XferCompEdit(prefix + field_name)
             comp.set_value(self._get_value_from_field(field_name, dep_field, ""))
             if isinstance(dep_field, CharField):
                 comp.size = dep_field.max_length
@@ -552,7 +552,7 @@ class XferContainerCustom(XferContainerAbstract):
                         if readonly:
                             comp = self.get_reading_comp(field_name, prefix)
                         else:
-                            comp = self.get_writing_comp(field_name)
+                            comp = self.get_writing_comp(field_name, prefix)
                         comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
                         if verbose_name is None:
                             comp.description = str(dep_field.verbose_name) if dep_field is not None else ""
