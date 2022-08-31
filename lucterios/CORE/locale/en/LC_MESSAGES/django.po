@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-08 16:58+0000\n"
+"POT-Creation-Date: 2022-08-31 08:17+0000\n"
 "PO-Revision-Date: 2020-09-24 14:13+0200\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -229,7 +229,7 @@ msgid "kind"
 msgstr "kind"
 
 #: models.py:604 models.py:637 models.py:780 models.py:786 models.py:814
-#: views.py:384 views.py:852 views.py:1016 views.py:1028
+#: views.py:384 views.py:852 views.py:1019 views.py:1031
 msgid "model"
 msgstr "model"
 
@@ -368,12 +368,12 @@ msgid "new password (again)"
 msgstr "new password (again)"
 
 #: views.py:192 views.py:243 views.py:322 views.py:757 views.py:819
-#: views.py:1099
+#: views.py:1102
 msgid "Ok"
 msgstr "Ok"
 
 #: views.py:193 views.py:244 views.py:323 views.py:759 views.py:820
-#: views.py:1100
+#: views.py:1103
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -417,11 +417,11 @@ msgstr "Software configuration"
 msgid "Modify"
 msgstr "Modify"
 
-#: views.py:297 views.py:1193
+#: views.py:297 views.py:1196
 msgid "Wizard"
 msgstr "Wizard"
 
-#: views.py:298 views.py:1102 views_usergroup.py:131
+#: views.py:298 views.py:1105 views_usergroup.py:131
 msgid "Close"
 msgstr "Close"
 
@@ -637,60 +637,60 @@ msgstr "quotechar"
 msgid "CSV file unvalid!"
 msgstr "CSV file unvalid!"
 
-#: views.py:954 views.py:1042
+#: views.py:954 views.py:1045
 #, python-format
 msgid "Total number of items: %d"
 msgstr "Total number of items: %d"
 
-#: views.py:1019
+#: views.py:1022
 msgid "Fields"
 msgstr "Fields"
 
-#: views.py:1021
+#: views.py:1024
 msgid "Current content"
 msgstr "Current content"
 
-#: views.py:1058
+#: views.py:1061
 msgid "no item are been imported"
 msgstr "no item are been imported"
 
-#: views.py:1060
+#: views.py:1063
 msgid "1 item are been imported"
 msgstr "1 item are been imported"
 
-#: views.py:1062
+#: views.py:1065
 #, python-format
 msgid "%d items are been imported"
 msgstr "%d items are been imported"
 
-#: views.py:1098
+#: views.py:1101
 msgid "Back"
 msgstr "Back"
 
-#: views.py:1114
+#: views.py:1117
 msgid "Configuration wizard"
 msgstr "Configuration wizard"
 
-#: views.py:1150
+#: views.py:1153
 msgid "Prec"
 msgstr "Prec"
 
-#: views.py:1155
+#: views.py:1158
 #, python-format
 msgid "progress steps: %(current)d/%(max)d"
 msgstr "progress steps: %(current)d/%(max)d"
 
-#: views.py:1162
+#: views.py:1165
 msgid "Next"
 msgstr "Next"
 
-#: views.py:1224
+#: views.py:1227
 msgid "This wizard will help you to configure this software."
 msgstr ""
 "This wizard will help you to configure this software.{[br/]}All the next "
 "configurations are accessible in administrator menu."
 
-#: views.py:1236
+#: views.py:1239
 msgid "Groups and users"
 msgstr "Groups and users"
 

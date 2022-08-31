@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-08 16:58+0000\n"
+"POT-Creation-Date: 2022-08-31 08:17+0000\n"
 "PO-Revision-Date: 2022-01-08 17:58+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -70,7 +70,7 @@ msgstr "Instance restaurée depuis %s"
 msgid "Instance not restored!"
 msgstr "Instance non restaurée!"
 
-#: lucterios_admin.py:670 lucterios_gui.py:175 lucterios_qt.py:238
+#: lucterios_admin.py:678 lucterios_gui.py:175 lucterios_qt.py:238
 msgid "CORE-connectmode"
 msgstr "Mode de connexion"
 

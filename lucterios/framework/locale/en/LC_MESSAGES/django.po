@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-08 16:58+0000\n"
-"PO-Revision-Date: 2020-11-26 19:10+0100\n"
+"POT-Creation-Date: 2022-08-31 08:17+0000\n"
+"PO-Revision-Date: 2022-08-31 10:16+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
@@ -39,6 +39,12 @@ msgstr "current hour"
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' unknown !"
+
+#: models.py:375
+msgid ""
+"Only record of same type can be merged.{[br/]}You must to be promote it."
+msgstr ""
+"Only record of same type can be merged.{[br/]}You must to be promote it."
 
 #: models.py:535
 msgid "Cannot delete this record: there are associated with some sub-record"
@@ -144,12 +150,12 @@ msgstr "log entry"
 msgid "log entries"
 msgstr "log entries"
 
-#: printgenerators.py:459
+#: printgenerators.py:463
 #, python-format
 msgid "Report format \"%s\" not supported !"
 msgstr "Report format \"%s\" not supported !"
 
-#: printgenerators.py:473
+#: printgenerators.py:477
 msgid "This impression failed !"
 msgstr "This impression failed !"
 

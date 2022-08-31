@@ -372,7 +372,7 @@ class LucteriosModel(models.Model):
         primary_class = self.__class__
         for alias_object in alias_objects:
             if not isinstance(alias_object, primary_class):
-                raise TypeError('Only models of same class can be merged')
+                raise LucteriosException(IMPORTANT, _('Only record of same type can be merged.{[br/]}You must to be promote it.'))
 
         Signal.call_signal("pre_merge", self, alias_objects)
         generic_fields = []
