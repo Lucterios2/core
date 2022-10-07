@@ -304,10 +304,16 @@ class XferSave(XferContainerAcknowledge):
 class XferTransition(XferContainerAcknowledge):
     readonly = False
     methods_allowed = ('POST', 'PUT')
+    field_of_transition = "status"
 
     def __init__(self, **kwargs):
         XferContainerAcknowledge.__init__(self, **kwargs)
         self.trans_result = None
+
+    def fill_simple_fields(self):
+        if self.field_of_transition in self.params:
+            del self.params[self.field_of_transition]
+        XferContainerAcknowledge.fill_simple_fields(self)
 
     def _confirmed(self, transition):
         try:
@@ -320,9 +326,9 @@ class XferTransition(XferContainerAcknowledge):
                 self.trans_result = None
             elif len(self.trans_result) == 1:
                 self.trans_result = self.trans_result[0]
-        except TransitionNotAllowed:
+        except TransitionNotAllowed as err:
             if hasattr(item, '_error_transaction'):
-                getLogger("lucterios.core.transition").error(item._error_transaction(transition))
+                getLogger("lucterios.core.transition").error(item._error_transaction(transition) + str(err))
             raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
 
     def fill_confirm(self, transition, trans):
