@@ -256,7 +256,7 @@ describe('ObserverFactoryRest', () => {
     expect(mHttpTransport.getSession()).toEqual('')
     expect(mHttpTransport.XmlParam.size()).toEqual(3)
     expect(mHttpTransport.XmlParam['WebFile']).toEqual('CORE/authentification')
-    expect(mHttpTransport.XmlParam['username']).toEqual('abc')
+    expect(mHttpTransport.XmlParam['login']).toEqual('abc')
     expect(mHttpTransport.XmlParam['password']).toEqual('123')
   })
 
@@ -284,7 +284,7 @@ describe('ObserverFactoryRest', () => {
       },
       'close': null,
       'context': {
-        'username': 'admin',
+        'login': 'admin',
         'ses': 'admin1315821586',
         'password': 'admin'
       },
@@ -301,7 +301,7 @@ describe('ObserverFactoryRest', () => {
 
     expect(mHttpTransport.XmlParam.size()).toEqual(3)
     expect(mHttpTransport.XmlParam['WebFile']).toEqual('CORE/authentification')
-    expect(mHttpTransport.XmlParam['username']).toEqual('admin')
+    expect(mHttpTransport.XmlParam['login']).toEqual('admin')
     expect(mHttpTransport.XmlParam['password']).toEqual('admin')
   })
 

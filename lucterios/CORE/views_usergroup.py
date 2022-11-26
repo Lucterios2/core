@@ -122,12 +122,12 @@ class UsersPreference(XferContainerCustom):
 
     def fillresponse(self):
         self.item = LucteriosUser.objects.get(id=self.request.user.id)
-        self.params['username'] = self.item.username
+        self.params['login'] = self.item.username
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
-        self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
+        self.fill_from_model(1, 1, True, ['login', 'preferences_set'])
         self.add_action(WrapAction(_('Close'), 'images/close.png'))
 
 

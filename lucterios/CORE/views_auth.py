@@ -78,15 +78,17 @@ class Authentification(XferContainerAbstract):
     caption = 'info'
     observer_name = 'core.auth'
 
-    def _set_authentification(self, username, password):
+    def _set_authentification(self, login_name, password):
         from django.contrib.auth import authenticate, login, logout
+        from django.conf import settings
         if self.request.user.is_authenticated:
             logout(self.request)
-        if (username == '') and (password == '') and not secure_mode_connect():
+        if (login_name == '') and (password == '') and not secure_mode_connect():
             self.params["ses"] = 'null'
             self.connection_success()
         else:
-            user = authenticate(username=username, password=password)
+            auth_args = {settings.LOGIN_FIELD: login_name, "password": password}
+            user = authenticate(**auth_args)
             if user is not None:
                 login(self.request, user)
                 self.params["ses"] = user.username
@@ -101,11 +103,11 @@ class Authentification(XferContainerAbstract):
         if user is not None:
             login(self.request, user)
 
-    def fillresponse(self, username, password, info, ses=None):
-        if (username == '') and (password is None):
+    def fillresponse(self, login, password, info, ses=None):
+        if (login == '') and (password is None):
             self.must_autentificate('')
-        elif (username is not None) and (password is not None):
-            self._set_authentification(username, password)
+        elif (login is not None) and (password is not None):
+            self._set_authentification(login, password)
         elif info is not None:
             self._check_session(ses)
             self.connection_success()
@@ -141,6 +143,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['MESSAGE_BEFORE'] = Params.getvalue("CORE-MessageBefore")
         info_cnx['LANGUAGE'] = self.language
         info_cnx['MODE'] = str(Params.getvalue("CORE-connectmode"))
+        info_cnx['LOGIN_FIELD'] = settings.LOGIN_FIELD
         if self.request.user.is_authenticated:
             info_cnx['LOGIN'] = self.request.user.username
             info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
@@ -182,4 +185,4 @@ class ExitConnection(XferContainerAcknowledge):
         self.caption = _("Disconnect")
         signal_and_lock.RecordLocker.unlock(self.request)
         logout(self.request)
-        self.redirect_action(Authentification.get_action(), close=CLOSE_YES, params={'username': ''})
+        self.redirect_action(Authentification.get_action(), close=CLOSE_YES, params={'login': ''})

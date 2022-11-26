@@ -23,19 +23,26 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from lucterios.framework.test import LucteriosTest, add_empty_user
-from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
-from lucterios.CORE.parameters import Params
-from lucterios.framework.tools import WrapAction
+
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
-from lucterios.CORE.models import Parameter
+from django.conf import settings
+
+from lucterios.framework.test import LucteriosTest, add_empty_user
+from lucterios.framework.tools import WrapAction
+from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
+from lucterios.CORE.parameters import Params
+from lucterios.CORE.models import Parameter, LucteriosUser
 
 
 class AuthentificationTest(LucteriosTest):
 
     def setUp(self):
         LucteriosTest.setUp(self)
+        settings.LOGIN_FIELD = 'username'
+        admin = LucteriosUser.objects.get(username="admin")
+        admin.email = "admin@localhost"
+        admin.save()
         add_empty_user()
 
     def test_blank(self):
@@ -56,20 +63,40 @@ class AuthentificationTest(LucteriosTest):
         self.assertTrue('connexion' in self.response_json.keys())
         self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
-        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'login': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
         self.assertTrue('connexion' in self.response_json.keys())
         self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
-        self.calljson('/CORE/authentification', {'username': 'aaa', 'password': 'bbb'})
+        self.calljson('/CORE/authentification', {'login': 'aaa', 'password': 'bbb'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
         self.assertTrue('connexion' in self.response_json.keys())
         self.assertEqual(self.response_json['connexion']['REALNAME'], '')
 
     def test_connect(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
+        self.assert_observer('core.auth', 'CORE', 'authentification')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
+        self.assertEqual(self.response_json['connexion']['SUBTITLE'], str('Application générique de gestion'))
+        self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.6.')
+        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
+        self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.6.')
+        self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
+        self.assertEqual(self.response_json['connexion']['LOGONAME'][0:22], 'data:image/png;base64,')
+        self.assertEqual(self.response_json['connexion']['SUPPORT_EMAIL'][0:8], 'support@')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
+        self.assertEqual(self.response_json['connexion']['MODE'], '0')
+
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+    def test_connect_email(self):
+        settings.LOGIN_FIELD = 'email'
+        self.calljson('/CORE/authentification', {'login': 'admin@localhost', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
         self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
@@ -88,7 +115,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_menu_connected(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_json_equal('', '', 'OK')
 
         self.calljson('/CORE/menu', {}, 'get')
@@ -120,7 +147,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_json_equal('', '', 'NEEDAUTH')
 
     def test_menu_connected_with_empty(self):
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
         self.assert_json_equal('', "", 'OK')
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'empty')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
@@ -147,7 +174,7 @@ class AuthentificationTest(LucteriosTest):
 
     def test_connect_anonymous(self):
         Params.clear()
-        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'login': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
 
@@ -156,7 +183,7 @@ class AuthentificationTest(LucteriosTest):
         param.save()
         Params.clear()
 
-        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'login': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
         self.assertEqual(self.response_json['connexion']['LOGIN'], '')
@@ -173,13 +200,13 @@ class AuthentificationTest(LucteriosTest):
 
     def test_connect_free(self):
         Params.clear()
-        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'login': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
 
         Params.setvalue('CORE-connectmode', '2')
 
-        self.calljson('/CORE/authentification', {'username': '', 'password': ''})
+        self.calljson('/CORE/authentification', {'login': '', 'password': ''})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
         self.assertEqual(self.response_json['connexion']['LOGIN'], '')
@@ -217,14 +244,14 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['menus'][2]['menus'][3]['menus'][0]['text'], 'Les groupes')
 
     def test_menu_reconnected(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_json_equal('', '', 'OK')
 
         self.calljson('/CORE/authentification', {})
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
 
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
         self.assert_json_equal('', '', 'OK')
 
         self.calljson('/CORE/authentification', {'info': 'true'})
@@ -235,7 +262,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
     def test_password(self):
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
 
         self.calljson('/CORE/changePassword', {}, 'put')
@@ -255,7 +282,7 @@ class AuthentificationTest(LucteriosTest):
         self.assert_comp_equal(('PASSWD', "newpass2"), '', ('1', '2', '1', '1'))
 
     def test_changepassword(self):
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -274,11 +301,11 @@ class AuthentificationTest(LucteriosTest):
         self.assert_json_equal('', 'text', str('Mot de passe modifié'))
         self.assert_json_equal('', 'type', '1')
 
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': 'empty'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')
 
-        self.calljson('/CORE/authentification', {'username': 'empty', 'password': '123'})
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': '123'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 

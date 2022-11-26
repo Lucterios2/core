@@ -54,6 +54,7 @@ def add_user(username, is_superuser=False):
         username=username, password=username, last_login=timezone.now())
     user.first_name = username
     user.last_name = username.upper()
+    user.email = "%s@lucterios.org" % username
     user.is_staff = False
     user.is_superuser = is_superuser
     user.is_active = True

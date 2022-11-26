@@ -156,7 +156,7 @@ class Menu(XferContainerMenu):
 
 
 def right_changepassword(request):
-    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
+    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'lucterios.framework.backends.EmailModelBackend'):
         return False
     return request.user.is_authenticated
 
