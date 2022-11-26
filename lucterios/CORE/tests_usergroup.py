@@ -127,7 +127,7 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('', 'user_actif/@1/username', 'empty')
 
     def test_user_himself(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_json_equal('', '', 'OK')
 
         self.calljson('/CORE/usersDelete', {'user_actif': '1'}, 'delete')
@@ -204,7 +204,7 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('CHECK', "is_superuser", '0')
         self.assert_json_equal('EDIT', "first_name", 'user1')
         self.assert_json_equal('EDIT', "last_name", 'USER1')
-        self.assert_json_equal('EDIT', "email", '')
+        self.assert_json_equal('EDIT', "email", 'user1@lucterios.org')
 
         self.assert_json_equal('CHECK', "password_change", "0")
         self.assert_json_equal('PASSWD', "password1", '')
@@ -395,7 +395,7 @@ class UserTest(LucteriosTest):
         user1.is_superuser = True
         user1.save()
 
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -409,7 +409,7 @@ class UserTest(LucteriosTest):
 
         new_test = LucteriosTest("setUp")
         new_test.setUp()
-        new_test.calljson('/CORE/authentification', {'username': 'user1', 'password': 'user1'})
+        new_test.calljson('/CORE/authentification', {'login': 'user1', 'password': 'user1'})
         new_test.assert_observer('core.auth', 'CORE', 'authentification')
         new_test.assert_json_equal('', '', 'OK')
 
@@ -688,7 +688,7 @@ class GroupTest(LucteriosTest):
         grp = LucteriosGroup.objects.create(name="mygroup")
         grp.save()
 
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -701,7 +701,7 @@ class GroupTest(LucteriosTest):
 
         new_test = LucteriosTest("setUp")
         new_test.setUp()
-        new_test.calljson('/CORE/authentification', {'username': 'user1', 'password': 'user1'})
+        new_test.calljson('/CORE/authentification', {'login': 'user1', 'password': 'user1'})
         new_test.assert_observer('core.auth', 'CORE', 'authentification')
         new_test.assert_json_equal('', '', 'OK')
 
@@ -754,7 +754,7 @@ class SessionTest(LucteriosTest):
         add_empty_user()
 
     def test_sessionlist(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 
@@ -779,7 +779,7 @@ class SessionTest(LucteriosTest):
         self.assert_attrib_equal('session', "nb_lines", '1')
 
     def test_sessiondel(self):
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
 

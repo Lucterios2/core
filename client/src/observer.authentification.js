@@ -27,6 +27,7 @@ export class ApplicationDescription {
     this.mInstanceName = ''
     this.mMessageBefore = ''
     this.mMode = 0
+    this.mLoginField = 'username'
     this.mLanguage = ''
   }
 
@@ -100,6 +101,10 @@ export class ApplicationDescription {
     return this.mMode
   }
 
+  getLoginField () {
+    return this.mLoginField
+  }
+
   setLogin (aLogin) {
     this.mLogin = aLogin
   }
@@ -129,6 +134,10 @@ export class ApplicationDescription {
 
   setMode (aMode) {
     this.mMode = aMode
+  }
+
+  setLoginField (aLoginField) {
+    this.mLoginField = aLoginField || 'username'
   }
 
   setInstanceName (aInstanceName) {
@@ -267,7 +276,7 @@ export class ObserverAuthentification extends ObserverAbstract {
     this.acts[0].mIcon = 'images/ok.png'
     this.acts[0].callback = $.proxy(function (aParams) {
       if (this.mGUI !== null) {
-        var login = aParams.get('username')
+        var login = aParams.get('login')
         var pass = aParams.get('password')
         Singleton().Factory().setAuthentification(login, pass)
       }
@@ -308,6 +317,7 @@ export class ObserverAuthentification extends ObserverAbstract {
       desc.setLogin(jsonConnection.LOGIN)
       desc.setRealName(jsonConnection.REALNAME.trim())
       desc.setMode(jsonConnection.MODE)
+      desc.setLoginField(jsonConnection.LOGIN_FIELD)
       desc.setInstanceName(jsonConnection.INSTANCE)
       desc.setMessageBefore(jsonConnection.MESSAGE_BEFORE)
       desc.setLanguage(jsonConnection.LANGUAGE)
@@ -344,7 +354,7 @@ export class ObserverAuthentification extends ObserverAbstract {
     if (this.mGUI !== null) {
       jcnt = this.mGUI.getHtmlDom()
       login = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input')
-      requete.put('username', login.val())
+      requete.put('login', login.val())
       pass = jcnt.find('table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input')
       requete.put('password', pass.val())
       $('#frm_' + this.mGUI.mId).submit()
@@ -369,9 +379,17 @@ export class ObserverAuthentification extends ObserverAbstract {
     var logboxId
     var extraActs = []
     var extraTable = []
+    var loginTxt = Singleton().getTranslate('Username')
+    if (Singleton().mDesc.getLoginField() === 'email') {
+      loginTxt = Singleton().getTranslate('Email')
+    }
     if (Singleton().Transport().getLastLogin() !== '') {
       if (cdate === 'BADAUTH') {
-        text = Singleton().getTranslate('Login or password wrong!', 'Alias ou Mot de passe incorrect!')
+        if (Singleton().mDesc.getLoginField() === 'email') {
+          text = Singleton().getTranslate('Email or password wrong!')
+        } else {
+          text = Singleton().getTranslate('Username or password wrong!')
+        }
       } else if (cdate === 'NEEDAUTH') {
         text = Singleton().getTranslate('Please, identify you')
       } else if (cdate !== '') {
@@ -383,8 +401,8 @@ export class ObserverAuthentification extends ObserverAbstract {
     table[0][0] = new CompBasic('<label style=\'width:100%;text-align:center;color:red;\'>' + text + '</label>', 2)
 
     table[1] = []
-    table[1][0] = new CompBasic('<span style=\'width:95%;margin:5px;\'><b>' + Singleton().getTranslate('Login') + '</b></span>')
-    table[1][1] = new CompBasic('<input name=\'username\' type=\'text\' style=\'width:95%;\'/>')
+    table[1][0] = new CompBasic('<span style=\'width:95%;margin:5px;\'><b>' + loginTxt + '</b></span>')
+    table[1][1] = new CompBasic('<input name=\'login\' type=\'text\' style=\'width:95%;\'/>')
 
     table[2] = []
     table[2][0] = new CompBasic('<span style=\'width:95%;margin:5px;\'><b>' + Singleton().getTranslate('Password') + '</b></span>')
@@ -413,7 +431,7 @@ export class ObserverAuthentification extends ObserverAbstract {
       event.preventDefault()
     })
 
-    $('#frm_' + logboxId).find('[name=\'password\'],[name=\'username\']').bind('keydown', function (event) {
+    $('#frm_' + logboxId).find('[name=\'password\'],[name=\'login\']').bind('keydown', function (event) {
       var result
       var btns
       var keycode = (event.keyCode || event.which || event.charCode)

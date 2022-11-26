@@ -221,7 +221,7 @@ class PluginTest(LucteriosTest):
     def test_connect(self):
         self._add_plugin('view', add_view=True)
         self._add_plugin('advance', title='Advance tool', version='1.2.3')
-        self.calljson('/CORE/authentification', {'username': 'admin', 'password': 'admin'})
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
         self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 3 + 2)

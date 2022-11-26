@@ -46,7 +46,7 @@ export class ObserverFactoryAbstract {
       param.put('ses', aPassWord)
       param.put('info', '1')
     } else {
-      param.put('username', aLogin)
+      param.put('login', aLogin)
       param.put('password', aPassWord)
       this.mTransport.setLastLogin(aLogin)
     }

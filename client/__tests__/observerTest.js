@@ -60,6 +60,7 @@ describe('Observer', () => {
         'SERVERVERSION': '2.1.15.17102417',
         'REALNAME': 'Administrateur ',
         'COPYRIGHT': '(c) 2015 lucterios.org - GPL Licence',
+        'LOGIN_FIELD': 'username',
         'MODE': '0',
         'LOGIN': 'admin',
         'LOGONAME': 'http://demo.lucterios.org/Lucterios/extensions/applis/images/logo.gif',
@@ -74,7 +75,7 @@ describe('Observer', () => {
       },
       'close': null,
       'context': {
-        'username': 'admin',
+        'login': 'admin',
         'ses': 'admin1315821586',
         'password': 'admin'
       },
@@ -111,8 +112,12 @@ describe('Observer', () => {
     var jsonReceive = {
       'close': null,
       'context': {
-        'username': 'admin',
+        'login': 'admin',
         'password': 'abc123'
+      },
+      'connexion': {
+        'REALNAME': '',
+        'LOGIN_FIELD': 'email'
       },
       'actions': [ {
         'unique': '1',
@@ -147,10 +152,10 @@ describe('Observer', () => {
     var jcnt = gui.getHtmlDom()
 
     var lbl = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label')
-    expect(lbl.text()).toEqual('Alias ou Mot de passe incorrect!')
+    expect(lbl.text()).toEqual('Courriel ou Mot de passe incorrect!')
 
     lbl = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(0) > span')
-    expect(lbl.html()).toEqual('<b>Alias</b>')
+    expect(lbl.html()).toEqual('<b>Courriel</b>')
 
     lbl = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input')
     expect(lbl.val()).toEqual('')
@@ -176,7 +181,7 @@ describe('Observer', () => {
 
     expect(!gui.isExist()).toEqual(true)
     expect(mObsFactory.CallList.size()).toEqual(1)
-    expect(mObsFactory.CallList.get(0)).toEqual('CORE->authentification(username=\'machin\',password=\'coucou\',)')
+    expect(mObsFactory.CallList.get(0)).toEqual('CORE->authentification(login=\'machin\',password=\'coucou\',)')
   })
 
   it('Authentification 3', async () => {
@@ -184,6 +189,10 @@ describe('Observer', () => {
       'close': null,
       'context': {},
       'data': 'NEEDAUTH',
+      'connexion': {
+        'REALNAME': '',
+        'LOGIN_FIELD': 'username'
+      },
       'meta': {
         'title': 'info',
         'action': 'authentification',
@@ -359,7 +368,7 @@ describe('Observer', () => {
       },
       'close': null,
       'context': {
-        'username': 'admin',
+        'login': 'admin',
         'group': '50',
         'password': 'adms'
       },

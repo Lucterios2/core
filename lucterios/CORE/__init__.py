@@ -34,7 +34,7 @@ def get_build():
     return "0"
 
 
-__version__ = "2.6.9." + get_build()
+__version__ = "2.6.10." + get_build()
 
 
 def __title__():
