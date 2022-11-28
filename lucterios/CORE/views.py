@@ -212,7 +212,7 @@ class ModifyPassword(XferContainerAcknowledge):
 def right_askpassword(request):
     if not notfree_mode_connect():
         return False
-    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'django.contrib.auth.backends.ModelBackend'):
+    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'lucterios.framework.backends.EmailModelBackend'):
         return False
     if (signal_and_lock.Signal.call_signal("send_connection", None, None, None) == 0):
         return False
