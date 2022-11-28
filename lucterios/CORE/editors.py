@@ -42,12 +42,14 @@ from lucterios.framework.plugins import PluginManager
 class LucteriosUserEditor(LucteriosEditor):
 
     def edit(self, xfer):
+        from django.conf import settings
         if self.item.id is not None:
             xfer.change_to_readonly('username')
             obj_username = xfer.get_components('username')
             xfer.filltab_from_model(obj_username.col - 1, obj_username.row + 1, True, ['date_joined', 'last_login'])
         xfer.change_to_readonly('is_active')
         obj_email = xfer.get_components('email')
+        obj_email.set_needed(settings.LOGIN_FIELD == 'email')
         xfer.tab = obj_email.tab
         new_row = obj_email.row
         ckk = XferCompCheck('password_change')
@@ -92,7 +94,7 @@ parent.get('password2').setEnabled(pwd_change);
 
     def before_save(self, xfer):
         if self.item.id is None:
-            self.item.last_login = timezone.now()
+            self.item.last_login = None
         return
 
     def saving(self, xfer):

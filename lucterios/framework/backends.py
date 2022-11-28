@@ -37,10 +37,10 @@ class EmailModelBackend(ModelBackend):
             if username is not None:
                 user = UserModel._default_manager.get_by_natural_key(username)
             elif email is not None:
-                user = UserModel._default_manager.get(email=email)
+                user = UserModel._default_manager.get(email=email, is_active = True)
             else:
                 return
-        except UserModel.DoesNotExist:
+        except (UserModel.DoesNotExist, UserModel.MultipleObjectsReturned):
             # Run the default password hasher once to reduce the timing
             # difference between an existing and a nonexistent user (#20760).
             UserModel().set_password(password)
