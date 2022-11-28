@@ -26,23 +26,26 @@ from __future__ import unicode_literals
 from datetime import date
 
 from django.contrib.auth.models import Permission
+from django.conf import settings
 
 from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework import tools, signal_and_lock
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
-    AudiLogConfig, GroupsDelete, PreferenceEdit
+    AudiLogConfig, GroupsDelete, PreferenceEdit, UsersShow
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
 from lucterios.CORE.views import Unlock
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.CORE import parameters
+from lucterios.framework.signal_and_lock import Signal
 
 
 class UserTest(LucteriosTest):
 
     def setUp(self):
+        settings.LOGIN_FIELD = 'username'
         signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
@@ -141,7 +144,10 @@ class UserTest(LucteriosTest):
         self.calljson('/CORE/exitConnection', {})
 
     def test_userdisabledenabled(self):
-        add_user("user1")
+        user1 = add_user("user1")
+        user1.email = "empty@lucterios.org"
+        user1.save()
+
         self.factory.xfer = UsersList()
         self.calljson('/CORE/usersList', {}, False)
         self.assert_count_equal("user_actif", 3)
@@ -176,6 +182,35 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('', 'user_actif/@1/username', 'empty')
         self.assert_json_equal('', 'user_actif/@2/username', 'user1')
 
+    def test_userenabled_conf_email(self):
+        settings.LOGIN_FIELD = 'email'
+        user1 = add_user("user1", last_login=None)
+        user1.is_active = False
+        user1.save()
+        user2 = add_user('empty2', last_login=None)
+        user2.email = "empty@lucterios.org"
+        user2.is_active = False
+        user2.save()
+        user3 = add_user('empty3', last_login=None)
+        user3.email = ""
+        user3.is_active = False
+        user3.save()
+
+        self.factory.xfer = UsersEnabled()
+        self.calljson('/CORE/usersEnabled', {'user_inactif': user1.id}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEnabled')
+        self.assertEqual(self.json_context['user_inactif'], str(user1.id))
+
+        self.factory.xfer = UsersEnabled()
+        self.calljson('/CORE/usersEnabled', {'user_inactif': user2.id}, False)
+        self.assert_observer('core.exception', 'CORE', 'usersEnabled')
+        self.assert_json_equal('', "message", "Utilisateur non activable: un autre avec le même courriel est actif !")
+
+        self.factory.xfer = UsersEnabled()
+        self.calljson('/CORE/usersEnabled', {'user_inactif': user3.id}, False)
+        self.assert_observer('core.exception', 'CORE', 'usersEnabled')
+        self.assert_json_equal('', "message", "Utilisateur non activable: pas de courriel !")
+
     def test_useredit(self):
         add_user("user1")
         self.factory.xfer = UsersEdit()
@@ -205,6 +240,7 @@ class UserTest(LucteriosTest):
         self.assert_json_equal('EDIT', "first_name", 'user1')
         self.assert_json_equal('EDIT', "last_name", 'USER1')
         self.assert_json_equal('EDIT', "email", 'user1@lucterios.org')
+        self.assert_attrib_equal("email", 'needed', 'False')
 
         self.assert_json_equal('CHECK', "password_change", "0")
         self.assert_json_equal('PASSWD', "password1", '')
@@ -270,6 +306,7 @@ class UserTest(LucteriosTest):
         self.assert_attrib_equal('first_name', 'needed', 'False')
         self.assert_comp_equal(('EDIT', "last_name"), '', (0, 4, 1, 1, 1))
         self.assert_comp_equal(('EDIT', "email"), '', (0, 5, 1, 1, 1))
+        self.assert_attrib_equal("email", 'needed', 'False')
         self.assert_comp_equal(('CHECK', "password_change"), '0', (0, 6, 1, 1, 1))
         self.assert_comp_equal(('PASSWD', "password1"), '', (0, 7, 1, 1))
         self.assert_comp_equal(('PASSWD', "password2"), '', (0, 8, 1, 1))
@@ -300,14 +337,23 @@ class UserTest(LucteriosTest):
         self.assertEqual(self.json_context['groups'], '1')
         self.assertEqual(self.json_context['user_permissions'], '7;9;11')
 
-        self.assertEqual(5, len(LucteriosUser.objects.all()))
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'newuser2', "is_staff": '0', "is_superuser": '1', "first_name": 'my', "last_name": 'BIG',
+                                          "email": 'my@big.org'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
+        self.assert_action_equal('POST', self.response_json['action'], ("", "images/edit.png", "CORE", "usersShow", 1, 1, 1, {"user_actif": 6}))
+        self.factory.xfer = UsersShow()
+        self.calljson('/CORE/usersShow', {"user_actif": 6}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersShow')
+
+        self.assertEqual(6, len(LucteriosUser.objects.all()))
 
         user = LucteriosUser.objects.get(id=5)
         self.factory.xfer = UsersEdit()
         self.calljson('/CORE/usersEdit', {'user_actif': '5'}, False)
         self.assertEqual(user.username, 'newuser')
         self.assertEqual(user.date_joined.strftime('%d %m %Y'), date.today().strftime('%d %m %Y'))
-        self.assertEqual(user.last_login.strftime('%d %m %Y'), date.today().strftime('%d %m %Y'))
+        self.assertEqual(user.last_login, None)
         self.assertEqual(user.is_staff, False)
         self.assertEqual(user.is_superuser, True)
         self.assertEqual(user.first_name, 'my')
@@ -321,6 +367,47 @@ class UserTest(LucteriosTest):
         self.assertEqual(perms[0].id, 7)
         self.assertEqual(perms[1].id, 9)
         self.assertEqual(perms[2].id, 11)
+
+    def test_useraddsave_conf_email(self):
+        settings.LOGIN_FIELD = 'email'
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersEdit')
+        self.assert_attrib_equal("email", 'needed', 'True')
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'user1', "is_staff": '0', "is_superuser": '0', "first_name": 'user1', "last_name": 'USER',
+                                          "email": 'user@big.org'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
+        self.assert_action_equal('POST', self.response_json['action'], ("", "images/edit.png", "CORE", "usersShow", 1, 1, 1, {"user_actif": 3}))
+        self.factory.xfer = UsersShow()
+        self.calljson('/CORE/usersShow', {"user_actif": 3}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersShow')
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'user2', "is_staff": '0', "is_superuser": '0', "first_name": 'user2', "last_name": 'USER',
+                                          "email": 'user@big.org'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
+        self.assert_action_equal('POST', self.response_json['action'], ("", "images/edit.png", "CORE", "usersShow", 1, 1, 1, {"user_actif": 4}))
+
+        self.factory.xfer = UsersShow()
+        self.calljson('/CORE/usersShow', {"user_actif": 4}, False)
+        self.assert_observer('core.dialogbox', 'CORE', 'usersShow')
+        self.assert_json_equal('', 'type', '1')
+        self.assert_json_equal('', 'text', 'Utilisateur déactivé: un autre avec le même courriel est actif !')
+
+        self.factory.xfer = UsersEdit()
+        self.calljson('/CORE/usersEdit', {'SAVE': 'YES', 'username': 'user3', "is_staff": '0', "is_superuser": '0', "first_name": 'user3', "last_name": 'USER',
+                                          "email": ''}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'usersEdit')
+        self.assert_action_equal('POST', self.response_json['action'], ("", "images/edit.png", "CORE", "usersShow", 1, 1, 1, {"user_actif": 5}))
+
+        self.factory.xfer = UsersShow()
+        self.calljson('/CORE/usersShow', {"user_actif": 5}, False)
+        self.assert_observer('core.dialogbox', 'CORE', 'usersShow')
+        self.assert_json_equal('', 'type', '1')
+        self.assert_json_equal('', 'text', 'Utilisateur déactivé: pas de courriel !')
 
     def test_userdeldisabled(self):
 
@@ -566,6 +653,39 @@ class UserTest(LucteriosTest):
         self.assert_observer('core.custom', 'CORE', 'usersList')
         self.assert_json_equal('', 'preference/@2/title', 'dummy-default-value')
         self.assert_json_equal('', 'preference/@2/value_txt', '0')
+
+    def test_user_conf_username(self):
+        user2 = add_user('empty2')
+        user2.email = "empty@lucterios.org"
+        user2.is_active = True
+        user2.save()
+        user3 = add_user('empty3')
+        user3.email = ""
+        user3.is_active = True
+        user3.save()
+
+        self.assertEqual(LucteriosUser.objects.filter(is_active=True).count(), 4)
+        self.assertEqual(LucteriosUser.objects.filter(is_active=False).count(), 0)
+        Signal.call_signal("convertdata")
+        self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=True)], ["admin", "empty", "empty2", "empty3"])
+        self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=False)], [])
+
+    def test_user_conf_email(self):
+        settings.LOGIN_FIELD = 'email'
+        user2 = add_user('empty2', last_login=None)
+        user2.email = "empty@lucterios.org"
+        user2.is_active = True
+        user2.save()
+        user3 = add_user('empty3', last_login=None)
+        user3.email = ""
+        user3.is_active = True
+        user3.save()
+
+        self.assertEqual(LucteriosUser.objects.filter(is_active=True).count(), 4)
+        self.assertEqual(LucteriosUser.objects.filter(is_active=False).count(), 0)
+        Signal.call_signal("convertdata")
+        self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=True)], ["empty"])
+        self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=False)], ["admin", "empty2", "empty3"])
 
 
 class GroupTest(LucteriosTest):

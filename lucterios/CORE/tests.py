@@ -28,7 +28,7 @@ from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
-from lucterios.framework.test import LucteriosTest, add_empty_user
+from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework.tools import WrapAction
 from lucterios.CORE.views import Configuration, ParamEdit, ParamSave
 from lucterios.CORE.parameters import Params
@@ -90,6 +90,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
         self.assertEqual(self.response_json['connexion']['MODE'], '0')
+        self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'username')
 
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
@@ -109,10 +110,40 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['SUPPORT_EMAIL'][0:8], 'support@')
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'admin')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
+        self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'email')
         self.assertEqual(self.response_json['connexion']['MODE'], '0')
 
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+    def test_connect_email_otherdisabled(self):
+        user = add_user('other_empty')
+        user.last_name = 'OTHER'
+        user.email = "empty@lucterios.org"
+        user.is_active = False
+        user.save()
+
+        settings.LOGIN_FIELD = 'email'
+        self.calljson('/CORE/authentification', {'login': 'empty@lucterios.org', 'password': 'empty'})
+        self.assert_observer('core.auth', 'CORE', 'authentification')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['LOGIN'], 'empty')
+        self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
+        self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'email')
+
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+    def test_connect_email_bothemail(self):
+        user = add_user('other_empty')
+        user.last_name = 'OTHER'
+        user.email = "empty@lucterios.org"
+        user.save()
+
+        settings.LOGIN_FIELD = 'email'
+        self.calljson('/CORE/authentification', {'login': 'empty@lucterios.org', 'password': 'empty'})
+        self.assert_observer('core.auth', 'CORE', 'authentification')
+        self.assert_json_equal('', '', 'BADAUTH')
 
     def test_menu_connected(self):
         self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})

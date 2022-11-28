@@ -49,9 +49,9 @@ def is_number(text):
         return False
 
 
-def add_user(username, is_superuser=False):
+def add_user(username, is_superuser=False, last_login=timezone.now()):
     user = LucteriosUser.objects.create_user(
-        username=username, password=username, last_login=timezone.now())
+        username=username, password=username, last_login=last_login)
     user.first_name = username
     user.last_name = username.upper()
     user.email = "%s@lucterios.org" % username

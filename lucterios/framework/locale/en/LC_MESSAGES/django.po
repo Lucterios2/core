@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-31 08:17+0000\n"
+"POT-Creation-Date: 2022-11-28 16:23+0000\n"
 "PO-Revision-Date: 2022-08-31 10:16+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -74,7 +74,7 @@ msgstr "create"
 msgid "update"
 msgstr "update"
 
-#: models.py:761 tools.py:443
+#: models.py:761 tools.py:453
 msgid "delete"
 msgstr "delete"
 
@@ -82,7 +82,7 @@ msgstr "delete"
 msgid "remove"
 msgstr "remove"
 
-#: models.py:763 tools.py:439
+#: models.py:763 tools.py:449
 msgid "add"
 msgstr "add"
 
@@ -164,24 +164,24 @@ msgstr "This impression failed !"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:140
+#: tools.py:150
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:142
+#: tools.py:152
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:441
+#: tools.py:451
 msgid "view"
 msgstr "view"
 
-#: tools.py:578 xfergraphic.py:159
+#: tools.py:588 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:580 xfergraphic.py:160
+#: tools.py:590 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 
@@ -273,16 +273,16 @@ msgstr "Do you want delete those %(nb)s %(name)s?"
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferadvance.py:326
+#: xferadvance.py:332
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}A condition should not be verified."
 
-#: xferadvance.py:329
+#: xferadvance.py:335
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Do you want to change this %(name)s to '%(state)s'?"
 
-#: xferadvance.py:339
+#: xferadvance.py:345
 msgid "Bad transition"
 msgstr "Bad transition"
 

@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import dirname, join, exists, isfile
-from os import walk, makedirs, unlink
+from os import walk, makedirs, unlink, getenv
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
 from imp import load_source
@@ -502,6 +502,18 @@ class LucteriosUser(User, LucteriosModel):
     def preferences_set(self):
         return self.PreferenceUser(hints={'user': self})
 
+    @property
+    def is_email_already_exists(self):
+        if self.last_login is None:
+            return LucteriosUser.objects.filter(
+                models.Q(email=self.email, is_active=True) & (
+                    models.Q(last_login__isnull=False) |
+                    models.Q(last_login__isnull=True, id__lt=self.id)
+                )
+            ).count() != 0
+        else:
+            return LucteriosUser.objects.filter(email=self.email, is_active=True, last_login__gt=self.last_login).count() != 0
+
     class Meta(User.Meta):
 
         proxy = True
@@ -832,6 +844,24 @@ def core_checkparam():
     LucteriosGroup.redefine_generic(_("# Core (administrator)"), Parameter.get_permission(True, True, True), SavedCriteria.get_permission(True, True, True), LucteriosLogEntry.get_permission(True, True, True),
                                     LucteriosGroup.get_permission(True, True, True), LucteriosUser.get_permission(True, True, True),
                                     Label.get_permission(True, True, True), PrintModel.get_permission(True, True, True))
+
+
+@Signal.decorate('convertdata')
+def core_convertdata():
+    from django.conf import settings
+    if settings.LOGIN_FIELD == 'email':
+        for user_without_email in LucteriosUser.objects.filter(email="", is_active=True):
+            user_without_email.is_active = False
+            user_without_email.save()
+            print('--> Disabled user without email %s' % user_without_email.username)
+        query = models.Q()
+        for ident in LucteriosUser.objects.filter(is_active=True).values("email").annotate(models.Count('id')).values("email").order_by().filter(id__count__gt=1):
+            query |= models.Q(**ident)
+        for user_email_exist in LucteriosUser.objects.filter(query & models.Q(is_active=True)):
+            if user_email_exist.is_email_already_exists:
+                user_email_exist.is_active = False
+                user_email_exist.save()
+                print('--> Disabled user with email already exist %s (last login=%s)' % (user_email_exist.username, user_email_exist.last_login))
 
 
 def set_auditlog_states():
