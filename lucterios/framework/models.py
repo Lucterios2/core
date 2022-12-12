@@ -64,6 +64,24 @@ def eval_sublist(field_list, field_value):
     return "{[br/]}".join(field_val)
 
 
+class LucteriosQuerySet(QuerySet):
+
+    def __init__(self, model, *args, initial=[], **kwargs):
+        super(LucteriosQuerySet, self).__init__(model=model, *args, **kwargs)
+        self._result_cache = initial
+
+    def order_by(self, *field_names):
+        new_query = LucteriosQuerySet(model=self.model, initial=self._result_cache[:])
+        fieldnames = list(field_names)
+        fieldnames.reverse()
+        for fieldname in fieldnames:
+            if fieldname[0] == '-':
+                new_query._result_cache.sort(key=lambda item: getattr(item, fieldname[1:], None), reverse=True)
+            else:
+                new_query._result_cache.sort(key=lambda item: getattr(item, fieldname, None), reverse=False)
+        return new_query
+
+
 class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
