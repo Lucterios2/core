@@ -40,6 +40,7 @@ class AuthentificationTest(LucteriosTest):
     def setUp(self):
         LucteriosTest.setUp(self)
         settings.LOGIN_FIELD = 'username'
+        settings.ASK_LOGIN_EMAIL = False
         admin = LucteriosUser.objects.get(username="admin")
         admin.email = "admin@localhost"
         admin.save()
@@ -97,6 +98,7 @@ class AuthentificationTest(LucteriosTest):
 
     def test_connect_email(self):
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
         self.calljson('/CORE/authentification', {'login': 'admin@localhost', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
@@ -124,6 +126,7 @@ class AuthentificationTest(LucteriosTest):
         user.save()
 
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
         self.calljson('/CORE/authentification', {'login': 'empty@lucterios.org', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
@@ -141,6 +144,7 @@ class AuthentificationTest(LucteriosTest):
         user.save()
 
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
         self.calljson('/CORE/authentification', {'login': 'empty@lucterios.org', 'password': 'empty'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'BADAUTH')

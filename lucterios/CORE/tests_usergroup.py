@@ -46,6 +46,7 @@ class UserTest(LucteriosTest):
 
     def setUp(self):
         settings.LOGIN_FIELD = 'username'
+        settings.ASK_LOGIN_EMAIL = False
         signal_and_lock.unlocker_view_class = Unlock
         signal_and_lock.RecordLocker.clear()
         LucteriosTest.setUp(self)
@@ -89,9 +90,10 @@ class UserTest(LucteriosTest):
         self.assert_action_equal('POST', '#user_actif/actions/@3', ('Désactiver', 'images/delete.png', 'CORE', 'usersDisabled', 0, 1, 0))
 
         self.assert_grid_equal('user_inactif', {"username": "nom d'utilisateur", "first_name": "prénom", "last_name": "nom"}, 0)
-        self.assert_count_equal('#user_inactif/actions', 2)
+        self.assert_count_equal('#user_inactif/actions', 3)
         self.assert_action_equal('POST', '#user_inactif/actions/@0', ('Réactiver', 'images/ok.png', 'CORE', 'usersEnabled', 0, 1, 0))
-        self.assert_action_equal('DELETE', '#user_inactif/actions/@1', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
+        self.assert_action_equal('POST', '#user_inactif/actions/@1', ('Modifier', 'images/edit.png', 'CORE', 'usersEdit', 0, 1, 0))
+        self.assert_action_equal('DELETE', '#user_inactif/actions/@2', ('Supprimer', 'images/delete.png', 'CORE', 'usersDelete', 0, 1, 2))
 
         self.assert_grid_equal('preference', {"title": "nom", "value_txt": "valeur"}, 3)
 
@@ -184,6 +186,7 @@ class UserTest(LucteriosTest):
 
     def test_userenabled_conf_email(self):
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
         user1 = add_user("user1", last_login=None)
         user1.is_active = False
         user1.save()
@@ -228,9 +231,9 @@ class UserTest(LucteriosTest):
 
         self.assert_coordcomp_equal('username', (1, 0, 1, 1))
         self.assert_json_equal('LABELFORM', "username", 'user1')
-        self.assert_coordcomp_equal('date_joined', (0, 1, 1, 1))
+        self.assert_coordcomp_equal('date_joined', (1, 1, 1, 1))
         self.assert_json_equal('LABELFORM', "date_joined", date.today().isoformat(), True)
-        self.assert_coordcomp_equal('last_login', (0, 2, 1, 1))
+        self.assert_coordcomp_equal('last_login', (1, 2, 1, 1))
         self.assert_json_equal('LABELFORM', "last_login", date.today().isoformat(), True)
 
         self.assert_json_equal('TAB', '__tab_1', "Informations")
@@ -370,6 +373,7 @@ class UserTest(LucteriosTest):
 
     def test_useraddsave_conf_email(self):
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
 
         self.factory.xfer = UsersEdit()
         self.calljson('/CORE/usersEdit', {}, False)
@@ -672,6 +676,7 @@ class UserTest(LucteriosTest):
 
     def test_user_conf_email(self):
         settings.LOGIN_FIELD = 'email'
+        settings.ASK_LOGIN_EMAIL = True
         user2 = add_user('empty2', last_login=None)
         user2.email = "empty@lucterios.org"
         user2.is_active = True
