@@ -155,13 +155,7 @@ class Menu(XferContainerMenu):
             getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
 
-def right_changepassword(request):
-    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'lucterios.framework.backends.EmailModelBackend'):
-        return False
-    return request.user.is_authenticated
-
-
-@MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
+@MenuManage.describ(None, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("Password")
     icon = "passwd.png"
@@ -211,8 +205,6 @@ class ModifyPassword(XferContainerAcknowledge):
 
 def right_askpassword(request):
     if not notfree_mode_connect():
-        return False
-    if (len(settings.AUTHENTICATION_BACKENDS) != 1) or (settings.AUTHENTICATION_BACKENDS[0] != 'lucterios.framework.backends.EmailModelBackend'):
         return False
     if (signal_and_lock.Signal.call_signal("send_connection", None, None, None) == 0):
         return False
