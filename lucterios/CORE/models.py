@@ -864,10 +864,13 @@ def core_checkparam():
 def core_convertdata():
     from django.conf import settings
     if settings.ASK_LOGIN_EMAIL:
+        nb_no_email = 0
         for user_without_email in LucteriosUser.objects.filter(email="", is_active=True):
             user_without_email.is_active = False
             user_without_email.save()
+            nb_no_email += 1
             print('--> Disabled user without email %s' % user_without_email.username)
+        nb_multi_email = 0
         query = models.Q()
         for ident in LucteriosUser.objects.filter(is_active=True).values("email").annotate(models.Count('id')).values("email").order_by().filter(id__count__gt=1):
             query |= models.Q(**ident)
@@ -875,7 +878,9 @@ def core_convertdata():
             if user_email_exist.is_email_already_exists:
                 user_email_exist.is_active = False
                 user_email_exist.save()
+                nb_multi_email += 1
                 print('--> Disabled user with email already exist %s (last login=%s)' % (user_email_exist.username, user_email_exist.last_login))
+        print('-->  Nb no-email = %d / NB multi-email = %d ' % (nb_no_email, nb_multi_email))
 
 
 def set_auditlog_states():
