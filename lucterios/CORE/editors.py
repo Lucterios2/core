@@ -49,8 +49,11 @@ class LucteriosUserEditor(LucteriosEditor):
             xfer.tab = obj_username.tab
             xfer.filltab_from_model(obj_username.col, obj_username.row + 1, True, ['date_joined', 'last_login'])
         xfer.change_to_readonly('is_active')
+        xfer.get_components('first_name').set_needed(True)
+        xfer.get_components('last_name').set_needed(True)
         obj_email = xfer.get_components('email')
         obj_email.set_needed(settings.ASK_LOGIN_EMAIL)
+        obj_email.mask = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
         xfer.tab = obj_email.tab
         new_row = obj_email.row
         ckk = XferCompCheck('password_change')
