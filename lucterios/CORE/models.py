@@ -24,7 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import dirname, join, exists, isfile
-from os import walk, makedirs, unlink, getenv
+from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
 from imp import load_source

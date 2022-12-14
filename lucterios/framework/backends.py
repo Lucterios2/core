@@ -37,7 +37,7 @@ class EmailModelBackend(ModelBackend):
             if username is not None:
                 user = UserModel._default_manager.get_by_natural_key(username)
             elif email is not None:
-                user = UserModel._default_manager.get(email=email, is_active = True)
+                user = UserModel._default_manager.get(email=email, is_active=True)
             else:
                 return
         except (UserModel.DoesNotExist, UserModel.MultipleObjectsReturned):
