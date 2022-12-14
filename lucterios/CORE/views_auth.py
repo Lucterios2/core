@@ -35,7 +35,6 @@ from lucterios.framework.models import LucteriosSession
 from lucterios.CORE.parameters import Params, secure_mode_connect
 from lucterios.framework.plugins import PluginManager
 from lucterios.CORE.models import LucteriosUser
-from django.contrib.auth.models import AnonymousUser
 
 
 def get_info_server():
@@ -143,7 +142,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['MESSAGE_BEFORE'] = Params.getvalue("CORE-MessageBefore")
         info_cnx['LANGUAGE'] = self.language
         info_cnx['MODE'] = str(Params.getvalue("CORE-connectmode"))
-        info_cnx['LOGIN_FIELD'] = settings.LOGIN_FIELD
+        info_cnx['LOGIN_FIELD'] = "email" if settings.ASK_LOGIN_EMAIL else 'username'
         if self.request.user.is_authenticated:
             info_cnx['LOGIN'] = self.request.user.username
             info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)

@@ -1000,6 +1000,8 @@ class LucteriosInstance(LucteriosManage):
             LucteriosVirtualField.virtual_disabled = True
             try:
                 from django.core.management import call_command
+                from django.contrib.auth import get_backends
+                get_backends()
                 call_command('loaddata', output_filename, ignore=True)
                 self.run_new_migration(tmp_path)
                 self.print_info_("instance restored with '%s'" % self.filename)

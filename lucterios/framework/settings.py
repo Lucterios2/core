@@ -161,6 +161,7 @@ DEFAULT_SETTINGS = {
     "DEFAULT_AUTO_FIELD": 'django.db.models.AutoField',
     "AUTHENTICATION_BACKENDS": ["lucterios.framework.backends.EmailModelBackend"],
     'LOGIN_FIELD': 'username',
+    'ASK_LOGIN_EMAIL': False,
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',
@@ -228,6 +229,8 @@ def initialize_appli_settings(appli_name, module_to_setup):
         if 'ATOMIC_REQUESTS' not in my_database['default']:
             my_database['default']['ATOMIC_REQUESTS'] = True
     setattr(module_to_setup, "BASE_DIR", dirname(setup_path))
+    if getattr(module_to_setup, 'LOGIN_FIELD', 'username') == 'email':
+        setattr(module_to_setup, 'ASK_LOGIN_EMAIL', True)
     return setup_path
 
 

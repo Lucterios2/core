@@ -33,7 +33,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
 from django.db import models
-from django.db.models.signals import post_migrate
+from django.db.models.signals import post_migrate, pre_save, post_save
 from django.utils.translation import ugettext_lazy as _, ugettext_lazy
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
@@ -514,6 +514,20 @@ class LucteriosUser(User, LucteriosModel):
         else:
             return LucteriosUser.objects.filter(email=self.email, is_active=True, last_login__gt=self.last_login).count() != 0
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        pre_save.send(sender=self.__class__, instance=self, raw=False, using=using, update_fields=update_fields)
+        if self.id is None:
+            current_user = User()
+            updated = False
+        else:
+            current_user = User.objects.get(pk=self.id)
+            updated = True
+        current_user.__dict__.update(self.__dict__)
+        ret = current_user.save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        self.__dict__.update(current_user.__dict__)
+        post_save.send(sender=self.__class__, instance=self, created=(not updated), update_fields=update_fields, raw=False, using=using)
+        return ret
+
     class Meta(User.Meta):
 
         proxy = True
@@ -849,7 +863,7 @@ def core_checkparam():
 @Signal.decorate('convertdata')
 def core_convertdata():
     from django.conf import settings
-    if settings.LOGIN_FIELD == 'email':
+    if settings.ASK_LOGIN_EMAIL:
         for user_without_email in LucteriosUser.objects.filter(email="", is_active=True):
             user_without_email.is_active = False
             user_without_email.save()
@@ -883,6 +897,8 @@ def core_auditlog_register():
 def post_after_migrate(sender, **kwargs):
     if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
         from django.conf import settings
+        from django.contrib.auth import get_backends
+        get_backends()
         set_locale_lang(settings.LANGUAGE_CODE)
         print('check parameters')
         Signal.call_signal("checkparam")

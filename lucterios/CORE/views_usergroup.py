@@ -111,18 +111,18 @@ class UsersShow(XferContainerAcknowledge):
 
     def fillresponse(self):
         from django.conf import settings
-        if self.item.is_active and (settings.LOGIN_FIELD == 'email') and (self.item.email == ""):
+        if self.item.is_active and settings.ASK_LOGIN_EMAIL and (self.item.email == ""):
             self.item.is_active = False
             self.item.save()
             self.message(_('User deactivated: no email!'))
-        if self.item.is_active and (settings.LOGIN_FIELD == 'email') and self.item.is_email_already_exists:
+        if self.item.is_active and settings.ASK_LOGIN_EMAIL and self.item.is_email_already_exists:
             self.item.is_active = False
             self.item.save()
             self.message(_('User deactivated: another with the same email is active!'))
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif'), unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
     caption_add = _("Add an users")
@@ -134,6 +134,13 @@ class UsersEdit(XferAddEditor):
     def _initialize(self, request, *_, **kwargs):
         XferContainerCustom._initialize(self, request, *_, **kwargs)
         self.with_auditlog_btn = True
+
+    def fillresponse(self):
+        user_inactif = self.getparam('user_inactif', 0)
+        if user_inactif != 0:
+            self.item = LucteriosUser.objects.get(id=user_inactif)
+            self.params[self.field_id] = user_inactif
+        XferAddEditor.fillresponse(self)
 
 
 @MenuManage.describ('auth.change_user')
@@ -183,9 +190,9 @@ class UsersEnabled(XferContainerAcknowledge):
         from django.conf import settings
         if user_actif != 0:
             self.item = LucteriosUser.objects.get(id=user_actif)
-        if (settings.LOGIN_FIELD == 'email') and (self.item.email == ""):
+        if settings.ASK_LOGIN_EMAIL and (self.item.email == ""):
             raise LucteriosException(IMPORTANT, _("User cannot be activated: no email!"))
-        if (settings.LOGIN_FIELD == 'email') and self.item.is_email_already_exists:
+        if settings.ASK_LOGIN_EMAIL and self.item.is_email_already_exists:
             raise LucteriosException(IMPORTANT, _("User cannot be activated: another with the same email is active!"))
         self.item.is_active = True
         self.item.save()

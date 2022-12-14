@@ -46,10 +46,11 @@ class LucteriosUserEditor(LucteriosEditor):
         if self.item.id is not None:
             xfer.change_to_readonly('username')
             obj_username = xfer.get_components('username')
-            xfer.filltab_from_model(obj_username.col - 1, obj_username.row + 1, True, ['date_joined', 'last_login'])
+            xfer.tab = obj_username.tab
+            xfer.filltab_from_model(obj_username.col, obj_username.row + 1, True, ['date_joined', 'last_login'])
         xfer.change_to_readonly('is_active')
         obj_email = xfer.get_components('email')
-        obj_email.set_needed(settings.LOGIN_FIELD == 'email')
+        obj_email.set_needed(settings.ASK_LOGIN_EMAIL)
         xfer.tab = obj_email.tab
         new_row = obj_email.row
         ckk = XferCompCheck('password_change')
