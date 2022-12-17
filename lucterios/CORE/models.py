@@ -483,6 +483,10 @@ class LucteriosUser(User, LucteriosModel):
         return ['username', 'date_joined', 'last_login', 'is_active', 'is_staff', 'is_superuser', 'first_name', 'last_name', 'email']
 
     @classmethod
+    def get_search_fields(cls, with_addon=True):
+        return cls.get_show_fields()
+
+    @classmethod
     def get_print_fields(cls):
         return ['username']
 

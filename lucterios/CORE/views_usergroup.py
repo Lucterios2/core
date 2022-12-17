@@ -32,6 +32,7 @@ from django.db.models import Q
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE,\
     TITLE_CLOSE, XferShowEditor
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
+from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
     XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
@@ -102,6 +103,15 @@ class UsersList(XferListEditor):
         self.fill_grid(1, Preference, 'preference', Preference.objects.filter(user__isnull=True))
 
 
+@ActionsManage.affect_list(_("Search"), "user.png", condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
+@MenuManage.describ('auth.change_user')
+class UsersSearch(XferSearchEditor):
+    caption = _("User search")
+    icon = "user.png"
+    model = LucteriosUser
+    field_id = 'user'
+
+
 @ActionsManage.affect_other("", "images/edit.png")
 @MenuManage.describ('auth.add_user')
 class UsersShow(XferContainerAcknowledge):
@@ -122,7 +132,7 @@ class UsersShow(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif'), unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif') or (gridname == 'user'), unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
     caption_add = _("Add an users")
