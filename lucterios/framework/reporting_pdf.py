@@ -37,7 +37,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.lib.colors import HexColor
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus.tables import TableStyle
+from reportlab.platypus.tables import TableStyle, CellStyle
 from reportlab.pdfbase.pdfmetrics import stringWidth
 
 from lucterios.framework.filetools import is_image_base64
@@ -399,6 +399,7 @@ class TableManage(object):
         self.data = [self.cellcolumns]
 
     def check_heigth(self):
+        CellStyle.valign = "TOP"
         table = Table(self.data + [self.row_line], style=get_table_style(), colWidths=self.width_columns)
         _, table_h = table.wrapOn(self.parent.pdf, self.current_w, self.current_h)
         return table_h
