@@ -482,6 +482,7 @@ def toHtml(inittext, totext=True, withclean=True):
         if pos_out == -1:
             text = text[:pos_in] + '&amp;' + text[pos_in + 1:]
         pos_in = text.find('&', pos_in + 1)
+    text = text.replace('&nbsp;', ' ')
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
     text = text.replace('{[newline]}', '<br/>')

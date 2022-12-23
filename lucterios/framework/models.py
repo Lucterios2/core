@@ -158,7 +158,8 @@ class LucteriosModel(models.Model):
             select_list.append(
                 (cls.get_long_name(), cls._meta.verbose_name.title()))
         for sub_class in cls.__subclasses__():
-            select_list.extend(sub_class.get_select_contact_type())
+            if not sub_class._meta.proxy:
+                select_list.extend(sub_class.get_select_contact_type(with_current=with_current or not sub_class._meta.abstract))
         return select_list
 
     @classmethod
