@@ -362,9 +362,9 @@ class SavedCriteriaDel(XferDelete):
 MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("Report and print"), _("To manage reports and tools of printing."), 30)
 
 
-@MenuManage.describ('CORE.change_printmodel', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing models."))
+@MenuManage.describ('CORE.change_printmodel', FORMTYPE_NOMODAL, 'core.print', _("To Manage printing templates."))
 class PrintModelList(XferListEditor):
-    caption = _("Print models")
+    caption = _("Print templates")
     icon = "PrintReportModel.png"
     model = PrintModel
     field_id = 'print_model'
