@@ -163,6 +163,22 @@ class LucteriosModel(models.Model):
         return select_list
 
     @classmethod
+    def create_print_template(cls):
+        from lucterios.CORE.models import PrintModel
+        fullmodel, _create = PrintModel.objects.get_or_create(name=_('full list'),
+                                                              kind=PrintModel.KIND_LISTING,
+                                                              modelname=cls.get_long_name(),
+                                                              mode=PrintModel.MODE_SIMPLE)
+        fullmodel.value = """297
+210
+"""
+        for field in cls.get_all_print_fields(with_plugin=False):
+            if isinstance(field, tuple) and (len(field) == 2) and ((field[1].count('.') <= 1) or ((field[1].count('.') == 2) and field[1].endswith('.str'))):
+                fullmodel.value += "1//%s//#%s\n" % field
+        fullmodel.save()
+        return fullmodel.name
+
+    @classmethod
     def get_import_fields(cls):
         fields = []
         for field in cls.get_edit_fields():
@@ -517,8 +533,12 @@ class LucteriosModel(models.Model):
             child = getattr(item, mother_field_name)
             field_title = child.model._meta.verbose_name
             last_field_name = ".".join(field_name.split('.')[1:])
-            for (sub_title, __new_field) in child.model.get_field_for_print(with_plugin, last_field_name):
-                fields.append(("%s > %s" % (field_title, sub_title), field_name))
+            for (sub_title, new_field) in child.model.get_field_for_print(with_plugin, last_field_name):
+                if field_name.endswith('.str'):
+                    extend_field = field_name
+                else:
+                    extend_field = ".".join([field_name] + new_field.split('.')[1:])
+                fields.append(("%s > %s" % (field_title, sub_title), extend_field))
         else:
             fields.extend(item._append_sub_field_for_print(field_name, with_plugin))
         return fields
