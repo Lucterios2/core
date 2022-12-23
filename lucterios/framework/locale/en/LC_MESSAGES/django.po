@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-28 16:23+0000\n"
+"POT-Creation-Date: 2022-12-23 19:34+0000\n"
 "PO-Revision-Date: 2022-08-31 10:16+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -35,118 +35,122 @@ msgstr "current date"
 msgid "current hour"
 msgstr "current hour"
 
-#: models.py:235
+#: models.py:168
+msgid "full list"
+msgstr ""
+
+#: models.py:270
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' unknown !"
 
-#: models.py:375
+#: models.py:410
 msgid ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 msgstr ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 
-#: models.py:535
+#: models.py:574
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:579
+#: models.py:618
 msgid "username"
 msgstr "username"
 
-#: models.py:580
+#: models.py:619
 msgid "is active"
 msgstr "is active"
 
-#: models.py:620
+#: models.py:659
 msgid "session"
 msgstr "session"
 
-#: models.py:621
+#: models.py:660
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:759
+#: models.py:798
 msgid "create"
 msgstr "create"
 
-#: models.py:760
+#: models.py:799
 msgid "update"
 msgstr "update"
 
-#: models.py:761 tools.py:453
+#: models.py:800 tools.py:453
 msgid "delete"
 msgstr "delete"
 
-#: models.py:762
+#: models.py:801
 msgid "remove"
 msgstr "remove"
 
-#: models.py:763 tools.py:449
+#: models.py:802 tools.py:449
 msgid "add"
 msgstr "add"
 
-#: models.py:773 models.py:780
+#: models.py:812 models.py:819
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:774
+#: models.py:813
 msgid "content type"
 msgstr "content type"
 
-#: models.py:775
+#: models.py:814
 msgid "actor"
 msgstr "actor"
 
-#: models.py:776
+#: models.py:815
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:777
+#: models.py:816
 msgid "object id"
 msgstr "object id"
 
-#: models.py:778
+#: models.py:817
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:779
+#: models.py:818
 msgid "action"
 msgstr "action"
 
-#: models.py:781
+#: models.py:820
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:782
+#: models.py:821
 msgid "date"
 msgstr "date"
 
-#: models.py:783
+#: models.py:822
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:789
+#: models.py:828
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:791
+#: models.py:830
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:793
+#: models.py:832
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:795
+#: models.py:834
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:900
+#: models.py:939
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:901
+#: models.py:940
 msgid "log entries"
 msgstr "log entries"
 
@@ -177,11 +181,11 @@ msgstr "Bad permission for '%s'"
 msgid "view"
 msgstr "view"
 
-#: tools.py:588 xfergraphic.py:159
+#: tools.py:589 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:590 xfergraphic.py:160
+#: tools.py:591 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 

@@ -664,7 +664,7 @@ class PrintModel(LucteriosModel):
             selection.append((dblbl.id, dblbl.name))
         if len(selection) == 0:
             raise LucteriosException(IMPORTANT, _('No model!'))
-        return [('MODEL', _('model'), selection)]
+        return [('MODEL', _('Template'), selection)]
 
     @classmethod
     def get_print_default(cls, kind, model, raiseerror=True):
@@ -807,8 +807,8 @@ class PrintModel(LucteriosModel):
         return models
 
     class Meta(object):
-        verbose_name = _('model')
-        verbose_name_plural = _('models')
+        verbose_name = _('template')
+        verbose_name_plural = _('templates')
 
 
 class SavedCriteria(LucteriosModel):
