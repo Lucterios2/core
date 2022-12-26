@@ -138,6 +138,7 @@ def get_url_patterns():
     url_patterns.add_plugins()
     url_patterns.add_extra_url()
     logging.getLogger('lucterios.core.init').debug("Urls:" + '\n'.join(str(res_item) for res_item in url_patterns))
+    Signal.call_signal("get_url_patterns", url_patterns)
     Signal.call_signal("auditlog_register")
     LucteriosAuditlogModelRegistry.main_enabled()
     request_config()
