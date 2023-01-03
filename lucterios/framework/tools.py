@@ -27,6 +27,7 @@ from datetime import datetime, date, time
 from calendar import monthrange
 from babel.numbers import format_currency
 from babel.dates import format_date, format_time, format_datetime
+from logging import getLogger
 
 import threading
 import logging
@@ -183,7 +184,7 @@ class ActionsManage(object):
                         if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
                             acts.append((act_xclass.get_action(act_title, act_icon), dict(act_options)))
                     except Exception:
-                        print('error for [%s,%s,%s,%s]' % (act_ident, act_xclass, act_title, act_icon))
+                        getLogger('lucterios.framework').error('error for [%s,%s,%s,%s]', act_ident, act_xclass, act_title, act_icon)
                         raise
             if key is not None:
                 acts.sort(key=key)

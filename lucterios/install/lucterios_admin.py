@@ -38,6 +38,7 @@ import os
 from json import loads, dumps
 from subprocess import call, check_output
 from sys import executable
+from logging import getLogger
 
 
 INSTANCE_PATH = '.'
@@ -964,8 +965,7 @@ class LucteriosInstance(LucteriosManage):
                     "%s.migrations.%s" % (target_conf.module.__name__, target[1]))
                 for migr_obj in getmembers(migrat_mod):
                     if isfunction(migr_obj[1]) and (migr_obj[0][0] != '_'):
-                        print("run %s.%s.%s" %
-                              (target[0], target[1], migr_obj[0]))
+                        getLogger('lucterios.admin').debug("run %s.%s.%s" % (target[0], target[1], migr_obj[0]))
                         migr_obj[1]()
             except Exception:
                 pass

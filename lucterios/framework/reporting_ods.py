@@ -139,7 +139,7 @@ class ParserParam(ContentHandler):
         try:
             xml_content_string = toHtml(formatstr) % etree.tostring(xmltext, xml_declaration=False, encoding='utf-8').decode("utf-8")
         except Exception:
-            print('formatstr', formatstr)
+            getLogger('lucterios.core.print').error('formatstr %s', formatstr)
             raise
         parseString("<span>%s</span>" % xml_content_string, self)
         return self.paragraph_list

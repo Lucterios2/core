@@ -28,7 +28,6 @@ from __future__ import unicode_literals
 
 import sys
 import webbrowser
-import logging
 import os
 import signal
 from socket import socket, AF_INET, SOCK_STREAM
@@ -38,6 +37,7 @@ from time import sleep
 from traceback import print_exc
 from multiprocessing.context import Process
 from threading import Thread
+from logging import getLogger
 from re import compile
 from json import dumps
 
@@ -122,7 +122,7 @@ class RunServer(object):
         current_env = os.environ.copy()
         current_env['DJANGO_SETTINGS_MODULE'] = '%s.settings' % self.instance_name
         cmd = [sys.executable, "-m", "waitress", "--port", str(self.port), "lucterios.framework.wsgi:application"]
-        logging.getLogger(__name__).info("start instance : %s" % cmd)
+        getLogger('lucterios.admin').info("start instance : %s" % cmd)
         self.process = Popen(cmd, env=current_env)
         sleep(3.0)
         if self.process.poll() is not None:
@@ -153,7 +153,7 @@ def LucteriosRefreshAll():
         luct_glo = LucteriosGlobal()
         luct_glo.refreshall()
     except Exception:
-        logging.getLogger(__name__).exception("refreshall")
+        getLogger('lucterios.admin').exception("refreshall")
 
 
 class EditorInstance(object):
@@ -260,8 +260,8 @@ class LucteriosChecker(Thread):
             self.start()
             return True
         except OSError:
-            print("Exist yet, open windows")
-            print(self.send_message())
+            getLogger('lucterios.admin').error("Exist yet, open windows")
+            getLogger('lucterios.admin').error(self.send_message())
             return False
 
 
@@ -281,7 +281,7 @@ class LucteriosMain(object):
             process_startup.start()
 
             while process_startup.is_alive():
-                # print('updating')
+                getLogger('lucterios.admin').debug('updating')
                 self.splash.update()
             self.run_all_needed()
             self.run_after(1000, lambda: Thread(target=self.check).start())
@@ -349,7 +349,6 @@ class LucteriosMain(object):
 
     @ThreadRun
     def upgrade(self, *_args):
-        from logging import getLogger
         admin_path = import_module("lucterios.install.lucterios_admin").__file__
         proc = Popen([sys.executable, admin_path, "update"], stderr=STDOUT, stdout=PIPE)
         value = proc.communicate()[0]
@@ -357,7 +356,6 @@ class LucteriosMain(object):
             value = value.decode('ascii')
         except Exception:
             pass
-        print(value)
         if proc.returncode != 0:
             getLogger("lucterios.admin").error(value)
         else:
@@ -450,7 +448,7 @@ class LucteriosMain(object):
             self.show_info(gettext("Lucterios launcher"), gettext("Instance saved to %s") % file_name)
         else:
             self.show_error(gettext("Lucterios launcher"), gettext("Instance not saved!"))
-            logging.getLogger(__name__).error(proc_res.stdout.decode())
+            getLogger('lucterios.admin').error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     @ThreadRun
@@ -461,7 +459,7 @@ class LucteriosMain(object):
             self.show_info(gettext("Lucterios launcher"), gettext("Instance restore from %s") % file_name)
         else:
             self.show_error(gettext("Lucterios launcher"), gettext("Instance not restored!"))
-            logging.getLogger(__name__).error(proc_res.stdout.decode())
+            getLogger('lucterios.admin').error(proc_res.stdout.decode())
         self.refresh(instance_name)
 
     def modify_inst(self):

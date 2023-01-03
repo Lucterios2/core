@@ -969,4 +969,4 @@ def correct_db_field(fields):
     except Exception:
         logging.getLogger('lucterios.framwork').exception("correct_db_field")
     if ret > 0:
-        print("%s DB corrections" % ret)
+        logging.getLogger('lucterios.framwork').info("%s DB corrections" % ret)

@@ -459,7 +459,7 @@ class LucteriosPDF(LucteriosBase):
             line_height = int(xmltext.get('line_height'))
         style = ParagraphStyle(name='text', fontName=font_name, fontSize=font_size,
                                alignment=alignment, leading=line_height)
-        # print("%s:%s" % (xmltext.tag, para_text))
+        # getLogger('lucterios.core.print').debug("%s:%s", xmltext.tag, para_text)
         texts = []
         for para_text in para_text_list:
             try:
@@ -532,7 +532,7 @@ class LucteriosPDF(LucteriosBase):
                 getLogger('lucterios.printing.pdf').debug("== add_page ==")
                 self.draw_header()
                 self.draw_footer()
-                # print("before page %f - %f => %f" % (self.position_y, self.y_offset, self.header_h + self.t_margin))
+                # getLogger('lucterios.core.print').debug("before page %f - %f => %f", self.position_y, self.y_offset, self.header_h + self.t_margin)
                 getLogger('lucterios.printing.pdf').debug("\t>> body <<")
                 self.y_offset = self.header_h + self.t_margin
                 self.position_y = self.y_offset

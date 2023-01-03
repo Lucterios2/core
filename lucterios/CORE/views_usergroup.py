@@ -146,7 +146,7 @@ class UsersEdit(XferAddEditor):
         self.with_auditlog_btn = True
 
     def fillresponse(self):
-        user_inactif = self.getparam('user_inactif', 0)
+        user_inactif = self.getparam('user_inactif', self.getparam('user', 0))
         if user_inactif != 0:
             self.item = LucteriosUser.objects.get(id=user_inactif)
             self.params[self.field_id] = user_inactif
@@ -214,7 +214,7 @@ class UsersDelete(XferDelete):
     caption = _("Delete users")
     icon = "user.png"
     model = LucteriosUser
-    field_id = ('user_actif', 'user_inactif')
+    field_id = ('user_actif', 'user_inactif', 'user')
 
     def fillresponse(self):
         for item in self.items:

@@ -832,7 +832,7 @@ class LabelGenerator(ReportModelGenerator):
                 try:
                     docroot = etree.XML(labelval)
                 except etree.XMLSyntaxError:
-                    print('XMLSyntaxError', labelval)
+                    getLogger('lucterios.core.print').error('XMLSyntaxError : %s', labelval)
                     raise
                 for xml_text in docroot.find('body').iter():
                     if xml_text.tag == 'body':

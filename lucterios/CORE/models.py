@@ -28,6 +28,7 @@ from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
 from imp import load_source
+import logging
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
@@ -873,7 +874,7 @@ def core_convertdata():
             user_without_email.is_active = False
             user_without_email.save()
             nb_no_email += 1
-            print('--> Disabled user without email %s' % user_without_email.username)
+            logging.getLogger('lucterios.core').info('--> Disabled user without email %s', user_without_email.username)
         nb_multi_email = 0
         query = models.Q()
         for ident in LucteriosUser.objects.filter(is_active=True).values("email").annotate(models.Count('id')).values("email").order_by().filter(id__count__gt=1):
@@ -883,8 +884,8 @@ def core_convertdata():
                 user_email_exist.is_active = False
                 user_email_exist.save()
                 nb_multi_email += 1
-                print('--> Disabled user with email already exist %s (last login=%s)' % (user_email_exist.username, user_email_exist.last_login))
-        print('-->  Nb no-email = %d / NB multi-email = %d ' % (nb_no_email, nb_multi_email))
+                logging.getLogger('lucterios.core').info('--> Disabled user with email already exist %s (last login=%s)', user_email_exist.username, user_email_exist.last_login)
+        logging.getLogger('lucterios.core').info('-->  Nb no-email = %d / NB multi-email = %d ', nb_no_email, nb_multi_email)
 
 
 def set_auditlog_states():
@@ -909,9 +910,9 @@ def post_after_migrate(sender, **kwargs):
         from django.contrib.auth import get_backends
         get_backends()
         set_locale_lang(settings.LANGUAGE_CODE)
-        print('check parameters')
+        logging.getLogger('lucterios.core').info('check parameters')
         Signal.call_signal("checkparam")
-        print('convert data')
+        logging.getLogger('lucterios.core').info('convert data')
         Signal.call_signal("convertdata")
 
 
