@@ -164,10 +164,10 @@ class LucteriosBase(object):
             mtd = 'parse_' + child.tag.lower()
             if hasattr(self, mtd):
                 fct = getattr(self, mtd)
-                # print("print: %s (x=%f,y=%f,w=%f,h=%f) " % (child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm))
+                # getLogger('lucterios.core.print').debug("print: %s (x=%f,y=%f,w=%f,h=%f) ", child.tag, current_x / mm, current_y / mm, current_w / mm, current_h / mm)
                 fct(child, current_x, current_y, current_w, current_h)
             else:
-                print("Unsupported method: " + mtd)
+                getLogger('lucterios.core.print').warning("Unsupported method: " + mtd)
         self.y_offset = last_y_offset
 
     def add_page(self):

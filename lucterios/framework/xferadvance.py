@@ -285,7 +285,6 @@ class XferSave(XferContainerAcknowledge):
                     self.item.save()
             except IntegrityError as err:
                 getLogger("lucterios.core.container").info("%s", err)
-                print(err)
                 self.raise_except(
                     _("This record exists yet!"), self.raise_except_class)
         if self.except_msg == '':
