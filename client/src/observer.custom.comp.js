@@ -975,7 +975,9 @@ export class CompPassword extends CompAbstractEvent {
 export class CompDate extends CompAbstractEvent {
   initial (component) {
     super.initial(component)
-    if (this.isNull === false) {
+    if ((this.needed === true) && (component.value === null)) {
+      this.value = '-'
+    } else if (this.isNull === false) {
       this.value = component.value || ''
     } else {
       this.value = ''
@@ -990,7 +992,11 @@ export class CompDate extends CompAbstractEvent {
   getSubHtml () {
     var args = { 'type': 'text', 'cssclass': 'datepicker' }
     var dateNums = this.initialVal().split('-')
-    args.value = util.format('%s/%s/%s', dateNums[2], dateNums[1], dateNums[0])
+    if (dateNums.length === 3) {
+      args.value = util.format('%s/%s/%s', dateNums[2], dateNums[1], dateNums[0])
+    } else {
+      args.value = '00/00/0000'
+    }
     if (this.needed === false) {
       args.cssclass += ' lctdateneeded'
     } else {
@@ -1000,18 +1006,37 @@ export class CompDate extends CompAbstractEvent {
   }
 
   getValue () {
-    var dateNums
+    var dateText, dateNums
     if (this.isReturnNull() === true) {
       return NULL_VALUE
     }
-    dateNums = this.getGUIComp().val().split('/')
-    return util.format('%s-%s-%s', dateNums[2], dateNums[1], dateNums[0])
+    dateText = this.getGUIComp().val()
+    dateNums = dateText.split('/')
+    if ((dateNums.length === 3) && (dateText !== '00/00/0000')) {
+      return util.format('%s-%s-%s', dateNums[2], dateNums[1], dateNums[0])
+    } else {
+      return null
+    }
+  }
+
+  checkValid () {
+    super.checkValid()
+    var msgText
+    var dateVal = Date.parse(this.getValue())
+    if (isNaN(dateVal)) {
+      msgText = Singleton().getTranslate('Date invalid!')
+      throw new LucteriosException(MINOR, msgText)
+    }
   }
 
   setValue (jsonvalue) {
     this.initial(jsonvalue)
     var dateNums = this.initialVal().replace(/\//g, '-').split('-')
-    this.getGUIComp().val(util.format('%s/%s/%s', dateNums[2], dateNums[1], dateNums[0]))
+    if (dateNums.length === 3) {
+      this.getGUIComp().val(util.format('%s/%s/%s', dateNums[2], dateNums[1], dateNums[0]))
+    } else {
+      this.getGUIComp().val('00/00/0000')
+    }
   }
 
   initialVal () {

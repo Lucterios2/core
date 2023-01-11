@@ -84,6 +84,7 @@ gTranslation.fr.put('Manage server addresses', 'Gérer des adresses de serveurs'
 gTranslation.fr.put('Add server', 'Ajouter un serveur')
 gTranslation.fr.put('Servers', 'Les serveurs')
 gTranslation.fr.put('Client obselete', 'Client obsolète <br/> Effectuer une mise à jour')
+gTranslation.fr.put('Date invalid!', 'Date invalide !')
 
 gTranslation.put('en', new HashMap())
 gTranslation.en.put('Yes', 'Yes')
@@ -166,3 +167,4 @@ gTranslation.en.put('Manage server addresses', 'Manage server addresses')
 gTranslation.en.put('Add server', 'Add server')
 gTranslation.en.put('Servers', 'Servers')
 gTranslation.en.put('Client obselete', 'Obsolete client <br/> Perform an update')
+gTranslation.en.put('Date invalid!', 'Date invalid!')
