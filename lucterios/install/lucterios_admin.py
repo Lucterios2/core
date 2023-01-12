@@ -40,7 +40,6 @@ from subprocess import call, check_output
 from sys import executable
 from logging import getLogger
 
-
 INSTANCE_PATH = '.'
 
 EXTRA_URL = 'extra_url'
@@ -134,36 +133,41 @@ def get_package_listname():
 
 
 def get_package_list():
+
     def get_module_desc(modname):
         appmodule = import_module(modname)
         if hasattr(appmodule, 'link'):
             return (modname, appmodule.__version__, appmodule.link())
         else:
             return (modname, appmodule.__version__, [])
+
     importlib_metadata = import_metadata()
     package_list = {}
     for dist_name in get_package_listname():
-        requires = get_package_requires(dist_name)
-        if (dist_name == 'lucterios') or ('lucterios' in requires):
-            current_applis = []
-            current_modules = []
-            for file_item in get_package_files(dist_name):
-                try:
-                    path_list = file_item.split(os.sep)[:-1]
+        try:
+            requires = get_package_requires(dist_name)
+            if (dist_name == 'lucterios') or ('lucterios' in requires):
+                current_applis = []
+                current_modules = []
+                for file_item in get_package_files(dist_name):
                     try:
-                        path_list = path_list[path_list.index('site-packages') + 1:]
+                        path_list = file_item.split(os.sep)[:-1]
+                        try:
+                            path_list = path_list[path_list.index('site-packages') + 1:]
+                        except Exception:
+                            pass
+                        py_mod_name = ".".join(path_list)
+                        if file_item.endswith('appli_settings.py'):
+                            current_applis.append(get_module_desc(py_mod_name))
+                        elif file_item.endswith('models.py'):
+                            current_modules.append(get_module_desc(py_mod_name))
                     except Exception:
                         pass
-                    py_mod_name = ".".join(path_list)
-                    if file_item.endswith('appli_settings.py'):
-                        current_applis.append(get_module_desc(py_mod_name))
-                    elif file_item.endswith('models.py'):
-                        current_modules.append(get_module_desc(py_mod_name))
-                except Exception:
-                    pass
-            current_applis.sort()
-            current_modules.sort()
-            package_list[dist_name] = (importlib_metadata.version(dist_name), current_applis, current_modules, requires)
+                current_applis.sort()
+                current_modules.sort()
+                package_list[dist_name] = (importlib_metadata.version(dist_name), current_applis, current_modules, requires)
+        except importlib_metadata.PackageNotFoundError:
+            print('package %s not importable' % dist_name, file=sys.stderr)            
     return package_list
 
 
@@ -207,12 +211,14 @@ class LucteriosGlobal(LucteriosManage):
         return list_res
 
     def installed(self):
+
         def show_list(modlist):
             res = []
             for item in modlist:
-                res.append("\t%s\t[%s]\t%s" %
+                res.append("\t%s\t[%s]\t%s" % 
                            (item[0], item[1], ",".join(item[2])))
             return "\n".join(res)
+
         package_list = get_package_list()
         if 'lucterios' in package_list.keys():
             mod_lucterios = ('lucterios', package_list['lucterios'][0])
@@ -242,10 +248,12 @@ class LucteriosGlobal(LucteriosManage):
         return extra_urls
 
     def set_extra_urls(self, extra_url):
+
         def url_ok(url):
             import requests
             response = requests.head(url, timeout=10)
             return response.status_code < 400
+
         with open(join(self.instance_path, EXTRA_URL), mode='w', encoding='utf-8') as url_file:
             url_file.write("# Pypi server\n")
             for line in extra_url.split(';'):
@@ -572,7 +580,7 @@ class LucteriosInstance(LucteriosManage):
                     else:
                         file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
-            file_py.write('fill_appli_settings("%s", (%s)) \n' %
+            file_py.write('fill_appli_settings("%s", (%s)) \n' % 
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
@@ -631,13 +639,13 @@ class LucteriosInstance(LucteriosManage):
             raise Exception("not clear!!")
         user_path = get_user_dir()
         delete_path(user_path)
-        self.print_info_("Instance '%s' clear." %
+        self.print_info_("Instance '%s' clear." % 
                          self.name)
 
     def delete(self):
         delete_path(self.instance_dir, True)
         delete_path(self.instance_conf)
-        self.print_info_("Instance '%s' deleted." %
+        self.print_info_("Instance '%s' deleted." % 
                          self.name)
 
     def _get_db_info_(self):
@@ -670,7 +678,7 @@ class LucteriosInstance(LucteriosManage):
         self.modules = ()
         for appname in install_apps:
             if ("django" not in appname) and (appname != 'lucterios.framework') and (appname != 'lucterios.CORE') and (self.appli_name != appname):
-                self.modules = self.modules + (str(appname), )
+                self.modules = self.modules + (str(appname),)
 
     def _read_extra(self, extra):
         self.extra = extra
@@ -740,7 +748,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write(
                 '    from django.core.management import execute_from_command_line\n')
             file_py.write('    execute_from_command_line(sys.argv)\n')
-        self.print_info_("Instance '%s' created." %
+        self.print_info_("Instance '%s' created." % 
                          self.name)
         self.refresh(False)
 
@@ -751,7 +759,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         self.clear_info_()
         self.write_setting_()
-        self.print_info_("Instance '%s' modified." %
+        self.print_info_("Instance '%s' modified." % 
                          self.name)
         self.refresh(False)
 
@@ -844,7 +852,9 @@ class LucteriosInstance(LucteriosManage):
             return False
 
     def get_other_targets(self, tmp_path, executor):
+
         def cmp_node():
+
             class CmpNode:
 
                 def __init__(self, obj, *args):
@@ -875,6 +885,7 @@ class LucteriosInstance(LucteriosManage):
 
                 def __ne__(self, other):
                     return self.comp_node(other) != 0
+
             return CmpNode
 
         target_filename = join(tmp_path, 'target')
