@@ -1021,11 +1021,13 @@ export class CompDate extends CompAbstractEvent {
 
   checkValid () {
     super.checkValid()
-    var msgText
-    var dateVal = Date.parse(this.getValue())
-    if (isNaN(dateVal)) {
-      msgText = Singleton().getTranslate('Date invalid!')
-      throw new LucteriosException(MINOR, msgText)
+    if (this.isReturnNull() !== true) {
+      var msgText
+      var dateVal = Date.parse(this.getValue())
+      if (isNaN(dateVal)) {
+        msgText = Singleton().getTranslate('Date invalid!')
+        throw new LucteriosException(MINOR, msgText)
+      }
     }
   }
 
