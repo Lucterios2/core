@@ -8,16 +8,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-23 19:34+0000\n"
-"PO-Revision-Date: 2022-08-31 10:16+0200\n"
+"POT-Creation-Date: 2023-01-13 09:25+0000\n"
+"PO-Revision-Date: 2023-01-13 10:26+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: main_docs.html:8 main_docs.html:113
 msgid "User manual"
@@ -37,7 +37,7 @@ msgstr "current hour"
 
 #: models.py:168
 msgid "full list"
-msgstr ""
+msgstr "full list"
 
 #: models.py:270
 #, python-format
@@ -78,7 +78,7 @@ msgstr "create"
 msgid "update"
 msgstr "update"
 
-#: models.py:800 tools.py:453
+#: models.py:800 tools.py:454
 msgid "delete"
 msgstr "delete"
 
@@ -86,7 +86,7 @@ msgstr "delete"
 msgid "remove"
 msgstr "remove"
 
-#: models.py:802 tools.py:449
+#: models.py:802 tools.py:450
 msgid "add"
 msgstr "add"
 
@@ -168,24 +168,24 @@ msgstr "This impression failed !"
 msgid "Record locked by '%s'!"
 msgstr "Record locked by '%s'!"
 
-#: tools.py:150
+#: tools.py:151
 msgid "Anonymous user"
 msgstr "Anonymous user"
 
-#: tools.py:152
+#: tools.py:153
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:451
+#: tools.py:452
 msgid "view"
 msgstr "view"
 
-#: tools.py:589 xfergraphic.py:159
+#: tools.py:590 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:591 xfergraphic.py:160
+#: tools.py:592 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 
@@ -273,20 +273,20 @@ msgstr "Do you want delete this %(name)s?"
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Do you want delete those %(nb)s %(name)s?"
 
-#: xferadvance.py:290
+#: xferadvance.py:289
 msgid "This record exists yet!"
 msgstr "This record exists yet!"
 
-#: xferadvance.py:332
+#: xferadvance.py:331
 msgid "Transaction impossible!{[br/]}A condition should not be verified."
 msgstr "Transaction impossible!{[br/]}A condition should not be verified."
 
-#: xferadvance.py:335
+#: xferadvance.py:334
 #, python-format
 msgid "Do you want to change this %(name)s to '%(state)s'?"
 msgstr "Do you want to change this %(name)s to '%(state)s'?"
 
-#: xferadvance.py:345
+#: xferadvance.py:344
 msgid "Bad transition"
 msgstr "Bad transition"
 
