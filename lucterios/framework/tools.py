@@ -75,7 +75,7 @@ def get_icon_path(icon_path, url_text='', extension=''):
 
 def get_url_from_request(request):
     from django.conf import settings
-    abs_url = getattr(settings, 'DIACAMMA_ROOT_URL', '')
+    abs_url = getattr(settings, 'LUCTERIOS_ROOT_URL', '')
     if abs_url == "":
         abs_url = request.META.get('HTTP_REFERER', request.build_absolute_uri()).split("/")
         return '/'.join(abs_url[:-2])
