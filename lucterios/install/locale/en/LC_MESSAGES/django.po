@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-23 19:34+0000\n"
+"POT-Creation-Date: 2023-01-13 09:25+0000\n"
 "PO-Revision-Date: 2022-01-08 17:57+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -19,8 +19,8 @@ msgstr ""
 "X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: graphic_lib.py:67 graphic_lib.py:80 graphic_lib.py:450 graphic_lib.py:452
-#: graphic_lib.py:461 graphic_lib.py:463 lucterios_gui.py:77
+#: graphic_lib.py:67 graphic_lib.py:80 graphic_lib.py:448 graphic_lib.py:450
+#: graphic_lib.py:459 graphic_lib.py:461 lucterios_gui.py:77
 #: lucterios_gui.py:328 lucterios_gui.py:537 lucterios_qt.py:393
 #: lucterios_qt.py:409 lucterios_qt.py:540 lucterios_qt.py:676
 #: lucterios_qt.py:698
@@ -43,33 +43,33 @@ msgstr "Open in anonymous"
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: graphic_lib.py:369
+#: graphic_lib.py:367
 msgid "Upgrade needs"
 msgstr "Upgrade needs"
 
-#: graphic_lib.py:371
+#: graphic_lib.py:369
 msgid "No upgrade"
 msgstr "No upgrade"
 
-#: graphic_lib.py:450
+#: graphic_lib.py:448
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance saved to %s"
 
-#: graphic_lib.py:452
+#: graphic_lib.py:450
 msgid "Instance not saved!"
 msgstr "Instance not saved!"
 
-#: graphic_lib.py:461
+#: graphic_lib.py:459
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restore from %s"
 
-#: graphic_lib.py:463
+#: graphic_lib.py:461
 msgid "Instance not restored!"
 msgstr "Instance not restored!"
 
-#: lucterios_admin.py:678 lucterios_gui.py:175 lucterios_qt.py:238
+#: lucterios_admin.py:687 lucterios_gui.py:175 lucterios_qt.py:238
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
