@@ -172,6 +172,7 @@ class Authentification(XferContainerAbstract):
             self.responsejson['data'] = "OK"
         else:
             self.responsexml.text = "OK"
+        signal_and_lock.Signal.call_signal("auth_login", self.request.user)
 
 
 @MenuManage.describ('')
