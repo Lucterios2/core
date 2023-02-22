@@ -412,7 +412,7 @@ button span img {
 		width: 100%;
 	}
 	.lct-dlgcontent table tbody tr td lct-cell label {
-		width: 150px;
+		max-width: 150px;
 		display: table-cell;
 	}
 	.lct-dlgcontent table tbody tr td lct-ctrl {
