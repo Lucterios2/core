@@ -158,8 +158,8 @@ class Migration(migrations.Migration):
                 ('value', models.TextField(verbose_name='value', blank=True)),
             ],
             options={
-                'verbose_name_plural': 'models',
-                'verbose_name': 'model',
+                'verbose_name_plural': 'templates',
+                'verbose_name': 'template',
             },
             bases=(models.Model,),
         ),

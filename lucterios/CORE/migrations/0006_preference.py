@@ -31,6 +31,7 @@ class Migration(migrations.Migration):
                 'verbose_name': 'preference',
                 'verbose_name_plural': 'preferences',
                 'default_permissions': ['add', 'change'],
+                'ordering': ['name'],
             },
         ),
     ]
