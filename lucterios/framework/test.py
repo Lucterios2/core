@@ -75,14 +75,14 @@ class XmlClient(Client):
         Client.__init__(self)
         self.language = language
 
-    def call(self, path, data, method):
+    def call(self, path, data, method, **extra):
         from urllib.parse import urlencode
         method = method.lower()
         request_action = getattr(self, method, self.post)
         if method in ('get', 'delete'):
             path = path + '?' + urlencode(data, doseq=True)
             data = None
-        return request_action(path, data, content_type=MULTIPART_CONTENT, HTTP_ACCEPT_LANGUAGE=self.language)
+        return request_action(path, data, content_type=MULTIPART_CONTENT, HTTP_ACCEPT_LANGUAGE=self.language, **extra)
 
 
 class XmlRequestFactory(RequestFactory):
@@ -199,12 +199,12 @@ class LucteriosTestAbstract(object):
         self.assertEqual(root.tag, root_tag, "NOT %s" % root_tag)
         self.response_xml = root
 
-    def call_ex(self, path, data, is_client, status_expected=200):
+    def call_ex(self, path, data, is_client, status_expected=200, **extra):
         if is_client is False:
             self.assertEqual('/' + self.factory.xfer.url_text, path)
             self.response = self.factory.call(path, data)
         else:
-            self.response = self.client.call(path, data, is_client if isinstance(is_client, str) else 'post')
+            self.response = self.client.call(path, data, is_client if isinstance(is_client, str) else 'post', **extra)
         self.clean_resp()
         self.assertEqual(self.response.status_code, status_expected, "HTTP error:" + str(self.response.status_code))
 
