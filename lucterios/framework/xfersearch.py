@@ -267,6 +267,8 @@ class FieldDescItem(object):
         return desc_text
 
     def get_query(self, value, operation):
+        from django.db.models.fields import IntegerField, DecimalField
+
         def get_int_list(value):
             val_ids = []
             for val_str in value.split(';'):
@@ -275,10 +277,16 @@ class FieldDescItem(object):
         query_res = self.initial_q
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
-            if value == 'o':
-                query_res = query_res & Q(**{self.dbfieldname: True})
+            if len(self.initial_q) == 0:
+                if value == 'o':
+                    query_res = query_res & Q(**{self.dbfieldname: True})
+                else:
+                    query_res = query_res & Q(**{self.dbfieldname: False})
             else:
-                query_res = query_res & Q(**{self.dbfieldname: False})
+                if value == 'o':
+                    query_res = query_res & Q(**{self.dbfieldname: 'True'})
+                else:
+                    query_res = query_res & ~Q(**{self.dbfieldname: 'True'})
         elif self.field_type == TYPE_LIST:
             query_res = query_res & Q(**{field_with_op: get_int_list(value)})
         elif self.field_type == TYPE_LISTMULT:
