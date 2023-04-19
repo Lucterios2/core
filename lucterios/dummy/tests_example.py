@@ -171,6 +171,7 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(self.json_context['CRITERIA'], '[]')
 
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': 'value||3||10'}, False)
@@ -179,6 +180,8 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', "example/@0/name", 'zzzz')
         self.assert_json_equal('', "example/@1/name", 'uvw')
         self.assert_json_equal('', "example/@2/name", 'boom')
+        self.assertEqual(self.json_context['CRITERIA'], '[["value", 3, "10"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}value{[/b]} inférieur {[i]}10{[/i]}")
 
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': 'price||4||700.0'}, False)
@@ -188,6 +191,8 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', "example/@1/name", 'zzzz')
         self.assert_json_equal('', "example/@2/name", 'uvw')
         self.assert_json_equal('', "example/@3/name", 'blabla')
+        self.assertEqual(self.json_context['CRITERIA'], '[["price", 4, "700.0"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}price{[/b]} supérieur {[i]}700.0{[/i]}")
 
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': 'date||3||2010-12-31//date||4||2000-01-01'}, False)
@@ -195,6 +200,9 @@ class ExampleTest(LucteriosTest):
         self.assert_count_equal("example", 2)
         self.assert_json_equal('', "example/@0/name", 'zzzz')
         self.assert_json_equal('', "example/@1/name", 'blabla')
+        self.assertEqual(self.json_context['CRITERIA'], '[["date", 3, "2010-12-31"], ["date", 4, "2000-01-01"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}date{[/b]} inférieur {[i]}2010-12-31{[/i]}")
+        self.assert_json_equal("LABELFORM", "labelSearchText_1", "{[b]}date{[/b]} supérieur {[i]}2000-01-01{[/i]}")
 
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': 'time||4||06:00:00//time||3||18:00:00'}, False)
@@ -202,6 +210,71 @@ class ExampleTest(LucteriosTest):
         self.assert_count_equal("example", 2)
         self.assert_json_equal('', "example/@0/name", 'zzzz')
         self.assert_json_equal('', "example/@1/name", 'boom')
+        self.assertEqual(self.json_context['CRITERIA'], '[["time", 4, "06:00:00"], ["time", 3, "18:00:00"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}time{[/b]} supérieur {[i]}06:00:00{[/i]}")
+        self.assert_json_equal("LABELFORM", "labelSearchText_1", "{[b]}time{[/b]} inférieur {[i]}18:00:00{[/i]}")
+
+    def testsearch_modif(self):
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[]')
+        self.assert_count_equal("example", 5)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'searchSelector': 'price', 'searchOperator': '3', 'searchValueFloat': '900.0', 'ACT': 'ADD'}, False)
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["price", 3, "900.0"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}price{[/b]} inférieur {[i]}900.0{[/i]}")
+        self.assert_count_equal("example", 2)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'CRITERIA': '[["price", 3, "900.0"]]', 'searchSelector': 'value', 'searchOperator': '1', 'searchValueFloat': '12', 'ACT': 'ADD'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["price", 3, "900.0"], ["value", 1, "12"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}price{[/b]} inférieur {[i]}900.0{[/i]}")
+        self.assert_json_equal("LABELFORM", "labelSearchText_1", "{[b]}value{[/b]} égal {[i]}12{[/i]}")
+        self.assert_count_equal("example", 0)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'CRITERIA': '[["price", 3, "900.0"], ["value", 1, "12"]]', 'ACT': '0'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["value", 1, "12"]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}value{[/b]} égal {[i]}12{[/i]}")
+        self.assert_count_equal("example", 1)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'CRITERIA': '[["value", 1, "12"]]', 'searchSelector': 'value', 'searchOperator': '1', 'searchValueFloat': '17', 'ACT': 'ADD'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["value", 1, ["12", "17"]]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}value{[/b]} égal {[i]}12 ou 17{[/i]}")
+        self.assert_count_equal("example", 2)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'CRITERIA': '[["name", 6, ["a","z"]]]'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["name", 6, ["a", "z"]]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}name{[/b]} commence par {[i]}\"a\" ou \"z\"{[/i]}")
+        self.assert_count_equal("example", 2)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch',
+                      {'CRITERIA': '[["name", 2, ["abc","zzzz"]]]'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assertEqual(len(self.json_context), 1)
+        self.assertEqual(self.json_context['CRITERIA'], '[["name", 2, ["abc", "zzzz"]]]')
+        self.assert_json_equal("LABELFORM", "labelSearchText_0", "{[b]}name{[/b]} différent {[i]}\"abc\" et \"zzzz\"{[/i]}")
+        self.assert_count_equal("example", 3)
 
     def testprint(self):
         self.factory.xfer = ExamplePrint()
