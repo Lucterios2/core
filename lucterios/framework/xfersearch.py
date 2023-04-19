@@ -47,16 +47,16 @@ TYPE_DATETIME = 'datetime'
 TYPE_LIST = 'list'
 TYPE_LISTMULT = 'listmult'
 
-OP_NULL = ('0', '')
-OP_EQUAL = ('1', _('equals'), '__iexact')
-OP_DIFFERENT = ('2', _("different"), '__iexact')
-OP_LESS = ('3', _("inferior"), '__lt')
-OP_MORE = ('4', _("superior"), '__gt')
-OP_CONTAINS = ('5', _("contains"), '__icontains')
-OP_STARTBY = ('6', _("starts with"), '__istartswith')
-OP_ENDBY = ('7', _("ends with"), '__iendswith')
-OP_OR = ('8', _("or"), '__in')
-OP_AND = ('9', _("and"), '__id')
+OP_NULL = (0, '')
+OP_EQUAL = (1, _('equals'), '__iexact')
+OP_DIFFERENT = (2, _("different"), '__iexact')
+OP_LESS = (3, _("inferior"), '__lt')
+OP_MORE = (4, _("superior"), '__gt')
+OP_CONTAINS = (5, _("contains"), '__icontains')
+OP_STARTBY = (6, _("starts with"), '__istartswith')
+OP_ENDBY = (7, _("ends with"), '__iendswith')
+OP_OR = (8, _("or"), '__in')
+OP_AND = (9, _("and"), '__id')
 OP_LIST = [OP_NULL, OP_EQUAL, OP_DIFFERENT, OP_LESS, OP_MORE,
            OP_CONTAINS, OP_STARTBY, OP_ENDBY, OP_OR, OP_AND]
 
@@ -85,11 +85,36 @@ def get_script_for_operator():
 
 
 def get_criteria_list(criteria):
-    criteria_list = []
-    for criteria_item in criteria.split('//'):
-        criteriaval = criteria_item.split('||')
-        criteria_list.append(criteriaval)
+    try:
+        criteria_list = json.loads(criteria)
+    except json.decoder.JSONDecodeError:
+        criteria_list = []
+        for criteria_item in criteria.split('//'):
+            criteriaval = criteria_item.split('||')
+            if len(criteriaval) == 3:
+                criteriaval[1] = int(criteriaval[1])
+                if ';' in criteriaval[2]:
+                    criteriaval[2] = criteriaval[2].split(';')
+                criteria_list.append(criteriaval)
     return criteria_list
+
+#
+# def set_criteria_from_list(criteria_list):
+#     temp_list = []
+#     for criteria_item in criteria_list:
+#         if len(criteria_item) == 3:
+#             if isinstance(criteria_item[2], list):
+#                 criteria_item[2] = ";".join(criteria_item[2])
+#             temp_list.append('||'.join(criteria_item))
+#     return '//'.join(temp_list)
+
+
+def set_criteria_from_list(criteria_list):
+    temp_list = []
+    for criteria_item in criteria_list:
+        if len(criteria_item) == 3:
+            temp_list.append(criteria_item)
+    return json.dumps(temp_list)
 
 
 def get_search_query_from_criteria(criteria, model):
@@ -232,32 +257,33 @@ class FieldDescItem(object):
         return script_ref
 
     def get_value(self, value, operation):
+        sep_for_list = ' %s ' % OP_LIST[8 if (operation != OP_DIFFERENT[0]) else 9][1]
         if self.field_type == TYPE_STR:
-            new_val_txt = '"%s"' % value
+            new_val_txt = '"%s"' % value if isinstance(value, str) else sep_for_list.join(['"%s"' % subvalue for subvalue in value])
         elif self.field_type == TYPE_BOOL:
             if value == 'o':
                 new_val_txt = "oui"
             else:
                 new_val_txt = "non"
         elif self.field_type == TYPE_DATE:
-            new_val_txt = value
+            new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
         elif self.field_type == TYPE_DATETIME:
-            new_val_txt = value
+            new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
         elif (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT):
             new_val_txt = ''
-            ids = value.split(';')
+            ids = value.split(';') if isinstance(value, str) else list(value)
             for new_item in self.field_list:
                 if new_item[0] in ids:
                     if new_val_txt != '':
                         new_val_txt += ' %s ' % OP_LIST[operation][1]
                     new_val_txt += '"%s"' % new_item[1]
         else:
-            new_val_txt = value
+            new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
         return new_val_txt
 
     def get_criteria_description(self, new_op, new_val):
         if self.fieldname == 'id':
-            return _("%d items") % len(new_val.split(';'))
+            return _("%d items") % len(new_val.split(';') if isinstance(new_val, str) else list(new_val))
         new_val_txt = self.get_value(new_val, new_op)
         if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT):
             sep_criteria = OP_EQUAL[1]
@@ -267,13 +293,14 @@ class FieldDescItem(object):
         return desc_text
 
     def get_query(self, value, operation):
-        from django.db.models.fields import IntegerField, DecimalField
-
         def get_int_list(value):
-            val_ids = []
-            for val_str in value.split(';'):
-                val_ids.append(int(val_str))
-            return val_ids
+            if isinstance(value, str):
+                val_ids = []
+                for val_str in value.split(';'):
+                    val_ids.append(int(val_str))
+                return val_ids
+            else:
+                return [int(val_str) for val_str in list(value)]
         query_res = self.initial_q
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
@@ -291,27 +318,43 @@ class FieldDescItem(object):
             query_res = query_res & Q(**{field_with_op: get_int_list(value)})
         elif self.field_type == TYPE_LISTMULT:
             val_ids = get_int_list(value)
-            if operation == int(OP_OR[0]):
+            if operation == OP_OR[0]:
                 query_res = query_res & Q(**{field_with_op: val_ids})
             else:
                 query_res = self.initial_q
 
                 for value_item in val_ids:
                     query_res = query_res & Q(**{field_with_op: value_item})
-        elif (self.field_type == TYPE_FLOAT) and operation == int(OP_EQUAL[0]):
-            value = float(value)
+        elif (self.field_type == TYPE_FLOAT) and operation == OP_EQUAL[0]:
             field_with_op1 = self.dbfieldname + OP_LESS[2]
             field_with_op2 = self.dbfieldname + OP_MORE[2]
-            query_res = self.initial_q & Q(**{field_with_op1: value + 1e-4}) & Q(**{field_with_op2: value - 1e-4})
-        else:
-            if operation == int(OP_DIFFERENT[0]):
-                query_res = self.initial_q & ~Q(**{field_with_op: value})
+            if isinstance(value, str):
+                value = float(value)
+                new_query = Q(**{field_with_op1: value + 1e-4}) & Q(**{field_with_op2: value - 1e-4})
             else:
-                query_res = self.initial_q & Q(**{field_with_op: value})
+                new_query = Q()
+                for sub_value in value:
+                    sub_value = float(sub_value)
+                    new_query |= Q(**{field_with_op1: sub_value + 1e-4}) & Q(**{field_with_op2: sub_value - 1e-4})
+            query_res = self.initial_q & (new_query)
+        else:
+            if isinstance(value, str):
+                if operation == OP_DIFFERENT[0]:
+                    new_query = ~Q(**{field_with_op: value})
+                else:
+                    new_query = Q(**{field_with_op: value})
+            else:
+                new_query = Q()
+                for sub_value in value:
+                    if operation == OP_DIFFERENT[0]:
+                        new_query &= ~Q(**{field_with_op: sub_value})
+                    else:
+                        new_query |= Q(**{field_with_op: sub_value})
+            query_res = self.initial_q & (new_query)
         return query_res
 
     def get_new_criteria(self, params):
-        operation = params['searchOperator']
+        operation = int(params['searchOperator'])
         new_type = self.field_type
         if new_type != '':
             new_val = ''
@@ -329,7 +372,7 @@ class FieldDescItem(object):
                 new_val = params['searchValueDate'] + \
                     ' ' + params['searchValueTime']
             if (new_type == TYPE_LIST) or (new_type == TYPE_LISTMULT):
-                new_val = params['searchValueList']
+                new_val = params['searchValueList'].split(';')
             if (new_val != '') or ((new_type == TYPE_STR) and (operation == OP_EQUAL[0])) or ((new_type == TYPE_STR) and (operation == OP_DIFFERENT[0])):
                 return [self.fieldname, operation, new_val]
         return None
@@ -408,14 +451,20 @@ class XferSearchEditor(XferContainerCustom):
             new_criteria = self.fields_desc.get(
                 new_name).get_new_criteria(self.params)
             if new_criteria is not None:
+                for old_criteria in self.criteria_list:
+                    if (old_criteria[0] == new_criteria[0]) and (old_criteria[1] == new_criteria[1]):
+                        if not isinstance(old_criteria[2], list):
+                            old_criteria[2] = [old_criteria[2]]
+                        if isinstance(new_criteria[2], list):
+                            old_criteria[2].extend(new_criteria[2])
+                        else:
+                            old_criteria[2].append(new_criteria[2])
+                        new_criteria = None
+            if new_criteria is not None:
                 self.criteria_list.append(new_criteria)
         elif act_param is not None:
             del self.criteria_list[int(self.params['ACT'])]
-        temp_list = []
-        for criteria_item in self.criteria_list:
-            if len(criteria_item) >= 3:
-                temp_list.append('||'.join(criteria_item))
-        self.params['CRITERIA'] = '//'.join(temp_list)
+        self.params['CRITERIA'] = set_criteria_from_list(self.criteria_list)
         if 'ACT' in self.params.keys():
             del self.params['ACT']
         key_list = list(self.params.keys())

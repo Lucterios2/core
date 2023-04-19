@@ -225,7 +225,7 @@ class DummyTest(LucteriosTest):
 
         self.assertEqual(format_to_string("2017-04-23", "D", "{0}"), "23 avril 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time")
-        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017 à 12:54", "check date time")
+        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "dimanche 23 avril 2017, 12:54", "check date time")
 
         self.assertEqual(format_to_string(True, "B", "{0}"), "Oui", "check bool true")
         self.assertEqual(format_to_string(False, "B", "{0}"), "Non", "check bool false")
@@ -244,7 +244,7 @@ class DummyTest(LucteriosTest):
 
         self.assertEqual(format_to_string("2017-04-23", "D", "{0}"), "April 23, 2017", "check date")
         self.assertEqual(format_to_string("12:54:25.014", "T", "{0}"), "12:54", "check time")
-        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "Sunday, April 23, 2017 at 12:54", "check date time")
+        self.assertEqual(format_to_string("2017-04-23T12:54:25.014", "H", "{0}"), "Sunday, April 23, 2017, 12:54", "check date time")
 
         self.assertEqual(format_to_string(True, "B", "{0}"), "Yes", "check bool true")
         self.assertEqual(format_to_string(False, "B", "{0}"), "No", "check bool false")
