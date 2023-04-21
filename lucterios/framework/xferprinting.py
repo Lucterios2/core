@@ -234,6 +234,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
             self.print_selector.append((PRINT_ODS_FILE, _('ODS file')))
         if (self.getparam("PRINT_PERSITENT", False) is True):
             self.report_mode = PRINT_PDF_FILE
+            self.report_ext = 'pdf'
             self.report_content = b64encode(self.get_persistent_pdfreport())
         elif self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
