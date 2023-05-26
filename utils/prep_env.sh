@@ -18,7 +18,7 @@ function debian_install
 function debian_advanced
 {
 	apt-get install -y npm node-gyp libnode-dev
-	npm install -g cordova
+	npm install -g cordova@11.1.0
 }
 
 function ant_install
