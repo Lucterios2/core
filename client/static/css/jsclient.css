@@ -371,6 +371,9 @@ italic {
 .lctbtn {
 	width: 170px;
 	padding: 0px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
 }
 
 .lctbtnmini {
