@@ -272,10 +272,12 @@ class ActionsManage(object):
             for field in xclass.model._meta.get_fields():
                 if isinstance(field, FSMFieldMixin) and (field.name == state):
                     transitions = list(field.get_all_transitions(xclass.model))
-                    transitions.sort(key=lambda item: item.target)
+                    transitions.sort(key=lambda item: item.target if item.target is not None else -1000)
                     for transition in transitions:
-                        source_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.source][0]
-                        target_label = [smart_text(name[1]) for name in field.choices if name[0] == transition.target][0]
+                        source_labels = [smart_text(name[1]) for name in field.choices if name[0] == transition.source]
+                        source_label = source_labels[0] if len(source_labels) > 0 else '---'
+                        target_labels = [smart_text(name[1]) for name in field.choices if name[0] == transition.target]
+                        target_label = target_labels[0] if len(target_labels) > 0 else '---'
                         title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
                         xclass.trans_list[transition.name] = (transition.source, str(source_label),
                                                               transition.target, str(target_label),
