@@ -96,11 +96,31 @@ class UsersList(XferListEditor):
         self.fill_grid(row + 1, self.model, 'user_inactif', LucteriosUser.objects.filter(is_active=False))
         self.get_components('user_actif').vmin = -1
         self.get_components('user_actif').description = _("List of active users")
+        self.get_components('user_actif').colspan = 3
         self.get_components('user_inactif').vmin = 200
         self.get_components('user_inactif').description = _("List of inactive users")
+        self.get_components('user_inactif').colspan = 3
+        row = self.get_max_row() + 1
+        Params.fill(self, ['CORE-OnlySuperAdmin'], 1, row)
+        btn = XferCompButton('editonlyadmin')
+        btn.set_is_mini(True)
+        btn.set_location(2, row)
+        btn.set_action(self.request, ChangeOnlySuperAdmin.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO)
+        self.add_component(btn)
         self.new_tab(_('Preferences'))
         self.fieldnames = None
         self.fill_grid(1, Preference, 'preference', Preference.objects.filter(user__isnull=True))
+
+
+@MenuManage.describ('CORE.add_parameter')
+class ChangeOnlySuperAdmin(XferContainerAcknowledge):
+    caption = _("CORE-OnlySuperAdmin")
+    icon = "config.png"
+
+    def fillresponse(self):
+        only_admin_value = Params.getvalue('CORE-OnlySuperAdmin')
+        if only_admin_value or self.confirme(_('Do you want to limit access to only administrators?')):
+            Params.setvalue('CORE-OnlySuperAdmin', not only_admin_value)
 
 
 @ActionsManage.affect_list(_("Search"), "user.png", condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)

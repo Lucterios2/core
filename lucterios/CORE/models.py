@@ -859,6 +859,7 @@ def core_checkparam():
     Parameter.check_and_create(name='CORE-MessageBefore', typeparam=Parameter.TYPE_STRING, title=_("CORE-MessageBefore"), args="{'Multi':True, 'HyperText':True}", value='')
     Parameter.check_and_create(name='CORE-AuditLog', typeparam=Parameter.TYPE_STRING, title=_("CORE-AuditLog"), args="{'Multi':True, 'HyperText':True}", value='')
     Parameter.check_and_create(name='CORE-PluginPermission', typeparam=Parameter.TYPE_STRING, title=_("CORE-PluginPermission"), args="{'Multi':True, 'HyperText':False}", value='{}')
+    Parameter.check_and_create(name='CORE-OnlySuperAdmin', typeparam=Parameter.TYPE_BOOL, title=_("CORE-OnlySuperAdmin"), args="{}", value='False')
 
     LucteriosGroup.redefine_generic(_("# Core (administrator)"), Parameter.get_permission(True, True, True), SavedCriteria.get_permission(True, True, True), LucteriosLogEntry.get_permission(True, True, True),
                                     LucteriosGroup.get_permission(True, True, True), LucteriosUser.get_permission(True, True, True),

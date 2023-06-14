@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 09:25+0000\n"
-"PO-Revision-Date: 2022-12-23 20:30+0100\n"
+"POT-Creation-Date: 2023-06-14 10:07+0000\n"
+"PO-Revision-Date: 2023-06-14 12:06+0200\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
 "Language: en\n"
@@ -95,7 +95,7 @@ msgid "arguments"
 msgstr "arguments"
 
 #: models.py:68 models.py:341 models.py:366 models.py:570 models.py:633
-#: models.py:816 views_usergroup.py:254
+#: models.py:816 views_usergroup.py:274
 msgid "name"
 msgstr "name"
 
@@ -140,7 +140,7 @@ msgstr "Informations"
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:480 views_usergroup.py:101
+#: models.py:480 views_usergroup.py:110
 msgid "Preferences"
 msgstr "Preferences"
 
@@ -327,7 +327,11 @@ msgstr "Audit-log"
 msgid "CORE-PluginPermission"
 msgstr "Plugin permissions"
 
-#: models.py:863
+#: models.py:862 views_usergroup.py:117
+msgid "CORE-OnlySuperAdmin"
+msgstr "Access to only administrators"
+
+#: models.py:864
 msgid "# Core (administrator)"
 msgstr "# Core (administrator)"
 
@@ -429,7 +433,7 @@ msgstr "Modify"
 msgid "Wizard"
 msgstr "Wizard"
 
-#: views.py:290 views.py:1097 views_usergroup.py:171
+#: views.py:290 views.py:1097 views_usergroup.py:191
 msgid "Close"
 msgstr "Close"
 
@@ -715,7 +719,7 @@ msgstr "language '%s'"
 msgid "language unknown"
 msgstr "language unknown"
 
-#: views_auth.py:184
+#: views_auth.py:185
 msgid "Disconnect"
 msgstr "Disconnect"
 
@@ -763,143 +767,147 @@ msgstr "Users"
 msgid "List of active users"
 msgstr "List of active users"
 
-#: views_usergroup.py:100
+#: views_usergroup.py:101
 msgid "List of inactive users"
 msgstr "List of inactive users"
 
-#: views_usergroup.py:106
+#: views_usergroup.py:122
+msgid "Do you want to limit access to only administrators?"
+msgstr "Do you want to limit access to only administrators?"
+
+#: views_usergroup.py:126
 msgid "Search"
 msgstr "Search"
 
-#: views_usergroup.py:109
+#: views_usergroup.py:129
 msgid "User search"
 msgstr "User search"
 
-#: views_usergroup.py:127
+#: views_usergroup.py:147
 msgid "User deactivated: no email!"
 msgstr "User deactivated: no email!"
 
-#: views_usergroup.py:131
+#: views_usergroup.py:151
 msgid "User deactivated: another with the same email is active!"
 msgstr "User deactivated: another with the same email is active!"
 
-#: views_usergroup.py:138
+#: views_usergroup.py:158
 msgid "Add an users"
 msgstr "Add an user"
 
-#: views_usergroup.py:139
+#: views_usergroup.py:159
 msgid "Modify an user"
 msgstr "Modify an user"
 
-#: views_usergroup.py:158
+#: views_usergroup.py:178
 msgid "User preferences"
 msgstr "preferences"
 
-#: views_usergroup.py:174 views_usergroup.py:175
+#: views_usergroup.py:194 views_usergroup.py:195
 msgid "Disabled"
 msgstr "Disabled"
 
-#: views_usergroup.py:178
+#: views_usergroup.py:198
 msgid "Disabled an user"
 msgstr "Disabled an user"
 
-#: views_usergroup.py:185
+#: views_usergroup.py:205
 msgid "You can disabled yourself!"
 msgstr "You can't disabled yourself!"
 
-#: views_usergroup.py:190 views_usergroup.py:191
+#: views_usergroup.py:210 views_usergroup.py:211
 msgid "Enabled"
 msgstr "Enabled"
 
-#: views_usergroup.py:194
+#: views_usergroup.py:214
 msgid "Enabled an user"
 msgstr "Enabled an user"
 
-#: views_usergroup.py:204
+#: views_usergroup.py:224
 msgid "User cannot be activated: no email!"
 msgstr "User cannot be activated: no email!"
 
-#: views_usergroup.py:206
+#: views_usergroup.py:226
 msgid "User cannot be activated: another with the same email is active!"
 msgstr "User cannot be activated: another with the same email is active!"
 
-#: views_usergroup.py:214
+#: views_usergroup.py:234
 msgid "Delete users"
 msgstr "Delete users"
 
-#: views_usergroup.py:223
+#: views_usergroup.py:243
 msgid "You can delete yourself!"
 msgstr "You can't delete yourself!"
 
-#: views_usergroup.py:234
+#: views_usergroup.py:254
 msgid "Modify preference"
 msgstr "Modify preference"
 
-#: views_usergroup.py:240
+#: views_usergroup.py:260
 msgid "To manage session and tasks."
 msgstr "To manage session and tasks."
 
-#: views_usergroup.py:242
+#: views_usergroup.py:262
 msgid "Sessions & tasks"
 msgstr "Sessions & tasks"
 
-#: views_usergroup.py:248
+#: views_usergroup.py:268
 msgid "Sessions"
 msgstr "Sessions"
 
-#: views_usergroup.py:251
+#: views_usergroup.py:271
 msgid "Tasks"
 msgstr "Tasks"
 
-#: views_usergroup.py:255
+#: views_usergroup.py:275
 msgid "trigger"
 msgstr "trigger"
 
-#: views_usergroup.py:256
+#: views_usergroup.py:276
 msgid "next date"
 msgstr "next date"
 
-#: views_usergroup.py:274
+#: views_usergroup.py:294
 msgid "Delete session"
 msgstr "Delete session"
 
-#: views_usergroup.py:289 views_usergroup.py:291
+#: views_usergroup.py:309 views_usergroup.py:311
 msgid "Show log"
 msgstr "Show log"
 
-#: views_usergroup.py:316 views_usergroup.py:344
+#: views_usergroup.py:336 views_usergroup.py:364
 msgid "content type"
 msgstr "content type"
 
-#: views_usergroup.py:328
+#: views_usergroup.py:348
 msgid "To manage audit logs."
 msgstr "To manage audit logs."
 
-#: views_usergroup.py:330
+#: views_usergroup.py:350
 msgid "Log configuration"
 msgstr "Log configuration"
 
-#: views_usergroup.py:336
+#: views_usergroup.py:356
 msgid "Log entries"
 msgstr "Log entries"
 
-#: views_usergroup.py:352 views_usergroup.py:369
+#: views_usergroup.py:372 views_usergroup.py:389
 msgid "Log setting"
 msgstr "Log setting"
 
-#: views_usergroup.py:359
+#: views_usergroup.py:379
 msgid "settings"
 msgstr "settings"
 
-#: views_usergroup.py:380
+#: views_usergroup.py:400
 msgid "purge"
 msgstr "purge"
 
-#: views_usergroup.py:383
+#: views_usergroup.py:403
 msgid "Purge log"
 msgstr "Purge log"
 
-#: views_usergroup.py:389
+#: views_usergroup.py:409
 msgid "Do you want to purge those logs ?"
 msgstr "Do you want to purge those logs ?"
 

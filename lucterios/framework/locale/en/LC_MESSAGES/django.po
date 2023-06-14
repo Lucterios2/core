@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 09:25+0000\n"
+"POT-Creation-Date: 2023-06-14 10:07+0000\n"
 "PO-Revision-Date: 2023-01-13 10:26+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -78,7 +78,7 @@ msgstr "create"
 msgid "update"
 msgstr "update"
 
-#: models.py:800 tools.py:454
+#: models.py:800 tools.py:456
 msgid "delete"
 msgstr "delete"
 
@@ -86,7 +86,7 @@ msgstr "delete"
 msgid "remove"
 msgstr "remove"
 
-#: models.py:802 tools.py:450
+#: models.py:802 tools.py:452
 msgid "add"
 msgstr "add"
 
@@ -177,15 +177,15 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:452
+#: tools.py:454
 msgid "view"
 msgstr "view"
 
-#: tools.py:590 xfergraphic.py:159
+#: tools.py:592 xfergraphic.py:159
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:592 xfergraphic.py:160
+#: tools.py:594 xfergraphic.py:160
 msgid "No"
 msgstr "No"
 
@@ -198,7 +198,7 @@ msgid "Cancel"
 msgstr "Cancel"
 
 #: xferadvance.py:44 xferadvance.py:229 xfergraphic.py:131 xferprinting.py:130
-#: xferprinting.py:206 xfersearch.py:582
+#: xferprinting.py:206 xfersearch.py:639
 msgid "Close"
 msgstr "Close"
 
@@ -375,20 +375,20 @@ msgstr "or"
 msgid "and"
 msgstr "and"
 
-#: xfersearch.py:106 xfersearch.py:536
+#: xfersearch.py:131 xfersearch.py:593
 msgid "Your criteria of search"
 msgstr "Your criteria of search"
 
-#: xfersearch.py:108 xfersearch.py:539
+#: xfersearch.py:133 xfersearch.py:596
 msgid "No criteria of search"
 msgstr "No criteria of search"
 
-#: xfersearch.py:260
+#: xfersearch.py:286
 #, python-format
 msgid "%d items"
 msgstr "%d items"
 
-#: xfersearch.py:473
+#: xfersearch.py:530
 msgid "New criteria"
 msgstr "New criteria"
 
