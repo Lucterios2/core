@@ -92,9 +92,28 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
         self.assertEqual(self.response_json['connexion']['MODE'], '0')
         self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'username')
+        self.assertEqual(self.response_json['connexion']['ONLY_ADMIN'], False)
 
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+
+    def test_connect_admin_only_super(self):
+        Params.setvalue('CORE-OnlySuperAdmin', True)
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
+        self.assert_observer('core.auth', 'CORE', 'authentification')
+        self.assert_json_equal('', '', 'OK')
+        self.assertEqual(self.response_json['connexion']['ONLY_ADMIN'], True)
+
+        self.calljson('/CORE/exitConnection', {})
+        self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
+
+    def test_connect_empty_only_super(self):
+        Params.setvalue('CORE-OnlySuperAdmin', True)
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
+        self.assert_observer('core.auth', 'CORE', 'authentification')
+        self.assert_json_equal('', '', 'ONLYADMIN')
+        self.assertEqual(self.response_json['connexion']['ONLY_ADMIN'], True)
 
     def test_connect_email(self):
         settings.LOGIN_FIELD = 'email'
@@ -114,6 +133,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'administrator ADMIN')
         self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'email')
         self.assertEqual(self.response_json['connexion']['MODE'], '0')
+        self.assertEqual(self.response_json['connexion']['ONLY_ADMIN'], False)
 
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
@@ -133,6 +153,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['LOGIN'], 'empty')
         self.assertEqual(self.response_json['connexion']['REALNAME'], 'empty NOFULL')
         self.assertEqual(self.response_json['connexion']['LOGIN_FIELD'], 'email')
+        self.assertEqual(self.response_json['connexion']['ONLY_ADMIN'], False)
 
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')

@@ -33,7 +33,7 @@ from lucterios.framework import tools, signal_and_lock
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
 from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
-    AudiLogConfig, GroupsDelete, PreferenceEdit, UsersShow
+    AudiLogConfig, GroupsDelete, PreferenceEdit, UsersShow, ChangeOnlySuperAdmin
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
 from lucterios.CORE.views import Unlock
@@ -694,6 +694,41 @@ class UserTest(LucteriosTest):
         Signal.call_signal("convertdata")
         self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=True)], ["empty"])
         self.assertEqual([user.username for user in LucteriosUser.objects.filter(is_active=False)], ["admin", "empty2", "empty3"])
+
+    def test_only_admin_user(self):
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('LABELFORM', "CORE-OnlySuperAdmin", 'Non')
+
+        self.assertEqual(parameters.Params.getvalue('CORE-OnlySuperAdmin'), False)
+
+        self.factory.xfer = ChangeOnlySuperAdmin()
+        self.calljson('/CORE/changeOnlySuperAdmin', {}, False)
+        self.assert_observer('core.dialogbox', 'CORE', 'changeOnlySuperAdmin')
+        self.assert_json_equal('', 'text', "Voulez-vous limiter l'accès aux seuls administrateurs ?")
+
+        self.factory.xfer = ChangeOnlySuperAdmin()
+        self.calljson('/CORE/changeOnlySuperAdmin', {'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'changeOnlySuperAdmin')
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('LABELFORM', "CORE-OnlySuperAdmin", 'Oui')
+
+        self.assertEqual(parameters.Params.getvalue('CORE-OnlySuperAdmin'), True)
+
+        self.factory.xfer = ChangeOnlySuperAdmin()
+        self.calljson('/CORE/changeOnlySuperAdmin', {}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'changeOnlySuperAdmin')
+
+        self.factory.xfer = UsersList()
+        self.calljson('/CORE/usersList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'usersList')
+        self.assert_json_equal('LABELFORM', "CORE-OnlySuperAdmin", 'Non')
+
+        self.assertEqual(parameters.Params.getvalue('CORE-OnlySuperAdmin'), False)
 
 
 class GroupTest(LucteriosTest):

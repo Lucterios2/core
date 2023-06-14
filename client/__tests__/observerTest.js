@@ -239,6 +239,66 @@ describe('Observer', () => {
     expect(Singleton().mDesc).toEqual(null)
   })
 
+  it('Authentification 4', async () => {
+    var jsonReceive = {
+      'close': null,
+      'context': {},
+      'data': 'ONLYADMIN',
+      'connexion': {
+        'REALNAME': '',
+        'LOGIN_FIELD': 'username',
+        'ONLY_ADMIN': true
+      },
+      'meta': {
+        'title': 'info',
+        'action': 'authentification',
+        'observer': 'core.auth',
+        'extension': 'CORE'
+      }
+    }
+    currentUI.clean()
+
+    var obs = new ObserverAuthentification()
+    obs.setSource('CORE', 'authentification')
+    obs.setContent(jsonReceive)
+    obs.show('Connexion')
+
+    var gui = obs.getGUI()
+    expect(gui != null).toEqual(true)
+    expect(gui.isExist()).toEqual(true)
+
+    var jcnt = gui.getHtmlDom()
+
+    var lbl = jcnt.find('table:eq(0) > tbody > tr:eq(0) > td:eq(0) > label')
+    expect(lbl.text()).toEqual('Seuls les administrateurs peuvent accéder !')
+
+    lbl = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(0) > span')
+    expect(lbl.html()).toEqual('<b>Alias</b>')
+
+    lbl = jcnt.find('table:eq(0) > tbody > tr:eq(1) > td:eq(1) > input')
+    expect(lbl.val()).toEqual('')
+
+    lbl = jcnt.find('table:eq(0) > tbody > tr:eq(2) > td:eq(0) > span')
+    expect(lbl.html()).toEqual('<b>Mot de passe</b>')
+
+    lbl = jcnt.find('table:eq(0) > tbody > tr:eq(2) > td:eq(1) > input')
+    expect(lbl.val()).toEqual('')
+
+    expect($.fn.dialog).toHaveBeenCalledTimes(3)
+    expect(currentUI.optionsDialog.length).toBe(3)
+    expect(currentUI.buttonCount(0)).toEqual(3)
+    expect(currentUI.getTextButton(0, 0)).toEqual('Ok')
+    expect(currentUI.getTextButton(0, 1)).toEqual('Les serveurs')
+    expect(currentUI.getTextButton(0, 2)).toEqual('Annuler')
+
+    expect(mObsFactory.CallList.size()).toEqual(0)
+
+    await currentUI.clickButton(0, 2)
+
+    expect(!gui.isExist()).toEqual(true)
+    expect(mObsFactory.CallList.size()).toEqual(0)
+  })
+
   it('Acknowledge', async () => {
     var jsonReceive = {
       'close': {
