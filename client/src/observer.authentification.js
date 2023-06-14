@@ -392,6 +392,8 @@ export class ObserverAuthentification extends ObserverAbstract {
         }
       } else if (cdate === 'NEEDAUTH') {
         text = Singleton().getTranslate('Please, identify you')
+      } else if (cdate === 'ONLYADMIN') {
+        text = Singleton().getTranslate('Only administrators can access!')
       } else if (cdate !== '') {
         text = '\'' + cdate + '\''
       }
