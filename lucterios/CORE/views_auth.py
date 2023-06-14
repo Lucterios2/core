@@ -89,6 +89,9 @@ class Authentification(XferContainerAbstract):
             auth_args = {settings.LOGIN_FIELD: login_name, "password": password}
             user = authenticate(**auth_args)
             if user is not None:
+                if Params.getvalue('CORE-OnlySuperAdmin') and not user.is_superuser:
+                    self.must_autentificate('ONLYADMIN')
+                    return
                 login(self.request, user)
                 self.params["ses"] = user.username
                 self.connection_success()
@@ -143,6 +146,7 @@ class Authentification(XferContainerAbstract):
         info_cnx['LANGUAGE'] = self.language
         info_cnx['MODE'] = str(Params.getvalue("CORE-connectmode"))
         info_cnx['LOGIN_FIELD'] = "email" if settings.ASK_LOGIN_EMAIL else 'username'
+        info_cnx['ONLY_ADMIN'] = Params.getvalue('CORE-OnlySuperAdmin')
         if self.request.user.is_authenticated:
             info_cnx['LOGIN'] = self.request.user.username
             info_cnx['REALNAME'] = "%s %s" % (self.request.user.first_name, self.request.user.last_name)
