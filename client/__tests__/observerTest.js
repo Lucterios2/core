@@ -71,7 +71,8 @@ describe('Observer', () => {
         'SUBTITLE': 'Application g\u00e9n\u00e9rique de gestion',
         'TITLE': 'Lucterios standard',
         'EMAIL': 'Support Lucterios <support@lucterios.org>',
-        'BACKGROUND': ''
+        'BACKGROUND': '',
+        'ONLY_ADMIN': false
       },
       'close': null,
       'context': {
@@ -103,6 +104,7 @@ describe('Observer', () => {
     expect(description.getSubTitle()).toEqual('Application générique de gestion')
     expect(description.getLogin()).toEqual('admin')
     expect(description.getRealName()).toEqual('Administrateur')
+    expect(description.getOnlyAdmin()).toEqual(false)
     expect(Singleton().mRefreshMenu).toEqual(true)
     expect(obs.getRefreshMenu()).toEqual(false)
     expect(Singleton().Transport().getSession()).toEqual('admin1315821586')
@@ -262,6 +264,9 @@ describe('Observer', () => {
     obs.setSource('CORE', 'authentification')
     obs.setContent(jsonReceive)
     obs.show('Connexion')
+
+    var description = Singleton().mDesc
+    expect(description.getOnlyAdmin()).toEqual(true)
 
     var gui = obs.getGUI()
     expect(gui != null).toEqual(true)

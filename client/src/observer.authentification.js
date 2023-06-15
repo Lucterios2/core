@@ -29,6 +29,7 @@ export class ApplicationDescription {
     this.mMode = 0
     this.mLoginField = 'username'
     this.mLanguage = ''
+    this.mOnlyAdmin = false
   }
 
   setLogoIconName (aLogoIconName) {
@@ -154,6 +155,14 @@ export class ApplicationDescription {
 
   setLanguage (language) {
     this.mLanguage = language
+  }
+
+  setOnlyAdmin (onlyAdmin) {
+    this.mOnlyAdmin = onlyAdmin
+  }
+
+  getOnlyAdmin () {
+    return this.mOnlyAdmin
   }
 
   getCordovaVersionExpected () {
@@ -321,6 +330,7 @@ export class ObserverAuthentification extends ObserverAbstract {
       desc.setInstanceName(jsonConnection.INSTANCE)
       desc.setMessageBefore(jsonConnection.MESSAGE_BEFORE)
       desc.setLanguage(jsonConnection.LANGUAGE)
+      desc.setOnlyAdmin(jsonConnection.ONLY_ADMIN)
     }
     return desc
   }
