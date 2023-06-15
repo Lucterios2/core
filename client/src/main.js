@@ -100,6 +100,11 @@ function initialFunction (aInitialHeader) {
       html += '</label>'
       html += util.format('<img src="%s" style="height:48px">', Singleton().mDesc.getLogoIconName())
       html += '<label id="statususer">'
+      if (Singleton().mDesc.getOnlyAdmin()) {
+        html += '<span style="color:red">'
+        html += Singleton().getTranslate('Only administrators can access!')
+        html += '</span><br>'
+      }
       html += Singleton().mDesc.getConnectUser()
       html += '</label>'
       html += '</div>'
