@@ -34,9 +34,9 @@ import logging
 import locale
 import sys
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMFieldMixin
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 
 
 CLOSE_NO = 0
@@ -274,9 +274,9 @@ class ActionsManage(object):
                     transitions = list(field.get_all_transitions(xclass.model))
                     transitions.sort(key=lambda item: item.target if item.target is not None else -1000)
                     for transition in transitions:
-                        source_labels = [smart_text(name[1]) for name in field.choices if name[0] == transition.source]
+                        source_labels = [smart_str(name[1]) for name in field.choices if name[0] == transition.source]
                         source_label = source_labels[0] if len(source_labels) > 0 else '---'
-                        target_labels = [smart_text(name[1]) for name in field.choices if name[0] == transition.target]
+                        target_labels = [smart_str(name[1]) for name in field.choices if name[0] == transition.target]
                         target_label = target_labels[0] if len(target_labels) > 0 else '---'
                         title = getattr(xclass.model, 'transitionname__' + transition.name, transition.name)
                         xclass.trans_list[transition.name] = (transition.source, str(source_label),

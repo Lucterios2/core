@@ -28,7 +28,7 @@ from logging import getLogger
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import DateTimeField, NOT_PROVIDED
 from django.db.models.base import Model
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils import timezone
 from django.conf import settings
 
@@ -103,7 +103,7 @@ def get_field_value(obj, field):
                 value = field.default if field.default is not NOT_PROVIDED else None
         else:
             try:
-                value = smart_text(getattr(obj, field.name, None))
+                value = smart_str(getattr(obj, field.name, None))
             except ObjectDoesNotExist:
                 value = field.default if field.default is not NOT_PROVIDED else None
     except Exception as err:
@@ -118,13 +118,13 @@ def get_fields_diff(old, new, model_fields, fields):
         old_value = get_field_value(old, field)
         new_value = get_field_value(new, field)
         if old_value != new_value:
-            diff[field.name] = smart_text(old_value), smart_text(new_value)
+            diff[field.name] = smart_str(old_value), smart_str(new_value)
     if len(diff) == 0:
         diff = None
     else:
         for field in fields:
             if (field.name in model_fields['mapping_fields']) and (field.name not in diff.keys()):
-                diff[field.name] = smart_text(get_field_value(old, field)), smart_text(get_field_value(new, field))
+                diff[field.name] = smart_str(get_field_value(old, field)), smart_str(get_field_value(new, field))
     return diff
 
 

@@ -28,7 +28,7 @@ __version__ = "0.2"
 
 
 def __title__():
-    from django.utils.translation import ugettext_lazy as _
+    from django.utils.translation import gettext_lazy as _
     return _("My Dummy")
 
 

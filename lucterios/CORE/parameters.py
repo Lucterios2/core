@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 from json import dumps
 import threading
 
-from django.utils.translation import ugettext_lazy
+from django.utils.translation import gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
 
 from lucterios.framework.error import LucteriosException, GRAVE
@@ -109,7 +109,7 @@ class Params(object):
                     if param.name in titles:
                         param_cmp.description = titles[param.name]
                     else:
-                        param_cmp.description = ugettext_lazy(param.name)
+                        param_cmp.description = gettext_lazy(param.name)
                     xfer.add_component(param_cmp)
                     coloffset += 1
                     if coloffset == nb_col:
