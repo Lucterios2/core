@@ -1266,7 +1266,7 @@ describe('ObserverCustom', () => {
 
     expect(formatToString('2017-04-23', 'D', '{0}')).toEqual('April 23, 2017')
     expect(formatToString('12:54:25.014', 'T', '{0}').split(/\s/)).toEqual(['12:54', 'PM'])
-    expect(formatToString('2017-04-23T12:54:25.014', 'H', '{0}')).toEqual('Sunday, April 23, 2017 at 12:54 PM')
+    expect(formatToString('2017-04-23T12:54:25.014', 'H', '{0}').split(/\s/)).toEqual(['Sunday,', 'April', '23,', '2017', 'at', '12:54', 'PM'])
 
     expect(formatToString(true, 'B', '{0}')).toEqual('Yes')
     expect(formatToString(false, 'B', '{0}')).toEqual('No')
