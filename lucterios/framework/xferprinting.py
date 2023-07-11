@@ -30,7 +30,7 @@ from os.path import join
 from zipfile import ZipFile
 from _io import BytesIO
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE

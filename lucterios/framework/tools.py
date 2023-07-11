@@ -652,7 +652,7 @@ def _convert_value_H(value, format_num):
 
 
 def _convert_value_N(value, format_num):
-    return locale.format("%.*f", (int(format_num[1]), float(value)), True)
+    return locale.format_string("%.*f", (int(format_num[1]), float(value)), True)
 
 
 def add_currency(value, format_num):

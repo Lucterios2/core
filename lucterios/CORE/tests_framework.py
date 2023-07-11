@@ -117,7 +117,7 @@ class GenericTest(LucteriosTest):
 
         self.calljson('/customer/details', {'CONFIRME': 'YES'}, False)
         self.assertEqual(self.value, True)
-        self.assertEquals(self.json_meta['observer'], 'core.acknowledge')
+        self.assertEqual(self.json_meta['observer'], 'core.acknowledge')
 
     def test_message(self):
         def fillresponse_message():
