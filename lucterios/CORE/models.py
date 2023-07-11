@@ -35,7 +35,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
 from django.db import models
 from django.db.models.signals import post_migrate, pre_save, post_save
-from django.utils.translation import ugettext_lazy as _, ugettext_lazy
+from django.utils.translation import gettext_lazy as _, gettext_lazy
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
     LucteriosLogEntry
@@ -68,7 +68,7 @@ class AbstractSetting(LucteriosModel):
     title = LucteriosVirtualField(verbose_name=_('name'), compute_from='__str__')
 
     def __str__(self):
-        return str(ugettext_lazy(self.name))
+        return str(gettext_lazy(self.name))
 
     @classmethod
     def _check_and_change(self, created, typeparam, title, args, value, param_titles, meta, param):
@@ -240,11 +240,11 @@ class AbstractSetting(LucteriosModel):
         self.correct_args_value()
         if self.correct_type == Parameter.TYPE_BOOL:  # Boolean
             if self._correct_value:
-                value_text = ugettext_lazy("Yes")
+                value_text = gettext_lazy("Yes")
             else:
-                value_text = ugettext_lazy("No")
+                value_text = gettext_lazy("No")
         elif self.correct_type == Parameter.TYPE_SELECT:  # Select
-            value_text = ugettext_lazy(self.name + ".%d" % self._correct_value)
+            value_text = gettext_lazy(self.name + ".%d" % self._correct_value)
         elif self.correct_type == Parameter.TYPE_META:  # selected
             value_text = self._get_text_for_meta()
         else:
@@ -278,7 +278,7 @@ class AbstractSetting(LucteriosModel):
     def get_label_comp(self):
         from lucterios.framework.xfercomponents import XferCompLabelForm
         lbl = XferCompLabelForm('lbl_' + self.name)
-        lbl.set_value_as_name(ugettext_lazy(self.name))
+        lbl.set_value_as_name(gettext_lazy(self.name))
         return lbl
 
     def get_write_comp(self):
@@ -306,7 +306,7 @@ class AbstractSetting(LucteriosModel):
             param_cmp.set_needed(True)
         elif self.correct_type == Parameter.TYPE_SELECT:  # Select
             param_cmp = XferCompSelect(self.name)
-            selection = [(sel_idx, ugettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self._correct_args['Enum'])]
+            selection = [(sel_idx, gettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self._correct_args['Enum'])]
             param_cmp.set_select(selection)
             param_cmp.set_value(self._correct_value)
             param_cmp.set_needed(True)
@@ -319,7 +319,7 @@ class AbstractSetting(LucteriosModel):
             param_cmp.set_needed(self.meta_info[4])
             param_cmp.set_select(self._selection_from_object())
             param_cmp.set_value(self._correct_value)
-        param_cmp.description = str(ugettext_lazy(self.name))
+        param_cmp.description = str(gettext_lazy(self.name))
         return param_cmp
 
     def get_read_comp(self):

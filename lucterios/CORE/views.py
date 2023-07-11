@@ -34,7 +34,7 @@ import mimetypes
 import stat
 import os
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.http import http_date
 from django.http.response import StreamingHttpResponse, HttpResponse
 from django.apps.registry import apps

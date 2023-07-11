@@ -27,7 +27,7 @@ from logging import getLogger
 from datetime import datetime, time, date
 import warnings
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 

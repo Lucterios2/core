@@ -276,7 +276,7 @@ class XferContainerAbstract(View):
     def _get_params(self):
         params = {}
         import inspect
-        spec = inspect.getargspec(self.fillresponse)
+        spec = inspect.getfullargspec(self.fillresponse)
         if isinstance(spec.defaults, tuple):
             diff = len(spec.args) - len(spec.defaults)
         else:

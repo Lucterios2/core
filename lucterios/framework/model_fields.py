@@ -33,7 +33,7 @@ from django.db.models.lookups import RegisterLookupMixin
 from django.db.models.signals import pre_save
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import formats
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError

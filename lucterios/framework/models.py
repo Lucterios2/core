@@ -41,8 +41,8 @@ from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoe
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User, Permission
 from django.utils import timezone
-from django.utils.encoding import smart_text
-from django.utils.translation import ugettext_lazy as _
+from django.utils.encoding import smart_str
+from django.utils.translation import gettext_lazy as _
 from django.utils.module_loading import import_module
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
@@ -683,7 +683,7 @@ class LogEntryManager(models.Manager):
         if changes is not None:
             kwargs.setdefault('modelname', instance.__class__.get_long_name())
             kwargs.setdefault('object_pk', pk)
-            kwargs.setdefault('object_repr', smart_text(instance))
+            kwargs.setdefault('object_repr', smart_str(instance))
 
             if isinstance(pk, int):
                 kwargs.setdefault('object_id', pk)
@@ -722,7 +722,7 @@ class LogEntryManager(models.Manager):
         if isinstance(pk, int):
             return self.filter(modelname=instance.__class__.get_long_name(), object_id=pk)
         else:
-            return self.filter(modelname=instance.__class__.get_long_name(), object_pk=smart_text(pk))
+            return self.filter(modelname=instance.__class__.get_long_name(), object_pk=smart_str(pk))
 
     def get_for_objects(self, queryset):
         """
@@ -742,7 +742,7 @@ class LogEntryManager(models.Manager):
         if isinstance(primary_keys[0], int):
             return self.filter(modelname=modelname).filter(Q(object_id__in=primary_keys)).distinct()
         elif isinstance(queryset.model._meta.pk, models.UUIDField):
-            primary_keys = [smart_text(pk) for pk in primary_keys]
+            primary_keys = [smart_str(pk) for pk in primary_keys]
             return self.filter(modelname=modelname).filter(Q(object_pk__in=primary_keys)).distinct()
         else:
             return self.filter(modelname=modelname).filter(Q(object_pk__in=primary_keys)).distinct()

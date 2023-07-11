@@ -66,7 +66,7 @@ class PluginTest(LucteriosTest):
             with open(join(new_plugins_dir, 'views.py'), "w") as file_py:
                 file_py.write('# -*- coding: utf8 -*-\n')
                 file_py.write('\n')
-                file_py.write('from django.utils.translation import ugettext_lazy as _\n')
+                file_py.write('from django.utils.translation import gettext_lazy as _\n')
                 file_py.write('from lucterios.framework.plugins import PluginManager\n')
                 file_py.write('from lucterios.framework.xfergraphic import XferContainerCustom\n')
                 file_py.write('\n')

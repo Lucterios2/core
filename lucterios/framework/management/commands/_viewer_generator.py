@@ -203,7 +203,7 @@ class Generator(object):
             self.writedata(
                 "# -*- coding: utf-8 -*-\nfrom __future__ import unicode_literals\n")
         self.writedata("""
-from django.utils.translation import ugettext_lazy as _\n\n""")
+from django.utils.translation import gettext_lazy as _\n\n""")
         self.writedata(
             "from lucterios.framework.xferadvance import TITLE_MODIFY, TITLE_ADD, TITLE_EDIT, TITLE_DELETE, TITLE_LISTING, TITLE_LABEL, TITLE_PRINT\n")
         for item_name in sorted(list(item_actions.keys())):
