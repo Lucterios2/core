@@ -350,9 +350,9 @@ class LucteriosTestAbstract(object):
         self.assertTrue(self.response_json is not None)
         self.assertTrue(self.response_xml is None)
         try:
-            self.assertEquals(self.json_meta['observer'], obsname, self.response_json['exception']['message'] if self.json_meta['observer'] == 'core.exception' else None)
-            self.assertEquals(self.json_meta['extension'], extension)
-            self.assertEquals(self.json_meta['action'], action)
+            self.assertEqual(self.json_meta['observer'], obsname, self.response_json['exception']['message'] if self.json_meta['observer'] == 'core.exception' else None)
+            self.assertEqual(self.json_meta['extension'], extension)
+            self.assertEqual(self.json_meta['action'], action)
             if self.json_meta['observer'] == 'core.custom':
                 comp_coord = {}
                 for comp_name, comp in self.json_comp.items():

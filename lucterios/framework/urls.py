@@ -28,7 +28,7 @@ import logging
 import inspect
 import pkgutil
 
-from django.conf.urls import url, include
+from django.conf.urls import re_path, include
 from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve
@@ -63,13 +63,13 @@ class UrlPatterns(list):
         from django.contrib import admin
         admin.autodiscover()
         web_path = join(dirname(__file__), 'static', 'lucterios.framework', 'web')
-        self.append(url(r'^$', defaultview))
-        self.append(url(r'^favicon.ico$', defaultblank))
-        self.append(url(r'^web/$', defaultview))
-        self.append(url(r'^web/STUB/(.*)$', defaultblank))
-        self.append(url(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
-        self.append(url(r'^Docs$', defaultDocs))
-        self.append(url(r'^admin/', include(admin.site.get_urls())))
+        self.append(re_path(r'^$', defaultview))
+        self.append(re_path(r'^favicon.ico$', defaultblank))
+        self.append(re_path(r'^web/$', defaultview))
+        self.append(re_path(r'^web/STUB/(.*)$', defaultblank))
+        self.append(re_path(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
+        self.append(re_path(r'^Docs$', defaultDocs))
+        self.append(re_path(r'^admin/', include(admin.site.get_urls())))
 
     def add_lct_application(self, appname):
         appmodule = import_module(appname)
@@ -83,7 +83,7 @@ class UrlPatterns(list):
                             if inspect.isclass(obj[1]):
                                 is_lucterios_ext = True
                                 as_view_meth = getattr(obj[1], "as_view")
-                                self.append(url(r"^%s$" % obj[1].url_text, as_view_meth()))
+                                self.append(re_path(r"^%s$" % obj[1].url_text, as_view_meth()))
                     except AttributeError:
                         pass
             elif settings.APPLIS_MODULE == appmodule:
@@ -101,20 +101,20 @@ class UrlPatterns(list):
                     if module_items[0] == 'django':
                         self.append(url_pattern)
                     else:
-                        self.append(url(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
-                                        url_pattern.callback, None, url_pattern.pattern.name))
+                        self.append(re_path(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
+                                            url_pattern.callback, None, url_pattern.pattern.name))
         except ImportError:
             pass
 
     def add_plugins(self):
         for plugin_item in PluginManager.get_instance():
             for view_item in plugin_item.views:
-                self.append(url(r"^%s$" % view_item.url_text, view_item.as_view()))
+                self.append(re_path(r"^%s$" % view_item.url_text, view_item.as_view()))
 
     def add_extra_url(self):
         try:
             from django.contrib.admin.sites import site
-            self.append(url(r'^accounts/login/$', site.login))
+            self.append(re_path(r'^accounts/login/$', site.login))
         except ImportError:
             pass
         self.extend(staticfiles_urlpatterns())

@@ -27,7 +27,7 @@ import datetime
 from logging import getLogger
 import warnings
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.db.models.fields import EmailField, NOT_PROVIDED
 from django.core.exceptions import ObjectDoesNotExist
 

@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 from inspect import isfunction
 from logging import getLogger
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic import View
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
