@@ -46,16 +46,16 @@ check:
       cobertura:
         - coverage3.xml
 
-test36:
+test37:
   extends: .test_basic
-  image: python:3.6
+  image: python:3.7
 
-test310:
+test311:
   extends: .test_basic
-  image: python:3.10
+  image: python:3.11
   
 build:
-  image: python:3.8
+  image: python:3.9
   stage: build
   script:
     - ant clear init add_instance i18n docs package
@@ -69,22 +69,22 @@ build:
       - dist/*.whl
       - ${MANUAL_PATH}
 
-trigger_selenium36:
+trigger_selenium37:
   stage: integration
   variables:
     TARGET: "${APPLICATION_TARGET}"
-    PYTHON_VERSION: "3.6"
+    PYTHON_VERSION: "3.7"
     BROWSER: chrome 
   allow_failure: true
   trigger:
     project: lucterios2/test-fct
     strategy: depend    
 
-trigger_selenium310:
+trigger_selenium311:
   stage: integration
   variables:
     TARGET: "${APPLICATION_TARGET}"
-    PYTHON_VERSION: "3.10"
+    PYTHON_VERSION: "3.11"
     BROWSER: chrome
   allow_failure: true
   trigger:
