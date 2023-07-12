@@ -120,7 +120,7 @@ def set_criteria_from_list(criteria_list):
 def get_search_query_from_criteria(criteria, model):
     criteria_list = get_criteria_list(criteria)
     fields_desc = FieldDescList()
-    fields_desc.initial(model)
+    fields_desc.initial(model, onlyfields=[item[0] for item in criteria_list])
     return fields_desc.get_query_from_criterialist(criteria_list)
 
 
@@ -384,9 +384,11 @@ class FieldDescList(object):
         self.field_desc_list = []
         self.field_id_desc = []
 
-    def initial(self, model):
+    def initial(self, model, onlyfields=None):
         self.field_desc_list = []
         for field_name in model.get_search_fields():
+            if (onlyfields is not None) and (field_name not in onlyfields):
+                continue
             new_field = FieldDescItem(field_name)
             if new_field.init(model):
                 self.field_desc_list.append(new_field)
