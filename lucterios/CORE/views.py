@@ -907,38 +907,6 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 2, 2)
         self.add_component(lbl)
 
-    def _convert_record(self, fields_description, row):
-        new_row = {}
-        for field_description in fields_description:
-            if field_description[2] == 'T':
-                try:
-                    new_row[field_description[0]] = "%s:%s" % tuple(row[field_description[4]].split(':')[:2])
-                except (TypeError, ValueError):
-                    new_row[field_description[0]] = "00:00"
-            elif field_description[2] in ('D', 'H'):
-                try:
-                    new_row[field_description[0]] = datetime.strptime(row[field_description[4]], self.dateformat).date()
-                except (TypeError, ValueError):
-                    new_row[field_description[0]] = datetime.today()
-            elif isinstance(field_description[2], str) and (field_description[2].startswith('N') or field_description[2].startswith('C')):
-                float_val = row[field_description[4]]
-                float_val = float_val.replace(',', '.')
-                float_val = sub(r"( |[^0-9.])", "", float_val)
-                if float_val == '':
-                    float_val = 0
-                if field_description[2] == 'N0':
-                    new_row[field_description[0]] = int(float_val)
-                else:
-                    new_row[field_description[0]] = float(float_val)
-            elif field_description[2] == 'B':
-                value = row[field_description[4]].strip().lower()[0]
-                new_row[field_description[0]] = (value != '0') and (value != 'f') and (value != 'n')
-            elif row[field_description[4]] is None:
-                new_row[field_description[0]] = None
-            else:
-                new_row[field_description[0]] = row[field_description[4]].strip()
-        return new_row
-
     def _get_field_info(self, fieldname):
         dep_field = self.model.get_field_by_name(fieldname)
         title = dep_field.verbose_name
