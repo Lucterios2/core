@@ -44,7 +44,7 @@ class ImportDriver(object):
     EXTENSION_TITLE = ""
 
     def __init__(self):
-        self.items_imported = {}
+        self.default_values = {}
 
     def read(self, request_file=None):
         pass
@@ -142,7 +142,7 @@ class ImportDriverCSV(ImportDriver):
                 yield new_row
 
     def _convert_record(self, fields_description, row):
-        new_row = {}
+        new_row = self.default_values.copy()
         for field_description in fields_description:
             if field_description[2] == 'T':
                 try:
@@ -220,7 +220,7 @@ class ImportDriverPandas(ImportDriver):
             yield new_row
 
     def _convert_record(self, fields_description, row):
-        new_row = {}
+        new_row = self.default_values.copy()
         columns = list(self.get_column_names())
         for field_description in fields_description:
             col_index = columns.index(field_description[4])
