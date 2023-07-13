@@ -479,7 +479,7 @@ class ExampleTest(LucteriosTest):
         with open(self._get_pdf_filename(None), "wb") as pdf_writer:
             pdf_writer.write(pdf_content)
 
-    def test_importcsv(self):
+    def test_importCSV(self):
         csv_content = """"nom";"valeur";"prix";"heure";"valide";"remarque";"jour"
 "aaa";"5";"12.34";"12:45";"1";"blabla bla";"12/04/2021"
 "bbb";"1";"0.56";"07:37";"0";"truc truc truc truc";"03/11/2017"

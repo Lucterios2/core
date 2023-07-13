@@ -387,7 +387,7 @@ class FieldDescList(object):
     def initial(self, model, onlyfields=None):
         self.field_desc_list = []
         for field_name in model.get_search_fields():
-            if (onlyfields is not None) and (field_name not in onlyfields):
+            if (onlyfields is not None) and (field_name not in onlyfields) and (field_name[0] not in onlyfields):
                 continue
             new_field = FieldDescItem(field_name)
             if new_field.init(model):
