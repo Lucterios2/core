@@ -26,10 +26,8 @@ from __future__ import unicode_literals
 from os.path import isfile, join, dirname, basename
 from logging import getLogger
 from datetime import datetime
-from _io import StringIO, TextIOWrapper
-from csv import DictReader
-from _csv import QUOTE_NONE, QUOTE_ALL
 from copy import deepcopy
+from re import sub
 import mimetypes
 import stat
 import os
@@ -58,7 +56,7 @@ from lucterios.framework import signal_and_lock, tools
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
 from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, LucteriosGroup
 from lucterios.CORE.views_usergroup import UsersList, GroupsList
-from re import sub
+from lucterios.CORE.import_drivers import ImportDriver
 
 
 MenuManage.add_sub('core.menu', None, '', '', '', 0)
@@ -825,86 +823,51 @@ class ObjectImport(XferContainerCustom):
     def __init__(self, **kwargs):
         XferContainerCustom.__init__(self, **kwargs)
         self.model = None
-        self.quotechar = ""
-        self.delimiter = ""
-        self.encoding = ""
-        self.dateformat = ""
-        self.spamreader = None
+        self.import_driver = None
         self.items_imported = {}
 
     def get_select_models(self):
         return []
 
     def _select_csv_parameters(self):
+        driver_select = XferCompSelect('drivername')
+        driver_select.set_value(self.import_driver.NAME)
+        driver_select.set_select([(drivername, drivername) for drivername in ImportDriver.factory_list()])
+        driver_select.set_location(1, 0, 3)
+        driver_select.description = _('import driver')
+        driver_select.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(driver_select)
+
         model_select = XferCompSelect('modelname')
         if self.model is not None:
             model_select.set_value(self.model.get_long_name())
         model_select.set_select(self.get_select_models())
-        model_select.set_location(1, 0, 3)
+        model_select.set_location(1, 1, 3)
         model_select.description = _('model')
         self.add_component(model_select)
-        upld = XferCompUpLoad('csvcontent')
+        upld = XferCompUpLoad('importcontent')
         upld.http_file = True
-        upld.add_filter(".csv")
-        upld.set_location(1, 1, 2)
-        upld.description = _('CSV file')
+        upld.add_filter(self.import_driver.EXTENSION)
+        upld.set_location(1, 2, 2)
+        upld.description = self.import_driver.EXTENSION_TITLE
         self.add_component(upld)
-        lbl = XferCompEdit('encoding')
-        lbl.set_value(self.encoding)
-        lbl.set_location(1, 2)
-        lbl.description = _('encoding')
-        self.add_component(lbl)
-        lbl = XferCompEdit('dateformat')
-        lbl.set_value(self.dateformat)
-        lbl.set_location(2, 2)
-        lbl.description = _('date format')
-        self.add_component(lbl)
-        lbl = XferCompEdit('delimiter')
-        lbl.set_value(self.delimiter)
-        lbl.set_location(1, 3)
-        lbl.description = _('delimiter')
-        self.add_component(lbl)
-        lbl = XferCompEdit('quotechar')
-        lbl.set_value(self.quotechar)
-        lbl.set_location(2, 3)
-        lbl.description = _('quotechar')
-        self.add_component(lbl)
-        return lbl
-
-    def _read_csv(self):
-        if self.quotechar == '':
-            current_quoting = QUOTE_NONE
-        else:
-            current_quoting = QUOTE_ALL
-        if 'csvcontent' in self.request.FILES.keys():
-            csvfile = TextIOWrapper(
-                self.request.FILES['csvcontent'].file, encoding=self.encoding, errors='replace')
-            csvcontent = "".join(csvfile.readlines())
-            for param_idx in range(0, int(len(csvcontent) / 2048) + 2):
-                self.params['csvcontent%d' % param_idx] = csvcontent[
-                    2048 * param_idx:2048 * (param_idx + 1)]
-            csvfile.seek(0)
-        else:
-            csvcontent = ""
-            for param_idx in range(0, 1000):
-                curent_content = self.getparam('csvcontent%d' % param_idx)
-                if curent_content is None:
-                    break
-                else:
-                    csvcontent += "" + curent_content
-            csvfile = StringIO(csvcontent)
-        self.spamreader = DictReader(csvfile, delimiter=self.delimiter, quotechar=self.quotechar, quoting=current_quoting)
-        try:
-            if (self.spamreader.fieldnames is None) or (len(self.spamreader.fieldnames) == 0):
-                raise Exception("")
-        except Exception:
-            raise LucteriosException(IMPORTANT, _('CSV file unvalid!'))
+        row = 3
+        col = 1
+        for fieldname, title in self.import_driver.FIELD_LIST:
+            lbl = XferCompEdit(fieldname)
+            lbl.set_value(getattr(self.import_driver, fieldname, ''))
+            lbl.set_location(col, row)
+            lbl.description = title
+            self.add_component(lbl)
+            col += 1
+            if col == 3:
+                col = 1
+                row += 1
 
     def _select_fields(self):
         select_list = [('', None)]
-        for fieldname in self.spamreader.fieldnames:
-            if fieldname != '':
-                select_list.append((fieldname, fieldname))
+        for fieldname in self.import_driver.get_column_names():
+            select_list.append((fieldname, fieldname))
         row = 0
         for fieldname in self.model.get_import_fields():
             if isinstance(fieldname, tuple):
@@ -929,17 +892,14 @@ class ObjectImport(XferContainerCustom):
             row += 1
 
     def _show_initial_csv(self):
-        tbl = XferCompGrid('CSV')
-        for fieldname in self.spamreader.fieldnames:
-            if fieldname != '':
-                tbl.add_header(fieldname, fieldname)
+        tbl = XferCompGrid('Array')
+        for fieldname in self.import_driver.get_column_names():
+            tbl.add_header(fieldname, fieldname)
         row_idx = 1
-        for row in self.spamreader:
-            if row[self.spamreader.fieldnames[0]] is not None:
-                for fieldname in self.spamreader.fieldnames:
-                    if fieldname != '':
-                        tbl.set_value(row_idx, fieldname, row[fieldname])
-                row_idx += 1
+        for row in self.import_driver.get_rows():
+            for colname, value in row.items():
+                tbl.set_value(row_idx, colname, value)
+            row_idx += 1
         tbl.set_location(1, 1, 2)
         self.add_component(tbl)
         lbl = XferCompLabelForm('nb_line')
@@ -947,16 +907,21 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 2, 2)
         self.add_component(lbl)
 
-    def _convert_record(self, fields_association, fields_description, row):
+    def _convert_record(self, fields_description, row):
         new_row = {}
         for field_description in fields_description:
-            if field_description[2] in ('H', 'D', 'T'):
+            if field_description[2] == 'T':
                 try:
-                    new_row[field_description[0]] = datetime.strptime(row[fields_association[field_description[0]]], self.dateformat).date()
+                    new_row[field_description[0]] = "%s:%s" % tuple(row[field_description[4]].split(':')[:2])
+                except (TypeError, ValueError):
+                    new_row[field_description[0]] = "00:00"
+            elif field_description[2] in ('D', 'H'):
+                try:
+                    new_row[field_description[0]] = datetime.strptime(row[field_description[4]], self.dateformat).date()
                 except (TypeError, ValueError):
                     new_row[field_description[0]] = datetime.today()
             elif isinstance(field_description[2], str) and (field_description[2].startswith('N') or field_description[2].startswith('C')):
-                float_val = row[fields_association[field_description[0]]]
+                float_val = row[field_description[4]]
                 float_val = float_val.replace(',', '.')
                 float_val = sub(r"( |[^0-9.])", "", float_val)
                 if float_val == '':
@@ -965,10 +930,13 @@ class ObjectImport(XferContainerCustom):
                     new_row[field_description[0]] = int(float_val)
                 else:
                     new_row[field_description[0]] = float(float_val)
-            elif row[fields_association[field_description[0]]] is None:
+            elif field_description[2] == 'B':
+                value = row[field_description[4]].strip().lower()[0]
+                new_row[field_description[0]] = (value != '0') and (value != 'f') and (value != 'n')
+            elif row[field_description[4]] is None:
                 new_row[field_description[0]] = None
             else:
-                new_row[field_description[0]] = row[fields_association[field_description[0]]].strip()
+                new_row[field_description[0]] = row[field_description[4]].strip()
         return new_row
 
     def _get_field_info(self, fieldname):
@@ -996,13 +964,8 @@ class ObjectImport(XferContainerCustom):
             else:
                 title, hfield, format_str = self._get_field_info(fieldname)
             if fieldname in fields_association.keys():
-                fields_description.append((fieldname, title, hfield, format_str))
-        self._read_csv()
-        csv_readed = []
-        for row in self.spamreader:
-            if row[self.spamreader.fieldnames[0]] is not None:
-                csv_readed.append(self._convert_record(fields_association, fields_description, row))
-        return fields_description, csv_readed
+                fields_description.append((fieldname, title, hfield, format_str, fields_association[fieldname]))
+        return fields_description
 
     def _fillcontent_step1(self):
         lbl = XferCompLabelForm('modelname')
@@ -1010,7 +973,7 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 0)
         lbl.description = _('model')
         self.add_component(lbl)
-        self._read_csv()
+        self.import_driver.read(self)
         self.new_tab(_("Fields"))
         self._select_fields()
         self.new_tab(_("Current content"))
@@ -1022,14 +985,15 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 0)
         lbl.description = _('model')
         self.add_component(lbl)
-        fields_description, csv_readed = self._read_csv_and_convert()
-        tbl = XferCompGrid('CSV')
+        fields_description = self._read_csv_and_convert()
+        self.import_driver.read(self)
+        tbl = XferCompGrid('Array')
         for field_description in fields_description:
             tbl.add_header(field_description[0], field_description[1], field_description[2], formatstr=field_description[3])
         row_idx = 1
-        for row in csv_readed:
-            for field_description in fields_description:
-                tbl.set_value(row_idx, field_description[0], row[field_description[0]])
+        for row in self.import_driver.get_readed_content(fields_description):
+            for fieldname, value in row.items():
+                tbl.set_value(row_idx, fieldname, value)
             row_idx += 1
         tbl.set_location(1, 1, 2)
         self.add_component(tbl)
@@ -1038,14 +1002,16 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 2, 2)
         self.add_component(lbl)
 
-    def _fillcontent_step3(self, dateformat):
+    def _fillcontent_step3(self):
         def add_item_if_not_null(new_item):
             if new_item is not None:
                 self.items_imported[new_item.id] = new_item
-        _fields_description, csv_readed = self._read_csv_and_convert()
+        fields_description = self._read_csv_and_convert()
+        self.import_driver.read(self)
         self.model.initialize_import()
         self.items_imported = {}
-        for rowdata in csv_readed:
+        dateformat = getattr(self.import_driver, "dateformat", "%Y-%m-%d")
+        for rowdata in self.import_driver.get_readed_content(fields_description):
             add_item_if_not_null(self.model.import_data(rowdata, dateformat))
         add_item_if_not_null(self.model.finalize_import())
         lbl = XferCompLabelForm('result')
@@ -1063,15 +1029,13 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 3, 2)
         self.add_component(lbl)
 
-    def fillresponse(self, modelname, quotechar="'", delimiter=";", encoding="utf-8", dateformat="%d/%m/%Y", step=0):
-
+    def fillresponse(self, modelname, drivername="CSV", step=0):
         if modelname is not None:
             self.model = apps.get_model(modelname)
-        self.quotechar = quotechar
-        self.delimiter = delimiter
-        self.encoding = encoding
-        self.dateformat = dateformat
-
+        self.import_driver = ImportDriver.factory(drivername)
+        for fieldname, _title in self.import_driver.FIELD_LIST:
+            if fieldname in self.params:
+                setattr(self.import_driver, fieldname, self.params[fieldname])
         img = XferCompImage('img')
         img.set_value(self.icon_path())
         img.set_location(0, 0, 1, 6)
@@ -1086,7 +1050,7 @@ class ObjectImport(XferContainerCustom):
             self._fillcontent_step2()
             step = 3
         elif step == 3:
-            self._fillcontent_step3(dateformat)
+            self._fillcontent_step3()
             step = 4
         if step < 4:
             if step > 1:

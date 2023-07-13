@@ -80,6 +80,9 @@ class Example(LucteriosModel):
     def get_print_fields(cls):
         return cls.get_search_fields()
 
+    class Meta(object):
+        ordering = ['name']
+
 
 class Other(LucteriosModel):
 
