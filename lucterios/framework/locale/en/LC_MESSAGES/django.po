@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-14 10:07+0000\n"
+"POT-Creation-Date: 2023-07-13 17:22+0000\n"
 "PO-Revision-Date: 2023-01-13 10:26+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -198,7 +198,7 @@ msgid "Cancel"
 msgstr "Cancel"
 
 #: xferadvance.py:44 xferadvance.py:229 xfergraphic.py:131 xferprinting.py:130
-#: xferprinting.py:206 xfersearch.py:639
+#: xferprinting.py:206 xfersearch.py:641
 msgid "Close"
 msgstr "Close"
 
@@ -375,11 +375,11 @@ msgstr "or"
 msgid "and"
 msgstr "and"
 
-#: xfersearch.py:131 xfersearch.py:593
+#: xfersearch.py:131 xfersearch.py:595
 msgid "Your criteria of search"
 msgstr "Your criteria of search"
 
-#: xfersearch.py:133 xfersearch.py:596
+#: xfersearch.py:133 xfersearch.py:598
 msgid "No criteria of search"
 msgstr "No criteria of search"
 
@@ -388,7 +388,7 @@ msgstr "No criteria of search"
 msgid "%d items"
 msgstr "%d items"
 
-#: xfersearch.py:530
+#: xfersearch.py:532
 msgid "New criteria"
 msgstr "New criteria"
 

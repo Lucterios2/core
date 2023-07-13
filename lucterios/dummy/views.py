@@ -44,6 +44,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.CORE.models import Parameter, Preference
 
 from lucterios.dummy.models import Example, Other
+from lucterios.CORE.views import ObjectImport
 
 MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20)
 
@@ -419,6 +420,15 @@ class ExampleSearch(XferSavedCriteriaSearchEditor):
     icon = "9.png"
     model = Example
     field_id = 'example'
+
+
+@MenuManage.describ('contacts.add_example', FORMTYPE_MODAL, 'dummy.foo', _('Import example'))
+class ExampleImport(ObjectImport):
+    caption = _("Import example")
+    icon = "9.png"
+
+    def get_select_models(self):
+        return Example.get_select_contact_type()
 
 
 @MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))

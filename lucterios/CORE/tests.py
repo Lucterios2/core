@@ -97,7 +97,6 @@ class AuthentificationTest(LucteriosTest):
         self.calljson('/CORE/exitConnection', {})
         self.assert_observer('core.acknowledge', 'CORE', 'exitConnection')
 
-
     def test_connect_admin_only_super(self):
         Params.setvalue('CORE-OnlySuperAdmin', True)
         self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
@@ -291,7 +290,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(len(self.response_json['menus']), 3)
         self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
         self.assertEqual(self.response_json['menus'][1]['id'], 'dummy.foo')
-        self.assertEqual(len(self.response_json['menus'][1]['menus']), 9)
+        self.assertEqual(len(self.response_json['menus'][1]['menus']), 10)
         self.assertEqual(self.response_json['menus'][2]['id'], 'core.admin')
         self.assertEqual(self.response_json['menus'][2]['text'], 'Administration')
         self.assertEqual(self.response_json['menus'][2]['menus'][3]['id'], 'core.right')
