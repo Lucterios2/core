@@ -210,12 +210,14 @@ class ImportDriverPandas(ImportDriver):
     def get_column_names(self):
         for column in self.pandas_content.columns.array:
             if column != '':
-                yield column
+                yield str(column)
 
     def get_rows(self):
         for row in self.pandas_content.values:
             new_row = {}
             for col_idx, column in enumerate(self.pandas_content.columns.array):
+                if hasattr(row[col_idx], 'all'):
+                    raise LucteriosException(IMPORTANT, _('file unvalid!'))
                 new_row[column] = row[col_idx]
             yield new_row
 
