@@ -67,9 +67,8 @@ export function aboutFunction () {
   html += '<a target="_blank" href="http://www.lucterios.org" style="margin-right:5px;">http://www.lucterios.org</a> '
   html += '<a target="_blank" href="http://www.sd-libre.fr" style="margin-left:5px;">http://www.sd-libre.fr</a><br/>'
   html += Singleton().getTranslate('Thank you for supporting our work.')
-  html += '<form id="formDon" target="_blank" action="https://www.paypal.com/cgi-bin/webscr" method="post">'
-  html += '<input name="cmd" value="_s-xclick" type="hidden">'
-  html += '<input name="hosted_button_id" value="BDGPMSZGYLWT6" type="hidden">'
+  html += '<form id="formDon" target="_blank" action="https://www.paypal.com/donate/" method="get">'
+  html += '<input name="hosted_button_id" value="A45MG9JYWHRNA" type="hidden">'
   html += '<input style="border: 0;" alt="PayPal" name="submit" src="images/bouton-don-v.png" type="image"></form>'
   html += '</center><hr/>'
   table[5][0] = new CompBasic(html, 3)
