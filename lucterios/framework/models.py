@@ -28,6 +28,7 @@ import json
 import logging
 from datetime import datetime
 from copy import deepcopy
+from os import environ
 
 from django_fsm.signals import post_transition
 
@@ -957,6 +958,8 @@ def correct_db_field(fields):
             return val.rowcount
         return 0
     from django.db import connection
+    if environ.get('FORCE_REFRESH', '1') != '1':
+        return
     if connection.vendor == 'sqlite':
         query = "UPDATE %s SET %s=0 WHERE typeof(%s)='text'"
     else:
