@@ -73,14 +73,14 @@ def get_icon_path(icon_path, url_text='', extension=''):
     return res_icon_path
 
 
-def get_url_from_request(request):
+def get_url_from_request(request=None):
     from django.conf import settings
     abs_url = getattr(settings, 'LUCTERIOS_ROOT_URL', '')
-    if abs_url == "":
+    if (abs_url == "") and (request is not None):
         abs_url = request.META.get('HTTP_REFERER', request.build_absolute_uri()).split("/")
-        return '/'.join(abs_url[:-2])
-    else:
-        return abs_url
+        abs_url = '/'.join(abs_url[:-2])
+        setattr(settings, 'LUCTERIOS_ROOT_URL', abs_url)
+    return abs_url
 
 
 class WrapAction(object):
