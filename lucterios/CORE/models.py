@@ -33,7 +33,7 @@ import logging
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
-from django.db import models
+from django.db import models, transaction
 from django.db.models.signals import post_migrate, pre_save, post_save
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 
@@ -509,15 +509,16 @@ class LucteriosUser(User, LucteriosModel):
 
     @property
     def is_email_already_exists(self):
-        if self.last_login is None:
-            return LucteriosUser.objects.filter(
-                models.Q(email=self.email, is_active=True) & (
-                    models.Q(last_login__isnull=False) |
-                    models.Q(last_login__isnull=True, id__lt=self.id)
-                )
-            ).count() != 0
-        else:
-            return LucteriosUser.objects.filter(email=self.email, is_active=True, last_login__gt=self.last_login).count() != 0
+        with transaction.atomic():
+            if self.last_login is None:
+                return LucteriosUser.objects.filter(
+                    models.Q(email=self.email, is_active=True) & (
+                        models.Q(last_login__isnull=False) |
+                        models.Q(last_login__isnull=True, id__lt=self.id)
+                    )
+                ).count() != 0
+            else:
+                return LucteriosUser.objects.filter(email=self.email, is_active=True, last_login__gt=self.last_login).count() != 0
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         pre_save.send(sender=self.__class__, instance=self, raw=False, using=using, update_fields=update_fields)

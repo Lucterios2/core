@@ -51,24 +51,24 @@ def get_local_interfaces():
     SIOCGIFCONF = 0x8912
     ip_dict = {}
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        names = array.array('B', MAX_BYTES * FILL_CHAR)
-        names_address, _names_length = names.buffer_info()
-        mutable_byte_buffer = struct.pack('iL', MAX_BYTES, names_address)
-        mutated_byte_buffer = fcntl.ioctl(sock.fileno(), SIOCGIFCONF, mutable_byte_buffer)
-        max_bytes_out, _names_address_out = struct.unpack('iL', mutated_byte_buffer)
-        namestr = names.tostring()
-        for index in range(0, max_bytes_out, 40):
-            name = namestr[index: index + 16].split(FILL_CHAR, 1)[0]
-            name = name.decode('utf-8')
-            ip_bytes = namestr[index + 20:index + 24]
-            full_addr = []
-            for netaddr in ip_bytes:
-                if isinstance(netaddr, int):
-                    full_addr.append(str(netaddr))
-                elif isinstance(netaddr, str):
-                    full_addr.append(str(ord(netaddr)))
-            ip_dict[name] = '.'.join(full_addr)
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+            names = array.array('B', MAX_BYTES * FILL_CHAR)
+            names_address, _names_length = names.buffer_info()
+            mutable_byte_buffer = struct.pack('iL', MAX_BYTES, names_address)
+            mutated_byte_buffer = fcntl.ioctl(sock.fileno(), SIOCGIFCONF, mutable_byte_buffer)
+            max_bytes_out, _names_address_out = struct.unpack('iL', mutated_byte_buffer)
+            namestr = names.tobytes()
+            for index in range(0, max_bytes_out, 40):
+                name = namestr[index: index + 16].split(FILL_CHAR, 1)[0]
+                name = name.decode('utf-8')
+                ip_bytes = namestr[index + 20:index + 24]
+                full_addr = []
+                for netaddr in ip_bytes:
+                    if isinstance(netaddr, int):
+                        full_addr.append(str(netaddr))
+                    elif isinstance(netaddr, str):
+                        full_addr.append(str(ord(netaddr)))
+                ip_dict[name] = '.'.join(full_addr)
     except Exception:
         pass
     return ip_dict
