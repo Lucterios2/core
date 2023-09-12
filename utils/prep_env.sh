@@ -46,6 +46,7 @@ function create_requirement
     echo "radon" >> requirement.txt
     echo "flake8_polyfill" >> requirement.txt
     echo "wheel" >> requirement.txt
+    echo "build" >> requirement.txt
     echo "Sphinx" >> requirement.txt
     echo "psycopg2-binary" >> requirement.txt
     echo "anybadge" >> requirement.txt

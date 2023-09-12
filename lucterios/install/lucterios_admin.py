@@ -167,7 +167,7 @@ def get_package_list():
                 current_modules.sort()
                 package_list[dist_name] = (importlib_metadata.version(dist_name), current_applis, current_modules, requires)
         except importlib_metadata.PackageNotFoundError:
-            print('package %s not importable' % dist_name, file=sys.stderr)            
+            print('package %s not importable' % dist_name, file=sys.stderr)
     return package_list
 
 
@@ -215,7 +215,7 @@ class LucteriosGlobal(LucteriosManage):
         def show_list(modlist):
             res = []
             for item in modlist:
-                res.append("\t%s\t[%s]\t%s" % 
+                res.append("\t%s\t[%s]\t%s" %
                            (item[0], item[1], ",".join(item[2])))
             return "\n".join(res)
 
@@ -580,7 +580,7 @@ class LucteriosInstance(LucteriosManage):
                     else:
                         file_py.write('%s = %s\n' % (key, value))
             file_py.write('# configuration\n')
-            file_py.write('fill_appli_settings("%s", (%s)) \n' % 
+            file_py.write('fill_appli_settings("%s", (%s)) \n' %
                           (self.appli_name, self._get_module_text()))
             file_py.write('\n')
 
@@ -639,13 +639,13 @@ class LucteriosInstance(LucteriosManage):
             raise Exception("not clear!!")
         user_path = get_user_dir()
         delete_path(user_path)
-        self.print_info_("Instance '%s' clear." % 
+        self.print_info_("Instance '%s' clear." %
                          self.name)
 
     def delete(self):
         delete_path(self.instance_dir, True)
         delete_path(self.instance_conf)
-        self.print_info_("Instance '%s' deleted." % 
+        self.print_info_("Instance '%s' deleted." %
                          self.name)
 
     def _get_db_info_(self):
@@ -748,7 +748,7 @@ class LucteriosInstance(LucteriosManage):
             file_py.write(
                 '    from django.core.management import execute_from_command_line\n')
             file_py.write('    execute_from_command_line(sys.argv)\n')
-        self.print_info_("Instance '%s' created." % 
+        self.print_info_("Instance '%s' created." %
                          self.name)
         self.refresh(False)
 
@@ -759,7 +759,7 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         self.clear_info_()
         self.write_setting_()
-        self.print_info_("Instance '%s' modified." % 
+        self.print_info_("Instance '%s' modified." %
                          self.name)
         self.refresh(False)
 
