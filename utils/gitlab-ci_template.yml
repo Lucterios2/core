@@ -43,8 +43,10 @@ check:
     reports:
       junit: 
         - junit_*.xml
-      cobertura:
-        - coverage3.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage3.xml
+    expire_in: 1 month        
 
 test37:
   extends: .test_basic
@@ -68,6 +70,7 @@ build:
     paths:
       - dist/*.whl
       - ${MANUAL_PATH}
+    expire_in: 1 month        
 
 trigger_selenium37:
   stage: integration
