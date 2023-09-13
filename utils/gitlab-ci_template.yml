@@ -25,7 +25,11 @@ check:
     - ant clear init pep8 radon 
   artifacts:
     paths:
+      - pep8_results.txt
       - pep8.svg
+      - radon_results.txt
+      - radon.svg
+    expire_in: 1 month        
 
 .test_basic:
   stage: test
@@ -34,7 +38,7 @@ check:
     - ./utils/prep_env.sh test
     - eval `ssh-agent -s`
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - export COV_PUBLISH_PATH="/var/www/public/coverage_${CI_PROJECT_ID}_${CI_JOB_ID}"
+    - export COV_PUBLISH_PATH="/var/www/public/coverage_${CI_PROJECT_ID}_${CI_JOB_NAME}"
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no chef@gitlab.sleto.fr "rm -rf ${COV_PUBLISH_PATH};mkdir -p ${COV_PUBLISH_PATH}"    
     - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r htmlcov/* chef@gitlab.sleto.fr:${COV_PUBLISH_PATH}
   coverage: /\d+\%\s*$/    

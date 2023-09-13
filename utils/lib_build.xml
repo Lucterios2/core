@@ -142,11 +142,12 @@
 		</exec>
 		<echo message="pep8.val = ${pep8.val} / ${pep8.err}" />
 		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg line="-m anybadge --label=PEP8 --value=${pep8.val} --file=pep8.svg 1=green 6=yellow 11=orange 16=red" />
+			<arg line="-m anybadge --label=PEP8 --value=${pep8.val} --file=pep8.svg 1=green 6=yellow 11=orange 100=red" />
 		</exec>
 	</target>
 
 	<target name="radon">
+		<delete file="radon.svg" />
 		<basename property="currentname" file="${basedir}"/>
 		<exec executable="${project.pythonexe}" dir="${basedir}/..">
 			<arg line="-m radon cc -n C -a -s '${currentname}' -e '${project.radon.exclude}'" />
@@ -154,6 +155,13 @@
 		</exec>
 		<exec executable="cat">
 			<arg line="radon_results.txt" />
+		</exec>
+		<exec executable="${project.pythonexe}" outputproperty="radon.val" failifexecutionfails="false" errorproperty="radon.err">
+			<arg value="-c"/>
+			<arg value="print(len([line for line in open('radon_results.txt','r').readlines() if '.py' in line]))"/>
+		</exec>
+		<exec executable="${project.pythonexe}" dir="${basedir}">
+			<arg line="-m anybadge --label=RADON --value=${radon.val} --file=radon.svg 10=green 30=yellow 50=orange 500=red" />
 		</exec>
 	</target>
 
