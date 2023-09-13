@@ -29,13 +29,12 @@ check:
 
 .test_basic:
   stage: test
-  variables:
-    - COV_PUBLISH_PATH: "/var/www/public/coverage_${CI_PROJECT_ID}_${CI_JOB_ID}"
   script:
     - ant clear init add_instance i18n docs tests
     - ./utils/prep_env.sh test
     - eval `ssh-agent -s`
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - export COV_PUBLISH_PATH="/var/www/public/coverage_${CI_PROJECT_ID}_${CI_JOB_ID}"
     - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no chef@gitlab.sleto.fr "rm -rf ${COV_PUBLISH_PATH};mkdir -p ${COV_PUBLISH_PATH}"    
     - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r htmlcov/* chef@gitlab.sleto.fr:${COV_PUBLISH_PATH}
   coverage: /\d+\%\s*$/    
