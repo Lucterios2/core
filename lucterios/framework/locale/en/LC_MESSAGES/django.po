@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-13 17:22+0000\n"
-"PO-Revision-Date: 2023-01-13 10:26+0100\n"
+"POT-Creation-Date: 2023-10-24 09:52+0000\n"
+"PO-Revision-Date: 2023-10-24 11:51+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 2.3\n"
 
 #: main_docs.html:8 main_docs.html:113
 msgid "User manual"
@@ -35,122 +35,122 @@ msgstr "current date"
 msgid "current hour"
 msgstr "current hour"
 
-#: models.py:168
+#: models.py:169
 msgid "full list"
 msgstr "full list"
 
-#: models.py:270
+#: models.py:271
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' unknown !"
 
-#: models.py:410
+#: models.py:411
 msgid ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 msgstr ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 
-#: models.py:574
+#: models.py:575
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:618
+#: models.py:619
 msgid "username"
 msgstr "username"
 
-#: models.py:619
+#: models.py:620
 msgid "is active"
 msgstr "is active"
 
-#: models.py:659
+#: models.py:660
 msgid "session"
 msgstr "session"
 
-#: models.py:660
+#: models.py:661
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:798
+#: models.py:799
 msgid "create"
 msgstr "create"
 
-#: models.py:799
+#: models.py:800
 msgid "update"
 msgstr "update"
 
-#: models.py:800 tools.py:456
+#: models.py:801 tools.py:456
 msgid "delete"
 msgstr "delete"
 
-#: models.py:801
+#: models.py:802
 msgid "remove"
 msgstr "remove"
 
-#: models.py:802 tools.py:452
+#: models.py:803 tools.py:452
 msgid "add"
 msgstr "add"
 
-#: models.py:812 models.py:819
+#: models.py:813 models.py:820
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:813
+#: models.py:814
 msgid "content type"
 msgstr "content type"
 
-#: models.py:814
+#: models.py:815
 msgid "actor"
 msgstr "actor"
 
-#: models.py:815
+#: models.py:816
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:816
+#: models.py:817
 msgid "object id"
 msgstr "object id"
 
-#: models.py:817
+#: models.py:818
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:818
+#: models.py:819
 msgid "action"
 msgstr "action"
 
-#: models.py:820
+#: models.py:821
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:821
+#: models.py:822
 msgid "date"
 msgstr "date"
 
-#: models.py:822
+#: models.py:823
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:828
+#: models.py:829
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:830
+#: models.py:831
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:832
+#: models.py:833
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:834
+#: models.py:835
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:939
+#: models.py:940
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:940
+#: models.py:941
 msgid "log entries"
 msgstr "log entries"
 
@@ -197,8 +197,8 @@ msgstr "Ok"
 msgid "Cancel"
 msgstr "Cancel"
 
-#: xferadvance.py:44 xferadvance.py:229 xfergraphic.py:131 xferprinting.py:130
-#: xferprinting.py:206 xfersearch.py:641
+#: xferadvance.py:44 xferadvance.py:229 xfergraphic.py:131 xferprinting.py:138
+#: xferprinting.py:213 xfersearch.py:641
 msgid "Close"
 msgstr "Close"
 
@@ -230,7 +230,7 @@ msgstr "Save"
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:52 xferprinting.py:205
+#: xferadvance.py:52 xferprinting.py:212
 msgid "Print"
 msgstr "Print"
 
@@ -303,11 +303,15 @@ msgstr "Traitment..."
 msgid "Retry"
 msgstr "Retry"
 
-#: xferprinting.py:57
-msgid "{[hr/]}Regenerate new report"
-msgstr "{[hr/]}Regenerate new report"
+#: xferprinting.py:61
+msgid "Generate duplicate report"
+msgstr "Generate duplicate report"
 
-#: xferprinting.py:58
+#: xferprinting.py:62
+msgid "Recreate official report"
+msgstr "Recreate official report"
+
+#: xferprinting.py:63
 msgid ""
 "{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
 "do."
@@ -315,27 +319,27 @@ msgstr ""
 "{[u]}Warning:{[/u]} Items have saving report but regenerate report will be "
 "do."
 
-#: xferprinting.py:59
+#: xferprinting.py:64
 msgid "DUPLICATA"
 msgstr "DUPLICATE"
 
-#: xferprinting.py:177
+#: xferprinting.py:182
 msgid "Get saved report"
 msgstr "Get saved report"
 
-#: xferprinting.py:201
+#: xferprinting.py:208
 msgid "Kind of report"
 msgstr "Kind of report"
 
-#: xferprinting.py:231
+#: xferprinting.py:238
 msgid "PDF file"
 msgstr "PDF file"
 
-#: xferprinting.py:233
+#: xferprinting.py:240
 msgid "CSV file"
 msgstr "CSV file"
 
-#: xferprinting.py:234
+#: xferprinting.py:241
 msgid "ODS file"
 msgstr "ODS file"
 
@@ -391,6 +395,9 @@ msgstr "%d items"
 #: xfersearch.py:532
 msgid "New criteria"
 msgstr "New criteria"
+
+#~ msgid "{[hr/]}Regenerate new report"
+#~ msgstr "{[hr/]}Regenerate new report"
 
 #~ msgid "Can"
 #~ msgstr "Can"

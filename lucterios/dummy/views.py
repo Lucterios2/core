@@ -382,7 +382,7 @@ class ExamplePrintList(XferPrintAction):
     field_id = 'example'
     action_class = ExampleList
 
-    def _get_persistent_pdfreport(self):
+    def _get_persistent_pdfreport(self, recreate):
         persistent_pdfreport = self.getparam('persistent_pdfreport', 0)
         if persistent_pdfreport == 1:
             return b"aaa"
@@ -390,6 +390,9 @@ class ExamplePrintList(XferPrintAction):
             return [('file1.txt', b"aaa"), ('file2.txt', b"bbb"), ('file3.txt', b"ccc")]
         else:
             return None
+
+    def get_persistent_renew(self):
+        return True
 
 
 @ActionsManage.affect_list("Reporting", "images/print.png")

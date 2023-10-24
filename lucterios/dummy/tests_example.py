@@ -291,14 +291,14 @@ class ExampleTest(LucteriosTest):
 
     def testprintlist_saved(self):
         self.factory.xfer = ExamplePrintList()
-        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 1, "PRINT_MODE": 3, "PRINT_PERSITENT": True}, False)
+        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 1, "PRINT_MODE": 3, "PRINT_PERSITENT_MODE": 0}, False)
         self.assert_observer('core.print', 'lucterios.dummy', 'examplePrintList')
         content_value = b64decode(str(self.response_json['print']["content"]))
         self.assertEqual(content_value, b"aaa")
 
     def testprintlist_saved_list(self):
         self.factory.xfer = ExamplePrintList()
-        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 2, "PRINT_MODE": 3, "PRINT_PERSITENT": True}, False)
+        self.calljson('/lucterios.dummy/examplePrintList', {'persistent_pdfreport': 2, "PRINT_MODE": 3, "PRINT_PERSITENT_MODE": 0}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'examplePrintList')
         self.assert_json_equal('DOWNLOAD', "filename", 'pdfreports.zip')
 
