@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-13 17:22+0000\n"
+"POT-Creation-Date: 2023-10-24 09:52+0000\n"
 "PO-Revision-Date: 2023-07-13 19:22+0200\n"
 "Last-Translator: b'Paul ARULATEDA <paul531@orange.fr>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -51,7 +51,7 @@ msgstr "Les mots de passes sont différents!"
 msgid "plugins"
 msgstr "greffons"
 
-#: editors.py:169 models.py:64 models.py:67 models.py:636
+#: editors.py:169 models.py:64 models.py:67 models.py:637
 msgid "value"
 msgstr "valeur"
 
@@ -87,15 +87,15 @@ msgstr "Fichier CSV"
 msgid "CSV file unvalid!"
 msgstr "Fichier CSV invalide!"
 
-#: import_drivers.py:208
+#: import_drivers.py:208 import_drivers.py:220
 msgid "file unvalid!"
 msgstr "Fichier invalide!"
 
-#: import_drivers.py:263
+#: import_drivers.py:265
 msgid "ODS file"
 msgstr "Fichier ODS"
 
-#: import_drivers.py:272
+#: import_drivers.py:274
 msgid "XLS file"
 msgstr "Fichier XLS"
 
@@ -131,8 +131,8 @@ msgstr "Meta"
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:68 models.py:341 models.py:366 models.py:570 models.py:633
-#: models.py:816 views_usergroup.py:274
+#: models.py:68 models.py:341 models.py:366 models.py:571 models.py:634
+#: models.py:817 views_usergroup.py:274
 msgid "name"
 msgstr "nom"
 
@@ -181,194 +181,194 @@ msgstr "Permissions"
 msgid "Preferences"
 msgstr "Préférences"
 
-#: models.py:565
+#: models.py:566
 msgid "group"
 msgstr "groupe"
 
-#: models.py:566
+#: models.py:567
 msgid "groups"
 msgstr "groupes"
 
-#: models.py:573
+#: models.py:574
 msgid "page width"
 msgstr "largeur de page (L)"
 
-#: models.py:575
+#: models.py:576
 msgid "page height"
 msgstr "hauteur de page (H)"
 
-#: models.py:577
+#: models.py:578
 msgid "cell width"
 msgstr "largeur de vignette (l)"
 
-#: models.py:579
+#: models.py:580
 msgid "cell height"
 msgstr "hauteur de vignette (h)"
 
-#: models.py:581
+#: models.py:582
 msgid "number of columns"
 msgstr "nombre de colonnes"
 
-#: models.py:583
+#: models.py:584
 msgid "number of rows"
 msgstr "nombre de lignes"
 
-#: models.py:585
+#: models.py:586
 msgid "left marge"
 msgstr "marge gauche (a)"
 
-#: models.py:587
+#: models.py:588
 msgid "top marge"
 msgstr "marge haute (b)"
 
-#: models.py:589
+#: models.py:590
 msgid "horizontal space"
 msgstr "espace horizontal (c)"
 
-#: models.py:591
+#: models.py:592
 msgid "vertical space"
 msgstr "espace vertical (d)"
 
-#: models.py:609 models.py:619
+#: models.py:610 models.py:620
 msgid "label"
 msgstr "étiquette"
 
-#: models.py:609
+#: models.py:610
 msgid "# of first label"
 msgstr "N° première étiquette"
 
-#: models.py:620
+#: models.py:621
 msgid "labels"
 msgstr "étiquettes"
 
-#: models.py:627
+#: models.py:628
 msgid "Listing"
 msgstr "Liste"
 
-#: models.py:627
+#: models.py:628
 msgid "Label"
 msgstr "Etiquette"
 
-#: models.py:627
+#: models.py:628
 msgid "Report"
 msgstr "Rapport"
 
-#: models.py:631
+#: models.py:632
 msgid "Simple"
 msgstr "Simple"
 
-#: models.py:631
+#: models.py:632
 msgid "Advanced"
 msgstr "Avancé"
 
-#: models.py:634
+#: models.py:635
 msgid "kind"
 msgstr "type"
 
-#: models.py:635 models.py:817 models.py:845 views.py:374 views.py:846
-#: views.py:974 views.py:986
+#: models.py:636 models.py:818 models.py:846 views.py:374 views.py:846
+#: views.py:942 views.py:954
 msgid "model"
 msgstr "modèle"
 
-#: models.py:637
+#: models.py:638
 msgid "mode"
 msgstr "mode"
 
-#: models.py:638
+#: models.py:639
 msgid "default"
 msgstr "défaut"
 
-#: models.py:658
+#: models.py:659
 msgid "Last model of this kind!"
 msgstr "Dernier modèle de cette sorte !"
 
-#: models.py:667
+#: models.py:668
 msgid "No model!"
 msgstr "Pas de modèle !"
 
-#: models.py:668
+#: models.py:669
 msgid "Template"
 msgstr "Patron d'impression"
 
-#: models.py:676
+#: models.py:677
 #, python-format
 msgid "No default model for %s!"
 msgstr "Pas de modèle par défaut pour %s !"
 
-#: models.py:685
+#: models.py:686
 msgid "No model selected!"
 msgstr "Aucun modèle sélectionné"
 
-#: models.py:688
+#: models.py:689
 #, python-format
 msgid "copy of %s"
 msgstr "copie de %s"
 
-#: models.py:766
+#: models.py:767
 msgid "Model file is invalid!"
 msgstr "Fichier modèle invalide!"
 
-#: models.py:811
+#: models.py:812
 msgid "template"
 msgstr "patron d'impression"
 
-#: models.py:812
+#: models.py:813
 msgid "templates"
 msgstr "patron d'impression"
 
-#: models.py:818 models.py:845
+#: models.py:819 models.py:846
 msgid "criteria"
 msgstr "critère"
 
-#: models.py:848
+#: models.py:849
 msgid "Saved criteria"
 msgstr "Critère sauvegardé"
 
-#: models.py:849 views.py:339
+#: models.py:850 views.py:339
 msgid "Saved criterias"
 msgstr "Critères sauvegardés"
 
-#: models.py:855
+#: models.py:856
 msgid "CORE-GUID"
 msgstr "Numéro de série du logiciel"
 
-#: models.py:856
+#: models.py:857
 msgid "CORE-connectmode"
 msgstr "Mode de connexion"
 
-#: models.py:857
+#: models.py:858
 msgid "CORE-connectmode.0"
 msgstr "Connexion toujours nécessaire"
 
-#: models.py:857
+#: models.py:858
 msgid "CORE-connectmode.1"
 msgstr "Ouvert en tant qu'anonyme"
 
-#: models.py:857
+#: models.py:858
 msgid "CORE-connectmode.2"
 msgstr "Accès libre"
 
-#: models.py:858
+#: models.py:859
 msgid "CORE-Wizard"
 msgstr "Ouvrir l'assistant de configuration au démarrage."
 
-#: models.py:859
+#: models.py:860
 msgid "CORE-MessageBefore"
 msgstr "Message avant connexion"
 
-#: models.py:860
+#: models.py:861
 msgid "CORE-AuditLog"
 msgstr "Journal d'évenements"
 
-#: models.py:861
+#: models.py:862
 msgid "CORE-PluginPermission"
 msgstr "Permissions de greffons"
 
-#: models.py:862 views_usergroup.py:117
+#: models.py:863 views_usergroup.py:117
 msgid "CORE-OnlySuperAdmin"
 msgstr "Accès aux administrateurs uniquement"
 
-#: models.py:864
+#: models.py:865
 msgid "# Core (administrator)"
 msgstr "# Coeur (administration)"
 
@@ -418,12 +418,12 @@ msgid "new password (again)"
 msgstr "re-nouveau mot de passe"
 
 #: views.py:184 views.py:233 views.py:312 views.py:747 views.py:809
-#: views.py:1058
+#: views.py:1026
 msgid "Ok"
 msgstr "Ok"
 
 #: views.py:185 views.py:234 views.py:313 views.py:749 views.py:810
-#: views.py:1059
+#: views.py:1027
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -467,11 +467,11 @@ msgstr "Configuration du logiciel"
 msgid "Modify"
 msgstr "Modifier"
 
-#: views.py:287 views.py:1152
+#: views.py:287 views.py:1120
 msgid "Wizard"
 msgstr "Assistant"
 
-#: views.py:288 views.py:1061 views_usergroup.py:191
+#: views.py:288 views.py:1029 views_usergroup.py:191
 msgid "Close"
 msgstr "Fermer"
 
@@ -678,61 +678,61 @@ msgstr "nouveau modèle"
 msgid "import driver"
 msgstr "pilote d'import"
 
-#: views.py:906 views.py:1001
+#: views.py:906 views.py:969
 #, python-format
 msgid "Total number of items: %d"
 msgstr "Nombre total d'éléments: %d"
 
-#: views.py:977
+#: views.py:945
 msgid "Fields"
 msgstr "Champs"
 
-#: views.py:979
+#: views.py:947
 msgid "Current content"
 msgstr "Contenu courant"
 
-#: views.py:1019
+#: views.py:987
 msgid "no item are been imported"
 msgstr "aucun élément n'a été importé"
 
-#: views.py:1021
+#: views.py:989
 msgid "1 item are been imported"
 msgstr "1 élément a été importé"
 
-#: views.py:1023
+#: views.py:991
 #, python-format
 msgid "%d items are been imported"
 msgstr "%d éléments ont été importés"
 
-#: views.py:1057
+#: views.py:1025
 msgid "Back"
 msgstr "Retour"
 
-#: views.py:1073
+#: views.py:1041
 msgid "Configuration wizard"
 msgstr "Assistant de configuration"
 
-#: views.py:1109
+#: views.py:1077
 msgid "Prec"
 msgstr "Préc."
 
-#: views.py:1114
+#: views.py:1082
 #, python-format
 msgid "progress steps: %(current)d/%(max)d"
 msgstr "étape de progression: %(current)d/%(max)d"
 
-#: views.py:1121
+#: views.py:1089
 msgid "Next"
 msgstr "Suivant"
 
-#: views.py:1183
+#: views.py:1151
 msgid "This wizard will help you to configure this software."
 msgstr ""
 "Cet assistant vous aidera à configurer ce logiciel. {[br/]} Toutes les "
 "prochaines configurations sont également accessibles depuis le menu "
 "d'administration."
 
-#: views.py:1195
+#: views.py:1163
 msgid "Groups and users"
 msgstr "Groupes et utilisateurs"
 

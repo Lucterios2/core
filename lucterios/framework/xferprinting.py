@@ -54,7 +54,12 @@ PRINT_EXT_FILE = {
 
 class XferContainerPrint(XferContainerAbstract):
 
-    PRINT_REGENERATE_MSG = _("{[hr/]}Regenerate new report")
+    PRINT_PERSITENT_CODE = 0
+    PRINT_REGENERATE_CODE = 1
+    PRINT_RENEW_CODE = 2
+
+    PRINT_REGENERATE_MSG = _("Generate duplicate report")
+    PRINT_RENEW_MSG = _("Recreate official report")
     PRINT_WARNING_SAVING_MSG = _('{[u]}Warning:{[/u]} Items have saving report but regenerate report will be do.')
     PRINT_DUPLICATA = _('DUPLICATA')
 
@@ -81,12 +86,15 @@ class XferContainerPrint(XferContainerAbstract):
     def get_report_generator(self):
         return None
 
-    def _get_persistent_pdfreport(self):
+    def _get_persistent_pdfreport(self, recreate):
         return None
 
-    def get_persistent_pdfreport(self):
+    def get_persistent_renew(self):
+        return False
+
+    def get_persistent_pdfreport(self, recreate=False):
         if not hasattr(self, '_pdfreport'):
-            self._pdfreport = self._get_persistent_pdfreport()
+            self._pdfreport = self._get_persistent_pdfreport(recreate)
         return self._pdfreport
 
     def show_selector(self):
@@ -171,23 +179,22 @@ class XferContainerPrint(XferContainerAbstract):
         gui.params = self.params
         pdfreport = self.get_persistent_pdfreport()
         if (pdfreport is not None) and (not isinstance(pdfreport, list) or len(pdfreport) == len(self.items)):
-            presitent_report = XferCompCheck('PRINT_PERSITENT')
-            presitent_report.set_value(True)
-            presitent_report.set_location(0, 0, 2)
-            presitent_report.description = _('Get saved report')
-            presitent_report.java_script = """
-var is_persitent=current.getValue();
-parent.get('PRINT_MODE').setEnabled(!is_persitent);
-parent.get('print_sep').setEnabled(!is_persitent);
-"""
+            report_mode_list = [(self.PRINT_PERSITENT_CODE, _('Get saved report')),
+                                (self.PRINT_REGENERATE_CODE, self.PRINT_REGENERATE_MSG)]
+            if self.get_persistent_renew():
+                report_mode_list.append((self.PRINT_RENEW_CODE, self.PRINT_RENEW_MSG))
+            presitent_report_mode = XferCompSelect('PRINT_PERSITENT_MODE')
+            presitent_report_mode.set_location(0, 0, 2)
+            presitent_report_mode.set_select(report_mode_list)
+            presitent_report_mode.set_value(self.PRINT_PERSITENT_CODE)
+            presitent_report_mode.java_script = """
+var persitent_mode=current.getValue();
+parent.get('PRINT_MODE').setEnabled(persitent_mode==%d);
+""" % self.PRINT_REGENERATE_CODE
             if self.selector is not None:
                 for name_selector, _selector, _selector in self.selector:
-                    presitent_report.java_script += "parent.get('%s').setEnabled(!is_persitent);\n" % name_selector
-            gui.add_component(presitent_report)
-            sep = XferCompLabelForm('print_sep')
-            sep.set_value_center(self.PRINT_REGENERATE_MSG)
-            sep.set_location(0, 1, 2)
-            gui.add_component(sep)
+                    presitent_report_mode.java_script += "parent.get('%s').setEnabled(persitent_mode==%d);\n" % (name_selector, self.PRINT_REGENERATE_CODE)
+            gui.add_component(presitent_report_mode)
         elif (pdfreport is not None):
             sep = XferCompLabelForm('print_sep')
             sep.set_value_center(self.PRINT_WARNING_SAVING_MSG)
@@ -210,7 +217,7 @@ parent.get('print_sep').setEnabled(!is_persitent);
         getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
-            if (self.getparam("PRINT_PERSITENT", False) is True) and isinstance(self.get_persistent_pdfreport(), list):
+            if (self.getparam("PRINT_PERSITENT_MODE", -1) == self.PRINT_PERSITENT_CODE) and isinstance(self.get_persistent_pdfreport(), list):
                 dlg = self._get_zipextract()
                 return dlg.request_handling(request, *args, **kwargs)
             else:
@@ -232,10 +239,11 @@ parent.get('print_sep').setEnabled(!is_persitent);
         if self.with_text_export:
             self.print_selector.append((PRINT_CSV_FILE, _('CSV file')))
             self.print_selector.append((PRINT_ODS_FILE, _('ODS file')))
-        if (self.getparam("PRINT_PERSITENT", False) is True):
+        persitent_mode = self.getparam("PRINT_PERSITENT_MODE", self.PRINT_REGENERATE_CODE)
+        if (persitent_mode != self.PRINT_REGENERATE_CODE):
             self.report_mode = PRINT_PDF_FILE
             self.report_ext = 'pdf'
-            self.report_content = b64encode(self.get_persistent_pdfreport())
+            self.report_content = b64encode(self.get_persistent_pdfreport(persitent_mode == self.PRINT_RENEW_CODE))
         elif self.show_selector() or ((len(self.print_selector) == 1) and (self.selector is None)):
             report_generator = self.get_report_generator()
             if report_generator is not None:
