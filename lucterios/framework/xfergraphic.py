@@ -534,7 +534,7 @@ class XferContainerCustom(XferContainerAbstract):
                     if hasattr(self.item, field_name[:-4] + '_query'):
                         child = child.filter(getattr(self.item, field_name[:-4] + '_query'))
                     comp = XferCompGrid(field_name[:-4])
-                    comp.set_model(child, None, self)
+                    comp.set_model(child, getattr(self, "fieldnames_" + field_name[:-4], None), self)
                     comp.add_action_notified(self, model=child.model)
                     comp.set_location(col + comp_col_addon + offset, row, colspan, 1)
                     comp.description = str(child.model._meta.verbose_name)
