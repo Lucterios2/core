@@ -171,6 +171,7 @@ DEFAULT_SETTINGS = {
     'DEFAULT_PAGE': '/web/index.html',
     'X_FRAME_OPTIONS': 'SAMEORIGIN',
     'LANGUAGES': DEFAULT_LANGUAGES,
+    'USER_READONLY': False,
     'LOGGING': {
         'version': 1, 'disable_existing_loggers': False,
         'handlers': {

@@ -35,6 +35,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
 from django.db import models, transaction
 from django.db.models.signals import post_migrate, pre_save, post_save
+from django.db.models.query import QuerySet
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
@@ -45,7 +47,6 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
 from lucterios.framework.tools import set_locale_lang
 from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistry
-from django.db.models.query import QuerySet
 
 
 class AbstractSetting(LucteriosModel):
@@ -493,6 +494,8 @@ class LucteriosUser(User, LucteriosModel):
 
     def generate_password(self):
         import random
+        if settings.USER_READONLY:
+            return False
         letter_string = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@$#%&*+='
         password = ''.join(random.choice(letter_string)
                            for _ in range(random.randint(8, 12)))

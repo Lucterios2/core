@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from django.apps.registry import apps
 from django.db.models import Q
+from django.conf import settings
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE,\
     TITLE_CLOSE, XferShowEditor
@@ -42,8 +43,7 @@ from lucterios.framework.signal_and_lock import LucteriosSession, Signal
 from lucterios.framework.models import LucteriosLogEntry
 from lucterios.framework.model_fields import LucteriosScheduler
 
-from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states,\
-    Preference
+from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states, Preference
 from lucterios.CORE.parameters import Params
 
 MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40)
@@ -151,7 +151,7 @@ class UsersShow(XferContainerAcknowledge):
             self.message(_('User deactivated: another with the same email is active!'))
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif')
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif' and not settings.USER_READONLY)
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif') or (gridname == 'user'), unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):

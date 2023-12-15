@@ -25,9 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os.path import isfile, join, dirname, basename
 from logging import getLogger
-from datetime import datetime
 from copy import deepcopy
-from re import sub
 import mimetypes
 import stat
 import os
@@ -153,7 +151,13 @@ class Menu(XferContainerMenu):
             getLogger("lucterios.core.request").debug("<< %s %s [%s]", request.method, request.path, request.user)
 
 
-@MenuManage.describ(None, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
+def right_changepassword(request):
+    if request.user.is_authenticated and not settings.USER_READONLY:
+        return True
+    return False
+
+
+@MenuManage.describ(right_changepassword, FORMTYPE_MODAL, 'core.general', _("To Change your password."))
 class ChangePassword(XferContainerCustom):
     caption = _("Password")
     icon = "passwd.png"
@@ -185,7 +189,7 @@ class ChangePassword(XferContainerCustom):
         self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
 
 
-@MenuManage.describ('')
+@MenuManage.describ(right_changepassword)
 class ModifyPassword(XferContainerAcknowledge):
     caption = _("Password")
     icon = "passwd.png"
@@ -202,7 +206,7 @@ class ModifyPassword(XferContainerAcknowledge):
 
 
 def right_askpassword(request):
-    if not notfree_mode_connect():
+    if not notfree_mode_connect() or settings.USER_READONLY:
         return False
     if (signal_and_lock.Signal.call_signal("send_connection", None, None, None) == 0):
         return False
