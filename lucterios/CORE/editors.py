@@ -49,51 +49,58 @@ class LucteriosUserEditor(LucteriosEditor):
             xfer.tab = obj_username.tab
             xfer.filltab_from_model(obj_username.col, obj_username.row + 1, True, ['date_joined', 'last_login'])
         xfer.change_to_readonly('is_active')
-        xfer.get_components('first_name').set_needed(True)
-        xfer.get_components('last_name').set_needed(True)
-        obj_email = xfer.get_components('email')
-        obj_email.set_needed(settings.ASK_LOGIN_EMAIL)
-        obj_email.mask = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
-        xfer.tab = obj_email.tab
-        new_row = obj_email.row
-        ckk = XferCompCheck('password_change')
-        ckk.set_location(0, new_row + 1, 1, 1)
-        ckk.set_value('n')
-        ckk.description = _("To change password?")
-        ckk.java_script = """
+        if settings.USER_READONLY:
+            xfer.change_to_readonly('is_staff')
+            xfer.change_to_readonly('is_superuser')
+            xfer.change_to_readonly('first_name')
+            xfer.change_to_readonly('last_name')
+            xfer.change_to_readonly('email')
+        else:
+            xfer.get_components('first_name').set_needed(True)
+            xfer.get_components('last_name').set_needed(True)
+            obj_email = xfer.get_components('email')
+            obj_email.set_needed(settings.ASK_LOGIN_EMAIL)
+            obj_email.mask = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
+            xfer.tab = obj_email.tab
+            new_row = obj_email.row
+            ckk = XferCompCheck('password_change')
+            ckk.set_location(0, new_row + 1, 1, 1)
+            ckk.set_value('n')
+            ckk.description = _("To change password?")
+            ckk.java_script = """
 var pwd_change=current.getValue();
 parent.get('password1').setEnabled(pwd_change);
 parent.get('password2').setEnabled(pwd_change);
 """
-        xfer.add_component(ckk)
+            xfer.add_component(ckk)
 
-        pwd1 = XferCompPassword('password1')
-        pwd1.set_location(0, new_row + 2, 1, 1)
-        pwd1.empty = 1
-        pwd1.description = _("password")
-        xfer.add_component(pwd1)
-        pwd2 = XferCompPassword('password2')
-        pwd2.set_location(0, new_row + 3, 1, 1)
-        pwd2.empty = 1
-        pwd2.description = _("password (again)")
-        xfer.add_component(pwd2)
-        if Signal.call_signal("send_connection", None, None, None) > 0:
-            ckkg = XferCompCheck('password_generate')
-            ckkg.set_location(0, new_row + 4)
-            ckkg.description = _("Generate new password?")
-            ckkg.set_value(False)
-            ckkg.java_script = """
-    var pwd_generate=current.getValue();
-    var pwd_change=parent.get('password_change').getValue();
-    parent.get('password_change').setEnabled(!pwd_generate);
-    parent.get('password1').setEnabled(!pwd_generate && pwd_change);
-    parent.get('password2').setEnabled(!pwd_generate && pwd_change);
-    """
-            xfer.add_component(ckkg)
-        if xfer.getparam("IDENT_READ") is not None:
-            xfer.change_to_readonly('first_name')
-            xfer.change_to_readonly('last_name')
-            xfer.change_to_readonly('email')
+            pwd1 = XferCompPassword('password1')
+            pwd1.set_location(0, new_row + 2, 1, 1)
+            pwd1.empty = 1
+            pwd1.description = _("password")
+            xfer.add_component(pwd1)
+            pwd2 = XferCompPassword('password2')
+            pwd2.set_location(0, new_row + 3, 1, 1)
+            pwd2.empty = 1
+            pwd2.description = _("password (again)")
+            xfer.add_component(pwd2)
+            if Signal.call_signal("send_connection", None, None, None) > 0:
+                ckkg = XferCompCheck('password_generate')
+                ckkg.set_location(0, new_row + 4)
+                ckkg.description = _("Generate new password?")
+                ckkg.set_value(False)
+                ckkg.java_script = """
+var pwd_generate=current.getValue();
+var pwd_change=parent.get('password_change').getValue();
+parent.get('password_change').setEnabled(!pwd_generate);
+parent.get('password1').setEnabled(!pwd_generate && pwd_change);
+parent.get('password2').setEnabled(!pwd_generate && pwd_change);
+"""
+                xfer.add_component(ckkg)
+            if xfer.getparam("IDENT_READ") is not None:
+                xfer.change_to_readonly('first_name')
+                xfer.change_to_readonly('last_name')
+                xfer.change_to_readonly('email')
         return LucteriosEditor.edit(self, xfer)
 
     def before_save(self, xfer):

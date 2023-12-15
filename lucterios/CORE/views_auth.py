@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_MODAL, CLOSE_NO, SELECT_NONE, get_actions_json, CLOSE_YES
 from lucterios.framework.xferbasic import XferContainerAbstract
@@ -160,7 +161,7 @@ class Authentification(XferContainerAbstract):
     def must_autentificate(self, mess):
         self.get_connection_info()
         self.responsejson['data'] = mess
-        if secure_mode_connect():
+        if secure_mode_connect() and not settings.USER_READONLY:
             basic_actions = []
             signal_and_lock.Signal.call_signal("auth_action", basic_actions)
             actions = []
