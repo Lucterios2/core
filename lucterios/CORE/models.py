@@ -229,7 +229,7 @@ class AbstractSetting(LucteriosModel):
         if self.correct_type == Parameter.TYPE_META:
             self._correct_args.update({'Multi': False})
             self._correct_args.update(current_args)
-            if self._correct_args['Multi']:
+            if self._correct_args['Multi'] and isinstance(self._correct_value, str):
                 self._correct_value = self._correct_value.split(';')
         for arg_key in self._correct_args.keys():
             if arg_key in current_args.keys():
