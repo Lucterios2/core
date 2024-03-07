@@ -382,6 +382,10 @@ class ReportGenerator(object):
         self.get_text_size = None
         self.get_letter_ratio = None
 
+    @property
+    def real_page_height(self):
+        return self.page_height - 2 * self.vertical_marge
+
     def fill_attrib_headerfooter(self):
         if self.header is not None:
             self.header.attrib['extent'] = "%d.0" % self.header_height
@@ -500,6 +504,7 @@ class ActionGenerator(ReportGenerator):
         self.last_top = 0
         self.top = 0
         self.print_items = []
+        self.current_page_items = []
         self.col_width = {}
         self.tab_change_page = tab_change_page
 
@@ -507,9 +512,10 @@ class ActionGenerator(ReportGenerator):
         ReportGenerator.add_page(self)
         self.header.append(self.get_text_from_title())
         self.top = 0
+        self.current_page_items = []
 
     def change_page(self, check_top_value=True):
-        if not check_top_value or (self.top > (self.page_height - 2 * self.vertical_marge)):
+        if not check_top_value or (self.top > self.real_page_height):
             self.add_page()
 
     def _comp_to_printitem(self, comp):
@@ -589,16 +595,16 @@ class ActionGenerator(ReportGenerator):
                 new_page = True
         if not new_page and (self.last_y != item.row):
             self.top = self.top + self.current_height
-            for last_item in self.print_items:
+            for last_item in self.current_page_items:
                 if last_item == item:
                     break
                 if ((item.row == -1) and not self.tab_change_page) or ((last_item.tab == item.tab) and ((last_item.row + last_item.rowspan) <= (item.row + item.rowspan))):
-                    self.top = max(
-                        self.top, last_item.top + last_item.height)
+                    self.top = max(self.top, last_item.top + last_item.height)
             self.change_page()
             self.current_height = 0
         item.calcul_position()
         self.body.append(item.get_xml())
+        self.current_page_items.append(item)
         if item.rowspan == 1:
             self.current_height = max(self.current_height, item.height)
         self.last_y = item.row
@@ -758,7 +764,7 @@ class ListingGenerator(ReportModelGenerator):
 
         xml_table = etree.Element('table')
         self.body.append(xml_table)
-        xml_table.attrib['height'] = "%d.0" % (self.page_height - 2 * self.vertical_marge)
+        xml_table.attrib['height'] = "%d.0" % self.real_page_height
         xml_table.attrib['width'] = "%d.0" % self.content_width
         xml_table.attrib['top'] = "1.0"
         xml_table.attrib['left'] = "0.0"
