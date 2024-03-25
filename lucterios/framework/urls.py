@@ -28,7 +28,8 @@ import logging
 import inspect
 import pkgutil
 
-from django.conf.urls import re_path, include
+from django.conf.urls import include
+from django.urls import re_path
 from django.conf import settings
 from django.utils.module_loading import import_module
 from django.views.static import serve
