@@ -128,7 +128,7 @@ class XferContainerAbstract(View):
                 param_value = None
             if (param_value is None) and (default_value == NULL_VALUE):
                 param_value = NULL_VALUE
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, TypeError):
             param_value = default_value
         return param_value
 
