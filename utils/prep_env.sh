@@ -39,7 +39,7 @@ function create_requirement
     else
       SETUP_PATH=*/setup.py
     fi
-    grep 'install_requires' $SETUP_PATH  | sed 's|.*install_requires=\[||g' | sed 's|\],||g' | sed 's|, |\n|g' | sed 's|"||g' | sort | uniq > requirement.txt
+    grep 'install_requires' $SETUP_PATH  | sed 's|.*install_requires=\[||g' | sed 's|\],||g' | sed 's|\]||g' | sed 's|, |\n|g' | sed 's|"||g' | sort | uniq > requirement.txt
     echo "PyCryptodome" >> requirement.txt
     echo "pycodestyle" >> requirement.txt
     echo "coverage" >> requirement.txt
@@ -105,7 +105,13 @@ function main
 	    source $virt_name/bin/activate
 	    sed -i '/lucterios/d' requirement.txt
 	    sed -i '/diacamma/d' requirement.txt
-	    pip install -U -r requirement.txt
+	    sed -i '/mysqlclient/d' requirement.txt
+	    option=""
+	    if [ -d "/home/pypi/packages/" ]
+	    then
+	        option="--extra-index-url http://127.0.0.1:7001/simple --trusted-host 127.0.0.1"
+	    fi
+	    pip install -U -r requirement.txt $option
 	    pip install -U mysqlclient || echo 'mysql problem !'
 	    pip list
 	    deactivate

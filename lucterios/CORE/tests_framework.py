@@ -64,7 +64,7 @@ class GenericTest(LucteriosTest):
         self.assertEqual(self.response_json['title'], 'Lucterios standard')
         self.assertEqual(self.response_json['subtitle'], 'Application générique de gestion')
         self.assertEqual(self.response_json['applogo'][:21], 'data:image/png;base64')
-        self.assertEqual(self.response_json['version'][:4], '2.6.')
+        self.assertEqual(self.response_json['version'][:4], '2.7.')
         self.assertEqual(self.response_json['lang'], 'fr')
         self.assertEqual(self.response_json['menus'], [['lucterios.standard', 'Lucterios standard'], ['lucterios.dummy', 'My Dummy'], ['lucterios.CORE', 'Cœur Lucterios']])
 
