@@ -19,7 +19,7 @@ before_script:
   - ./utils/prep_env.sh clone "${CLONE_LIST}"
 
 check:
-  image: python:3.8
+  image: python:3.9
   stage: check
   script:
     - ant clear init pep8 radon 
@@ -57,9 +57,9 @@ check:
         path: coverage3.xml
     expire_in: 1 month        
 
-test37:
+test38:
   extends: .test_basic
-  image: python:3.7
+  image: python:3.8
 
 test311:
   extends: .test_basic
@@ -81,11 +81,11 @@ build:
       - ${MANUAL_PATH}
     expire_in: 1 month        
 
-trigger_selenium37:
+trigger_selenium38:
   stage: integration
   variables:
     TARGET: "${APPLICATION_TARGET}"
-    PYTHON_VERSION: "3.7"
+    PYTHON_VERSION: "3.8"
     BROWSER: chrome 
   allow_failure: true
   trigger:
