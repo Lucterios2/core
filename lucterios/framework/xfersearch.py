@@ -35,7 +35,7 @@ from lucterios.framework.tools import WrapAction, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xferadvance import action_list_sorted
+from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 
 TYPE_FLOAT = 'float'
@@ -638,4 +638,4 @@ if ((type=='list') || (type=='listmult')) {
         self.add_component(grid)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))

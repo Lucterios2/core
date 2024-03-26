@@ -87,9 +87,10 @@ class WrapAction(object):
 
     mode_connect_notfree = None
 
-    def __init__(self, caption, icon_path, extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
+    def __init__(self, caption, icon_path, short_icon='', extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, url_text, extension)
+        self.short_icon = short_icon
         self.modal = None
         self.is_view_right = is_view_right
         self.url_text = url_text
@@ -111,6 +112,8 @@ class WrapAction(object):
         json_res['id'] = self.url_text
         if self.icon_path != "":
             json_res['icon'] = str(self.icon_path)
+        if self.short_icon != "":
+            json_res['short_icon'] = str(self.short_icon)
         if self.extension != "":
             json_res['extension'] = self.extension
         if self.action != "":

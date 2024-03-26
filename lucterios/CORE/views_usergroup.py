@@ -31,7 +31,7 @@ from django.db.models import Q
 from django.conf import settings
 
 from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE,\
-    TITLE_CLOSE, XferShowEditor
+    TITLE_CLOSE, XferShowEditor, TITLE_SEARCH
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
@@ -123,7 +123,7 @@ class ChangeOnlySuperAdmin(XferContainerAcknowledge):
             Params.setvalue('CORE-OnlySuperAdmin', not only_admin_value)
 
 
-@ActionsManage.affect_list(_("Search"), "user.png", condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
+@ActionsManage.affect_list(TITLE_SEARCH, "user.png", condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
 @MenuManage.describ('auth.change_user')
 class UsersSearch(XferSearchEditor):
     caption = _("User search")
@@ -188,7 +188,7 @@ class UsersPreference(XferContainerCustom):
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)

@@ -186,7 +186,7 @@ class ChangePassword(XferContainerCustom):
         self.add_component(pwd)
 
         self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
 @MenuManage.describ(right_changepassword)
@@ -235,7 +235,7 @@ class AskPassword(XferContainerCustom):
         self.add_component(email)
 
         self.add_action(AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
 @MenuManage.describ(right_askpassword)
@@ -289,7 +289,7 @@ class Configuration(XferContainerCustom):
         steplist = get_wizard_step_list()
         if steplist != '':
             self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -314,7 +314,7 @@ class ParamEdit(XferContainerCustom):
             if param_item is not None:
                 param_item.description = titles[paramname]
         self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'))
-        self.add_action(WrapAction(_('Cancel'), 'images/cancel.png'))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -750,7 +750,7 @@ class ObjectMerge(XferContainerAcknowledge):
             dlg.add_component(grid)
             dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
                            params={'CONFIRME': 'YES', 'mrg_' + self.field_id: self.item.id})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
+            dlg.add_action(WrapAction(TITLE_CANCEL, "images/cancel.png"))
         elif self.getparam("CONFIRME") == 'YES':
             alias_objects = []
             for item in self.items:
@@ -811,7 +811,7 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_location(2, 3)
             dlg.add_component(lbl)
             dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
-            dlg.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
+            dlg.add_action(WrapAction(TITLE_CANCEL, "images/cancel.png"))
         else:
             new_model = apps.get_model(self.getparam('newmodel'))
             field_id_name = "%s_ptr_id" % self.model.__name__.lower()
@@ -1028,9 +1028,9 @@ class ObjectImport(XferContainerCustom):
             if step > 1:
                 self.add_action(self.return_action(_('Back'), "images/left.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
             self.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
-            self.add_action(WrapAction(_("Cancel"), "images/cancel.png"))
+            self.add_action(WrapAction(TITLE_CANCEL, "images/cancel.png"))
         else:
-            self.add_action(WrapAction(_("Close"), "images/close.png"))
+            self.add_action(WrapAction(TITLE_CLOSE, "images/close.png"))
 
 
 tools.bad_permission_redirect_classaction = Menu
