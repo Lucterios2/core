@@ -18,7 +18,9 @@
 	<property name="web.browser"
 		value="client/platforms/browser/www/" />
 	<property name="web.path"
-		value="lucterios/framework/static/lucterios.framework/web" />
+		value="lucterios/framework/static/lucterios.framework/old" />
+    <property name="client.path"
+        value="lucterios/framework/static/lucterios.framework/web" />
 	<property name="web.version" value="1.5.9" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
@@ -30,70 +32,35 @@
 	</target>
 
 	<target name="clear_addon">
-		<delete dir="${web.path}" />
-		<mkdir dir="${web.path}" />
-		<exec executable="cordova" dir="${web.root}" failonerror="false">
-			<arg value="clean" />
-		</exec>
-		<delete dir="${basedir}/client/platforms/electron/build" />
-		<delete dir="${web.root}/node_modules" />
-		<delete dir="${web.root}/plugins/cordova-plugin-camera" />
-		<delete dir="${web.root}/plugins/cordova-plugin-device" />
-		<delete dir="${web.root}/plugins/cordova-plugin-whitelist" />
+	    <antcall target="clear_oldclient" />
+        <delete dir="${client.path}" />
+        <mkdir dir="${client.path}" />
 	</target>
 
 	<target name="init_addon">
-		<mkdir dir="${web.client}/conf" />
-		<echo message="${web.version}.${build_number}"
-			file="${web.client}/conf/build" append="false" />
-		<replaceregexp file="${web.root}/config.xml"
-			match='version="[0-9\.]+"' replace='version="${web.version}"'
-			byline="true" />
-		<replaceregexp file="${web.root}/package.json"
-			match='"version": "[0-9\.]+",' replace='"version": "${web.version}",'
-			byline="true" />
-		<exec executable="npm" dir="${web.root}" failonerror="true">
-			<arg value="install" />
-		</exec>
-		<exec executable="npm" dir="${web.root}" failonerror="true">
-			<arg value="run" />
-			<arg value="lint" />
-		</exec>
+	    <antcall target="init_oldclient" />
 	</target>
 
 	<target name="package_addon">
-		<exec executable="npm" dir="${web.root}" failonerror="true">
-			<arg value="run" />
-			<arg value="build" />
-		</exec>
-		<exec executable="cordova" dir="${web.root}" failonerror="false">
-			<arg value="build" />
-			<arg value="browser" />
-		</exec>
-		<replace file="${web.browser}/index.html"
-			token='src=../../js/' value='src=js/' />
-		<copy file="${web.browser}/index.html"
-			tofile="${web.browser}/viewer.html" />
-		<replace file="${web.browser}/viewer.html"
-			token='window.main()' value='window.viewer()' />
-		<copy todir="${web.path}">
-			<fileset dir="${web.browser}" />
-		</copy>
+        <antcall target="build_oldclient" />
+        <antcall target="download_newclient" />
 	</target>
 
 	<target name="test_webclient">
-		<exec executable="npm" dir="${web.root}" failonerror="true">
-			<arg value="run" />
-			<arg value="unit" />
-		</exec>
-		<exec executable="${project.pythonexe}" dir="${basedir}">
-			<arg value="${web.root}/test/lcov_cobertura.py" />
-			<arg value="${web.root}/test/coverage/lcov.info" />
-			<arg value="--base-dir" />
-			<arg value="${web.root}/src" />
-			<arg value="--output" />
-			<arg value="coverage_jsweb.xml" />
-		</exec>
+        <antcall target="test_oldclient" />
+	</target>
+	
+	<target name="download_newclient">
+	    <delete file="/tmp/client_artifacts.zip" />
+        <get src="https://gitlab.sleto.fr/api/v4/projects/38/jobs/artifacts/master/download?job=build" dest="/tmp/client_artifacts.zip">
+          <header name="PRIVATE-TOKEN" value="${env.GITLAB_TOKEN}"/>
+        </get>
+        <delete dir="/tmp/client_artifacts" />
+        <mkdir dir="/tmp/client_artifacts" />
+        <unzip src="/tmp/client_artifacts.zip" dest="/tmp/client_artifacts" />
+        <move todir="${client.path}">
+            <fileset dir="/tmp/client_artifacts/dist"/>
+        </move>
 	</target>
 
 	<target name="test_admin">
@@ -124,5 +91,72 @@
 		<antcall target="test_webclient" />
 		<antcall target="test_admin" />
 	</target>
+
+    <target name="clear_oldclient">
+        <delete dir="${web.path}" />
+        <mkdir dir="${web.path}" />
+        <exec executable="cordova" dir="${web.root}" failonerror="false">
+            <arg value="clean" />
+        </exec>
+        <delete dir="${basedir}/client/platforms/electron/build" />
+        <delete dir="${web.root}/node_modules" />
+        <delete dir="${web.root}/plugins/cordova-plugin-camera" />
+        <delete dir="${web.root}/plugins/cordova-plugin-device" />
+        <delete dir="${web.root}/plugins/cordova-plugin-whitelist" />
+    </target>
+
+    <target name="init_oldclient">
+        <mkdir dir="${web.client}/conf" />
+        <echo message="${web.version}.${build_number}"
+            file="${web.client}/conf/build" append="false" />
+        <replaceregexp file="${web.root}/config.xml"
+            match='version="[0-9\.]+"' replace='version="${web.version}"'
+            byline="true" />
+        <replaceregexp file="${web.root}/package.json"
+            match='"version": "[0-9\.]+",' replace='"version": "${web.version}",'
+            byline="true" />
+        <exec executable="npm" dir="${web.root}" failonerror="true">
+            <arg value="install" />
+        </exec>
+        <exec executable="npm" dir="${web.root}" failonerror="true">
+            <arg value="run" />
+            <arg value="lint" />
+        </exec>
+    </target>
+
+    <target name="build_oldclient">
+        <exec executable="npm" dir="${web.root}" failonerror="true">
+            <arg value="run" />
+            <arg value="build" />
+        </exec>
+        <exec executable="cordova" dir="${web.root}" failonerror="false">
+            <arg value="build" />
+            <arg value="browser" />
+        </exec>
+        <replace file="${web.browser}/index.html"
+            token='src=../../js/' value='src=js/' />
+        <copy file="${web.browser}/index.html"
+            tofile="${web.browser}/viewer.html" />
+        <replace file="${web.browser}/viewer.html"
+            token='window.main()' value='window.viewer()' />
+        <copy todir="${web.path}">
+            <fileset dir="${web.browser}" />
+        </copy>
+    </target>
+
+    <target name="test_oldclient">
+        <exec executable="npm" dir="${web.root}" failonerror="true">
+            <arg value="run" />
+            <arg value="unit" />
+        </exec>
+        <exec executable="${project.pythonexe}" dir="${basedir}">
+            <arg value="${web.root}/test/lcov_cobertura.py" />
+            <arg value="${web.root}/test/coverage/lcov.info" />
+            <arg value="--base-dir" />
+            <arg value="${web.root}/src" />
+            <arg value="--output" />
+            <arg value="coverage_jsweb.xml" />
+        </exec>
+    </target>
 
 </project>
