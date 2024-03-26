@@ -40,6 +40,7 @@ from lucterios.framework.models import LucteriosLogEntry
 
 
 TITLE_OK = _("Ok")
+TITLE_NO = _("No")
 TITLE_CANCEL = _("Cancel")
 TITLE_CLOSE = _("Close")
 TITLE_EDIT = _("Edit")
@@ -52,6 +53,7 @@ TITLE_CLONE = _('clone')
 TITLE_PRINT = _("Print")
 TITLE_LISTING = _("Listing")
 TITLE_LABEL = _("Label")
+TITLE_SEARCH = _("Search")
 
 TEXT_TOTAL_NUMBER = _("Total number of %(name)s: %(count)d")
 
@@ -226,7 +228,7 @@ class XferShowEditor(XferContainerCustom):
         self.fill_from_model(1, max_row, True)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(_('Close'), 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
 
