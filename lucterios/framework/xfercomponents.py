@@ -140,6 +140,10 @@ class XferCompImage(XferComponent):
         XferComponent.__init__(self, name)
         self._component_ident = "IMAGE"
         self.type = ""
+        self.short_icon = ""
+
+    def set_short_icon(self, short_icon):
+        self.short_icon = short_icon
 
     def set_value(self, value):
         if isinstance(value, bytes):
@@ -150,6 +154,7 @@ class XferCompImage(XferComponent):
     def get_json(self):
         compjson = XferComponent.get_json(self)
         compjson['type'] = self.type
+        compjson['short_icon'] = self.short_icon
         return compjson
 
 

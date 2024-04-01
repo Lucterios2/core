@@ -273,10 +273,10 @@ class AuthentificationTest(LucteriosTest):
         self.assertFalse(WrapAction.mode_connect_notfree is None or WrapAction('', '').mode_connect_notfree(), "mode_connect_notfree is None or mode_connect_notfree()")
         request = RequestFactory().post('/')
         request.user = AnonymousUser()
-        act1 = WrapAction('free', 'free', is_view_right=None)
+        act1 = WrapAction('free', 'free', 'free', is_view_right=None)
         self.assertEqual(act1.is_view_right, None, 'act1.is_view_right')
         self.assertFalse(act1.check_permission(request), 'check_permission None')
-        act2 = WrapAction('free', 'free', is_view_right='CORE.change_parameter')
+        act2 = WrapAction('free', 'free', 'free', is_view_right='CORE.change_parameter')
         act2.with_log = True
         self.assertEqual(act2.is_view_right, 'CORE.change_parameter', 'act2.is_view_right')
         self.assertTrue(act2.check_permission(request), 'check_permission CORE.change_parameter')

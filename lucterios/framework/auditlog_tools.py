@@ -24,6 +24,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from logging import getLogger
+import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields import DateTimeField, NOT_PROVIDED
@@ -98,7 +99,7 @@ def get_field_value(obj, field):
             try:
                 value = field.to_python(getattr(obj, field.name, None))
                 if value is not None and settings.USE_TZ and not timezone.is_naive(value):
-                    value = timezone.make_naive(value, timezone=timezone.utc)
+                    value = timezone.make_naive(value, timezone=datetime.timezone.utc)
             except ObjectDoesNotExist:
                 value = field.default if field.default is not NOT_PROVIDED else None
         else:

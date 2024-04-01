@@ -37,6 +37,7 @@ import sys
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_str
+import warnings
 
 
 CLOSE_NO = 0
@@ -88,6 +89,8 @@ class WrapAction(object):
     mode_connect_notfree = None
 
     def __init__(self, caption, icon_path, short_icon='', extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
+        if (short_icon == '') and (icon_path != ''):
+            warnings.warn("The icon '%s' has no short_icon for action '%s' (%s.%s/%s)" % (icon_path, caption, extension, action, url_text), DeprecationWarning)
         self.caption = caption
         self.icon_path = get_icon_path(icon_path, url_text, extension)
         self.short_icon = short_icon
@@ -214,6 +217,8 @@ class ActionsManage(object):
 
     @classmethod
     def add_action_generic(cls, xclass, ident, title, icon, short_icon, condition, **options):
+        if (short_icon == '') and (icon != ''):
+            warnings.warn("The icon '%s' has no short_icon for action '%s' (%s - %s)" % (icon, title, xclass, ident), DeprecationWarning)
         if 'model_name' in options.keys() and (options['model_name'] is not None):
             model_name = options['model_name']
         else:
@@ -480,7 +485,7 @@ def get_binay(text):
 
 def toHtml(inittext, totext=True, withclean=True):
     from lxml import etree
-    from lxml.html.clean import Cleaner
+    from lxml_html_clean import Cleaner
     text = str(inittext).strip()
     pos_in = text.find('&')
     while pos_in != -1:
