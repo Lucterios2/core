@@ -116,6 +116,8 @@ def add_formating_xml(xml_text, value, formatnum, formatstr):
             return float(data)
         elif isinstance(data, LucteriosModel) or isinstance(data, datetime) or isinstance(data, date) or isinstance(data, time) or (type(data).__name__ == '__proxy__'):
             return str(data)
+        elif hasattr(data, 'all'):
+            return [str(item) for item in data.all()]
         else:
             return data
     if (formatnum is not None) or (formatstr is not None):
