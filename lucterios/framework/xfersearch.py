@@ -486,6 +486,7 @@ class XferSearchEditor(XferContainerCustom):
     def fillresponse_add_title(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
