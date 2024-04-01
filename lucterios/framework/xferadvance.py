@@ -148,7 +148,7 @@ class XferListEditor(XferContainerCustom):
         if self.model is not None:
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
 class XferAddEditor(XferContainerCustom):
@@ -179,7 +179,7 @@ class XferAddEditor(XferContainerCustom):
             self.add_action(self.return_action(TITLE_OK, 'images/ok.png'), params={"SAVE": "YES"})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png'))
+        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
     def request_handling(self, request, *args, **kwargs):
@@ -228,7 +228,7 @@ class XferShowEditor(XferContainerCustom):
         self.fill_from_model(1, max_row, True)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png'))
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
 

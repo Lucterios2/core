@@ -48,6 +48,7 @@ class XferContainerAbstract(View):
     caption = ""
     closeaction = None
     icon = ""
+    short_icon = ""
     url_text = ""
     # is_view_right = ""
     modal = None
@@ -93,21 +94,21 @@ class XferContainerAbstract(View):
         return res_icon_path
 
     @classmethod
-    def get_action(cls, caption=None, icon_path=None):
+    def get_action(cls, caption=None, icon_path=None, short_icon=''):
         if caption is None:
             caption = cls.caption
         if icon_path is None:
             icon_path = getattr(cls, 'icon', '')
-        ret_act = WrapAction(caption, icon_path, url_text=cls.url_text,
+        ret_act = WrapAction(caption, icon_path, short_icon=short_icon, url_text=cls.url_text,
                              is_view_right=getattr(cls, 'is_view_right', None), method=cls.methods_allowed[0])
         return ret_act
 
-    def return_action(self, caption=None, icon_path=None):
+    def return_action(self, caption=None, icon_path=None, short_icon=''):
         if caption is None:
             caption = self.caption
         if icon_path is None:
             icon_path = getattr(self, 'icon', '')
-        ret_act = WrapAction(caption, icon_path, url_text=self.url_text,
+        ret_act = WrapAction(caption, icon_path, short_icon=short_icon, url_text=self.url_text,
                              is_view_right=getattr(self, 'is_view_right', None), method=self.methods_allowed[0])
         return ret_act
 

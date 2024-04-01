@@ -129,7 +129,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value(str(self.traitment_data[2]))
-            dlg.add_action(WrapAction(TITLE_CLOSE, "images/close.png"))
+            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
         else:
             lbl.set_value_center("{[br/]}" + str(self.traitment_data[1]))
             btn = XferCompButton("Next")
@@ -139,7 +139,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn.java_script = "parent.refresh()"
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
-            dlg.add_action(WrapAction(TITLE_CANCEL, "images/cancel.png"))
+            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         return dlg.request_handling(request, *args, **kwargs)
 
     def request_handling(self, request, *args, **kwargs):
@@ -159,7 +159,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.action = self.action
                 dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
                 dlg.add_action(self.return_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
-                dlg.add_action(WrapAction(TITLE_NO, "images/cancel.png"))
+                dlg.add_action(WrapAction(TITLE_NO, 'images/cancel.png', 'mdi:mdi-cancel'))
                 dlg.closeaction = self.closeaction
                 return dlg.request_handling(request, *args, **kwargs)
             elif self.msg != "":
@@ -167,7 +167,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.request = self.request
                 dlg.caption = self.caption
                 dlg.set_dialog(self.msg, self.typemsg)
-                dlg.add_action(WrapAction(TITLE_OK, "images/ok.png"))
+                dlg.add_action(WrapAction(TITLE_OK, "images/ok.png", 'mdi:mdi-check'))
                 dlg.closeaction = self.closeaction
                 return dlg.request_handling(request, *args, **kwargs)
             elif self.except_msg != "":
