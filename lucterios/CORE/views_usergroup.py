@@ -53,6 +53,7 @@ MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rig
 class GroupsList(XferListEditor):
     caption = _("Groups")
     icon = "group.png"
+    short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
 
@@ -64,6 +65,7 @@ class GroupsEdit(XferAddEditor):
     caption_add = _("Add a group")
     caption_modify = _("Modify a group")
     icon = "group.png"
+    short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
     locked = True
@@ -74,6 +76,7 @@ class GroupsEdit(XferAddEditor):
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
     icon = "group.png"
+    short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
 
@@ -82,6 +85,7 @@ class GroupsDelete(XferDelete):
 class UsersList(XferListEditor):
     caption = _('Users of the software')
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
 
@@ -116,6 +120,7 @@ class UsersList(XferListEditor):
 class ChangeOnlySuperAdmin(XferContainerAcknowledge):
     caption = _("CORE-OnlySuperAdmin")
     icon = "config.png"
+    short_icon = "mdi:mdi-account-lock"
 
     def fillresponse(self):
         only_admin_value = Params.getvalue('CORE-OnlySuperAdmin')
@@ -123,19 +128,21 @@ class ChangeOnlySuperAdmin(XferContainerAcknowledge):
             Params.setvalue('CORE-OnlySuperAdmin', not only_admin_value)
 
 
-@ActionsManage.affect_list(TITLE_SEARCH, "user.png", condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
+@ActionsManage.affect_list(TITLE_SEARCH, "user.png", short_icon='mdi:mdi-account-search', condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
 @MenuManage.describ('auth.change_user')
 class UsersSearch(XferSearchEditor):
     caption = _("User search")
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user'
 
 
-@ActionsManage.affect_other("", "images/edit.png")
+@ActionsManage.affect_other("", "images/edit.png", short_icon="mdi:mdi-account")
 @MenuManage.describ('auth.add_user')
 class UsersShow(XferContainerAcknowledge):
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
 
@@ -158,6 +165,7 @@ class UsersEdit(XferAddEditor):
     caption_add = _("Add an users")
     caption_modify = _("Modify an user")
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
 
@@ -173,30 +181,13 @@ class UsersEdit(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@MenuManage.describ('auth.change_user')
-class UsersPreference(XferContainerCustom):
-    caption = _("User preferences")
-    icon = "settings.png"
-    model = LucteriosUser
-    field_id = 'user_actif'
-
-    def fillresponse(self):
-        self.item = LucteriosUser.objects.get(id=self.request.user.id)
-        self.params['username'] = self.item.username
-        img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_location(0, 0, 1, 6)
-        self.add_component(img)
-        self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
-
-
-@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
+@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", short_icon='mdi mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", short_icon='mdi mdi-account-off', condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
 
@@ -207,12 +198,13 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.save()
 
 
-@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
-@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
+@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", short_icon='mdi mdi-check', condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
+@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", short_icon='mdi mdi-check', condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_inactif'
 
@@ -233,6 +225,7 @@ class UsersEnabled(XferContainerAcknowledge):
 class UsersDelete(XferDelete):
     caption = _("Delete users")
     icon = "user.png"
+    short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = ('user_actif', 'user_inactif', 'user')
 
@@ -244,6 +237,25 @@ class UsersDelete(XferDelete):
         XferDelete.fillresponse(self)
 
 
+@MenuManage.describ('auth.change_user')
+class UsersPreference(XferContainerCustom):
+    caption = _("User preferences")
+    icon = "settings.png"
+    short_icon = "mdi:mdi-account-cog"
+    model = LucteriosUser
+    field_id = 'user_actif'
+
+    def fillresponse(self):
+        self.item = LucteriosUser.objects.get(id=self.request.user.id)
+        self.params['username'] = self.item.username
+        img = XferCompImage('img')
+        img.set_value(self.icon_path())
+        img.set_location(0, 0, 1, 6)
+        self.add_component(img)
+        self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
+        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+
+
 def right_edit_preference(request):
     return UsersEnabled.get_action().check_permission(request) or (not request.user.is_anonymous and (request.user.username == request.POST['username']))
 
@@ -253,6 +265,7 @@ def right_edit_preference(request):
 class PreferenceEdit(XferAddEditor):
     caption_modify = _("Modify preference")
     icon = "settings.png"
+    short_icon = "mdi:mdi-account-cog"
     model = Preference
     field_id = 'preference'
 
@@ -261,6 +274,7 @@ class PreferenceEdit(XferAddEditor):
 class SessionList(XferListEditor):
     caption = _("Sessions & tasks")
     icon = "session.png"
+    short_icon = "mdi:mdi-calendar-collapse-horizontal-outline"
     model = LucteriosSession
     field_id = 'session'
 
@@ -293,6 +307,7 @@ class SessionList(XferListEditor):
 class SessionDelete(XferDelete):
     caption = _("Delete session")
     icon = "session.png"
+    short_icon = "mdi:mdi-calendar-collapse-horizontal-outline"
     model = LucteriosSession
     field_id = 'session'
 
@@ -306,10 +321,11 @@ class SessionDelete(XferDelete):
 
 
 @MenuManage.describ('sessions.change_session')
-@ActionsManage.affect_other(_("Show log"), "images/auditlog.png")
+@ActionsManage.affect_other(_("Show log"), "images/auditlog.png", short_icon="mdi:mdi-book-cog")
 class AuditLogShow(XferShowEditor):
     caption = _("Show log")
     icon = "auditlog.png"
+    short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 
@@ -349,6 +365,7 @@ class AuditLogShow(XferShowEditor):
 class AudiLogConfig(XferListEditor):
     caption = _("Log configuration")
     icon = "auditlog.png"
+    short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 
@@ -388,6 +405,7 @@ class AudiLogConfig(XferListEditor):
 class AudiLogChange(XferContainerAcknowledge):
     caption = _("Log setting")
     icon = "auditlog.png"
+    short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 
@@ -397,11 +415,12 @@ class AudiLogChange(XferContainerAcknowledge):
         set_auditlog_states()
 
 
-@ActionsManage.affect_grid(_('purge'), "images/delete.png", unique=SELECT_NONE)
+@ActionsManage.affect_grid(_('purge'), "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_NONE)
 @MenuManage.describ('CORE.add_parameter')
 class AudiLogPurge(XferContainerAcknowledge):
     caption = _("Purge log")
     icon = "auditlog.png"
+    short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 

@@ -158,7 +158,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.extension = self.extension
                 dlg.action = self.action
                 dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-                dlg.add_action(self.return_action(_("Yes"), "images/ok.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
+                dlg.add_action(self.return_action(_("Yes"), "images/ok.png", 'mdi:mdi-check'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
                 dlg.add_action(WrapAction(TITLE_NO, 'images/cancel.png', 'mdi:mdi-cancel'))
                 dlg.closeaction = self.closeaction
                 return dlg.request_handling(request, *args, **kwargs)

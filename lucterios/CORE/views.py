@@ -70,6 +70,7 @@ def right_status(request):
 class StatusMenu(XferContainerCustom):
     caption = _("Summary")
     icon = "status.png"
+    short_icon = "mdi:mdi-information-slab-box-outline"
     methods_allowed = ('GET', )
 
     def fillresponse(self):
@@ -84,6 +85,7 @@ def right_situation(request):
 class SituationMenu(XferContainerCustom):
     caption = _("Situation")
     icon = "status.png"
+    short_icon = "mdi:mdi-information-slab-circle-outline"
     methods_allowed = ('GET', )
 
     def fillresponse(self):
@@ -161,11 +163,13 @@ def right_changepassword(request):
 class ChangePassword(XferContainerCustom):
     caption = _("Password")
     icon = "passwd.png"
+    short_icon = 'mdi:mdi-lock-plus'
     methods_allowed = ('PUT', )
 
     def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
 
@@ -185,13 +189,14 @@ class ChangePassword(XferContainerCustom):
         pwd.description = _("new password (again)")
         self.add_component(pwd)
 
-        self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(ModifyPassword.get_action(_('Ok'), 'images/ok.png', 'mdi:mdi-check'))
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
 
 
 @MenuManage.describ(right_changepassword)
 class ModifyPassword(XferContainerAcknowledge):
     caption = _("Password")
+    short_icon = 'mdi:mdi-lock-plus'
     icon = "passwd.png"
 
     def fillresponse(self, oldpass='', newpass1='', newpass2=''):
@@ -216,11 +221,13 @@ def right_askpassword(request):
 @MenuManage.describ(right_askpassword, FORMTYPE_MODAL, 'core.general', _("Password or login forget?"))
 class AskPassword(XferContainerCustom):
     caption = _("Ask password")
+    short_icon = 'mdi:mdi-lock-plus'
     icon = "passwd.png"
 
     def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
         lbl = XferCompLabelForm('lbl_title')
@@ -234,13 +241,14 @@ class AskPassword(XferContainerCustom):
         email.description = _("email")
         self.add_component(email)
 
-        self.add_action(AskPasswordAct.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(AskPasswordAct.get_action(_('Ok'), 'images/ok.png', 'mdi:mdi-check'))
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
 
 
 @MenuManage.describ(right_askpassword)
 class AskPasswordAct(XferContainerAcknowledge):
     caption = _("Ask password")
+    short_icon = 'mdi:mdi-lock-plus'
     icon = "passwd.png"
 
     def fillresponse(self, email=''):
@@ -265,6 +273,7 @@ def auth_action_core(actions_basic):
 class Configuration(XferContainerCustom):
     caption = _("Main configuration")
     icon = "config.png"
+    short_icon = 'mdi:mdi-tune'
     readonly = True
     methods_allowed = ('GET', )
 
@@ -272,6 +281,7 @@ class Configuration(XferContainerCustom):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0, 1, 10)
         img_title.set_value(self.icon_path())
+        img_title.set_short_icon(self.short_icon)
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 3)
@@ -283,24 +293,26 @@ class Configuration(XferContainerCustom):
             self.new_tab(tab_name[tab_name.find('@') + 1:])
             Params.fill(self, setting_list[tab_name], 0, 0)
             btn = XferCompButton(tab_name + "_btn")
-            btn.set_action(self.request, ParamEdit.get_action(_('Modify'), 'images/edit.png'), close=CLOSE_NO, params={'params': setting_list[tab_name]})
+            btn.set_action(self.request, ParamEdit.get_action(_('Modify'), 'images/edit.png', short_icon='mdi:mdi-pencil-outline'), close=CLOSE_NO, params={'params': setting_list[tab_name]})
             btn.set_location(0, self.get_max_row() + 1)
             self.add_component(btn)
         steplist = get_wizard_step_list()
         if steplist != '':
-            self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
+            self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png", "mdi mdi-star-cog-outline"), close=CLOSE_NO, params={'steplist': steplist})
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamEdit(XferContainerCustom):
     caption = _("Parameters")
+    short_icon = 'mdi:mdi-tune'
     icon = "config.png"
 
     def fillresponse(self, params=(), nb_col=1):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0)
         img_title.set_value(self.icon_path())
+        img_title.set_short_icon(self.short_icon)
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 2 * nb_col)
@@ -313,13 +325,14 @@ class ParamEdit(XferContainerCustom):
             param_item = self.get_components(paramname)
             if param_item is not None:
                 param_item.description = titles[paramname]
-        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png'))
+        self.add_action(ParamSave.get_action(_('Ok'), 'images/ok.png', 'mdi:mdi-check'))
         self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
 
 
 @MenuManage.describ('CORE.add_parameter')
 class ParamSave(XferContainerAcknowledge):
     caption = _("Parameters")
+    short_icon = 'mdi:mdi-tune'
     icon = "config.png"
 
     def fillresponse(self, params=()):
@@ -338,6 +351,7 @@ MenuManage.add_sub("core.plugins", 'core.admin', "images/config_plugin.png", _("
 @MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.extensions', _('Saved criteria list for searching tools'))
 class SavedCriteriaList(XferListEditor):
     icon = "config_search.png"
+    short_icon = 'mdi:mdi-table-search'
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption = _("Saved criterias")
@@ -346,6 +360,7 @@ class SavedCriteriaList(XferListEditor):
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaAddModify(XferAddEditor):
     icon = "config_search.png"
+    short_icon = 'mdi:mdi-table-search'
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption_add = _("Add saved criteria")
@@ -356,6 +371,7 @@ class SavedCriteriaAddModify(XferAddEditor):
 @MenuManage.describ('CORE.add_parameter')
 class SavedCriteriaDel(XferDelete):
     icon = "config_search.png"
+    short_icon = 'mdi:mdi-table-search'
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption = _("Delete Saved criteria")
@@ -368,6 +384,7 @@ MenuManage.add_sub("core.print", 'core.admin', "images/PrintReport.png", _("Repo
 class PrintModelList(XferListEditor):
     caption = _("Print templates")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -405,6 +422,7 @@ class PrintModelEdit(XferContainerCustom):
     caption_add = _("Add a print model")
     caption_modify = _("Modify a print model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -430,6 +448,7 @@ class PrintModelEdit(XferContainerCustom):
         img_title = XferCompImage('img')
         img_title.set_location(0, 0, 1, 6)
         img_title.set_value(self.icon_path())
+        img_title.set_short_icon(self.short_icon)
         self.add_component(img_title)
         lab = XferCompLabelForm('title')
         lab.set_location(1, 0, 2)
@@ -507,12 +526,13 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
 
-@ActionsManage.affect_grid(_('Reload'), "images/edit.png", close=CLOSE_NO, unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_('Reload'), "images/edit.png", close=CLOSE_NO)
+@ActionsManage.affect_grid(_('Reload'), "images/edit.png", short_icon='mdi mdi-reload', close=CLOSE_NO, unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_('Reload'), "images/edit.png", short_icon='mdi mdi-reload', close=CLOSE_NO)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelReload(XferContainerAcknowledge):
     caption = _("reload model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -523,6 +543,7 @@ class PrintModelReload(XferContainerAcknowledge):
             dlg.item = self.item
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0, 1, 3)
             dlg.add_component(img)
             lbl = XferCompLabelForm('title')
@@ -546,11 +567,12 @@ class PrintModelReload(XferContainerAcknowledge):
                 self.message(_('Model reloaded'))
 
 
-@ActionsManage.affect_edit(_("Import"), "images/right.png", close=CLOSE_NO)
+@ActionsManage.affect_edit(_("Import"), "images/right.png", short_icon="mdi:mdi-upload-box-outline", close=CLOSE_NO)
 @MenuManage.describ('documents.add_folder')
 class PrintModelImport(XferContainerAcknowledge):
     caption = _("reload model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -560,6 +582,7 @@ class PrintModelImport(XferContainerAcknowledge):
             dlg.item = self.item
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0, 1, 3)
             dlg.add_component(img)
             lbl = XferCompLabelForm('title')
@@ -588,17 +611,19 @@ class PrintModelImport(XferContainerAcknowledge):
                     self.message(_('Model loaded'))
 
 
-@ActionsManage.affect_edit(_("Extract"), "images/left.png", close=CLOSE_NO)
+@ActionsManage.affect_edit(_("Extract"), "images/left.png", short_icon="mdi:mdi-download-box-outline", close=CLOSE_NO)
 @MenuManage.describ('documents.add_folder')
 class PrintModelExtract(XferContainerCustom):
     caption = _("Extract")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
     def fillresponse(self):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 3)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -620,6 +645,7 @@ class PrintModelExtract(XferContainerCustom):
 class PrintModelSave(XferSave):
     caption = _("print model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -653,6 +679,7 @@ class PrintModelSave(XferSave):
 class PrintModelClone(XferContainerAcknowledge):
     caption = _("Add a print model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -665,15 +692,17 @@ class PrintModelClone(XferContainerAcknowledge):
 class PrintModelDelete(XferDelete):
     caption = _("Delete print model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
 
-@ActionsManage.affect_grid(_("Default"), "images/default.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(_("Default"), "images/default.png", short_icon='mdi:mdi-star-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelSetDefault(XferContainerAcknowledge):
     caption = _("Set default print model")
     icon = "PrintReportModel.png"
+    short_icon = 'mdi:mdi-printer-pos-plus'
     model = PrintModel
     field_id = 'print_model'
 
@@ -685,6 +714,7 @@ class PrintModelSetDefault(XferContainerAcknowledge):
 class LabelList(XferListEditor):
     caption = _("Labels")
     icon = "PrintReportLabel.png"
+    short_icon = 'mdi mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
@@ -696,6 +726,7 @@ class LabelEdit(XferAddEditor):
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
     icon = "label_help.png"
+    short_icon = 'mdi mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
@@ -705,6 +736,7 @@ class LabelEdit(XferAddEditor):
 class LabelDelete(XferDelete):
     caption = _("Delete label")
     icon = "PrintReportLabel.png"
+    short_icon = 'mdi mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
@@ -743,12 +775,12 @@ class ObjectMerge(XferContainerAcknowledge):
                 grid.set_value(item.id, 'value', str(item))
                 grid.set_value(item.id, 'select', item.id == self.item.id)
             grid.set_location(1, 1)
-            grid.add_action(self.request, self.return_action(_("Edit"), "images/show.png"),
+            grid.add_action(self.request, self.return_action(_("Edit"), "images/show.png", 'mdi:mdi-text-box-outline'),
                             modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, params={"CONFIRME": 'OPEN'})
-            grid.add_action(self.request, self.return_action(_("Select"), "images/ok.png"),
+            grid.add_action(self.request, self.return_action(_("Select"), "images/ok.png", 'mdi:mdi-check-bold'),
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, unique=SELECT_SINGLE)
             dlg.add_component(grid)
-            dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL,
+            dlg.add_action(self.return_action(_('Ok'), "images/ok.png", 'mdi:mdi-check'), close=CLOSE_YES, modal=FORMTYPE_MODAL,
                            params={'CONFIRME': 'YES', 'mrg_' + self.field_id: self.item.id})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         elif self.getparam("CONFIRME") == 'YES':
@@ -766,6 +798,7 @@ class ObjectMerge(XferContainerAcknowledge):
 class ObjectPromote(XferContainerAcknowledge):
     caption = _("Promote")
     icon = "images/config.png"
+    short_icon = 'mdi:mdi-tune'
     model = None
     field_id = ''
 
@@ -780,6 +813,7 @@ class ObjectPromote(XferContainerAcknowledge):
             dlg = self.create_custom()
             img = XferCompImage('img')
             img.set_value(self.icon_path())
+            img.set_short_icon(self.short_icon)
             img.set_location(0, 0)
             dlg.add_component(img)
             lbl = XferCompLabelForm('title')
@@ -810,7 +844,7 @@ class ObjectPromote(XferContainerAcknowledge):
             lbl.set_select(self.item.__class__.get_select_contact_type(False))
             lbl.set_location(2, 3)
             dlg.add_component(lbl)
-            dlg.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
+            dlg.add_action(self.return_action(_('Ok'), "images/ok.png", 'mdi:mdi-check'), close=CLOSE_YES, modal=FORMTYPE_MODAL, params={'CONFIRME': 'YES'})
             dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         else:
             new_model = apps.get_model(self.getparam('newmodel'))
@@ -1026,8 +1060,8 @@ class ObjectImport(XferContainerCustom):
             step = 4
         if step < 4:
             if step > 1:
-                self.add_action(self.return_action(_('Back'), "images/left.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
-            self.add_action(self.return_action(_('Ok'), "images/ok.png"), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
+                self.add_action(self.return_action(_('Back'), "images/left.png", 'mdi:mdi-page-next-outline'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
+            self.add_action(self.return_action(_('Ok'), "images/ok.png", 'mdi:mdi-check'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
             self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
         else:
             self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
@@ -1044,6 +1078,7 @@ def right_show_wizard(request):
 class ConfigurationWizard(XferListEditor):
     caption = _("Configuration wizard")
     icon = "images/config.png"
+    short_icon = "mdi mdi-star-cog-outline"
     model = None
     field_id = ''
     readonly = True
@@ -1078,7 +1113,7 @@ class ConfigurationWizard(XferListEditor):
             btn = XferCompButton("prec_wizard")
             btn.set_location(0, 0)
             btn.set_is_mini(True)
-            btn.set_action(self.request, self.return_action(_("Prec"), "images/left.png"),
+            btn.set_action(self.request, self.return_action(_("Prec"), "images/left.png", 'mdi:mdi-page-previous-outline'),
                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step - 1})
             self.add_component(btn)
         lbl = XferCompLabelForm('progress')
@@ -1090,7 +1125,7 @@ class ConfigurationWizard(XferListEditor):
             btn = XferCompButton("next_wizard")
             btn.set_location(5, 0)
             btn.set_is_mini(True)
-            btn.set_action(self.request, self.return_action(_("Next"), "images/right.png"),
+            btn.set_action(self.request, self.return_action(_("Next"), "images/right.png", 'mdi:mdi-page-next-outline'),
                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step + 1})
             self.add_component(btn)
         lbl = XferCompLabelForm('sep1')
@@ -1170,7 +1205,7 @@ def conf_wizard_core(wizard_ident, xfer):
         btn = XferCompButton('editparam')
         btn.set_location(4, xfer.get_max_row())
         btn.set_is_mini(True)
-        btn.set_action(xfer.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO,
+        btn.set_action(xfer.request, ParamEdit.get_action(TITLE_MODIFY, 'images/edit.png', short_icon='mdi:mdi-pencil-outline'), close=CLOSE_NO,
                        params={'params': param_lists})
         xfer.add_component(btn)
         lbl = XferCompLabelForm("nb_user")

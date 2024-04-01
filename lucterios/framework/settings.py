@@ -155,7 +155,6 @@ DEFAULT_SETTINGS = {
     'TIME_ZONE': 'UTC',
     'SESSION_EXPIRE_AT_BROWSER_CLOSE': True,
     'USE_I18N': True,
-    'USE_L10N': True,
     'USE_TZ': True,
     'DEBUG': True,
     "DEFAULT_AUTO_FIELD": 'django.db.models.AutoField',
