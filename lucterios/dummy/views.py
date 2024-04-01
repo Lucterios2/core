@@ -327,7 +327,7 @@ class ExampleShow(XferShowEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_example')
@@ -442,7 +442,7 @@ class OtherList(XferListEditor):
     caption = _("others")
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_other')
