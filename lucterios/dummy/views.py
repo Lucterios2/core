@@ -227,7 +227,7 @@ class TestComposants(XferContainerCustom):
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(WrapAction('Fin', 'images/close.png'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        self.add_action(WrapAction('Fin', 'images/close.png', 'mdi:mdi-close'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
@@ -318,7 +318,7 @@ class ExampleList(XferListEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_example')
 class ExampleShow(XferShowEditor):
     caption = _("Example")
@@ -327,9 +327,9 @@ class ExampleShow(XferShowEditor):
     field_id = 'example'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_example')
 class ExampleAddModify(XferAddEditor):
     caption = _("Example")
@@ -345,7 +345,7 @@ class ExampleAddModify(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_example')
 class ExampleDel(XferDelete):
     caption = _("Example")
@@ -354,7 +354,7 @@ class ExampleDel(XferDelete):
     field_id = 'example'
 
 
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png")
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline')
 @MenuManage.describ('dummy.change_example')
 class ExamplePrint(XferPrintAction):
     caption = _("Example")
@@ -364,7 +364,7 @@ class ExamplePrint(XferPrintAction):
     action_class = ExampleShow
 
 
-@ActionsManage.affect_list(TITLE_LISTING, "images/print.png")
+@ActionsManage.affect_list(TITLE_LISTING, "images/print.png", short_icon='mdi:mdi-printer-pos-edit-outline')
 @MenuManage.describ('dummy.change_example')
 class ExampleListing(XferPrintListing):
     caption = _("Example")
@@ -373,7 +373,7 @@ class ExampleListing(XferPrintListing):
     field_id = 'example'
 
 
-@ActionsManage.affect_list(TITLE_PRINT, "images/print.png")
+@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline')
 @MenuManage.describ('dummy.change_example')
 class ExamplePrintList(XferPrintAction):
     caption = _("Example")
@@ -408,7 +408,7 @@ class ExampleReporting(XferPrintReporting):
         return self.model.objects.all()
 
 
-@ActionsManage.affect_list(TITLE_LABEL, "images/print.png")
+@ActionsManage.affect_list(TITLE_LABEL, "images/print.png", short_icon='mdi:mdi-printer-pos-star-outline')
 @MenuManage.describ('dummy.change_example')
 class ExampleLabel(XferPrintLabel):
     caption = _("Example")
@@ -442,9 +442,9 @@ class OtherList(XferListEditor):
     caption = _("others")
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png")
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", unique=SELECT_SINGLE)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", close=CLOSE_YES)
+@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_other')
 class OtherAddModify(XferAddEditor):
     icon = "10.png"
@@ -454,7 +454,7 @@ class OtherAddModify(XferAddEditor):
     caption_modify = _("Modify other")
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_other')
 class OtherShow(XferShowEditor):
     icon = "10.png"
@@ -463,7 +463,7 @@ class OtherShow(XferShowEditor):
     caption = _("Show other")
 
 
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", condition=lambda xfer: xfer.item.bool)
+@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', condition=lambda xfer: xfer.item.bool)
 @MenuManage.describ('dummy.change_other')
 class OtherPrint(XferPrintAction):
     caption = _("Example")
@@ -483,7 +483,7 @@ class OtherPrint(XferPrintAction):
         return generator
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_other')
 class OtherDel(XferDelete):
     icon = "10.png"
