@@ -58,7 +58,7 @@ class GroupsList(XferListEditor):
     field_id = 'group'
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi mdi-pencil-plus')
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus')
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
@@ -158,7 +158,7 @@ class UsersShow(XferContainerAcknowledge):
             self.message(_('User deactivated: another with the same email is active!'))
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi mdi-pencil-plus', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif' and not settings.USER_READONLY)
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif' and not settings.USER_READONLY)
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif') or (gridname == 'user'), unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
@@ -181,8 +181,8 @@ class UsersEdit(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", short_icon='mdi mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", short_icon='mdi mdi-account-off', condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
+@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", short_icon='mdi:mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", short_icon='mdi:mdi-account-off', condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
@@ -198,8 +198,8 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.save()
 
 
-@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", short_icon='mdi mdi-check', condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
-@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", short_icon='mdi mdi-check', condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
+@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", short_icon='mdi:mdi-check', condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
+@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", short_icon='mdi:mdi-check', condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
@@ -250,6 +250,7 @@ class UsersPreference(XferContainerCustom):
         self.params['username'] = self.item.username
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
@@ -332,6 +333,7 @@ class AuditLogShow(XferShowEditor):
     def fillresponse(self, model='', objid=0):
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.model = apps.get_model(model)
