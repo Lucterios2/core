@@ -298,7 +298,7 @@ class Configuration(XferContainerCustom):
             self.add_component(btn)
         steplist = get_wizard_step_list()
         if steplist != '':
-            self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png", "mdi mdi-star-cog-outline"), close=CLOSE_NO, params={'steplist': steplist})
+            self.add_action(ConfigurationWizard.get_action(_("Wizard"), "images/config.png", "mdi:mdi-star-cog-outline"), close=CLOSE_NO, params={'steplist': steplist})
         self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
 
 
@@ -526,8 +526,8 @@ class PrintModelEdit(XferContainerCustom):
         self.add_component(edit)
 
 
-@ActionsManage.affect_grid(_('Reload'), "images/edit.png", short_icon='mdi mdi-reload', close=CLOSE_NO, unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_('Reload'), "images/edit.png", short_icon='mdi mdi-reload', close=CLOSE_NO)
+@ActionsManage.affect_grid(_('Reload'), "images/edit.png", short_icon='mdi:mdi-reload', close=CLOSE_NO, unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_('Reload'), "images/edit.png", short_icon='mdi:mdi-reload', close=CLOSE_NO)
 @MenuManage.describ('CORE.add_printmodel')
 class PrintModelReload(XferContainerAcknowledge):
     caption = _("reload model")
@@ -714,19 +714,19 @@ class PrintModelSetDefault(XferContainerAcknowledge):
 class LabelList(XferListEditor):
     caption = _("Labels")
     icon = "PrintReportLabel.png"
-    short_icon = 'mdi mdi-printer-pos-star'
+    short_icon = 'mdi:mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi mdi-pencil-plus')
+@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus')
 @ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('CORE.add_label')
 class LabelEdit(XferAddEditor):
     caption_add = _("Add a label")
     caption_modify = _("Modify a label")
     icon = "label_help.png"
-    short_icon = 'mdi mdi-printer-pos-star'
+    short_icon = 'mdi:mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
@@ -736,7 +736,7 @@ class LabelEdit(XferAddEditor):
 class LabelDelete(XferDelete):
     caption = _("Delete label")
     icon = "PrintReportLabel.png"
-    short_icon = 'mdi mdi-printer-pos-star'
+    short_icon = 'mdi:mdi-printer-pos-star'
     model = Label
     field_id = 'label'
 
@@ -1044,6 +1044,7 @@ class ObjectImport(XferContainerCustom):
                 setattr(self.import_driver, fieldname, self.params[fieldname])
         img = XferCompImage('img')
         img.set_value(self.icon_path())
+        img.set_short_icon(self.short_icon)        
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         if step == 0:
@@ -1078,7 +1079,7 @@ def right_show_wizard(request):
 class ConfigurationWizard(XferListEditor):
     caption = _("Configuration wizard")
     icon = "images/config.png"
-    short_icon = "mdi mdi-star-cog-outline"
+    short_icon = "mdi:mdi-star-cog-outline"
     model = None
     field_id = ''
     readonly = True
