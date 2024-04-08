@@ -35,7 +35,8 @@ from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListE
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from lucterios.framework.xfersearch import XferSearchEditor
 from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
-    XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm
+    XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm,\
+    XferCompCheck
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
     FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.error import LucteriosException, IMPORTANT
@@ -114,6 +115,7 @@ class UsersList(XferListEditor):
         self.new_tab(_('Preferences'))
         self.fieldnames = None
         self.fill_grid(1, Preference, 'preference', Preference.objects.filter(user__isnull=True))
+        self.add_action(UsersFindDouble.get_action(_("duplicate"), "images/clone.png", short_icon='mdi:mdi-content-copy'), pos_act=0)
 
 
 @MenuManage.describ('CORE.add_parameter')
@@ -147,7 +149,6 @@ class UsersShow(XferContainerAcknowledge):
     field_id = 'user_actif'
 
     def fillresponse(self):
-        from django.conf import settings
         if self.item.is_active and settings.ASK_LOGIN_EMAIL and (self.item.email == ""):
             self.item.is_active = False
             self.item.save()
@@ -179,6 +180,39 @@ class UsersEdit(XferAddEditor):
             self.item = LucteriosUser.objects.get(id=user_inactif)
             self.params[self.field_id] = user_inactif
         XferAddEditor.fillresponse(self)
+
+
+@MenuManage.describ('auth.add_user')
+class UsersFindDouble(XferListEditor):
+    caption = _("User duplication searching")
+    icon = "contacts.png"
+    short_icon = 'mdi:mdi-account-outline'
+    model = LucteriosUser
+    field_id = 'user'
+    readonly = True
+    methods_allowed = ('POST', 'PUT')
+
+    def fillresponse_header(self):
+        self.only_active = self.getparam("only_active", True)
+        self.filter = ~Q(email='') & self.model.get_query_for_duplicate(['email'], subfilter=Q(is_active=True) if self.only_active else Q())
+        if self.only_active:
+            self.filter &= Q(is_active=True)
+            self.fieldnames = ['email', 'username', 'first_name', 'last_name', 'last_login']
+        else:
+            self.fieldnames = ['email', 'username', 'first_name', 'last_name', 'is_active', 'last_login']
+
+    def get_items_from_filter(self):
+        items = XferListEditor.get_items_from_filter(self)
+        return items.order_by('email', 'is_active', 'last_login')
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        only_active_check = XferCompCheck('only_active')
+        only_active_check.set_value(self.only_active)
+        only_active_check.set_location(1, self.get_max_row() + 1)
+        only_active_check.description = _("only active user")
+        only_active_check.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(only_active_check)
 
 
 @ActionsManage.affect_grid(_("Disabled"), "images/delete.png", short_icon='mdi:mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)

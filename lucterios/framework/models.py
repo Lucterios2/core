@@ -336,13 +336,15 @@ class LucteriosModel(models.Model):
         return None
 
     @classmethod
-    def get_query_for_duplicate(cls):
+    def get_query_for_duplicate(cls, match_fields=None, subfilter=Q()):
+        if not isinstance(match_fields, list):
+            match_fields = cls._meta.ordering
         query = Q()
-        for ident in cls.objects.values(*cls._meta.ordering).annotate(Count('id')).values(*cls._meta.ordering).order_by().filter(id__count__gt=1):
+        for ident in cls.objects.filter(subfilter).values(*match_fields).annotate(Count('id')).values(*match_fields).order_by().filter(id__count__gt=1):
             query |= Q(**ident)
         if len(query) == 0:
             empty_val = {}
-            for item in cls._meta.ordering:
+            for item in match_fields:
                 empty_val[item] = ''
             query = Q(**empty_val)
         return query

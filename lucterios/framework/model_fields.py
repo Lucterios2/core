@@ -179,6 +179,8 @@ class LucteriosVirtualField(models.Field):
                     value = instance_compute_object()
                 else:
                     value = instance_compute_object
+        except ValueError:
+            value = None
         except Exception as err:
             logging.getLogger('lucterios.framwork').warning("LucteriosVirtualField.calculate_value(%s.%s) : %s", instance.__class__.__name__, self.compute_from, err)
             value = None
