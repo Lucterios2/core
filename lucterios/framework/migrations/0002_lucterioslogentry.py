@@ -19,10 +19,10 @@ class Migration(migrations.Migration):
                 ('object_pk', models.CharField(db_index=True, max_length=255, verbose_name='object pk')),
                 ('object_id', models.BigIntegerField(blank=True, db_index=True, null=True, verbose_name='object id')),
                 ('object_repr', models.TextField(verbose_name='object representation')),
-                ('action', models.IntegerField(choices=[(0, 'create'), (1, 'update'), (2, 'delete')], verbose_name='action')),
+                ('action', models.IntegerField(choices=[(0, 'create'), (1, 'update'), (2, 'delete'), (3, 'remove'), (4, 'add')], verbose_name='action')),
                 ('changes', models.TextField(blank=True, verbose_name='change message')),
                 ('remote_addr', models.GenericIPAddressField(blank=True, null=True, verbose_name='remote address')),
-                ('timestamp', models.DateTimeField(auto_now_add=True, verbose_name='timestamp')),
+                ('timestamp', models.DateTimeField(auto_now_add=True, verbose_name='date')),
                 ('additional_data', models.TextField(blank=True, null=True, verbose_name='additional data')),
             ],
             options={
