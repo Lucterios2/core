@@ -292,7 +292,7 @@ class LucteriosGlobal(LucteriosManage):
             env_variables['VIRTUAL_ENV'] = virtual_env
             env_variables['PATH'] = virtual_env + '/bin:' + env_variables['PATH']
         options = " ".join(self.get_default_args_([], with_quiet=False))
-        outdated_list = check_output("python3 -m pip list %s --outdated --format json" % options, shell=True, env=env_variables)
+        outdated_list = check_output("%s -m pip list %s --outdated --format json" % (sys.executable, options), shell=True, env=env_variables)
         return {outdated_item['name']: (outdated_item['version'], outdated_item['latest_version']) for outdated_item in loads(outdated_list)}
 
     def check(self):
