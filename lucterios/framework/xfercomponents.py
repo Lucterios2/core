@@ -723,8 +723,10 @@ GRID_PAGE = 'GRID_PAGE%'
 GRID_SIZE = 'GRID_SIZE%'
 GRID_ORDER = 'GRID_ORDER%'
 
-DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE), ('edit', _("Modify"), "images/edit.png",
-                                                                               SELECT_SINGLE), ('delete', _("Delete"), "images/delete.png", SELECT_MULTI), ('add', _("Add"), "images/add.png", SELECT_NONE)]
+DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE),
+                       ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
+                       ('delete', _("Delete"), "images/delete.png", SELECT_MULTI),
+                       ('add', _("Add"), "images/add.png", SELECT_NONE)]
 
 
 class XferCompHeader(object):

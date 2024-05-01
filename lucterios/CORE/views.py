@@ -1157,7 +1157,7 @@ def summary_core(xfer):
             btn = XferCompButton("conf_wizard")
             btn.set_location(0, xfer.get_max_row() + 1, 4)
             btn.set_action(xfer.request, ConfigurationWizard.get_action(
-                _("Wizard"), "images/config.png"), close=CLOSE_NO, params={'steplist': steplist})
+                _("Wizard"), "images/config.png", "mdi:mdi-star-cog-outline"), close=CLOSE_NO, params={'steplist': steplist})
             btn.java_script = """if (typeof Singleton().hide_wizard === 'undefined') {
     current.actionPerformed();
     Singleton().hide_wizard = 1;

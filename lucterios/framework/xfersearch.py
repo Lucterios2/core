@@ -35,7 +35,8 @@ from lucterios.framework.tools import WrapAction, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE
+from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE,\
+    TITLE_ADD, TITLE_DELETE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 
 TYPE_FLOAT = 'float'
@@ -552,7 +553,7 @@ if ((type=='list') || (type=='listmult')) {
         comp.is_default = True
         comp.set_is_mini(True)
         comp.set_location(4, 10, 1, 7)
-        comp.set_action(self.request, self.return_action("", "images/add.png"), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
+        comp.set_action(self.request, self.return_action(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
@@ -609,7 +610,7 @@ if ((type=='list') || (type=='listmult')) {
             comp = XferCompButton("searchButtonDel_" + criteria_id)
             comp.set_is_mini(True)
             comp.set_location(4, row)
-            comp.set_action(self.request, self.return_action("", "images/delete.png"),
+            comp.set_action(self.request, self.return_action(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline'),
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': criteria_id})
             self.add_component(comp)
             row += 1
