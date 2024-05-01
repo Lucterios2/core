@@ -210,7 +210,7 @@ parent.get('PRINT_MODE').setEnabled(persitent_mode==%d);
         gui.add_component(print_mode)
         if self.selector is not None:
             self._add_option_selectors(gui)
-        gui.add_action(self.return_action(_("Print"), "images/print.png"), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        gui.add_action(self.return_action(_("Print"), "images/print.png", 'mdi:mdi-printer-pos-edit-outline'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
         gui.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
         return gui
 
