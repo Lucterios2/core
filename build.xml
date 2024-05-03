@@ -61,6 +61,10 @@
         <move todir="${client.path}">
             <fileset dir="/tmp/client_artifacts/dist"/>
         </move>
+        <loadfile property="client_version_expected" srcFile="client/build_client"/>
+        <echo>======= Expected client version: ${client_version_expected}</echo>
+        <loadfile property="newclient_version" srcFile="${client.path}/conf/build"/>
+        <echo>======= Download client version: ${newclient_version}</echo>
 	</target>
 
 	<target name="test_admin">

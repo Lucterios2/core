@@ -570,6 +570,97 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', 'example/@5/name', 'ccc')
         self.assert_json_equal('', 'example/@5/price', 7.89)
 
+    def test_importCSV_noquote(self):
+        csv_content = """nom;valeur;prix;heure;valide;remarque;jour
+aaa;5;12.34;12:45;1;blabla bla;12/04/2021
+bbb;1;0.56;07:37;0;truc truc truc truc;03/11/2017
+ccc;13;7.89;21:51;1;azertyuiop , qsdfghjklm wxcvbn;24/08/2008
+aaa;5;12.99;12:45;0;bleble ble;12/04/2021
+"""
+        self.factory.xfer = ExampleImport()
+        self.calljson('/lucterios.dummy/exampleImport', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
+        self.assert_count_equal('', 8)
+        self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
+        self.assert_json_equal('SELECT', 'drivername', 'CSV')
+        self.assertEqual(len(self.json_actions), 2)
+        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'images/ok.png', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+
+        self.factory.xfer = ExampleImport()
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'quotechar': '',
+                                                         'delimiter': ';', 'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'importcontent': StringIO(csv_content)}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
+        self.assert_count_equal('', 6 + 7)
+        self.assert_attrib_equal("fld_name", 'description', "name")
+        self.assert_select_equal('fld_name', 7)
+        self.assert_select_equal('fld_value', 7)
+        self.assert_select_equal('fld_price', 7)
+        self.assert_select_equal('fld_date', 8)
+        self.assert_select_equal('fld_time', 7)
+        self.assert_select_equal('fld_valid', 7)
+        self.assert_select_equal('fld_comment', 8)
+        self.assert_grid_equal('Array', {'nom': 'nom', 'valeur': 'valeur', 'prix': 'prix', 'jour': 'jour', 'heure': 'heure', 'valide': 'valide', 'remarque': 'remarque'}, 4)
+        self.assert_json_equal('', 'Array/@0/nom', 'aaa')
+        self.assert_json_equal('', 'Array/@0/valeur', "5")
+        self.assert_json_equal('', 'Array/@0/prix', "12.34")
+        self.assert_json_equal('', 'Array/@0/jour', "12/04/2021")
+        self.assert_json_equal('', 'Array/@0/heure', "12:45")
+        self.assert_json_equal('', 'Array/@0/valide', "1")
+        self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
+        self.assert_count_equal('#Array/actions', 0)
+        self.assertEqual(len(self.json_actions), 3)
+        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'images/left.png', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
+        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'images/ok.png', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_context), 8)
+
+        self.factory.xfer = ExampleImport()
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
+                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
+                                                         "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
+                                                         "fld_comment": 'remarque'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
+        self.assert_count_equal('', 4)
+        self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
+        self.assert_json_equal('', 'Array/@0/name', 'aaa')
+        self.assert_json_equal('', 'Array/@0/value', 5)
+        self.assert_json_equal('', 'Array/@0/price', 12.34)
+        self.assert_json_equal('', 'Array/@0/date', "2021-04-12")
+        self.assert_json_equal('', 'Array/@0/time', "12:45")
+        self.assert_json_equal('', 'Array/@0/valid', True)
+        self.assert_json_equal('', 'Array/@0/comment', "blabla bla")
+        self.assert_json_equal('', 'Array/@1/name', 'bbb')
+        self.assert_json_equal('', 'Array/@1/value', 1)
+        self.assert_json_equal('', 'Array/@1/price', 0.56)
+        self.assert_json_equal('', 'Array/@1/date', "2017-11-03")
+        self.assert_json_equal('', 'Array/@1/time', "07:37")
+        self.assert_json_equal('', 'Array/@1/valid', False)
+        self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
+        self.assert_count_equal('#Array/actions', 0)
+        self.assertEqual(len(self.json_actions), 3)
+        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'images/ok.png', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+
+        self.factory.xfer = ExampleImport()
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
+                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
+                                                         "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
+                                                         "fld_comment": 'remarque'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
+        self.assert_count_equal('', 3)
+        self.assert_json_equal('LABELFORM', 'result', "3 éléments ont été importés")
+        self.assert_json_equal('LABELFORM', 'import_error', [])
+        self.assertEqual(len(self.json_actions), 1)
+
+        self.factory.xfer = ExampleList()
+        self.calljson('/lucterios.dummy/exampleList', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleList')
+        self.assert_count_equal('example', 8)
+        self.assert_json_equal('', 'example/@0/name', 'aaa')
+        self.assert_json_equal('', 'example/@0/price', 12.99)
+        self.assert_json_equal('', 'example/@2/name', 'bbb')
+        self.assert_json_equal('', 'example/@2/price', 0.56)
+        self.assert_json_equal('', 'example/@5/name', 'ccc')
+        self.assert_json_equal('', 'example/@5/price', 7.89)
+
     def test_importODS(self):
         ods_content = """UEsDBBQAAAgAALt97VaFbDmKLgAAAC4AAAAIAAAAbWltZXR5cGVhcHBsaWNhdGlvbi92bmQub2Fz
 aXMub3BlbmRvY3VtZW50LnNwcmVhZHNoZWV0UEsDBBQAAAgAALt97VYAAAAAAAAAAAAAAAAcAAAA
