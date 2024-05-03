@@ -99,10 +99,12 @@ class ImportDriverCSV(ImportDriver):
         self.spamreader = None
 
     def read(self, xfer):
+        csv_params = {'delimiter': self.delimiter}
         if self.quotechar == '':
-            current_quoting = QUOTE_NONE
+            csv_params['quoting'] = QUOTE_NONE
         else:
-            current_quoting = QUOTE_ALL
+            csv_params['quoting'] = QUOTE_ALL
+            csv_params['quotechar'] = self.quotechar
         if 'importcontent' in xfer.request.FILES.keys():
             csvfile = TextIOWrapper(xfer.request.FILES['importcontent'].file,
                                     encoding=self.encoding, errors='replace')
@@ -119,7 +121,7 @@ class ImportDriverCSV(ImportDriver):
                 else:
                     csvcontent += "" + curent_content
             csvfile = StringIO(csvcontent)
-        self.spamreader = DictReader(csvfile, delimiter=self.delimiter, quotechar=self.quotechar, quoting=current_quoting)
+        self.spamreader = DictReader(csvfile, **csv_params)
         try:
             if (self.spamreader.fieldnames is None) or (len(self.spamreader.fieldnames) == 0):
                 raise Exception("")
