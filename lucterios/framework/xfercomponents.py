@@ -603,6 +603,19 @@ class XferCompSelect(XferCompButton):
             list_of_select = list(self.select_list.items())
         else:
             list_of_select = list(self.select_list)
+        value_is_int = len(list_of_select) > 0
+        try:
+            for item_id, _item_val in list_of_select:
+                if (item_id is not None) and not isinstance(item_id, int):
+                    value_is_int = False
+                    break
+        except ValueError:
+            value_is_int = False
+        if value_is_int and self.value is not None:
+            try:
+                self.value = int(self.value)
+            except ValueError:
+                self.value = None
         if len(list_of_select) > 0:
             value_found = False
             for select_item in list_of_select:
