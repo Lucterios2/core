@@ -169,8 +169,15 @@ DEFAULT_SETTINGS = {
     'JUXD_FILENAME': './junit_py%d.xml' % sys.version_info[0],
     'DEFAULT_PAGE': '/web/index.html',
     'X_FRAME_OPTIONS': 'SAMEORIGIN',
+    'EXTRA_URL': [],
     'LANGUAGES': DEFAULT_LANGUAGES,
     'USER_READONLY': False,
+    'CACHES': {
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": "django_cache",
+        }
+    },
     'LOGGING': {
         'version': 1, 'disable_existing_loggers': False,
         'handlers': {
@@ -261,6 +268,12 @@ def fill_appli_settings(appli_name, addon_modules=None, module_to_setup=None):
             module = import_module(addon_module)
             dir_list.append(dirname(module.__file__))
         my_template[0]['DIRS'].extend(dir_list)
+    except KeyError:
+        pass
+    try:
+        my_caches = getattr(module_to_setup, 'CACHES', {})
+        if ('default' in my_caches) and ("BACKEND" in my_caches["default"]) and (my_caches["default"]["BACKEND"] == "django.core.cache.backends.filebased.FileBasedCache"):
+            my_caches["default"]["LOCATION"] = join(setup_path, 'django_cache')
     except KeyError:
         pass
     if not hasattr(module_to_setup, "MEDIA_ROOT"):

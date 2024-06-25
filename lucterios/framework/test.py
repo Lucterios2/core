@@ -34,6 +34,7 @@ from django.test import TestCase, Client, RequestFactory
 from django.test.client import MULTIPART_CONTENT
 from django.test.testcases import TransactionTestCase
 from django.utils import timezone
+from django.conf import settings
 
 from lucterios.framework.middleware import LucteriosErrorMiddleware
 from lucterios.framework.xfergraphic import XferContainerAcknowledge
@@ -122,9 +123,11 @@ class LucteriosTestAbstract(object):
 
     PDF_DIRECTORY = 'pdf'
     ODS_DIRECTORY = 'ods'
+    DEFAULT_CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache", "LOCATION": "tests"}}
 
     def __init__(self):
         self.xfer_class = XferContainerAcknowledge
+        settings.CACHES = self.DEFAULT_CACHES
 
     def clean_resp(self):
         self.response_xml = None
