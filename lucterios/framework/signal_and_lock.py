@@ -28,6 +28,7 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.models import LucteriosSession
@@ -37,7 +38,6 @@ from importlib import import_module
 class Signal(object):
 
     _SIGNAL_LIST = {}
-
     _signlock = threading.RLock()
 
     @classmethod
@@ -104,8 +104,6 @@ unlocker_view_class = None
 
 class RecordLocker(object):
 
-    _lock_list = {}
-
     _lock = threading.RLock()
 
     @classmethod
@@ -113,7 +111,7 @@ class RecordLocker(object):
         logging.getLogger("lucterios.core.record").debug(">> clear")
         cls._lock.acquire()
         try:
-            cls._lock_list = {}
+            cache.delete('LOCK_LIST')
         finally:
             cls._lock.release()
         logging.getLogger("lucterios.core.record").debug("<< clear")
@@ -130,18 +128,20 @@ class RecordLocker(object):
                 lock_ident = "-".join((str(model_item.__module__),
                                        str(model_item.__class__.__name__), str(model_item.pk)))
                 params['LOCK_IDENT'] = lock_ident
-                if lock_ident in cls._lock_list.keys():
-                    old_session_key = cls._lock_list[lock_ident]
+                lock_list = cache.get('LOCK_LIST', {})
+                if lock_ident in lock_list.keys():
+                    old_session_key = lock_list[lock_ident]
                     if old_session_key != session_key:
                         try:
                             old_session = LucteriosSession.objects.get(pk=old_session_key)
                             if old_session.get_is_active():
                                 raise LucteriosException(IMPORTANT, _("Record locked by '%s'!") % old_session.username)
                             else:
-                                del cls._lock_list[lock_ident]
+                                del lock_list[lock_ident]
                         except ObjectDoesNotExist:
                             pass
-                cls._lock_list[lock_ident] = session_key
+                lock_list[lock_ident] = session_key
+                cache.set('LOCK_LIST', lock_list, timeout=None)
             return params
         finally:
             cls._lock.release()
@@ -154,7 +154,8 @@ class RecordLocker(object):
         try:
             lock_ident = "-".join((str(model_item.__module__),
                                    str(model_item.__class__.__name__), str(model_item.pk)))
-            return lock_ident in cls._lock_list.keys()
+            lock_list = cache.get('LOCK_LIST', {})
+            return lock_ident in lock_list.keys()
         finally:
             cls._lock.release()
             logging.getLogger("lucterios.core.record").debug("<< is_lock %s", model_item)
@@ -165,7 +166,8 @@ class RecordLocker(object):
         cls._lock.acquire()
         try:
             lock_root = "-".join((str(model_class.__module__), str(model_class.__name__)))
-            for lock_ident in cls._lock_list.keys():
+            lock_list = cache.get('LOCK_LIST', {})
+            for lock_ident in lock_list.keys():
                 if lock_ident.startswith(lock_root):
                     return True
             return False
@@ -180,15 +182,17 @@ class RecordLocker(object):
         try:
             from django.conf import settings
             session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
+            lock_list = cache.get('LOCK_LIST', {})
             if (session_key is not None) and (params is None):
-                lock_ident_list = list(cls._lock_list.keys())
+                lock_ident_list = list(lock_list.keys())
                 for lock_ident in lock_ident_list:
-                    if (lock_ident in cls._lock_list) and (cls._lock_list[lock_ident] == session_key):
-                        del cls._lock_list[lock_ident]
+                    if (lock_ident in lock_list) and (lock_list[lock_ident] == session_key):
+                        del lock_list[lock_ident]
             elif (session_key is not None) and ('LOCK_IDENT' in params.keys()):
                 lock_ident = params['LOCK_IDENT']
-                if (lock_ident in cls._lock_list.keys()) and (cls._lock_list[lock_ident] == session_key):
-                    del cls._lock_list[lock_ident]
+                if (lock_ident in lock_list.keys()) and (lock_list[lock_ident] == session_key):
+                    del lock_list[lock_ident]
+            cache.set('LOCK_LIST', lock_list, timeout=None)
         finally:
             cls._lock.release()
             logging.getLogger("lucterios.core.record").debug(">> unlock [%s]", request.user)

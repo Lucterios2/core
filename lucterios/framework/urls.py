@@ -116,8 +116,11 @@ class UrlPatterns(list):
                     if module_items[0] == 'django':
                         self.append(url_pattern)
                     else:
-                        self.append(re_path(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
-                                            url_pattern.callback, None, url_pattern.pattern.name))
+                        try:
+                            self.append(re_path(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
+                                                url_pattern.callback, None, url_pattern.pattern.name))
+                        except AttributeError as err:
+                            print('-- error', appname, url_pattern.pattern, url_pattern.pattern.name)
         except ImportError:
             pass
 
@@ -133,6 +136,7 @@ class UrlPatterns(list):
         except ImportError:
             pass
         self.extend(staticfiles_urlpatterns())
+        self.extend(settings.EXTRA_URL)
 
 
 def request_config():

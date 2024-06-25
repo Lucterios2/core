@@ -64,6 +64,25 @@ class LucteriosErrorMiddleware(XferContainerException):
         return self.get_response()
 
 
+class NonHtmlDebugToolbarMiddleware(MiddlewareMixin):
+    """
+    The Django Debug Toolbar usually only works for views that return HTML.
+    This middleware wraps any JSON response in HTML if the request
+    has a 'debug' query parameter (e.g. http://localhost/foo?debug)
+    """
+
+    @staticmethod
+    def process_response(request, response):
+        import json
+        from django.http.response import HttpResponse
+        if request.GET.get('debug'):
+            print('NonHtmlDebugToolbarMiddleware', response['Content-Type'])
+            if response['Content-Type'] == 'application/json':
+                content = json.dumps(json.loads(response.content), sort_keys=True, indent=2)
+                response = HttpResponse(u'<html><body><pre>{}</pre></body></html>'.format(content))
+        return response
+
+
 threadlocal = threading.local()
 
 

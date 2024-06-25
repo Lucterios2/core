@@ -28,6 +28,7 @@ import threading
 
 from django.utils.translation import gettext_lazy
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework import tools, signal_and_lock
@@ -38,28 +39,28 @@ from lucterios.CORE.models import Parameter
 
 class Params(object):
 
-    _PARAM_CACHE_LIST = {}
-
     _paramlock = threading.RLock()
 
     @classmethod
     def clear(cls):
         cls._paramlock.acquire()
         try:
-            cls._PARAM_CACHE_LIST.clear()
+            cache.delete('PARAMS')
         finally:
             cls._paramlock.release()
 
     @classmethod
     def _get(cls, name):
-        if name not in cls._PARAM_CACHE_LIST.keys():
+        params = cache.get('PARAMS', {})
+        if name not in params:
             try:
-                cls._PARAM_CACHE_LIST[name] = Parameter.objects.get(name=name)
+                params[name] = Parameter.objects.get(name=name)
+                cache.set('PARAMS', params)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
             except Exception:
                 raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
-        return cls._PARAM_CACHE_LIST[name]
+        return params[name]
 
     @classmethod
     def getvalue(cls, name):
