@@ -220,7 +220,7 @@ class LucteriosGlobal(LucteriosManage):
             return "\n".join(res)
 
         package_list = get_package_list()
-        if 'lucterios' in package_list.keys():
+        if ('lucterios' in package_list.keys()) and (len(package_list['lucterios']) > 2) and (len(package_list['lucterios'][2]) > 0):
             mod_lucterios = ('lucterios', package_list['lucterios'][0])
             del package_list['lucterios'][2][0]
         else:
