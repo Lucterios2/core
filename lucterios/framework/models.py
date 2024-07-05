@@ -45,6 +45,7 @@ from django.utils import timezone
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
 from django.utils.module_loading import import_module
+from django.core.cache import cache
 
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
@@ -86,6 +87,45 @@ class LucteriosQuerySet(QuerySet):
 class LucteriosModel(models.Model):
 
     TO_EVAL_FIELD = re.compile(r"#[A-Za-z_0-9\.]+")
+
+    @staticmethod
+    def have_class_item(itemclass):
+        ident = "%s_nb" % itemclass.__name__
+        value = cache.get(ident)
+        if value is None:
+            value = itemclass.objects.count() > 0
+            cache.set(ident, value, timeout=30)
+        return value
+
+    @staticmethod
+    def delete_class_item(itemclass):
+        ident = "%s_nb" % itemclass.__name__
+        if ident in cache:
+            cache.delete(ident)
+
+    @classmethod
+    def get_cache_text(cls, identifier, fieldname=None):
+        ident = '%s_%s' % (cls.__name__, identifier.id if isinstance(identifier, cls) else identifier)
+        value = cache.get(ident)
+        if value is None:
+            if isinstance(identifier, cls):
+                item = identifier
+            else:
+                item = cls.objects.get(id=identifier)
+            if fieldname is None:
+                value = str(item)
+            else:
+                value = getattr(item, fieldname)
+            cache.set(ident, value)
+        return value
+
+    @classmethod
+    def delete_cache_text(cls, objid):
+        if objid is None:
+            return
+        ident = '%s_%s' % (cls.__name__, objid)
+        if ident in cache:
+            cache.delete(ident)
 
     @classmethod
     def get_default_fields(cls):
@@ -553,15 +593,16 @@ class LucteriosModel(models.Model):
             fields.extend(cls.get_field_for_print(with_plugin, field_name))
         return fields
 
-    def get_final_child(self):
+    def get_final_child(self, level=-1):
         final_child = self
         rel_objs = self._meta.get_fields()
-        for rel_obj in rel_objs:
-            if hasattr(rel_obj, 'field') and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
-                try:
-                    final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child()
-                except AttributeError:
-                    pass
+        if level != 0:
+            for rel_obj in rel_objs:
+                if hasattr(rel_obj, 'field') and (rel_obj.field.name == (self.__class__.__name__.lower() + '_ptr')):
+                    try:
+                        final_child = getattr(self, rel_obj.get_accessor_name()).get_final_child(level - 1 if level > 0 else -1)
+                    except AttributeError:
+                        pass
         return final_child
 
     def can_delete(self):
@@ -611,6 +652,10 @@ class LucteriosModel(models.Model):
         for item in Permission.objects.filter(perm_filter):
             if (item.codename.startswith("change_") and show) or (item.codename.startswith("add_") and add) or (item.codename.startswith("delete_") and delete):
                 yield item
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.delete_cache_text(self.id)
+        return models.Model.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
 
     class Meta(object):
         abstract = True

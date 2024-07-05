@@ -575,7 +575,7 @@ def adapt_value(value):
             values.append(str(val_item))
         return values
     elif isinstance(value, LucteriosModel):
-        return str(value.get_final_child())
+        return str(value)
     elif isinstance(value, Decimal):
         return float(value)
     else:
