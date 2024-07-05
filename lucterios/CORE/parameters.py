@@ -52,15 +52,30 @@ class Params(object):
     @classmethod
     def _get(cls, name):
         params = cache.get('PARAMS', {})
-        if name not in params:
+        if name in params.keys():
+            current_param = Parameter(
+                name=params[name]['name'],
+                typeparam=params[name]['typeparam'],
+                args=params[name]['args'],
+                value=params[name]['value'],
+                metaselect=params[name]['metaselect']
+            )
+        else:
             try:
-                params[name] = Parameter.objects.get(name=name)
+                current_param = Parameter.objects.get(name=name)
+                params[name] = {
+                    'name': current_param.name,
+                    'typeparam': current_param.typeparam,
+                    'args': current_param.args,
+                    'value': current_param.value,
+                    'metaselect': current_param.metaselect
+                }
                 cache.set('PARAMS', params)
             except ObjectDoesNotExist:
                 raise LucteriosException(GRAVE, "Parameter %s unknown!" % name)
             except Exception:
                 raise LucteriosException(GRAVE, "Parameter %s not found!" % name)
-        return params[name]
+        return current_param
 
     @classmethod
     def getvalue(cls, name):

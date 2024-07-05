@@ -922,7 +922,7 @@ class XferCompGrid(XferComponent):
         if fieldnames is None:
             fieldnames = query_set.model.get_default_fields()
         self._add_header_from_model(query_set, fieldnames, xfer_custom is not None)
-        self.nb_lines = len(query_set)
+        self.nb_lines = query_set.count() if hasattr(query_set, 'count') else len(query_set)
         primary_key_fieldname = query_set.model._meta.pk.attname
         record_min, record_max = self.define_page(xfer_custom)
         if self.order_list is not None:

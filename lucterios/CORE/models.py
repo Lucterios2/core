@@ -38,6 +38,7 @@ from django.db.models.signals import post_migrate, pre_save, post_save
 from django.db.models.query import QuerySet
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _, gettext_lazy
+from django.core.cache import cache
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
     LucteriosLogEntry
@@ -390,6 +391,9 @@ class Preference(AbstractSetting):
             user = LucteriosUser.objects.get(id=user) if user != 0 else None
         if (user is None) or user.is_anonymous:
             user = None
+        ident = '%s_%s_%s' % (cls.__name__, pname, 0 if user is None else user.id)
+        if ident in cache:
+            cache.delete(ident)
         try:
             db_param = cls.objects.get(name=pname, user=user)
             if (pvalue is None) and (user is not None):
@@ -414,17 +418,22 @@ class Preference(AbstractSetting):
             user = LucteriosUser.objects.get(id=user)
         if (user is None) or user.is_anonymous:
             user = None
-        try:
-            query = models.Q(name=pname) & (models.Q(user=user) | models.Q(user=None))
-            db_param = None
-            for param_item in cls.objects.filter(query).order_by('name', '-user'):
-                if (db_param is None) or (param_item.user is not None):
-                    db_param = param_item
-            if db_param is None:
-                raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
-        except Exception:
-            raise LucteriosException(GRAVE, "Preference %s not found!" % pname)
-        return db_param.get_value_typed()
+        ident = '%s_%s_%s' % (cls.__name__, pname, 0 if user is None else user.id)
+        value = cache.get(ident)
+        if value is None:
+            try:
+                query = models.Q(name=pname) & (models.Q(user=user) | models.Q(user=None))
+                db_param = None
+                for param_item in cls.objects.filter(query).order_by('name', '-user'):
+                    if (db_param is None) or (param_item.user is not None):
+                        db_param = param_item
+                if db_param is None:
+                    raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
+            except Exception:
+                raise LucteriosException(GRAVE, "Preference %s not found!" % pname)
+            value = db_param.get_value_typed()
+            cache.set(ident, value)
+        return value
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         if self.name != '':
