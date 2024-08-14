@@ -231,7 +231,7 @@ class XferSavedCriteriaSearchEditor(XferSearchEditor):
             btn = XferCompButton('btn_saved_criteria')
             btn.set_location(4, new_row + 1, 2)
             btn.set_is_mini(True)
-            btn.set_action(self.request, SavedCriteriaAddModify.get_action("+", ""), close=CLOSE_NO,
+            btn.set_action(self.request, SavedCriteriaAddModify.get_action("+", short_icon="mdi:mdi-pencil-plus-outline"), close=CLOSE_NO,
                            params={'modelname': modelname, 'criteria': self.getparam('CRITERIA', '')})
             self.add_component(btn)
         if self.getparam('saved_criteria', 0) != 0:
