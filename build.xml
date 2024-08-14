@@ -27,11 +27,11 @@
 	</target>
 
 	<target name="init_addon">
+        <antcall target="download_newclient" />
         <antcall target="extract_mdiclient" />
 	</target>
 
 	<target name="package_addon">
-        <antcall target="download_newclient" />
 	</target>
 
 	<target name="download_newclient">
