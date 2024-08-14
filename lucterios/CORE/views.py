@@ -720,7 +720,7 @@ class LabelDelete(XferDelete):
 @MenuManage.describ('')
 class ObjectMerge(XferContainerAcknowledge):
     caption = _("Merge")
-    icon = ""
+    short_icon = "mdi:mdi-merge"
     model = None
     field_id = 'object'
 

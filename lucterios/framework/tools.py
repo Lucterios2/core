@@ -107,9 +107,9 @@ class WrapAction(object):
         self.method = method
         self.pos = pos
 
-    def set_value(self, caption, icon_path):
+    def set_value(self, caption, short_icon):
         self.caption = caption
-        self.icon_path = get_icon_path(icon_path, self.url_text, self.extension)
+        self.short_icon = short_icon
 
     def get_action_json(self, desc='', modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None):
         json_res = {}
@@ -162,7 +162,7 @@ class WrapAction(object):
 
     @classmethod
     def is_permission(cls, request, is_view_right):
-        return cls(caption='', icon_path='', is_view_right=is_view_right).check_permission(request)
+        return cls(caption='', short_icon='mdi:mdi-check', is_view_right=is_view_right).check_permission(request)
 
 
 class ActionsManage(object):
