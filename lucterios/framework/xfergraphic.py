@@ -121,7 +121,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.action = self.action
         img_title = XferCompImage('img_title')
         img_title.set_location(0, 0, 1, 2)
-        img_title.set_value(self.traitment_data[0])
+        img_title.set_value(self.traitment_data[0], "#" if self.traitment_data[0].startswith('mdi:') else '')
         dlg.add_component(img_title)
 
         lbl = XferCompLabelForm("info")
@@ -129,7 +129,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         dlg.add_component(lbl)
         if self.getparam("RELOAD") is not None:
             lbl.set_value(str(self.traitment_data[2]))
-            dlg.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+            dlg.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
         else:
             lbl.set_value_center("{[br/]}" + str(self.traitment_data[1]))
             btn = XferCompButton("Next")
@@ -139,7 +139,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
             btn.java_script = "parent.refresh()"
             dlg.params["RELOAD"] = "YES"
             dlg.add_component(btn)
-            dlg.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
+            dlg.add_action(WrapAction(TITLE_CANCEL, short_icon='mdi:mdi-cancel'))
         return dlg.request_handling(request, *args, **kwargs)
 
     def request_handling(self, request, *args, **kwargs):
@@ -158,8 +158,8 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.extension = self.extension
                 dlg.action = self.action
                 dlg.set_dialog(self.title, XFER_DBOX_CONFIRMATION)
-                dlg.add_action(self.return_action(_("Yes"), "images/ok.png", 'mdi:mdi-check'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
-                dlg.add_action(WrapAction(TITLE_NO, 'images/cancel.png', 'mdi:mdi-cancel'))
+                dlg.add_action(self.return_action(_("Yes"), short_icon='mdi:mdi-check'), modal=FORMTYPE_MODAL, close=CLOSE_YES, params={"CONFIRME": "YES"})
+                dlg.add_action(WrapAction(TITLE_NO, short_icon='mdi:mdi-cancel'))
                 dlg.closeaction = self.closeaction
                 return dlg.request_handling(request, *args, **kwargs)
             elif self.msg != "":
@@ -167,7 +167,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
                 dlg.request = self.request
                 dlg.caption = self.caption
                 dlg.set_dialog(self.msg, self.typemsg)
-                dlg.add_action(WrapAction(TITLE_OK, "images/ok.png", 'mdi:mdi-check'))
+                dlg.add_action(WrapAction(TITLE_OK, short_icon='mdi:mdi-check'))
                 dlg.closeaction = self.closeaction
                 return dlg.request_handling(request, *args, **kwargs)
             elif self.except_msg != "":

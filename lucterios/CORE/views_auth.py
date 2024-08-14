@@ -41,7 +41,6 @@ from lucterios.CORE.models import LucteriosUser
 def get_info_server():
     res = []
     from django import VERSION
-    from django.conf import settings
     from django.utils.module_loading import import_module
     import locale
     for appname in settings.INSTALLED_APPS:
@@ -75,12 +74,12 @@ def get_info_server():
 
 @MenuManage.describ('')
 class Authentification(XferContainerAbstract):
+    short_icon = 'mdi:mdi-circle-small'
     caption = 'info'
     observer_name = 'core.auth'
 
     def _set_authentification(self, login_name, password):
         from django.contrib.auth import authenticate, login, logout
-        from django.conf import settings
         if self.request.user.is_authenticated:
             logout(self.request)
         if (login_name == '') and (password == '') and not secure_mode_connect():
@@ -121,7 +120,6 @@ class Authentification(XferContainerAbstract):
                 self.must_autentificate('NEEDAUTH')
 
     def get_connection_info(self):
-        from django.conf import settings
         import lucterios.CORE
         import os
         LucteriosSession.clean_anonymous()
@@ -189,6 +187,7 @@ class Authentification(XferContainerAbstract):
 
 @MenuManage.describ('')
 class ExitConnection(XferContainerAcknowledge):
+    short_icon = 'mdi:mdi-circle-small'
     caption = 'exit'
     methods_allowed = ('GET', 'POST', 'PUT', 'DELETE')
 

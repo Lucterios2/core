@@ -23,7 +23,8 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from lxml import etree
 from logging import getLogger
-from lucterios.framework.filetools import is_image_base64, open_from_base64
+from lucterios.framework.filetools import is_image_base64, open_from_base64,\
+    open_from_mdi
 
 
 class LucteriosBase(object):
@@ -138,7 +139,9 @@ class LucteriosBase(object):
         from PIL import ImageFile
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         img_content = xmlimage.text.strip()
-        if is_image_base64(img_content):
+        if img_content.startswith('mdi:'):
+            img_file = open_from_mdi(img_content)
+        elif is_image_base64(img_content):
             img_file = open_from_base64(img_content)
         else:
             img_file = open(img_content, "rb")

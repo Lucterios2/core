@@ -71,7 +71,7 @@ class DummyTest(LucteriosTest):
         self.assert_json_equal('', 'type', '1')
         self.assert_json_equal('', 'text', 'Hello world (None,4)!')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'images/ok.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'mdi:mdi-check'))
 
     def test_multi(self):
         self.calljson('/lucterios.dummy/multi', {})

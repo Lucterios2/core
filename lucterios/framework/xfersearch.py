@@ -486,8 +486,7 @@ class XferSearchEditor(XferContainerCustom):
 
     def fillresponse_add_title(self):
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -553,7 +552,7 @@ if ((type=='list') || (type=='listmult')) {
         comp.is_default = True
         comp.set_is_mini(True)
         comp.set_location(4, 10, 1, 7)
-        comp.set_action(self.request, self.return_action(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
+        comp.set_action(self.request, self.return_action(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
         self.add_component(comp)
 
         comp = XferCompDate("searchValueDate")
@@ -610,7 +609,7 @@ if ((type=='list') || (type=='listmult')) {
             comp = XferCompButton("searchButtonDel_" + criteria_id)
             comp.set_is_mini(True)
             comp.set_location(4, row)
-            comp.set_action(self.request, self.return_action(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline'),
+            comp.set_action(self.request, self.return_action(TITLE_DELETE, short_icon='mdi:mdi-delete-outline'),
                             modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': criteria_id})
             self.add_component(comp)
             row += 1
@@ -640,4 +639,4 @@ if ((type=='list') || (type=='listmult')) {
         self.add_component(grid)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))

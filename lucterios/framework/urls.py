@@ -41,8 +41,6 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 from lucterios.framework.plugins import PluginManager
 
-OLD_PAGE = '/old/index.html'
-
 
 def defaultblank(request, *args):
     if request.path == '/favicon.ico':
@@ -59,14 +57,6 @@ def defaultview(*args):
     return redirect(web_page)
 
 
-def oldview(*args):
-    from django.shortcuts import redirect
-    web_page = OLD_PAGE
-    if settings.USE_X_FORWARDED_HOST:
-        web_page = settings.FORCE_SCRIPT_NAME + web_page
-    return redirect(web_page)
-
-
 class UrlPatterns(list):
 
     def __init__(self, *args, **kwargs):
@@ -77,9 +67,6 @@ class UrlPatterns(list):
         web_path = join(dirname(__file__), 'static', 'lucterios.framework', 'web')
         self.append(re_path(r'^$', defaultview))
         self.append(re_path(r'^favicon.ico$', defaultblank))
-        self.append(re_path(r'^old/$', oldview))
-        self.append(re_path(r'^old/STUB/(.*)$', defaultblank))
-        self.append(re_path(r'^old/(?P<path>.*)$', serve, {'document_root': old_path}))
         self.append(re_path(r'^web/$', defaultview))
         self.append(re_path(r'^web/STUB/(.*)$', defaultblank))
         self.append(re_path(r'^web/(?P<path>.*)$', serve, {'document_root': web_path}))
@@ -119,7 +106,7 @@ class UrlPatterns(list):
                         try:
                             self.append(re_path(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
                                                 url_pattern.callback, None, url_pattern.pattern.name))
-                        except AttributeError as err:
+                        except AttributeError:
                             print('-- error', appname, url_pattern.pattern, url_pattern.pattern.name)
         except ImportError:
             pass

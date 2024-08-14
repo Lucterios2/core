@@ -6,22 +6,12 @@
 	<property name="project.packagename"
 		value="lucterios.CORE lucterios.dummy" />
 	<property name="project.name" value="lucterios" />
-	<property name="project.pythonpath"
-		value="${standard.path}:${env.PYTHONPATH}" />
+	<property name="project.pythonpath" value="${standard.path}:${env.PYTHONPATH}" />
 	<property name="project.packname" value="lucterios.egg-info" />
 	<property name="project.modules" value="lucterios.dummy" />
 	<property name="project.appli" value="lucterios.standard" />
-	<property name="project.radon.exclude"
-		value="lct-core/client/**/*.py" />
-	<property name="web.root" value="${basedir}/client" />
-	<property name="web.client" value="${web.root}/static" />
-	<property name="web.browser"
-		value="client/platforms/browser/www/" />
-	<property name="web.path"
-		value="lucterios/framework/static/lucterios.framework/old" />
-    <property name="client.path"
-        value="lucterios/framework/static/lucterios.framework/web" />
-	<property name="web.version" value="1.5.9" />
+	<property name="project.radon.exclude" value="lct-core/client/**/*.py" />
+    <property name="client.path" value="lucterios/framework/static/lucterios.framework/web" />
 	<import file="${basedir}/utils/lib_build.xml" />
 
 	<target name="clientweb">
@@ -32,24 +22,18 @@
 	</target>
 
 	<target name="clear_addon">
-	    <antcall target="clear_oldclient" />
         <delete dir="${client.path}" />
         <mkdir dir="${client.path}" />
 	</target>
 
 	<target name="init_addon">
-	    <antcall target="init_oldclient" />
 	</target>
 
 	<target name="package_addon">
-        <antcall target="build_oldclient" />
         <antcall target="download_newclient" />
+        <antcall target="extract_mdiclient" />
 	</target>
 
-	<target name="test_webclient">
-        <antcall target="test_oldclient" />
-	</target>
-	
 	<target name="download_newclient">
 	    <delete file="/tmp/client_artifacts.zip" />
         <get src="https://gitlab.sleto.fr/api/v4/projects/38/jobs/artifacts/master/download?job=build" dest="/tmp/client_artifacts.zip">
@@ -65,6 +49,22 @@
         <echo>======= Expected client version: ${client_version_expected}</echo>
         <loadfile property="newclient_version" srcFile="${client.path}/conf/build"/>
         <echo>======= Download client version: ${newclient_version}</echo>
+	</target>
+	
+	<target name="extract_mdiclient">
+        <delete dir="lucterios/framework/mdi-icons" />
+        <mkdir dir="lucterios/framework/mdi-icons" />
+        <fileset dir="${basedir}/lucterios/framework/static/lucterios.framework/web/assets/" id="mdifont">
+            <include name="materialdesignicons-webfont-*.ttf"/>
+        </fileset>
+        <echo message="mdifond=${ant.refid:mdifont}"/>
+	    <exec executable="fonts2svg" dir="${basedir}">
+	       <arg value="-c" />
+	       <arg value="000000" />
+	       <arg value="-o" />
+	       <arg value="lucterios/framework/mdi-icons" />
+	       <arg value="${basedir}/lucterios/framework/static/lucterios.framework/web/assets/${ant.refid:mdifont}" />
+	    </exec>
 	</target>
 
 	<target name="test_admin">
@@ -92,75 +92,8 @@
 	</target>
 
 	<target name="test_addon">
-		<antcall target="test_webclient" />
 		<antcall target="test_admin" />
 	</target>
 
-    <target name="clear_oldclient">
-        <delete dir="${web.path}" />
-        <mkdir dir="${web.path}" />
-        <exec executable="cordova" dir="${web.root}" failonerror="false">
-            <arg value="clean" />
-        </exec>
-        <delete dir="${basedir}/client/platforms/electron/build" />
-        <delete dir="${web.root}/node_modules" />
-        <delete dir="${web.root}/plugins/cordova-plugin-camera" />
-        <delete dir="${web.root}/plugins/cordova-plugin-device" />
-        <delete dir="${web.root}/plugins/cordova-plugin-whitelist" />
-    </target>
-
-    <target name="init_oldclient">
-        <mkdir dir="${web.client}/conf" />
-        <echo message="${web.version}.${build_number}"
-            file="${web.client}/conf/build" append="false" />
-        <replaceregexp file="${web.root}/config.xml"
-            match='version="[0-9\.]+"' replace='version="${web.version}"'
-            byline="true" />
-        <replaceregexp file="${web.root}/package.json"
-            match='"version": "[0-9\.]+",' replace='"version": "${web.version}",'
-            byline="true" />
-        <exec executable="npm" dir="${web.root}" failonerror="true">
-            <arg value="install" />
-        </exec>
-        <exec executable="npm" dir="${web.root}" failonerror="true">
-            <arg value="run" />
-            <arg value="lint" />
-        </exec>
-    </target>
-
-    <target name="build_oldclient">
-        <exec executable="npm" dir="${web.root}" failonerror="true">
-            <arg value="run" />
-            <arg value="build" />
-        </exec>
-        <exec executable="cordova" dir="${web.root}" failonerror="false">
-            <arg value="build" />
-            <arg value="browser" />
-        </exec>
-        <replace file="${web.browser}/index.html"
-            token='src=../../js/' value='src=js/' />
-        <copy file="${web.browser}/index.html"
-            tofile="${web.browser}/viewer.html" />
-        <replace file="${web.browser}/viewer.html"
-            token='window.main()' value='window.viewer()' />
-        <copy todir="${web.path}">
-            <fileset dir="${web.browser}" />
-        </copy>
-    </target>
-
-    <target name="test_oldclient">
-        <exec executable="npm" dir="${web.root}" failonerror="true">
-            <arg value="run" />
-            <arg value="unit" />
-        </exec>
-        <exec executable="${project.pythonexe}" dir="${basedir}">
-            <arg value="${web.root}/test/lcov_cobertura.py" />
-            <arg value="${web.root}/test/coverage/lcov.info" />
-            <arg value="--base-dir" />
-            <arg value="${web.root}/src" />
-            <arg value="--output" />
-            <arg value="coverage_jsweb.xml" />
-        </exec>
-    </target>
 
 </project>

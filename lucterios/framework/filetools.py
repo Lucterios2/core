@@ -36,9 +36,12 @@ import io
 
 
 from lucterios.framework.tools import get_binay
+from lucterios.framework.error import LucteriosException, GRAVE
 
 
 BASE64_PREFIX = 'data:image/*;base64,'
+
+MDI_SIZE = 48
 
 
 def read_file(filepath):
@@ -135,6 +138,22 @@ def save_from_base64(base64stream):
     return file_path
 
 
+def open_from_mdi(mdi_icon):
+    from cairosvg import svg2png
+    if mdi_icon.startswith('mdi:'):
+        mdi_icon = mdi_icon[4:]
+    if mdi_icon.startswith('mdi-'):
+        mdi_icon = mdi_icon[4:]
+    mdi_icon_file = join(dirname(__file__), 'mdi-icons', mdi_icon) + '.svg'
+    if isfile(mdi_icon_file):
+        outfilepng = BytesIO()
+        with open(mdi_icon_file, 'rt') as svg_file:
+            svg2png(file_obj=svg_file, write_to=outfilepng, output_width=MDI_SIZE, output_height=MDI_SIZE)
+        return outfilepng
+    else:
+        raise LucteriosException(GRAVE, "MDI icon file %s doesn't exist !" % mdi_icon_file)
+
+
 def open_from_base64(base64stream):
     if is_image_base64(base64stream):
         _, stream = base64stream.split(";base64,")
@@ -184,6 +203,8 @@ def get_image_absolutepath(icon_path):
 
 def get_image_size(image_path):
     from PIL import Image
+    if image_path.startswith('mdi:'):
+        return MDI_SIZE, MDI_SIZE
     filep = None
     try:
         if is_image_base64(image_path):
