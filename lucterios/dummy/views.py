@@ -46,13 +46,12 @@ from lucterios.CORE.models import Parameter, Preference
 from lucterios.dummy.models import Example, Other
 from lucterios.CORE.views import ObjectImport
 
-MenuManage.add_sub('dummy.foo', None, 'lucterios.dummy/images/10.png', _('Dummy'), _('Dummy menu'), 20, 'mdi:mdi-numeric-10')
+MenuManage.add_sub('dummy.foo', None, short_icon='mdi:mdi-numeric-10', caption=_('Dummy'), desc=_('Dummy menu'), pos=20)
 
 
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Bidule action."))
 class Bidule(XferContainerAcknowledge):
     caption = _("_Bidule")
-    icon = "1.png"
     short_icon = 'mdi:mdi-numeric-1'
 
     def fillresponse(self, error):
@@ -66,7 +65,6 @@ class Bidule(XferContainerAcknowledge):
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Truc action."))
 class Truc(XferContainerAcknowledge):
     caption = _("_Truc")
-    icon = "2.png"
     short_icon = 'mdi:mdi-numeric-2'
 
     def fillresponse(self, val1, val2=4):
@@ -76,12 +74,11 @@ class Truc(XferContainerAcknowledge):
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Multi action."))
 class Multi(XferContainerAcknowledge):
     caption = _("_Multi")
-    icon = "3.png"
     short_icon = 'mdi:mdi-numeric-3'
 
     def fillresponse(self):
         if self.confirme("Do you want?"):
-            if self.traitment("static/lucterios.dummy/images/4.png", "Waiting...", "Done!"):
+            if self.traitment("mdi:mdi-timer-sand", "Waiting...", "Done!"):
                 import time
                 time.sleep(3)
 
@@ -89,7 +86,6 @@ class Multi(XferContainerAcknowledge):
 @MenuManage.describ('', FORMTYPE_NOMODAL, 'dummy.foo', _("Test of composants."))
 class TestComposants(XferContainerCustom):
     caption = _("_Test of composants")
-    icon = "4.png"
     short_icon = 'mdi:mdi-numeric-4'
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
@@ -231,7 +227,7 @@ class TestComposants(XferContainerCustom):
         btn.set_location(1, 20)
         self.add_component(btn)
 
-        self.add_action(WrapAction('Fin', 'images/close.png', 'mdi:mdi-close'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        self.add_action(WrapAction('Fin', short_icon='mdi:mdi-close'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
 
         # self.set_close_action(Xfer_Action('fermeture', '', 'TestValidation', 'CloseEvenement', FORMTYPE_MODAL, CLOSE_YES, SELECT_NONE))
 
@@ -239,7 +235,6 @@ class TestComposants(XferContainerCustom):
 @MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Null test of composants."))
 class TestNullComposants(XferContainerCustom):
     caption = _("Null test of composants.")
-    icon = "5.png"
     short_icon = 'mdi:mdi-numeric-5'
 
     def fillresponse(self, flt1=0.0, flt2=0, dt1='01-01-2010', tm1='12:00', stm1='01-01-2010 12:00'):
@@ -289,7 +284,6 @@ class TestNullComposants(XferContainerCustom):
 @MenuManage.describ('', FORMTYPE_MODAL, 'dummy.foo', _("Test of grid simple."))
 class SimpleGrid(XferContainerCustom):
     caption = _("_Test of grid")
-    icon = "5.png"
     short_icon = 'mdi:mdi-numeric-5'
 
     def fillresponse(self):
@@ -319,29 +313,26 @@ class SimpleGrid(XferContainerCustom):
 @MenuManage.describ('dummy.change_example', FORMTYPE_MODAL, 'dummy.foo', _("List of example."))
 class ExampleList(XferListEditor):
     caption = _("List of example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_example')
 class ExampleShow(XferShowEditor):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
+@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_example')
 class ExampleAddModify(XferAddEditor):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
@@ -354,42 +345,38 @@ class ExampleAddModify(XferAddEditor):
         XferAddEditor.fillresponse(self)
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_example')
 class ExampleDel(XferDelete):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
 
 
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline')
+@ActionsManage.affect_show(TITLE_PRINT, short_icon='mdi:mdi-printer-outline')
 @MenuManage.describ('dummy.change_example')
 class ExamplePrint(XferPrintAction):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
     action_class = ExampleShow
 
 
-@ActionsManage.affect_list(TITLE_LISTING, "images/print.png", short_icon='mdi:mdi-printer-pos-edit-outline')
+@ActionsManage.affect_list(TITLE_LISTING, short_icon='mdi:mdi-printer-pos-edit-outline')
 @MenuManage.describ('dummy.change_example')
 class ExampleListing(XferPrintListing):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
 
 
-@ActionsManage.affect_list(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline')
+@ActionsManage.affect_list(TITLE_PRINT, short_icon='mdi:mdi-printer-outline')
 @MenuManage.describ('dummy.change_example')
 class ExamplePrintList(XferPrintAction):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
@@ -408,12 +395,11 @@ class ExamplePrintList(XferPrintAction):
         return True
 
 
-@ActionsManage.affect_list("Reporting", "images/print.png", short_icon='mdi:mdi-printer-pos-outline')
+@ActionsManage.affect_list("Reporting", short_icon='mdi:mdi-printer-pos-outline')
 @MenuManage.describ('dummy.change_example')
 class ExampleReporting(XferPrintReporting):
     with_text_export = True
     caption = _("Example")
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Example
     field_id = 'example'
@@ -422,11 +408,10 @@ class ExampleReporting(XferPrintReporting):
         return self.model.objects.all()
 
 
-@ActionsManage.affect_list(TITLE_LABEL, "images/print.png", short_icon='mdi:mdi-printer-pos-star-outline')
+@ActionsManage.affect_list(TITLE_LABEL, short_icon='mdi:mdi-printer-pos-star-outline')
 @MenuManage.describ('dummy.change_example')
 class ExampleLabel(XferPrintLabel):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
@@ -435,7 +420,6 @@ class ExampleLabel(XferPrintLabel):
 @MenuManage.describ('dummy.change_example', FORMTYPE_NOMODAL, 'dummy.foo', _("Find example."))
 class ExampleSearch(XferSavedCriteriaSearchEditor):
     caption = _("Example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
     model = Example
     field_id = 'example'
@@ -444,7 +428,6 @@ class ExampleSearch(XferSavedCriteriaSearchEditor):
 @MenuManage.describ('contacts.add_example', FORMTYPE_MODAL, 'dummy.foo', _('Import example'))
 class ExampleImport(ObjectImport):
     caption = _("Import example")
-    icon = "9.png"
     short_icon = 'mdi:mdi-numeric-9'
 
     def get_select_models(self):
@@ -453,19 +436,17 @@ class ExampleImport(ObjectImport):
 
 @MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))
 class OtherList(XferListEditor):
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Other
     field_id = 'other'
     caption = _("others")
 
 
-@ActionsManage.affect_grid(TITLE_ADD, "images/add.png", short_icon='mdi:mdi-pencil-plus-outline')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
-@ActionsManage.affect_show(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
+@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_show(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', close=CLOSE_YES)
 @MenuManage.describ('dummy.add_other')
 class OtherAddModify(XferAddEditor):
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Other
     field_id = 'other'
@@ -473,21 +454,19 @@ class OtherAddModify(XferAddEditor):
     caption_modify = _("Modify other")
 
 
-@ActionsManage.affect_grid(TITLE_EDIT, "images/show.png", short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('dummy.change_other')
 class OtherShow(XferShowEditor):
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Other
     field_id = 'other'
     caption = _("Show other")
 
 
-@ActionsManage.affect_show(TITLE_PRINT, "images/print.png", short_icon='mdi:mdi-printer-outline', condition=lambda xfer: xfer.item.bool)
+@ActionsManage.affect_show(TITLE_PRINT, short_icon='mdi:mdi-printer-outline', condition=lambda xfer: xfer.item.bool)
 @MenuManage.describ('dummy.change_other')
 class OtherPrint(XferPrintAction):
     caption = _("Example")
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Other
     field_id = 'other'
@@ -504,10 +483,9 @@ class OtherPrint(XferPrintAction):
         return generator
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('dummy.delete_other')
 class OtherDel(XferDelete):
-    icon = "10.png"
     short_icon = 'mdi:mdi-numeric-10'
     model = Other
     field_id = 'other'
@@ -533,7 +511,6 @@ def run_simple_action(timetxt):
 
 @MenuManage.describ('')
 class AddSchedulerTask(XferContainerAcknowledge):
-    icon = "11.png"
     short_icon = 'mdi:mdi-numeric-9-plus'
     caption = _("add scheduler task")
 

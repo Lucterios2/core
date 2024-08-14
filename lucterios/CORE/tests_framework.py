@@ -42,6 +42,7 @@ class GenericTest(LucteriosTest):
     def setUp(self):
         self.xfer_class.url_text = "customer/details"
         self.xfer_class.is_view_right = ''
+        self.xfer_class.short_icon = 'mdi:mdi-circle-small'
         LucteriosTest.setUp(self)
         self.value = False
         self.xfer = XferContainerCustom()
@@ -79,7 +80,7 @@ class GenericTest(LucteriosTest):
     def test_close(self):
         def fillresponse_close():
             self.factory.xfer.set_close_action(
-                WrapAction("close", "", "", "customer", "list"))
+                WrapAction("close", "", 'mdi:mdi-circle-small', "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_close
         self.calljson('/customer/details', {}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')
@@ -90,7 +91,7 @@ class GenericTest(LucteriosTest):
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.factory.xfer.redirect_action(WrapAction("redirect", "", "", "customer", "list"))
+            self.factory.xfer.redirect_action(WrapAction("redirect", "", 'mdi:mdi-circle-small', "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.calljson('/customer/details', {}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')
@@ -112,8 +113,8 @@ class GenericTest(LucteriosTest):
         self.assert_json_equal('', 'type', '2')
         self.assert_json_equal('', 'text', 'Do you want?')
         self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], ('Oui', 'images/ok.png', 'customer', 'details', 1, 1, 1, {'CONFIRME': "YES"}))
-        self.assert_action_equal('POST', self.json_actions[1], ('Non', 'images/cancel.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Oui', 'mdi:mdi-check', 'customer', 'details', 1, 1, 1, {'CONFIRME': "YES"}))
+        self.assert_action_equal('POST', self.json_actions[1], ('Non', 'mdi:mdi-cancel'))
 
         self.calljson('/customer/details', {'CONFIRME': 'YES'}, False)
         self.assertEqual(self.value, True)
@@ -128,13 +129,13 @@ class GenericTest(LucteriosTest):
         self.assert_json_equal('', 'type', '3')
         self.assert_json_equal('', 'text', 'Finished!')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'images/ok.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'mdi:mdi-check'))
 
     def test_traitment(self):
         self.value = False
 
         def fillresponse_traitment():
-            if self.factory.xfer.traitment("customer/images/foo.png", "Traitment{[br/]}Wait...", "Done"):
+            if self.factory.xfer.traitment("mdi:mdi-timer-sand", "Traitment{[br/]}Wait...", "Done"):
                 self.value = True
         self.factory.xfer.fillresponse = fillresponse_traitment
         self.calljson('/customer/details', {}, False)
@@ -144,11 +145,11 @@ class GenericTest(LucteriosTest):
         self.assertEqual(self.json_context['RELOAD'], 'YES')
         self.assert_count_equal('', 3)
         self.assert_json_equal('LABELFORM', "info", '{[br/]}Traitment{[br/]}Wait...')
-        self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
+        self.assert_json_equal('IMAGE', "img_title", 'mdi:mdi-timer-sand')
         self.assert_action_equal('POST', self.json_comp['Next']['action'], ('Traitement...', None, 'customer', 'details', 1, 1, 1, {'RELOAD': "YES"}))
         self.assert_attrib_equal('Next', 'javascript', 'parent.refresh()')
         self.assertEqual(len(self.json_actions), 1)
-        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'images/cancel.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.calljson('/customer/details', {'RELOAD': 'YES'}, False)
         self.assertEqual(self.value, True)
@@ -156,9 +157,9 @@ class GenericTest(LucteriosTest):
         self.assertEqual(len(self.json_context), 1)
         self.assertEqual(self.json_context['RELOAD'], 'YES')
         self.assert_count_equal('', 2)
-        self.assert_json_equal('IMAGE', "img_title", 'customer/images/foo.png')
+        self.assert_json_equal('IMAGE', "img_title", 'mdi:mdi-timer-sand')
         self.assert_json_equal('LABELFORM', "info", 'Done')
-        self.assert_action_equal('POST', self.json_actions[0], ('Fermer', 'images/close.png'))
+        self.assert_action_equal('POST', self.json_actions[0], ('Fermer', 'mdi:mdi-close'))
 
     def test_parameters_text(self):
         param = Parameter.objects.create(name='param_text', typeparam=0)

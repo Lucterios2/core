@@ -136,7 +136,7 @@ class XferContainerPrint(XferContainerAbstract):
         zipdown.set_download(filename)
         zipdown.set_location(1, 15, 2)
         gui.add_component(zipdown)
-        gui.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        gui.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
         return gui
 
     def _add_option_selectors(self, gui):
@@ -210,8 +210,8 @@ parent.get('PRINT_MODE').setEnabled(persitent_mode==%d);
         gui.add_component(print_mode)
         if self.selector is not None:
             self._add_option_selectors(gui)
-        gui.add_action(self.return_action(_("Print"), "images/print.png", 'mdi:mdi-printer-pos-edit-outline'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
-        gui.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        gui.add_action(self.return_action(_("Print"), short_icon='mdi:mdi-printer-pos-edit-outline'), modal=FORMTYPE_MODAL, close=CLOSE_YES)
+        gui.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
         return gui
 
     def request_handling(self, request, *args, **kwargs):

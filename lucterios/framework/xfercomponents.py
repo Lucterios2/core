@@ -145,11 +145,13 @@ class XferCompImage(XferComponent):
     def set_short_icon(self, short_icon):
         self.short_icon = short_icon
 
-    def set_value(self, value):
+    def set_value(self, value, imgtype=None):
         if isinstance(value, bytes):
             self.value = value.decode("utf-8")
         else:
             self.value = str(value)
+        if imgtype is not None:
+            self.type = imgtype
 
     def get_json(self):
         compjson = XferComponent.get_json(self)
@@ -735,11 +737,6 @@ if hasattr(settings, 'SIZE_BY_PAGE'):
 GRID_PAGE = 'GRID_PAGE%'
 GRID_SIZE = 'GRID_SIZE%'
 GRID_ORDER = 'GRID_ORDER%'
-
-DEFAULT_ACTION_LIST = [('show', _("Edit"), "images/show.png", SELECT_SINGLE),
-                       ('edit', _("Modify"), "images/edit.png", SELECT_SINGLE),
-                       ('delete', _("Delete"), "images/delete.png", SELECT_MULTI),
-                       ('add', _("Add"), "images/add.png", SELECT_NONE)]
 
 
 class XferCompHeader(object):

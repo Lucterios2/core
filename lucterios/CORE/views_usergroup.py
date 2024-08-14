@@ -47,36 +47,33 @@ from lucterios.framework.model_fields import LucteriosScheduler
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser, Parameter, set_auditlog_states, Preference
 from lucterios.CORE.parameters import Params
 
-MenuManage.add_sub("core.right", 'core.admin', "images/permissions.png", _("_Rights manage"), _("To manage users, groups and permissions."), 40, 'mdi:mdi-security')
+MenuManage.add_sub("core.right", 'core.admin', short_icon='mdi:mdi-security', caption=_("_Rights manage"), desc=_("To manage users, groups and permissions."), pos=40)
 
 
 @MenuManage.describ('auth.change_group', FORMTYPE_NOMODAL, 'core.right', _("To manage permissions groupes."))
 class GroupsList(XferListEditor):
     caption = _("Groups")
-    icon = "group.png"
     short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus')
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_CREATE, short_icon='mdi:mdi-pencil-plus')
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_group')
 class GroupsEdit(XferAddEditor):
     caption_add = _("Add a group")
     caption_modify = _("Modify a group")
-    icon = "group.png"
     short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
     locked = True
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('auth.delete_group')
 class GroupsDelete(XferDelete):
     caption = _("Delete group")
-    icon = "group.png"
     short_icon = "mdi:mdi-account-supervisor"
     model = LucteriosGroup
     field_id = 'group'
@@ -85,7 +82,6 @@ class GroupsDelete(XferDelete):
 @MenuManage.describ('auth.change_user', FORMTYPE_NOMODAL, 'core.right', _("To manage users."))
 class UsersList(XferListEditor):
     caption = _('Users of the software')
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
@@ -110,18 +106,17 @@ class UsersList(XferListEditor):
         btn = XferCompButton('editonlyadmin')
         btn.set_is_mini(True)
         btn.set_location(2, row)
-        btn.set_action(self.request, ChangeOnlySuperAdmin.get_action(TITLE_MODIFY, 'images/edit.png'), close=CLOSE_NO)
+        btn.set_action(self.request, ChangeOnlySuperAdmin.get_action(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline'), close=CLOSE_NO)
         self.add_component(btn)
         self.new_tab(_('Preferences'))
         self.fieldnames = None
         self.fill_grid(1, Preference, 'preference', Preference.objects.filter(user__isnull=True))
-        self.add_action(UsersFindDouble.get_action(_("duplicate"), "images/clone.png", short_icon='mdi:mdi-content-copy'), pos_act=0)
+        self.add_action(UsersFindDouble.get_action(_("duplicate"), short_icon='mdi:mdi-content-copy'), pos_act=0)
 
 
 @MenuManage.describ('CORE.add_parameter')
 class ChangeOnlySuperAdmin(XferContainerAcknowledge):
     caption = _("CORE-OnlySuperAdmin")
-    icon = "config.png"
     short_icon = "mdi:mdi-account-lock"
 
     def fillresponse(self):
@@ -130,20 +125,18 @@ class ChangeOnlySuperAdmin(XferContainerAcknowledge):
             Params.setvalue('CORE-OnlySuperAdmin', not only_admin_value)
 
 
-@ActionsManage.affect_list(TITLE_SEARCH, "user.png", short_icon='mdi:mdi-account-search', condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
+@ActionsManage.affect_list(TITLE_SEARCH, short_icon='mdi:mdi-account-search', condition=lambda xfer: xfer.get_components('user_actif'), modal=FORMTYPE_NOMODAL)
 @MenuManage.describ('auth.change_user')
 class UsersSearch(XferSearchEditor):
     caption = _("User search")
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user'
 
 
-@ActionsManage.affect_other("", "images/edit.png", short_icon="mdi:mdi-account")
+@ActionsManage.affect_other("", short_icon="mdi:mdi-account")
 @MenuManage.describ('auth.add_user')
 class UsersShow(XferContainerAcknowledge):
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
@@ -159,13 +152,12 @@ class UsersShow(XferContainerAcknowledge):
             self.message(_('User deactivated: another with the same email is active!'))
 
 
-@ActionsManage.affect_grid(TITLE_CREATE, "images/new.png", short_icon='mdi:mdi-pencil-plus', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif' and not settings.USER_READONLY)
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif') or (gridname == 'user'), unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_CREATE, short_icon='mdi:mdi-pencil-plus', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif' and not settings.USER_READONLY)
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', condition=lambda xfer, gridname='user_actif': (gridname == 'user_actif') or (gridname == 'user_inactif') or (gridname == 'user'), unique=SELECT_SINGLE)
 @MenuManage.describ('auth.add_user')
 class UsersEdit(XferAddEditor):
     caption_add = _("Add an users")
     caption_modify = _("Modify an user")
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
@@ -185,7 +177,6 @@ class UsersEdit(XferAddEditor):
 @MenuManage.describ('auth.add_user')
 class UsersFindDouble(XferListEditor):
     caption = _("User duplication searching")
-    icon = "contacts.png"
     short_icon = 'mdi:mdi-account-outline'
     model = LucteriosUser
     field_id = 'user'
@@ -215,12 +206,11 @@ class UsersFindDouble(XferListEditor):
         self.add_component(only_active_check)
 
 
-@ActionsManage.affect_grid(_("Disabled"), "images/delete.png", short_icon='mdi:mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
-@ActionsManage.affect_edit(_("Disabled"), "images/delete.png", short_icon='mdi:mdi-account-off', condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
+@ActionsManage.affect_grid(_("Disabled"), short_icon='mdi:mdi-account-off', condition=lambda xfer, gridname='user_actif': gridname == 'user_actif', unique=SELECT_SINGLE)
+@ActionsManage.affect_edit(_("Disabled"), short_icon='mdi:mdi-account-off', condition=lambda xfer: (xfer.item.id is not None) and xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersDisabled(XferContainerAcknowledge):
     caption = _("Disabled an user")
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_actif'
@@ -232,12 +222,11 @@ class UsersDisabled(XferContainerAcknowledge):
         self.item.save()
 
 
-@ActionsManage.affect_grid(_("Enabled"), "images/ok.png", short_icon='mdi:mdi-check', condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
-@ActionsManage.affect_edit(_("Enabled"), "images/ok.png", short_icon='mdi:mdi-check', condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
+@ActionsManage.affect_grid(_("Enabled"), short_icon='mdi:mdi-check', condition=lambda xfer, gridname='user_inactif': gridname == 'user_inactif', unique=SELECT_SINGLE, intop=True)
+@ActionsManage.affect_edit(_("Enabled"), short_icon='mdi:mdi-check', condition=lambda xfer: (xfer.item.id is not None) and not xfer.item.is_active)
 @MenuManage.describ('auth.add_user')
 class UsersEnabled(XferContainerAcknowledge):
     caption = _("Enabled an user")
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = 'user_inactif'
@@ -254,11 +243,10 @@ class UsersEnabled(XferContainerAcknowledge):
         self.item.save()
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('auth.delete_user')
 class UsersDelete(XferDelete):
     caption = _("Delete users")
-    icon = "user.png"
     short_icon = "mdi:mdi-account"
     model = LucteriosUser
     field_id = ('user_actif', 'user_inactif', 'user')
@@ -274,7 +262,6 @@ class UsersDelete(XferDelete):
 @MenuManage.describ('auth.change_user')
 class UsersPreference(XferContainerCustom):
     caption = _("User preferences")
-    icon = "settings.png"
     short_icon = "mdi:mdi-account-cog"
     model = LucteriosUser
     field_id = 'user_actif'
@@ -283,23 +270,21 @@ class UsersPreference(XferContainerCustom):
         self.item = LucteriosUser.objects.get(id=self.request.user.id)
         self.params['username'] = self.item.username
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 1, True, ['username', 'preferences_set'])
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
 def right_edit_preference(request):
     return UsersEnabled.get_action().check_permission(request) or (not request.user.is_anonymous and (request.user.username == request.POST['username']))
 
 
-@ActionsManage.affect_grid(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
 @MenuManage.describ(right_edit_preference)
 class PreferenceEdit(XferAddEditor):
     caption_modify = _("Modify preference")
-    icon = "settings.png"
     short_icon = "mdi:mdi-account-cog"
     model = Preference
     field_id = 'preference'
@@ -308,7 +293,6 @@ class PreferenceEdit(XferAddEditor):
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage session and tasks."))
 class SessionList(XferListEditor):
     caption = _("Sessions & tasks")
-    icon = "session.png"
     short_icon = "mdi:mdi-calendar-collapse-horizontal-outline"
     model = LucteriosSession
     field_id = 'session'
@@ -337,11 +321,10 @@ class SessionList(XferListEditor):
         self.fill_tasks()
 
 
-@ActionsManage.affect_grid(TITLE_DELETE, "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
 @MenuManage.describ('sessions.delete_session')
 class SessionDelete(XferDelete):
     caption = _("Delete session")
-    icon = "session.png"
     short_icon = "mdi:mdi-calendar-collapse-horizontal-outline"
     model = LucteriosSession
     field_id = 'session'
@@ -356,18 +339,16 @@ class SessionDelete(XferDelete):
 
 
 @MenuManage.describ('sessions.change_session')
-@ActionsManage.affect_other(_("Show log"), "images/auditlog.png", short_icon="mdi:mdi-book-cog")
+@ActionsManage.affect_other(_("Show log"), short_icon="mdi:mdi-book-cog")
 class AuditLogShow(XferShowEditor):
     caption = _("Show log")
-    icon = "auditlog.png"
     short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
 
     def fillresponse(self, model='', objid=0):
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.model = apps.get_model(model)
@@ -394,13 +375,12 @@ class AuditLogShow(XferShowEditor):
         grid.set_location(1, self.get_max_row() + 1, 2)
         grid.set_size(200, 500)
         self.add_component(grid)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
 @MenuManage.describ('sessions.change_session', FORMTYPE_NOMODAL, 'core.right', _("To manage audit logs."))
 class AudiLogConfig(XferListEditor):
     caption = _("Log configuration")
-    icon = "auditlog.png"
     short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
@@ -432,7 +412,7 @@ class AudiLogConfig(XferListEditor):
         sel.description = _('settings')
         self.add_component(sel)
         btn = XferCompButton('ChangeAL')
-        btn.set_action(self.request, AudiLogChange.get_action(TITLE_MODIFY, "images/edit.png", short_icon='mdi:mdi-pencil-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO)
+        btn.set_action(self.request, AudiLogChange.get_action(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO)
         btn.set_location(2, row + 1)
         self.add_component(btn)
 
@@ -440,7 +420,6 @@ class AudiLogConfig(XferListEditor):
 @MenuManage.describ('CORE.add_parameter')
 class AudiLogChange(XferContainerAcknowledge):
     caption = _("Log setting")
-    icon = "auditlog.png"
     short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'
@@ -451,11 +430,10 @@ class AudiLogChange(XferContainerAcknowledge):
         set_auditlog_states()
 
 
-@ActionsManage.affect_grid(_('purge'), "images/delete.png", short_icon='mdi:mdi-delete-outline', unique=SELECT_NONE)
+@ActionsManage.affect_grid(_('purge'), short_icon='mdi:mdi-delete-outline', unique=SELECT_NONE)
 @MenuManage.describ('CORE.add_parameter')
 class AudiLogPurge(XferContainerAcknowledge):
     caption = _("Purge log")
-    icon = "auditlog.png"
     short_icon = "mdi:mdi-book-cog"
     model = LucteriosLogEntry
     field_id = 'lucterioslogentry'

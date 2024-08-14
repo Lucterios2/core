@@ -181,7 +181,9 @@ class PrintImage(PrintItem):
 
     def __init__(self, comp, owner):
         PrintItem.__init__(self, comp, owner)
-        if self.comp.type != '':
+        if self.comp.type == '#':
+            self.value = self.comp.value
+        elif self.comp.type != '':
             if is_image_base64(self.comp.value):
                 self.value = self.comp.value
             else:

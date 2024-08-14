@@ -135,8 +135,7 @@ class XferListEditor(XferContainerCustom):
 
     def fillresponse(self):
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0)
         self.add_component(img)
         lbl = XferCompLabelForm('title')
@@ -149,7 +148,7 @@ class XferListEditor(XferContainerCustom):
         if self.model is not None:
             for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
                 self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
 class XferAddEditor(XferContainerCustom):
@@ -172,16 +171,15 @@ class XferAddEditor(XferContainerCustom):
         else:
             self.caption = self.caption_modify
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, 0, False)
         if len(self.actions) == 0:
-            self.add_action(self.return_action(TITLE_OK, 'images/ok.png', 'mdi:mdi-check'), params={"SAVE": "YES"})
+            self.add_action(self.return_action(TITLE_OK, short_icon='mdi:mdi-check'), params={"SAVE": "YES"})
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_EDIT, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CANCEL, 'images/cancel.png', 'mdi:mdi-cancel'))
+        self.add_action(WrapAction(TITLE_CANCEL, short_icon='mdi:mdi-cancel'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
     def request_handling(self, request, *args, **kwargs):
@@ -224,14 +222,13 @@ class XferShowEditor(XferContainerCustom):
             raise LucteriosException(IMPORTANT, _("This record not exist!\nRefresh your application."))
         max_row = self.get_max_row() + 1
         img = XferCompImage('img')
-        img.set_value(self.icon_path())
-        img.set_short_icon(self.short_icon)
+        img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
         self.fill_from_model(1, max_row, True)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_SHOW, self, key=action_list_sorted):
             self.add_action(act, **opt)
-        self.add_action(WrapAction(TITLE_CLOSE, 'images/close.png', 'mdi:mdi-close'))
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
         add_auditlog_button(self, self.item, 0, max(6, self.get_max_row()) + 20)
 
 

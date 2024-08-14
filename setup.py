@@ -61,8 +61,8 @@ setup(
         "lucterios.CORE.migrations": ['*'],
         "lucterios.CORE": ['build', 'images/*', 'locale/*/*/*', 'help/*'],
         "lucterios.framework.migrations": ['*'],
-        "lucterios.framework": ['locale/*/*/*'],
+        "lucterios.framework": ['locale/*/*/*', 'fonts/*', 'mdi-icons/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["pip", "importlib-metadata", "Django ~=4.2", "django-fsm ~=2.8", "lxml ~=5.1", "lxml_html_clean", "Pillow ~=10.2", "reportlab ~=4.1", "APScheduler ~=3.10", "Babel ~=2.14", "pyqt5 ~=5.15", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=2.0", "waitress"],
+    install_requires=["pip", "importlib-metadata", "Django ~=4.2", "django-fsm ~=2.8", "lxml ~=5.1", "lxml_html_clean", "Pillow ~=10.2", "CairoSVG ~=2.7", "reportlab ~=4.1", "APScheduler ~=3.10", "Babel ~=2.14", "pyqt5 ~=5.15", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=2.0", "waitress"],
 )

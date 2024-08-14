@@ -10,3 +10,4 @@ before_script:
   - ./utils/prep_env.sh advanced
   - python3 -m pip install -U -r requirement.txt --extra-index-url https://pypi.diacamma.org/simple --extra-index-url https://pypi.lucterios.org/simple
   - python3 -m pip install -U lucterios.standard --extra-index-url https://pypi.diacamma.org/simple --extra-index-url https://pypi.lucterios.org/simple
+  - python3 -m pip install opentypesvg

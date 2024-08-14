@@ -390,12 +390,8 @@ class LucteriosTestAbstract(object):
         if isinstance(path, str):
             act = self.get_json_path(path)
         self.assertEqual(act['text'], act_desc[0])
-        if act_desc[1] is None:
-            self.assertTrue('icon' not in act.keys())
-        elif act_desc[1].startswith('images/'):
-            self.assertEqual(act['icon'], '/static/lucterios.CORE/' + act_desc[1])
-        else:
-            self.assertEqual(act['icon'], '/static/' + act_desc[1])
+        if act_desc[1] is not None:
+            self.assertEqual(act['short_icon'], act_desc[1])
         if len(act_desc) > 2:
             self.assertEqual(act['method'], method)
             self.assertEqual(act['extension'], act_desc[2])
