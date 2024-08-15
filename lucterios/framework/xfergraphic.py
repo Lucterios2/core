@@ -77,6 +77,7 @@ class XferContainerAcknowledge(XferContainerAbstract):
         self.custom.extension = self.extension
         self.custom.action = self.action
         self.custom.closeaction = self.closeaction
+        self.custom.short_icon = self.short_icon
         return self.custom
 
     def confirme(self, title):

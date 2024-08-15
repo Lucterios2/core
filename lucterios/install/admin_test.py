@@ -73,7 +73,7 @@ class TestGlobal(BaseTest):
         self.assertEqual('lucterios.CORE', pack_list['lucterios'][2][0][0])
         self.assertEqual('2.7.', pack_list['lucterios'][2][0][1][:4])
         self.assertEqual([], pack_list['lucterios'][2][0][2])
-        self.assertEqual(16, len(pack_list['lucterios'][3]), pack_list['lucterios'])
+        self.assertEqual(17, len(pack_list['lucterios'][3]), pack_list['lucterios'])
 
     def test_installed(self):
         val = self.luct_glo.installed()
