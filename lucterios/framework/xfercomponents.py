@@ -31,11 +31,9 @@ from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
-from lucterios.framework.tools import WrapAction, ActionsManage, SELECT_MULTI, CLOSE_YES, get_actions_json, adapt_value,\
-    format_to_string
-from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_SINGLE, SELECT_NONE
-from lucterios.framework.models import get_format_from_field, extract_format,\
-    LucteriosVirtualField
+from lucterios.framework.tools import WrapAction, ActionsManage, CLOSE_YES, get_actions_json, adapt_value, format_to_string
+from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_NONE
+from lucterios.framework.models import get_format_from_field, extract_format, LucteriosVirtualField
 from lucterios.framework.xferbasic import NULL_VALUE
 from lucterios.framework.filetools import md5sum, is_image_base64
 

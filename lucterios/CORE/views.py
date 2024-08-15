@@ -38,14 +38,14 @@ from django.conf import settings
 from django.db.models import Q
 
 from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, \
-    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI,\
+    ActionsManage, FORMTYPE_REFRESH, SELECT_SINGLE, CLOSE_NO, FORMTYPE_MODAL, CLOSE_YES, SELECT_MULTI, \
     get_format_from_field, get_icon_path
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_MODIFY, TITLE_DELETE, \
-    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted,\
+    TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted, \
     TITLE_CREATE
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
@@ -57,7 +57,7 @@ from lucterios.CORE.views_usergroup import UsersList, GroupsList
 from lucterios.CORE.import_drivers import ImportDriver
 
 
-MenuManage.add_sub('core.menu', None, short_icon = 'mdi:mdi-circle-small')
+MenuManage.add_sub('core.menu', None, short_icon='mdi:mdi-circle-small')
 MenuManage.add_sub('core.general', None, short_icon='mdi:mdi-home', caption=_('General'), desc=_('Generality'), pos=1)
 MenuManage.add_sub('core.admin', None, short_icon='mdi:mdi-tune-vertical', caption=_('Management'), desc=_('Manage settings and configurations.'), pos=100)
 

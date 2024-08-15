@@ -50,8 +50,7 @@ from django.core.cache import cache
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.tools import adapt_value, format_to_string, extract_format, get_format_from_field, get_format_value
-from lucterios.framework.model_fields import get_obj_contains, PrintFieldsPlugIn,\
-    is_simple_field, LucteriosVirtualField
+from lucterios.framework.model_fields import get_obj_contains, PrintFieldsPlugIn, is_simple_field, LucteriosVirtualField
 
 
 def add_sub_field_for_print(fields, field_name, field_title, model):

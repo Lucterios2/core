@@ -35,8 +35,7 @@ from lucterios.framework.tools import WrapAction, ActionsManage
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
     XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
     XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE,\
-    TITLE_ADD, TITLE_DELETE
+from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE, TITLE_ADD, TITLE_DELETE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 
 TYPE_FLOAT = 'float'

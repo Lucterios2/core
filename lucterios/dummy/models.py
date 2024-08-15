@@ -32,8 +32,7 @@ from lucterios.framework.models import LucteriosModel
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter, Preference
 from lucterios.framework.auditlog import auditlog
-from lucterios.framework.model_fields import LucteriosDecimalField,\
-    LucteriosVirtualField
+from lucterios.framework.model_fields import LucteriosDecimalField, LucteriosVirtualField
 
 
 class Example(LucteriosModel):

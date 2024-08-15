@@ -30,8 +30,7 @@ from unittest.suite import TestSuite
 from unittest.loader import TestLoader
 from os.path import join, dirname, isfile, isdir
 import os
-from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none, delete_path,\
-    get_package_list
+from lucterios.install.lucterios_admin import LucteriosGlobal, LucteriosInstance, setup_from_none, delete_path, get_package_list
 from lucterios.framework.juxd import JUXDTestRunner
 
 

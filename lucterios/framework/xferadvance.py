@@ -30,10 +30,8 @@ from django.db import IntegrityError
 from django.db.models import Q
 
 from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
-from lucterios.framework.tools import ifplural, WrapAction, ActionsManage,\
-    FORMTYPE_MODAL, CLOSE_NO
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid,\
-    XferCompButton
+from lucterios.framework.tools import ifplural, WrapAction, ActionsManage, FORMTYPE_MODAL, CLOSE_NO
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, XferCompButton
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from django_fsm import TransitionNotAllowed
 from lucterios.framework.models import LucteriosLogEntry

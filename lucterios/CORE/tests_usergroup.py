@@ -32,7 +32,7 @@ from lucterios.framework.test import LucteriosTest, add_empty_user, add_user
 from lucterios.framework import tools, signal_and_lock
 from lucterios.framework.auditlog import LucteriosAuditlogModelRegistry
 
-from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit,\
+from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled, UsersEnabled, UsersEdit, \
     AudiLogConfig, GroupsDelete, PreferenceEdit, UsersShow, ChangeOnlySuperAdmin
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
