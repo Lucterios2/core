@@ -190,7 +190,7 @@ class ActionsManage(object):
                 for act_ident, act_xclass, act_title, act_icon, act_short_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
                     try:
                         if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
-                            acts.append((act_xclass.get_action(act_title, icon_path=act_icon, short_icon=act_short_icon), dict(act_options)))
+                            acts.append((act_xclass.get_action(act_title, short_icon=act_short_icon), dict(act_options)))
                     except Exception:
                         getLogger('lucterios.framework').error('error for [%s,%s,%s,%s]', act_ident, act_xclass, act_title, act_icon)
                         raise
