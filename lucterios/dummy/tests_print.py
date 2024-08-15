@@ -28,7 +28,7 @@ from __future__ import unicode_literals
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.CORE.views import PrintModelList, PrintModelEdit, PrintModelClone, \
-    PrintModelDelete, PrintModelSave, PrintModelReload, PrintModelExtract,\
+    PrintModelDelete, PrintModelSave, PrintModelReload, PrintModelExtract, \
     Download, PrintModelImport, PrintModelSetDefault
 from os.path import isfile
 

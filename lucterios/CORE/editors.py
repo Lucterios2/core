@@ -27,7 +27,7 @@ from __future__ import unicode_literals
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
-from lucterios.framework.xfercomponents import XferCompPassword, XferCompCheck,\
+from lucterios.framework.xfercomponents import XferCompPassword, XferCompCheck, \
     XferCompSelect, XferCompButton, XferCompCheckList
 from lucterios.framework.editors import LucteriosEditor
 from lucterios.framework.error import LucteriosException, IMPORTANT, MINOR

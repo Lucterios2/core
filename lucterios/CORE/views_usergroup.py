@@ -30,14 +30,14 @@ from django.apps.registry import apps
 from django.db.models import Q
 from django.conf import settings
 
-from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE,\
+from lucterios.framework.xferadvance import XferDelete, XferAddEditor, XferListEditor, TITLE_MODIFY, TITLE_DELETE, TITLE_CREATE, \
     TITLE_CLOSE, XferShowEditor, TITLE_SEARCH
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
 from lucterios.framework.xfersearch import XferSearchEditor
-from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect,\
-    XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm,\
+from lucterios.framework.xfercomponents import XferCompGrid, XferCompSelect, \
+    XferCompCheckList, XferCompButton, XferCompImage, XferCompLabelForm, \
     XferCompCheck
-from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage,\
+from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, SELECT_SINGLE, SELECT_MULTI, ActionsManage, \
     FORMTYPE_REFRESH, CLOSE_NO, SELECT_NONE, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.signal_and_lock import LucteriosSession, Signal

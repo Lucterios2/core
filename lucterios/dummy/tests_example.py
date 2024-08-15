@@ -31,8 +31,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.conf import settings
 
 from lucterios.framework.test import LucteriosTest, add_user
-from lucterios.framework.printgenerators import ActionGenerator,\
-    ReportingGenerator
+from lucterios.framework.printgenerators import ActionGenerator, ReportingGenerator
 from lucterios.framework.tools import set_locale_lang
 
 from lucterios.CORE.models import PrintModel

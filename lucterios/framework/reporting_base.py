@@ -23,8 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from lxml import etree
 from logging import getLogger
-from lucterios.framework.filetools import is_image_base64, open_from_base64,\
-    open_from_mdi
+from lucterios.framework.filetools import is_image_base64, open_from_base64, open_from_mdi
 
 
 class LucteriosBase(object):

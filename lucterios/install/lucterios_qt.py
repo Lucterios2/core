@@ -31,10 +31,10 @@ from traceback import print_exc
 from threading import Thread
 import sys
 
-from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox,\
-    QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit,\
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout,\
-    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout, QInputDialog,\
+from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox, \
+    QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit, \
+    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout, \
+    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout, QInputDialog, \
     QPushButton
 from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
 from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar

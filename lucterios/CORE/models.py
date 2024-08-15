@@ -40,7 +40,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 from django.core.cache import cache
 
-from lucterios.framework.models import LucteriosModel, LucteriosVirtualField,\
+from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, \
     LucteriosLogEntry
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.xfersearch import get_search_query_from_criteria
@@ -528,8 +528,7 @@ class LucteriosUser(User, LucteriosModel):
             if self.last_login is None:
                 return LucteriosUser.objects.filter(
                     models.Q(email=self.email, is_active=True) & (
-                        models.Q(last_login__isnull=False) |
-                        models.Q(last_login__isnull=True, id__lt=self.id)
+                        models.Q(last_login__isnull=False) | models.Q(last_login__isnull=True, id__lt=self.id)
                     )
                 ).count() != 0
             else:
@@ -662,7 +661,7 @@ class PrintModel(LucteriosModel):
 
     @classmethod
     def get_search_fields(cls):
-        return['name', 'kind', 'mode', 'modelname', 'value']
+        return ['name', 'kind', 'mode', 'modelname', 'value']
 
     @classmethod
     def get_default_fields(cls):

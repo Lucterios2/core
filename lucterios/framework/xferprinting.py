@@ -35,8 +35,7 @@ from django.utils.translation import gettext as _
 from lucterios.framework.xferbasic import XferContainerAbstract
 from lucterios.framework.error import LucteriosException, GRAVE
 from lucterios.framework.xfergraphic import XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck, XferCompLabelForm,\
-    XferCompDownLoad
+from lucterios.framework.xfercomponents import XferCompSelect, XferCompFloat, XferCompEdit, XferCompMemo, XferCompCheck, XferCompLabelForm, XferCompDownLoad
 from lucterios.framework.tools import CLOSE_YES, FORMTYPE_MODAL, WrapAction
 from lucterios.framework.filetools import get_user_dir
 from lucterios.framework.xfersearch import get_search_query
