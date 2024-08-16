@@ -32,7 +32,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.fields.related import ForeignKey
 from django.http.response import JsonResponse
 
-from lucterios.framework.tools import get_icon_path, WrapAction, FORMTYPE_MODAL, CLOSE_YES, set_locale_lang
+from lucterios.framework.tools import WrapAction, FORMTYPE_MODAL, CLOSE_YES, set_locale_lang
 from lucterios.framework.error import LucteriosException, get_error_trace, IMPORTANT, GRAVE
 from lucterios.framework import signal_and_lock
 
@@ -47,7 +47,6 @@ class XferContainerAbstract(View):
     action = ""
     caption = ""
     closeaction = None
-    icon = ""
     short_icon = ""
     url_text = ""
     # is_view_right = ""
@@ -87,28 +86,17 @@ class XferContainerAbstract(View):
         cls.url_text = r'%s/%s' % (extension, action)
 
     @classmethod
-    def icon_path(cls, icon_path=None):
-        if icon_path is None:
-            icon_path = getattr(cls, 'icon', '')
-        res_icon_path = get_icon_path(icon_path, cls.url_text, cls.extension)
-        return res_icon_path
-
-    @classmethod
-    def get_action(cls, caption=None, icon_path=None, short_icon=''):
+    def get_action(cls, caption=None, short_icon=''):
         if caption is None:
             caption = cls.caption
-        if icon_path is None:
-            icon_path = getattr(cls, 'icon', '')
-        ret_act = WrapAction(caption, icon_path, short_icon=short_icon if short_icon != '' else cls.short_icon, url_text=cls.url_text,
+        ret_act = WrapAction(caption, short_icon=short_icon if short_icon != '' else cls.short_icon, url_text=cls.url_text,
                              is_view_right=getattr(cls, 'is_view_right', None), method=cls.methods_allowed[0])
         return ret_act
 
-    def return_action(self, caption=None, icon_path=None, short_icon=''):
+    def return_action(self, caption=None, short_icon=''):
         if caption is None:
             caption = self.caption
-        if icon_path is None:
-            icon_path = getattr(self, 'icon', '')
-        ret_act = WrapAction(caption, icon_path, short_icon=short_icon if short_icon != '' else self.short_icon, url_text=self.url_text,
+        ret_act = WrapAction(caption, short_icon=short_icon if short_icon != '' else self.short_icon, url_text=self.url_text,
                              is_view_right=getattr(self, 'is_view_right', None), method=self.methods_allowed[0])
         return ret_act
 
