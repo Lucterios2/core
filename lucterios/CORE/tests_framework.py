@@ -80,7 +80,7 @@ class GenericTest(LucteriosTest):
     def test_close(self):
         def fillresponse_close():
             self.factory.xfer.set_close_action(
-                WrapAction("close", "", 'mdi:mdi-circle-small', "customer", "list"))
+                WrapAction("close", 'mdi:mdi-circle-small', "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_close
         self.calljson('/customer/details', {}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')
@@ -91,7 +91,7 @@ class GenericTest(LucteriosTest):
 
     def test_redirect(self):
         def fillresponse_redirect():
-            self.factory.xfer.redirect_action(WrapAction("redirect", "", 'mdi:mdi-circle-small', "customer", "list"))
+            self.factory.xfer.redirect_action(WrapAction("redirect", 'mdi:mdi-circle-small', "customer", "list"))
         self.factory.xfer.fillresponse = fillresponse_redirect
         self.calljson('/customer/details', {}, False)
         self.assert_observer('core.acknowledge', 'customer', 'details')

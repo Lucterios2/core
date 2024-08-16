@@ -88,13 +88,10 @@ class WrapAction(object):
 
     mode_connect_notfree = None
 
-    def __init__(self, caption, icon_path='', short_icon='', extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
-        if (icon_path != ''):
-            warnings.warn("The action '%s' (%s.%s/%s) has already icon = %s" % (caption, extension, action, url_text, icon_path), DeprecationWarning)
+    def __init__(self, caption, short_icon='', extension='', action='', url_text='', pos=0, is_view_right='', method='POST'):
         if (short_icon == ''):
             warnings.warn("The action '%s' (%s.%s/%s) has no short_icon" % (caption, extension, action, url_text), DeprecationWarning)
         self.caption = caption
-        self.icon_path = get_icon_path(icon_path, url_text, extension)
         self.short_icon = short_icon
         self.modal = None
         self.is_view_right = is_view_right
@@ -115,8 +112,6 @@ class WrapAction(object):
         json_res = {}
         json_res['text'] = str(self.caption)
         json_res['id'] = self.url_text
-        if self.icon_path != "":
-            json_res['icon'] = str(self.icon_path)
         if self.short_icon != "":
             json_res['short_icon'] = str(self.short_icon)
         if self.extension != "":
@@ -187,12 +182,12 @@ class ActionsManage(object):
             if model_name is None:
                 model_name = xfer.model.get_long_name()
             if model_name in cls._ACTION_LIST.keys():
-                for act_ident, act_xclass, act_title, act_icon, act_short_icon, act_condition, act_options in cls._ACTION_LIST[model_name]:
+                for act in cls._ACTION_LIST[model_name]:
                     try:
-                        if (act_ident == ident) and ((act_condition is None) or act_condition(xfer, **args)):
-                            acts.append((act_xclass.get_action(act_title, short_icon=act_short_icon), dict(act_options)))
+                        if (act['ident'] == ident) and ((act['condition'] is None) or act['condition'](xfer, **args)):
+                            acts.append((act['xclass'].get_action(act['title'], short_icon=act['short_icon']), dict(act['options'])))
                     except Exception:
-                        getLogger('lucterios.framework').error('error for [%s,%s,%s,%s]', act_ident, act_xclass, act_title, act_icon)
+                        getLogger('lucterios.framework').error('error for [%s,%s,%s,%s]', act['ident'], act['xclass'], act['title'], act['short_icon'])
                         raise
             if key is not None:
                 acts.sort(key=key)
@@ -211,16 +206,17 @@ class ActionsManage(object):
             retact = None
             if model_name in cls._ACTION_LIST.keys():
                 for act in cls._ACTION_LIST[model_name]:
-                    if act[1].url_text.endswith(url) and ((act[5] is None) or act[5](xfer, **args)):
-                        retact = act[1].get_action(act[2], act[3], act[4])
+                    if act['xclass'].url_text.endswith(url) and ((act['condition'] is None) or act['condition'](xfer, **args)):
+                        retact = act['xclass'].get_action(act['title'], short_icon=act['short_icon'])
             return retact
         finally:
             cls._actlock.release()
 
     @classmethod
-    def add_action_generic(cls, xclass, ident, title, icon, short_icon, condition, **options):
-        if (short_icon == '') and (icon != ''):
-            warnings.warn("The icon '%s' has no short_icon for action '%s' (%s - %s)" % (icon, title, xclass, ident), DeprecationWarning)
+    def add_action_generic(cls, xclass, ident, title, short_icon, condition, **options):
+        assert (condition is None) or callable(condition), "Condition not callabled !"
+        if short_icon == '':
+            warnings.warn("The action '%s' (%s - %s) has no short_icon" % (title, xclass, ident), DeprecationWarning)
         if 'model_name' in options.keys() and (options['model_name'] is not None):
             model_name = options['model_name']
         else:
@@ -229,51 +225,53 @@ class ActionsManage(object):
         try:
             if model_name not in cls._ACTION_LIST.keys():
                 cls._ACTION_LIST[model_name] = []
-            cls._ACTION_LIST[model_name].append((ident, xclass, title, icon, short_icon, condition, options))
+            cls._ACTION_LIST[model_name].append({'ident': ident, 'xclass': xclass,
+                                                 'title': title, 'short_icon': short_icon,
+                                                 'condition': condition, 'options': options})
             return xclass
         finally:
             cls._actlock.release()
 
     @classmethod
-    def wrapp_affect_generic(cls, ident, title, icon='', short_icon='', condition=None, **options):
+    def wrapp_affect_generic(cls, ident, title, short_icon='', condition=None, **options):
         def wrapper(xclass):
-            return cls.add_action_generic(xclass, ident, title, icon, short_icon, condition, **options)
+            return cls.add_action_generic(xclass, ident, title, short_icon, condition, **options)
         return wrapper
 
     @classmethod
-    def affect_list(cls, title, icon='', condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
+    def affect_list(cls, title, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = SELECT_NONE
-        return cls.wrapp_affect_generic(cls.ACTION_IDENT_LIST, title, icon, short_icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_LIST, title, short_icon, condition, **options)
 
     @classmethod
-    def affect_grid(cls, title, icon='', condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, short_icon='', **options):
+    def affect_grid(cls, title, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, short_icon='', **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = unique
-        return cls.wrapp_affect_generic(cls.ACTION_IDENT_GRID, title, icon, short_icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_GRID, title, short_icon, condition, **options)
 
     @classmethod
-    def affect_show(cls, title, icon='', condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
+    def affect_show(cls, title, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = SELECT_SINGLE
-        return cls.wrapp_affect_generic(cls.ACTION_IDENT_SHOW, title, icon, short_icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_SHOW, title, short_icon, condition, **options)
 
     @classmethod
-    def affect_edit(cls, title, icon='', condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
+    def affect_edit(cls, title, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, short_icon='', **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = SELECT_SINGLE
-        return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, icon, short_icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_EDIT, title, short_icon, condition, **options)
 
     @classmethod
-    def affect_other(cls, title, icon='', condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, short_icon='', **options):
+    def affect_other(cls, title, condition=None, close=CLOSE_NO, modal=FORMTYPE_MODAL, unique=SELECT_NONE, short_icon='', **options):
         options['close'] = close
         options['modal'] = modal
         options['unique'] = unique
-        return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, icon, short_icon, condition, **options)
+        return cls.wrapp_affect_generic(cls.ACTION_IDENT_OTHER, title, short_icon, condition, **options)
 
     @classmethod
     def affect_transition(cls, state, close=CLOSE_NO, multi_list=None, only_one=None, ignore_all=None, ignore_grid=None, **options):
@@ -301,7 +299,7 @@ class ActionsManage(object):
                         if ((only_one is None) or (transition.name in only_one)) and ((ignore_all is None) or (transition.name not in ignore_all)):
                             cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s')) and getattr(xfer.item,'%s') == %d" % (transition.name, state, state, transition.source)
                             cond_fct = eval(cmd)
-                            cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title, icon='',
+                            cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
                                                    short_icon='mdi:mdi-share', condition=cond_fct, intop=True, close=close, **new_dict)
 
                             if (ignore_grid is None) or (transition.name not in ignore_grid):
@@ -311,7 +309,7 @@ class ActionsManage(object):
                                     unique_opt = SELECT_MULTI
                                 else:
                                     unique_opt = SELECT_SINGLE
-                                cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, icon='', short_icon='mdi:mdi-share',
+                                cls.add_action_generic(xclass, cls.ACTION_IDENT_GRID, title, short_icon='mdi:mdi-share',
                                                        condition=cond_fct, intop=False, close=CLOSE_NO, unique=unique_opt, **new_dict)
             return xclass
         return wrapper
@@ -331,16 +329,10 @@ class MenuManage(object):
     _menulock = threading.RLock()
 
     @classmethod
-    def add_sub(cls, ref, parentref, icon='', caption='', desc='', pos=0, short_icon=''):
+    def add_sub(cls, ref, parentref, caption='', desc='', pos=0, short_icon=''):
         from django.conf import settings
         cls._menulock.acquire()
         try:
-            if icon.startswith('images/'):
-                icon_path = "%slucterios.CORE/%s" % (settings.STATIC_URL, icon)
-            elif 'images/' in icon:
-                icon_path = "%s%s" % (settings.STATIC_URL, icon)
-            else:
-                icon_path = icon
             if parentref not in cls._MENU_LIST.keys():
                 cls._MENU_LIST[parentref] = []
             add_new_menu = True
@@ -351,7 +343,7 @@ class MenuManage(object):
                 logging.getLogger("lucterios.core.menu").debug(
                     "new sub-menu: caption=%s ref=%s", caption, ref)
                 cls._MENU_LIST[parentref].append(
-                    (WrapAction(caption, icon_path=icon_path, short_icon=short_icon, url_text=ref, pos=pos), desc))
+                    (WrapAction(caption, short_icon=short_icon, url_text=ref, pos=pos), desc))
         finally:
             cls._menulock.release()
 
@@ -366,7 +358,7 @@ class MenuManage(object):
                         cls._MENU_LIST[menu_parent] = []
                     logging.getLogger("lucterios.core.menu").debug(
                         "new menu: caption=%s ref=%s", item.caption, item.url_text)
-                    act = item.get_action(item.caption, icon_path=item.icon_path(), short_icon=item.short_icon)
+                    act = item.get_action(item.caption, short_icon=item.short_icon)
                     act.modal = modal
                     cls._MENU_LIST[menu_parent].append((act, menu_desc))
                 return item

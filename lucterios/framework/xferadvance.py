@@ -196,6 +196,7 @@ class XferAddEditor(XferContainerCustom):
     def run_save(self, request, *args, **kwargs):
         save = XferSave()
         save.is_view_right = self.is_view_right
+        save.short_icon = self.short_icon
         save.locked = self.locked
         save.model = self.model
         save.field_id = self.field_id
@@ -294,7 +295,7 @@ class XferSave(XferContainerAcknowledge):
                 del self.params[param_name]
         if self.getparam('URL_TO_REDIRECT') is not None:
             url_text = self.getparam('URL_TO_REDIRECT')
-            self.redirect_action(WrapAction('', '', url_text=url_text), params={self.field_id: self.item.id})
+            self.redirect_action(WrapAction('', short_icon=self.short_icon, url_text=url_text), params={self.field_id: self.item.id})
         elif isinstance(self.redirect_to_show, str):
             self.redirect_action(ActionsManage.get_action_url(self.model.get_long_name(), self.redirect_to_show, self),
                                  params={self.field_id: self.item.id})
