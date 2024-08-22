@@ -113,7 +113,6 @@ class DummyTest(LucteriosTest):
         self.assert_json_equal('MEMO', "mm1", 'xyz')
         self.assert_attrib_equal("mm1", 'with_hypertext', 'False')
         self.assert_attrib_equal("mm1", 'VMin', '50')
-        self.assert_attrib_equal("mm1", 'HMin', '200')
         self.assert_json_equal('DATE', "dt1", '2007-04-23')
         self.assert_json_equal('TIME', "tm1", '12:34:00')
         self.assert_json_equal('DATETIME', "stm1", '2008-07-12 23:47:31')

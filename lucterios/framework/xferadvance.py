@@ -124,7 +124,7 @@ class XferListEditor(XferContainerCustom):
         grid.set_model(items, self.fieldnames, xfer)
         grid.add_action_notified(self, model=model)
         grid.set_location(0, row + 1, 2)
-        grid.set_size(350, 500)
+        grid.set_height(350)
         self.add_component(grid)
 
     def fillresponse_body(self):
