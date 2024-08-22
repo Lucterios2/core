@@ -313,7 +313,7 @@ class SessionList(XferListEditor):
             grid.set_value(job_desc[0], 'nextdate', job_desc[3])
 
         grid.set_location(0, self.get_max_row() + 1, 2)
-        grid.set_size(200, 500)
+        grid.set_height(350)
         self.add_component(grid)
 
     def fillresponse(self):
@@ -373,7 +373,7 @@ class AuditLogShow(XferShowEditor):
         grid = XferCompGrid(self.field_id)
         grid.set_model(log_items, None, self)
         grid.set_location(1, self.get_max_row() + 1, 2)
-        grid.set_size(200, 500)
+        grid.set_height(350)
         self.add_component(grid)
         self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 

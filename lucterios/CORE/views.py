@@ -479,11 +479,11 @@ class PrintModelEdit(XferContainerCustom):
             edt = XferCompMemo('col_title_%d' % col_index)
             edt.set_location(2, 6 + col_index)
             edt.set_value(col_title)
-            edt.set_size(75, 200)
+            edt.set_height(75)
             self.add_component(edt)
             edt = XferCompMemo('col_text_%d' % col_index)
             edt.set_location(3, 6 + col_index)
-            edt.set_size(50, 300)
+            edt.set_height(50)
             edt.with_hypertext = True
             edt.set_value(col_text)
             self.fill_menu_memo(edt)
@@ -494,7 +494,7 @@ class PrintModelEdit(XferContainerCustom):
         edit = XferCompMemo('value')
         edit.set_value(self.item.value)
         edit.set_location(2, 4)
-        edit.set_size(100, 500)
+        edit.set_height(100)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
         self.add_component(edit)
@@ -504,7 +504,7 @@ class PrintModelEdit(XferContainerCustom):
         edit.set_value(self.item.value)
         edit.schema = read_file(join(dirname(dirname(__file__)), 'framework', 'template.xsd'))
         edit.set_location(2, 4)
-        edit.set_size(400, 700)
+        edit.set_height(400)
         edit.with_hypertext = True
         self.fill_menu_memo(edit)
         self.add_component(edit)

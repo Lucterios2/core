@@ -48,7 +48,6 @@ class XferComponent(object):
         self.col = 0
         self.row = 0
         self.vmin = ""
-        self.hmin = ""
         self.colspan = 1
         self.rowspan = 1
         self.description = ""
@@ -60,9 +59,8 @@ class XferComponent(object):
         self.colspan = colspan
         self.rowspan = rowspan
 
-    def set_size(self, vmin, hmin):
+    def set_height(self, vmin):
         self.vmin = vmin
-        self.hmin = hmin
 
     def set_value(self, value):
         self.value = value
@@ -96,8 +94,6 @@ class XferComponent(object):
             compjson['rowspan'] = self.rowspan
         if isinstance(self.vmin, int):
             compjson['VMin'] = self.vmin
-        if isinstance(self.hmin, int):
-            compjson['HMin'] = self.hmin
         compjson['needed'] = self.needed
         return compjson
 
@@ -318,7 +314,6 @@ class XferCompLabelForm(XferComponent):
         new_lbl.col = old_obj.col
         new_lbl.row = old_obj.row
         new_lbl.vmin = old_obj.vmin
-        new_lbl.hmin = old_obj.hmin
         new_lbl.colspan = old_obj.colspan
         new_lbl.rowspan = old_obj.rowspan
         new_lbl.description = old_obj.description
@@ -451,7 +446,6 @@ class XferCompMemo(XferCompButton):
         XferCompButton.__init__(self, name)
         self._component_ident = "MEMO"
         self.sub_menu = []
-        self.hmin = 200
         self.vmin = 50
         self.with_hypertext = False
 
@@ -478,7 +472,6 @@ class XferCompXML(XferCompButton):
         self._component_ident = "XML"
         self.schema = ""
         self.sub_menu = []
-        self.hmin = 200
         self.vmin = 50
 
     def add_sub_menu(self, name, value):

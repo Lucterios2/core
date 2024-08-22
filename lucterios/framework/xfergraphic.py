@@ -135,7 +135,6 @@ class XferContainerAcknowledge(XferContainerAbstract):
             lbl.set_value_center("{[br/]}" + str(self.traitment_data[1]))
             btn = XferCompButton("Next")
             btn.set_location(1, 1)
-            btn.set_size(50, 300)
             btn.set_action(self.request, self.return_action(_('Traitment...'), ""), params={"RELOAD": "YES"})
             btn.java_script = "parent.refresh()"
             dlg.params["RELOAD"] = "YES"
@@ -301,7 +300,6 @@ class XferContainerCustom(XferContainerAbstract):
                 new_lbl.col = old_obj.col
                 new_lbl.row = old_obj.row
                 new_lbl.vmin = old_obj.vmin
-                new_lbl.hmin = old_obj.hmin
                 new_lbl.colspan = old_obj.colspan
                 new_lbl.rowspan = old_obj.rowspan
                 new_lbl.description = old_obj.description

@@ -17,8 +17,6 @@
 	<target name="clientweb">
 		<antcall target="clear_addon" />
 		<antcall target="init_addon" />
-		<antcall target="package_addon" />
-		<antcall target="test_webclient" />
 	</target>
 
 	<target name="clear_addon">
@@ -29,9 +27,6 @@
 	<target name="init_addon">
         <antcall target="download_newclient" />
         <antcall target="extract_mdiclient" />
-	</target>
-
-	<target name="package_addon">
 	</target>
 
 	<target name="download_newclient">
