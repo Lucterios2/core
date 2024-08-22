@@ -30,12 +30,9 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.fields.related import ManyToManyField
 from django.db.models import Q
 
-from lucterios.framework.tools import CLOSE_NO, FORMTYPE_REFRESH
 from lucterios.framework.tools import WrapAction, ActionsManage
-from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, \
-    XferCompSelect, XferCompButton, XferCompFloat, XferCompEdit, XferCompCheck, \
-    XferCompDate, XferCompTime, XferCompCheckList
-from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE, TITLE_ADD, TITLE_DELETE
+from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSearch
+from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
 
 TYPE_FLOAT = 'float'
@@ -72,18 +69,6 @@ LIST_OP_BY_TYPE = {
 }
 
 
-def get_script_for_operator():
-    script = "var new_operator=[];\n"
-    for current_type, op_list in LIST_OP_BY_TYPE.items():
-        script += "if (type=='%(type)s') {\n" % {'type': current_type}
-        for op_id, op_title, __op_q in op_list:
-            script += "    new_operator.push(['%(op_id)s','%(op_title)s']);\n" % {
-                'op_id': op_id, 'op_title': op_title}
-        script += "}\n"
-    script += "parent.get('searchOperator').setValue({case:new_operator,value:0});\n"
-    return script
-
-
 def get_criteria_list(criteria):
     try:
         criteria_list = json.loads(criteria)
@@ -98,24 +83,6 @@ def get_criteria_list(criteria):
                 criteria_list.append(criteriaval)
     return criteria_list
 
-#
-# def set_criteria_from_list(criteria_list):
-#     temp_list = []
-#     for criteria_item in criteria_list:
-#         if len(criteria_item) == 3:
-#             if isinstance(criteria_item[2], list):
-#                 criteria_item[2] = ";".join(criteria_item[2])
-#             temp_list.append('||'.join(criteria_item))
-#     return '//'.join(temp_list)
-
-
-def set_criteria_from_list(criteria_list):
-    temp_list = []
-    for criteria_item in criteria_list:
-        if len(criteria_item) == 3:
-            temp_list.append(criteria_item)
-    return json.dumps(temp_list)
-
 
 def get_search_query_from_criteria(criteria, model):
     criteria_list = get_criteria_list(criteria)
@@ -125,8 +92,8 @@ def get_search_query_from_criteria(criteria, model):
 
 
 def get_info_list(criteria, model):
-    result_criteria = get_search_query_from_criteria(criteria, model)
-    info_list = list(result_criteria[1].values())
+    _filter, result_desc = get_search_query_from_criteria(criteria, model)
+    info_list = list(result_desc.values())
     if len(info_list) > 0:
         info_list.insert(0, "{[b]}{[u]}%s{[/u]}{[/b]}" % _("Your criteria of search"))
     else:
@@ -135,7 +102,7 @@ def get_info_list(criteria, model):
 
 
 def get_search_query(criteria, model):
-    filter_result, _ = get_search_query_from_criteria(criteria, model)
+    filter_result, _desc = get_search_query_from_criteria(criteria, model)
     return [filter_result]
 
 
@@ -250,11 +217,13 @@ class FieldDescItem(object):
         # list => '[["xxx",yyyy],["xxx","yyyy"],[xxx,yyyy]]'
         return json.dumps(self.field_list)
 
-    def add_from_script(self):
-        script_ref = "findFields['%s']='%s';\n" % (self.fieldname, self.field_type)
-        if (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT) or (self.field_type == TYPE_FLOAT):
-            script_ref += "findLists['%s']=%s;\n" % (self.fieldname, self.get_list().replace("'", "\\'"))
-        return script_ref
+    def get_selector(self):
+        return {
+            'name': self.fieldname,
+            'description': self.description,
+            'type': self.field_type,
+            'extra': self.field_list
+        }
 
     def get_value(self, value, operation):
         sep_for_list = ' %s ' % OP_LIST[8 if (operation != OP_DIFFERENT[0]) else 9][1]
@@ -262,9 +231,9 @@ class FieldDescItem(object):
             new_val_txt = '"%s"' % value if isinstance(value, str) else sep_for_list.join(['"%s"' % subvalue for subvalue in value])
         elif self.field_type == TYPE_BOOL:
             if value == 'o':
-                new_val_txt = "oui"
+                new_val_txt = _("Yes")
             else:
-                new_val_txt = "non"
+                new_val_txt = _("No")
         elif self.field_type == TYPE_DATE:
             new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
         elif self.field_type == TYPE_DATETIME:
@@ -353,30 +322,6 @@ class FieldDescItem(object):
             query_res = self.initial_q & (new_query)
         return query_res
 
-    def get_new_criteria(self, params):
-        operation = int(params['searchOperator'])
-        new_type = self.field_type
-        if new_type != '':
-            new_val = ''
-            if new_type == TYPE_FLOAT:
-                new_val = params['searchValueFloat']
-            if new_type == TYPE_STR:
-                new_val = params['searchValueStr']
-            if new_type == TYPE_BOOL:
-                new_val = params['searchValueBool']
-            if new_type == TYPE_DATE:
-                new_val = params['searchValueDate']
-            if new_type == TYPE_TIME:
-                new_val = params['searchValueTime']
-            if new_type == TYPE_DATETIME:
-                new_val = params['searchValueDate'] + \
-                    ' ' + params['searchValueTime']
-            if (new_type == TYPE_LIST) or (new_type == TYPE_LISTMULT):
-                new_val = params['searchValueList'].split(';')
-            if (new_val != '') or ((new_type == TYPE_STR) and (operation == OP_EQUAL[0])) or ((new_type == TYPE_STR) and (operation == OP_DIFFERENT[0])):
-                return [self.fieldname, operation, new_val]
-        return None
-
 
 class FieldDescList(object):
 
@@ -396,22 +341,28 @@ class FieldDescList(object):
         self.field_id_desc.init(model)
         self.field_id_desc.field_type = TYPE_LISTMULT
 
-    def get_select_and_script(self):
-        selector = []
-        script_ref = "findFields=new Array();\n"
-        script_ref += "findLists=new Array();\n"
-        for field_desc_item in self.field_desc_list:
-            selector.append((field_desc_item.fieldname, field_desc_item.description))
-            script_ref += field_desc_item.add_from_script()
-        return selector, script_ref
+    def get_selectors(self):
+        return [field_desc_item.get_selector() for field_desc_item in self.field_desc_list]
 
     def get(self, fieldname):
+        if fieldname == '':
+            return None
         if fieldname == self.field_id_desc.fieldname:
             return self.field_id_desc
         for field_desc_item in self.field_desc_list:
             if field_desc_item.fieldname == fieldname:
                 return field_desc_item
         return None
+
+    def get_query(self, criteria_list):
+        filter_result = Q()
+        for criteria_item in criteria_list:
+            field_desc_item = self.get(criteria_item[0])
+            if field_desc_item is not None:
+                filter_result = filter_result & field_desc_item.get_query(criteria_item[2], int(criteria_item[1]))
+        if len(filter_result) == 0:
+            filter_result = None
+        return filter_result
 
     def get_query_from_criterialist(self, criteria_list):
         filter_result = Q()
@@ -437,53 +388,15 @@ class XferSearchEditor(XferContainerCustom):
 
     def __init__(self):
         XferContainerCustom.__init__(self)
+        self.filter = None
         self.fieldnames = None
         self.fields_desc = FieldDescList()
         self.criteria_list = []
-        self.filter = None
         self.size_by_page = None
 
-    def read_criteria_from_params(self):
-        criteria = self.getparam('CRITERIA')
-        if criteria is not None:
-            self.criteria_list = get_criteria_list(criteria)
-        act_param = self.getparam('ACT')
-        if act_param == 'ADD':
-            new_name = self.getparam('searchSelector')
-            new_criteria = self.fields_desc.get(
-                new_name).get_new_criteria(self.params)
-            if new_criteria is not None:
-                for old_criteria in self.criteria_list:
-                    if (old_criteria[0] == new_criteria[0]) and (old_criteria[1] == new_criteria[1]):
-                        if not isinstance(old_criteria[2], list):
-                            old_criteria[2] = [old_criteria[2]]
-                        if isinstance(new_criteria[2], list):
-                            old_criteria[2].extend(new_criteria[2])
-                        else:
-                            old_criteria[2].append(new_criteria[2])
-                        new_criteria = None
-            if new_criteria is not None:
-                self.criteria_list.append(new_criteria)
-        elif act_param is not None:
-            del self.criteria_list[int(self.params['ACT'])]
-        self.params['CRITERIA'] = set_criteria_from_list(self.criteria_list)
-        if 'ACT' in self.params.keys():
-            del self.params['ACT']
-        key_list = list(self.params.keys())
-        for ctx_key in key_list:
-            if ctx_key[0:6] == 'search':
-                del self.params[ctx_key]
-
-    def get_text_search(self):
-        filter_result, criteria_desc = self.fields_desc.get_query_from_criterialist(
-            self.criteria_list)
-        if len(filter_result.children) > 0:
-            self.filter = filter_result
-        else:
-            self.filter = None
-        return criteria_desc
-
     def fillresponse_add_title(self):
+        criteria = self.getparam('search')
+        self.criteria_list = get_criteria_list(criteria) if criteria is not None else []
         img = XferCompImage('img')
         img.set_value(self.short_icon, '#')
         img.set_location(0, 0)
@@ -493,116 +406,14 @@ class XferSearchEditor(XferContainerCustom):
         lbl.set_location(1, 0, 5)
         self.add_component(lbl)
 
-    def fillresponse_search_select(self):
-        selector, script_ref = self.fields_desc.get_select_and_script()
-        script_ref += """
-var name=current.getValue();
-var type=findFields[name];
-parent.get('searchValueFloat').setVisible(type=='float');
-parent.get('searchValueStr').setVisible(type=='str');
-parent.get('searchValueBool').setVisible(type=='bool');
-parent.get('searchValueDate').setVisible(type=='date' || type=='datetime');
-parent.get('searchValueTime').setVisible(type=='time' || type=='datetime');
-parent.get('searchValueList').setVisible(type=='list' || type=='listmult');
-"""
-        script_ref += get_script_for_operator()
-        script_ref += """
-if (type=='float') {
-    var prec=findLists[name];
-    parent.get('searchValueFloat').setValue({min:prec[0],max:prec[1],prec:prec[2],value:0});
-}
-if (type=='str') {
-    parent.get('searchValueStr').setValue({value:''});
-}
-if (type=='bool') {
-    parent.get('searchValueBool').setValue({value:false});
-}
-if (type=='date' || type=='datetime') {
-    parent.get('searchValueDate').setValue({value:'2000-01-01'});
-}
-if (type=='time' || type=='datetime') {
-    parent.get('searchValueTime').setValue({value:'00:00'});
-}
-if ((type=='list') || (type=='listmult')) {
-    var select_case=findLists[name];
-    parent.get('searchValueList').setValue({case:select_case,value:0});
-}
-"""
-        label = XferCompLabelForm('labelsearchSelector')
-        label.set_value_as_name(_("New criteria"))
-        label.set_location(0, 10, 1, 7)
-        self.add_component(label)
-        comp = XferCompSelect("searchSelector")
-        comp.set_select(selector)
-        comp.set_value("")
-        comp.set_location(1, 10, 1, 7)
-        comp.java_script = script_ref
+    def fillresponse_search(self):
+        comp = XferCompSearch('search')
+        comp.set_selectors(self.fields_desc.get_selectors())
+        comp.set_value(self.criteria_list)
+        comp.set_location(0, 10, 6)
+        comp.description = _("New criteria")
         self.add_component(comp)
-        comp = XferCompSelect("searchOperator")
-        comp.set_select({})
-        comp.set_value("")
-        comp.set_location(2, 10, 1, 7)
-        self.add_component(comp)
-
-    def fillresponse_search_values(self):
-        comp = XferCompButton("searchButtonAdd")
-        comp.is_default = True
-        comp.set_is_mini(True)
-        comp.set_location(4, 10, 1, 7)
-        comp.set_action(self.request, self.return_action(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline'), modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': 'ADD'})
-        self.add_component(comp)
-
-        comp = XferCompDate("searchValueDate")
-        comp.set_needed(True)
-        comp.set_location(3, 11)
-        self.add_component(comp)
-        comp = XferCompFloat("searchValueFloat")
-        comp.set_needed(True)
-        comp.set_location(3, 12)
-        self.add_component(comp)
-        comp = XferCompEdit("searchValueStr")
-        comp.set_location(3, 13)
-        self.add_component(comp)
-        comp = XferCompCheckList("searchValueList")
-        comp.set_location(3, 14)
-        self.add_component(comp)
-        comp = XferCompCheck("searchValueBool")
-        comp.set_location(3, 15)
-        self.add_component(comp)
-        comp = XferCompTime("searchValueTime")
-        comp.set_needed(True)
-        comp.set_location(3, 16)
-        self.add_component(comp)
-
-        label = XferCompLabelForm('labelsearchSep')
-        label.set_value("")
-        label.set_location(3, 17)
-        self.add_component(label)
-
-    def fillresponse_show_criteria(self):
-        criteria_text_list = self.get_text_search()
-        label = XferCompLabelForm('labelsearchDescTitle')
-        if len(criteria_text_list) > 0:
-            label.set_value_as_info(_("Your criteria of search"))
-            label.set_location(0, 17, 2, 4)
-        else:
-            label.set_value_as_infocenter(_("No criteria of search"))
-            label.set_location(0, 17, 4)
-        self.add_component(label)
-
-        row = 17
-        for criteria_id, criteria_text in criteria_text_list.items():
-            label = XferCompLabelForm('labelSearchText_' + criteria_id)
-            label.set_value(criteria_text)
-            label.set_location(2, row, 2)
-            self.add_component(label)
-            comp = XferCompButton("searchButtonDel_" + criteria_id)
-            comp.set_is_mini(True)
-            comp.set_location(4, row)
-            comp.set_action(self.request, self.return_action(TITLE_DELETE, short_icon='mdi:mdi-delete-outline'),
-                            modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'ACT': criteria_id})
-            self.add_component(comp)
-            row += 1
+        self.filter = self.fields_desc.get_query(self.criteria_list)
 
     def filter_items(self):
         if isinstance(self.filter, Q) and (len(self.filter.children) > 0):
@@ -612,19 +423,16 @@ if ((type=='list') || (type=='listmult')) {
 
     def fillresponse(self):
         self.fields_desc.initial(self.item)
-        self.read_criteria_from_params()
         self.fillresponse_add_title()
-        self.fillresponse_search_select()
-        self.fillresponse_search_values()
-        self.fillresponse_show_criteria()
-        row = self.get_max_row()
+        self.fillresponse_search()
         self.filter_items()
         grid = XferCompGrid(self.field_id)
         if self.size_by_page is not None:
             grid.size_by_page = self.size_by_page
         grid.set_model(self.items, self.fieldnames, self)
         grid.add_action_notified(self)
-        grid.set_location(0, row + 4, 6)
+        grid.set_location(0, self.get_max_row() + 4, 6)
+        grid.set_height(350)
         self.add_component(grid)
         for act, opt in ActionsManage.get_actions(ActionsManage.ACTION_IDENT_LIST, self, key=action_list_sorted):
             self.add_action(act, **opt)
