@@ -721,6 +721,23 @@ class XferCompDownLoad(XferCompButton):
         return compjson
 
 
+class XferCompSearch(XferComponent):
+
+    def __init__(self, name):
+        XferCompButton.__init__(self, name)
+        self._component_ident = "SEARCH"
+        self.selectors = []
+        self.value = []
+
+    def set_selectors(self, selectors):
+        self.selectors = selectors
+
+    def get_json(self):
+        compjson = XferCompButton.get_json(self)
+        compjson['selectors'] = self.selectors
+        return compjson
+
+
 SIZE_BY_PAGE = 25
 if hasattr(settings, 'SIZE_BY_PAGE'):
     SIZE_BY_PAGE = settings.SIZE_BY_PAGE
