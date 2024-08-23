@@ -172,8 +172,8 @@ class ExampleTest(LucteriosTest):
         self.calljson('/lucterios.dummy/exampleSearch', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 5)
-        self.assert_json_equal("SEARCH", "search", [])
-        self.assert_attrib_equal("search", 'selectors', [
+        self.assert_json_equal("SEARCH", "CRITERIA", [])
+        self.assert_attrib_equal("CRITERIA", 'selectors', [
             {'name': 'name', 'description': 'name', 'type': 'str', 'extra': []},
             {'name': 'value', 'description': 'value', 'type': 'float', 'extra': [['0', '20', '0']]},
             {'name': 'price', 'description': 'price', 'type': 'float', 'extra': [['-5000.0', '5000.0', '2']]},
@@ -184,39 +184,39 @@ class ExampleTest(LucteriosTest):
         )
 
         self.factory.xfer = ExampleSearch()
-        self.calljson('/lucterios.dummy/exampleSearch', {'search': '[["value", 3, "10"]]'}, False)
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["value", 3, "10"]]'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 3)
         self.assert_json_equal('', "example/@0/name", 'boom')
         self.assert_json_equal('', "example/@1/name", 'uvw')
         self.assert_json_equal('', "example/@2/name", 'zzzz')
-        self.assert_json_equal("SEARCH", "search", [["value", 3, '10']])
+        self.assert_json_equal("SEARCH", "CRITERIA", [["value", 3, '10']])
 
         self.factory.xfer = ExampleSearch()
-        self.calljson('/lucterios.dummy/exampleSearch', {'search': '[["price", 4, "700.0"]]'}, False)
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["price", 4, "700.0"]]'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 4)
         self.assert_json_equal('', "example/@0/name", 'abc')
         self.assert_json_equal('', "example/@1/name", 'blabla')
         self.assert_json_equal('', "example/@2/name", 'uvw')
         self.assert_json_equal('', "example/@3/name", 'zzzz')
-        self.assert_json_equal("SEARCH", "search", [['price', 4, '700.0']])
+        self.assert_json_equal("SEARCH", "CRITERIA", [['price', 4, '700.0']])
 
         self.factory.xfer = ExampleSearch()
-        self.calljson('/lucterios.dummy/exampleSearch', {'search': '[["date", 3, "2010-12-31"], ["date", 4, "2000-01-01"]]'}, False)
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["date", 3, "2010-12-31"], ["date", 4, "2000-01-01"]]'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 2)
         self.assert_json_equal('', "example/@0/name", 'blabla')
         self.assert_json_equal('', "example/@1/name", 'zzzz')
-        self.assert_json_equal("SEARCH", "search", [['date', 3, '2010-12-31'], ['date', 4, '2000-01-01']])
+        self.assert_json_equal("SEARCH", "CRITERIA", [['date', 3, '2010-12-31'], ['date', 4, '2000-01-01']])
 
         self.factory.xfer = ExampleSearch()
-        self.calljson('/lucterios.dummy/exampleSearch', {'search': '[["time",4,"06:00:00"],["time",3,"18:00:00"]]'}, False)
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["time",4,"06:00:00"],["time",3,"18:00:00"]]'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 2)
         self.assert_json_equal('', "example/@0/name", 'boom')
         self.assert_json_equal('', "example/@1/name", 'zzzz')
-        self.assert_json_equal("SEARCH", "search", [["time", 4, "06:00:00"], ["time", 3, "18:00:00"]])
+        self.assert_json_equal("SEARCH", "CRITERIA", [["time", 4, "06:00:00"], ["time", 3, "18:00:00"]])
 
     def testprint(self):
         self.factory.xfer = ExamplePrint()

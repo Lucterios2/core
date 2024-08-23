@@ -395,7 +395,7 @@ class XferSearchEditor(XferContainerCustom):
         self.size_by_page = None
 
     def fillresponse_add_title(self):
-        criteria = self.getparam('search')
+        criteria = self.getparam('CRITERIA')
         self.criteria_list = get_criteria_list(criteria) if criteria is not None else []
         img = XferCompImage('img')
         img.set_value(self.short_icon, '#')
@@ -407,7 +407,7 @@ class XferSearchEditor(XferContainerCustom):
         self.add_component(lbl)
 
     def fillresponse_search(self):
-        comp = XferCompSearch('search')
+        comp = XferCompSearch('CRITERIA')
         comp.set_selectors(self.fields_desc.get_selectors())
         comp.set_value(self.criteria_list)
         comp.set_location(0, 10, 6)
