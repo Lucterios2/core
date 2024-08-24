@@ -400,6 +400,39 @@ class XferCompEdit(XferCompButton):
         return compjson
 
 
+class XferCompStep(XferCompButton):
+
+    def __init__(self, name, maxval=10):
+        XferCompButton.__init__(self, name)
+        self._component_ident = "STEP"
+        self.max = int(maxval)
+        self.value = 1
+        self.needed = True
+
+    def set_value(self, value):
+        if value is None:
+            self.value = None
+        else:
+            self.value = int(value)
+
+    def _get_content(self):
+        if self.value is None:
+            return NULL_VALUE
+        else:
+            return "%d" % self.value
+
+    def get_json_value(self):
+        if self.value is None:
+            return NULL_VALUE
+        else:
+            return int(self.value)
+
+    def get_json(self):
+        compjson = XferCompButton.get_json(self)
+        compjson['max'] = self.max
+        return compjson
+
+
 class XferCompFloat(XferCompButton):
 
     def __init__(self, name, minval=0.0, maxval=10000.0, precval=2):
