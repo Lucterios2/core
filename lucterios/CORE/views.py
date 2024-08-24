@@ -1086,6 +1086,7 @@ class ConfigurationWizard(XferListEditor):
         progress = XferCompStep("step", len(steplist))
         progress.set_value(step)
         progress.set_location(0, 0, 6)
+        progress.description = _("progress steps")
         progress.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(progress)
         lbl = XferCompLabelForm('sep1')
