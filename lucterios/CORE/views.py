@@ -43,8 +43,7 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, 
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton,\
-    XferCompStep
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton, XferCompStep
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_MODIFY, TITLE_DELETE, \
     TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted, \
     TITLE_CREATE
@@ -1084,33 +1083,19 @@ class ConfigurationWizard(XferListEditor):
         self.add_component(lbl)
 
     def header_title(self, step, steplist):
-        if step > 0:
-            btn = XferCompButton("prec_wizard")
-            btn.set_location(0, 0)
-            btn.set_is_mini(True)
-            btn.set_action(self.request, self.return_action(_("Prec"), short_icon='mdi:mdi-page-previous-outline'),
-                           modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step - 1})
-            self.add_component(btn)
-        lbl = XferCompLabelForm('progress')
-        lbl.set_centered()
-        lbl.set_value_as_name(_("progress steps: %(current)d/%(max)d") % {'current': step + 1, "max": len(steplist)})
-        lbl.set_location(1, 0, 4)
-        self.add_component(lbl)
-        if step < (len(steplist) - 1):
-            btn = XferCompButton("next_wizard")
-            btn.set_location(5, 0)
-            btn.set_is_mini(True)
-            btn.set_action(self.request, self.return_action(_("Next"), short_icon='mdi:mdi-page-next-outline'),
-                           modal=FORMTYPE_REFRESH, close=CLOSE_NO, params={'step': step + 1})
-            self.add_component(btn)
+        progress = XferCompStep("step", len(steplist))
+        progress.set_value(step)
+        progress.set_location(0, 0, 6)
+        progress.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        self.add_component(progress)
         lbl = XferCompLabelForm('sep1')
         lbl.set_value("{[hr/]}")
         lbl.set_location(0, 1, 6)
         self.add_component(lbl)
 
-    def fillresponse(self, step=0, steplist=[]):
+    def fillresponse(self, step=1, steplist=[]):
         self.header_title(step, steplist)
-        signal_and_lock.Signal.call_signal("conf_wizard", steplist[step], self)
+        signal_and_lock.Signal.call_signal("conf_wizard", steplist[step - 1], self)
         self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
