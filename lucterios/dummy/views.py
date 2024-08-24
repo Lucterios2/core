@@ -30,7 +30,7 @@ from django.utils.translation import gettext_lazy as _
 from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage, SELECT_SINGLE, SELECT_MULTI
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid, XferCompStep
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete, \
     TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT, \
@@ -89,35 +89,24 @@ class TestComposants(XferContainerCustom):
     short_icon = 'mdi:mdi-numeric-4'
 
     def fillresponse(self, edt1='aaa', flt1=3.1399999, mm1='xyz', dt1='2007-04-23', tm1='12:34:00',
-                     ck1=False, slct1='1', flt2=5, cl1=['1', '2'], cl2=['b', 'd', 'f'], stm1='2008-07-12 23:47:31'):
+                     ck1=False, slct1='1', flt2=5, cl1=['1', '2'], cl2=['b', 'd', 'f'], stm1='2008-07-12 23:47:31', stp=1):
         act_modif = self.return_action('Modify', '')
 
-        lbl = XferCompLabelForm('Lbl2')
-        lbl.set_value('editor=' + str(edt1))
-        lbl.set_location(0, 1)
-        self.add_component(lbl)
         edt = XferCompEdit('edt1')
         edt.set_value(edt1)
-
+        edt.description = 'editor=' + str(edt1)
         edt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         edt.set_location(1, 1)
 
         self.add_component(edt)
 
-        lbl = XferCompLabelForm('Lbl3')
-        lbl.set_value('Real=' + str(flt1))
-        lbl.set_location(0, 2)
-        self.add_component(lbl)
         flt = XferCompFloat('flt1')
         flt.set_value(flt1)
         flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         flt.set_location(1, 2)
+        flt.description = 'Real=' + str(flt1)
         self.add_component(flt)
 
-        lbl = XferCompLabelForm('Lbl4')
-        lbl.set_value('Memo=' + str(mm1))
-        lbl.set_location(0, 3)
-        self.add_component(lbl)
         cmm = XferCompMemo('mm1')
         cmm.set_value(mm1)
         cmm.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
@@ -125,52 +114,37 @@ class TestComposants(XferContainerCustom):
         cmm.add_sub_menu('Deuxième valeur', 'VALUE_2')
         cmm.add_sub_menu('Troisième valeur', 'VALUE_3')
         cmm.set_location(1, 3)
+        cmm.description = 'Memo=' + str(mm1)
         self.add_component(cmm)
 
-        lbl = XferCompLabelForm('Lbl5')
-        lbl.set_value('Date=' + str(dt1))
-        lbl.set_location(0, 4)
-        self.add_component(lbl)
         date = XferCompDate('dt1')
         date.set_value(dt1)
         date.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         date.set_location(1, 4)
+        date.description = 'Date=' + str(dt1)
         self.add_component(date)
 
-        lbl = XferCompLabelForm('Lbl6')
-        lbl.set_value('Hour=' + str(tm1))
-        lbl.set_location(0, 5)
-        self.add_component(lbl)
         time = XferCompTime('tm1')
         time.set_value(tm1)
         time.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         time.set_location(1, 5)
+        time.description = 'Hour=' + str(tm1)
         self.add_component(time)
 
-        lbl = XferCompLabelForm('Lbl7')
-        lbl.set_value('Date Hour=' + str(stm1))
-        lbl.set_location(0, 6)
-        self.add_component(lbl)
         datetime = XferCompDateTime('stm1')
         datetime.set_value(stm1)
         datetime.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         datetime.set_location(1, 6)
+        datetime.description = 'Date Hour=' + str(stm1)
         self.add_component(datetime)
 
-        lbl = XferCompLabelForm('Lbl8')
-        lbl.set_value('Coche=' + str(ck1))
-        lbl.set_location(0, 7)
-        self.add_component(lbl)
         check = XferCompCheck('ck1')
         check.set_value(ck1)
         check.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         check.set_location(1, 7)
+        check.description = 'Coche=' + str(ck1)
         self.add_component(check)
 
-        lbl = XferCompLabelForm('Lbl9')
-        lbl.set_value('Select=' + str(slct1))
-        lbl.set_location(0, 8)
-        self.add_component(lbl)
         slct = XferCompSelect('slct1')
         if (flt2 is not None) and (flt2 < 2):
             slct.set_select({'1': 'abc', '2': 'def'})
@@ -181,34 +155,25 @@ class TestComposants(XferContainerCustom):
         slct.set_value(slct1)
         slct.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         slct.set_location(1, 8)
+        slct.description = 'Select=' + str(slct1)
         self.add_component(slct)
 
-        lbl = XferCompLabelForm('Lbl10')
-        lbl.set_value('Integer=' + str(flt2))
-        lbl.set_location(0, 9)
-        self.add_component(lbl)
         flt = XferCompFloat('flt2', 0, 100, 0)
         flt.set_value(flt2)
         flt.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         flt.set_location(1, 9)
+        flt.description = 'Integer=' + str(flt2)
         self.add_component(flt)
 
-        lbl = XferCompLabelForm('Lbl11')
-        lbl.set_value('CheckList=' + str(cl1))
-        lbl.set_location(0, 10)
-        self.add_component(lbl)
         checklist = XferCompCheckList('cl1')
         checklist.set_select(
             {'1': 'abc', '2': 'def', '3': 'ghij', '4': 'klmn'})
         checklist.set_value(cl1)
         checklist.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         checklist.set_location(1, 10)
+        checklist.description = 'CheckList=' + str(cl1)
         self.add_component(checklist)
 
-        lbl = XferCompLabelForm('Lbl12')
-        lbl.set_value('CheckList 2=' + str(cl2))
-        lbl.set_location(0, 11)
-        self.add_component(lbl)
         checklist = XferCompCheckList('cl2')
         checklist.simple = 2
         checklist.set_select(
@@ -216,15 +181,20 @@ class TestComposants(XferContainerCustom):
         checklist.set_value(cl2)
         checklist.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         checklist.set_location(1, 11)
+        checklist.description = 'CheckList 2=' + str(cl2)
         self.add_component(checklist)
 
-        lbl = XferCompLabelForm('Lbl13')
-        lbl.set_value('Bouton')
-        lbl.set_location(0, 20)
-        self.add_component(lbl)
+        step = XferCompStep('stp', 8)
+        step.set_value(stp)
+        step.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        step.set_location(1, 12)
+        step.description = 'Step=' + str(stp)
+        self.add_component(step)
+
         btn = XferCompButton('btn1')
         btn.set_action(self.request, act_modif, modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         btn.set_location(1, 20)
+        btn.description = 'Bouton'
         self.add_component(btn)
 
         self.add_action(WrapAction('Fin', short_icon='mdi:mdi-close'), modal=FORMTYPE_MODAL, close=CLOSE_YES)

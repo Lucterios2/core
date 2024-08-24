@@ -43,7 +43,8 @@ from lucterios.framework.tools import MenuManage, FORMTYPE_NOMODAL, WrapAction, 
 from lucterios.framework.xferbasic import XferContainerMenu, XferContainerAbstract
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom, XFER_DBOX_INFORMATION
 from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSelect, \
-    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton
+    XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton,\
+    XferCompStep
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_MODIFY, TITLE_DELETE, \
     TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted, \
     TITLE_CREATE
@@ -845,7 +846,7 @@ class ObjectImport(XferContainerCustom):
         driver_select = XferCompSelect('drivername')
         driver_select.set_value(self.import_driver.NAME)
         driver_select.set_select([(drivername, drivername) for drivername in ImportDriver.factory_list()])
-        driver_select.set_location(1, 0, 3)
+        driver_select.set_location(1, 1, 3)
         driver_select.description = _('import driver')
         driver_select.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
         self.add_component(driver_select)
@@ -854,16 +855,17 @@ class ObjectImport(XferContainerCustom):
         if self.model is not None:
             model_select.set_value(self.model.get_long_name())
         model_select.set_select(self.get_select_models())
-        model_select.set_location(1, 1, 3)
+        model_select.set_location(1, 2, 3)
         model_select.description = _('model')
         self.add_component(model_select)
         upld = XferCompUpLoad('importcontent')
         upld.http_file = True
+        upld.set_needed(True)
         upld.add_filter(self.import_driver.EXTENSION)
-        upld.set_location(1, 2, 2)
+        upld.set_location(1, 3, 2)
         upld.description = self.import_driver.EXTENSION_TITLE
         self.add_component(upld)
-        row = 3
+        row = 4
         col = 1
         for fieldname, title in self.import_driver.FIELD_LIST:
             lbl = XferCompEdit(fieldname)
@@ -947,10 +949,10 @@ class ObjectImport(XferContainerCustom):
                 fields_description.append((fieldname, title, hfield, format_str, fields_association[fieldname]))
         return fields_description
 
-    def _fillcontent_step1(self):
+    def _fillcontent_select_fields(self):
         lbl = XferCompLabelForm('modelname')
         lbl.set_value(self.model._meta.verbose_name.title())
-        lbl.set_location(1, 0)
+        lbl.set_location(1, 1)
         lbl.description = _('model')
         self.add_component(lbl)
         self.import_driver.read(self)
@@ -959,10 +961,10 @@ class ObjectImport(XferContainerCustom):
         self.new_tab(_("Current content"))
         self._show_initial_csv()
 
-    def _fillcontent_step2(self):
+    def _fillcontent_preview_import(self):
         lbl = XferCompLabelForm('modelname')
         lbl.set_value(self.model._meta.verbose_name.title())
-        lbl.set_location(1, 0)
+        lbl.set_location(1, 1)
         lbl.description = _('model')
         self.add_component(lbl)
         fields_description = self._read_csv_and_convert()
@@ -975,14 +977,14 @@ class ObjectImport(XferContainerCustom):
             for fieldname, value in row.items():
                 tbl.set_value(row_idx, fieldname, value)
             row_idx += 1
-        tbl.set_location(1, 1, 2)
+        tbl.set_location(1, 2, 2)
         self.add_component(tbl)
         lbl = XferCompLabelForm('nb_line')
         lbl.set_value(_("Total number of items: %d") % (row_idx - 1))
-        lbl.set_location(1, 2, 2)
+        lbl.set_location(1, 3, 2)
         self.add_component(lbl)
 
-    def _fillcontent_step3(self):
+    def _fillcontent_import_result(self):
         def add_item_if_not_null(new_item):
             if new_item is not None:
                 self.items_imported[new_item.id] = new_item
@@ -1009,7 +1011,7 @@ class ObjectImport(XferContainerCustom):
         lbl.set_location(1, 3, 2)
         self.add_component(lbl)
 
-    def fillresponse(self, modelname, drivername="CSV", step=0):
+    def fillresponse(self, modelname, drivername="CSV", step=1):
         if modelname is not None:
             self.model = apps.get_model(modelname)
         self.import_driver = ImportDriver.factory(drivername)
@@ -1020,24 +1022,24 @@ class ObjectImport(XferContainerCustom):
         img.set_value(self.short_icon, '#')
         img.set_location(0, 0, 1, 6)
         self.add_component(img)
-        if step == 0:
+        stepcomp = XferCompStep('step', 4)
+        stepcomp.set_value(step)
+        stepcomp.set_action(self.request, self.return_action(), modal=FORMTYPE_REFRESH, close=CLOSE_NO)
+        stepcomp.set_location(1, 0, 2)
+        stepcomp.description = _('import progression')
+        self.add_component(stepcomp)
+        if step == 1:
             self._select_csv_parameters()
-            step = 1
-        elif step == 1:
-            self._fillcontent_step1()
-            step = 2
         elif step == 2:
-            self._fillcontent_step2()
-            step = 3
+            self._fillcontent_select_fields()
         elif step == 3:
-            self._fillcontent_step3()
-            step = 4
+            self._fillcontent_preview_import()
+        elif step == 4:
+            self._fillcontent_import_result()
         if step < 4:
-            if step > 1:
-                self.add_action(self.return_action(_('Back'), short_icon='mdi:mdi-page-next-outline'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step - 2})
-            self.add_action(self.return_action(_('Ok'), short_icon='mdi:mdi-check'), close=CLOSE_NO, modal=FORMTYPE_REFRESH, params={'step': step})
             self.add_action(WrapAction(TITLE_CANCEL, short_icon='mdi:mdi-cancel'))
         else:
+            self.remove_component('step')
             self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 

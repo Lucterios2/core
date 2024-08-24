@@ -430,17 +430,17 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 8)
+        self.assert_count_equal('', 9)
         self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
         self.assert_json_equal('SELECT', 'drivername', 'CSV')
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'quotechar': '"',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'quotechar': '"',
                                                          'delimiter': ';', 'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'importcontent': StringIO(csv_content)}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 6 + 7)
+        self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
         self.assert_select_equal('fld_value', 7)
@@ -458,18 +458,17 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', 'Array/@0/valide', "1")
         self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'mdi:mdi-page-next-outline', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
-        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
         self.assertEqual(len(self.json_context), 8)
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'quotechar': '"', 'delimiter': ';', 'encoding': 'utf-8',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '"', 'delimiter': ';', 'encoding': 'utf-8',
                                                          'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
         self.assert_json_equal('', 'Array/@0/name', 'aaa')
         self.assert_json_equal('', 'Array/@0/value', 5)
@@ -486,11 +485,11 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', 'Array/@1/valid', False)
         self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '"', 'delimiter': ';', 'encoding': 'utf-8',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'quotechar': '"', 'delimiter': ';', 'encoding': 'utf-8',
                                                          'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
@@ -521,17 +520,17 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 8)
+        self.assert_count_equal('', 9)
         self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
         self.assert_json_equal('SELECT', 'drivername', 'CSV')
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'quotechar': '',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'quotechar': '',
                                                          'delimiter': ';', 'encoding': 'utf-8', 'dateformat': '%d/%m/%Y', 'importcontent': StringIO(csv_content)}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 6 + 7)
+        self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
         self.assert_select_equal('fld_value', 7)
@@ -549,18 +548,17 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.assert_json_equal('', 'Array/@0/valide', "1")
         self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'mdi:mdi-page-next-outline', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
-        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
         self.assertEqual(len(self.json_context), 8)
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
                                                          'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
         self.assert_json_equal('', 'Array/@0/name', 'aaa')
         self.assert_json_equal('', 'Array/@0/value', 5)
@@ -577,11 +575,11 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.assert_json_equal('', 'Array/@1/valid', False)
         self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
                                                          'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
@@ -831,16 +829,16 @@ bFBLBQYAAAAAEQARAGUEAAB8LQAAAAA="""
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {'drivername': 'ODS'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
         self.assert_json_equal('SELECT', 'drivername', 'ODS')
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent': BytesIO(b64decode(ods_content))}, False)
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent': BytesIO(b64decode(ods_content))}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 6 + 7)
+        self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
         self.assert_select_equal('fld_value', 7)
@@ -858,17 +856,16 @@ bFBLBQYAAAAAEQARAGUEAAB8LQAAAAA="""
         self.assert_json_equal('', 'Array/@0/valide', 1)
         self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'mdi:mdi-page-next-outline', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
-        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
         self.assertEqual(len(self.json_context), 13)
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent0': ods_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent0': ods_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
         self.assert_json_equal('', 'Array/@0/name', 'aaa')
         self.assert_json_equal('', 'Array/@0/value', 5)
@@ -885,11 +882,11 @@ bFBLBQYAAAAAEQARAGUEAAB8LQAAAAA="""
         self.assert_json_equal('', 'Array/@1/valid', False)
         self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent0': ods_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'drivername': 'ODS', 'importcontent0': ods_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
@@ -1007,16 +1004,18 @@ AABoEgAAAAA="""
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {'drivername': 'XLS'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
         self.assert_json_equal('SELECT', 'drivername', 'XLS')
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+        self.assert_json_equal('STEP', 'step', 1)
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent': BytesIO(b64decode(xls_content))}, False)
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent': BytesIO(b64decode(xls_content))}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 6 + 7)
+        self.assert_count_equal('', 7 + 7)
+        self.assert_json_equal('STEP', 'step', 2)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
         self.assert_select_equal('fld_value', 7)
@@ -1034,17 +1033,17 @@ AABoEgAAAAA="""
         self.assert_json_equal('', 'Array/@0/valide', 1)
         self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'mdi:mdi-page-next-outline', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
-        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
         self.assertEqual(len(self.json_context), 8)
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
+        self.assert_json_equal('STEP', 'step', 3)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
         self.assert_json_equal('', 'Array/@0/name', 'aaa')
         self.assert_json_equal('', 'Array/@0/value', 5)
@@ -1061,11 +1060,11 @@ AABoEgAAAAA="""
         self.assert_json_equal('', 'Array/@1/valid', False)
         self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
@@ -1206,16 +1205,16 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+////AAAAAAAAAAA="""
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {'drivername': 'XLS'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_select_equal('drivername', {'CSV': 'CSV', 'ODS': 'ODS', 'XLS': 'XLS'})
         self.assert_json_equal('SELECT', 'drivername', 'XLS')
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 1}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 1, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent': BytesIO(b64decode(xls_content))}, False)
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent': BytesIO(b64decode(xls_content))}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 6 + 7)
+        self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
         self.assert_select_equal('fld_value', 7)
@@ -1233,17 +1232,16 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+////AAAAAAAAAAA="""
         self.assert_json_equal('', 'Array/@0/valide', 1)
         self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], (str('Retour'), 'mdi:mdi-page-next-outline', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 0}))
-        self.assert_action_equal('POST', self.json_actions[1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': 2}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
         self.assertEqual(len(self.json_context), 9)
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 2, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
-        self.assert_count_equal('', 4)
+        self.assert_count_equal('', 5)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
         self.assert_json_equal('', 'Array/@0/name', 'aaa')
         self.assert_json_equal('', 'Array/@0/value', 5)
@@ -1260,11 +1258,11 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+////AAAAAAAAAAA="""
         self.assert_json_equal('', 'Array/@1/valid', False)
         self.assert_json_equal('', 'Array/@1/comment', "truc truc truc truc")
         self.assert_count_equal('#Array/actions', 0)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[2 - 1], (str('Ok'), 'mdi:mdi-check', 'lucterios.dummy', 'exampleImport', 0, 2, 1, {'step': '3'}))
+        self.assertEqual(len(self.json_actions), 1)
+        self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
 
         self.factory.xfer = ExampleImport()
-        self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
+        self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'drivername': 'XLS', 'importcontent0': xls_content, "fld_name": "nom", "fld_value": "valeur",
                                                          "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
                                                          "fld_comment": 'remarque'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
