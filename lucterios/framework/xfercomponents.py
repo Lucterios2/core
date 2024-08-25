@@ -1008,3 +1008,96 @@ class XferCompGrid(XferComponent):
             action_idx += 1
         if modify_idx is not None:
             del self.actions[modify_idx]
+
+
+MOSAIC_PAGE = 'MOSAIC_PAGE%'
+MOSAIC_SIZE = 'MOSAIC_SIZE%'
+MOSAIC_ORDER = 'MOSAIC_ORDER%'
+MOSAIC_DIM = 'MOSAIC_DIM%'
+
+
+class XferCompMosaic(XferComponent):
+
+    def __init__(self, name):
+        XferComponent.__init__(self, name)
+        self._component_ident = "MOSAIC"
+        self.value = []
+        self.size_by_page = SIZE_BY_PAGE
+        self.nb_items = 0
+        self.page_max = 0
+        self.page_num = 0
+        self.img_dim = 1
+        self.order_field = None
+        self.no_pager = False
+        self.order_fields = []
+        self.actions = {}
+
+    def _order_list_field(self, model):
+        order_fields = {}
+        for fieldname in model.get_default_fields():
+            dep_field = model.get_field_by_name(fieldname)
+            if not isinstance(dep_field, LucteriosVirtualField):
+                order_fields[fieldname] = _("%s (Ascending)") % dep_field.verbose_name
+                order_fields['-' + fieldname] = _("%s (Descending)") % dep_field.verbose_name
+        self.order_fields = list(order_fields.items())
+
+    def define_page(self, xfer_custom=None):
+        self.order_field = None
+        if xfer_custom is not None:
+            self.order_field = xfer_custom.getparam(MOSAIC_ORDER + self.name)
+        if (self.order_field is None) and len(self.order_fields) > 0:
+            self.order_field = self.order_fields[0][0]
+        if xfer_custom is not None:
+            self.size_by_page = xfer_custom.getparam(MOSAIC_SIZE + self.name, self.size_by_page)
+            self.page_num = xfer_custom.getparam(MOSAIC_PAGE + self.name, 0)
+            self.page_max = int(self.nb_items / self.size_by_page) + 1
+            if self.page_max < self.page_num:
+                self.page_num = 0
+            record_min = self.page_num * self.size_by_page
+            record_max = (self.page_num + 1) * self.size_by_page
+        else:
+            record_min = 0
+            record_max = self.nb_items
+            self.size_by_page = self.nb_items
+            self.page_max = 1
+            self.page_num = 0
+            self.no_pager = True
+        self.img_dim = xfer_custom.getparam(MOSAIC_DIM + self.name, self.img_dim)
+        return (record_min, record_max)
+
+    def set_model(self, query_set, xfer_custom=None, attr_image="image", attr_name="name", attr_info="info", attr_group="group"):
+        if xfer_custom is not None:
+            self._order_list_field(query_set.model)
+        self.nb_items = query_set.count() if hasattr(query_set, 'count') else len(query_set)
+        record_min, record_max = self.define_page(xfer_custom)
+        primary_key_fieldname = query_set.model._meta.pk.attname
+        if self.order_field is not None:
+            query_set = query_set.order_by(self.order_field)
+        for value in query_set[record_min:record_max]:
+            self.value.append({
+                "id": getattr(value, primary_key_fieldname),
+                "image": getattr(value, attr_image, ""),
+                "name": getattr(value, attr_name, ""),
+                "info": getattr(value, attr_info, ""),
+                "group": getattr(value, attr_group, ""),
+            })
+
+    def add_action(self, request, action, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None, group=None):
+        assert (action is None) or isinstance(action, WrapAction)
+        if isinstance(action, WrapAction) and action.check_permission(request):
+            if group not in self.actions:
+                self.actions[group] = []
+            self.actions[group].append((action, modal, close, unique, params))
+
+    def get_json(self):
+        compjson = XferComponent.get_json(self)
+        compjson['page_max'] = self.page_max
+        compjson['page_num'] = self.page_num
+        compjson['order'] = self.order_field
+        compjson['size_by_page'] = self.size_by_page
+        compjson['nb_items'] = self.nb_items
+        compjson['no_pager'] = self.no_pager
+        compjson['img_dim'] = self.img_dim
+        compjson['order_fields'] = self.order_fields
+        compjson['actions'] = [[group, get_actions_json(actionlist)] for group, actionlist in self.actions.items()]
+        return compjson

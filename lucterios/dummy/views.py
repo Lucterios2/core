@@ -27,14 +27,16 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import gettext_lazy as _
 
-from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage, SELECT_SINGLE, SELECT_MULTI
+from lucterios.framework.tools import MenuManage, WrapAction, ActionsManage, SELECT_SINGLE, SELECT_MULTI,\
+    SELECT_NONE
 from lucterios.framework.tools import FORMTYPE_NOMODAL, FORMTYPE_REFRESH, FORMTYPE_MODAL, CLOSE_NO, CLOSE_YES
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XFER_DBOX_INFORMATION, XferContainerCustom
-from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid, XferCompStep
+from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, XferCompFloat, XferCompMemo, XferCompDate, XferCompGrid, XferCompStep,\
+    XferCompImage, XferCompMosaic
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete, \
     TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT, \
-    TITLE_LISTING, TITLE_LABEL
+    TITLE_LISTING, TITLE_LABEL, TITLE_CLOSE
 from lucterios.framework import signal_and_lock
 from lucterios.framework.model_fields import LucteriosScheduler
 
@@ -402,6 +404,37 @@ class ExampleImport(ObjectImport):
 
     def get_select_models(self):
         return Example.get_select_contact_type()
+
+
+@MenuManage.describ('dummy.change_example', FORMTYPE_MODAL, 'dummy.foo', _("Mosaic of example."))
+class ExampleMosaic(XferContainerCustom):
+    caption = _("Mosaic of example")
+    short_icon = 'mdi:mdi-numeric-9'
+    model = Example
+    field_id = 'example'
+
+    def fillresponse(self):
+        self.items = self.model.objects.all()
+        img = XferCompImage('img')
+        img.set_value(self.short_icon, '#')
+        img.set_location(0, 0)
+        self.add_component(img)
+        lbl = XferCompLabelForm('title')
+        lbl.set_value_as_title(self.caption)
+        lbl.set_location(1, 0)
+        self.add_component(lbl)
+        mosaic = XferCompMosaic(self.field_id)
+        mosaic.set_model(self.items, self, "image", "name", "comment", "valid")
+        mosaic.set_location(0, 1, 2)
+        mosaic.set_height(350)
+        mosaic.description = 'images mosaic'
+        mosaic.add_action(self.request, ExampleAddModify.get_action(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_NONE)
+        mosaic.add_action(self.request, ExampleDel.get_action(TITLE_DELETE, short_icon='mdi:mdi-delete-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_MULTI)
+
+        mosaic.add_action(self.request, ExampleAddModify.get_action(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, group=False)
+        mosaic.add_action(self.request, ExampleShow.get_action(TITLE_EDIT, short_icon='mdi:mdi-text-box-outline'), modal=FORMTYPE_MODAL, close=CLOSE_NO, unique=SELECT_SINGLE, group=True)
+        self.add_component(mosaic)
+        self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
 
 @MenuManage.describ('dummy.change_other', FORMTYPE_NOMODAL, 'dummy.foo', _('List of other'))
