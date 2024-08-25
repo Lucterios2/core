@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-24 14:48+0000\n"
-"PO-Revision-Date: 2024-08-24 17:16+0200\n"
+"POT-Creation-Date: 2024-08-25 18:47+0000\n"
+"PO-Revision-Date: 2024-08-25 20:48+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -301,6 +301,16 @@ msgstr "Mauvaise transition"
 #, python-format
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "la méthode http \"%(method)s\" n'est pas autorisée pour \"%(url)s\" !"
+
+#: xfercomponents.py:1040
+#, python-format
+msgid "%s (Ascending)"
+msgstr "%s (Croissant)"
+
+#: xfercomponents.py:1041
+#, python-format
+msgid "%s (Descending)"
+msgstr "%s (Décroissant)"
 
 #: xfergraphic.py:138
 msgid "Traitment..."

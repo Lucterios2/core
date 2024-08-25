@@ -47,6 +47,7 @@ class Example(LucteriosModel):
     valid = models.BooleanField(default=False)
     comment = models.TextField(blank=True)
     virtual = LucteriosVirtualField(verbose_name='reduction', compute_from='get_virtual', format_string="N4")
+    image = LucteriosVirtualField(verbose_name='image', compute_from='get_image')
 
     def __str__(self):
         return self.name
@@ -58,6 +59,12 @@ class Example(LucteriosModel):
             return 0
         else:
             return float(self.price) * float(self.value) / 100.0
+
+    def get_image(self):
+        if self.valid:
+            return 'mdi:mdi-mailbox-up'
+        else:
+            return 'mdi:mdi-mailbox-open'
 
     @classmethod
     def get_show_fields(cls):
