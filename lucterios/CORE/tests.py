@@ -290,7 +290,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(len(self.response_json['menus']), 3)
         self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
         self.assertEqual(self.response_json['menus'][1]['id'], 'dummy.foo')
-        self.assertEqual(len(self.response_json['menus'][1]['menus']), 10)
+        self.assertEqual(len(self.response_json['menus'][1]['menus']), 11)
         self.assertEqual(self.response_json['menus'][2]['id'], 'core.admin')
         self.assertEqual(self.response_json['menus'][2]['text'], 'Administration')
         self.assertEqual(self.response_json['menus'][2]['menus'][3]['id'], 'core.right')
