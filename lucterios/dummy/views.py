@@ -424,7 +424,7 @@ class ExampleMosaic(XferContainerCustom):
         lbl.set_location(1, 0)
         self.add_component(lbl)
         mosaic = XferCompMosaic(self.field_id)
-        mosaic.set_model(self.items, self, "image", "name", "comment", "valid")
+        mosaic.set_model(self.items, self, "image", "name", "html_info", "valid")
         mosaic.set_location(0, 1, 2)
         mosaic.set_height(350)
         mosaic.description = 'images mosaic'
