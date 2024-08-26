@@ -23,6 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from os.path import join, dirname
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +34,8 @@ from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter, Preference
 from lucterios.framework.auditlog import auditlog
 from lucterios.framework.model_fields import LucteriosDecimalField, LucteriosVirtualField
+from lucterios.framework.tools import get_date_formating
+from lucterios.framework.filetools import readimage_to_base64
 
 
 class Example(LucteriosModel):
@@ -48,6 +51,7 @@ class Example(LucteriosModel):
     comment = models.TextField(blank=True)
     virtual = LucteriosVirtualField(verbose_name='reduction', compute_from='get_virtual', format_string="N4")
     image = LucteriosVirtualField(verbose_name='image', compute_from='get_image')
+    html_info = LucteriosVirtualField(verbose_name='html_info', compute_from='get_html_info')
 
     def __str__(self):
         return self.name
@@ -64,7 +68,14 @@ class Example(LucteriosModel):
         if self.valid:
             return 'mdi:mdi-mailbox-up'
         else:
-            return 'mdi:mdi-mailbox-open'
+            return readimage_to_base64(join(dirname(dirname(__file__)), 'CORE', 'static', 'lucterios.CORE', 'images', 'config.png')).decode()
+
+    def get_html_info(self):
+        return """<b>name</b> %s<br>
+<b>comment</b> %s<br>
+<b>date</b> %s<br>
+<b>time</b> %s
+""" % (self.name, self.comment, get_date_formating(self.date), get_date_formating(self.time))
 
     @classmethod
     def get_show_fields(cls):

@@ -1074,12 +1074,14 @@ class XferCompMosaic(XferComponent):
         if self.order_field is not None:
             query_set = query_set.order_by(self.order_field)
         for value in query_set[record_min:record_max]:
+            child = value.get_final_child()
+            child.set_context(xfer_custom)
             self.value.append({
-                "id": getattr(value, primary_key_fieldname),
-                "image": getattr(value, attr_image, ""),
-                "name": getattr(value, attr_name, ""),
-                "info": getattr(value, attr_info, ""),
-                "group": getattr(value, attr_group, ""),
+                "id": getattr(child, primary_key_fieldname),
+                "image": getattr(child, attr_image, ""),
+                "name": getattr(child, attr_name, ""),
+                "info": getattr(child, attr_info, ""),
+                "group": getattr(child, attr_group, ""),
             })
 
     def add_action(self, request, action, modal=FORMTYPE_MODAL, close=CLOSE_YES, unique=SELECT_NONE, params=None, group=None):

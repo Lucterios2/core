@@ -40,7 +40,8 @@ from lucterios.CORE.parameters import Params
 
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
-    OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList, ExampleImport
+    OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList, ExampleImport,\
+    ExampleMosaic
 from lucterios.dummy.models import Example
 
 
@@ -108,6 +109,81 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', "example/@2/name", 'boom')
         self.assert_json_equal('', "example/@3/name", 'uvw')
         self.assert_json_equal('', "example/@4/name", 'zzzz')
+
+    def testmosaic(self):
+        self.factory.xfer = ExampleMosaic()
+        self.calljson('/lucterios.dummy/exampleMosaic', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleMosaic')
+        self.assert_json_equal('', '#example/page_max', 1)
+        self.assert_json_equal('', '#example/page_num', 0)
+        self.assert_json_equal('', '#example/order', "name")
+        self.assert_json_equal('', '#example/size_by_page', 25)
+        self.assert_json_equal('', '#example/nb_items', 5)
+        self.assert_json_equal('', '#example/no_pager', False)
+        self.assert_json_equal('', '#example/img_dim', 1)
+        self.assert_json_equal('', '#example/order_fields', [
+            ["name", "name (Croissant)"],
+            ["-name", "name (D\u00e9croissant)"],
+            ["value", "value (Croissant)"],
+            ["-value", "value (D\u00e9croissant)"],
+            ["price", "price (Croissant)"],
+            ["-price", "price (D\u00e9croissant)"]
+        ])
+
+        self.assert_json_equal('', "example/@0/id", 1)
+        self.assert_json_equal('', "example/@0/image", "mdi:mdi-mailbox-up")
+        self.assert_json_equal('', "example/@0/name", 'abc')
+        self.assert_json_equal('', "example/@0/info", "<b>name</b> abc<br>\n<b>comment</b> blablabla<br>\n<b>date</b> 7 octobre 1997<br>\n<b>time</b> 21:43\n")
+        self.assert_json_equal('', "example/@0/group", True)
+        self.assert_json_equal('', "example/@1/id", 4)
+        self.assert_json_equal('', "example/@1/image", "data:image/png;base64,iVBORw0K", True)
+        self.assert_json_equal('', "example/@1/name", 'blabla')
+        self.assert_json_equal('', "example/@1/group", False)
+        self.assert_json_equal('', "example/@2/id", 5)
+        self.assert_json_equal('', "example/@2/image", "mdi:mdi-mailbox-up")
+        self.assert_json_equal('', "example/@2/name", 'boom')
+        self.assert_json_equal('', "example/@2/group", True)
+        self.assert_json_equal('', "example/@3/id", 3)
+        self.assert_json_equal('', "example/@3/image", "mdi:mdi-mailbox-up")
+        self.assert_json_equal('', "example/@3/name", 'uvw')
+        self.assert_json_equal('', "example/@3/group", True)
+        self.assert_json_equal('', "example/@4/id", 2)
+        self.assert_json_equal('', "example/@4/image", "data:image/png;base64,iVBORw0K", True)
+        self.assert_json_equal('', "example/@4/name", 'zzzz')
+        self.assert_json_equal('', "example/@4/group", False)
+        self.assert_count_equal("#example/actions", 3)
+        self.assert_json_equal('', "#example/actions/@0/@0", None)
+        self.assert_count_equal("#example/actions/@0/@1", 2)
+        self.assert_action_equal('POST', "#example/actions/@0/@1/@0", ('Ajouter', 'mdi:mdi-pencil-plus-outline', 'lucterios.dummy', "exampleAddModify", 0, 1, 1))
+        self.assert_action_equal('DELETE', "#example/actions/@0/@1/@1", ('Supprimer', 'mdi:mdi-delete-outline', 'lucterios.dummy', "exampleDel", 0, 1, 2))
+
+        self.assert_json_equal('', "#example/actions/@1/@0", False)
+        self.assert_count_equal("#example/actions/@1/@1", 1)
+        self.assert_action_equal('POST', "#example/actions/@1/@1/@0", ('Modifier', 'mdi:mdi-pencil-outline', 'lucterios.dummy', "exampleAddModify", 0, 1, 0))
+
+        self.assert_json_equal('', "#example/actions/@2/@0", True)
+        self.assert_count_equal("#example/actions/@2/@1", 1)
+        self.assert_action_equal('GET', "#example/actions/@2/@1/@0", ('Editer', 'mdi:mdi-text-box-outline', 'lucterios.dummy', "exampleShow", 0, 1, 0))
+
+    def testmosaic_order(self):
+        self.factory.xfer = ExampleMosaic()
+        self.calljson('/lucterios.dummy/exampleMosaic', {'MOSAIC_ORDER%example': '-value', 'MOSAIC_PAGE%example': 0, 'MOSAIC_SIZE%example': 100, 'MOSAIC_DIM%example': 2}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleMosaic')
+        self.assert_count_equal("example", 5)
+
+        self.assert_json_equal('', '#example/page_max', 1)
+        self.assert_json_equal('', '#example/page_num', 0)
+        self.assert_json_equal('', '#example/order', "-value")
+        self.assert_json_equal('', '#example/size_by_page', 100)
+        self.assert_json_equal('', '#example/nb_items', 5)
+        self.assert_json_equal('', '#example/no_pager', False)
+        self.assert_json_equal('', '#example/img_dim', 2)
+
+        self.assert_json_equal('', "example/@0/name", 'blabla')
+        self.assert_json_equal('', "example/@1/name", 'abc')
+        self.assert_json_equal('', "example/@2/name", 'uvw')
+        self.assert_json_equal('', "example/@3/name", 'zzzz')
+        self.assert_json_equal('', "example/@4/name", 'boom')
 
     def testadd(self):
         self.factory.xfer = ExampleAddModify()
