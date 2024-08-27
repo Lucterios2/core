@@ -30,6 +30,8 @@ import warnings
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.db.models.functions import Lower
 
 from lucterios.framework.tools import WrapAction, ActionsManage, CLOSE_YES, get_actions_json, adapt_value, format_to_string
 from lucterios.framework.tools import FORMTYPE_MODAL, SELECT_NONE
@@ -1022,31 +1024,39 @@ class XferCompMosaic(XferComponent):
         XferComponent.__init__(self, name)
         self._component_ident = "MOSAIC"
         self.value = []
-        self.size_by_page = SIZE_BY_PAGE
+        self.size_by_page = SIZE_BY_PAGE * 2
+        self.adding_fiedsorder = []
         self.nb_items = 0
         self.page_max = 0
         self.page_num = 0
         self.img_dim = 1
         self.order_field = None
+        self.order_insensitive_case = False
         self.no_pager = False
         self.order_fields = []
         self.actions = {}
 
     def _order_list_field(self, model):
+        def add_fieldname(fieldname, verbose_name):
+            order_fields[fieldname] = _("%s (Ascending)") % verbose_name
+            order_fields['-' + fieldname] = _("%s (Descending)") % verbose_name
         order_fields = {}
         for fieldname in model.get_default_fields():
             dep_field = model.get_field_by_name(fieldname)
             if not isinstance(dep_field, LucteriosVirtualField):
-                order_fields[fieldname] = _("%s (Ascending)") % dep_field.verbose_name
-                order_fields['-' + fieldname] = _("%s (Descending)") % dep_field.verbose_name
+                add_fieldname(fieldname, dep_field.verbose_name)
+        for (fieldname, verbose_name) in self.adding_fiedsorder:
+            add_fieldname(fieldname, verbose_name)
         self.order_fields = list(order_fields.items())
 
-    def define_page(self, xfer_custom=None):
+    def define_page(self, model, xfer_custom=None):
         self.order_field = None
         if xfer_custom is not None:
             self.order_field = xfer_custom.getparam(MOSAIC_ORDER + self.name)
         if (self.order_field is None) and len(self.order_fields) > 0:
             self.order_field = self.order_fields[0][0]
+        dep_field = model.get_field_by_name(self.order_field.replace('-', ''))
+        self.order_insensitive_case = (dep_field is not None) and (isinstance(dep_field, models.CharField) or isinstance(dep_field, models.CharField))
         if xfer_custom is not None:
             self.size_by_page = xfer_custom.getparam(MOSAIC_SIZE + self.name, self.size_by_page)
             self.page_num = xfer_custom.getparam(MOSAIC_PAGE + self.name, 0)
@@ -1069,10 +1079,13 @@ class XferCompMosaic(XferComponent):
         if xfer_custom is not None:
             self._order_list_field(query_set.model)
         self.nb_items = query_set.count() if hasattr(query_set, 'count') else len(query_set)
-        record_min, record_max = self.define_page(xfer_custom)
+        record_min, record_max = self.define_page(query_set.model, xfer_custom)
         primary_key_fieldname = query_set.model._meta.pk.attname
         if self.order_field is not None:
-            query_set = query_set.order_by(self.order_field)
+            if self.order_insensitive_case:
+                query_set = query_set.order_by(Lower(self.order_field))
+            else:
+                query_set = query_set.order_by(self.order_field)
         for value in query_set[record_min:record_max]:
             child = value.get_final_child()
             child.set_context(xfer_custom)

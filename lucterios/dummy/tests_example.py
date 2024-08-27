@@ -117,7 +117,7 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', '#example/page_max', 1)
         self.assert_json_equal('', '#example/page_num', 0)
         self.assert_json_equal('', '#example/order', "name")
-        self.assert_json_equal('', '#example/size_by_page', 25)
+        self.assert_json_equal('', '#example/size_by_page', 50)
         self.assert_json_equal('', '#example/nb_items', 5)
         self.assert_json_equal('', '#example/no_pager', False)
         self.assert_json_equal('', '#example/img_dim', 1)
