@@ -878,8 +878,9 @@ class ObjectImport(XferContainerCustom):
                 row += 1
 
     def _select_fields(self):
+        column_names = list(self.import_driver.get_column_names())
         select_list = [('', None)]
-        for fieldname in self.import_driver.get_column_names():
+        for fieldname in column_names:
             select_list.append((fieldname, fieldname))
         row = 0
         for fieldname in self.model.get_import_fields():
@@ -897,7 +898,7 @@ class ObjectImport(XferContainerCustom):
                         is_need = not init_field.null
             lbl = XferCompSelect('fld_' + fieldname)
             lbl.set_select(deepcopy(select_list))
-            lbl.set_value("")
+            lbl.set_value(title if title in column_names else "")
             lbl.set_needed(is_need)
             lbl.set_location(1, row)
             lbl.description = title
