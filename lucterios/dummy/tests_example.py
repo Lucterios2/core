@@ -40,7 +40,7 @@ from lucterios.CORE.parameters import Params
 
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
-    OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList, ExampleImport,\
+    OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList, ExampleImport, \
     ExampleMosaic
 from lucterios.dummy.models import Example
 
@@ -519,12 +519,25 @@ class ExampleTest(LucteriosTest):
         self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
+        self.assert_json_equal('SELECT', 'fld_name', "nom")
+        self.assert_attrib_equal("fld_value", 'description', "value")
         self.assert_select_equal('fld_value', 7)
+        self.assert_json_equal('SELECT', 'fld_value', "nom")
+        self.assert_attrib_equal("fld_price", 'description', "price")
         self.assert_select_equal('fld_price', 7)
+        self.assert_json_equal('SELECT', 'fld_price', "nom")
+        self.assert_attrib_equal("fld_date", 'description', "date")
         self.assert_select_equal('fld_date', 8)
+        self.assert_json_equal('SELECT', 'fld_date', '')
+        self.assert_attrib_equal("fld_time", 'description', "time")
         self.assert_select_equal('fld_time', 7)
+        self.assert_json_equal('SELECT', 'fld_time', "nom")
+        self.assert_attrib_equal("fld_valid", 'description', "valid")
         self.assert_select_equal('fld_valid', 7)
+        self.assert_json_equal('SELECT', 'fld_valid', 'nom')
+        self.assert_attrib_equal("fld_comment", 'description', "comment")
         self.assert_select_equal('fld_comment', 8)
+        self.assert_json_equal('SELECT', 'fld_comment', '')
         self.assert_grid_equal('Array', {'nom': 'nom', 'valeur': 'valeur', 'prix': 'prix', 'jour': 'jour', 'heure': 'heure', 'valide': 'valide', 'remarque': 'remarque'}, 4)
         self.assert_json_equal('', 'Array/@0/nom', 'aaa')
         self.assert_json_equal('', 'Array/@0/valeur', "5")
@@ -587,7 +600,7 @@ class ExampleTest(LucteriosTest):
         self.assert_json_equal('', 'example/@5/price', 7.89)
 
     def test_importCSV_noquote(self):
-        csv_content = """nom;valeur;prix;heure;valide;remarque;jour
+        csv_content = """name;value;price;time;valid;comment;date
 aaa;5;12.34;12:45;1;blabla bla;12/04/2021
 bbb;1;0.56;07:37;0;truc truc truc truc;03/11/2017
 ccc;13;7.89;21:51;1;azertyuiop , qsdfghjklm wxcvbn;24/08/2008
@@ -609,20 +622,33 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.assert_count_equal('', 7 + 7)
         self.assert_attrib_equal("fld_name", 'description', "name")
         self.assert_select_equal('fld_name', 7)
+        self.assert_json_equal('SELECT', 'fld_name', "name")
+        self.assert_attrib_equal("fld_value", 'description', "value")
         self.assert_select_equal('fld_value', 7)
+        self.assert_json_equal('SELECT', 'fld_value', "value")
+        self.assert_attrib_equal("fld_price", 'description', "price")
         self.assert_select_equal('fld_price', 7)
+        self.assert_json_equal('SELECT', 'fld_price', "price")
+        self.assert_attrib_equal("fld_date", 'description', "date")
         self.assert_select_equal('fld_date', 8)
+        self.assert_json_equal('SELECT', 'fld_date', "date")
+        self.assert_attrib_equal("fld_time", 'description', "time")
         self.assert_select_equal('fld_time', 7)
+        self.assert_json_equal('SELECT', 'fld_time', "time")
+        self.assert_attrib_equal("fld_valid", 'description', "valid")
         self.assert_select_equal('fld_valid', 7)
+        self.assert_json_equal('SELECT', 'fld_valid', "valid")
+        self.assert_attrib_equal("fld_comment", 'description', "comment")
         self.assert_select_equal('fld_comment', 8)
-        self.assert_grid_equal('Array', {'nom': 'nom', 'valeur': 'valeur', 'prix': 'prix', 'jour': 'jour', 'heure': 'heure', 'valide': 'valide', 'remarque': 'remarque'}, 4)
-        self.assert_json_equal('', 'Array/@0/nom', 'aaa')
-        self.assert_json_equal('', 'Array/@0/valeur', "5")
-        self.assert_json_equal('', 'Array/@0/prix', "12.34")
-        self.assert_json_equal('', 'Array/@0/jour', "12/04/2021")
-        self.assert_json_equal('', 'Array/@0/heure', "12:45")
-        self.assert_json_equal('', 'Array/@0/valide', "1")
-        self.assert_json_equal('', 'Array/@0/remarque', "blabla bla")
+        self.assert_json_equal('SELECT', 'fld_comment', "comment")
+        self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
+        self.assert_json_equal('', 'Array/@0/name', 'aaa')
+        self.assert_json_equal('', 'Array/@0/value', "5")
+        self.assert_json_equal('', 'Array/@0/price', "12.34")
+        self.assert_json_equal('', 'Array/@0/date', "12/04/2021")
+        self.assert_json_equal('', 'Array/@0/time', "12:45")
+        self.assert_json_equal('', 'Array/@0/valid', "1")
+        self.assert_json_equal('', 'Array/@0/comment', "blabla bla")
         self.assert_count_equal('#Array/actions', 0)
         self.assertEqual(len(self.json_actions), 1)
         self.assert_action_equal('POST', self.json_actions[0], ('Annuler', 'mdi:mdi-cancel'))
@@ -630,9 +656,9 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
 
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {'step': 3, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
-                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
-                                                         "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
-                                                         "fld_comment": 'remarque'}, False)
+                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "name", "fld_value": "value",
+                                                         "fld_price": "price", "fld_date": "date", "fld_time": "time", "fld_valid": "valid",
+                                                         "fld_comment": 'comment'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
         self.assert_count_equal('', 5)
         self.assert_grid_equal('Array', {'name': 'name', 'value': 'value', 'price': 'price', 'date': 'date', 'time': 'time', 'valid': 'valid', 'comment': 'comment'}, 4)
@@ -656,9 +682,9 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
 
         self.factory.xfer = ExampleImport()
         self.calljson('/lucterios.dummy/exampleImport', {'step': 4, 'modelname': 'dummy.Example', 'quotechar': '', 'delimiter': ';', 'encoding': 'utf-8',
-                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "nom", "fld_value": "valeur",
-                                                         "fld_price": "prix", "fld_date": "jour", "fld_time": "heure", "fld_valid": "valide",
-                                                         "fld_comment": 'remarque'}, False)
+                                                         'dateformat': '%d/%m/%Y', 'importcontent0': csv_content, "fld_name": "name", "fld_value": "value",
+                                                         "fld_price": "price", "fld_date": "date", "fld_time": "time", "fld_valid": "valid",
+                                                         "fld_comment": 'comment'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleImport')
         self.assert_count_equal('', 3)
         self.assert_json_equal('LABELFORM', 'result', "3 éléments ont été importés")
