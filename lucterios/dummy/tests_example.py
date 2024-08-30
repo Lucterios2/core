@@ -36,6 +36,7 @@ from lucterios.framework.tools import set_locale_lang
 
 from lucterios.CORE.models import PrintModel
 from lucterios.CORE.views_usergroup import PreferenceEdit
+from lucterios.CORE.views import SavedCriteriaAddModify
 from lucterios.CORE.parameters import Params
 
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
@@ -289,9 +290,31 @@ class ExampleTest(LucteriosTest):
         self.factory.xfer = ExampleSearch()
         self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["time",4,"06:00:00"],["time",3,"18:00:00"]]'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_select_equal("saved_criteria", {0: None})
         self.assert_count_equal("example", 2)
         self.assert_json_equal('', "example/@0/name", 'boom')
         self.assert_json_equal('', "example/@1/name", 'zzzz')
+        self.assert_json_equal("SEARCH", "CRITERIA", [["time", 4, "06:00:00"], ["time", 3, "18:00:00"]])
+
+        self.factory.xfer = SavedCriteriaAddModify()
+        self.calljson('/CORE/savedCriteriaAddModify', {'criteria': '[["time",4,"06:00:00"],["time",3,"18:00:00"]]', 'modelname': 'dummy.Example'}, False)
+        self.assert_observer('core.custom', 'CORE', 'savedCriteriaAddModify')
+        self.assert_count_equal("", 4)
+
+        self.factory.xfer = SavedCriteriaAddModify()
+        self.calljson('/CORE/savedCriteriaAddModify', {'criteria': '[["time",4,"06:00:00"],["time",3,"18:00:00"]]', 'modelname': 'dummy.Example', 'name': 'example', "SAVE": "YES"}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'savedCriteriaAddModify')
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal("example", 5)
+        self.assert_select_equal("saved_criteria", {0: None, 1: "example"})
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {"saved_criteria": 1}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal("example", 2)
         self.assert_json_equal("SEARCH", "CRITERIA", [["time", 4, "06:00:00"], ["time", 3, "18:00:00"]])
 
     def testprint(self):
