@@ -229,10 +229,11 @@ def xml_validator(some_xml_string, xsd_file):
         return str(xml_error)
 
 
-def remove_accent(text, replace_space=False):
+def remove_accent(text, replace_space=False, replace_slash=True):
     if replace_space:
         text = text.replace(' ', '_').replace('-', '')
-    text = text.replace('/', '-')
+    if replace_slash:
+        text = text.replace('/', '-')
     try:
         import unicodedata
         return ''.join((letter for letter in unicodedata.normalize('NFD', text) if unicodedata.category(letter) != 'Mn'))
