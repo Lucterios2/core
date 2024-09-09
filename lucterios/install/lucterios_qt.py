@@ -31,19 +31,25 @@ from traceback import print_exc
 from threading import Thread
 import sys
 
-from PyQt5.Qt import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox, \
+from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QSplashScreen, QMessageBox, \
     QDialog, QDialogButtonBox, QVBoxLayout, QFrame, QLineEdit, \
-    QComboBox, QStandardItemModel, QStandardItem, pyqtSignal, QFormLayout, \
-    QSystemTrayIcon, QMenu, QSizePolicy, QSize, QHBoxLayout, QInputDialog, \
-    QPushButton
-from PyQt5.Qt import Qt, QDesktopWidget, QFont, QAction, QColor, QIcon, QImage, QPainter, QVariant, QAbstractListModel
-from PyQt5.Qt import QSplitter, QListView, QLabel, QScrollArea, QPixmap, QTabWidget, QProgressBar
+    QComboBox, QPushButton, QLabel, QScrollArea, QHBoxLayout, QSizePolicy, \
+    QInputDialog, QTabWidget, QFormLayout, QListView, QSplitter, QProgressBar, \
+    QSystemTrayIcon, QMenu
+from PyQt6.QtCore import Qt, QVariant, QAbstractListModel, QSize, pyqtSignal
+from PyQt6.QtGui import QIcon, QAction, QPixmap, QStandardItemModel, \
+    QStandardItem, QColor, QPainter, QImage, QFont, QGuiApplication
 
 from django.utils.translation import gettext
 from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
 from lucterios.install.graphic_lib import LucteriosMain, EditorInstance, LucteriosChecker
+
+
+def get_image_from_mdi(mdi_icon):
+    image_path = join(dirname(dirname(__file__)), 'framework', 'mdi-icons', mdi_icon) + '.svg'
+    return QIcon(image_path)
 
 
 class InstanceModel(QAbstractListModel):
@@ -76,7 +82,7 @@ class InstanceModel(QAbstractListModel):
     def data(self, QModelIndex, role=None):
         try:
             item = self._instance_list[QModelIndex.row()]
-            if role == Qt.DisplayRole:
+            if role == Qt.ItemDataRole.DisplayRole:
                 return item
         except IndexError:
             pass
@@ -95,24 +101,25 @@ class AboutDlg(QDialog):
     def __init__(self, title):
         super(AboutDlg, self).__init__()
         self.setWindowTitle(title)
-        self.buttonClean = QPushButton(gettext('Clean'))
+        self.buttonClean = QPushButton(get_image_from_mdi('delete-outline'), gettext('Clean'))
         self.buttonClean.clicked.connect(self.clean_url)
-        self.buttonAdd = QPushButton(gettext('Add'))
+        self.buttonAdd = QPushButton(get_image_from_mdi('pencil-plus-outline'), gettext('Add'))
         self.buttonAdd.clicked.connect(self.add_url)
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Ok)
-        self.buttonBox.addButton(self.buttonClean, QDialogButtonBox.ActionRole)
-        self.buttonBox.addButton(self.buttonAdd, QDialogButtonBox.ActionRole)
-        self.buttonBox.accepted.connect(self.accept)
-
+        buttonOK = QPushButton(get_image_from_mdi('check'), gettext('Ok'))
+        buttonOK.clicked.connect(self.accept)
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.NoButton)
+        self.buttonBox.addButton(buttonOK, QDialogButtonBox.ButtonRole.ActionRole)
+        self.buttonBox.addButton(self.buttonClean, QDialogButtonBox.ButtonRole.ActionRole)
+        self.buttonBox.addButton(self.buttonAdd, QDialogButtonBox.ButtonRole.ActionRole)
         self.content = QLabel(self)
-        self.content.setAlignment(Qt.AlignTop or Qt.AlignRight)
-        self.content.setTextFormat(Qt.RichText)
+        self.content.setAlignment(Qt.AlignmentFlag.AlignTop or Qt.AlignmentFlag.AlignRight)
+        self.content.setTextFormat(Qt.TextFormat.RichText)
         self.content.setText("")
         scroll = QScrollArea(self)
         scroll.setWidget(self.content)
         scroll.setWidgetResizable(True)
         icon = QLabel(self)
-        icon.setAlignment(Qt.AlignTop or Qt.AlignCenter)
+        icon.setAlignment(Qt.AlignmentFlag.AlignTop or Qt.AlignmentFlag.AlignCenter)
         icon.setPixmap(QPixmap(join(dirname(import_module('lucterios.install').__file__), "lucterios.png")))
         layoutCmp = QHBoxLayout()
         layoutCmp.addWidget(icon)
@@ -126,7 +133,7 @@ class AboutDlg(QDialog):
         layoutMain.addLayout(layoutBt)
         self.setLayout(layoutMain)
         self.setFixedSize(QSize(750, 550))
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
 
     def refresh_data(self):
         from django import VERSION
@@ -199,7 +206,7 @@ class AboutDlg(QDialog):
 
     def show(self):
         self.fill_content()
-        self.exec_()
+        self.exec()
 
 
 class InstanceDlg(QDialog, EditorInstance):
@@ -207,9 +214,13 @@ class InstanceDlg(QDialog, EditorInstance):
     def __init__(self, *args, **kwargs):
         super(InstanceDlg, self).__init__(*args, **kwargs)
         self.setWindowTitle(gettext("Instance editor"))
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.StandardButton.NoButton)
+        buttonCancel = QPushButton(get_image_from_mdi('cancel'), gettext('Cancel'))
+        buttonCancel.clicked.connect(self.reject)
+        buttonOK = QPushButton(get_image_from_mdi('check'), gettext('Ok'))
+        buttonOK.clicked.connect(self.accept)
+        buttonBox.addButton(buttonCancel, QDialogButtonBox.ButtonRole.ActionRole)
+        buttonBox.addButton(buttonOK, QDialogButtonBox.ButtonRole.ActionRole)
         layout = QVBoxLayout()
         tabs = QTabWidget(self)
         general_frame = QFrame(self)
@@ -257,7 +268,7 @@ class InstanceDlg(QDialog, EditorInstance):
         depends_modules = self.mod_applis[appli_id][2]
         for row in range(self.modules.model().rowCount()):
             module = self.module_list[row][1]
-            self.modules.model().item(row).setCheckState(Qt.Checked if module in depends_modules else Qt.Unchecked)
+            self.modules.model().item(row).setCheckState(Qt.CheckState.Checked if module in depends_modules else Qt.CheckState.Unchecked)
         appli_root_name = self.mod_applis[appli_id][0].split('.')[-1]
         if self.is_new_instance:
             default_name_idx = 1
@@ -279,11 +290,11 @@ class InstanceDlg(QDialog, EditorInstance):
         self.applis.setCurrentIndex(applis_id)
         for row in range(self.modules.model().rowCount()):
             module = self.module_list[row][1]
-            self.modules.model().item(row).setCheckState(Qt.Checked if module in lct_inst.modules else Qt.Unchecked)
+            self.modules.model().item(row).setCheckState(Qt.CheckState.Checked if module in lct_inst.modules else Qt.CheckState.Unchecked)
         self.mode.setCurrentIndex(mode_id)
         for lang in DEFAULT_LANGUAGES:
             if lang[0] == current_lang:
-                self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFixedString))
+                self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFlag.MatchFixedString))
         self.password.setText('')
         self.db_type.setCurrentIndex(typedb_index)
         if 'name' in lct_inst.database[1].keys():
@@ -326,8 +337,8 @@ class InstanceDlg(QDialog, EditorInstance):
                 self.applischange(0)
             for lang in DEFAULT_LANGUAGES:
                 if lang[0] == get_locale_lang():
-                    self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFixedString))
-        if self.exec_():
+                    self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFlag.MatchFixedString))
+        if self.exec():
             return self.get_result()
         else:
             return None
@@ -345,7 +356,7 @@ class InstanceDlg(QDialog, EditorInstance):
         security = "MODE=%s" % self.mode.currentIndex()
         if self.password.text() != '':
             security += ",PASSWORD=%s" % self.password.text()
-        module_list = [self.module_list[row][1] for row in range(self.modules.model().rowCount()) if (self.modules.model().item(row).checkState() == Qt.Checked)]
+        module_list = [self.module_list[row][1] for row in range(self.modules.model().rowCount()) if (self.modules.model().item(row).checkState() == Qt.CheckState.Checked)]
         db_param = "%s:name=%s,user=%s,password=%s" % (self.db_type.currentText(), self.db_name.text(), self.db_user.text(), self.db_password.text())
         current_lang = get_locale_lang()
         for lang in DEFAULT_LANGUAGES:
@@ -391,7 +402,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             if (self.running_instance[old_item] is not None) and self.running_instance[old_item].is_running():
                 all_stop = False
         result = all_stop or (QMessageBox.question(self, gettext("Lucterios launcher"),
-                                                   gettext("An instance is always running.\nDo you want to close?"), QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes)
+                                                   gettext("An instance is always running.\nDo you want to close?"), QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes)
         if result:
             self.stop_all()
         else:
@@ -409,38 +420,38 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         self.setWindowTitle(gettext("Lucterios launcher"))
         self.setWindowIcon(QIcon(self.img_path))
         rect = self.frameGeometry()
-        centerPoint = QDesktopWidget().availableGeometry().center()
+        centerPoint = QGuiApplication.primaryScreen().availableGeometry().center()
         rect.moveCenter(centerPoint)
         self.move(rect.topLeft())
 
     def set_actions(self):
-        self.refreshAct = QAction(QIcon(join(self.icon_path, 'refresh.png')), gettext('Refresh'), self)
+        self.refreshAct = QAction(get_image_from_mdi('refresh'), gettext('Refresh'), self)
         self.refreshAct.setShortcut('F5')
         self.refreshAct.triggered.connect(self.refresh_all)
-        self.upgradeAct = QAction(QIcon(join(self.icon_path, 'upload.png')), gettext('Update'), self)
+        self.upgradeAct = QAction(get_image_from_mdi('update'), gettext('Update'), self)
         self.upgradeAct.setShortcut('Ctrl+U')
         self.upgradeAct.setEnabled(False)
         self.upgradeAct.triggered.connect(self.upgrade)
-        self.exitAct = QAction(QIcon(join(self.icon_path, 'exit.png')), gettext('Close'), self)
+        self.exitAct = QAction(get_image_from_mdi('close'), gettext('Close'), self)
         self.exitAct.setShortcut('Ctrl+Q')
         self.exitAct.triggered.connect(self.close)
 
-        self.browserAct = QAction(QIcon(join(self.icon_path, 'browser.png')), gettext("Browser"), self)
+        self.browserAct = QAction(get_image_from_mdi('web'), gettext("Browser"), self)
         self.browserAct.triggered.connect(lambda: self.open_browser())
-        self.launchAct = QAction(QIcon(join(self.icon_path, 'ok.png')), gettext("Launch"), self)
+        self.launchAct = QAction(get_image_from_mdi('launch'), gettext("Launch"), self)
         self.launchAct.triggered.connect(lambda: self.open_inst())
-        self.modifyAct = QAction(QIcon(join(self.icon_path, 'edit.png')), gettext("Modify"), self)
+        self.modifyAct = QAction(get_image_from_mdi('pencil-outline'), gettext("Modify"), self)
         self.modifyAct.triggered.connect(self.modify_inst)
-        self.deleteAct = QAction(QIcon(join(self.icon_path, 'delete.png')), gettext("Delete"), self)
+        self.deleteAct = QAction(get_image_from_mdi('delete-outline'), gettext("Delete"), self)
         self.deleteAct.triggered.connect(self.delete_inst)
-        self.saveAct = QAction(QIcon(join(self.icon_path, 'save.png')), gettext("Save"), self)
+        self.saveAct = QAction(get_image_from_mdi('content-save-outline'), gettext("Save"), self)
         self.saveAct.triggered.connect(self.save_inst)
-        self.restoreAct = QAction(QIcon(join(self.icon_path, 'open.png')), gettext("Restore"), self)
+        self.restoreAct = QAction(get_image_from_mdi('download-circle-outline'), gettext("Restore"), self)
         self.restoreAct.triggered.connect(self.restore_inst)
-        self.addAct = QAction(QIcon(join(self.icon_path, 'add.png')), gettext("Add"), self)
+        self.addAct = QAction(get_image_from_mdi('pencil-plus-outline'), gettext("Add"), self)
         self.addAct.triggered.connect(self.add_inst)
 
-        self.aboutAct = QAction(QIcon(join(self.icon_path, 'help.png')), gettext("About Lucterios Launcher"), self)
+        self.aboutAct = QAction(get_image_from_mdi('information-variant'), gettext("About Lucterios Launcher"), self)
         self.aboutAct.triggered.connect(self.about)
 
     def set_menu(self):
@@ -480,14 +491,14 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         helptools.addAction(self.aboutAct)
 
     def set_components(self):
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
         self.instances = QListView(self)
         self.instances.clicked.connect(self.instances_model.changed)
         self.instances.setModel(self.instances_model)
         splitter.addWidget(self.instances)
         self.instance = QLabel(self)
-        self.instance.setAlignment(Qt.AlignTop or Qt.AlignRight)
-        self.instance.setTextFormat(Qt.RichText)
+        self.instance.setAlignment(Qt.AlignmentFlag.AlignTop or Qt.AlignmentFlag.AlignRight)
+        self.instance.setTextFormat(Qt.TextFormat.RichText)
         scroll1 = QScrollArea(self)
         scroll1.setWidget(self.instance)
         scroll1.setWidgetResizable(True)
@@ -510,17 +521,17 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
             if self.running_instance[inst.name] is not None and self.running_instance[inst.name].is_running():
                 inst_status = gettext("Running in <a href='%(url)s'>%(url)s</a>") % {'url': self.running_instance[inst.name].get_url()}
                 btn_text = gettext("Stop")
-                btn_icon_path = join(self.icon_path, 'close.png')
+                btn_icon = get_image_from_mdi('close')
                 self.browserAct.setEnabled(True)
             else:
                 inst_status = gettext("Stopped")
                 btn_text = gettext("Launch")
-                btn_icon_path = join(self.icon_path, 'ok.png')
+                btn_icon = get_image_from_mdi('launch')
                 self.browserAct.setEnabled(False)
             content = "<h1><center>%s</center></h1>" % inst.name
             content += "<center>%s</center><br/>" % inst_status
             self.launchAct.setText(btn_text)
-            self.launchAct.setIcon(QIcon(btn_icon_path))
+            self.launchAct.setIcon(btn_icon)
             content += "<table width='100%'>"
             content += "<tr><th style='width:30%%;min-width:150px;'>%s</th><td>%s<br/></td></tr>" % (gettext("Application"), inst.get_appli_txt())
             content += "<tr><th>%s</th><td>%s<br/></td></tr>" % (gettext("Modules"), inst.get_module_txt().replace(',', '<br/>'))
@@ -607,8 +618,8 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
         painter.begin(splash_pix)
         painter.drawImage(100, 55, QImage(self.img_path))
         painter.end()
-        self.splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
-        self.splash.showMessage(gettext('Application loading\nWaiting a minute ...'), Qt.AlignHCenter)
+        self.splash = QSplashScreen(splash_pix, Qt.WindowType.WindowStaysOnTopHint)
+        self.splash.showMessage(gettext('Application loading\nWaiting a minute ...'), Qt.AlignmentFlag.AlignHCenter)
         font = QFont(self.splash.font())
         font.setPointSize(font.pointSize() + 3)
         self.splash.setFont(font)
@@ -695,7 +706,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
 
     def delete_inst(self):
         instance_name = self.get_selected_instance_name()
-        if QMessageBox.question(self, gettext("Lucterios launcher"), gettext("Do you want to delete '%s'?") % instance_name, QMessageBox.Yes, QMessageBox.No) == QMessageBox.Yes:
+        if QMessageBox.question(self, gettext("Lucterios launcher"), gettext("Do you want to delete '%s'?") % instance_name, QMessageBox.StandardButton.Yes, QMessageBox.StandardButton.No) == QMessageBox.StandardButton.Yes:
             self.delete_inst_name(instance_name)
         else:
             self.refresh()
@@ -703,7 +714,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def save_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = QFileDialog.getSaveFileName(self, gettext("File to save"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.HideNameFilterDetails)
+            file_name = QFileDialog.getSaveFileName(self, gettext("File to save"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.Option.HideNameFilterDetails)
             if isinstance(file_name, tuple) and (len(file_name) > 0):
                 file_name = file_name[0]
             if isinstance(file_name, str) and (file_name != ''):
@@ -712,7 +723,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def restore_inst(self):
         instance_name = self.get_selected_instance_name()
         if instance_name != '':
-            file_name = QFileDialog.getOpenFileName(self, gettext("File to load"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.HideNameFilterDetails)
+            file_name = QFileDialog.getOpenFileName(self, gettext("File to load"), expanduser('~'), 'lbk (*.lbk);;* (.*', options=QFileDialog.Option.HideNameFilterDetails)
             if isinstance(file_name, tuple) and (len(file_name) > 0):
                 file_name = file_name[0]
             if isinstance(file_name, str) and (file_name != ''):
@@ -727,9 +738,9 @@ class LucteriosTrayIcon(QSystemTrayIcon):
         self._init_gui()
 
     def _init_gui(self):
-        self.launchAct = QAction(QIcon(join(self.lct.icon_path, 'config.png')), gettext("Open"), self)
+        self.launchAct = QAction(get_image_from_mdi('clipboard-edit-outline'), gettext("Open"), self)
         self.launchAct.triggered.connect(self.open)
-        self.exitAct = QAction(QIcon(join(self.lct.icon_path, 'exit.png')), gettext('Exit'), self)
+        self.exitAct = QAction(get_image_from_mdi('exit-to-app'), gettext('Exit'), self)
         self.exitAct.setShortcut('Ctrl+Q')
         self.exitAct.triggered.connect(self.close)
         menu = QMenu()
@@ -765,7 +776,7 @@ def main():
             checher.open_function = lambda: traylct.refresh()
             checher.startedlist_function = lambda: traylct.startedlist()
             traylct.show()
-            exit_ret = app.exec_()
+            exit_ret = app.exec()
         else:
             exit_ret = 1
         sys.exit(exit_ret)

@@ -68,7 +68,8 @@ class Example(LucteriosModel):
         if self.valid:
             return 'mdi:mdi-mailbox-up'
         else:
-            return readimage_to_base64(join(dirname(dirname(__file__)), 'CORE', 'static', 'lucterios.CORE', 'images', 'config.png')).decode()
+            logo_path = join(dirname(__file__), 'docs', 'en', 'EditIndividual.png')
+            return readimage_to_base64(join(dirname(dirname(__file__)), 'dummy', 'static', 'lucterios.dummy', 'images', 'config.png')).decode()
 
     def get_html_info(self):
         return """<b>name</b> %s<br>
