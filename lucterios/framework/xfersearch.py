@@ -274,12 +274,12 @@ class FieldDescItem(object):
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
             if len(self.initial_q) == 0:
-                if value == 'o':
+                if (value == 'o') or (value is True):
                     query_res = query_res & Q(**{self.dbfieldname: True})
                 else:
                     query_res = query_res & Q(**{self.dbfieldname: False})
             else:
-                if value == 'o':
+                if (value == 'o') or (value is True):
                     query_res = query_res & Q(**{self.dbfieldname: 'True'})
                 else:
                     query_res = query_res & ~Q(**{self.dbfieldname: 'True'})
