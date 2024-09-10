@@ -230,7 +230,7 @@ class FieldDescItem(object):
         if self.field_type == TYPE_STR:
             new_val_txt = '"%s"' % value if isinstance(value, str) else sep_for_list.join(['"%s"' % subvalue for subvalue in value])
         elif self.field_type == TYPE_BOOL:
-            if value == 'o':
+            if (value == 'o') or (value is True):
                 new_val_txt = _("Yes")
             else:
                 new_val_txt = _("No")
