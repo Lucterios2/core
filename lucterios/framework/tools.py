@@ -200,6 +200,18 @@ class ActionsManage(object):
             cls._actlock.release()
 
     @classmethod
+    def get_action(cls, url_text):
+        cls._actlock.acquire()
+        try:
+            for model_name in cls._ACTION_LIST.keys():
+                for act in cls._ACTION_LIST[model_name]:
+                    if act['xclass'].url_text == url_text:
+                        return act['xclass'].get_action()
+        finally:
+            cls._actlock.release()
+        return None
+
+    @classmethod
     def get_action_url(cls, model_name, url, xfer, **args):
         cls._actlock.acquire()
         try:
@@ -330,7 +342,6 @@ class MenuManage(object):
 
     @classmethod
     def add_sub(cls, ref, parentref, caption='', desc='', pos=0, short_icon=''):
-        from django.conf import settings
         cls._menulock.acquire()
         try:
             if parentref not in cls._MENU_LIST.keys():
@@ -367,7 +378,20 @@ class MenuManage(object):
         return wrapper
 
     @classmethod
+    def get_menu(cls, url_text):
+        cls._menulock.acquire()
+        try:
+            for parentref in cls._MENU_LIST.keys():
+                for sub_menu_item in cls._MENU_LIST[parentref]:
+                    if sub_menu_item[0].url_text == url_text:
+                        return sub_menu_item[0]
+        finally:
+            cls._menulock.release()
+        return None
+
+    @classmethod
     def filljson(cls, request, parentref):
+        from lucterios.framework.signal_and_lock import Signal
         resjson = []
         cls._menulock.acquire()
         try:
@@ -382,25 +406,10 @@ class MenuManage(object):
                             new_act['menus'] = sub_menu
                         if (len(sub_menu) > 0) or ('extension' in new_act.keys()):
                             resjson.append(new_act)
+            Signal.call_signal("addon_menu", request, parentref, resjson)
         finally:
             cls._menulock.release()
         return resjson
-
-    @classmethod
-    def fill(cls, request, parentref, parentxml):
-        cls._menulock.acquire()
-        try:
-            if parentref in cls._MENU_LIST.keys():
-                sub_menus = cls._MENU_LIST[parentref]
-                sub_menus.sort(key=menu_key_to_comp)
-                for sub_menu_item in sub_menus:
-                    if sub_menu_item[0].check_permission(request):
-                        new_xml = sub_menu_item[0].get_action_xml(desc=sub_menu_item[1], tag="MENU")
-                        if new_xml is not None:
-                            parentxml.append(new_xml)
-                            cls.fill(request, sub_menu_item[0].url_text, new_xml)
-        finally:
-            cls._menulock.release()
 
 
 def get_actions_json(actions):

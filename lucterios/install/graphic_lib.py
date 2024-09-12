@@ -31,7 +31,7 @@ import webbrowser
 import os
 import signal
 from socket import socket, AF_INET, SOCK_STREAM
-from os.path import isfile
+from os.path import isfile, join, dirname
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
 from traceback import print_exc
@@ -476,3 +476,7 @@ class LucteriosMain(object):
 
     def add_inst(self):
         pass
+
+
+def get_imagepath_from_mdi(mdi_icon):
+    return join(dirname(dirname(__file__)), 'framework', 'mdi-icons', mdi_icon) + '.svg'
