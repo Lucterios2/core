@@ -44,12 +44,11 @@ from django.utils.translation import gettext
 from django.utils.module_loading import import_module
 
 from lucterios.install.lucterios_admin import setup_from_none, LucteriosGlobal, LucteriosInstance
-from lucterios.install.graphic_lib import LucteriosMain, EditorInstance, LucteriosChecker
+from lucterios.install.graphic_lib import LucteriosMain, EditorInstance, LucteriosChecker, get_imagepath_from_mdi
 
 
 def get_image_from_mdi(mdi_icon):
-    image_path = join(dirname(dirname(__file__)), 'framework', 'mdi-icons', mdi_icon) + '.svg'
-    return QIcon(image_path)
+    return QIcon(get_imagepath_from_mdi(mdi_icon))
 
 
 class InstanceModel(QAbstractListModel):

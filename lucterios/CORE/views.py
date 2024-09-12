@@ -46,19 +46,20 @@ from lucterios.framework.xfercomponents import XferCompPassword, XferCompImage, 
     XferCompMemo, XferCompFloat, XferCompXML, XferCompEdit, XferCompDownLoad, XferCompUpLoad, XferCompButton, XferCompStep
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferDelete, XferSave, TITLE_MODIFY, TITLE_DELETE, \
     TITLE_CLONE, TITLE_OK, TITLE_CANCEL, TITLE_CLOSE, TEXT_TOTAL_NUMBER, action_list_sorted, \
-    TITLE_CREATE
+    TITLE_CREATE, TITLE_ADD
 from lucterios.framework.error import LucteriosException, IMPORTANT
 from lucterios.framework.filetools import get_user_dir, xml_validator, read_file, md5sum
 from lucterios.framework import signal_and_lock, tools
 
 from lucterios.CORE.parameters import Params, secure_mode_connect, notfree_mode_connect
-from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, LucteriosGroup
+from lucterios.CORE.models import Parameter, Label, PrintModel, SavedCriteria, LucteriosUser, LucteriosGroup, ShortCut
 from lucterios.CORE.views_usergroup import UsersList, GroupsList
 from lucterios.CORE.import_drivers import ImportDriver
 
 
 MenuManage.add_sub('core.menu', None, short_icon='mdi:mdi-circle-small')
 MenuManage.add_sub('core.general', None, short_icon='mdi:mdi-home', caption=_('General'), desc=_('Generality'), pos=1)
+MenuManage.add_sub('core.shortcut', 'core.general', short_icon='mdi:mdi-menu-open', caption=_('Short-cut'), desc=_('Short-cut menus customized'), pos=100)
 MenuManage.add_sub('core.admin', None, short_icon='mdi:mdi-tune-vertical', caption=_('Management'), desc=_('Manage settings and configurations.'), pos=100)
 
 
@@ -362,6 +363,56 @@ class SavedCriteriaDel(XferDelete):
     model = SavedCriteria
     field_id = 'savedcriteria'
     caption = _("Delete Saved criteria")
+
+
+@MenuManage.describ('CORE.change_parameter', FORMTYPE_MODAL, 'core.extensions', _('Short-cut list for added menus'))
+class ShortCutList(XferListEditor):
+    short_icon = 'mdi:mdi-menu-open'
+    model = ShortCut
+    field_id = 'shortcut'
+    caption = _("Short-cut")
+
+    def fillresponse(self):
+        XferListEditor.fillresponse(self)
+        grid = self.get_components('shortcut')
+        grid.change_type_header('icon', 'icon')
+
+
+@ActionsManage.affect_grid(_('Up'), short_icon="mdi:mdi-arrow-up-bold-outline", unique=SELECT_SINGLE)
+@MenuManage.describ('CORE.add_parameter')
+class ShortCuttUp(XferContainerAcknowledge):
+    short_icon = 'mdi:mdi-menu-open'
+    model = ShortCut
+    field_id = 'shortcut'
+    caption = _("Up short-cut")
+
+    def fillresponse(self):
+        self.item.up_order()
+
+
+@ActionsManage.affect_grid(TITLE_ADD, short_icon='mdi:mdi-pencil-plus-outline')
+@ActionsManage.affect_grid(TITLE_MODIFY, short_icon='mdi:mdi-pencil-outline', unique=SELECT_SINGLE)
+@MenuManage.describ('CORE.add_parameter')
+class ShortCutAddModify(XferAddEditor):
+    short_icon = 'mdi:mdi-menu-open'
+    model = ShortCut
+    field_id = 'shortcut'
+    caption_add = _("Add saved short-cut")
+    caption_modify = _("Modify short-cut")
+
+    def fillresponse(self):
+        if self.item.id is None:
+            self.item.icon = self.short_icon
+        XferAddEditor.fillresponse(self)
+
+
+@ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
+@MenuManage.describ('CORE.add_parameter')
+class ShortCutDel(XferDelete):
+    short_icon = 'mdi:mdi-menu-open'
+    model = ShortCut
+    field_id = 'shortcut'
+    caption = _("Delete short-cut")
 
 
 MenuManage.add_sub("core.print", 'core.admin', short_icon='mdi:mdi-printer-pos-cog-outline', caption=_("Report and print"), desc=_("To manage reports and tools of printing."), pos=30)
@@ -1125,6 +1176,17 @@ def summary_core(xfer):
 }
 """
             xfer.add_component(btn)
+
+
+@signal_and_lock.Signal.decorate('addon_menu')
+def addon_menu_core(request, parentref, resjson):
+    if parentref == 'core.shortcut':
+        for short_cut in ShortCut.objects.all():
+            if short_cut.check_permission(request):
+                resjson.append(short_cut.get_action_json())
+        return ShortCut.objects.count()
+    else:
+        return 0
 
 
 @signal_and_lock.Signal.decorate('conf_wizard')

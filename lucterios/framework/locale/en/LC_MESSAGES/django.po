@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-25 18:47+0000\n"
+"POT-Creation-Date: 2024-09-12 11:25+0000\n"
 "PO-Revision-Date: 2024-08-25 20:48+0200\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -78,7 +78,7 @@ msgstr "create"
 msgid "update"
 msgstr "update"
 
-#: models.py:847 tools.py:457
+#: models.py:847 tools.py:466
 msgid "delete"
 msgstr "delete"
 
@@ -86,7 +86,7 @@ msgstr "delete"
 msgid "remove"
 msgstr "remove"
 
-#: models.py:849 tools.py:453
+#: models.py:849 tools.py:462
 msgid "add"
 msgstr "add"
 
@@ -177,15 +177,15 @@ msgstr "Anonymous user"
 msgid "Bad permission for '%s'"
 msgstr "Bad permission for '%s'"
 
-#: tools.py:455
+#: tools.py:464
 msgid "view"
 msgstr "view"
 
-#: tools.py:593 xfergraphic.py:161 xfersearch.py:234
+#: tools.py:602 xfergraphic.py:161 xfersearch.py:234
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:595 xferadvance.py:41 xfersearch.py:236
+#: tools.py:604 xferadvance.py:41 xfersearch.py:236
 msgid "No"
 msgstr "No"
 
@@ -298,12 +298,12 @@ msgstr "Bad transition"
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 
-#: xfercomponents.py:1040
+#: xfercomponents.py:1041
 #, python-format
 msgid "%s (Ascending)"
 msgstr "%s (Ascending)"
 
-#: xfercomponents.py:1041
+#: xfercomponents.py:1042
 #, python-format
 msgid "%s (Descending)"
 msgstr "%s (Descending)"

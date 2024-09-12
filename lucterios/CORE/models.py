@@ -36,6 +36,7 @@ from django.contrib.auth.models import User, Group
 from django.db import models, transaction
 from django.db.models.signals import post_migrate, pre_save, post_save
 from django.db.models.query import QuerySet
+from django.db.models.aggregates import Max
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _, gettext_lazy
 from django.core.cache import cache
@@ -46,7 +47,7 @@ from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
-from lucterios.framework.tools import set_locale_lang
+from lucterios.framework.tools import set_locale_lang, WrapAction, ActionsManage, MenuManage
 from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistry
 
 
@@ -862,6 +863,88 @@ class SavedCriteria(LucteriosModel):
     class Meta(object):
         verbose_name = _('Saved criteria')
         verbose_name_plural = _('Saved criterias')
+        default_permissions = []
+
+
+class ShortCut(LucteriosModel):
+    METHOD_GET = 0
+    METHOD_POST = 1
+    METHOD_DELETE = 2
+    LIST_METHODS = ((METHOD_GET, 'GET'), (METHOD_POST, 'POST'), (METHOD_DELETE, 'DELETE'))
+
+    icon = models.CharField(_('icon'), max_length=50, blank=True)
+    name = models.CharField(_('name'), max_length=100, blank=False)
+    description = models.TextField(_('description'), blank=True)
+    url = models.CharField(_('url'), max_length=100, blank=False)
+    httpmethod = models.IntegerField(_('http method'), choices=LIST_METHODS, default=METHOD_GET)
+    parameters = models.TextField(_('parameters'), blank=True)
+    order_key = models.IntegerField(verbose_name=_('order key'), null=True, default=None)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_show_fields(cls):
+        return ["icon", "name", 'description', 'url', 'httpmethod', 'parameters']
+
+    @classmethod
+    def get_default_fields(cls):
+        return ["icon", "name", 'description']
+
+    def get_httpmethod(self):
+        return dict(self.LIST_METHODS)[self.httpmethod]
+
+    def up_order(self):
+        prec_banks = ShortCut.objects.filter(order_key__lt=self.order_key).order_by('-order_key')
+        if len(prec_banks) > 0:
+            prec_bank = prec_banks[0]
+            order_key = prec_bank.order_key
+            prec_bank.order_key = self.order_key
+            self.order_key = order_key
+            prec_bank.save()
+            self.save()
+
+    def get_params(self):
+        params = {}
+        parameters = self.parameters
+        for rc_text in ('{[br]}', '{[br/]}', '{[newline]}', '{[newline/]}'):
+            parameters = parameters.replace(rc_text, '\n')
+        for param_line in parameters.split('\n'):
+            param_item = param_line.split('=')
+            if param_item[0].strip() != '':
+                params[param_item[0].strip()] = param_item[1].strip() if len(param_item) > 1 else ''
+        return params
+
+    def check_permission(self, request):
+        act = MenuManage.get_menu(self.url)
+        if act is None:
+            act = ActionsManage.get_action(self.url)
+        if (act is None) or not act.check_permission(request):
+            return False
+        return True
+
+    def get_action_json(self):
+        act = WrapAction(
+            caption=self.name,
+            short_icon=self.icon,
+            url_text=self.url,
+            pos=self.order_key,
+            method=self.get_httpmethod())
+        return act.get_action_json(desc=self.description, params=self.get_params())
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.order_key is None:
+            val = ShortCut.objects.all().aggregate(Max('order_key'))
+            if val['order_key__max'] is None:
+                self.order_key = 1
+            else:
+                self.order_key = val['order_key__max'] + 1
+        return LucteriosModel.save(self, force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+
+    class Meta(object):
+        verbose_name = _('short-cut')
+        verbose_name_plural = _('short-cuts')
+        ordering = ['order_key']
         default_permissions = []
 
 
