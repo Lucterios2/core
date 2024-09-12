@@ -43,7 +43,7 @@ class BaseTest(unittest.TestCase):
         rmtree(self.path_dir, True)
         makedirs(self.path_dir)
         self.luct_glo = LucteriosGlobal(self.path_dir)
-        self.waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_preference', 'CORE_printmodel', 'CORE_savedcriteria',
+        self.waiting_table = ['CORE_label', 'CORE_parameter', 'CORE_preference', 'CORE_printmodel', 'CORE_savedcriteria', 'CORE_shortcut',
                               'auth_group', 'auth_group_permissions', 'auth_permission', 'auth_user', 'auth_user_groups', 'auth_user_user_permissions',
                               'django_admin_log', 'django_content_type', 'django_migrations', 'django_session',
                               'framework_lucterioslogentry']
