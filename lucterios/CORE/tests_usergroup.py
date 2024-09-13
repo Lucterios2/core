@@ -36,7 +36,7 @@ from lucterios.CORE.views_usergroup import UsersList, UsersDelete, UsersDisabled
     AudiLogConfig, GroupsDelete, PreferenceEdit, UsersShow, ChangeOnlySuperAdmin
 from lucterios.CORE.views_usergroup import GroupsList, GroupsEdit
 
-from lucterios.CORE.views import Unlock
+from lucterios.CORE.views import Unlock, ShortCutList, ShortCutAddModify, ShortCutDel, ShortCuttUp
 from lucterios.CORE.models import LucteriosGroup, LucteriosUser
 from lucterios.CORE import parameters
 from lucterios.framework.signal_and_lock import Signal
@@ -958,3 +958,124 @@ class SessionTest(LucteriosTest):
         self.assert_observer('core.custom', 'CORE', 'sessionList')
         self.assert_count_equal("session", 1)
         self.assert_json_equal('', 'session/@0/id', session_id)
+
+
+class OtherConfigTest(LucteriosTest):
+
+    def setUp(self):
+        LucteriosTest.setUp(self)
+        add_empty_user()
+
+    def test_shortcut_config(self):
+        self.factory.xfer = ShortCutList()
+        self.calljson('/CORE/shortCutList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'shortCutList')
+        self.assert_count_equal('', 3)
+        self.assert_grid_equal('shortcut', {"icon": "icon", "name": "nom", 'description': 'description'}, 0)
+
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'shortCutAddModify')
+        self.assert_count_equal('', 7)
+        self.assert_json_equal('EDIT', "icon", "mdi:mdi-menu-open")
+        self.assert_json_equal('EDIT', "name", "")
+        self.assert_json_equal('MEMO', "description", "")
+        self.assert_json_equal('EDIT', "url", "")
+        self.assert_json_equal('SELECT', "httpmethod", 0)
+        self.assert_select_equal("httpmethod", {0: "GET", 1: "POST", 2: "DELETE"})
+        self.assert_json_equal('MEMO', "parameters", "")
+
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {'SAVE': 'YES', "icon": 'mdi:mdi-menu-open', "name": 'Rapide1', 'description': 'Menu rapide A', 'url': 'CORE/groupsList', 'httpmethod': 0, 'parameters': {}}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutAddModify')
+
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {'SAVE': 'YES', "icon": 'mdi:mdi-menu-open', "name": 'Rapide2', 'description': 'Menu rapide B', 'url': 'CORE/usersList', 'httpmethod': 0, 'parameters': {}}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutAddModify')
+
+        self.factory.xfer = ShortCutList()
+        self.calljson('/CORE/shortCutList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'shortCutList')
+        self.assert_count_equal('shortcut', 2)
+        self.assert_json_equal('', 'shortcut/@0/icon', 'mdi:mdi-menu-open')
+        self.assert_json_equal('', 'shortcut/@0/name', 'Rapide1')
+        self.assert_json_equal('', 'shortcut/@0/description', 'Menu rapide A')
+        self.assert_json_equal('', 'shortcut/@1/icon', 'mdi:mdi-menu-open')
+        self.assert_json_equal('', 'shortcut/@1/name', 'Rapide2')
+        self.assert_json_equal('', 'shortcut/@1/description', 'Menu rapide B')
+
+        self.factory.xfer = ShortCuttUp()
+        self.calljson('/CORE/shortCuttUp', {'shortcut': 2}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCuttUp')
+
+        self.factory.xfer = ShortCutList()
+        self.calljson('/CORE/shortCutList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'shortCutList')
+        self.assert_count_equal('shortcut', 2)
+        self.assert_json_equal('', 'shortcut/@0/icon', 'mdi:mdi-menu-open')
+        self.assert_json_equal('', 'shortcut/@0/name', 'Rapide2')
+        self.assert_json_equal('', 'shortcut/@0/description', 'Menu rapide B')
+        self.assert_json_equal('', 'shortcut/@1/icon', 'mdi:mdi-menu-open')
+        self.assert_json_equal('', 'shortcut/@1/name', 'Rapide1')
+        self.assert_json_equal('', 'shortcut/@1/description', 'Menu rapide A')
+
+        self.factory.xfer = ShortCutDel()
+        self.calljson('/CORE/shortCutDel', {'shortcut': 1, 'CONFIRME': 'YES'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutDel')
+
+        self.factory.xfer = ShortCutList()
+        self.calljson('/CORE/shortCutList', {}, False)
+        self.assert_observer('core.custom', 'CORE', 'shortCutList')
+        self.assert_count_equal('shortcut', 1)
+
+    def test_shortcut_menu(self):
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {'SAVE': 'YES', "icon": 'mdi:mdi-aaa', "name": 'Menu A', 'description': '** Menu A **', 'url': 'CORE/groupsList', 'httpmethod': 0, 'parameters': 'value=aaa{[br/]}{[br/]}truc{[br/]}machin=1'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutAddModify')
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {'SAVE': 'YES', "icon": 'mdi:mdi-bbb', "name": 'Menu B', 'description': '** Menu B **', 'url': 'CORE/changePassword', 'httpmethod': 0, 'parameters': 'value=bbb'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutAddModify')
+        self.factory.xfer = ShortCutAddModify()
+        self.calljson('/CORE/shortCutAddModify', {'SAVE': 'YES', "icon": 'mdi:mdi-ccc', "name": 'Menu C', 'description': '** Menu C **', 'url': 'bad/wrong', 'httpmethod': 0, 'parameters': 'value=ccc'}, False)
+        self.assert_observer('core.acknowledge', 'CORE', 'shortCutAddModify')
+
+        self.calljson('/CORE/authentification', {'login': 'empty', 'password': 'empty'})
+        self.assert_json_equal('', '', 'OK')
+        self.calljson('/CORE/menu', {}, 'get')
+        self.assert_observer('core.menu', 'CORE', 'menu')
+        self.assertEqual(len(self.response_json['menus']), 3)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
+        self.assertEqual(len(self.response_json['menus'][0]['menus']), 1)
+        self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
+        self.assertEqual(len(self.response_json['menus'][1]['menus']), 2)
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['id'], 'core.shortcut')
+        self.assertEqual(len(self.response_json['menus'][1]['menus'][1]['menus']), 1)
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['menus'][0]['text'], 'Menu B')
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['menus'][0]['short_icon'], 'mdi:mdi-bbb')
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['menus'][0]['help'], '** Menu B **')
+        self.assertEqual(self.response_json['menus'][1]['menus'][1]['menus'][0]['params'], {'value': 'bbb'})
+
+        self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
+        self.assert_json_equal('', '', 'OK')
+        self.calljson('/CORE/menu', {}, 'get')
+        self.assert_observer('core.menu', 'CORE', 'menu')
+        self.assertEqual(len(self.response_json['menus']), 4)
+        self.assertEqual(self.response_json['menus'][0]['id'], 'core.menu')
+        self.assertEqual(len(self.response_json['menus'][0]['menus']), 1)
+        self.assertEqual(self.response_json['menus'][1]['id'], 'core.general')
+        nb_general_menus = len(self.response_json['menus'][1]['menus'])
+        self.assertTrue(nb_general_menus in (2, 8))
+        self.assertEqual(self.response_json['menus'][1]['menus'][0]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['id'], 'core.shortcut')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][0]['id'], 'CORE/groupsList')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][0]['text'], 'Menu A')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][0]['short_icon'], 'mdi:mdi-aaa')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][0]['help'], '** Menu A **')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][0]['params'], {'value': 'aaa', 'truc': '', 'machin': '1'})
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][1]['id'], 'CORE/changePassword')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][1]['text'], 'Menu B')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][1]['short_icon'], 'mdi:mdi-bbb')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][1]['help'], '** Menu B **')
+        self.assertEqual(self.response_json['menus'][1]['menus'][nb_general_menus - 1]['menus'][1]['params'], {'value': 'bbb'})
