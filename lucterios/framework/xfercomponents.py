@@ -714,6 +714,7 @@ class XferCompUpLoad(XferComponent):
         self.filter = []
         self.compress = False
         self.http_file = False
+        self.multi_files = False
         self.withcam = True
         self.maxsize = 1024 * 1024  # 1Mo
 
@@ -727,6 +728,7 @@ class XferCompUpLoad(XferComponent):
         compjson['http_file'] = self.http_file
         compjson['maxsize'] = self.maxsize
         compjson['withcam'] = self.withcam
+        compjson['multi_files'] = self.multi_files
         return compjson
 
 

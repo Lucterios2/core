@@ -910,6 +910,7 @@ class ObjectImport(XferContainerCustom):
         self.add_component(model_select)
         upld = XferCompUpLoad('importcontent')
         upld.http_file = True
+        upld.multi_files = True
         upld.set_needed(True)
         upld.add_filter(self.import_driver.EXTENSION)
         upld.set_location(1, 3, 2)

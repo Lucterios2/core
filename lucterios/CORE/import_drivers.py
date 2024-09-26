@@ -28,12 +28,13 @@ from _csv import QUOTE_NONE, QUOTE_ALL
 from re import sub
 from datetime import datetime
 from base64 import b64decode, b64encode
-from pandas import read_excel
+from pandas import read_excel, concat, ExcelWriter
 from logging import getLogger
 
 from django.utils.translation import gettext_lazy as _
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
+from pandas._typing import WriteExcelBuffer
 
 
 class ImportDriver(object):
@@ -106,12 +107,23 @@ class ImportDriverCSV(ImportDriver):
             csv_params['quoting'] = QUOTE_ALL
             csv_params['quotechar'] = self.quotechar
         if 'importcontent' in xfer.request.FILES.keys():
-            csvfile = TextIOWrapper(xfer.request.FILES['importcontent'].file,
-                                    encoding=self.encoding, errors='replace')
-            csvcontent = "".join(csvfile.readlines())
-            for param_idx in range(0, int(len(csvcontent) / 2048) + 2):
-                xfer.params['importcontent%d' % param_idx] = csvcontent[2048 * param_idx:2048 * (param_idx + 1)]
-            csvfile.seek(0)
+            header_line = None
+            csvcontent = ""
+            param_offset = 0
+            for current_file in xfer.request.FILES.getlist('importcontent'):
+                current_csv_file = TextIOWrapper(current_file, encoding=self.encoding, errors='replace')
+                current_lines = current_csv_file.readlines()
+                if header_line is None:
+                    header_line = current_lines[0]
+                else:
+                    if header_line != current_lines[0]:
+                        raise LucteriosException(IMPORTANT, _('Import files do not have the same columns.'))
+                    current_lines = current_lines[1:]
+                csvcontent += "".join(current_lines)
+                for param_idx in range(0, int(len(csvcontent) / 2048) + 2):
+                    xfer.params['importcontent%d' % (param_idx + param_offset)] = csvcontent[2048 * param_idx:2048 * (param_idx + 1)]
+                param_offset = param_offset + param_idx
+            csvfile = StringIO(csvcontent)
         else:
             csvcontent = ""
             for param_idx in range(0, 1000):
@@ -189,7 +201,9 @@ class ImportDriverPandas(ImportDriver):
 
     def read(self, xfer):
         if 'importcontent' in xfer.request.FILES.keys():
-            odsfile = xfer.request.FILES['importcontent'].file
+            odsfile = BytesIO()
+            concat([read_excel(import_file) for import_file in xfer.request.FILES.getlist('importcontent')]).to_excel(odsfile, index=False)
+            odsfile.seek(0)
             odscontent = b64encode(odsfile.read())
             for param_idx in range(0, int(len(odscontent) / 2048) + 2):
                 xfer.params['importcontent%d' % param_idx] = odscontent[2048 * param_idx:2048 * (param_idx + 1)].decode()
