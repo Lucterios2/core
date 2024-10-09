@@ -61,9 +61,9 @@ test38:
   extends: .test_basic
   image: python:3.8
 
-test311:
+test312:
   extends: .test_basic
-  image: python:3.11
+  image: python:3.12
   
 build:
   image: python:3.9
