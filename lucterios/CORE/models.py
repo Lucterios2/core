@@ -27,8 +27,19 @@ from os.path import dirname, join, exists, isfile
 from os import walk, makedirs, unlink
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
-from imp import load_source
 import logging
+
+try:
+    from imp import load_source
+except ModuleNotFoundError:
+    def load_source(modname, filename):
+        import importlib.util
+        import importlib.machinery
+        loader = importlib.machinery.SourceFileLoader(modname, filename)
+        spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
+        module = importlib.util.module_from_spec(spec)
+        loader.exec_module(module)
+        return module
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
@@ -966,7 +977,6 @@ def core_checkparam():
 
 @Signal.decorate('convertdata')
 def core_convertdata():
-    from django.conf import settings
     if settings.ASK_LOGIN_EMAIL:
         nb_no_email = 0
         for user_without_email in LucteriosUser.objects.filter(email="", is_active=True):
@@ -1005,7 +1015,6 @@ def core_auditlog_register():
 
 def post_after_migrate(sender, **kwargs):
     if ('exception' not in kwargs) and ('app_config' in kwargs) and (kwargs['app_config'].name == 'lucterios.CORE'):
-        from django.conf import settings
         from django.contrib.auth import get_backends
         get_backends()
         set_locale_lang(settings.LANGUAGE_CODE)
