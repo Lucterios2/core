@@ -32,6 +32,20 @@ from logging import getLogger
 from lucterios.framework.error import LucteriosException
 
 
+def find_module(importer, module_name):
+    try:
+        return importer.find_module(module_name)
+    except AttributeError:
+        import importlib.util
+        module_spec = importer.find_spec(module_name)
+        if module_spec is not None:
+            module = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(module)
+        else:
+            module = None
+        return module
+
+
 class PluginItem(object):
 
     def __init__(self, module):
@@ -137,7 +151,7 @@ class PluginManager(object):
         return None
 
     def _append_plugin(self, plugin_permission, importer, module_name):
-        module_found = importer.find_module(module_name)
+        module_found = find_module(importer, module_name)
         if module_found is not None:
             new_plugin = PluginItem(module_found.load_module(module_name))
             if new_plugin.name not in plugin_permission:
