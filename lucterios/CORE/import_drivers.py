@@ -28,13 +28,12 @@ from _csv import QUOTE_NONE, QUOTE_ALL
 from re import sub
 from datetime import datetime
 from base64 import b64decode, b64encode
-from pandas import read_excel, concat, ExcelWriter
+from pandas import read_excel, concat
 from logging import getLogger
 
 from django.utils.translation import gettext_lazy as _
 
 from lucterios.framework.error import LucteriosException, IMPORTANT
-from pandas._typing import WriteExcelBuffer
 
 
 class ImportDriver(object):
