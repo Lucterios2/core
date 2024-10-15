@@ -92,8 +92,7 @@ class ConvertHTML_XMLReportlab(object):
 
     def fill_attrib(self, xml_source, xml_target):
         for key, val in xml_source.attrib.items():
-            if (key not in ('style')):
-                xml_target.attrib[key] = val
+            xml_target.attrib[key] = val
 
     def fill_text_if_not_null(self, item_source, item_target):
         if item_source.text is not None:
@@ -110,9 +109,11 @@ class ConvertHTML_XMLReportlab(object):
         if 'font-size' in self.current_style:
             xmlrl_item = self._new_para()
             xmlrl_item.attrib['size'] = self.current_style['font-size'].replace('px', '')
-        elif 'color' in self.current_style:
+        else:
             xmlrl_item = etree.Element('font')
-            xmlrl_item.attrib['color'] = self.current_style['color']
+            for font_attr in ('color', 'background-color'):
+                if font_attr in self.current_style:
+                    xmlrl_item.attrib[font_attr] = self.current_style[font_attr]
         return xmlrl_item
 
     def _parse_p(self, text):

@@ -25,25 +25,13 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from os.path import join, exists, dirname, basename
 from os import makedirs
+import sys
 from pkgutil import walk_packages
 from importlib import import_module
-from lucterios.framework.tools import MenuManage, WrapAction
 from logging import getLogger
+
+from lucterios.framework.tools import MenuManage, WrapAction
 from lucterios.framework.error import LucteriosException
-
-
-def find_module(importer, module_name):
-    try:
-        return importer.find_module(module_name)
-    except AttributeError:
-        import importlib.util
-        module_spec = importer.find_spec(module_name)
-        if module_spec is not None:
-            module = importlib.util.module_from_spec(module_spec)
-            module_spec.loader.exec_module(module)
-        else:
-            module = None
-        return module
 
 
 class PluginItem(object):
@@ -151,9 +139,13 @@ class PluginManager(object):
         return None
 
     def _append_plugin(self, plugin_permission, importer, module_name):
-        module_found = find_module(importer, module_name)
-        if module_found is not None:
-            new_plugin = PluginItem(module_found.load_module(module_name))
+        import importlib.util
+        module_spec = importer.find_spec(module_name)
+        if module_spec is not None:
+            module_found = importlib.util.module_from_spec(module_spec)
+            sys.modules[module_name] = module_found
+            module_spec.loader.exec_module(module_found)
+            new_plugin = PluginItem(module_found)
             if new_plugin.name not in plugin_permission:
                 plugin_permission[new_plugin.name] = []
             self._plugin_buffer.append(new_plugin)

@@ -74,7 +74,7 @@ def remove_format(xml_text):
 
 def convert_to_html(tagname, text, font_family="sans-serif", font_size=9, line_height=10, text_align='left'):
     try:
-        html_text = toHtml(text)
+        html_text = toHtml(text, withclean=False)
         parser = etree.XMLParser(remove_blank_text=True, resolve_entities=False)
         xml_text = etree.XML("<%(tagname)s>%(text)s</%(tagname)s>" % {'tagname': tagname, 'text': html_text}, parser=parser)
         xml_text.attrib['font_family'] = font_family
