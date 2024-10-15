@@ -29,18 +29,6 @@ from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
 import logging
 
-try:
-    from imp import load_source
-except ModuleNotFoundError:
-    def load_source(modname, filename):
-        import importlib.util
-        import importlib.machinery
-        loader = importlib.machinery.SourceFileLoader(modname, filename)
-        spec = importlib.util.spec_from_file_location(modname, filename, loader=loader)
-        module = importlib.util.module_from_spec(spec)
-        loader.exec_module(module)
-        return module
-
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User, Group
@@ -763,9 +751,14 @@ class PrintModel(LucteriosModel):
 
     def load_model(self, module, name=None, check=False, is_default=False):
         from django.utils.module_loading import import_module
+        import importlib.util
+        import importlib.machinery
         try:
             if name is None:
-                print_mod = load_source('modelprint', module)
+                loader = importlib.machinery.SourceFileLoader('modelprint', module)
+                spec = importlib.util.spec_from_file_location('modelprint', module, loader=loader)
+                print_mod = importlib.util.module_from_spec(spec)
+                loader.exec_module(print_mod)
             else:
                 print_mod = import_module("%s.printmodel.%s" % (module, name))
             if self.id is None:
