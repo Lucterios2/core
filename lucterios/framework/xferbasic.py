@@ -232,7 +232,10 @@ class XferContainerAbstract(View):
         self.extension, self.action = path_list[-2:]
         for param_dict in (kwargs, request.GET, form_data_post):
             for key in param_dict.keys():
-                self.params[key] = ";".join(param_dict.getlist(key))
+                if hasattr(param_dict, 'getlist'):
+                    self.params[key] = ";".join(param_dict.getlist(key))
+                else:
+                    self.params[key] = param_dict[key]
         if 'FORMAT' in self.params.keys():
             self.format = self.params['FORMAT']
             del self.params['FORMAT']
