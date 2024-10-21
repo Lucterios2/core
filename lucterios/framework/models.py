@@ -72,14 +72,20 @@ class LucteriosQuerySet(QuerySet):
         self._result_cache = initial
 
     def order_by(self, *field_names):
+        def getattr_from_field(item, field_names):
+            value = getattr(item, field_names[0], None)
+            if len(field_names) > 1:
+                return getattr_from_field(value, field_names[1:])
+            else:
+                return value
         new_query = LucteriosQuerySet(model=self.model, initial=self._result_cache[:])
         fieldnames = list(field_names)
         fieldnames.reverse()
         for fieldname in fieldnames:
             if fieldname[0] == '-':
-                new_query._result_cache.sort(key=lambda item: getattr(item, fieldname[1:], None), reverse=True)
+                new_query._result_cache.sort(key=lambda item: getattr_from_field(item, fieldname[1:].split("__")), reverse=True)
             else:
-                new_query._result_cache.sort(key=lambda item: getattr(item, fieldname, None), reverse=False)
+                new_query._result_cache.sort(key=lambda item: getattr_from_field(item, fieldname.split("__")), reverse=False)
         return new_query
 
 
