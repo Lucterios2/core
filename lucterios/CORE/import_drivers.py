@@ -92,7 +92,7 @@ class ImportDriverCSV(ImportDriver):
 
     def __init__(self):
         ImportDriver.__init__(self)
-        self.quotechar = "'"
+        self.quotechar = '"'
         self.delimiter = ";"
         self.encoding = "utf-8"
         self.dateformat = "%d/%m/%Y"
