@@ -57,6 +57,13 @@ class RunException(Exception):
     pass
 
 
+def decode_stdout(stdout):
+    try:
+        return stdout.decode()
+    except Exception:
+        return stdout.decode('latin-1')
+
+
 def ProvideException(func):
     def wrapper(*args):
         try:
@@ -448,7 +455,7 @@ class LucteriosMain(object):
             self.show_info(gettext("Lucterios launcher"), gettext("Instance saved to %s") % file_name)
         else:
             self.show_error(gettext("Lucterios launcher"), gettext("Instance not saved!"))
-            getLogger('lucterios.admin').error(proc_res.stdout.decode())
+            getLogger('lucterios.admin').error(decode_stdout(proc_res.stdout))
         self.refresh(instance_name)
 
     @ThreadRun
@@ -459,7 +466,7 @@ class LucteriosMain(object):
             self.show_info(gettext("Lucterios launcher"), gettext("Instance restore from %s") % file_name)
         else:
             self.show_error(gettext("Lucterios launcher"), gettext("Instance not restored!"))
-            getLogger('lucterios.admin').error(proc_res.stdout.decode())
+            getLogger('lucterios.admin').error(decode_stdout(proc_res.stdout))
         self.refresh(instance_name)
 
     def modify_inst(self):

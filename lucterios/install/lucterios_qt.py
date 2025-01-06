@@ -593,7 +593,7 @@ class LucteriosQtMain(QMainWindow, LucteriosMain):
     def show_error(self, text, message):
         if isinstance(message, Exception):
             import traceback
-            msg = ''.join(traceback.format_exception(etype=type(message), value=message, tb=None))
+            msg = ''.join(traceback.format_exception(type(message), value=message, tb=None))
         else:
             msg = str(message)
         self.showmessageslot.emit(True, str(text), msg)
