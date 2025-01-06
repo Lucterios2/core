@@ -932,9 +932,16 @@ class LucteriosInstance(LucteriosManage):
         return targets
 
     def _clear_before_restore(self):
+        from django.db import connections
         if "sqlite3" in self.databases['default']['ENGINE']:
             try:
-                delete_path(self.databases['default']['NAME'])
+                try:
+                    for conn in connections.all():
+                        conn.close()
+                    delete_path(self.databases['default']['NAME'])
+                finally:
+                    for conn in connections.all():
+                        conn.connect()
             except Exception:
                 self.clear(False)
                 setup_from_none()
@@ -988,10 +995,6 @@ class LucteriosInstance(LucteriosManage):
             raise AdminException("Instance not exists!")
         if self.filename == '':
             raise AdminException("Archive file not precise!")
-        try:
-            delete_path(join(self.instance_dir, 'db.sqlite3').replace('\\', '\\\\'))
-        except Exception:
-            pass
         self.read(False)
         self._clear_before_restore()
         from lucterios.framework.filetools import get_tmp_dir, get_user_dir
