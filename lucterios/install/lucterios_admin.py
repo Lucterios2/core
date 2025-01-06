@@ -116,7 +116,7 @@ def get_package_requires(name):
     importlib_metadata = import_metadata()
     requires = importlib_metadata.requires(name)
     if isinstance(requires, list):
-        return [req.split(';')[0].strip().split(' ')[0] for req in requires]
+        return [req.split(';')[0].strip().split(' ')[0].split('~')[0].split('=')[0] for req in requires]
     else:
         return []
 
