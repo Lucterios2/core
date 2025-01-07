@@ -599,10 +599,25 @@ class LucteriosInstance(LucteriosManage):
                 sql_cmd = 'DROP TABLE IF EXISTS %s %s;'
             try:
                 with connection.cursor() as curs:
-                    curs.execute('SET foreign_key_checks = 0;')
+                    if self.database[0].lower() == 'sqlite':
+                        curs.execute('PRAGMA foreign_keys = 0;')
+                    else:
+                        curs.execute('SET foreign_key_checks = 0;')
             except Exception:
                 option = 'CASCADE'
         return sql_cmd, option
+
+    def _sql_after_clear(self):
+        from django.db import connection
+        if self.database[0] != 'postgresql':
+            try:
+                with connection.cursor() as curs:
+                    if self.database[0].lower() == 'sqlite':
+                        curs.execute('PRAGMA foreign_keys = 1;')
+                    else:
+                        curs.execute('SET foreign_key_checks = 1;')
+            except Exception:
+                pass
 
     def clear(self, only_delete=False, ignore_db=None):
         self.read(True)
@@ -629,18 +644,12 @@ class LucteriosInstance(LucteriosManage):
                 loop = -1
             else:
                 loop -= 1
-        if self.database[0] != 'postgresql':
-            try:
-                with connection.cursor() as curs:
-                    curs.execute('SET foreign_key_checks = 1;')
-            except Exception:
-                pass
+        self._sql_after_clear()
         if loop == 0:
             raise Exception("not clear!!")
         user_path = get_user_dir()
         delete_path(user_path)
-        self.print_info_("Instance '%s' clear." %
-                         self.name)
+        self.print_info_("Instance '%s' clear." % self.name)
 
     def delete(self):
         delete_path(self.instance_dir, True)
@@ -943,6 +952,7 @@ class LucteriosInstance(LucteriosManage):
                     for conn in connections.all():
                         conn.connect()
             except Exception:
+                getLogger('lucterios.admin').exception('not deleted')
                 self.clear(False)
                 setup_from_none()
             self.read(True)
