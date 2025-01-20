@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 import json
+from datetime import datetime, time
 
 from django.utils.translation import gettext_lazy as _
 from django.db.models.fields.related import ManyToManyField
@@ -67,6 +68,8 @@ LIST_OP_BY_TYPE = {
     TYPE_LIST: (OP_OR,),
     TYPE_LISTMULT: (OP_OR, OP_AND,),
 }
+
+CURRENT_DATE = "CURRENT"
 
 
 def get_criteria_list(criteria):
@@ -307,6 +310,13 @@ class FieldDescItem(object):
                     new_query |= Q(**{field_with_op1: sub_value + 1e-4}) & Q(**{field_with_op2: sub_value - 1e-4})
             query_res = self.initial_q & (new_query)
         else:
+            if (self.field_type == TYPE_DATE) and (value == CURRENT_DATE):
+                value = datetime.now().date().isoformat()
+            if (self.field_type == TYPE_DATETIME) and (value == CURRENT_DATE):
+                value = datetime.now().isoformat()
+            if (self.field_type == TYPE_TIME) and (value == CURRENT_DATE):
+                current_date = datetime.now()
+                value = time(current_date.hour, current_date.minute).isoformat()
             if isinstance(value, str):
                 if operation == OP_DIFFERENT[0]:
                     new_query = ~Q(**{field_with_op: value})

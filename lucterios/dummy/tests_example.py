@@ -25,6 +25,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 from base64 import b64decode
 from _io import StringIO, BytesIO
+from datetime import datetime, timedelta, time
 
 from django.utils.translation import activate
 from django.contrib.auth.models import AnonymousUser
@@ -753,6 +754,31 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+////AAAAAAAAAAA="""
         self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
         self.assert_count_equal("example", 2)
         self.assert_json_equal("SEARCH", "CRITERIA", [["time", 4, "06:00:00"], ["time", 3, "18:00:00"]])
+
+    def testsearch_date(self):
+        future_date = datetime.now() + timedelta(days=10)
+        future_time = time(future_date.hour, future_date.minute)
+        Example.objects.create(name='future', value=99, price=9876.54,
+                               date=future_date.date().isoformat(), time=future_time.isoformat(), valid=True, comment="lonnnnnng")
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal("example", 6)
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["date", 4, "CURRENT"]]'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal("example", 1)
+        self.assert_json_equal('', "example/@0/name", 'future')
+        self.assert_json_equal("SEARCH", "CRITERIA", [['date', 4, 'CURRENT']])
+
+        self.factory.xfer = ExampleSearch()
+        self.calljson('/lucterios.dummy/exampleSearch', {'CRITERIA': '[["time", 1, "CURRENT"]]'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'exampleSearch')
+        self.assert_count_equal("example", 1)
+        self.assert_json_equal('', "example/@0/name", 'future')
+        self.assert_json_equal("SEARCH", "CRITERIA", [["time", 1, 'CURRENT']])
 
     def testprint(self):
         self.factory.xfer = ExamplePrint()
