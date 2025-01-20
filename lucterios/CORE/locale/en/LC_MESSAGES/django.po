@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 16:18+0000\n"
+"POT-Creation-Date: 2025-01-20 17:26+0000\n"
 "PO-Revision-Date: 2024-09-26 18:19+0200\n"
 "Last-Translator: b'Administrateur  <>'\n"
 "Language-Team: Lucterios <support@lucterios.org>\n"
@@ -50,7 +50,7 @@ msgstr "Passwords are differents!"
 msgid "plugins"
 msgstr "plugins"
 
-#: editors.py:176 models.py:67 models.py:70 models.py:652
+#: editors.py:176 models.py:66 models.py:69 models.py:651
 msgid "value"
 msgstr "value"
 
@@ -90,316 +90,316 @@ msgstr "Import files do not have the same columns."
 msgid "CSV file unvalid!"
 msgstr "CSV file unvalid!"
 
-#: import_drivers.py:228 import_drivers.py:240
+#: import_drivers.py:223 import_drivers.py:235
 msgid "file unvalid!"
 msgstr "file unvalid!"
 
-#: import_drivers.py:285
+#: import_drivers.py:280
 msgid "ODS file"
 msgstr "ODS file"
 
-#: import_drivers.py:294
+#: import_drivers.py:289
 msgid "XLS file"
 msgstr "XLS file"
 
-#: models.py:62
+#: models.py:61
 msgid "String"
 msgstr "String"
 
-#: models.py:62
+#: models.py:61
 msgid "Integer"
 msgstr "Integer"
 
-#: models.py:62
+#: models.py:61
 msgid "Real"
 msgstr "Real"
 
-#: models.py:63
+#: models.py:62
 msgid "Boolean"
 msgstr "Boolean"
 
-#: models.py:63 views.py:807
+#: models.py:62 views.py:807
 msgid "Select"
 msgstr "Select"
 
-#: models.py:63 views.py:166 views.py:198
+#: models.py:62 views.py:166 views.py:198
 msgid "Password"
 msgstr "Password"
 
-#: models.py:63
+#: models.py:62
 msgid "Meta"
 msgstr "Meta"
 
-#: models.py:66
+#: models.py:65
 msgid "arguments"
 msgstr "arguments"
 
-#: models.py:71 models.py:347 models.py:372 models.py:586 models.py:649
-#: models.py:832 models.py:876 views_usergroup.py:307
+#: models.py:70 models.py:346 models.py:371 models.py:585 models.py:648
+#: models.py:836 models.py:880 views_usergroup.py:307
 msgid "name"
 msgstr "name"
 
-#: models.py:249
+#: models.py:248
 msgid "Yes"
 msgstr "Yes"
 
-#: models.py:251
+#: models.py:250
 msgid "No"
 msgstr "No"
 
-#: models.py:253 models.py:315
+#: models.py:252 models.py:314
 #, python-format
 msgid ".%d"
 msgstr ".%d"
 
-#: models.py:365
+#: models.py:364
 msgid "parameter"
 msgstr "parameter"
 
-#: models.py:366 models.py:880
+#: models.py:365 models.py:884
 msgid "parameters"
 msgstr "parameters"
 
-#: models.py:373
+#: models.py:372
 msgid "user"
 msgstr "user"
 
-#: models.py:445
+#: models.py:444
 msgid "preference"
 msgstr "preference"
 
-#: models.py:446
+#: models.py:445
 msgid "preferences"
 msgstr "preferences"
 
-#: models.py:492
+#: models.py:491
 msgid "Informations"
 msgstr "Informations"
 
-#: models.py:493
+#: models.py:492
 msgid "Permissions"
 msgstr "Permissions"
 
-#: models.py:494 views_usergroup.py:111
+#: models.py:493 views_usergroup.py:111
 msgid "Preferences"
 msgstr "Preferences"
 
-#: models.py:581
+#: models.py:580
 msgid "group"
 msgstr "group"
 
-#: models.py:582
+#: models.py:581
 msgid "groups"
 msgstr "groups"
 
-#: models.py:589
+#: models.py:588
 msgid "page width"
 msgstr "page width (L)"
 
-#: models.py:591
+#: models.py:590
 msgid "page height"
 msgstr "page height (H)"
 
-#: models.py:593
+#: models.py:592
 msgid "cell width"
 msgstr "cell width (l)"
 
-#: models.py:595
+#: models.py:594
 msgid "cell height"
 msgstr "cell height (h)"
 
-#: models.py:597
+#: models.py:596
 msgid "number of columns"
 msgstr "number of columns"
 
-#: models.py:599
+#: models.py:598
 msgid "number of rows"
 msgstr "number of rows"
 
-#: models.py:601
+#: models.py:600
 msgid "left marge"
 msgstr "left marge (a)"
 
-#: models.py:603
+#: models.py:602
 msgid "top marge"
 msgstr "top marge (b)"
 
-#: models.py:605
+#: models.py:604
 msgid "horizontal space"
 msgstr "horizontal space (c)"
 
-#: models.py:607
+#: models.py:606
 msgid "vertical space"
 msgstr "vertical space (d)"
 
-#: models.py:625 models.py:635
+#: models.py:624 models.py:634
 msgid "label"
 msgstr "label"
 
-#: models.py:625
+#: models.py:624
 msgid "# of first label"
 msgstr "# of first label"
 
-#: models.py:636
+#: models.py:635
 msgid "labels"
 msgstr "labels"
 
-#: models.py:643
+#: models.py:642
 msgid "Listing"
 msgstr "Listing"
 
-#: models.py:643
+#: models.py:642
 msgid "Label"
 msgstr "Label"
 
-#: models.py:643
+#: models.py:642
 msgid "Report"
 msgstr "Report"
 
-#: models.py:647
+#: models.py:646
 msgid "Simple"
 msgstr "Simple"
 
-#: models.py:647
+#: models.py:646
 msgid "Advanced"
 msgstr "Advanced"
 
-#: models.py:650
+#: models.py:649
 msgid "kind"
 msgstr "kind"
 
-#: models.py:651 models.py:833 models.py:861 views.py:432 views.py:909
+#: models.py:650 models.py:837 models.py:865 views.py:432 views.py:909
 #: views.py:1008 views.py:1020
 msgid "model"
 msgstr "model"
 
-#: models.py:653
+#: models.py:652
 msgid "mode"
 msgstr "mode"
 
-#: models.py:654
+#: models.py:653
 msgid "default"
 msgstr "default"
 
-#: models.py:674
+#: models.py:673
 msgid "Last model of this kind!"
 msgstr "Last model of this kind!"
 
-#: models.py:683
+#: models.py:682
 msgid "No model!"
 msgstr "No model!"
 
-#: models.py:684
+#: models.py:683
 msgid "Template"
 msgstr "Template"
 
-#: models.py:692
+#: models.py:691
 #, python-format
 msgid "No default model for %s!"
 msgstr "No default model for %s!"
 
-#: models.py:701
+#: models.py:700
 msgid "No model selected!"
 msgstr "No model selected!"
 
-#: models.py:704
+#: models.py:703
 #, python-format
 msgid "copy of %s"
 msgstr "copy of %s"
 
-#: models.py:782
+#: models.py:786
 msgid "Model file is invalid!"
 msgstr "Model file is invalid!"
 
-#: models.py:827
+#: models.py:831
 msgid "template"
 msgstr "template"
 
-#: models.py:828
+#: models.py:832
 msgid "templates"
 msgstr "templates"
 
-#: models.py:834 models.py:861
+#: models.py:838 models.py:865
 msgid "criteria"
 msgstr "criteria"
 
-#: models.py:864
+#: models.py:868
 msgid "Saved criteria"
 msgstr "Saved criteria"
 
-#: models.py:865 views.py:347
+#: models.py:869 views.py:347
 msgid "Saved criterias"
 msgstr "Saved criterias"
 
-#: models.py:875
+#: models.py:879
 msgid "icon"
 msgstr "icon"
 
-#: models.py:877
+#: models.py:881
 msgid "description"
 msgstr "description"
 
-#: models.py:878
+#: models.py:882
 msgid "url"
 msgstr "url"
 
-#: models.py:879
+#: models.py:883
 msgid "http method"
 msgstr "HTTP method"
 
-#: models.py:881
+#: models.py:885
 msgid "order key"
 msgstr "order key"
 
-#: models.py:945
+#: models.py:949
 msgid "short-cut"
 msgstr "short-cut"
 
-#: models.py:946
+#: models.py:950
 msgid "short-cuts"
 msgstr "short-cuts"
 
-#: models.py:953
+#: models.py:957
 msgid "CORE-GUID"
 msgstr "Software serial number"
 
-#: models.py:954
+#: models.py:958
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 
-#: models.py:955
+#: models.py:959
 msgid "CORE-connectmode.0"
 msgstr "Connection always needed"
 
-#: models.py:955
+#: models.py:959
 msgid "CORE-connectmode.1"
 msgstr "Open in anonymous"
 
-#: models.py:955
+#: models.py:959
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: models.py:956
+#: models.py:960
 msgid "CORE-Wizard"
 msgstr "Open the configuration wizard at startup"
 
-#: models.py:957
+#: models.py:961
 msgid "CORE-MessageBefore"
 msgstr "Message before login"
 
-#: models.py:958
+#: models.py:962
 msgid "CORE-AuditLog"
 msgstr "Audit-log"
 
-#: models.py:959
+#: models.py:963
 msgid "CORE-PluginPermission"
 msgstr "Plugin permissions"
 
-#: models.py:960 views_usergroup.py:119
+#: models.py:964 views_usergroup.py:119
 msgid "CORE-OnlySuperAdmin"
 msgstr "Access to only administrators"
 
-#: models.py:962
+#: models.py:966
 msgid "# Core (administrator)"
 msgstr "# Core (administrator)"
 
@@ -987,6 +987,46 @@ msgstr "comment"
 #: xferprint.py:66
 msgid "with number?"
 msgstr "with number?"
+
+#, fuzzy
+#~| msgid "value"
+#~ msgid "dummy-value"
+#~ msgstr "value"
+
+#, fuzzy
+#~| msgid "Situation"
+#~ msgid "Bidule action."
+#~ msgstr "Situation"
+
+#, fuzzy
+#~| msgid "Simple"
+#~ msgid "Example"
+#~ msgstr "Simple"
+
+#, fuzzy
+#~| msgid "Import"
+#~ msgid "Import example"
+#~ msgstr "Import"
+
+#, fuzzy
+#~| msgid "List of active users"
+#~ msgid "List of other"
+#~ msgstr "List of active users"
+
+#, fuzzy
+#~| msgid "Modify an user"
+#~ msgid "Modify other"
+#~ msgstr "Modify an user"
+
+#, fuzzy
+#~| msgid "Show log"
+#~ msgid "Show other"
+#~ msgstr "Show log"
+
+#, fuzzy
+#~| msgid "Delete users"
+#~ msgid "Delete other"
+#~ msgstr "Delete users"
 
 #~ msgid "Prec"
 #~ msgstr "Prec"

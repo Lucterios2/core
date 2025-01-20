@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 16:18+0000\n"
-"PO-Revision-Date: 2024-08-25 20:48+0200\n"
+"POT-Creation-Date: 2025-01-20 17:26+0000\n"
+"PO-Revision-Date: 2025-01-20 18:20+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
-"X-Generator: Poedit 3.4.3\n"
+"X-Generator: Poedit 3.5\n"
 
 #: main_docs.html:8 main_docs.html:113
 msgid "User manual"
@@ -36,134 +36,134 @@ msgstr "date courante"
 msgid "current hour"
 msgstr "heure courante"
 
-#: models.py:208
+#: models.py:214
 msgid "full list"
 msgstr "liste totale"
 
-#: models.py:310
+#: models.py:316
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' inconnu(e) !"
 
-#: models.py:452
+#: models.py:458
 msgid ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 msgstr ""
 "Seul des enregistrements de mêmes types peuvent être fusionnés.{[br/]}Vous "
 "devez en promouvoir un."
 
-#: models.py:617
+#: models.py:623
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:665
+#: models.py:671
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:666
+#: models.py:672
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:706
+#: models.py:712
 msgid "session"
 msgstr "session"
 
-#: models.py:707
+#: models.py:713
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:845
+#: models.py:851
 msgid "create"
 msgstr "création"
 
-#: models.py:846
+#: models.py:852
 msgid "update"
 msgstr "modification"
 
-#: models.py:847 tools.py:466
+#: models.py:853 tools.py:466
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:848
+#: models.py:854
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:849 tools.py:462
+#: models.py:855 tools.py:462
 msgid "add"
 msgstr "ajouter"
 
-#: models.py:859 models.py:866
+#: models.py:865 models.py:872
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:860
+#: models.py:866
 msgid "content type"
 msgstr "type de contenu"
 
-#: models.py:861
+#: models.py:867
 msgid "actor"
 msgstr "utilisateur"
 
-#: models.py:862
+#: models.py:868
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:863
+#: models.py:869
 msgid "object id"
 msgstr "object id"
 
-#: models.py:864
+#: models.py:870
 msgid "object representation"
 msgstr "identifiant"
 
-#: models.py:865
+#: models.py:871
 msgid "action"
 msgstr "action"
 
-#: models.py:867
+#: models.py:873
 msgid "remote address"
 msgstr "adresse distante"
 
-#: models.py:868
+#: models.py:874
 msgid "date"
 msgstr "date"
 
-#: models.py:869
+#: models.py:875
 msgid "additional data"
 msgstr "données additionnelles"
 
-#: models.py:875
+#: models.py:881
 msgid "Created {repr:s}"
 msgstr "Création de {repr:s}"
 
-#: models.py:877
+#: models.py:883
 msgid "Updated {repr:s}"
 msgstr "Modification de {repr:s}"
 
-#: models.py:879
+#: models.py:885
 msgid "Deleted {repr:s}"
 msgstr "Suppression de {repr:s}"
 
-#: models.py:881
+#: models.py:887
 msgid "Logged {repr:s}"
 msgstr "Journalisation de {repr:s}"
 
-#: models.py:986
+#: models.py:992
 msgid "log entry"
 msgstr "entrée d'historique"
 
-#: models.py:987
+#: models.py:993
 msgid "log entries"
 msgstr "entrées d'historiques"
 
-#: printgenerators.py:471
+#: printgenerators.py:475
 #, python-format
 msgid "Report format \"%s\" not supported !"
 msgstr "Format de rapport \"%s\" non supporté !"
 
-#: printgenerators.py:485
+#: printgenerators.py:489
 msgid "This impression failed !"
 msgstr "L'impression échoue !"
 
@@ -185,11 +185,11 @@ msgstr "Mauvaise permission pour '%s'"
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:602 xfergraphic.py:161 xfersearch.py:234
+#: tools.py:602 xfergraphic.py:161 xfersearch.py:255
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:604 xferadvance.py:41 xfersearch.py:236
+#: tools.py:604 xferadvance.py:41 xfersearch.py:257
 msgid "No"
 msgstr "Non"
 
@@ -297,7 +297,7 @@ msgstr "Voulez-vous changer ce %(name)s à '%(state)s'?"
 msgid "Bad transition"
 msgstr "Mauvaise transition"
 
-#: xferbasic.py:296
+#: xferbasic.py:299
 #, python-format
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "la méthode http \"%(method)s\" n'est pas autorisée pour \"%(url)s\" !"
@@ -360,56 +360,60 @@ msgstr "Fichier CSV"
 msgid "ODS file"
 msgstr "Fichier ODS"
 
-#: xfersearch.py:48
+#: xfersearch.py:50
 msgid "equals"
 msgstr "égal"
 
-#: xfersearch.py:49
+#: xfersearch.py:51
 msgid "different"
 msgstr "différent"
 
-#: xfersearch.py:50
+#: xfersearch.py:52
 msgid "inferior"
 msgstr "inférieur"
 
-#: xfersearch.py:51
+#: xfersearch.py:53
 msgid "superior"
 msgstr "supérieur"
 
-#: xfersearch.py:52
+#: xfersearch.py:54
 msgid "contains"
 msgstr "contient"
 
-#: xfersearch.py:53
+#: xfersearch.py:55
 msgid "starts with"
 msgstr "commence par"
 
-#: xfersearch.py:54
+#: xfersearch.py:56
 msgid "ends with"
 msgstr "fini par"
 
-#: xfersearch.py:55
+#: xfersearch.py:57
 msgid "or"
 msgstr "ou"
 
-#: xfersearch.py:56
+#: xfersearch.py:58
 msgid "and"
 msgstr "et"
 
-#: xfersearch.py:98
+#: xfersearch.py:102
 msgid "Your criteria of search"
 msgstr "Votre critère de recherche"
 
-#: xfersearch.py:100
+#: xfersearch.py:104
 msgid "No criteria of search"
 msgstr "Pas de critère de recherche"
 
-#: xfersearch.py:255
+#: xfersearch.py:235
+msgid "now"
+msgstr "maintenant"
+
+#: xfersearch.py:274
 #, python-format
 msgid "%d items"
 msgstr "%d éléments"
 
-#: xfersearch.py:414
+#: xfersearch.py:440
 msgid "New criteria"
 msgstr "Nouveau critère"
 

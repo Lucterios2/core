@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-26 16:18+0000\n"
-"PO-Revision-Date: 2024-08-25 20:48+0200\n"
+"POT-Creation-Date: 2025-01-20 17:26+0000\n"
+"PO-Revision-Date: 2025-01-20 18:20+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: en\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.4.3\n"
+"X-Generator: Poedit 3.5\n"
 
 #: main_docs.html:8 main_docs.html:113
 msgid "User manual"
@@ -35,131 +35,131 @@ msgstr "current date"
 msgid "current hour"
 msgstr "current hour"
 
-#: models.py:208
+#: models.py:214
 msgid "full list"
 msgstr "full list"
 
-#: models.py:310
+#: models.py:316
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' unknown !"
 
-#: models.py:452
+#: models.py:458
 msgid ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 msgstr ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 
-#: models.py:617
+#: models.py:623
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr "Cannot delete this record: there are associated with some sub-record"
 
-#: models.py:665
+#: models.py:671
 msgid "username"
 msgstr "username"
 
-#: models.py:666
+#: models.py:672
 msgid "is active"
 msgstr "is active"
 
-#: models.py:706
+#: models.py:712
 msgid "session"
 msgstr "session"
 
-#: models.py:707
+#: models.py:713
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:845
+#: models.py:851
 msgid "create"
 msgstr "create"
 
-#: models.py:846
+#: models.py:852
 msgid "update"
 msgstr "update"
 
-#: models.py:847 tools.py:466
+#: models.py:853 tools.py:466
 msgid "delete"
 msgstr "delete"
 
-#: models.py:848
+#: models.py:854
 msgid "remove"
 msgstr "remove"
 
-#: models.py:849 tools.py:462
+#: models.py:855 tools.py:462
 msgid "add"
 msgstr "add"
 
-#: models.py:859 models.py:866
+#: models.py:865 models.py:872
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:860
+#: models.py:866
 msgid "content type"
 msgstr "content type"
 
-#: models.py:861
+#: models.py:867
 msgid "actor"
 msgstr "actor"
 
-#: models.py:862
+#: models.py:868
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:863
+#: models.py:869
 msgid "object id"
 msgstr "object id"
 
-#: models.py:864
+#: models.py:870
 msgid "object representation"
 msgstr "object representation"
 
-#: models.py:865
+#: models.py:871
 msgid "action"
 msgstr "action"
 
-#: models.py:867
+#: models.py:873
 msgid "remote address"
 msgstr "remote address"
 
-#: models.py:868
+#: models.py:874
 msgid "date"
 msgstr "date"
 
-#: models.py:869
+#: models.py:875
 msgid "additional data"
 msgstr "additional data"
 
-#: models.py:875
+#: models.py:881
 msgid "Created {repr:s}"
 msgstr "Created {repr:s}"
 
-#: models.py:877
+#: models.py:883
 msgid "Updated {repr:s}"
 msgstr "Updated {repr:s}"
 
-#: models.py:879
+#: models.py:885
 msgid "Deleted {repr:s}"
 msgstr "Deleted {repr:s}"
 
-#: models.py:881
+#: models.py:887
 msgid "Logged {repr:s}"
 msgstr "Logged {repr:s}"
 
-#: models.py:986
+#: models.py:992
 msgid "log entry"
 msgstr "log entry"
 
-#: models.py:987
+#: models.py:993
 msgid "log entries"
 msgstr "log entries"
 
-#: printgenerators.py:471
+#: printgenerators.py:475
 #, python-format
 msgid "Report format \"%s\" not supported !"
 msgstr "Report format \"%s\" not supported !"
 
-#: printgenerators.py:485
+#: printgenerators.py:489
 msgid "This impression failed !"
 msgstr "This impression failed !"
 
@@ -181,11 +181,11 @@ msgstr "Bad permission for '%s'"
 msgid "view"
 msgstr "view"
 
-#: tools.py:602 xfergraphic.py:161 xfersearch.py:234
+#: tools.py:602 xfergraphic.py:161 xfersearch.py:255
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:604 xferadvance.py:41 xfersearch.py:236
+#: tools.py:604 xferadvance.py:41 xfersearch.py:257
 msgid "No"
 msgstr "No"
 
@@ -293,7 +293,7 @@ msgstr "Do you want to change this %(name)s to '%(state)s'?"
 msgid "Bad transition"
 msgstr "Bad transition"
 
-#: xferbasic.py:296
+#: xferbasic.py:299
 #, python-format
 msgid "http method \"%(method)s\" not allowed for \"%(url)s\" !"
 msgstr "http method \"%(method)s\" not allowed for \"%(url)s\" !"
@@ -356,56 +356,60 @@ msgstr "CSV file"
 msgid "ODS file"
 msgstr "ODS file"
 
-#: xfersearch.py:48
+#: xfersearch.py:50
 msgid "equals"
 msgstr "equals"
 
-#: xfersearch.py:49
+#: xfersearch.py:51
 msgid "different"
 msgstr "different"
 
-#: xfersearch.py:50
+#: xfersearch.py:52
 msgid "inferior"
 msgstr "inferior"
 
-#: xfersearch.py:51
+#: xfersearch.py:53
 msgid "superior"
 msgstr "superior"
 
-#: xfersearch.py:52
+#: xfersearch.py:54
 msgid "contains"
 msgstr "contains"
 
-#: xfersearch.py:53
+#: xfersearch.py:55
 msgid "starts with"
 msgstr "start with"
 
-#: xfersearch.py:54
+#: xfersearch.py:56
 msgid "ends with"
 msgstr "ends with"
 
-#: xfersearch.py:55
+#: xfersearch.py:57
 msgid "or"
 msgstr "or"
 
-#: xfersearch.py:56
+#: xfersearch.py:58
 msgid "and"
 msgstr "and"
 
-#: xfersearch.py:98
+#: xfersearch.py:102
 msgid "Your criteria of search"
 msgstr "Your criteria of search"
 
-#: xfersearch.py:100
+#: xfersearch.py:104
 msgid "No criteria of search"
 msgstr "No criteria of search"
 
-#: xfersearch.py:255
+#: xfersearch.py:235
+msgid "now"
+msgstr "now"
+
+#: xfersearch.py:274
 #, python-format
 msgid "%d items"
 msgstr "%d items"
 
-#: xfersearch.py:414
+#: xfersearch.py:440
 msgid "New criteria"
 msgstr "New criteria"
 
