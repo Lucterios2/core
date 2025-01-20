@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-12 11:25+0000\n"
+"POT-Creation-Date: 2025-01-20 17:26+0000\n"
 "PO-Revision-Date: 2022-01-08 17:57+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -19,57 +19,57 @@ msgstr ""
 "X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: graphic_lib.py:67 graphic_lib.py:80 graphic_lib.py:448 graphic_lib.py:450
-#: graphic_lib.py:459 graphic_lib.py:461 lucterios_gui.py:77
+#: graphic_lib.py:74 graphic_lib.py:87 graphic_lib.py:455 graphic_lib.py:457
+#: graphic_lib.py:466 graphic_lib.py:468 lucterios_gui.py:77
 #: lucterios_gui.py:328 lucterios_gui.py:537 lucterios_qt.py:403
 #: lucterios_qt.py:419 lucterios_qt.py:550 lucterios_qt.py:686
 #: lucterios_qt.py:708
 msgid "Lucterios launcher"
 msgstr "Lucterios launcher"
 
-#: graphic_lib.py:130
+#: graphic_lib.py:137
 msgid "Error to start!"
 msgstr "Error to start!"
 
-#: graphic_lib.py:167
+#: graphic_lib.py:174
 msgid "CORE-connectmode.0"
 msgstr "Connection always needed"
 
-#: graphic_lib.py:167
+#: graphic_lib.py:174
 msgid "CORE-connectmode.1"
 msgstr "Open in anonymous"
 
-#: graphic_lib.py:167
+#: graphic_lib.py:174
 msgid "CORE-connectmode.2"
 msgstr "Free access"
 
-#: graphic_lib.py:367
+#: graphic_lib.py:374
 msgid "Upgrade needs"
 msgstr "Upgrade needs"
 
-#: graphic_lib.py:369
+#: graphic_lib.py:376
 msgid "No upgrade"
 msgstr "No upgrade"
 
-#: graphic_lib.py:448
+#: graphic_lib.py:455
 #, python-format
 msgid "Instance saved to %s"
 msgstr "Instance saved to %s"
 
-#: graphic_lib.py:450
+#: graphic_lib.py:457
 msgid "Instance not saved!"
 msgstr "Instance not saved!"
 
-#: graphic_lib.py:459
+#: graphic_lib.py:466
 #, python-format
 msgid "Instance restore from %s"
 msgstr "Instance restore from %s"
 
-#: graphic_lib.py:461
+#: graphic_lib.py:468
 msgid "Instance not restored!"
 msgstr "Instance not restored!"
 
-#: lucterios_admin.py:687 lucterios_gui.py:175 lucterios_qt.py:248
+#: lucterios_admin.py:696 lucterios_gui.py:175 lucterios_qt.py:248
 msgid "CORE-connectmode"
 msgstr "Connection mode"
 

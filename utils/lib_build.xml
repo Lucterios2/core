@@ -168,7 +168,7 @@
 	<target name="i18n_comp">
 		<echo message="-- extract ${sub_path} --" />
 		<exec executable="${project.pythonexe}" dir="${sub_path}" failonerror="true">
-			<env key="PYTHONPATH" value="${project.pythonpath}" />
+			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="makemessages" />
 			<arg value="-l" />
@@ -181,7 +181,7 @@
 	<target name="i18n_build">
 		<echo message="-- compile --" />
 		<exec executable="${project.pythonexe}" dir="${basedir}" failonerror="true">
-			<env key="PYTHONPATH" value="${project.pythonpath}" />
+			<env key="PYTHONPATH" value="${basedir}:${project.pythonpath}" />
 			<arg value="${basedir}/manage_${project.test.instance}.py" />
 			<arg value="compilemessages" />
 		</exec>

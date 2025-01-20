@@ -31,7 +31,7 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.fields.related import ManyToManyField
 from django.db.models import Q
 
-from lucterios.framework.tools import WrapAction, ActionsManage
+from lucterios.framework.tools import WrapAction, ActionsManage, format_value
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSearch
 from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
@@ -48,8 +48,8 @@ TYPE_LISTMULT = 'listmult'
 OP_NULL = (0, '')
 OP_EQUAL = (1, _('equals'), '__iexact')
 OP_DIFFERENT = (2, _("different"), '__iexact')
-OP_LESS = (3, _("inferior"), '__lt')
-OP_MORE = (4, _("superior"), '__gt')
+OP_LESS = (3, _("inferior"), '__lte')
+OP_MORE = (4, _("superior"), '__gte')
 OP_CONTAINS = (5, _("contains"), '__icontains')
 OP_STARTBY = (6, _("starts with"), '__istartswith')
 OP_ENDBY = (7, _("ends with"), '__iendswith')
@@ -228,6 +228,23 @@ class FieldDescItem(object):
             'extra': self.field_list
         }
 
+    def date_check(self, value, valtype):
+        if isinstance(value, str):
+            if value == CURRENT_DATE:
+                return str(_('now'))
+            else:
+                try:
+                    formatNum = 'D'
+                    if valtype == TYPE_TIME:
+                        formatNum = 'T'
+                    elif valtype == TYPE_DATETIME:
+                        formatNum = 'H'
+                    return format_value(value, formatNum)
+                except Exception:
+                    return value
+        else:
+            return [self.date_check(val, valtype) for val in value]
+
     def get_value(self, value, operation):
         sep_for_list = ' %s ' % OP_LIST[8 if (operation != OP_DIFFERENT[0]) else 9][1]
         if self.field_type == TYPE_STR:
@@ -237,10 +254,8 @@ class FieldDescItem(object):
                 new_val_txt = _("Yes")
             else:
                 new_val_txt = _("No")
-        elif self.field_type == TYPE_DATE:
-            new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
-        elif self.field_type == TYPE_DATETIME:
-            new_val_txt = value if isinstance(value, str) else sep_for_list.join(value)
+        elif self.field_type in [TYPE_DATE, TYPE_TIME, TYPE_DATETIME]:
+            new_val_txt = sep_for_list.join(self.date_check(value.split(';'), self.field_type))
         elif (self.field_type == TYPE_LIST) or (self.field_type == TYPE_LISTMULT):
             new_val_txt = ''
             ids = value.split(';') if isinstance(value, str) else list(value)
