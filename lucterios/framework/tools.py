@@ -33,11 +33,12 @@ import threading
 import logging
 import locale
 import sys
+import warnings
+import re
 
 from django.utils.translation import gettext_lazy as _
 from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_str
-import warnings
 
 
 CLOSE_NO = 0
@@ -486,6 +487,7 @@ def get_binay(text):
 
 
 def toHtml(inittext, totext=True, withclean=True):
+    from lucterios.framework.filetools import BASE64_PREFIX
     from lxml import etree
     from lxml_html_clean import Cleaner
     text = str(inittext).strip()
@@ -495,6 +497,10 @@ def toHtml(inittext, totext=True, withclean=True):
         if pos_out == -1:
             text = text[:pos_in] + '&amp;' + text[pos_in + 1:]
         pos_in = text.find('&', pos_in + 1)
+    if re.match(".*" + BASE64_PREFIX.replace('*', '.+'), text):
+        pos_in = text.find('data:image/')
+        pos_out = text.find('{[', pos_in)
+        text = text[pos_in:pos_out]
     text = text.replace('&nbsp;', ' ')
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
