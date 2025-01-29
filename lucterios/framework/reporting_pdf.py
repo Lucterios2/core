@@ -489,6 +489,8 @@ class LucteriosPDF(LucteriosBase):
     def parse_image(self, xmlimage, current_x, current_y, current_w, current_h):
         if (xmlimage.text is not None) and (xmlimage.text.strip() != ''):
             img_file = self.open_image(xmlimage)
+            if img_file is None:
+                return None
             try:
                 img = Image(img_file)
                 if current_h is not None:
