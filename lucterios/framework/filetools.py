@@ -32,6 +32,7 @@ from os import makedirs, environ
 from hashlib import md5
 from _io import BytesIO
 from re import match
+import binascii
 import io
 
 
@@ -159,7 +160,10 @@ def open_from_base64(base64stream):
         _, stream = base64stream.split(";base64,")
     else:
         _, stream = base64stream.split(";")
-    return BytesIO(b64decode(stream))
+    try:
+        return BytesIO(b64decode(stream))
+    except binascii.Error:
+        return None
 
 
 def open_image_resize(filep, max_width, max_height):

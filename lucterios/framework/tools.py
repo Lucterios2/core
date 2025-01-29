@@ -500,7 +500,10 @@ def toHtml(inittext, totext=True, withclean=True):
     if re.match(".*" + BASE64_PREFIX.replace('*', '.+'), text):
         pos_in = text.find('data:image/')
         pos_out = text.find('{[', pos_in)
-        text = text[pos_in:pos_out]
+        if pos_out != -1:
+            text = text[pos_in:pos_out]
+        else:
+            text = text[pos_in:]
     text = text.replace('&nbsp;', ' ')
     text = text.replace('<', '&lt;')
     text = text.replace('>', '&gt;')
