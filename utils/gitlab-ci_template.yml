@@ -74,7 +74,9 @@ build:
     - chmod 700 ~/.ssh
     - eval `ssh-agent -s`
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no dist/*.whl sdlibre@pypi.lucterios.org:/home/sdlibre/scripts/packages_lucterios
+    - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no chef@vm6.sleto.net 'rm -rf /tmp/dist;mkdir /tmp/dist'
+    - scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no dist/*.whl chef@vm6.sleto.net:/tmp/dist
+    - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no chef@vm6.sleto.net 'scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no /tmp/dist/*.whl sdlibre@vm4.sleto.net:/home/sdlibre/scripts/packages_lucterios'
   artifacts:
     paths:
       - dist/*.whl
