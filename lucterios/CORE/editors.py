@@ -236,4 +236,5 @@ class XferSavedCriteriaSearchEditor(XferSearchEditor):
             self.add_component(btn)
         if self.getparam('saved_criteria', 0) != 0:
             saved_item = SavedCriteria.objects.get(id=self.getparam('saved_criteria', 0))
+            self.params['CRITERIA'] = saved_item.criteria
             self.criteria_list = get_criteria_list(saved_item.criteria) if saved_item.criteria is not None else []
