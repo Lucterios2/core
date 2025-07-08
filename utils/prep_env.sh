@@ -26,9 +26,24 @@ function ant_install
     apt-get install -y ant
     mkdir -p /usr/share/java/lib
     wget http://www.java2s.com/Code/JarDownload/ant-contrib/ant-contrib-0.6.jar.zip
-    unzip ant-contrib-0.6.jar.zip
-    mv ant-contrib-0.6.jar /usr/share/java/lib/ant-contrib-0.6.jar
-    rm -f ant-contrib-0.6.jar.zip    
+    if [ -f "ant-contrib-0.6.jar.zip" ]
+    then
+        echo ">> www.java2s.com"
+        unzip ant-contrib-0.6.jar.zip
+        mv ant-contrib-0.6.jar /usr/share/java/lib/ant-contrib-0.6.jar
+        rm -f ant-contrib-0.6.jar.zip
+    else
+        echo ">> sourceforge.net"
+        rm -rf /tmp/ant_download
+        mkdir /tmp/ant_download
+        (
+            cd /tmp/ant_download
+            wget -O ant-contrib-0.6-bin.zip https://sourceforge.net/projects/ant-contrib/files/ant-contrib/ant-contrib-0.6/ant-contrib-0.6-bin.zip/download?viasf=1
+            unzip ant-contrib-0.6-bin.zip
+            mv lib/ant-contrib-0.6.jar /usr/share/java/lib/ant-contrib-0.6.jar
+        )
+        rm -rf /tmp/ant_download
+    fi
 }
 
 function create_requirement
