@@ -26,6 +26,8 @@ from __future__ import unicode_literals
 from os.path import isfile, join, dirname, basename
 from logging import getLogger
 from copy import deepcopy
+from base64 import b64decode
+import binascii
 import mimetypes
 import stat
 import os
@@ -113,7 +115,10 @@ class Download(XferContainerAbstract):
         getLogger("lucterios.core.request").debug(">> %s %s [%s]", request.method, request.path, request.user)
         try:
             self._initialize(request, *args, **kwargs)
-            full_path = join(get_user_dir(), str(self.getparam('filename')))
+            try:
+                full_path = b64decode(str(self.getparam('filename'))).decode()
+            except binascii.Error:
+                full_path = join(get_user_dir(), str(self.getparam('filename')))
             sign = self.getparam('sign', '')
             if sign != md5sum(full_path):
                 raise LucteriosException(IMPORTANT, _("File invalid!"))

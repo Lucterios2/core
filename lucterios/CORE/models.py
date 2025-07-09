@@ -23,14 +23,19 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import dirname, join, exists, isfile
-from os import walk, makedirs, unlink
+from os.path import dirname, join, exists, isfile, basename, getsize, getmtime
+from os import walk, makedirs, unlink, rename, getenv
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
+from glob import glob
+from datetime import datetime, timedelta
+from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
+import sys
 import logging
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.contrib.auth.models import User, Group
 from django.db import models, transaction
 from django.db.models.signals import post_migrate, pre_save, post_save
@@ -38,16 +43,17 @@ from django.db.models.query import QuerySet
 from django.db.models.aggregates import Max
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _, gettext_lazy
-from django.core.cache import cache
+from django.utils import timezone
 
 from lucterios.framework.models import LucteriosModel, LucteriosVirtualField, \
-    LucteriosLogEntry
+    LucteriosLogEntry, LucteriosSession
 from lucterios.framework.error import LucteriosException, IMPORTANT, GRAVE
 from lucterios.framework.xfersearch import get_search_query_from_criteria
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.framework.filetools import get_tmp_dir, get_user_dir
-from lucterios.framework.tools import set_locale_lang, WrapAction, ActionsManage, MenuManage
+from lucterios.framework.tools import set_locale_lang, WrapAction, ActionsManage, MenuManage, get_date_formating
 from lucterios.framework.auditlog import auditlog, LucteriosAuditlogModelRegistry
+from lucterios.framework.model_fields import LucteriosDecimalField, LucteriosScheduler
 
 
 class AbstractSetting(LucteriosModel):
@@ -950,6 +956,176 @@ class ShortCut(LucteriosModel):
         verbose_name_plural = _('short-cuts')
         ordering = ['order_key']
         default_permissions = []
+
+
+class VirtualArchiveQuerySet(QuerySet):
+
+    def __init__(self, model=None, query=None, using=None, hints=None):
+        QuerySet.__init__(self, model=model, query=query, using=using, hints=hints)
+        self._result_cache = None
+
+    def _fetch_all(self):
+        if self._result_cache is None:
+            self._result_cache = []
+            for file_name in glob(join(settings.BACKUP_DIRECTORY, '*' + VirtualArchive.EXTENSION)):
+                if isfile(file_name):
+                    add_item = True
+                    new_arch = VirtualArchive(filename=file_name)
+                    for condition in self.query.where.children:
+                        if condition.identity[0] is models.lookups.In:
+                            current_value = getattr(new_arch, condition.identity[1].field.attname)
+                            add_item = add_item and (current_value in condition.identity[2])
+                    if add_item:
+                        self._result_cache.append(new_arch)
+            for order_item in self.query.order_by:
+                reverse = order_item[0] == '-'
+                order_name = order_item[1:] if reverse else order_item
+                self._result_cache.sort(key=lambda arc_item: getattr(arc_item, order_name), reverse=reverse)
+
+    def count(self):
+        self._fetch_all()
+        return len(self._result_cache)
+
+    def get(self, id):
+        if id == '':
+            return VirtualArchive()
+        self._fetch_all()
+        sub_list = [item for item in self._result_cache if item.id == id]
+        if len(sub_list) == 0:
+            raise ObjectDoesNotExist("%s not found" % id)
+        return sub_list[0]
+
+
+class VirtualArchiveManager(models.Manager):
+
+    def get_queryset(self):
+        return VirtualArchiveQuerySet(self.model, using=self._db)
+
+
+class VirtualArchive(LucteriosModel):
+    MASK = r'^[0-9a-zA-Z_\-\+\.]+$'
+    EXTENSION = '.lbk'
+
+    id = models.CharField(primary_key=True, max_length=250)
+    name = models.CharField(_('name'), max_length=100, blank=False)
+    modify_date = models.DateTimeField(_('modify date'), null=False)
+    file_size = LucteriosDecimalField(_('file size'), max_digits=9, decimal_places=2, default=0.0, null=False,
+                                      validators=[MinValueValidator(0.0), MaxValueValidator(1000000.0)],
+                                      format_string="N2;%s Mo")
+    objects = VirtualArchiveManager()
+
+    def __init__(self, filename=None, *args, **kwargs):
+        self._meta.abstract = False
+        if filename is not None:
+            kwargs['id'] = filename
+        if 'id' in kwargs:
+            kwargs['name'] = basename(kwargs['id'])[:-len(self.EXTENSION)]
+            kwargs['file_size'] = getsize(kwargs['id']) / 1024**2
+            kwargs['modify_date'] = datetime.fromtimestamp(getmtime(kwargs['id']))
+        LucteriosModel.__init__(self, *args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    @classmethod
+    def get_default_fields(cls, status=-1):
+        fields = ["name", 'modify_date', 'file_size']
+        return fields
+
+    @classmethod
+    def get_edit_fields(cls):
+        fields = ["name"]
+        return fields
+
+    @classmethod
+    def get_show_fields(cls):
+        fields = ["name"]
+        return fields
+
+    def change_name(self, new_name):
+        self.name = new_name
+        new_file_name = join(settings.BACKUP_DIRECTORY, self.name + self.EXTENSION)
+        rename(self.id, new_file_name)
+        self.id = new_file_name
+
+    def upload(self, filestream):
+        filename = join(settings.BACKUP_DIRECTORY, str(filestream))
+        with open(filename, "wb") as file_archive:
+            file_archive.write(filestream.read())
+
+    def to_load(self):
+        LucteriosScheduler.add_date(VirtualArchive.restore_old_archive, datetime=timezone.now() + timedelta(seconds=10), filename=self.id)
+
+    def delete(self, using=None, run_action=True):
+        unlink(self.id)
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None, run_action=True):
+        LucteriosScheduler.add_date(VirtualArchive.create_new_archive, datetime=timezone.now() + timedelta(seconds=10), new_name=self.name)
+
+    @classmethod
+    def get_last_file_log(cls):
+        return join(get_tmp_dir(), 'last_backup.log')
+
+    @classmethod
+    def get_django_variables(cls, filename):
+        setting_module_name = getenv("DJANGO_SETTINGS_MODULE", "???.???")
+        return {
+            'python': sys.executable,
+            'workpath': settings.BASE_DIR,
+            'instance': setting_module_name.split('.')[0],
+            'filename': filename
+        }
+
+    @classmethod
+    def run_command(cls, command):
+        begin = timezone.now()
+        process = Popen(command, stdout=PIPE, stderr=STDOUT, shell=True, executable="/bin/bash")
+        try:
+            process.wait(60 * 60)  # 60 min of time out
+            out = process.stdout.read().decode().strip()
+        except TimeoutExpired as err:
+            out = str(err)
+        finally:
+            process.stdout.close()
+            end = timezone.now()
+        with open(cls.get_last_file_log(), "a", encoding="utf-8") as filelog:
+            filelog.write("Command: %s\n" % command)
+            filelog.write("Begin: %s\n" % get_date_formating(begin))
+            filelog.write("End: %s\n" % get_date_formating(end))
+            duration = end - begin
+            minutes = duration.seconds // 60
+            filelog.write("Duration: %d min %d sec\n" % (minutes, duration.seconds - minutes * 60))
+            filelog.write("Result: %s\n" % 'OK' if process.returncode == 0 else 'Failure')
+            filelog.write("\n%s\n" % out)
+
+    @classmethod
+    def create_new_archive(cls, new_name):
+        if isfile(cls.get_last_file_log()):
+            unlink(cls.get_last_file_log())
+        filename = join(settings.BACKUP_DIRECTORY, new_name + cls.EXTENSION)
+        command = "%(python)s -m lucterios.install.lucterios_admin archive -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
+        print(">> Create archive", command)
+        cls.run_command(command)
+
+    @classmethod
+    def restore_old_archive(cls, filename):
+        if isfile(cls.get_last_file_log()):
+            unlink(cls.get_last_file_log())
+        LucteriosSession.objects.all().delete()
+        cache.clear()
+        command = "%(python)s -m lucterios.install.lucterios_admin restore -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
+        print(">> Restore archive", command)
+        cls.run_command(command)
+        if isfile(settings.BACKUP_POST_RESTORE_SCRIPT):
+            command = "%(python)s %(workpath)s/manage_%(instance)s.py shell < '%(filename)s' " % cls.get_django_variables(settings.BACKUP_POST_RESTORE_SCRIPT)
+            print(">> run post script", command)
+            cls.run_command(command)
+
+    class Meta(object):
+        managed = False
+        abstract = True
+        verbose_name = _('archive')
+        verbose_name_plural = _('archives')
 
 
 @Signal.decorate('checkparam')
