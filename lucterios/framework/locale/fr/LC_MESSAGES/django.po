@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-20 17:26+0000\n"
+"POT-Creation-Date: 2025-07-09 18:00+0000\n"
 "PO-Revision-Date: 2025-01-20 18:20+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -82,7 +82,7 @@ msgstr "création"
 msgid "update"
 msgstr "modification"
 
-#: models.py:853 tools.py:466
+#: models.py:853 tools.py:467
 msgid "delete"
 msgstr "supprimer"
 
@@ -90,7 +90,7 @@ msgstr "supprimer"
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:855 tools.py:462
+#: models.py:855 tools.py:463
 msgid "add"
 msgstr "ajouter"
 
@@ -172,24 +172,24 @@ msgstr "L'impression échoue !"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:154
+#: tools.py:155
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:156
+#: tools.py:157
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:464
+#: tools.py:465
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:602 xfergraphic.py:161 xfersearch.py:255
+#: tools.py:611 xfergraphic.py:161 xfersearch.py:254
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:604 xferadvance.py:41 xfersearch.py:257
+#: tools.py:613 xferadvance.py:41 xfersearch.py:256
 msgid "No"
 msgstr "Non"
 
@@ -360,60 +360,60 @@ msgstr "Fichier CSV"
 msgid "ODS file"
 msgstr "Fichier ODS"
 
-#: xfersearch.py:50
+#: xfersearch.py:49
 msgid "equals"
 msgstr "égal"
 
-#: xfersearch.py:51
+#: xfersearch.py:50
 msgid "different"
 msgstr "différent"
 
-#: xfersearch.py:52
+#: xfersearch.py:51
 msgid "inferior"
 msgstr "inférieur"
 
-#: xfersearch.py:53
+#: xfersearch.py:52
 msgid "superior"
 msgstr "supérieur"
 
-#: xfersearch.py:54
+#: xfersearch.py:53
 msgid "contains"
 msgstr "contient"
 
-#: xfersearch.py:55
+#: xfersearch.py:54
 msgid "starts with"
 msgstr "commence par"
 
-#: xfersearch.py:56
+#: xfersearch.py:55
 msgid "ends with"
 msgstr "fini par"
 
-#: xfersearch.py:57
+#: xfersearch.py:56
 msgid "or"
 msgstr "ou"
 
-#: xfersearch.py:58
+#: xfersearch.py:57
 msgid "and"
 msgstr "et"
 
-#: xfersearch.py:102
+#: xfersearch.py:101
 msgid "Your criteria of search"
 msgstr "Votre critère de recherche"
 
-#: xfersearch.py:104
+#: xfersearch.py:103
 msgid "No criteria of search"
 msgstr "Pas de critère de recherche"
 
-#: xfersearch.py:235
+#: xfersearch.py:234
 msgid "now"
 msgstr "maintenant"
 
-#: xfersearch.py:274
+#: xfersearch.py:273
 #, python-format
 msgid "%d items"
 msgstr "%d éléments"
 
-#: xfersearch.py:440
+#: xfersearch.py:439
 msgid "New criteria"
 msgstr "Nouveau critère"
 
