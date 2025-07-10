@@ -23,13 +23,15 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
-from os.path import dirname, join, exists, isfile, basename, getsize, getmtime
-from os import walk, makedirs, unlink, rename, getenv
+from os.path import dirname, join, exists, basename
+from os import walk, makedirs, getenv
 from shutil import rmtree
 from zipfile import ZipFile, BadZipFile
 from glob import glob
 from datetime import datetime, timedelta
 from subprocess import Popen, PIPE, STDOUT, TimeoutExpired
+import os
+import os.path
 import sys
 import logging
 
@@ -792,8 +794,8 @@ class PrintModel(LucteriosModel):
                 raise LucteriosException(IMPORTANT, _('Model file is invalid!'))
             return self.load_model(content, check=True)
         finally:
-            if isfile(content):
-                unlink(content)
+            if os.path.isfile(content):
+                os.unlink(content)
 
     def extract_file(self):
         tmp_dir = join(get_tmp_dir(), 'zipfile')
@@ -968,7 +970,7 @@ class VirtualArchiveQuerySet(QuerySet):
         if self._result_cache is None:
             self._result_cache = []
             for file_name in glob(join(settings.BACKUP_DIRECTORY, '*' + VirtualArchive.EXTENSION)):
-                if isfile(file_name):
+                if os.path.isfile(file_name):
                     add_item = True
                     new_arch = VirtualArchive(filename=file_name)
                     for condition in self.query.where.children:
@@ -1014,14 +1016,18 @@ class VirtualArchive(LucteriosModel):
                                       format_string="N2;%s Mo")
     objects = VirtualArchiveManager()
 
+    @classmethod
+    def disabled_abstract(cls):
+        cls._meta.abstract = False
+
     def __init__(self, filename=None, *args, **kwargs):
-        self._meta.abstract = False
+        self.disabled_abstract()
         if filename is not None:
             kwargs['id'] = filename
         if 'id' in kwargs:
             kwargs['name'] = basename(kwargs['id'])[:-len(self.EXTENSION)]
-            kwargs['file_size'] = getsize(kwargs['id']) / 1024**2
-            kwargs['modify_date'] = datetime.fromtimestamp(getmtime(kwargs['id']))
+            kwargs['file_size'] = os.path.getsize(kwargs['id']) / 1024**2
+            kwargs['modify_date'] = datetime.fromtimestamp(os.path.getmtime(kwargs['id']))
         LucteriosModel.__init__(self, *args, **kwargs)
 
     def __str__(self):
@@ -1045,7 +1051,7 @@ class VirtualArchive(LucteriosModel):
     def change_name(self, new_name):
         self.name = new_name
         new_file_name = join(settings.BACKUP_DIRECTORY, self.name + self.EXTENSION)
-        rename(self.id, new_file_name)
+        os.rename(self.id, new_file_name)
         self.id = new_file_name
 
     def upload(self, filestream):
@@ -1057,7 +1063,7 @@ class VirtualArchive(LucteriosModel):
         LucteriosScheduler.add_date(VirtualArchive.restore_old_archive, datetime=timezone.now() + timedelta(seconds=10), filename=self.id)
 
     def delete(self, using=None, run_action=True):
-        unlink(self.id)
+        os.unlink(self.id)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None, run_action=True):
         LucteriosScheduler.add_date(VirtualArchive.create_new_archive, datetime=timezone.now() + timedelta(seconds=10), new_name=self.name)
@@ -1095,13 +1101,13 @@ class VirtualArchive(LucteriosModel):
             duration = end - begin
             minutes = duration.seconds // 60
             filelog.write("Duration: %d min %d sec\n" % (minutes, duration.seconds - minutes * 60))
-            filelog.write("Result: %s\n" % 'OK' if process.returncode == 0 else 'Failure')
-            filelog.write("\n%s\n" % out)
+            filelog.write("Result: %s\n" % ('OK' if process.returncode == 0 else 'Failure'))
+            filelog.write("\n%s\n\n" % out)
 
     @classmethod
     def create_new_archive(cls, new_name):
-        if isfile(cls.get_last_file_log()):
-            unlink(cls.get_last_file_log())
+        if os.path.isfile(cls.get_last_file_log()):
+            os.unlink(cls.get_last_file_log())
         filename = join(settings.BACKUP_DIRECTORY, new_name + cls.EXTENSION)
         command = "%(python)s -m lucterios.install.lucterios_admin archive -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
         print(">> Create archive", command)
@@ -1109,15 +1115,15 @@ class VirtualArchive(LucteriosModel):
 
     @classmethod
     def restore_old_archive(cls, filename):
-        if isfile(cls.get_last_file_log()):
-            unlink(cls.get_last_file_log())
+        if os.path.isfile(cls.get_last_file_log()):
+            os.unlink(cls.get_last_file_log())
         LucteriosSession.objects.all().delete()
         cache.clear()
         command = "%(python)s -m lucterios.install.lucterios_admin restore -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
         print(">> Restore archive", command)
         cls.run_command(command)
-        if isfile(settings.BACKUP_POST_RESTORE_SCRIPT):
-            command = "%(python)s %(workpath)s/manage_%(instance)s.py shell < '%(filename)s' " % cls.get_django_variables(settings.BACKUP_POST_RESTORE_SCRIPT)
+        if os.path.isfile(settings.BACKUP_POST_RESTORE_SCRIPT):
+            command = "%(python)s %(workpath)s/manage_%(instance)s.py shell < '%(filename)s'" % cls.get_django_variables(settings.BACKUP_POST_RESTORE_SCRIPT)
             print(">> run post script", command)
             cls.run_command(command)
 

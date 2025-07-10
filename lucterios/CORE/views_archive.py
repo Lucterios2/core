@@ -21,7 +21,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
-from os.path import isdir, isfile, basename
+import os.path
 from base64 import b64encode
 
 from django.utils.translation import gettext_lazy as _
@@ -40,7 +40,7 @@ from lucterios.CORE.models import VirtualArchive
 
 
 def manage_archives(request):
-    return not request.user.is_anonymous and request.user.is_superuser and isdir(settings.BACKUP_DIRECTORY)
+    return not request.user.is_anonymous and request.user.is_superuser and os.path.isdir(settings.BACKUP_DIRECTORY)
 
 
 @MenuManage.describ(manage_archives, FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify archives."))
@@ -53,12 +53,12 @@ class VirtualArchiveList(XferListEditor):
     def fillresponse(self):
         XferListEditor.fillresponse(self)
         last_file_log = VirtualArchive.get_last_file_log()
-        if isfile(last_file_log):
+        if os.path.isfile(last_file_log):
             down_log = XferCompLinkLabel('backuplog')
             down_log.set_value(_('last backup log'))
             down_log.set_location(1, self.get_max_row() + 1)
             sign_value = md5sum(last_file_log)
-            down_log.set_link("/CORE/download?filename=%s&sign=%s&name=%s" % (b64encode(last_file_log.encode()).decode(), sign_value, basename(last_file_log)))
+            down_log.set_link("/CORE/download?filename=%s&sign=%s&name=%s" % (b64encode(last_file_log.encode()).decode(), sign_value, os.path.basename(last_file_log)))
             self.add_component(down_log)
 
 
@@ -91,6 +91,10 @@ class VirtualArchiveDel(XferDelete):
     model = VirtualArchive
     field_id = 'virtualarchive'
     caption = _("Delete archive")
+
+    def _search_model(self):
+        self.model.disabled_abstract()
+        XferDelete._search_model(self)
 
 
 @MenuManage.describ(manage_archives)
