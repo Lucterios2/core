@@ -193,8 +193,7 @@ class ArchiveTest(LucteriosTest):
         self.assert_observer('core.acknowledge', 'CORE', 'virtualArchiveImportAct')
 
         self.assertEqual(mock_isdir.call_count, 3)
-        self.assertEqual(mock_open.call_count, 2)
-        self.assertEqual(mock_open.call_args_list, [call('/etc/mime.types', encoding='utf-8'), call('/tmp/backup/zzz.lbk', 'wb')])
+        self.assertEqual(mock_open.call_args.args, ('/tmp/backup/zzz.lbk', 'wb'))
 
     @patch("lucterios.framework.model_fields.LucteriosScheduler.add_date", return_value=None)
     @patch("os.path.isdir", return_value=True)

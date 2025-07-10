@@ -1110,7 +1110,6 @@ class VirtualArchive(LucteriosModel):
             os.unlink(cls.get_last_file_log())
         filename = join(settings.BACKUP_DIRECTORY, new_name + cls.EXTENSION)
         command = "%(python)s -m lucterios.install.lucterios_admin archive -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
-        print(">> Create archive", command)
         cls.run_command(command)
 
     @classmethod
@@ -1120,11 +1119,9 @@ class VirtualArchive(LucteriosModel):
         LucteriosSession.objects.all().delete()
         cache.clear()
         command = "%(python)s -m lucterios.install.lucterios_admin restore -n %(instance)s -f '%(filename)s' -i %(workpath)s" % cls.get_django_variables(filename)
-        print(">> Restore archive", command)
         cls.run_command(command)
         if os.path.isfile(settings.BACKUP_POST_RESTORE_SCRIPT):
             command = "%(python)s %(workpath)s/manage_%(instance)s.py shell < '%(filename)s'" % cls.get_django_variables(settings.BACKUP_POST_RESTORE_SCRIPT)
-            print(">> run post script", command)
             cls.run_command(command)
 
     class Meta(object):
