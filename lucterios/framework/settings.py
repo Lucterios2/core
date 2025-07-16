@@ -163,6 +163,7 @@ DEFAULT_SETTINGS = {
     'ASK_LOGIN_EMAIL': False,
     'BACKUP_DIRECTORY': '',
     'BACKUP_POST_RESTORE_SCRIPT': '',
+    'BACKUP_READONLY': False,
     'ALLOWED_HOSTS': ['localhost', '127.0.0.1', socket.gethostname(), get_lan_ip()],
     'WSGI_APPLICATION': 'lucterios.framework.wsgi.application',
     'STATIC_URL': '/static/',

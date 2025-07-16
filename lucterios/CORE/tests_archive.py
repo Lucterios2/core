@@ -28,8 +28,10 @@ class ArchiveTest(LucteriosTest):
         self.instance_name = getenv("DJANGO_SETTINGS_MODULE", "???.???").split('.')[0]
         settings.BACKUP_DIRECTORY = self.MY_BACKUP_DIR
         settings.BACKUP_POST_RESTORE_SCRIPT = join(settings.BACKUP_DIRECTORY, 'script.py')
+        settings.BACKUP_READONLY = False
 
     def tearDown(self)->None:
+        settings.BACKUP_READONLY = False
         settings.BACKUP_DIRECTORY = ''
         settings.BACKUP_POST_RESTORE_SCRIPT = ''
         LucteriosTest.tearDown(self)
@@ -52,6 +54,13 @@ class ArchiveTest(LucteriosTest):
         self.assert_json_equal('', 'virtualarchive/@1/name', "bbb")
         self.assert_json_equal('', 'virtualarchive/@1/file_size', 45)
         self.assert_json_equal('', 'virtualarchive/@1/modify_date', "2014-09-19T22:00:00")
+        self.assert_count_equal('#virtualarchive/actions', 6)
+        self.assert_action_equal('DELETE', '#virtualarchive/actions/@0', ('Supprimer', 'mdi:mdi-delete-outline', 'CORE', 'virtualArchiveDel', 0, 1, 2))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@1', ('Archive', 'mdi:mdi-pencil-plus-outline', 'CORE', 'virtualArchiveAddModify', 0, 1, 1))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@2', ('Import', 'mdi:mdi-upload', 'CORE', 'virtualArchiveImport', 0, 1, 1))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@3', ('Export', 'mdi:mdi-download', 'CORE', 'virtualArchiveExport', 0, 1, 0))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@4', ('Restauration', 'mdi:mdi-check', 'CORE', 'virtualArchiveRestore', 0, 1, 0))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@5', ('Renomer', 'mdi:mdi-pencil-outline', 'CORE', 'virtualArchiveRename', 0, 1, 0))
 
         self.assertEqual(mock_isdir.call_count, 7)
         self.assertEqual(mock_glob.call_count, 1)
@@ -66,6 +75,7 @@ class ArchiveTest(LucteriosTest):
     @patch("os.path.isdir", return_value=True)
     @patch("glob.iglob", return_value=[join(MY_BACKUP_DIR, "aaa.lbk"), join(MY_BACKUP_DIR, "bbb.lbk")])
     def test_list_order(self, mock_glob, mock_isdir, mock_isfile, mock_getsize, mock_getmtime):
+        settings.BACKUP_READONLY = True
         self.factory.xfer = VirtualArchiveList()
         self.calljson('/CORE/virtualArchiveList', {'GRID_ORDER%virtualarchive': 'file_size'}, False)
         self.assert_observer('core.custom', 'CORE', 'virtualArchiveList')
@@ -78,6 +88,9 @@ class ArchiveTest(LucteriosTest):
         self.assert_json_equal('', 'virtualarchive/@1/name', "aaa")
         self.assert_json_equal('', 'virtualarchive/@1/file_size', 67)
         self.assert_json_equal('', 'virtualarchive/@1/modify_date', "2015-06-07T22:00:00")
+        self.assert_count_equal('#virtualarchive/actions', 2)
+        self.assert_action_equal('POST', '#virtualarchive/actions/@0', ('Export', 'mdi:mdi-download', 'CORE', 'virtualArchiveExport', 0, 1, 0))
+        self.assert_action_equal('POST', '#virtualarchive/actions/@1', ('Restauration', 'mdi:mdi-check', 'CORE', 'virtualArchiveRestore', 0, 1, 0))
 
         self.factory.xfer = VirtualArchiveList()
         self.calljson('/CORE/virtualArchiveList', {'GRID_ORDER%virtualarchive': '-name'}, False)
@@ -91,8 +104,9 @@ class ArchiveTest(LucteriosTest):
         self.assert_json_equal('', 'virtualarchive/@1/name', "aaa")
         self.assert_json_equal('', 'virtualarchive/@1/file_size', 67)
         self.assert_json_equal('', 'virtualarchive/@1/modify_date', "2015-06-07T22:00:00")
+        self.assert_count_equal('#virtualarchive/actions', 2)
 
-        self.assertEqual(mock_isdir.call_count, 14)
+        self.assertEqual(mock_isdir.call_count, 6)
         self.assertEqual(mock_glob.call_count, 4)
         self.assertEqual(mock_isfile.call_count, 10)
         self.assertEqual(mock_getsize.call_count, 8)
