@@ -43,6 +43,10 @@ def manage_archives(request):
     return not request.user.is_anonymous and request.user.is_superuser and os.path.isdir(settings.BACKUP_DIRECTORY)
 
 
+def manage_archive_readonly(request):
+    return not settings.BACKUP_READONLY and manage_archives(request)
+
+
 @MenuManage.describ(manage_archives, FORMTYPE_NOMODAL, 'core.admin', _("To view and to modify archives."))
 class VirtualArchiveList(XferListEditor):
     caption = _("Archive")
@@ -63,7 +67,7 @@ class VirtualArchiveList(XferListEditor):
 
 
 @ActionsManage.affect_other(_('Archive'), short_icon='mdi:mdi-pencil-plus-outline')
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveConfirmAdding(XferContainerAcknowledge):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
@@ -75,7 +79,7 @@ class VirtualArchiveConfirmAdding(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(_('Archive'), short_icon='mdi:mdi-pencil-plus-outline')
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveAddModify(XferAddEditor):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
@@ -85,7 +89,7 @@ class VirtualArchiveAddModify(XferAddEditor):
 
 
 @ActionsManage.affect_grid(TITLE_DELETE, short_icon='mdi:mdi-delete-outline', unique=SELECT_MULTI)
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveDel(XferDelete):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
@@ -97,7 +101,7 @@ class VirtualArchiveDel(XferDelete):
         XferDelete._search_model(self)
 
 
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveImportAct(XferContainerAcknowledge):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
@@ -111,7 +115,7 @@ class VirtualArchiveImportAct(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(_('Import'), short_icon='mdi:mdi-upload', close=CLOSE_NO, unique=SELECT_NONE)
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveImport(XferContainerCustom):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
@@ -187,7 +191,7 @@ class VirtualArchiveRestore(XferContainerAcknowledge):
 
 
 @ActionsManage.affect_grid(_('Rename'), short_icon='mdi:mdi-pencil-outline', close=CLOSE_NO, unique=SELECT_SINGLE)
-@MenuManage.describ(manage_archives)
+@MenuManage.describ(manage_archive_readonly)
 class VirtualArchiveRename(XferContainerAcknowledge):
     short_icon = 'mdi:mdi-cloud-outline'
     model = VirtualArchive
