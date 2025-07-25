@@ -62,7 +62,12 @@ class VirtualArchiveList(XferListEditor):
             down_log.set_value(_('last backup log'))
             down_log.set_location(1, self.get_max_row() + 1)
             sign_value = md5sum(last_file_log)
-            down_log.set_link("/CORE/download?filename=%s&sign=%s&name=%s" % (b64encode(last_file_log.encode()).decode(), sign_value, os.path.basename(last_file_log)))
+            down_log.set_link("%s/CORE/download?filename=%s&sign=%s&name=%s" % (
+                settings.FORCE_SCRIPT_NAME if settings.USE_X_FORWARDED_HOST else '',
+                b64encode(last_file_log.encode()).decode(),
+                sign_value,
+                os.path.basename(last_file_log))
+            )
             self.add_component(down_log)
 
 
@@ -171,7 +176,12 @@ class VirtualArchiveExport(XferContainerCustom):
         down.set_location(1, 2)
         down.description = _('link to download')
         sign_value = md5sum(self.item.id)
-        down.set_link("/CORE/download?filename=%s&sign=%s&name=%s" % (b64encode(self.item.id.encode()).decode(), sign_value, short_filename))
+        down.set_link("%s/CORE/download?filename=%s&sign=%s&name=%s" % (
+            settings.FORCE_SCRIPT_NAME if settings.USE_X_FORWARDED_HOST else '',
+            b64encode(self.item.id.encode()).decode(),
+            sign_value,
+            short_filename)
+        )
         self.add_component(down)
         self.add_action(WrapAction(TITLE_CLOSE, short_icon='mdi:mdi-close'))
 
