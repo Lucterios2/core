@@ -443,7 +443,7 @@ class LucteriosTestAbstract(object):
         self.assertEqual(len(self.json_comp[path]['headers']), len(headers), json.dumps(self.json_comp[path]['headers']))
         for header in self.json_comp[path]['headers']:
             header_name = header[0]
-            self.assertEqual(headers[header_name], header[1])
+            self.assertEqual(headers[header_name], header[1], str(header) + str(headers))
         self.assert_count_equal(path, nb_records)
 
 

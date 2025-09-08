@@ -232,7 +232,7 @@ class AbstractSetting(LucteriosModel):
             self._correct_value = self.value == 'True'
         elif self.correct_type == Parameter.TYPE_SELECT:  # Select
             self._correct_value = self._value_to_int()
-            self._correct_args.update({'Enum': 0})
+            self._correct_args.update({'Enum': 0, 'Min': 0})
         else:
             self._correct_value = str(self.value)
         if self.correct_type == Parameter.TYPE_META:
@@ -319,7 +319,7 @@ class AbstractSetting(LucteriosModel):
             param_cmp.set_needed(True)
         elif self.correct_type == Parameter.TYPE_SELECT:  # Select
             param_cmp = XferCompSelect(self.name)
-            selection = [(sel_idx, gettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(0, self._correct_args['Enum'])]
+            selection = [(sel_idx, gettext_lazy(self.name + ".%d" % sel_idx)) for sel_idx in range(self._correct_args['Min'], self._correct_args['Enum'])]
             param_cmp.set_select(selection)
             param_cmp.set_value(self._correct_value)
             param_cmp.set_needed(True)
@@ -574,7 +574,7 @@ class LucteriosGroup(Group, LucteriosModel):
 
     @classmethod
     def redefine_generic(cls, name, *args):
-        generic_group, _created = LucteriosGroup.objects.get_or_create(name=name)
+        generic_group, _created = LucteriosGroup.objects.get_or_create(name=str(name))
         generic_group.permissions.clear()
         for premission_set in args:
             for perm_item in premission_set:
