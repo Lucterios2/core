@@ -430,14 +430,15 @@ class Preference(AbstractSetting):
         value = cache.get(ident)
         if value is None:
             try:
-                query = models.Q(name=pname) & (models.Q(user=user) | models.Q(user=None))
+                query = models.Q(name=pname) & (models.Q(user_id=user.id if user is not None else None) | models.Q(user=None))
                 db_param = None
                 for param_item in cls.objects.filter(query).order_by('name', '-user'):
                     if (db_param is None) or (param_item.user is not None):
                         db_param = param_item
                 if db_param is None:
                     raise LucteriosException(GRAVE, "Preference %s unknown!" % pname)
-            except Exception:
+            except Exception as err:
+                print(">> Exception", err)
                 raise LucteriosException(GRAVE, "Preference %s not found!" % pname)
             value = db_param.get_value_typed()
             cache.set(ident, value)
@@ -478,7 +479,8 @@ class LucteriosUser(User, LucteriosModel):
             if self._result_cache is None:
                 self._result_cache = []
                 last_pref = None
-                for pref in Preference.objects.filter(models.Q(user=self.user) | models.Q(user=None)).order_by('name', '-user'):
+
+                for pref in Preference.objects.filter(models.Q(user_id=self.user.id) | models.Q(user=None)).order_by('name', '-user'):
                     if last_pref is None:
                         last_pref = pref
                     elif last_pref.name != pref.name:
