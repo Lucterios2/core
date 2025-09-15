@@ -177,7 +177,7 @@ class VirtualArchiveExport(XferContainerCustom):
         down.description = _('link to download')
         sign_value = md5sum(self.item.id)
         down.set_link("%s/CORE/download?filename=%s&sign=%s&name=%s" % (
-            settings.FORCE_SCRIPT_NAME if settings.USE_X_FORWARDED_HOST else '',
+            settings.FORCE_SCRIPT_NAME if (settings.FORCE_SCRIPT_NAME is not None) and settings.USE_X_FORWARDED_HOST else '',
             b64encode(self.item.id.encode()).decode(),
             sign_value,
             short_filename)
