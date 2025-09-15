@@ -135,7 +135,6 @@ DEFAULT_SETTINGS = {
         'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
         'django.contrib.auth.hashers.BCryptPasswordHasher',
         'django.contrib.auth.hashers.MD5PasswordHasher',
-        'django.contrib.auth.hashers.UnsaltedMD5PasswordHasher',
     ],
     'TEMPLATES': [{'BACKEND': 'django.template.backends.django.DjangoTemplates',
                    'DIRS': [dirname(__file__)],
