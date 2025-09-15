@@ -60,6 +60,7 @@ function create_requirement
     echo "coverage" >> requirement.txt
     echo "radon" >> requirement.txt
     echo "flake8_polyfill" >> requirement.txt
+    echo "standard-cgi" >> requirement.txt
     echo "wheel" >> requirement.txt
     echo "build" >> requirement.txt
     echo "Sphinx" >> requirement.txt
