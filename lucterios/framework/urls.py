@@ -52,7 +52,7 @@ def defaultblank(request, *args):
 def defaultview(*args):
     from django.shortcuts import redirect
     web_page = settings.DEFAULT_PAGE
-    if settings.USE_X_FORWARDED_HOST:
+    if (settings.FORCE_SCRIPT_NAME is not None) and settings.USE_X_FORWARDED_HOST:
         web_page = settings.FORCE_SCRIPT_NAME + web_page
     return redirect(web_page)
 
