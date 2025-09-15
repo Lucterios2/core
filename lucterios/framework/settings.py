@@ -153,6 +153,7 @@ DEFAULT_SETTINGS = {
     'LANGUAGE_CODE': get_locale_lang(),
     'TIME_ZONE': 'UTC',
     'SESSION_EXPIRE_AT_BROWSER_CLOSE': True,
+    'USE_X_FORWARDED_HOST': True,
     'USE_I18N': True,
     'USE_TZ': True,
     'DEBUG': True,
