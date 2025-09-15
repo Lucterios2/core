@@ -19,7 +19,7 @@ before_script:
   - ./utils/prep_env.sh clone "${CLONE_LIST}"
 
 check:
-  image: python:3.9
+  image: python:3.10
   stage: check
   script:
     - ant clear init pep8 radon 
@@ -57,16 +57,16 @@ check:
         path: coverage3.xml
     expire_in: 1 month        
 
-test38:
+test310:
   extends: .test_basic
-  image: python:3.8
+  image: python:3.10
 
-test312:
+test313:
   extends: .test_basic
-  image: python:3.12
+  image: python:3.13
   
 build:
-  image: python:3.9
+  image: python:3.10
   stage: build
   script:
     - ant clear init add_instance i18n docs package
@@ -83,22 +83,22 @@ build:
       - ${MANUAL_PATH}
     expire_in: 1 month        
 
-trigger_selenium38:
+trigger_selenium310:
   stage: integration
   variables:
     TARGET: "${APPLICATION_TARGET}"
-    PYTHON_VERSION: "3.8"
+    PYTHON_VERSION: "3.10"
     BROWSER: chrome 
   allow_failure: true
   trigger:
     project: lucterios2/test-fct
     strategy: depend    
 
-trigger_selenium311:
+trigger_selenium313:
   stage: integration
   variables:
     TARGET: "${APPLICATION_TARGET}"
-    PYTHON_VERSION: "3.11"
+    PYTHON_VERSION: "3.13"
     BROWSER: chrome
   allow_failure: true
   trigger:
