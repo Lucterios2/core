@@ -30,7 +30,7 @@ import sys
 import webbrowser
 import os
 import signal
-from socket import socket, AF_INET, SOCK_STREAM
+from socket import socket, AF_INET, SOCK_STREAM, gethostname
 from os.path import isfile, join, dirname
 from subprocess import Popen, PIPE, STDOUT, run
 from time import sleep
@@ -128,6 +128,7 @@ class RunServer(object):
         self.stop()
         current_env = os.environ.copy()
         current_env['DJANGO_SETTINGS_MODULE'] = '%s.settings' % self.instance_name
+        current_env['HTTP_X_FORWARDED_HOST'] = gethostname()
         cmd = [sys.executable, "-m", "waitress", "--port", str(self.port), "lucterios.framework.wsgi:application"]
         getLogger('lucterios.admin').info("start instance : %s" % cmd)
         self.process = Popen(cmd, env=current_env)
