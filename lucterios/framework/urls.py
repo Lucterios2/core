@@ -131,7 +131,7 @@ def request_config():
         from django.http import request
         from django.utils.regex_helper import _lazy_re_compile
         if hasattr(request, "host_validation_re"):
-            setattr(request, "host_validation_re", _lazy_re_compile(r"^([a-z0-9.-_]+|\[[a-f0-9]*:[a-f0-9\.:]+\])(:\d+)?$"))
+            setattr(request, "host_validation_re", _lazy_re_compile(r"^([_a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9.:]+\])(?::([0-9]+))?$"))
     except Exception:
         logging.getLogger('lucterios.core.init').exception("Error to config request")
 
