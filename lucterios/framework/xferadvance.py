@@ -33,7 +33,6 @@ from lucterios.framework.error import LucteriosException, GRAVE, IMPORTANT
 from lucterios.framework.tools import ifplural, WrapAction, ActionsManage, FORMTYPE_MODAL, CLOSE_NO
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, XferCompButton
 from lucterios.framework.xfergraphic import XferContainerAcknowledge, XferContainerCustom
-from django_fsm import TransitionNotAllowed
 from lucterios.framework.models import LucteriosLogEntry
 
 
@@ -316,6 +315,8 @@ class XferTransition(XferContainerAcknowledge):
         XferContainerAcknowledge.fill_simple_fields(self)
 
     def _confirmed(self, transition):
+        import django_fsm
+        import viewflow.fsm
         try:
             self.trans_result = []
             for item in self.items:
@@ -326,7 +327,11 @@ class XferTransition(XferContainerAcknowledge):
                 self.trans_result = None
             elif len(self.trans_result) == 1:
                 self.trans_result = self.trans_result[0]
-        except TransitionNotAllowed as err:
+        except django_fsm.TransitionNotAllowed as err:
+            if hasattr(item, '_error_transaction'):
+                getLogger("lucterios.core.transition").error(item._error_transaction(transition) + str(err))
+            raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
+        except viewflow.fsm.TransitionNotAllowed as err:
             if hasattr(item, '_error_transaction'):
                 getLogger("lucterios.core.transition").error(item._error_transaction(transition) + str(err))
             raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
