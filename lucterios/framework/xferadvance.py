@@ -315,7 +315,6 @@ class XferTransition(XferContainerAcknowledge):
         XferContainerAcknowledge.fill_simple_fields(self)
 
     def _confirmed(self, transition):
-        import django_fsm
         import viewflow.fsm
         try:
             self.trans_result = []
@@ -327,10 +326,6 @@ class XferTransition(XferContainerAcknowledge):
                 self.trans_result = None
             elif len(self.trans_result) == 1:
                 self.trans_result = self.trans_result[0]
-        except django_fsm.TransitionNotAllowed as err:
-            if hasattr(item, '_error_transaction'):
-                getLogger("lucterios.core.transition").error(item._error_transaction(transition) + str(err))
-            raise LucteriosException(IMPORTANT, _('Transaction impossible!{[br/]}A condition should not be verified.'))
         except viewflow.fsm.TransitionNotAllowed as err:
             if hasattr(item, '_error_transaction'):
                 getLogger("lucterios.core.transition").error(item._error_transaction(transition) + str(err))

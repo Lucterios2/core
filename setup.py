@@ -64,5 +64,5 @@ setup(
         "lucterios.framework": ['locale/*/*/*', 'fonts/*', 'mdi-icons/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["pip", "importlib-metadata", "Django ~=5.2", "django-fsm ~=3.0", "django-viewflow ~=2.2", "lxml ==6.0.1", "lxml_html_clean", "Pillow ==11.3.0", "CairoSVG ~=2.8", "reportlab ==4.4.3", "APScheduler ==3.11.0", "Babel ==2.17.0", "PyQt6 ==6.9.1", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=2.3", "waitress"],
+    install_requires=["pip", "importlib-metadata", "Django ~=5.2", "django-viewflow ~=2.2", "lxml ==6.0.1", "lxml_html_clean", "Pillow ==11.3.0", "CairoSVG ~=2.8", "reportlab ==4.4.3", "APScheduler ==3.11.0", "Babel ==2.17.0", "PyQt6 ==6.9.1", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=2.3", "waitress"],
 )

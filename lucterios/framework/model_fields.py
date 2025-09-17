@@ -247,7 +247,7 @@ def transition(field, source="*", target=None, conditions=[]):
         if isinstance(field, FSMIntegerField):
             transition = FSMIntegerField.Transition(funct.__name__, source, target, conditions)
             field.transitions.append(transition)
-            setattr(funct, "_django_fsm", transition)
+            setattr(funct, "_meta", transition)
             wrapper = field.state_field.transition(source=source, target=target, conditions=conditions)
             funct = wrapper(funct)
         return funct

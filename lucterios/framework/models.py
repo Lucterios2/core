@@ -30,8 +30,6 @@ from datetime import datetime
 from copy import deepcopy
 from os import environ
 
-from django_fsm.signals import post_transition
-
 from django.db import models, transaction
 from django.db.models import Count, Q
 from django.db.models.query import QuerySet
@@ -991,15 +989,6 @@ class LucteriosLogEntry(LucteriosModel):
         ordering = ['-timestamp']
         verbose_name = _("log entry")
         verbose_name_plural = _("log entries")
-
-
-def post_after_transition(sender, **kwargs):
-    if 'exception' not in kwargs:
-        instance = kwargs['instance']
-        instance.save()
-
-
-post_transition.connect(post_after_transition)
 
 
 def correct_db_field(fields):
