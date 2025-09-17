@@ -30,7 +30,6 @@ from os.path import isfile, join, isdir, dirname, basename
 from glob import glob
 
 from django.utils.module_loading import import_module
-from django_fsm import FSMFieldMixin
 
 from tkinter import Tk, StringVar, IntVar, ttk, Label, Checkbutton, Frame, Button, E, W, N, S, SUNKEN
 from tkinter.messagebox import showinfo
@@ -269,7 +268,7 @@ from django.utils.translation import gettext_lazy as _\n\n""")
                 if item_name == '3Transition':
                     loop = []
                     for field in class_inst._meta.get_fields():
-                        if isinstance(field, FSMFieldMixin):
+                        if field.__class__.__name == 'FSMIntegerField':
                             loop.append({'statname': field.name})
                     print(loop)
                 else:
