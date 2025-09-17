@@ -37,7 +37,6 @@ import warnings
 import re
 
 from django.utils.translation import gettext_lazy as _
-from django_fsm import FSMFieldMixin
 from django.utils.encoding import smart_str
 
 
@@ -291,7 +290,7 @@ class ActionsManage(object):
         def wrapper(xclass):
             xclass.trans_list = {}
             for field in xclass.model._meta.get_fields():
-                if isinstance(field, FSMFieldMixin) and (field.name == state):
+                if field.__class__.__name__.split('.')[-1] == 'FSMIntegerField' and (field.name == state):
                     transitions = list(field.get_all_transitions(xclass.model))
                     transitions.sort(key=lambda item: item.target if item.target is not None else -1000)
                     for transition in transitions:
@@ -310,7 +309,7 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
                         if ((only_one is None) or (transition.name in only_one)) and ((ignore_all is None) or (transition.name not in ignore_all)):
-                            cmd = "lambda xfer:getattr(xfer.item,'%s')._django_fsm.conditions_met(xfer.item, getattr(xfer.item,'%s')) and getattr(xfer.item,'%s') == %d" % (transition.name, state, state, transition.source)
+                            cmd = "lambda xfer:(getattr(xfer.item, '%(state)s') == %(source)s) and getattr(getattr(xfer.item, '%(name)s'), '_func', getattr(xfer.item, '%(name)s'))._django_fsm.conditions_met(xfer.item, getattr(xfer.item, '%(state)s'))" % {"name": transition.name, "state": state, "source": transition.source}
                             cond_fct = eval(cmd)
                             cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
                                                    short_icon='mdi:mdi-share', condition=cond_fct, intop=True, close=close, **new_dict)

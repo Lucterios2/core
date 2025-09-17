@@ -28,8 +28,8 @@ from os.path import join, dirname
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
-from django_fsm import FSMIntegerField, transition
 
+from lucterios.framework.model_fields import FSMIntegerField, transition
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.signal_and_lock import Signal
 from lucterios.CORE.models import Parameter, Preference
