@@ -309,7 +309,7 @@ class ActionsManage(object):
                             new_dict['params'] = {}
                         new_dict['params']['TRANSITION'] = transition.name
                         if ((only_one is None) or (transition.name in only_one)) and ((ignore_all is None) or (transition.name not in ignore_all)):
-                            cmd = "lambda xfer:(getattr(xfer.item, '%(state)s') == %(source)s) and getattr(getattr(xfer.item, '%(name)s'), '_func', getattr(xfer.item, '%(name)s'))._django_fsm.conditions_met(xfer.item, getattr(xfer.item, '%(state)s'))" % {"name": transition.name, "state": state, "source": transition.source}
+                            cmd = "lambda xfer:(getattr(xfer.item, '%(state)s') == %(source)s) and getattr(getattr(xfer.item, '%(name)s'), '_func', getattr(xfer.item, '%(name)s'))._meta.conditions_met(xfer.item, getattr(xfer.item, '%(state)s'))" % {"name": transition.name, "state": state, "source": transition.source}
                             cond_fct = eval(cmd)
                             cls.add_action_generic(xclass, cls.ACTION_IDENT_SHOW, title,
                                                    short_icon='mdi:mdi-share', condition=cond_fct, intop=True, close=close, **new_dict)
