@@ -26,6 +26,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 from __future__ import unicode_literals
 
 from django.db import models, migrations
+import django_fsm
 import django.core.validators
 from lucterios.CORE.models import PrintModel
 from lucterios.framework.model_fields import LucteriosDecimalField
@@ -63,6 +64,7 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
             options={
                 'abstract': False,
+                'ordering': ['name'],
             },
         ),
         migrations.CreateModel(
@@ -76,6 +78,8 @@ class Migration(migrations.Migration):
                 ('real', LucteriosDecimalField(max_digits=6, decimal_places=2, validators=[
                  django.core.validators.MinValueValidator(-5000.0), django.core.validators.MaxValueValidator(5000.0)])),
                 ('bool', models.BooleanField(default=False)),
+                ('stats', django_fsm.FSMIntegerField(choices=[(0, 'ONE'), (1, 'TWO'), (2, 'THREE')], default=0, verbose_name='stats')),
+
             ],
             bases=(models.Model,),
             options={

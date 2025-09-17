@@ -23,6 +23,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from __future__ import unicode_literals
+from json import dumps
 
 from django.test.client import RequestFactory
 from django.contrib.auth.models import AnonymousUser
@@ -83,7 +84,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
         self.assertEqual(self.response_json['connexion']['SUBTITLE'], str('Application générique de gestion'))
         self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.7.')
-        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
+        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2, dumps(self.response_json['connexion']['INFO_SERVER']))
         self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.7.')
         self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
         self.assertEqual(self.response_json['connexion']['LOGONAME'][0:22], 'data:image/png;base64,')
@@ -123,7 +124,7 @@ class AuthentificationTest(LucteriosTest):
         self.assertEqual(self.response_json['connexion']['TITLE'], 'Lucterios standard')
         self.assertEqual(self.response_json['connexion']['SUBTITLE'], str('Application générique de gestion'))
         self.assertEqual(self.response_json['connexion']['VERSION'][0:4], '2.7.')
-        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2)
+        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 2, dumps(self.response_json['connexion']['INFO_SERVER']))
         self.assertEqual(self.response_json['connexion']['SERVERVERSION'][0:4], '2.7.')
         self.assertEqual(self.response_json['connexion']['COPYRIGHT'][0:4], '(c) ')
         self.assertEqual(self.response_json['connexion']['LOGONAME'][0:22], 'data:image/png;base64,')
