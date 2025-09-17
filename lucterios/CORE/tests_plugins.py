@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 from os.path import join, isdir, isfile
 from os import makedirs
 from shutil import rmtree
+from json import dumps
 
 from lucterios.framework.test import LucteriosTest
 from lucterios.framework.plugins import PluginManager
@@ -224,6 +225,6 @@ class PluginTest(LucteriosTest):
         self.calljson('/CORE/authentification', {'login': 'admin', 'password': 'admin'})
         self.assert_observer('core.auth', 'CORE', 'authentification')
         self.assert_json_equal('', '', 'OK')
-        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 3 + 2)
+        self.assertEqual(len(self.response_json['connexion']['INFO_SERVER']), 3 + 3 + 2, dumps(self.response_json['connexion']['INFO_SERVER']))
         self.assertEqual(self.response_json['connexion']['INFO_SERVER'][4], "Advance tool=1.2.3")
         self.assertEqual(self.response_json['connexion']['INFO_SERVER'][5], "view=0.0.1")

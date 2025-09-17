@@ -28,6 +28,7 @@ from os.path import join, dirname
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django_fsm import FSMIntegerField, transition
 
 from lucterios.framework.models import LucteriosModel
 from lucterios.framework.signal_and_lock import Signal
@@ -103,6 +104,10 @@ class Example(LucteriosModel):
 
 
 class Other(LucteriosModel):
+    STATS_ONE = 0
+    STATS_TWO = 1
+    STATS_THREE = 2
+    STATS_LIST = ((STATS_ONE, "ONE"), (STATS_TWO, "TWO"), (STATS_THREE, "THREE"))
 
     text = models.CharField(max_length=75, unique=True)
     integer = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(2000)])
@@ -110,6 +115,25 @@ class Other(LucteriosModel):
                                  format_string=lambda: "N4",
                                  validators=[MinValueValidator(-5000.0), MaxValueValidator(5000.0)])
     bool = models.BooleanField(default=False)
+    stats = FSMIntegerField(verbose_name=_('stats'), default=STATS_ONE, choices=STATS_LIST)
+
+    transitionname__begin = _("Begin")
+
+    @transition(field=stats, source=STATS_ONE, target=STATS_TWO, conditions=[lambda item:len(item.text) > 0])
+    def begin(self):
+        pass
+
+    transitionname__end = _("End")
+
+    @transition(field=stats, source=STATS_TWO, target=STATS_THREE, conditions=[lambda item:item.integer > 0])
+    def end(self):
+        pass
+
+    transitionname__restart = _("Restart")
+
+    @transition(field=stats, source=STATS_THREE, target=STATS_ONE, conditions=[lambda item:item.bool])
+    def restart(self):
+        pass
 
 
 @Signal.decorate('auditlog_register')

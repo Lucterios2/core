@@ -36,7 +36,7 @@ from lucterios.framework.xfercomponents import XferCompLabelForm, XferCompEdit, 
 from lucterios.framework.xfercomponents import XferCompTime, XferCompDateTime, XferCompCheck, XferCompSelect, XferCompCheckList, XferCompButton
 from lucterios.framework.xferadvance import XferListEditor, XferAddEditor, XferShowEditor, XferDelete, \
     TITLE_EDIT, TITLE_ADD, TITLE_MODIFY, TITLE_DELETE, TITLE_PRINT, \
-    TITLE_LISTING, TITLE_LABEL, TITLE_CLOSE
+    TITLE_LISTING, TITLE_LABEL, TITLE_CLOSE, XferTransition
 from lucterios.framework import signal_and_lock
 from lucterios.framework.model_fields import LucteriosScheduler
 
@@ -493,6 +493,14 @@ class OtherDel(XferDelete):
     model = Other
     field_id = 'other'
     caption = _("Delete other")
+
+
+@ActionsManage.affect_transition("stats")
+@MenuManage.describ('invoice.add_bill')
+class OtherTransition(XferTransition):
+    short_icon = 'mdi:mdi-invoice-edit-outline'
+    model = Other
+    field_id = 'other'
 
 
 def run_simple_action(timetxt):

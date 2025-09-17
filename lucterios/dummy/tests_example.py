@@ -43,7 +43,7 @@ from lucterios.CORE.parameters import Params
 from lucterios.dummy.views import ExampleList, ExampleAddModify, ExampleShow, \
     ExamplePrint, ExampleListing, ExampleSearch, ExampleLabel, OtherList, \
     OtherAddModify, OtherShow, ExampleReporting, ExamplePrintList, ExampleImport, \
-    ExampleMosaic
+    ExampleMosaic, OtherTransition
 from lucterios.dummy.models import Example
 
 
@@ -1556,13 +1556,13 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.calljson('/lucterios.dummy/otherList', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'otherList')
         self.assert_count_equal('', 3)
-        self.assert_grid_equal('other', {'bool': 'bool', 'integer': 'integer', 'real': 'real', 'text': 'text'}, 0)
+        self.assert_grid_equal('other', {'bool': 'bool', 'integer': 'integer', 'real': 'real', 'text': 'text', "stats": "stats"}, 0)
 
     def test_other_addshow(self):
         self.factory.xfer = OtherAddModify()
         self.calljson('/lucterios.dummy/otherAddModify', {}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'otherAddModify')
-        self.assert_count_equal('', 5)
+        self.assert_count_equal('', 6)
         self.assertEqual(len(self.json_actions), 2)
         self.assert_action_equal('POST', self.json_actions[0], ('Ok', 'mdi:mdi-check', 'lucterios.dummy', 'otherAddModify', 1, 1, 1, {'SAVE': 'YES'}))
         self.assert_action_equal('POST', self.json_actions[1], ('Annuler', 'mdi:mdi-cancel'))
@@ -1571,24 +1571,27 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.assert_json_equal('FLOAT', "integer", 0)
         self.assert_json_equal('FLOAT', "real", -5000.0)
         self.assert_json_equal('EDIT', "text", '')
+        self.assert_json_equal('SELECT', "stats", 0)
 
         self.factory.xfer = OtherAddModify()
-        self.calljson('/lucterios.dummy/otherAddModify', {'SAVE': 'YES', 'text': 'abc', 'bool': '1', 'real': '-159.37', 'integer': '13'}, False)
+        self.calljson('/lucterios.dummy/otherAddModify', {'SAVE': 'YES', 'text': 'abc', 'bool': '1', 'real': '-159.37', 'integer': '13', "stats": 0}, False)
         self.assert_observer('core.acknowledge', 'lucterios.dummy', 'otherAddModify')
 
         self.factory.xfer = OtherShow()
         self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
-        self.assert_count_equal('', 5)
-        self.assertEqual(len(self.json_actions), 3)
-        self.assert_action_equal('POST', self.json_actions[0], ('Modifier', 'mdi:mdi-pencil-outline', 'lucterios.dummy', 'otherAddModify', 1, 1, 0))
-        self.assert_action_equal('GET', self.json_actions[1], ('Imprimer', 'mdi:mdi-printer-outline', 'lucterios.dummy', 'otherPrint', 0, 1, 0))
-        self.assert_action_equal('POST', self.json_actions[2], ('Fermer', 'mdi:mdi-close'))
+        self.assert_count_equal('', 6)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal('POST', self.json_actions[0], ('Begin', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "begin"}))
+        self.assert_action_equal('POST', self.json_actions[1], ('Modifier', 'mdi:mdi-pencil-outline', 'lucterios.dummy', 'otherAddModify', 1, 1, 0))
+        self.assert_action_equal('GET', self.json_actions[2], ('Imprimer', 'mdi:mdi-printer-outline', 'lucterios.dummy', 'otherPrint', 0, 1, 0))
+        self.assert_action_equal('POST', self.json_actions[3], ('Fermer', 'mdi:mdi-close'))
         self.assert_json_equal('IMAGE', "img", 'mdi:mdi-numeric-10')
         self.assert_json_equal('LABELFORM', "bool", True)
         self.assert_json_equal('LABELFORM', "integer", 13)
         self.assert_json_equal('LABELFORM', "real", -159.37)
         self.assert_json_equal('LABELFORM', "text", 'abc')
+        self.assert_json_equal('LABELFORM', "stats", 0)
 
         self.factory.xfer = OtherAddModify()
         self.calljson('/lucterios.dummy/otherAddModify', {'SAVE': 'YES', 'other': '1', 'bool': '0'}, False)
@@ -1597,11 +1600,61 @@ aaa;5;12.99;12:45;0;bleble ble;12/04/2021
         self.factory.xfer = OtherShow()
         self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
         self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
-        self.assert_count_equal('', 5)
-        self.assertEqual(len(self.json_actions), 2)
-        self.assert_action_equal('POST', self.json_actions[0], ('Modifier', 'mdi:mdi-pencil-outline', 'lucterios.dummy', 'otherAddModify', 1, 1, 0))
-        self.assert_action_equal('POST', self.json_actions[1], ('Fermer', 'mdi:mdi-close'))
+        self.assert_count_equal('', 6)
+        self.assertEqual(len(self.json_actions), 3)
+        self.assert_action_equal('POST', self.json_actions[0], ('Begin', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "begin"}))
+        self.assert_action_equal('POST', self.json_actions[1], ('Modifier', 'mdi:mdi-pencil-outline', 'lucterios.dummy', 'otherAddModify', 1, 1, 0))
+        self.assert_action_equal('POST', self.json_actions[2], ('Fermer', 'mdi:mdi-close'))
         self.assert_json_equal('LABELFORM', "bool", False)
+
+    def test_other_transition(self):
+        self.factory.xfer = OtherAddModify()
+        self.calljson('/lucterios.dummy/otherAddModify', {'SAVE': 'YES', 'text': 'abc', 'bool': '1', 'real': '-159.37', 'integer': '13', "stats": 0}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.dummy', 'otherAddModify')
+
+        self.factory.xfer = OtherShow()
+        self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
+        self.assert_count_equal('', 6)
+        self.assert_json_equal('LABELFORM', "stats", 0)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal('POST', self.json_actions[0], ('Begin', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "begin"}))
+
+        self.factory.xfer = OtherTransition()
+        self.calljson('/lucterios.dummy/otherTransition', {'other': '1', "TRANSITION": "begin", "CONFIRME": "YES"}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.dummy', 'otherTransition')
+
+        self.factory.xfer = OtherShow()
+        self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
+        self.assert_count_equal('', 6)
+        self.assert_json_equal('LABELFORM', "stats", 1)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal('POST', self.json_actions[0], ('End', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "end"}))
+
+        self.factory.xfer = OtherTransition()
+        self.calljson('/lucterios.dummy/otherTransition', {'other': '1', "TRANSITION": "end", "CONFIRME": "YES"}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.dummy', 'otherTransition')
+
+        self.factory.xfer = OtherShow()
+        self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
+        self.assert_count_equal('', 6)
+        self.assert_json_equal('LABELFORM', "stats", 2)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal('POST', self.json_actions[0], ('Restart', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "restart"}))
+
+        self.factory.xfer = OtherTransition()
+        self.calljson('/lucterios.dummy/otherTransition', {'other': '1', "TRANSITION": "restart", "CONFIRME": "YES"}, False)
+        self.assert_observer('core.acknowledge', 'lucterios.dummy', 'otherTransition')
+
+        self.factory.xfer = OtherShow()
+        self.calljson('/lucterios.dummy/otherShow', {'other': '1'}, False)
+        self.assert_observer('core.custom', 'lucterios.dummy', 'otherShow')
+        self.assert_count_equal('', 6)
+        self.assert_json_equal('LABELFORM', "stats", 0)
+        self.assertEqual(len(self.json_actions), 4)
+        self.assert_action_equal('POST', self.json_actions[0], ('Begin', 'mdi:mdi-share', 'lucterios.dummy', 'otherTransition', 0, 1, 1, {"TRANSITION": "begin"}))
 
     def test_printaction_show(self):
         generator = ActionGenerator(ExampleShow(), False)
