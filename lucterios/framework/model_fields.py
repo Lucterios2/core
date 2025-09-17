@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 import logging
 from datetime import datetime
 from types import FunctionType
+from viewflow import fsm
 
 from django.db import models
 from django.db.models import Transform
@@ -196,6 +197,62 @@ class LucteriosVirtualField(models.Field):
 
     def get_prep_value(self, value):
         return super(LucteriosVirtualField, self).get_prep_value(value)
+
+
+class FSMIntegerField(models.IntegerField):
+
+    class Transition(object):
+        def __init__(self, name, source, target, conditions):
+            self.name = name
+            self.fieldname = None
+            self.source = source
+            self.target = target
+            self.conditions = conditions
+
+        def conditions_met(self, instance, *_args):
+            if self.conditions is None:
+                return True
+            else:
+                res = True
+                for condition in self.conditions:
+                    res = res and condition(instance)
+                return res
+
+    def __init__(self, **kwargs):
+        models.IntegerField.__init__(self, **kwargs)
+        self.state_field = fsm.State(self.choices, self.default)
+        self.transitions = []
+        self.state_field.setter()(self._setvalue)
+        self.state_field.getter()(self._getvalue)
+        self.state_field.on_success()(self._success)
+
+    def _setvalue(self, instance, value):
+        setattr(instance, self.name, value)
+
+    def _getvalue(self, instance):
+        return getattr(instance, self.name, None)
+
+    def _success(self, instance, descriptor, source, target, **kwargs):
+        instance.save()
+
+    def get_all_transitions(self, xclass):
+        if self.name is not None:
+            for transition in self.transitions:
+                transition.fieldname = self.name
+        return self.transitions
+
+
+def transition(field, source="*", target=None, conditions=[]):
+    def inner_transition(funct):
+        if isinstance(field, FSMIntegerField):
+            transition = FSMIntegerField.Transition(funct.__name__, source, target, conditions)
+            field.transitions.append(transition)
+            setattr(funct, "_django_fsm", transition)
+            wrapper = field.state_field.transition(source=source, target=target, conditions=conditions)
+            funct = wrapper(funct)
+        return funct
+
+    return inner_transition
 
 
 class PrintFieldsPlugIn(object):
