@@ -117,7 +117,7 @@ class Download(XferContainerAbstract):
             self._initialize(request, *args, **kwargs)
             try:
                 full_path = b64decode(str(self.getparam('filename'))).decode()
-            except binascii.Error:
+            except (binascii.Error, UnicodeDecodeError):
                 full_path = join(get_user_dir(), str(self.getparam('filename')))
             sign = self.getparam('sign', '')
             if sign != md5sum(full_path):
