@@ -35,6 +35,7 @@ from lucterios.framework.tools import WrapAction, ActionsManage, format_value
 from lucterios.framework.xfercomponents import XferCompImage, XferCompLabelForm, XferCompGrid, XferCompSearch
 from lucterios.framework.xferadvance import action_list_sorted, TITLE_CLOSE
 from lucterios.framework.xfergraphic import XferContainerCustom, get_range_value
+from lucterios.framework.error import LucteriosException, IMPORTANT
 
 TYPE_FLOAT = 'float'
 TYPE_STR = 'str'
@@ -281,13 +282,16 @@ class FieldDescItem(object):
 
     def get_query(self, value, operation):
         def get_int_list(value):
-            if isinstance(value, str):
-                val_ids = []
-                for val_str in value.split(';'):
-                    val_ids.append(int(val_str))
-                return val_ids
-            else:
-                return [int(val_str) for val_str in list(value)]
+            try:
+                if isinstance(value, str):
+                    val_ids = []
+                    for val_str in value.split(';'):
+                        val_ids.append(int(val_str))
+                    return val_ids
+                else:
+                    return [int(val_str) for val_str in list(value)]
+            except TypeError:
+                raise LucteriosException(IMPORTANT, _("Bad value for this search !"))
         query_res = self.initial_q
         field_with_op = self.dbfieldname + OP_LIST[operation][2]
         if self.field_type == TYPE_BOOL:
@@ -316,7 +320,10 @@ class FieldDescItem(object):
             field_with_op1 = self.dbfieldname + OP_LESS[2]
             field_with_op2 = self.dbfieldname + OP_MORE[2]
             if isinstance(value, str):
-                value = float(value)
+                try:
+                    value = float(value)
+                except ValueError:
+                    raise LucteriosException(IMPORTANT, _("Bad value for this search !"))
                 new_query = Q(**{field_with_op1: value + 1e-4}) & Q(**{field_with_op2: value - 1e-4})
             else:
                 new_query = Q()
