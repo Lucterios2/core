@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-09 18:00+0000\n"
-"PO-Revision-Date: 2025-01-20 18:20+0100\n"
+"POT-Creation-Date: 2025-10-29 09:27+0000\n"
+"PO-Revision-Date: 2025-10-29 10:29+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
 "Language: fr\n"
@@ -18,143 +18,143 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.7.8\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.8\n"
 
 #: main_docs.html:8 main_docs.html:113
 msgid "User manual"
 msgstr "Manuel utilisateur"
 
-#: model_fields.py:230
+#: model_fields.py:287
 msgid "General"
 msgstr "Général"
 
-#: model_fields.py:234 model_fields.py:235
+#: model_fields.py:291 model_fields.py:292
 msgid "current date"
 msgstr "date courante"
 
-#: model_fields.py:236
+#: model_fields.py:293
 msgid "current hour"
 msgstr "heure courante"
 
-#: models.py:214
+#: models.py:212
 msgid "full list"
 msgstr "liste totale"
 
-#: models.py:316
+#: models.py:314
 #, python-format
 msgid "%(name)s '%(value)s' unknown !"
 msgstr "%(name)s '%(value)s' inconnu(e) !"
 
-#: models.py:458
+#: models.py:456
 msgid ""
 "Only record of same type can be merged.{[br/]}You must to be promote it."
 msgstr ""
 "Seul des enregistrements de mêmes types peuvent être fusionnés.{[br/]}Vous "
 "devez en promouvoir un."
 
-#: models.py:623
+#: models.py:621
 msgid "Cannot delete this record: there are associated with some sub-record"
 msgstr ""
 "Impossible de supprimer cet enregistrement: il est associé avec d'autres "
 "sous-enregistrements"
 
-#: models.py:671
+#: models.py:669
 msgid "username"
 msgstr "nom d'utilisateur"
 
-#: models.py:672
+#: models.py:670
 msgid "is active"
 msgstr "actif ?"
 
-#: models.py:712
+#: models.py:710
 msgid "session"
 msgstr "session"
 
-#: models.py:713
+#: models.py:711
 msgid "sessions"
 msgstr "sessions"
 
-#: models.py:851
+#: models.py:849
 msgid "create"
 msgstr "création"
 
-#: models.py:852
+#: models.py:850
 msgid "update"
 msgstr "modification"
 
-#: models.py:853 tools.py:467
+#: models.py:851 tools.py:466
 msgid "delete"
 msgstr "supprimer"
 
-#: models.py:854
+#: models.py:852
 msgid "remove"
 msgstr "enlever"
 
-#: models.py:855 tools.py:463
+#: models.py:853 tools.py:462
 msgid "add"
 msgstr "ajouter"
 
-#: models.py:865 models.py:872
+#: models.py:863 models.py:870
 msgid "change message"
 msgstr "message de modification"
 
-#: models.py:866
+#: models.py:864
 msgid "content type"
 msgstr "type de contenu"
 
-#: models.py:867
+#: models.py:865
 msgid "actor"
 msgstr "utilisateur"
 
-#: models.py:868
+#: models.py:866
 msgid "object pk"
 msgstr "object pk"
 
-#: models.py:869
+#: models.py:867
 msgid "object id"
 msgstr "object id"
 
-#: models.py:870
+#: models.py:868
 msgid "object representation"
 msgstr "identifiant"
 
-#: models.py:871
+#: models.py:869
 msgid "action"
 msgstr "action"
 
-#: models.py:873
+#: models.py:871
 msgid "remote address"
 msgstr "adresse distante"
 
-#: models.py:874
+#: models.py:872
 msgid "date"
 msgstr "date"
 
-#: models.py:875
+#: models.py:873
 msgid "additional data"
 msgstr "données additionnelles"
 
-#: models.py:881
+#: models.py:879
 msgid "Created {repr:s}"
 msgstr "Création de {repr:s}"
 
-#: models.py:883
+#: models.py:881
 msgid "Updated {repr:s}"
 msgstr "Modification de {repr:s}"
 
-#: models.py:885
+#: models.py:883
 msgid "Deleted {repr:s}"
 msgstr "Suppression de {repr:s}"
 
-#: models.py:887
+#: models.py:885
 msgid "Logged {repr:s}"
 msgstr "Journalisation de {repr:s}"
 
-#: models.py:992
+#: models.py:990
 msgid "log entry"
 msgstr "entrée d'historique"
 
-#: models.py:993
+#: models.py:991
 msgid "log entries"
 msgstr "entrées d'historiques"
 
@@ -172,89 +172,89 @@ msgstr "L'impression échoue !"
 msgid "Record locked by '%s'!"
 msgstr "Enregistrement verrouillé par '%s'!"
 
-#: tools.py:155
+#: tools.py:154
 msgid "Anonymous user"
 msgstr "Utilisateur anonyme"
 
-#: tools.py:157
+#: tools.py:156
 #, python-format
 msgid "Bad permission for '%s'"
 msgstr "Mauvaise permission pour '%s'"
 
-#: tools.py:465
+#: tools.py:464
 msgid "view"
 msgstr "Afficher"
 
-#: tools.py:611 xfergraphic.py:161 xfersearch.py:254
+#: tools.py:610 xfergraphic.py:161 xfersearch.py:255
 msgid "Yes"
 msgstr "Oui"
 
-#: tools.py:613 xferadvance.py:41 xfersearch.py:256
+#: tools.py:612 xferadvance.py:40 xfersearch.py:257
 msgid "No"
 msgstr "Non"
 
-#: xferadvance.py:40
+#: xferadvance.py:39
 msgid "Ok"
 msgstr "Ok"
 
-#: xferadvance.py:42
+#: xferadvance.py:41
 msgid "Cancel"
 msgstr "Annuler"
 
-#: xferadvance.py:43
+#: xferadvance.py:42
 msgid "Close"
 msgstr "Fermer"
 
-#: xferadvance.py:44
+#: xferadvance.py:43
 msgid "Edit"
 msgstr "Éditer"
 
-#: xferadvance.py:45
+#: xferadvance.py:44
 msgid "Modify"
 msgstr "Modifier"
 
-#: xferadvance.py:46
+#: xferadvance.py:45
 msgid "Delete"
 msgstr "Supprimer"
 
-#: xferadvance.py:47
+#: xferadvance.py:46
 msgid "Add"
 msgstr "Ajouter"
 
-#: xferadvance.py:48
+#: xferadvance.py:47
 msgid "Create"
 msgstr "Créer"
 
-#: xferadvance.py:49
+#: xferadvance.py:48
 msgid "Save"
 msgstr "Sauver"
 
-#: xferadvance.py:50
+#: xferadvance.py:49
 msgid "clone"
 msgstr "clone"
 
-#: xferadvance.py:51 xferprinting.py:212
+#: xferadvance.py:50 xferprinting.py:212
 msgid "Print"
 msgstr "Imprimer"
 
-#: xferadvance.py:52
+#: xferadvance.py:51
 msgid "Listing"
 msgstr "Liste"
 
-#: xferadvance.py:53
+#: xferadvance.py:52
 msgid "Label"
 msgstr "Étiquette"
 
-#: xferadvance.py:54
+#: xferadvance.py:53
 msgid "Search"
 msgstr "Rechercher"
 
-#: xferadvance.py:56
+#: xferadvance.py:55
 #, python-format
 msgid "Total number of %(name)s: %(count)d"
 msgstr "Nombre total de %(name)s: %(count)d"
 
-#: xferadvance.py:221 xferbasic.py:142
+#: xferadvance.py:220 xferbasic.py:142
 msgid ""
 "This record not exist!\n"
 "Refresh your application."
@@ -262,25 +262,25 @@ msgstr ""
 "Cet enregistrement n'existe pas!\n"
 "Veuillez rafraichir votre application."
 
-#: xferadvance.py:240
+#: xferadvance.py:239
 msgid "No model"
 msgstr "Pas de modèle"
 
-#: xferadvance.py:250
+#: xferadvance.py:249
 msgid "No selection"
 msgstr "Pas de sélection!"
 
-#: xferadvance.py:266
+#: xferadvance.py:265
 #, python-format
 msgid "Do you want delete this %(name)s ?"
 msgstr "Voulez-vous supprimer cet enregistrement de '%(name)s'?"
 
-#: xferadvance.py:267
+#: xferadvance.py:266
 #, python-format
 msgid "Do you want delete those %(nb)s %(name)s ?"
 msgstr "Voulez-vous supprimer ces %(nb)s %(name)s?"
 
-#: xferadvance.py:290
+#: xferadvance.py:289
 msgid "This record exists yet!"
 msgstr "Cet enregistrement existe déjà!"
 
@@ -360,60 +360,64 @@ msgstr "Fichier CSV"
 msgid "ODS file"
 msgstr "Fichier ODS"
 
-#: xfersearch.py:49
+#: xfersearch.py:50
 msgid "equals"
 msgstr "égal"
 
-#: xfersearch.py:50
+#: xfersearch.py:51
 msgid "different"
 msgstr "différent"
 
-#: xfersearch.py:51
+#: xfersearch.py:52
 msgid "inferior"
 msgstr "inférieur"
 
-#: xfersearch.py:52
+#: xfersearch.py:53
 msgid "superior"
 msgstr "supérieur"
 
-#: xfersearch.py:53
+#: xfersearch.py:54
 msgid "contains"
 msgstr "contient"
 
-#: xfersearch.py:54
+#: xfersearch.py:55
 msgid "starts with"
 msgstr "commence par"
 
-#: xfersearch.py:55
+#: xfersearch.py:56
 msgid "ends with"
 msgstr "fini par"
 
-#: xfersearch.py:56
+#: xfersearch.py:57
 msgid "or"
 msgstr "ou"
 
-#: xfersearch.py:57
+#: xfersearch.py:58
 msgid "and"
 msgstr "et"
 
-#: xfersearch.py:101
+#: xfersearch.py:102
 msgid "Your criteria of search"
 msgstr "Votre critère de recherche"
 
-#: xfersearch.py:103
+#: xfersearch.py:104
 msgid "No criteria of search"
 msgstr "Pas de critère de recherche"
 
-#: xfersearch.py:234
+#: xfersearch.py:235
 msgid "now"
 msgstr "maintenant"
 
-#: xfersearch.py:273
+#: xfersearch.py:274
 #, python-format
 msgid "%d items"
 msgstr "%d éléments"
 
-#: xfersearch.py:439
+#: xfersearch.py:294 xfersearch.py:326
+msgid "Bad value for this search !"
+msgstr "Mauvaise valeur pour cette recherche !"
+
+#: xfersearch.py:446
 msgid "New criteria"
 msgstr "Nouveau critère"
 
