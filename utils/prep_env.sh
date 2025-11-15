@@ -11,6 +11,7 @@ function debian_install
     apt-get install -y sqlite3 git sphinx libopenjp2-tools gettext
     apt-get install -y locales wget zip git
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+    timedatectl set-timezone "CET"
     sed -i 's/^.*\(en_US.UTF-8\)/\1/' /etc/locale.gen
     sed -i 's/^.*\(fr_FR.UTF-8\)/\1/' /etc/locale.gen
     locale-gen    
