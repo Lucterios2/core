@@ -30,9 +30,11 @@ function ant_install
     then
         echo ">> www.java2s.com"
         unzip ant-contrib-0.6.jar.zip
-        mv ant-contrib-0.6.jar /usr/share/java/lib/ant-contrib-0.6.jar
+        mv ant-contrib-0.6.jar /usr/share/java/lib/ant-contrib-0.6.jar || echo "no ant-contrib-0.6.jar !"
         rm -f ant-contrib-0.6.jar.zip
-    else
+    fi
+    if [ ! -f "/usr/share/java/lib/ant-contrib-0.6.jar" ]
+    then
         echo ">> sourceforge.net"
         rm -rf /tmp/ant_download
         mkdir /tmp/ant_download
