@@ -194,6 +194,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual(["inst_b"], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_b", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.set_database("sqlite")
         inst.appli_name = "lucterios.standard"
         inst.modules = ('lucterios.dummy',)
@@ -217,6 +218,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual(["inst_c"], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_d", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         list_res = self.luct_glo.listing()
         list_res.sort()
