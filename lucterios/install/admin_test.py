@@ -156,6 +156,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_a", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         self.assertEqual(["inst_a"], self.luct_glo.listing())
 
@@ -188,6 +189,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_b", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         self.assertEqual(["inst_b"], self.luct_glo.listing())
 
@@ -210,6 +212,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_c", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         self.assertEqual(["inst_c"], self.luct_glo.listing())
 
@@ -250,6 +253,7 @@ class TestAdminSQLite(BaseTest):
     def test_archive(self):
         self.assertEqual([], self.luct_glo.listing())
         inst = LucteriosInstance("inst_e", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         path_usr = join(self.path_dir, 'inst_e', 'usr', 'foo')
         makedirs(path_usr)
@@ -269,6 +273,7 @@ class TestAdminSQLite(BaseTest):
             ['dump.json', 'target', 'usr', 'usr/foo', 'usr/foo/myfile'], list_file)
 
         inst = LucteriosInstance("inst_f", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         inst.filename = join(self.path_dir, "inst_e.arc")
         self.assertEqual(True, inst.restore())
@@ -283,6 +288,7 @@ class TestAdminSQLite(BaseTest):
         self.assertEqual([], self.luct_glo.listing())
 
         inst = LucteriosInstance("inst_g", self.path_dir)
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         self.assertEqual(["inst_g"], self.luct_glo.listing())
 
