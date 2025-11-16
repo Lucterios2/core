@@ -216,7 +216,7 @@
 			<arg value="--appli=${project.appli}" />
 			<arg value="--module=${project.modules}" />
 			<arg value="--instance_path=${basedir}" />
-			<arg value="--extra=LANGUAGE_CODE=fr" />
+			<arg value='--extra={"LANGUAGE_CODE":"fr","TIME_ZONE":"Europe/Paris"}' />
 		</exec>
 	</target>
 
