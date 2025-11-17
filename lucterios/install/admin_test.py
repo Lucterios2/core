@@ -237,6 +237,7 @@ class TestAdminSQLite(BaseTest):
 
         inst = LucteriosInstance("inst_e", self.path_dir)
         inst.set_extra("DEBUG=True,ALLOWED_HOSTS=[localhost;127.0.0.1],DEFAULT_PAGE=cms/,NBMAX=5,PIVALUE=3.1415")
+        inst.set_extra('{"TIME_ZONE":"Europe/Paris"}')
         inst.add()
         self.assertEqual(["inst_e"], self.luct_glo.listing())
 
@@ -246,7 +247,7 @@ class TestAdminSQLite(BaseTest):
         inst.read()
         self.assertEqual({'DEBUG': True, '': {'mode': (0, 'Connection always needed')},
                           'ALLOWED_HOSTS': ['localhost', '127.0.0.1'], 'DEFAULT_PAGE': 'cms/',
-                          "NBMAX": 5, 'PIVALUE': 3.1415}, inst.extra)
+                          "NBMAX": 5, 'PIVALUE': 3.1415, "TIME_ZONE": "Europe/Paris"}, inst.extra)
         inst.modif()
 
         inst = LucteriosInstance("inst_e", self.path_dir)
