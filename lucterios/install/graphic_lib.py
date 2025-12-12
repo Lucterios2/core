@@ -30,16 +30,17 @@ import sys
 import webbrowser
 import os
 import signal
-from socket import socket, AF_INET, SOCK_STREAM, gethostname
+from socket import socket, AF_INET, SOCK_STREAM
 from os.path import isfile, join, dirname
 from subprocess import Popen, PIPE, STDOUT, run
-from time import sleep
+from time import sleep, tzname
 from traceback import print_exc
 from multiprocessing.context import Process
 from threading import Thread
 from logging import getLogger
 from re import compile
 from json import dumps
+from zoneinfo import available_timezones
 
 from django.utils.translation import gettext
 from django.utils.module_loading import import_module
@@ -173,6 +174,7 @@ class EditorInstance(object):
         from lucterios.framework.settings import DEFAULT_LANGUAGES
         self.mode_values = [str(gettext("CORE-connectmode.0")), str(gettext("CORE-connectmode.1")), str(gettext("CORE-connectmode.2"))]
         self.lang_values = [lang[1] for lang in DEFAULT_LANGUAGES]
+        self.timezone_values = sorted(list(available_timezones()))
         self.dbtype_values = ["SQLite", "MySQL", "PostgreSQL"]
         lct_glob = LucteriosGlobal()
         _, self.mod_applis, mod_modules = lct_glob.installed()
@@ -207,7 +209,12 @@ class EditorInstance(object):
         current_lang = get_locale_lang()
         if 'LANGUAGE_CODE' in lct_inst.extra.keys():
             current_lang = lct_inst.extra['LANGUAGE_CODE']
-        return lct_inst, applis_id, mode_id, typedb_index, current_lang
+        time_zone = 'UTC'
+        if 'TIME_ZONE' in lct_inst.extra.keys():
+            time_zone = lct_inst.extra['TIME_ZONE']
+        if time_zone not in self.timezone_values:
+            time_zone = tzname[0]
+        return lct_inst, applis_id, mode_id, typedb_index, current_lang, time_zone
 
 
 class LucteriosChecker(Thread):
@@ -390,7 +397,7 @@ class LucteriosMain(object):
     @ThreadRun
     def add_modif_inst_result(self, result, to_create):
         inst = LucteriosInstance(result[0])
-        inst.set_extra("LANGUAGE_CODE=%s" % result[5])
+        inst.set_extra('{"LANGUAGE_CODE":"%s","TIME_ZONE":"%s"}' % (result[5], result[6]))
         inst.set_appli(result[1])
         inst.set_module(result[2])
         inst.set_database(result[4])

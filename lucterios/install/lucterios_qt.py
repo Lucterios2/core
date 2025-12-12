@@ -26,7 +26,7 @@ along with Lucterios.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import unicode_literals
 from os.path import dirname, join, expanduser
-from time import sleep
+from time import sleep, tzname
 from traceback import print_exc
 from threading import Thread
 import sys
@@ -244,6 +244,8 @@ class InstanceDlg(QDialog, EditorInstance):
         layout.addRow(gettext("Modules"), self.modules)
         self.language = QComboBox()
         layout.addRow(gettext("Language"), self.language)
+        self.timezone = QComboBox()
+        layout.addRow(gettext("Time Zone"), self.timezone)
         self.mode = QComboBox()
         layout.addRow(gettext("CORE-connectmode"), self.mode)
         self.password = QLineEdit()
@@ -282,7 +284,7 @@ class InstanceDlg(QDialog, EditorInstance):
 
     def _load_current_data(self, instance_name):
         from lucterios.framework.settings import DEFAULT_LANGUAGES
-        lct_inst, applis_id, mode_id, typedb_index, current_lang = self._get_instance_elements(instance_name)
+        lct_inst, applis_id, mode_id, typedb_index, current_lang, time_zone = self._get_instance_elements(instance_name)
         self.is_new_instance = False
         self.inst_name.setText(lct_inst.name)
         self.inst_name.setEnabled(False)
@@ -294,6 +296,7 @@ class InstanceDlg(QDialog, EditorInstance):
         for lang in DEFAULT_LANGUAGES:
             if lang[0] == current_lang:
                 self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFlag.MatchFixedString))
+        self.timezone.setCurrentIndex(self.timezone.findText(time_zone, Qt.MatchFlag.MatchFixedString))
         self.password.setText('')
         self.db_type.setCurrentIndex(typedb_index)
         if 'name' in lct_inst.database[1].keys():
@@ -319,6 +322,7 @@ class InstanceDlg(QDialog, EditorInstance):
             item.setCheckable(True)
             self.modules.model().appendRow(item)
         self.language.addItems(self.lang_values)
+        self.timezone.addItems(self.timezone_values)
         self.mode.addItems(self.mode_values)
         self.db_type.addItems(self.dbtype_values)
         if instance_name is not None:
@@ -337,6 +341,7 @@ class InstanceDlg(QDialog, EditorInstance):
             for lang in DEFAULT_LANGUAGES:
                 if lang[0] == get_locale_lang():
                     self.language.setCurrentIndex(self.language.findText(lang[1], Qt.MatchFlag.MatchFixedString))
+            self.timezone.setCurrentIndex(self.timezone.findText(tzname[0], Qt.MatchFlag.MatchFixedString))
         if self.exec():
             return self.get_result()
         else:
@@ -361,7 +366,10 @@ class InstanceDlg(QDialog, EditorInstance):
         for lang in DEFAULT_LANGUAGES:
             if lang[1] == self.language.currentText():
                 current_lang = lang[0]
-        return (self.inst_name.text(), self.mod_applis[appli_id][0], ",".join(module_list), security, db_param, current_lang)
+        time_zone = 'UTC'
+        if self.timezone.currentText() in self.timezone_values:
+            time_zone = self.timezone.currentText()
+        return (self.inst_name.text(), self.mod_applis[appli_id][0], ",".join(module_list), security, db_param, current_lang, time_zone)
 
 
 class LucteriosQtMain(QMainWindow, LucteriosMain):

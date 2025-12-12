@@ -120,7 +120,7 @@ function main
 	    CurrentPath=$(dirname "$(readlink -f "$0")")
 	    cd $CurrentPath/../..
 	    [ -d $virt_name ] && rm -rf $virt_name
-	    python3 -m virtualenv --python=$PYTHONVER $virt_name
+	    $PYTHONVER -m virtualenv --python=$PYTHONVER $virt_name
 	    [ $? -ne 0 ] && echo "-- virtualenv for $PYTHONVER not create  --" && exit 2
 	    
 	    create_requirement

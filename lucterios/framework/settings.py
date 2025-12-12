@@ -150,7 +150,7 @@ DEFAULT_SETTINGS = {
                    }, ],
     'ROOT_URLCONF': 'lucterios.framework.urls',
     'LANGUAGE_CODE': get_locale_lang(),
-    'TIME_ZONE': 'CET',
+    'TIME_ZONE': 'UTC',
     'SESSION_EXPIRE_AT_BROWSER_CLOSE': True,
     'USE_I18N': True,
     'USE_TZ': True,

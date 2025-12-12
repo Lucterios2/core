@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-29 09:27+0000\n"
+"POT-Creation-Date: 2025-12-12 11:07+0100\n"
 "PO-Revision-Date: 2025-10-29 10:28+0100\n"
 "Last-Translator: Laurent Gay <l.gay@sd-libre.fr>\n"
 "Language-Team: français <>\n"
@@ -181,11 +181,11 @@ msgstr "Bad permission for '%s'"
 msgid "view"
 msgstr "view"
 
-#: tools.py:610 xfergraphic.py:161 xfersearch.py:255
+#: tools.py:613 xfergraphic.py:161 xfersearch.py:255
 msgid "Yes"
 msgstr "Yes"
 
-#: tools.py:612 xferadvance.py:40 xfersearch.py:257
+#: tools.py:615 xferadvance.py:40 xfersearch.py:257
 msgid "No"
 msgstr "No"
 

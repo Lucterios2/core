@@ -35,6 +35,8 @@ from django.utils.module_loading import import_module
 from django.views.static import serve
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.http.response import HttpResponse
+from django.core.exceptions import ImproperlyConfigured
+from django.urls.conf import path
 
 from lucterios.framework.docs import defaultDocs
 from lucterios.framework.signal_and_lock import Signal
@@ -94,21 +96,21 @@ class UrlPatterns(list):
 
     def add_ext_application(self, appname):
         try:
-            patterns = getattr(import_module('%s.urls' % appname), 'urlpatterns', None)
-            if isinstance(patterns, (list, tuple)):
-                for url_pattern in patterns:
-                    module_items = appname.split('.')
-                    if module_items[0] == 'lucterios':
-                        continue
-                    if module_items[0] == 'django':
+            module_items = appname.split('.')
+            if module_items[0] == 'lucterios':
+                return
+            if module_items[0] == 'django':
+                patterns = getattr(import_module('%s.urls' % appname), 'urlpatterns', None)
+                if isinstance(patterns, (list, tuple)):
+                    for url_pattern in patterns:
                         self.append(url_pattern)
-                    else:
-                        try:
-                            self.append(re_path(r"^%s/%s" % (module_items[-1], url_pattern.pattern._regex[1:]),
-                                                url_pattern.callback, None, url_pattern.pattern.name))
-                        except AttributeError:
-                            print('-- error', appname, url_pattern.pattern, url_pattern.pattern.name)
-        except ImportError:
+                return
+            url_app = getattr(import_module(appname), 'urls', None)
+            if url_app:
+                self.append(path('%s/' % appname, include(url_app)))
+            else:
+                self.append(path('%s/' % appname, include("%s.urls" % appname, namespace=appname)))
+        except (ImportError, ImproperlyConfigured):
             pass
 
     def add_plugins(self):

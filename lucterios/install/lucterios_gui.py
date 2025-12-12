@@ -28,7 +28,7 @@ from __future__ import unicode_literals
 
 import sys
 from os.path import join, dirname, expanduser
-from time import sleep
+from time import sleep, tzname
 
 from django.utils.module_loading import import_module
 from django.utils.translation import gettext
@@ -172,17 +172,23 @@ class InstanceEditor(Toplevel, EditorInstance):
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.language.grid(
             row=3, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+        Label(self.frm_general, text=gettext("Time Zone")).grid(
+            row=4, column=0, sticky=(N, W), padx=5, pady=3)
+        self.timezone = ttk.Combobox(
+            self.frm_general, textvariable=StringVar(), state=READLONY)
+        self.timezone.grid(
+            row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
         Label(self.frm_general, text=gettext("CORE-connectmode")
-              ).grid(row=4, column=0, sticky=(N, W), padx=5, pady=3)
+              ).grid(row=5, column=0, sticky=(N, W), padx=5, pady=3)
         self.mode = ttk.Combobox(
             self.frm_general, textvariable=StringVar(), state=READLONY)
         self.mode.bind("<<ComboboxSelected>>", self.mode_selection)
-        self.mode.grid(row=4, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+        self.mode.grid(row=5, column=1, sticky=(N, S, E, W), padx=5, pady=3)
         Label(self.frm_general, text=gettext("Password")).grid(
-            row=5, column=0, sticky=(N, W), padx=5, pady=3)
+            row=6, column=0, sticky=(N, W), padx=5, pady=3)
         self.password = Entry(self.frm_general, show="*")
         self.password.grid(
-            row=5, column=1, sticky=(N, S, E, W), padx=5, pady=3)
+            row=6, column=1, sticky=(N, S, E, W), padx=5, pady=3)
 
     def typedb_selection(self, event):
 
@@ -238,13 +244,16 @@ class InstanceEditor(Toplevel, EditorInstance):
         for lang in DEFAULT_LANGUAGES:
             if lang[1] == self.language.get():
                 current_lang = lang[0]
+        time_zone = 'UTC'
+        if self.timezone.get() in self.timezone_values:
+            time_zone = self.timezone.get()
         self.result = (self.name.get(), self.mod_applis[appli_id][
-                       0], ",".join(module_list), security, db_param, current_lang)
+                       0], ",".join(module_list), security, db_param, current_lang, time_zone)
         self.destroy()
 
     def _load_current_data(self, instance_name):
         from lucterios.framework.settings import DEFAULT_LANGUAGES
-        lct_inst, applis_id, mode_id, typedb_index, current_lang = self._get_instance_elements(instance_name)
+        lct_inst, applis_id, mode_id, typedb_index, current_lang, time_zone = self._get_instance_elements(instance_name)
 
         self.is_new_instance = False
         self.name.delete(0, END)
@@ -273,6 +282,7 @@ class InstanceEditor(Toplevel, EditorInstance):
         for lang in DEFAULT_LANGUAGES:
             if lang[0] == current_lang:
                 self.language.current(self.language[VALUES].index(lang[1]))
+        self.timezone.current(self.timezone[VALUES].index(time_zone))
 
     def execute(self, instance_name=None):
         from lucterios.framework.settings import DEFAULT_LANGUAGES, get_locale_lang
@@ -286,6 +296,7 @@ class InstanceEditor(Toplevel, EditorInstance):
 
         self.mode[VALUES] = self.mode_values
         self.language[VALUES] = self.lang_values
+        self.timezone[VALUES] = self.timezone_values
         self.typedb[VALUES] = self.dbtype_values
         self.applis[VALUES] = self.appli_list
         if instance_name is not None:
@@ -301,6 +312,7 @@ class InstanceEditor(Toplevel, EditorInstance):
             for lang in DEFAULT_LANGUAGES:
                 if lang[0] == get_locale_lang():
                     self.language.current(self.language[VALUES].index(lang[1]))
+            self.timezone.current(self.timezone[VALUES].index(tzname[0]))
         center(self)
 
 
