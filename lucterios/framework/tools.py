@@ -595,7 +595,7 @@ def adapt_value(value):
 def get_date_formating(date_value):
     from zoneinfo import ZoneInfo
     import time as time_mod
-    zi=ZoneInfo(time_mod.tzname[0])
+    zi = ZoneInfo(time_mod.tzname[0])
     if isinstance(date_value, datetime):
         value = format_datetime(date_value, format='full', locale=locale.getlocale()[0], tzinfo=zi)
         return value[:value.index(':') + 3]
