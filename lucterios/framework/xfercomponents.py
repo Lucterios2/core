@@ -410,6 +410,7 @@ class XferCompStep(XferCompButton):
         self.max = int(maxval)
         self.value = 1
         self.needed = True
+        self.enabled = True
 
     def set_value(self, value):
         if value is None:
@@ -429,9 +430,13 @@ class XferCompStep(XferCompButton):
         else:
             return int(self.value)
 
+    def set_enabled(self, value):
+        self.enabled = bool(value)
+
     def get_json(self):
         compjson = XferCompButton.get_json(self)
         compjson['max'] = self.max
+        compjson['enabled'] = self.enabled
         return compjson
 
 
