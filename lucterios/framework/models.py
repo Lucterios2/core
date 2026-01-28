@@ -34,7 +34,7 @@ from django.db import models, transaction
 from django.db.models import Count, Q
 from django.db.models.query import QuerySet
 from django.db.models.deletion import ProtectedError
-from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField
+from django.db.models.fields import BooleanField, DateTimeField, TimeField, DateField, IntegerField, FloatField
 from django.apps.registry import apps
 from django.core.exceptions import FieldDoesNotExist, ValidationError, ObjectDoesNotExist
 from django.contrib.sessions.models import Session
@@ -323,7 +323,11 @@ class LucteriosModel(models.Model):
                 if order_fd[0] == '-':
                     order_fd = order_fd[1:]
                 if order_fd in rowdata.keys():
-                    query[order_fd + '__iexact'] = rowdata[order_fd]
+                    order_field = cls.get_field_by_name(order_fd)
+                    if isinstance(order_field, IntegerField) or isinstance(order_field, FloatField):
+                        query[order_fd] = rowdata[order_fd]
+                    else:
+                        query[order_fd + '__iexact'] = rowdata[order_fd]
         if len(query) > 0:
             search = cls.objects.filter(**query)
             if len(search) > 0:

@@ -601,13 +601,16 @@ def get_date_formating(date_value):
     except ZoneInfoNotFoundError:
         import time as time_mod
         zi = ZoneInfo(time_mod.tzname[0])
+    current_locale = locale.getlocale()[0]
+    if current_locale is None:
+        current_locale = settings.LANGUAGE_CODE
     if isinstance(date_value, datetime):
-        value = format_datetime(date_value, format='full', locale=locale.getlocale()[0], tzinfo=zi)
+        value = format_datetime(date_value, format='full', locale=current_locale, tzinfo=zi)
         return value[:value.index(':') + 3]
     if isinstance(date_value, date):
-        return format_date(date_value, format='long', locale=locale.getlocale()[0])
+        return format_date(date_value, format='long', locale=current_locale)
     if isinstance(date_value, time):
-        return format_time(date_value, format='HH:mm', locale=locale.getlocale()[0], tzinfo=zi)
+        return format_time(date_value, format='HH:mm', locale=current_locale, tzinfo=zi)
     else:
         return date_value
 
