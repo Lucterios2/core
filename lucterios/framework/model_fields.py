@@ -38,6 +38,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.base import ConflictingIdError
+from lucterios.framework.tools import get_date_formating
 
 
 class AbsoluteValue(Transform):
@@ -298,7 +299,7 @@ class GeneralPrintPlugin(PrintFieldsPlugIn):
         res = text_to_evaluate
         res = res.replace('#today_short', formats.date_format(current_datetime, "SHORT_DATE_FORMAT"))
         res = res.replace('#today_long', formats.date_format(current_datetime, "DATE_FORMAT"))
-        res = res.replace('#hour', formats.date_format(current_datetime, "TIME_FORMAT"))
+        res = res.replace('#hour', get_date_formating(current_datetime.time()))
         return res
 
 
