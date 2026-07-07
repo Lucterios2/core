@@ -16,6 +16,8 @@ class JUXDTestResult(TextTestResult):
 
     def __init__(self, stream, descriptions, verbosity):
         TextTestResult.__init__(self, stream, descriptions, verbosity)
+        import time
+        self.case_start_time = time.time()
         try:
             self.xml_filename = settings.JUXD_FILENAME
         except ImproperlyConfigured:
@@ -23,8 +25,7 @@ class JUXDTestResult(TextTestResult):
 
     def startTest(self, test):
         import time
-        self.case_start_time = time.time(
-        )
+        self.case_start_time = time.time()
         super(JUXDTestResult, self).startTest(test)
 
     def addSuccess(self, test):

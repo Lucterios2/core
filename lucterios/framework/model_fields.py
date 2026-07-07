@@ -249,7 +249,10 @@ def transition(field, source="*", target=None, conditions=[]):
             transition = FSMIntegerField.Transition(funct.__name__, source, target, conditions)
             field.transitions.append(transition)
             setattr(funct, "_meta", transition)
-            wrapper = field.state_field.transition(source=source, target=target, conditions=conditions)
+            kwargs = {"source": source, "conditions": conditions}
+            if target is not None:
+                kwargs["target"] = target
+            wrapper = field.state_field.transition(**kwargs)
             funct = wrapper(funct)
         return funct
 
