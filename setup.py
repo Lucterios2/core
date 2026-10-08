@@ -48,10 +48,10 @@ setup(
         'Natural Language :: English',
         'Natural Language :: French',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Topic :: Database :: Front-Ends',
     ],
     packages=["lucterios", "lucterios.CORE",
@@ -64,5 +64,5 @@ setup(
         "lucterios.framework": ['locale/*/*/*', 'fonts/*', 'mdi-icons/*'],
         "lucterios.install": ['lucterios.png', 'locale/*/*/*'],
     },
-    install_requires=["pip", "importlib-metadata", "Django ~=5.2", "django-viewflow ~=2.3", "lxml ~=6.0", "lxml_html_clean", "Pillow ==11.3.0", "CairoSVG ~=2.8", "reportlab ~=4.4", "APScheduler ~=3.11", "Babel ==2.17.0", "PyQt6 ==6.9.1", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=2.3", "waitress"],
+    install_requires=["pip", "importlib-metadata", "Django ~=5.2", "django-viewflow ~=2.4", "lxml ~=6.1", "lxml_html_clean", "Pillow ==12.3.0", "CairoSVG ~=2.9", "reportlab ~=5.0", "APScheduler ~=3.11", "Babel ==2.18.0", "PyQt6 ==6.11.0", "odfpy ~=1.4", "openpyxl ~=3.1", "xlrd ~=2.0", "pandas ~=3.0", "waitress"],
 )
